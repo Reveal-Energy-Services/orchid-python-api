@@ -23,3 +23,7 @@ The next diagram models the classes and functions but assigns them to layers. Ag
 may actually be a simple python function.
 
 ![Classes/Functions in Layers](./layer-structure.png)
+
+Finally, the following diagram assigns classes to layers.
+
+![Classes/Functions Assigned to Layers](./layer-classes.png)
