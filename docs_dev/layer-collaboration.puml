@@ -2,27 +2,35 @@
 
 title Collaborations Across Layers
 
-participant TrajectoryPlotter
-participant Vector
-participant "Project\nCoordinator" as pc
-participant ProjectLoader
-participant "Fracture\nDiagnostics\nFactory" as fdf
+participant "Trajectory\nPlotter" as tp
+participant "Trajectory\nCoordinator" as tc
+participant "Project\nLoader" as pl
+participant "Script\nAdapter" as sa
+participant IProjectReader
 participant IProject
-participant ProjectAdapter
+participant "Project\nAdapter" as pa
 
-TrajectoryPlotter -> pc: with open_project(path)
-pc -> ProjectLoader: load_project(path)
-create fdf
-ProjectLoader -> fdf: __init__()
-ProjectLoader -> fdf: LoadProject(path)
-ProjectLoader --> pc : native_project
-create ProjectAdapter
-pc -> ProjectAdapter: new(native_project)
-pc -> TrajectoryPlotter : opened_project
-TrajectoryPlotter -> ProjectAdapter : trajectory_points(reference_frame_xy, depth_datum)
-loop all trajectories
-    TrajectoryPlotter -> Vector: map(project_xy)
-    TrajectoryPlotter -> TrajectoryPlotter : plot(trajectory_points)
+tp -> tc: with\n  open_project\n  (path, tz)
+tc -> pl: load_project\n  (path, tz)
+create sa
+pl -> sa: Create\nProject\nFileReader()
+create IProjectReader
+sa -> IProjectReader : new()
+sa --> pl : project_reader
+pl -> IProjectReader: Read(path, tz)
+create IProject
+IProjectReader -> IProject : native_project\n  = new()
+IProjectReader --> pl : native_project
+pl --> tc : native_project
+create pa
+tc -> pa: opened_project = new(native_project)
+tc --> tp : opened_project
+tp -> pa : trajectory_points(reference_frame_xy, depth_datum)
+tp -> pa : well_ids()
+loop all well_ids
+    tp -> pa : points_3d = trajectory(well_id, reference_frame_xy, depth_datum)
+    tp -> tp: points_2d = project_xy
+    tp -> tp : plot(points_2d)
 end loop
 
 @enduml
