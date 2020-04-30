@@ -20,6 +20,11 @@ The last application demonstrates using `image_frac` package and Pandas to perfo
 
 # Getting Started
 
+## Overview
+
+To understand the structure of the code, the [development README](./docs_dev/README.md) contains an overview of 
+the application / package design.
+
 ## Development
 
 To avoid "contamination" of other python environments, we use [pipenv](https://pipenv.pypa.io/en/stable/) to manage our

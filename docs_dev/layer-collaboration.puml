@@ -1,0 +1,28 @@
+@startuml
+
+title Collaborations Across Layers
+
+participant TrajectoryPlotter
+participant Vector
+participant "Project\nCoordinator" as pc
+participant ProjectLoader
+participant "Fracture\nDiagnostics\nFactory" as fdf
+participant IProject
+participant ProjectAdapter
+
+TrajectoryPlotter -> pc: with open_project(path)
+pc -> ProjectLoader: load_project(path)
+create fdf
+ProjectLoader -> fdf: __init__()
+ProjectLoader -> fdf: LoadProject(path)
+ProjectLoader --> pc : native_project
+create ProjectAdapter
+pc -> ProjectAdapter: new(native_project)
+pc -> TrajectoryPlotter : opened_project
+TrajectoryPlotter -> ProjectAdapter : trajectory_points(reference_frame_xy, depth_datum)
+loop all trajectories
+    TrajectoryPlotter -> Vector: map(project_xy)
+    TrajectoryPlotter -> TrajectoryPlotter : plot(trajectory_points)
+end loop
+
+@enduml
