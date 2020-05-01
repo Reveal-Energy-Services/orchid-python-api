@@ -1,0 +1,34 @@
+@startuml
+
+title Classes and Functions Across Layers
+
+class TrajectoryPlotter {
+    project_trajectory()
+    plot(numpy.ndarray)
+}
+class TrajectoryCoordinator {
+    open(path) : ProjectAdapter
+}
+class ProjectLoader {
+    load(path) : IProject
+}
+class ProjectAdapter {
+    well_ids() : iterable[well_id]
+    trajectory(well_id,\n  reference_frame,\n  depth_datum) :\n  numpy.ndarray
+}
+class ScriptAdapter {
+    CreateProjectFileReader()\n  : IProjectReader
+}
+interface IProjectReader {
+    Read(fileName, tz): IProject
+}
+
+TrajectoryPlotter --> TrajectoryCoordinator
+TrajectoryPlotter --> ProjectAdapter : uses
+TrajectoryCoordinator --> ProjectLoader
+TrajectoryCoordinator --> ProjectAdapter : creates
+ProjectLoader --> ScriptAdapter : creates\n  IProjectReader
+ScriptAdapter --> IProjectReader
+ProjectLoader --> IProjectReader : creates\n  IProject
+
+@enduml

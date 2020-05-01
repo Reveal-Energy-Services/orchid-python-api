@@ -1,0 +1,33 @@
+@startuml
+
+title Layers and Classes
+
+package ExternalUI {
+    class TrajectoryPlotter
+}
+package Adapter {
+    class ProjectAdapter
+}
+
+package UseCaseCoordinator {
+    class ProjectCoordinator
+}
+
+package ImageFrac4 {
+    class ProjectLoader
+    class ScriptAdapter
+    interface IProjectReader
+    interface IProject
+}
+
+TrajectoryPlotter --> ProjectCoordinator
+TrajectoryPlotter --> ProjectAdapter
+ProjectCoordinator --> ProjectAdapter
+ProjectCoordinator --> ProjectLoader
+ProjectCoordinator --> IProject
+ProjectLoader --> ScriptAdapter
+ProjectLoader --> IProjectReader
+ProjectLoader -> IProject
+ProjectAdapter --> IProject
+
+@enduml
