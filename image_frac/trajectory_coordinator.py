@@ -14,16 +14,41 @@
 
 import datetime
 import os
+import uuid
+from typing import Mapping
 
-import image_frac
+import numpy
+
+from .project_adapter import ProjectAdapter
 
 
-def build_project(pathname: os.PathLike, timezone: datetime.tzinfo) -> image_frac.ProjectAdapter:
-    """
-    Returns the ProjectAdapter for the project whose data is in pathname
+class TrajectoryCoordinator:
+    """Provides services to support using trajectories."""
 
-    :param pathname: Identifies the data file for the project of interest.
-    :param timezone: The timezone for the project of interest.
-    """
-    result = image_frac.ProjectAdapter()
-    return result
+    def __init__(self, pathname: os.PathLike, timezone: datetime.tzinfo):
+        """
+        Initializes an instance for the project whose data is in pathname with the specified time zone
+
+        :param pathname: Identifies the data file for the project of interest.
+        :param timezone: The timezone for the project of interest.
+        """
+        self._pathname = pathname
+        self._project_timezone = timezone
+        self._project = None
+
+    def trajectories_for_all_wells(self, reference_frame_xy: str, depth_datum: str) -> Mapping[uuid.UUID,
+                                                                                               numpy.ndarray]:
+        result = {well_id: self._get_project().trajectory_points(well_id, reference_frame_xy, depth_datum)
+                  for well_id in self._get_project().well_ids()}
+        return result
+
+    def _get_project(self) -> ProjectAdapter:
+        """
+        Returns the ProjectAdapter wrapping the project of interest.
+
+        This function is a self-initializing function; that is, if _project has not yet been initialized,
+        it will initialize it.
+        """
+        if not self._project:
+            self._project = ProjectAdapter()
+        return self._project

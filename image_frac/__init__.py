@@ -12,4 +12,5 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from .trajectory_coordinator import TrajectoryCoordinator
 from .project_adapter import ProjectAdapter

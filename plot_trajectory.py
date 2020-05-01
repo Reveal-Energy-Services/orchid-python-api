@@ -19,7 +19,7 @@ import uuid
 import numpy
 import dateutil.tz
 
-import image_frac.trajectory_coordinator as trajectory_coordinator
+import image_frac
 
 
 def plot_trajectories(trajectory_points:  Mapping[uuid.UUID, numpy.ndarray]):
@@ -34,7 +34,5 @@ if __name__ == '__main__':
     parser.add_argument('pathname', help="Path name of the IMAGEFrac project file ('.ifrac').")
 
     options = parser.parse_args()
-    project = trajectory_coordinator.build_project(options.pathname, dateutil.tz.UTC)
-    trajectories_for_wells = {well_id:  project.trajectory_points(well_id, 'project', 'kelly_bushing')
-                              for well_id in project.well_ids()}
-    plot_trajectories(trajectories_for_wells)
+    coordinator = image_frac.TrajectoryCoordinator(options.pathname, dateutil.tz.UTC)
+    plot_trajectories(coordinator.trajectories_for_all_wells('project', 'kelly_bushing'))
