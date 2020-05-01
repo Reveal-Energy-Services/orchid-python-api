@@ -16,3 +16,7 @@ python-dateutil = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+plot_trajectory = "python plot_trajectory.py"
+

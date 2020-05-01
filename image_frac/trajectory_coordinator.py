@@ -12,4 +12,18 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from .project_adapter import ProjectAdapter
+import datetime
+import os
+
+import image_frac
+
+
+def build_project(pathname: os.PathLike, timezone: datetime.tzinfo) -> image_frac.ProjectAdapter:
+    """
+    Returns the ProjectAdapter for the project whose data is in pathname
+
+    :param pathname: Identifies the data file for the project of interest.
+    :param timezone: The timezone for the project of interest.
+    """
+    result = image_frac.ProjectAdapter()
+    return result
