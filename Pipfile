@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 sphinx = "*"
 ipython = "*"
+pyhamcrest = "*"
 behave = "*"
 
 [packages]
@@ -19,4 +20,3 @@ python_version = "3.7"
 
 [scripts]
 plot_trajectory = "python plot_trajectory.py"
-
