@@ -10,9 +10,9 @@ behave = "*"
 
 [packages]
 pythonnet = "*"
-pytz = "*"
 pandas = "*"
 numpy = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.7"
