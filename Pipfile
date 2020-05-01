@@ -12,6 +12,7 @@ behave = "*"
 pythonnet = "*"
 pytz = "*"
 pandas = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"
