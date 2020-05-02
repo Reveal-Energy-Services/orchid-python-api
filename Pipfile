@@ -14,6 +14,7 @@ pythonnet = "*"
 pandas = "*"
 numpy = "*"
 python-dateutil = "*"
+vectormath = "*"
 
 [requires]
 python_version = "3.7"

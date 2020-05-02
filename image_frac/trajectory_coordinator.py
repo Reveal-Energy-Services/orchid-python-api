@@ -13,11 +13,10 @@
 #
 
 import datetime
-import os
 import uuid
 from typing import Mapping
 
-import numpy
+import vectormath as vmath
 
 from .project_adapter import ProjectAdapter
 
@@ -25,7 +24,7 @@ from .project_adapter import ProjectAdapter
 class TrajectoryCoordinator:
     """Provides services to support using trajectories."""
 
-    def __init__(self, pathname: os.PathLike, timezone: datetime.tzinfo):
+    def __init__(self, pathname: str, timezone: datetime.tzinfo):
         """
         Initializes an instance for the project whose data is in pathname with the specified time zone
 
@@ -37,7 +36,7 @@ class TrajectoryCoordinator:
         self._project = None
 
     def trajectories_for_all_wells(self, reference_frame_xy: str, depth_datum: str) -> Mapping[uuid.UUID,
-                                                                                               numpy.ndarray]:
+                                                                                               vmath.Vector3Array]:
         result = {well_id: self._get_project().trajectory_points(well_id, reference_frame_xy, depth_datum)
                   for well_id in self._get_project().well_ids()}
         return result
