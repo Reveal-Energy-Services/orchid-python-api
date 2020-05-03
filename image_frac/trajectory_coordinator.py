@@ -38,9 +38,8 @@ class TrajectoryCoordinator:
         self._project_timezone = timezone
         self._project = None
 
-    def trajectories_for_all_wells(self, reference_frame_xy: str, depth_datum: str) -> Mapping[uuid.UUID,
-                                                                                               vmath.Vector3Array]:
-        result = {well_id: self._get_project().trajectory_points(well_id, reference_frame_xy, depth_datum)
+    def trajectories_for_all_wells(self) -> Mapping[uuid.UUID, vmath.Vector3Array]:
+        result = {well_id: self._get_project().trajectory_points(well_id)
                   for well_id in self._get_project().well_ids()}
         return result
 

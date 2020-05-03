@@ -35,4 +35,4 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
     coordinator = image_frac.TrajectoryCoordinator(options.pathname, dateutil.tz.UTC)
-    plot_trajectories(coordinator.trajectories_for_all_wells('project', 'kelly_bushing'))
+    plot_trajectories(coordinator.trajectories_for_all_wells())

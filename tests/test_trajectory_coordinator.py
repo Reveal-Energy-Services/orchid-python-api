@@ -55,7 +55,7 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
     def test_no_wells_produces_no_trajectories():
         sut = image_frac.TrajectoryCoordinator('dont_care', dateutil.tz.UTC)
 
-        assert_that(sut.trajectories_for_all_wells('dont_care', 'dont_care'), equal_to({}))
+        assert_that(sut.trajectories_for_all_wells(), equal_to({}))
 
     @staticmethod
     @unittest.mock.patch('image_frac.trajectory_coordinator.ProjectAdapter', name='mock_project_adapter')
@@ -66,17 +66,17 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
         expected_trajectory_points = vmath.Vector3Array([[720486, 6825178, -6315],
                                                          [720578, 6285197, -6312], [720669, 6825221,  -6312]])
 
-        def trajectory_points_returns(well_id, reference_frame, depth_datum):
+        def trajectory_points_returns(well_id):
             # Passing a function to `side_effect` invokes the function with the **actual** arguments passed to
             # call. I look up these actual arguments in a dictionary of expected results. If the actual
             # arguments are **not** present in the results, I return the `DEFAULT` value (a newly created Mock).
-            results = {(one_well_id, 'project', 'kelly_bushing'): expected_trajectory_points}
-            return results.get((well_id, reference_frame, depth_datum), unittest.mock.DEFAULT)
+            results = {one_well_id: expected_trajectory_points}
+            return results.get(well_id, unittest.mock.DEFAULT)
         project.trajectory_points.side_effect = trajectory_points_returns
 
         sut = image_frac.TrajectoryCoordinator('dont_care', dateutil.tz.UTC)
 
-        actual_trajectories = sut.trajectories_for_all_wells('project', 'kelly_bushing')
+        actual_trajectories = sut.trajectories_for_all_wells()
         assert_that(len(actual_trajectories), equal_to(1))
         # noinspection PyTypeChecker
         assert_that(actual_trajectories.keys(), contains_exactly(one_well_id))
@@ -97,18 +97,18 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
                                       vmath.Vector3Array([[149580, 1469502, -2482],
                                                           [149656, 1469447, -2486], [149727, 1469385, -2483]])]
 
-        def trajectory_points_returns(well_id, reference_frame, depth_datum):
+        def trajectory_points_returns(well_id):
             # Passing a function to `side_effect` invokes the function with the **actual** arguments passed to
             # call. I look up these actual arguments in a dictionary of expected results. If the actual
             # arguments are **not** present in the results, I return the `DEFAULT` value (a newly created Mock).
-            results = {(well_id, 'project', 'kelly_bushing'): trajectory
+            results = {well_id: trajectory
                        for (well_id, trajectory) in zip(many_well_ids, expected_trajectory_points)}
-            return results.get((well_id, reference_frame, depth_datum), unittest.mock.DEFAULT)
+            return results.get(well_id, unittest.mock.DEFAULT)
         project.trajectory_points.side_effect = trajectory_points_returns
 
         sut = image_frac.TrajectoryCoordinator('dont_care', dateutil.tz.UTC)
 
-        actual_trajectories = sut.trajectories_for_all_wells('project', 'kelly_bushing')
+        actual_trajectories = sut.trajectories_for_all_wells()
         assert_that(len(actual_trajectories), equal_to(3))
         # noinspection PyTypeChecker
         assert_that(actual_trajectories.keys(), contains_exactly(*many_well_ids))

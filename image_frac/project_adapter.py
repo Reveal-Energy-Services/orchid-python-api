@@ -15,19 +15,17 @@
 import uuid
 from typing import Sequence
 
-import numpy
+import vectormath as vmath
 
 
 class ProjectAdapter:
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
-    def trajectory_points(self, well_id: uuid.UUID, reference_frame: str, depth_datum: str) -> numpy.ndarray:
+    def trajectory_points(self, well_id: uuid.UUID) -> vmath.Vector3Array:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
 
         :param well_id: Identifies a specific well in the project.
-        :param reference_frame: Identifies the x-y reference frame used to calculate the points of the trajectory.
-        :param depth_datum: Identifies the depth datum used to calculate the points of the trajectory.
         """
         pass
 
