@@ -15,7 +15,6 @@
 import unittest.mock
 import uuid
 
-import dateutil.tz
 import deal
 from hamcrest import assert_that, equal_to, contains_exactly, calling, raises
 import numpy as np
@@ -33,27 +32,22 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
 
     @staticmethod
     def test_ctor_null_pathname_raises_exception():
-        assert_that(calling(image_frac.TrajectoryCoordinator).with_args(None, dateutil.tz.UTC),
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args(None),
                     raises(deal.PreContractError))
 
     @staticmethod
     def test_ctor_empty_pathname_raises_exception():
-        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('', dateutil.tz.UTC),
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args(''),
                     raises(deal.PreContractError))
 
     @staticmethod
     def test_ctor_whitespace_pathname_raises_exception():
-        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('\n', dateutil.tz.UTC),
-                    raises(deal.PreContractError))
-
-    @staticmethod
-    def test_ctor_null_timezone_raises_exception():
-        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('dont_care', None),
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('\n'),
                     raises(deal.PreContractError))
 
     @staticmethod
     def test_no_wells_produces_no_trajectories():
-        sut = image_frac.TrajectoryCoordinator('dont_care', dateutil.tz.UTC)
+        sut = image_frac.TrajectoryCoordinator('dont_care')
 
         assert_that(sut.trajectories_for_all_wells(), equal_to({}))
 
@@ -74,7 +68,7 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
             return results.get(well_id, unittest.mock.DEFAULT)
         project.trajectory_points.side_effect = trajectory_points_returns
 
-        sut = image_frac.TrajectoryCoordinator('dont_care', dateutil.tz.UTC)
+        sut = image_frac.TrajectoryCoordinator('dont_care')
 
         actual_trajectories = sut.trajectories_for_all_wells()
         assert_that(len(actual_trajectories), equal_to(1))
@@ -106,7 +100,7 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
             return results.get(well_id, unittest.mock.DEFAULT)
         project.trajectory_points.side_effect = trajectory_points_returns
 
-        sut = image_frac.TrajectoryCoordinator('dont_care', dateutil.tz.UTC)
+        sut = image_frac.TrajectoryCoordinator('dont_care')
 
         actual_trajectories = sut.trajectories_for_all_wells()
         assert_that(len(actual_trajectories), equal_to(3))

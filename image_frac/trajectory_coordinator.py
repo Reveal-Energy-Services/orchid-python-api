@@ -12,7 +12,6 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
 import uuid
 from typing import Mapping
 
@@ -25,17 +24,15 @@ from .project_adapter import ProjectAdapter
 class TrajectoryCoordinator:
     """Provides services to support using trajectories."""
 
-    @deal.pre(lambda self, pathname, timezone: pathname is not None and timezone is not None)
-    @deal.pre(lambda self, pathname, timezone: len(pathname.strip()) != 0)
-    def __init__(self, pathname: str, timezone: datetime.tzinfo):
+    @deal.pre(lambda self, pathname: pathname is not None)
+    @deal.pre(lambda self, pathname: len(pathname.strip()) != 0)
+    def __init__(self, pathname: str):
         """
         Initializes an instance for the project whose data is in pathname with the specified time zone
 
         :param pathname: Identifies the data file for the project of interest.
-        :param timezone: The timezone for the project of interest.
         """
         self._pathname = pathname
-        self._project_timezone = timezone
         self._project = None
 
     def trajectories_for_all_wells(self) -> Mapping[uuid.UUID, vmath.Vector3Array]:

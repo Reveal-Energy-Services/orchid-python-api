@@ -17,7 +17,6 @@ from typing import Mapping
 import uuid
 
 import numpy
-import dateutil.tz
 
 import image_frac
 
@@ -34,5 +33,5 @@ if __name__ == '__main__':
     parser.add_argument('pathname', help="Path name of the IMAGEFrac project file ('.ifrac').")
 
     options = parser.parse_args()
-    coordinator = image_frac.TrajectoryCoordinator(options.pathname, dateutil.tz.UTC)
+    coordinator = image_frac.TrajectoryCoordinator(options.pathname)
     plot_trajectories(coordinator.trajectories_for_all_wells())
