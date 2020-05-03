@@ -16,12 +16,12 @@ import argparse
 from typing import Mapping
 import uuid
 
-import numpy
+import vectormath as vmath
 
 import image_frac
 
 
-def plot_trajectories(trajectory_points:  Mapping[uuid.UUID, numpy.ndarray]):
+def plot_trajectories(trajectory_points:  Mapping[uuid.UUID, vmath.Vector3Array]):
     """
     :param trajectory_points: The mapping between wells and trajectories to be plotted.
     """
