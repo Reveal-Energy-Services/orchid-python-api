@@ -16,7 +16,8 @@ import unittest.mock
 import uuid
 
 import dateutil.tz
-from hamcrest import assert_that, equal_to, contains_exactly
+import deal
+from hamcrest import assert_that, equal_to, contains_exactly, calling, raises
 import numpy as np
 import vectormath as vmath
 
@@ -29,6 +30,26 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
+
+    @staticmethod
+    def test_ctor_null_pathname_raises_exception():
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args(None, dateutil.tz.UTC),
+                    raises(deal.PreContractError))
+
+    @staticmethod
+    def test_ctor_empty_pathname_raises_exception():
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('', dateutil.tz.UTC),
+                    raises(deal.PreContractError))
+
+    @staticmethod
+    def test_ctor_whitespace_pathname_raises_exception():
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('\n', dateutil.tz.UTC),
+                    raises(deal.PreContractError))
+
+    @staticmethod
+    def test_ctor_null_timezone_raises_exception():
+        assert_that(calling(image_frac.TrajectoryCoordinator).with_args('dont_care', None),
+                    raises(deal.PreContractError))
 
     @staticmethod
     def test_no_wells_produces_no_trajectories():

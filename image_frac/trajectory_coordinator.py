@@ -16,6 +16,7 @@ import datetime
 import uuid
 from typing import Mapping
 
+import deal
 import vectormath as vmath
 
 from .project_adapter import ProjectAdapter
@@ -24,6 +25,8 @@ from .project_adapter import ProjectAdapter
 class TrajectoryCoordinator:
     """Provides services to support using trajectories."""
 
+    @deal.pre(lambda self, pathname, timezone: pathname is not None and timezone is not None)
+    @deal.pre(lambda self, pathname, timezone: len(pathname.strip()) != 0)
     def __init__(self, pathname: str, timezone: datetime.tzinfo):
         """
         Initializes an instance for the project whose data is in pathname with the specified time zone
