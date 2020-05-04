@@ -33,5 +33,6 @@ if __name__ == '__main__':
     parser.add_argument('pathname', help="Path name of the IMAGEFrac project file ('.ifrac').")
 
     options = parser.parse_args()
+    # TODO: Consider using DI (dependency injection) to manage construction
     coordinator = image_frac.TrajectoryCoordinator(options.pathname)
     plot_trajectories(coordinator.trajectories_for_all_wells())

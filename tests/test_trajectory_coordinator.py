@@ -52,7 +52,7 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
         assert_that(sut.trajectories_for_all_wells(), equal_to({}))
 
     @staticmethod
-    @unittest.mock.patch('image_frac.trajectory_coordinator.ProjectAdapter', name='mock_project_adapter')
+    @unittest.mock.patch('image_frac.trajectory_coordinator.ProjectAdapter', name='mock_project_adapter', autospec=True)
     def test_one_well_produces_one_trajectory(mock_project_adapter):
         project = mock_project_adapter.return_value
         one_well_id = uuid.UUID('8a0ea32ed8d244b0a07b120b911a2b4f')
@@ -78,7 +78,7 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
             np.testing.assert_array_equal(actual, expected)
 
     @staticmethod
-    @unittest.mock.patch('image_frac.trajectory_coordinator.ProjectAdapter', name='mock_project_adapter')
+    @unittest.mock.patch('image_frac.trajectory_coordinator.ProjectAdapter', name='mock_project_adapter', autospec=True)
     def test_many_wells_produces_many_trajectories(mock_project_adapter):
         project = mock_project_adapter.return_value
         many_well_ids = [uuid.UUID(i) for i in ['2f3b8e73a7724bbf960f4ed40eabc2c5',

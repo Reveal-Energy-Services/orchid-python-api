@@ -17,9 +17,19 @@ from typing import Sequence
 
 import vectormath as vmath
 
+from .project_loader import ProjectLoader
+
 
 class ProjectAdapter:
     """Adapts a .NET `IProject` to a Pythonic interface."""
+
+    def __init__(self, project_loader: ProjectLoader):
+        """
+        Construct an instance adapting he project available from project_loader.
+
+        :param project_loader: Loads an IProject to be adapted.
+        """
+        self._project_loader = project_loader
 
     def trajectory_points(self, well_id: uuid.UUID) -> vmath.Vector3Array:
         """
