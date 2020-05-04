@@ -6,12 +6,20 @@ verify_ssl = true
 [dev-packages]
 sphinx = "*"
 ipython = "*"
+pyhamcrest = "*"
 behave = "*"
 
 [packages]
 pythonnet = "*"
-pytz = "*"
 pandas = "*"
+numpy = "*"
+python-dateutil = "*"
+vectormath = "*"
+deal = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+plot_trajectory = "python plot_trajectory.py"
+ipython = "ipython"

@@ -10,7 +10,7 @@ participant IProjectReader
 participant IProject
 participant "Project\nAdapter" as pa
 
-tp -> tc: with\n  open_project\n  (path, tz)
+tp -> tc: build_project\n  (path, tz)
 tc -> pl: load_project\n  (path, tz)
 create sa
 pl -> sa: Create\nProject\nFileReader()
