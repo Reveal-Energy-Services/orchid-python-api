@@ -21,7 +21,7 @@ clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
-from System import TimeZoneInfo
+from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 
 
 class ProjectLoader:
@@ -44,6 +44,7 @@ class ProjectLoader:
         :return: The loaded `IProject`.
 
         :example:
+            >>> # noinspection PyUnresolvedReferences
             >>> from project_loader import ProjectLoader
             >>> loader = ProjectLoader(r'c:/Users/larry.jones/tmp/ifa-test-data/Crane_II.ifrac')
             >>> loader.loaded_project.Name
@@ -51,7 +52,12 @@ class ProjectLoader:
         """
         if not self._project:
             reader = ScriptAdapter.CreateProjectFileReader()
-            self._project = reader.Read(self._project_pathname, TimeZoneInfo.Utc, False)
+            # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
+            stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
+            try:
+                self._project = reader.Read(stream_reader)
+            finally:
+                stream_reader.Close()
         return self._project
 
 
