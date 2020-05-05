@@ -12,6 +12,17 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import clr
+import os
+import sys
+
+sys.path.append(os.path.join(r'c:/src/ImageFracApp/ImageFrac/ImageFrac.FractureDiagnostics.SDKFacade/bin/Debug/net48'))
+clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
+# noinspection PyUnresolvedReferences
+from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter
+# noinspection PyUnresolvedReferences
+from System import TimeZoneInfo
+
 
 class ProjectLoader:
     """Provides an .NET IProject to be adapted."""
@@ -23,3 +34,27 @@ class ProjectLoader:
         :param project_pathname: Identifies the data file for the project of interest.
         """
         self._project_pathname = project_pathname
+        self._project = None
+
+    @property
+    def loaded_project(self):
+        """
+        Return the loaded ImageFrac4 project.
+
+        :return: The loaded `IProject`.
+
+        :example:
+            >>> from project_loader import ProjectLoader
+            >>> loader = ProjectLoader(r'c:/Users/larry.jones/tmp/ifa-test-data/Crane_II.ifrac')
+            >>> loader.loaded_project.Name
+            'Oasis_Crane_II'
+        """
+        if not self._project:
+            reader = ScriptAdapter.CreateProjectFileReader()
+            self._project = reader.Read(self._project_pathname, TimeZoneInfo.Utc, False)
+        return self._project
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

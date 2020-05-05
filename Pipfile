@@ -23,3 +23,4 @@ python_version = "3.7"
 [scripts]
 plot_trajectory = "python plot_trajectory.py"
 ipython = "ipython"
+test_project_loader = "python image_frac/project_loader.py -v"
