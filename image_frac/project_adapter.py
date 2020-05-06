@@ -13,7 +13,7 @@
 #
 
 import uuid
-from typing import Sequence
+from typing import KeysView
 
 import vectormath as vmath
 
@@ -31,6 +31,13 @@ class ProjectAdapter:
         """
         self._project_loader = project_loader
 
+        self._wells = None
+
+    def well_map(self):
+        if not self._wells:
+            self._wells = {uuid.uuid4(): w for w in self._project_loader.loaded_project().Wells.Items}
+        return self._wells
+
     def trajectory_points(self, well_id: uuid.UUID) -> vmath.Vector3Array:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
@@ -39,8 +46,8 @@ class ProjectAdapter:
         """
         pass
 
-    def well_ids(self) -> Sequence[uuid.UUID]:
+    def well_ids(self) -> KeysView[uuid.UUID]:
         """
         Return sequence identifiers for all wells in this project.
         """
-        return []
+        return self.well_map().keys()

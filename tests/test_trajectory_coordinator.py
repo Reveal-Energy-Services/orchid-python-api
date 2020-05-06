@@ -46,7 +46,10 @@ class TrajectoryCoordinatorShould(unittest.TestCase):
                     raises(deal.PreContractError))
 
     @staticmethod
-    def test_no_wells_produces_no_trajectories():
+    @unittest.mock.patch('image_frac.trajectory_coordinator.ProjectAdapter', name='mock_project_adapter', autospec=True)
+    def test_no_wells_produces_no_trajectories(mock_project_adapter):
+        project = mock_project_adapter.return_value
+        project.well_ids.return_value = []
         sut = image_frac.TrajectoryCoordinator('dont_care')
 
         assert_that(sut.trajectories_for_all_wells(), equal_to({}))
