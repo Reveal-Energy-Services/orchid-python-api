@@ -43,7 +43,6 @@ class ProjectLoader:
         self._project = None
         self._in_context = False
 
-    @property
     def loaded_project(self):
         """
         Return the loaded ImageFrac4 project.
@@ -54,12 +53,12 @@ class ProjectLoader:
             >>> # noinspection PyUnresolvedReferences
             >>> from project_loader import ProjectLoader
             >>> loader = ProjectLoader(r'c:/Users/larry.jones/tmp/ifa-test-data/Crane_II.ifrac')
-            >>> loader.loaded_project.Name
+            >>> loader.loaded_project().Name
             'Oasis_Crane_II'
         """
         if not self._project:
             with ScriptAdapterContext():
-                reader = ScriptAdapter.CreateProjectFileReader(self._app_settings_path)
+                reader = ScriptAdapter.CreateProjectFileReader(self._app_settings_path())
                 # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
                 stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
                 try:
@@ -68,8 +67,8 @@ class ProjectLoader:
                     stream_reader.Close()
         return self._project
 
-    @property
-    def _app_settings_path(self):
+    @staticmethod
+    def _app_settings_path():
         """
         Return the pathname of the `appSettings.json` file needed by the `SDKFacade `assembly.
 
