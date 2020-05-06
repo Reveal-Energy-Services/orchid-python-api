@@ -13,15 +13,21 @@
 #
 
 import clr
-import os
+import os.path
 import sys
 
-sys.path.append(os.path.join(r'c:/src/ImageFracApp/ImageFrac/ImageFrac.FractureDiagnostics.SDKFacade/bin/Debug/net48'))
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
+
+sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
+
+
+class ImageFracError(Exception):
+    pass
 
 
 class ProjectLoader:
@@ -35,6 +41,7 @@ class ProjectLoader:
         """
         self._project_pathname = project_pathname
         self._project = None
+        self._in_context = False
 
     @property
     def loaded_project(self):
@@ -51,14 +58,53 @@ class ProjectLoader:
             'Oasis_Crane_II'
         """
         if not self._project:
-            reader = ScriptAdapter.CreateProjectFileReader()
-            # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
-            stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
-            try:
-                self._project = reader.Read(stream_reader)
-            finally:
-                stream_reader.Close()
+            with ScriptAdapterContext():
+                reader = ScriptAdapter.CreateProjectFileReader(self._app_settings_path)
+                # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
+                stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
+                try:
+                    self._project = reader.Read(stream_reader)
+                finally:
+                    stream_reader.Close()
         return self._project
+
+    @property
+    def _app_settings_path(self):
+        """
+        Return the pathname of the `appSettings.json` file needed by the `SDKFacade `assembly.
+
+        :return: The required pathname.
+        """
+        result = os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR, 'appSettings.json')
+        return result
+
+
+class ScriptAdapterContext:
+    """
+    A "private" class with the responsibility to initialize and shutdown the .NET ScriptAdapter class.
+
+    I considered making `ProjectLoader` a context manager; however, the API then becomes somewhat unclear.
+    - Does the constructor enter the context? Must a caller initialize the instance and then enter the
+      context?
+    - What results if a caller *does not* enter the context?
+    - Enters the context twice?
+
+    Because I was uncertain I created this private class to model the `ScriptAdapter` context. The property,
+    `ProjectLoader.loaded_project`, enters the context if it will actually read the project and exits the
+    context when the read operation is finished.
+
+    For information on Python context managers, see
+    [the Python docs](https://docs.python.org/3.7/library/stdtypes.html#context-manager-types)
+    """
+
+    def __enter__(self):
+        ScriptAdapter.Init()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        ScriptAdapter.Shutdown()
+        # Returning no value will propagate the exception to the caller in the normal way
+        return
 
 
 if __name__ == '__main__':
