@@ -11,11 +11,11 @@ behave = "*"
 
 [packages]
 pythonnet = "*"
-pandas = "*"
 numpy = "*"
 python-dateutil = "*"
 vectormath = "*"
 deal = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7"
