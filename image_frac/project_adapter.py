@@ -121,6 +121,11 @@ class ProjectAdapter:
         """
         return self.well_map()[well_id].Name
 
+    def length_unit(self):
+        project_length_unit = self._project_loader.loaded_project().ProjectUnits.LengthUnit
+        result = UnitsNet.Length.GetAbbreviation(project_length_unit)
+        return result
+
 
 if __name__ == '__main__':
     import doctest
