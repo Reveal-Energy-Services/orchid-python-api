@@ -14,6 +14,4 @@
 
 from .trajectory_coordinator import TrajectoryCoordinator
 from .project_adapter import ProjectAdapter
-
-# Not really public but useful for REPL work
 from .project_loader import ProjectLoader
