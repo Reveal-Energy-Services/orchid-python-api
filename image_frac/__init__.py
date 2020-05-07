@@ -14,3 +14,4 @@
 
 from .trajectory_coordinator import TrajectoryCoordinator
 from .project_adapter import ProjectAdapter
+from .project_loader import ProjectLoader
