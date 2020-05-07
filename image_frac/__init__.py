@@ -12,6 +12,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+# High-level API
+from .core import load_project
+from .core import plot_trajectories
+
+# TODO: Do we need to remove this API?
+# Lower-level API
 from .trajectory_coordinator import TrajectoryCoordinator
 from .project_adapter import ProjectAdapter
 from .project_loader import ProjectLoader

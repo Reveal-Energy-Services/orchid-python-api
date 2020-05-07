@@ -13,19 +13,8 @@
 #
 
 import argparse
-from typing import Mapping
-import uuid
-
-import vectormath as vmath
 
 import image_frac
-
-
-def plot_trajectories(trajectory_points:  Mapping[uuid.UUID, vmath.Vector3Array]):
-    """
-    :param trajectory_points: The mapping between wells and trajectories to be plotted.
-    """
-    return
 
 
 if __name__ == '__main__':
@@ -33,6 +22,4 @@ if __name__ == '__main__':
     parser.add_argument('pathname', help="Path name of the IMAGEFrac project file ('.ifrac').")
 
     options = parser.parse_args()
-    # TODO: Consider using DI (dependency injection) to manage construction
-    coordinator = image_frac.TrajectoryCoordinator(options.pathname)
-    plot_trajectories(coordinator.trajectories_for_all_wells())
+    image_frac.plot_trajectories(options.pathname)
