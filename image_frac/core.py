@@ -49,8 +49,9 @@ def plot_trajectories(ifrac_pathname: str) -> None:
     """
     project = load_project(ifrac_pathname)
     trajectories = [project.trajectory_points(well_id) for well_id in project.well_ids()]
-    for trajectory in trajectories:
-        plt.plot([p.x for p in trajectory], [p.y for p in trajectory])
+    for (trajectory, well_id) in zip(trajectories, project.well_ids()):
+        plt.plot([p.x for p in trajectory], [p.y for p in trajectory], label=f'{project.well_name(well_id)}')
     plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
+    plt.legend(loc='best')
 
     plt.show()

@@ -112,6 +112,15 @@ class ProjectAdapter:
         """
         return self._project_loader.loaded_project().Name
 
+    def well_name(self, well_id : uuid.UUID):
+        """
+        Return the name of the specified well.
+
+        :param well_id: The value identifying the well of interest.
+        :return: The name of the well of interest.
+        """
+        return self.well_map()[well_id].Name
+
 
 if __name__ == '__main__':
     import doctest
