@@ -104,6 +104,14 @@ class ProjectAdapter:
         """
         return self.well_map().keys()
 
+    def name(self):
+        """
+        Return the name of the project of interest.
+
+        :return:  The name of this project.
+        """
+        return self._project_loader.loaded_project().Name
+
 
 if __name__ == '__main__':
     import doctest

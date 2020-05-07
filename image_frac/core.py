@@ -47,9 +47,10 @@ def plot_trajectories(ifrac_pathname: str) -> None:
     :param ifrac_pathname: The path identifying the data file of the project of interest.
     :return: None
     """
-    adapter = load_project(ifrac_pathname)
-    trajectories = [adapter.trajectory_points(well_id) for well_id in adapter.well_ids()]
+    project = load_project(ifrac_pathname)
+    trajectories = [project.trajectory_points(well_id) for well_id in project.well_ids()]
     for trajectory in trajectories:
         plt.plot([p.x for p in trajectory], [p.y for p in trajectory])
+    plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
 
     plt.show()
