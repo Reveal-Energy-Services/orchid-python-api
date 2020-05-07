@@ -15,10 +15,13 @@
 #
 
 import matplotlib.pyplot as plt
+# The following import is included for its "side-effects" of an improved color schemes and plot styles.
+# (See the "Tip" in section 9.2 of "Python for Data Analysis" for details.)
+# noinspection PyUnresolvedReferences
+import seaborn as sns
 
 from image_frac.project_adapter import ProjectAdapter
 from image_frac.project_loader import ProjectLoader
-from image_frac import project_adapter
 
 
 def load_project(ifrac_pathname: str) -> ProjectAdapter:
