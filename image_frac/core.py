@@ -14,8 +14,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import matplotlib.pyplot as plt
+
 from image_frac.project_adapter import ProjectAdapter
 from image_frac.project_loader import ProjectLoader
+from image_frac import project_adapter
 
 
 def load_project(ifrac_pathname: str) -> ProjectAdapter:
@@ -41,4 +44,9 @@ def plot_trajectories(ifrac_pathname: str) -> None:
     :param ifrac_pathname: The path identifying the data file of the project of interest.
     :return: None
     """
-    return
+    adapter = load_project(ifrac_pathname)
+    trajectories = [adapter.trajectory_points(well_id) for well_id in adapter.well_ids()]
+    for trajectory in trajectories:
+        plt.plot([p.x for p in trajectory], [p.y for p in trajectory])
+
+    plt.show()
