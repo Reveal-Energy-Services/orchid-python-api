@@ -17,7 +17,6 @@ vectormath = "*"
 deal = "*"
 matplotlib = "*"
 seaborn = "*"
-jupyterlab = "*"
 
 [requires]
 python_version = "3.7"
