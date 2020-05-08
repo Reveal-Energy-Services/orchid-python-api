@@ -135,6 +135,10 @@ class ProjectAdapter:
         result = UnitsNet.Length.GetAbbreviation(project_length_unit)
         return result
 
+    def default_well_colors(self):
+        return [tuple(map(lambda color_component: round(color_component * 255), color))
+                for color in self._project_loader.loaded_project().PlottingSettings.GetDefaultWellColors()]
+
 
 if __name__ == '__main__':
     import doctest
