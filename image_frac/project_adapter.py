@@ -104,6 +104,41 @@ class ProjectAdapter:
         """
         return self.well_map().keys()
 
+    def name(self):
+        """
+        Return the name of the project of interest.
+
+        :return:  The name of this project.
+        """
+        return self._project_loader.loaded_project().Name
+
+    def well_name(self, well_id : uuid.UUID):
+        """
+        Return the name of the specified well.
+
+        :param well_id: The value identifying the well of interest.
+        :return: The name of the well of interest.
+        """
+        return self.well_map()[well_id].Name
+
+    def well_display_name(self, well_id : uuid.UUID):
+        """
+        Return the name of the specified well for displays.
+
+        :param well_id: The value identifying the well of interest.
+        :return: The name of the well of interest.
+        """
+        return self.well_map()[well_id].DisplayName
+
+    def length_unit(self):
+        project_length_unit = self._project_loader.loaded_project().ProjectUnits.LengthUnit
+        result = UnitsNet.Length.GetAbbreviation(project_length_unit)
+        return result
+
+    def default_well_colors(self):
+        return [tuple(map(lambda color_component: round(color_component * 255), color))
+                for color in self._project_loader.loaded_project().PlottingSettings.GetDefaultWellColors()]
+
 
 if __name__ == '__main__':
     import doctest

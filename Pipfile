@@ -11,11 +11,12 @@ behave = "*"
 
 [packages]
 pythonnet = "*"
-pandas = "*"
 numpy = "*"
 python-dateutil = "*"
 vectormath = "*"
 deal = "*"
+matplotlib = "*"
+seaborn = "*"
 
 [requires]
 python_version = "3.7"
@@ -24,3 +25,4 @@ python_version = "3.7"
 plot_trajectory = "python plot_trajectory.py"
 ipython = "ipython"
 test_project_loader = "python image_frac/project_loader.py -v"
+test_project_adapter = "python image_frac/project_adapter.py -v"
