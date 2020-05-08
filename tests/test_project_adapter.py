@@ -42,6 +42,7 @@ class TestProjectLoader(unittest.TestCase):
         # We do not need an actual item, only an array with the correct number of items: 1
         dont_care_items = ['dont_care_item']
         stub_wells = StubWells(dont_care_items)
+        # noinspection PyUnresolvedReferences
         patched_loader.loaded_project.return_value.Wells = stub_wells
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
@@ -58,6 +59,7 @@ class TestProjectLoader(unittest.TestCase):
         # We do not need an actual item, only an array with the correct number of items: 1
         dont_care_items = ['dont_care_1', 'dont_care_2', 'dont_care_3']
         stub_wells = StubWells(dont_care_items)
+        # noinspection PyUnresolvedReferences
         patched_loader.loaded_project.return_value.Wells = stub_wells
         uuid_strings = ['0b09aae5-8355-4968-815c-5622dfc7aac6',
                         'a1ba308d-c3d9-4314-bc21-d6bbb80ebcf8', 'cbde9d6f-2c95-4d8b-a1b8-5235194d0fa6']
