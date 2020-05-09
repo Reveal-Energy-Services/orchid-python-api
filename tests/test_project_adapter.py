@@ -30,14 +30,14 @@ import uuid
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
 import clr
-from hamcrest import assert_that, equal_to, has_length, contains_exactly
+from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, empty
 
 import image_frac
 
 sys.path.append(r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject
+from ImageFrac.FractureDiagnostics import IProject, IWell
 
 
 class TestProjectLoader(unittest.TestCase):
@@ -55,14 +55,18 @@ class TestProjectLoader(unittest.TestCase):
         stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
         # We do not need an actual item, only an array with the correct number of items: 1
         stub_project.Wells.Items = ['dont-care-well']
+
         patched_loader = image_frac.ProjectLoader('dont_care')
         patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_project)
+
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
         stub_uuid_module.uuid4.side_effect = expected_well_ids
+
         sut = image_frac.ProjectAdapter(patched_loader)
+
         # noinspection PyTypeChecker
-        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items
+        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
         assert_that(sut.well_ids(), contains_exactly(*expected_well_ids))
 
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
@@ -70,16 +74,43 @@ class TestProjectLoader(unittest.TestCase):
         stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
         # We do not need an actual item, only an array with the correct number of items: 3
         stub_project.Wells.Items = ['dont-care-1', 'dont-car-2', 'dont-care-3']
+
         patched_loader = image_frac.ProjectLoader('dont_care')
         patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_project)
+
         uuid_strings = ['0b09aae5-8355-4968-815c-5622dfc7aac6',
                         'a1ba308d-c3d9-4314-bc21-d6bbb80ebcf8', 'cbde9d6f-2c95-4d8b-a1b8-5235194d0fa6']
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
         stub_uuid_module.uuid4.side_effect = expected_well_ids
+
         sut = image_frac.ProjectAdapter(patched_loader)
+
         # noinspection PyTypeChecker
-        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items
+        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
         assert_that(sut.well_ids(), contains_exactly(*expected_well_ids))
+
+    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
+    def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self, stub_uuid_module):
+        stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
+        # We do not need an actual item, only an array with the correct number of items: 1
+        stub_project.Wells.Items = [unittest.mock.MagicMock(name='stub_well', spec=IWell)]
+        stub_array_values = []
+        stub_project.Wells.Trajectory.GetEastingArray = unittest.mock.MagicMock(return_value=stub_array_values)
+        stub_project.Wells.Trajectory.GetNorthingArray = unittest.mock.MagicMock(return_value=stub_array_values)
+        stub_project.Wells.Trajectory.GetTvdArray = unittest.mock.MagicMock(return_value=stub_array_values)
+
+        patched_loader = image_frac.ProjectLoader('dont_care')
+        patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_project)
+
+        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
+        expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
+        stub_uuid_module.uuid4.side_effect = expected_well_ids
+
+        sut = image_frac.ProjectAdapter(patched_loader)
+
+        # noinspection PyTypeChecker
+        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
+        assert_that(sut.trajectory_points(expected_well_ids[0]), is_(empty()))
 
 
 if __name__ == '__main__':

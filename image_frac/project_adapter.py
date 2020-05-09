@@ -14,10 +14,11 @@
 
 import os.path
 import sys
-from typing import KeysView
+from typing import KeysView, Union
 import uuid
 
 import clr
+import numpy as np
 import vectormath as vmath
 
 from image_frac.project_loader import ProjectLoader
@@ -52,7 +53,7 @@ class ProjectAdapter:
             self._wells = {uuid.uuid4(): w for w in self._project_loader.loaded_project().Wells.Items}
         return self._wells
 
-    def trajectory_points(self, well_id: uuid.UUID) -> vmath.Vector3Array:
+    def trajectory_points(self, well_id: uuid.UUID) -> Union[vmath.Vector3Array, np.array]:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
 
@@ -94,9 +95,13 @@ class ProjectAdapter:
                      for n in trajectory.GetNorthingArray(WellReferenceFrameXy.Project)]
         tvds = [tvd.As(project.ProjectUnits.LengthUnit)
                 for tvd in trajectory.GetTvdArray(DepthDatum.KellyBushing)]
-        points = map(lambda x, y, z: vmath.Vector3(x, y, z), eastings, northings, tvds)
-        result = vmath.Vector3Array(list(points))
-        return result
+        if eastings and northings and tvds:
+            points = map(lambda x, y, z: vmath.Vector3(x, y, z), eastings, northings, tvds)
+            print(f'list(points)={list(points)}')
+            result = vmath.Vector3Array(list(points))
+            return result
+        else:
+            return np.empty((0,))
 
     def well_ids(self) -> KeysView[uuid.UUID]:
         """
