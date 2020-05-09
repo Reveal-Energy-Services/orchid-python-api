@@ -83,12 +83,7 @@ class TestProjectLoader(unittest.TestCase):
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
         stub_uuid_module.uuid4.side_effect = expected_well_ids
 
-        well_names = ['dont-care-well']
-        eastings = []
-        northings = []
-        tvds = []
-        stub_net_project = create_stub_net_project(well_names=well_names, eastings=eastings, northings=northings,
-                                                   tvds=tvds)
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
