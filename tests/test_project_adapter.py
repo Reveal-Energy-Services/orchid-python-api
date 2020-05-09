@@ -52,18 +52,12 @@ class TestProjectLoader(unittest.TestCase):
 
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_one_well_ids_for_project_with_one_well(self, stub_uuid_module):
-        stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
-        # We do not need an actual item, only an array with the correct number of items: 1
-        stub_project.Wells.Items = ['dont-care-well']
-
-        patched_loader = image_frac.ProjectLoader('dont_care')
-        patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_project)
-
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
         stub_uuid_module.uuid4.side_effect = expected_well_ids
 
-        sut = image_frac.ProjectAdapter(patched_loader)
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
         # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
@@ -71,19 +65,13 @@ class TestProjectLoader(unittest.TestCase):
 
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_many_wells_ids_for_project_with_many_wells(self, stub_uuid_module):
-        stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
-        # We do not need an actual item, only an array with the correct number of items: 3
-        stub_project.Wells.Items = ['dont-care-1', 'dont-car-2', 'dont-care-3']
-
-        patched_loader = image_frac.ProjectLoader('dont_care')
-        patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_project)
-
         uuid_strings = ['0b09aae5-8355-4968-815c-5622dfc7aac6',
                         'a1ba308d-c3d9-4314-bc21-d6bbb80ebcf8', 'cbde9d6f-2c95-4d8b-a1b8-5235194d0fa6']
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
         stub_uuid_module.uuid4.side_effect = expected_well_ids
 
-        sut = image_frac.ProjectAdapter(patched_loader)
+        stub_net_project = create_stub_net_project(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'])
+        sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
         # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
@@ -91,26 +79,44 @@ class TestProjectLoader(unittest.TestCase):
 
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self, stub_uuid_module):
-        stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
-        # We do not need an actual item, only an array with the correct number of items: 1
-        stub_project.Wells.Items = [unittest.mock.MagicMock(name='stub_well', spec=IWell)]
-        stub_array_values = []
-        stub_project.Wells.Trajectory.GetEastingArray = unittest.mock.MagicMock(return_value=stub_array_values)
-        stub_project.Wells.Trajectory.GetNorthingArray = unittest.mock.MagicMock(return_value=stub_array_values)
-        stub_project.Wells.Trajectory.GetTvdArray = unittest.mock.MagicMock(return_value=stub_array_values)
-
-        patched_loader = image_frac.ProjectLoader('dont_care')
-        patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_project)
-
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
         expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
         stub_uuid_module.uuid4.side_effect = expected_well_ids
 
-        sut = image_frac.ProjectAdapter(patched_loader)
+        well_names = ['dont-care-well']
+        eastings = []
+        northings = []
+        tvds = []
+        stub_net_project = create_stub_net_project(well_names=well_names, eastings=eastings, northings=northings,
+                                                   tvds=tvds)
+        sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
         # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
         assert_that(sut.trajectory_points(expected_well_ids[0]), is_(empty()))
+
+
+def create_stub_net_project(well_names=None, eastings=None, northings=None, tvds=None):
+    well_names = well_names if well_names else []
+    eastings = eastings if eastings else []
+    northings = northings if northings else []
+    tvds = tvds if tvds else []
+    stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
+    # We do not need an actual item, only an array with the correct number of items: 1
+    stub_project.Wells.Trajectory.GetEastingArray = unittest.mock.MagicMock(return_value=eastings)
+    stub_project.Wells.Trajectory.GetNorthingArray = unittest.mock.MagicMock(return_value=northings)
+    stub_project.Wells.Trajectory.GetTvdArray = unittest.mock.MagicMock(return_value=tvds)
+    stub_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
+
+    return stub_project
+
+
+def create_sut(stub_net_project):
+    patched_loader = image_frac.ProjectLoader('dont_care')
+    patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
+
+    sut = image_frac.ProjectAdapter(patched_loader)
+    return sut
 
 
 if __name__ == '__main__':
