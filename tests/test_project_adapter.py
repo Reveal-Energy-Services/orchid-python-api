@@ -96,12 +96,16 @@ def create_stub_net_project(well_names=None, eastings=None, northings=None, tvds
     eastings = eastings if eastings else []
     northings = northings if northings else []
     tvds = tvds if tvds else []
+
     stub_project = unittest.mock.MagicMock(name='stub_project', spec=IProject)
-    # We do not need an actual item, only an array with the correct number of items: 1
-    stub_project.Wells.Trajectory.GetEastingArray = unittest.mock.MagicMock(return_value=eastings)
-    stub_project.Wells.Trajectory.GetNorthingArray = unittest.mock.MagicMock(return_value=northings)
-    stub_project.Wells.Trajectory.GetTvdArray = unittest.mock.MagicMock(return_value=tvds)
+
     stub_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
+
+    for i in range(len(well_names)):
+        stub_well = stub_project.Wells.Items[i]
+        stub_well.Trajectory.GetEastingArray.side_effect = lambda _: (eastings[i] if eastings else [])
+        stub_well.Trajectory.GetNorthingArray.side_effect = lambda _: (northings[i] if northings else [])
+        stub_well.Trajectory.GetTvdArray.side_effect = lambda _: (tvds[i] if tvds else [])
 
     return stub_project
 
