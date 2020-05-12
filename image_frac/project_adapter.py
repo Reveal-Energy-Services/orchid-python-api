@@ -89,16 +89,20 @@ class ProjectAdapter:
         project = self._project_loader.loaded_project()
         well = self.well_map()[well_id]
         trajectory = well.Trajectory
-        eastings = [e.As(project.ProjectUnits.LengthUnit)
-                    for e in trajectory.GetEastingArray(WellReferenceFrameXy.Project)]
-        northings = [n.As(project.ProjectUnits.LengthUnit)
-                     for n in trajectory.GetNorthingArray(WellReferenceFrameXy.Project)]
-        tvds = [tvd.As(project.ProjectUnits.LengthUnit)
-                for tvd in trajectory.GetTvdArray(DepthDatum.KellyBushing)]
-        if eastings and northings and tvds:
-            points = map(lambda x, y, z: vmath.Vector3(x, y, z), eastings, northings, tvds)
-            print(f'list(points)={list(points)}')
-            result = vmath.Vector3Array(list(points))
+        eastings = np.array([e.As(project.ProjectUnits.LengthUnit)
+                             for e in trajectory.GetEastingArray(WellReferenceFrameXy.Project)])
+        northings = np.array([n.As(project.ProjectUnits.LengthUnit)
+                              for n in trajectory.GetNorthingArray(WellReferenceFrameXy.Project)])
+        tvds = np.array([tvd.As(project.ProjectUnits.LengthUnit)
+                         for tvd in trajectory.GetTvdArray(DepthDatum.KellyBushing)])
+        # I had originally coded the following as `if eastings and northings and tvds`; however, PyCharm
+        # warned that using an empty numpy array in a boolean context was "ambiguous" and would, in the
+        # future, be flagged as an error. 
+        if eastings.size > 0 and northings.size > 0 and tvds.size > 0:
+            # The following code "zips" three arrays into a triple. See the StackOverflow post,
+            # https://stackoverflow.com/questions/26193386/numpy-zip-function
+            points = np.vstack([eastings, northings, tvds]).T
+            result = vmath.Vector3Array(points)
             return result
         else:
             return np.empty((0,))
