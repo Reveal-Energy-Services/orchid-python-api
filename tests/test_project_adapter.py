@@ -146,22 +146,17 @@ def create_stub_net_project(project_units='', well_names=None, eastings=None, no
         # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
         # This post states that "the trick is to realize that the compiler creates a special static method
         # called `op_Implicit` for your implicit conversion operator."
-        stub_well.Trajectory.GetEastingArray.return_value = [
-            UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
-            for c in eastings]
-        stub_well.Trajectory.GetNorthingArray.return_value = [
-            UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
-            for c in northings]
-        stub_well.Trajectory.GetTvdArray.return_value = [
-            UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
-            for c in tvds]
+        stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
+        stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
+        stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
 
     return stub_net_project
 
 
-def quantity_coordinate(eastings, i, stub_net_project):
-    return ([UnitsNet.Length.From(e, stub_net_project.ProjectUnits.LengthUnit)
-             for e in eastings[i]] if eastings else [])
+def quantity_coordinate(raw_coordinates, i, stub_net_project):
+    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
+              for c in raw_coordinates]
+    return result
 
 
 def create_sut(stub_net_project):
