@@ -65,8 +65,7 @@ class TestProjectLoader(unittest.TestCase):
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_one_well_ids_for_project_with_one_well(self, stub_uuid_module):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
-        stub_uuid_module.uuid4.side_effect = expected_well_ids
+        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
 
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
@@ -79,8 +78,7 @@ class TestProjectLoader(unittest.TestCase):
     def test_many_wells_ids_for_project_with_many_wells(self, stub_uuid_module):
         uuid_strings = ['0b09aae5-8355-4968-815c-5622dfc7aac6',
                         'a1ba308d-c3d9-4314-bc21-d6bbb80ebcf8', 'cbde9d6f-2c95-4d8b-a1b8-5235194d0fa6']
-        expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
-        stub_uuid_module.uuid4.side_effect = expected_well_ids
+        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
 
         stub_net_project = create_stub_net_project(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'])
         sut = create_sut(stub_net_project)
@@ -92,8 +90,7 @@ class TestProjectLoader(unittest.TestCase):
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self, stub_uuid_module):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
-        stub_uuid_module.uuid4.side_effect = expected_well_ids
+        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
 
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
@@ -103,10 +100,9 @@ class TestProjectLoader(unittest.TestCase):
         assert_that(sut.trajectory_points(expected_well_ids[0]), is_(empty()))
 
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_one_trajectory_point_for_project_with_one_well_with_one_trajectory_point(self, stub_uuid_module):
+    def test_one_trajectory_point_for_well_with_one_trajectory_point(self, stub_uuid_module):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
-        stub_uuid_module.uuid4.side_effect = expected_well_ids
+        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
 
         # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
         # (https://github.com/pythonnet/pythonnet/issues/253).
@@ -124,6 +120,11 @@ class TestProjectLoader(unittest.TestCase):
                                                    tvds=[[UnitsNet.Length.FromMeters(
                                                        UnitsNet.QuantityValue.op_Implicit(2250))]])
         sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
+        npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
+                            vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
         # noinspection PyTypeChecker
         # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
@@ -165,6 +166,12 @@ def create_sut(stub_net_project):
 
     sut = image_frac.ProjectAdapter(patched_loader)
     return sut
+
+
+def stub_well_ids(stub_uuid_module, uuid_strings):
+    expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
+    stub_uuid_module.uuid4.side_effect = expected_well_ids
+    return expected_well_ids
 
 
 if __name__ == '__main__':
