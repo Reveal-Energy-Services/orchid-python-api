@@ -116,11 +116,6 @@ class TestProjectLoader(unittest.TestCase):
         npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
                             vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
-        # noinspection PyTypeChecker
-        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
-        npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
-                            vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
-
 
 def create_stub_net_project(project_units='', well_names=None, eastings=None, northings=None, tvds=None):
     well_names = well_names if well_names else []
