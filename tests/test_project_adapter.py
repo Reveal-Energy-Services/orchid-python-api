@@ -47,6 +47,12 @@ import UnitsNet
 
 
 class TestProjectLoader(unittest.TestCase):
+    # Test ideas:
+    # - Trajectory points
+    #   - One well, many trajectory points
+    #   - No coordinates available
+    #   - At least one coordinate *not* available
+    #   - All coordinates have at least one item, but all coordinates **do not** have the same number if items
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
