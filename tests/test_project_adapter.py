@@ -104,21 +104,11 @@ class TestProjectLoader(unittest.TestCase):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
         expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
 
-        # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
-        # (https://github.com/pythonnet/pythonnet/issues/253).
-        #
-        # One of the comments identifies a work-around from StackOverflow
-        # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
-        # This post states that "the trick is to realize that the compiler creates a special static method
-        # called `op_Implicit` for your implicit conversion operator."
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'],
                                                    project_units='m',
-                                                   eastings=[[UnitsNet.Length.FromMeters(
-                                                       UnitsNet.QuantityValue.op_Implicit(185939))]],
-                                                   northings=[[UnitsNet.Length.FromMeters(
-                                                       UnitsNet.QuantityValue.op_Implicit(280875))]],
-                                                   tvds=[[UnitsNet.Length.FromMeters(
-                                                       UnitsNet.QuantityValue.op_Implicit(2250))]])
+                                                   eastings=[[185939]],
+                                                   northings=[[280875]],
+                                                   tvds=[[2250]])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -148,9 +138,23 @@ def create_stub_net_project(project_units='', well_names=None, eastings=None, no
 
     for i in range(len(well_names)):
         stub_well = stub_net_project.Wells.Items[i]
-        stub_well.Trajectory.GetEastingArray.side_effect = lambda _: (eastings[i] if eastings else [])
-        stub_well.Trajectory.GetNorthingArray.side_effect = lambda _: (northings[i] if northings else [])
-        stub_well.Trajectory.GetTvdArray.side_effect = lambda _: (tvds[i] if tvds else [])
+
+        # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
+        # (https://github.com/pythonnet/pythonnet/issues/253).
+        #
+        # One of the comments identifies a work-around from StackOverflow
+        # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
+        # This post states that "the trick is to realize that the compiler creates a special static method
+        # called `op_Implicit` for your implicit conversion operator."
+        stub_well.Trajectory.GetEastingArray.return_value = [
+            UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
+            for c in eastings]
+        stub_well.Trajectory.GetNorthingArray.return_value = [
+            UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
+            for c in northings]
+        stub_well.Trajectory.GetTvdArray.return_value = [
+            UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
+            for c in tvds]
 
     return stub_net_project
 
