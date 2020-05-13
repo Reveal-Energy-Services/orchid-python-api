@@ -30,7 +30,8 @@ import uuid
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
 import clr
-from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, empty
+import deal
+from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, empty, calling, raises
 import numpy.testing as npt
 import vectormath as vmath
 
@@ -94,8 +95,6 @@ class TestProjectLoader(unittest.TestCase):
                                                                 eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
-        # noinspection PyTypeChecker
-        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
         assert_that(sut.trajectory_points(expected_well_ids[0]), is_(empty()))
 
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
@@ -150,6 +149,30 @@ class TestProjectLoader(unittest.TestCase):
         sut = create_sut(stub_net_project)
 
         assert_that(sut.length_unit(), equal_to('ft'))
+
+    def test_ctor_no_loader_raises_exception(self):
+        assert_that(calling(ProjectAdapter).with_args(None), raises(deal.PreContractError))
+
+    def test_trajectory_points_no_well_id_raises_exception(self):
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
+                                                                eastings=[], northings=[], tvds=[])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.trajectory_points).with_args(None), raises(deal.PreContractError))
+
+    def test_well_name_no_well_id_raises_exception(self):
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
+                                                                eastings=[], northings=[], tvds=[])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.well_name).with_args(None), raises(deal.PreContractError))
+
+    def test_display_well_name_no_well_id_raises_exception(self):
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
+                                                                eastings=[], northings=[], tvds=[])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.well_display_name).with_args(None), raises(deal.PreContractError))
 
 
 def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', well_names=None,
