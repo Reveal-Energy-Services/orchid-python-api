@@ -14,6 +14,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import deal
 import matplotlib.pyplot as plt
 # The following import is included for its "side-effects" of an improved color schemes and plot styles.
 # (See the "Tip" in section 9.2 of "Python for Data Analysis" for details.)
@@ -24,6 +25,7 @@ from image_frac.project_adapter import ProjectAdapter
 from image_frac.project_loader import ProjectLoader
 
 
+@deal.pre(lambda ifrac_pathname: ifrac_pathname is not None)
 def load_project(ifrac_pathname: str) -> ProjectAdapter:
     """
     Return the project for the specified `.ifrac` file.
