@@ -61,30 +61,6 @@ class ProjectAdapter:
 
         :return: A Vector3Array containing the trajectory (in project units using project reference frame and kelly
         bushing depth datum).
-
-        :example:
-            >>> # noinspection PyUnresolvedReferences
-            >>> from project_loader import ProjectLoader
-            >>> loader = ProjectLoader(r'c:/Users/larry.jones/tmp/ifa-test-data/Crane_II.ifrac')
-            >>> project = ProjectAdapter(loader)
-            >>> trajectory_points = [project.trajectory_points(well_id) for well_id in project.well_ids()]
-            >>> len(trajectory_points)
-            4
-            >>> # noinspection PyTypeChecker
-            >>> [len(points) for points in trajectory_points]
-            [253, 246, 234, 257]
-            >>> # Initial point of trajectories
-            >>> # noinspection PyUnresolvedReferences
-            >>> [trajectory_points[i][0] for i in range(4)]
-            [Vector3([0.064, 0.56 , 0.   ]), Vector3([-22.902, -65.06 ,   0.   ]), Vector3([ 954.788, -803.25 ,    0.   ]), Vector3([ -50.166, -156.69 ,    0.   ])]
-            >>> # Middle point of trajectories
-            >>> # noinspection PyUnresolvedReferences
-            >>> [trajectory_points[i][len(trajectory_points[i]) // 2] for i in range(4)]
-            [Vector3([  262.64215124,  1297.3048967 , 10481.01160463]), Vector3([  242.37977858,   596.4535276 , 10573.78645779]), Vector3([  467.07593939,  -464.9789044 , 10767.02602787]), Vector3([  112.08522272, -1020.3832704 , 10625.70516618])]
-            >>> # Last point of trajectories
-            >>> # noinspection PyUnresolvedReferences
-            >>> [trajectory_points[i][-1] for i in range(4)]
-            [Vector3([-10015.68480859,   1330.8487571 ,  10705.24099079]), Vector3([-10029.48342696,    556.742598  ,  10712.00210724]), Vector3([-9854.81599078,   -71.6013143 , 10727.50321322]), Vector3([-10046.00226103,   -911.7090451 ,  10716.0042386 ])]
         """
         project = self._project_loader.loaded_project()
         well = self.well_map()[well_id]
