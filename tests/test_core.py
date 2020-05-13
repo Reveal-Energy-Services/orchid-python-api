@@ -27,6 +27,12 @@ class TestCoreLoadProject(unittest.TestCase):
     def test_no_pathname_load_project_raises_exception(self):
         assert_that(calling(image_frac.load_project).with_args(None), raises(deal.PreContractError))
 
+    def test_empty_pathname_load_project_raises_exception(self):
+        assert_that(calling(image_frac.load_project).with_args(''), raises(deal.PreContractError))
+
+    def test_whitespace_pathname_load_project_raises_exception(self):
+        assert_that(calling(image_frac.load_project).with_args('\t'), raises(deal.PreContractError))
+
 
 if __name__ == '__main__':
     unittest.main()

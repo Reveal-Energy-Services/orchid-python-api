@@ -26,6 +26,8 @@ from image_frac.project_loader import ProjectLoader
 
 
 @deal.pre(lambda ifrac_pathname: ifrac_pathname is not None)
+@deal.pre(lambda ifrac_pathname: len(ifrac_pathname) != 0)
+@deal.pre(lambda ifrac_pathname: len(ifrac_pathname.strip()) != 0)
 def load_project(ifrac_pathname: str) -> ProjectAdapter:
     """
     Return the project for the specified `.ifrac` file.
