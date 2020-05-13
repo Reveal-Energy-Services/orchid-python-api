@@ -36,7 +36,7 @@ def load_project(ifrac_pathname: str) -> ProjectAdapter:
     :return: The project of interest.
     """
 
-    loader = ProjectLoader(ifrac_pathname)
+    loader = ProjectLoader(ifrac_pathname.strip())
     result = ProjectAdapter(loader)
     return result
 
