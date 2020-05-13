@@ -14,7 +14,7 @@
 
 import os.path
 import sys
-from typing import KeysView, Union
+from typing import KeysView, List, Union
 import uuid
 
 import clr
@@ -65,9 +65,12 @@ class ProjectAdapter:
         project = self._project_loader.loaded_project()
         well = self.well_map()[well_id]
         trajectory = well.Trajectory
-        eastings = self._coordinates_to_array(trajectory.GetEastingArray(WellReferenceFrameXy.Project), project)
-        northings = self._coordinates_to_array(trajectory.GetNorthingArray(WellReferenceFrameXy.Project), project)
-        tvds = self._coordinates_to_array(trajectory.GetTvdArray(WellReferenceFrameXy.Project), project)
+        eastings = self._coordinates_to_array(trajectory.GetEastingArray(WellReferenceFrameXy.Project),
+                                              project.ProjectUnits.LengthUnit)
+        northings = self._coordinates_to_array(trajectory.GetNorthingArray(WellReferenceFrameXy.Project),
+                                               project.ProjectUnits.LengthUnit)
+        tvds = self._coordinates_to_array(trajectory.GetTvdArray(WellReferenceFrameXy.Project),
+                                          project.ProjectUnits.LengthUnit)
 
         if _all_coordinates_available(eastings, northings, tvds):
             # The following code "zips" three arrays into a triple. See the StackOverflow post,
@@ -79,14 +82,15 @@ class ProjectAdapter:
             return np.empty((0,))
 
     @staticmethod
-    def _coordinates_to_array(coordinates, project):
+    def _coordinates_to_array(coordinates: List[UnitsNet.Length],
+                              project_length_unit: UnitsNet.Units.LengthUnit) -> np.array:
         """
         Transform a project "coordinate" (easting, northing or tvd) list into a numpy array.
         :param coordinates: The coordinates (eastings, northings or tvds) to transform.
-        :param project: The project using these coordinators.
+        :param project_length_unit: The project using these coordinators.
         :return: The numpy array equivalent to these coordinates.
         """
-        return np.array([e.As(project.ProjectUnits.LengthUnit) for e in coordinates])
+        return np.array([e.As(project_length_unit) for e in coordinates])
 
     def well_ids(self) -> KeysView[uuid.UUID]:
         """
