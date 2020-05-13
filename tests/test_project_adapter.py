@@ -49,7 +49,6 @@ import UnitsNet
 class TestProjectLoader(unittest.TestCase):
     # Test ideas:
     # - Trajectory points
-    #   - One well, many trajectory points
     #   - No coordinates available
     #   - At least one coordinate *not* available
     #   - All coordinates have at least one item, but all coordinates **do not** have the same number if items
@@ -116,6 +115,24 @@ class TestProjectLoader(unittest.TestCase):
         npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
                             vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
+    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
+    def test_many_trajectory_points_for_well_with_many_trajectory_points(self, stub_uuid_module):
+        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
+        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
+
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'],
+                                                   project_units='ft',
+                                                   eastings=[[768385, 768359, 768331]],
+                                                   northings=[[8320613, 8320703, 8320792]],
+                                                   tvds=[[7515, 7516, 7517]])
+        sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
+        npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
+                            vmath.Vector3Array([[768385, 8320613, 7515], [768359, 8320703, 7516],
+                                                [768331, 8320792, 7517]]))
+
 
 def create_stub_net_project(project_units='', well_names=None, eastings=None, northings=None, tvds=None):
     well_names = well_names if well_names else []
@@ -149,8 +166,8 @@ def create_stub_net_project(project_units='', well_names=None, eastings=None, no
 
 
 def quantity_coordinate(raw_coordinates, i, stub_net_project):
-    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c[i]), stub_net_project.ProjectUnits.LengthUnit)
-              for c in raw_coordinates]
+    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
+              for c in raw_coordinates[i]] if raw_coordinates else []
     return result
 
 
