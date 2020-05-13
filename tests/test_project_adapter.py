@@ -34,7 +34,8 @@ from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, e
 import numpy.testing as npt
 import vectormath as vmath
 
-import image_frac
+from image_frac.project_adapter import ProjectAdapter
+from image_frac.project_loader import ProjectLoader
 
 sys.path.append(r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')
@@ -54,8 +55,8 @@ class TestProjectLoader(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_no_well_ids_for_project_with_no_wells(self):
-        stub_project_loader = unittest.mock.MagicMock(name='stub_project_loader', spec=image_frac.ProjectLoader)
-        sut = image_frac.ProjectAdapter(stub_project_loader)
+        stub_project_loader = unittest.mock.MagicMock(name='stub_project_loader', spec=ProjectLoader)
+        sut = ProjectAdapter(stub_project_loader)
         # noinspection PyTypeChecker
         assert_that(sut.well_ids(), has_length(0))
 
@@ -89,7 +90,8 @@ class TestProjectLoader(unittest.TestCase):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
         expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
 
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
+                                                                eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -130,7 +132,7 @@ class TestProjectLoader(unittest.TestCase):
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_returns_meter_project_length_unit_from_net_project_length_units(self, stub_uuid_module):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
+        stub_well_ids(stub_uuid_module, uuid_strings)
 
         stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
                                                                 project_length_unit_abbreviation='m')
@@ -141,7 +143,7 @@ class TestProjectLoader(unittest.TestCase):
     @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
     def test_returns_feet_project_length_unit_from_net_project_length_units(self, stub_uuid_module):
         uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
+        stub_well_ids(stub_uuid_module, uuid_strings)
 
         stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
                                                                 project_length_unit_abbreviation='ft')
@@ -189,10 +191,10 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
 
 
 def create_sut(stub_net_project):
-    patched_loader = image_frac.ProjectLoader('dont_care')
+    patched_loader = ProjectLoader('dont_care')
     patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
 
-    sut = image_frac.ProjectAdapter(patched_loader)
+    sut = ProjectAdapter(patched_loader)
     return sut
 
 
