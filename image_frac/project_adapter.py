@@ -18,6 +18,7 @@ from typing import KeysView, List, Union
 import uuid
 
 import clr
+import deal
 import numpy as np
 import vectormath as vmath
 
@@ -38,6 +39,7 @@ import UnitsNet
 class ProjectAdapter:
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
+    @deal.pre(lambda self, project_loader: project_loader is not None)
     def __init__(self, project_loader: ProjectLoader):
         """
         Construct an instance adapting he project available from project_loader.
@@ -53,6 +55,7 @@ class ProjectAdapter:
             self._wells = {uuid.uuid4(): w for w in self._project_loader.loaded_project().Wells.Items}
         return self._wells
 
+    @deal.pre(lambda self, well_id: well_id is not None)
     def trajectory_points(self, well_id: uuid.UUID) -> Union[vmath.Vector3Array, np.array]:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
@@ -106,6 +109,7 @@ class ProjectAdapter:
         """
         return self._project_loader.loaded_project().Name
 
+    @deal.pre(lambda self, well_id: well_id is not None)
     def well_name(self, well_id: uuid.UUID):
         """
         Return the name of the specified well.
@@ -115,6 +119,7 @@ class ProjectAdapter:
         """
         return self.well_map()[well_id].Name
 
+    @deal.pre(lambda self, well_id: well_id is not None)
     def well_display_name(self, well_id: uuid.UUID):
         """
         Return the name of the specified well for displays.
@@ -151,8 +156,3 @@ def _all_coordinates_available(eastings: np.array, northings: np.array, tvds: np
     # future, be flagged as an error.
     result = eastings.size > 0 and northings.size > 0 and tvds.size > 0
     return result
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
