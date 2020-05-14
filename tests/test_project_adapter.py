@@ -14,7 +14,6 @@
 
 import sys
 import unittest.mock
-import uuid
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -61,91 +60,61 @@ class TestProjectLoader(unittest.TestCase):
         # noinspection PyTypeChecker
         assert_that(sut.well_ids(), has_length(0))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_one_well_ids_for_project_with_one_well(self, stub_uuid_module):
-        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
-
+    def test_one_well_id_for_project_with_one_well(self):
         stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
-        # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
-        assert_that(sut.well_ids(), contains_exactly(*expected_well_ids))
+        assert_that(sut.well_ids(), contains_exactly('dont-care-well'))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_many_wells_ids_for_project_with_many_wells(self, stub_uuid_module):
-        uuid_strings = ['0b09aae5-8355-4968-815c-5622dfc7aac6',
-                        'a1ba308d-c3d9-4314-bc21-d6bbb80ebcf8', 'cbde9d6f-2c95-4d8b-a1b8-5235194d0fa6']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
-
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'])
+    def test_many_wells_ids_for_project_with_many_wells(self):
+        well_uwis = ['03-293-91256-93-16', '66-253-17741-53-93', '03-76-97935-41-93']
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'],
+                                                                well_uwis=well_uwis)
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
         # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
-        assert_that(sut.well_ids(), contains_exactly(*expected_well_ids))
+        assert_that(sut.well_ids(), contains_exactly(*well_uwis))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self, stub_uuid_module):
-        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
-
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                eastings=[], northings=[], tvds=[])
+    def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self):
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
+                                                                northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.trajectory_points(expected_well_ids[0]), is_(empty()))
+        assert_that(sut.trajectory_points('dont-care-well'), is_(empty()))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_one_trajectory_point_for_well_with_one_trajectory_point(self, stub_uuid_module):
-        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
-
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                project_length_unit_abbreviation='m',
-                                                                eastings=[[185939]],
-                                                                northings=[[280875]],
-                                                                tvds=[[2250]])
+    def test_one_trajectory_point_for_well_with_one_trajectory_point(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
+                                                                well_names=['dont-care-well'], eastings=[[185939]],
+                                                                northings=[[280875]], tvds=[[2250]])
         sut = create_sut(stub_net_project)
 
-        npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
+        npt.assert_allclose(sut.trajectory_points('dont-care-well'),
                             vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_many_trajectory_points_for_well_with_many_trajectory_points(self, stub_uuid_module):
-        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        expected_well_ids = stub_well_ids(stub_uuid_module, uuid_strings)
-
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                project_length_unit_abbreviation='ft',
+    def test_many_trajectory_points_for_well_with_many_trajectory_points(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='ft',
+                                                                well_names=['dont-care-well'],
                                                                 eastings=[[768385, 768359, 768331]],
                                                                 northings=[[8320613, 8320703, 8320792]],
                                                                 tvds=[[7515, 7516, 7517]])
         sut = create_sut(stub_net_project)
 
-        npt.assert_allclose(sut.trajectory_points(expected_well_ids[0]),
+        npt.assert_allclose(sut.trajectory_points('dont-care-well'),
                             vmath.Vector3Array([[768385, 8320613, 7515], [768359, 8320703, 7516],
                                                 [768331, 8320792, 7517]]))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_returns_meter_project_length_unit_from_net_project_length_units(self, stub_uuid_module):
-        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        stub_well_ids(stub_uuid_module, uuid_strings)
-
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                project_length_unit_abbreviation='m')
+    def test_returns_meter_project_length_unit_from_net_project_length_units(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
+                                                                well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.length_unit(), equal_to('m'))
 
-    @unittest.mock.patch('image_frac.project_adapter.uuid', name='stub_uuid_module', autospec=True)
-    def test_returns_feet_project_length_unit_from_net_project_length_units(self, stub_uuid_module):
-        uuid_strings = ['cbc82ce5-f8f4-400e-94fc-03a95635f18b']
-        stub_well_ids(stub_uuid_module, uuid_strings)
-
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                project_length_unit_abbreviation='ft')
+    def test_returns_feet_project_length_unit_from_net_project_length_units(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='ft',
+                                                                well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.length_unit(), equal_to('ft'))
@@ -154,30 +123,32 @@ class TestProjectLoader(unittest.TestCase):
         assert_that(calling(ProjectAdapter).with_args(None), raises(deal.PreContractError))
 
     def test_trajectory_points_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                eastings=[], northings=[], tvds=[])
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
+                                                                northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.trajectory_points).with_args(None), raises(deal.PreContractError))
 
     def test_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                eastings=[], northings=[], tvds=[])
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
+                                                                northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.well_name).with_args(None), raises(deal.PreContractError))
 
     def test_display_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],
-                                                                eastings=[], northings=[], tvds=[])
+        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
+                                                                northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.well_display_name).with_args(None), raises(deal.PreContractError))
 
 
-def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', well_names=None,
-                                         eastings=None, northings=None, tvds=None):
+def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', well_names=None, well_display_names=None,
+                                         well_uwis=None, eastings=None, northings=None, tvds=None):
     well_names = well_names if well_names else []
+    well_display_names = well_display_names if well_display_names else []
+    well_uwis = well_uwis if well_uwis else []
     eastings = eastings if eastings else []
     northings = northings if northings else []
     tvds = tvds if tvds else []
@@ -192,6 +163,9 @@ def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', we
 
     for i in range(len(well_names)):
         stub_well = stub_net_project.Wells.Items[i]
+        stub_well.Uwi = well_uwis[i] if well_uwis else None
+        stub_well.DisplayName = well_display_names[i] if well_display_names else None
+        stub_well.Name = well_names[i]
 
         # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
         # (https://github.com/pythonnet/pythonnet/issues/253).
@@ -219,12 +193,6 @@ def create_sut(stub_net_project):
 
     sut = ProjectAdapter(patched_loader)
     return sut
-
-
-def stub_well_ids(stub_uuid_module, uuid_strings):
-    expected_well_ids = [uuid.UUID(s) for s in uuid_strings]
-    stub_uuid_module.uuid4.side_effect = expected_well_ids
-    return expected_well_ids
 
 
 if __name__ == '__main__':

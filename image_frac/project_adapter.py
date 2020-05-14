@@ -15,7 +15,6 @@
 import os.path
 import sys
 from typing import KeysView, List, Union
-import uuid
 
 import clr
 import deal
@@ -72,15 +71,15 @@ class ProjectAdapter:
         """
         self._project_loader = project_loader
 
-        self._wells = None
+        self._wells = {}
 
     def well_map(self):
         if not self._wells:
-            self._wells = {uuid.uuid4(): w for w in self._project_loader.loaded_project().Wells.Items}
+            self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
         return self._wells
 
     @deal.pre(lambda self, well_id: well_id is not None)
-    def trajectory_points(self, well_id: uuid.UUID) -> Union[vmath.Vector3Array, np.array]:
+    def trajectory_points(self, well_id: str) -> Union[vmath.Vector3Array, np.array]:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
 
@@ -119,7 +118,7 @@ class ProjectAdapter:
         """
         return np.array([e.As(project_length_unit) for e in coordinates])
 
-    def well_ids(self) -> KeysView[uuid.UUID]:
+    def well_ids(self) -> KeysView[str]:
         """
         Return sequence identifiers for all wells in this project.
         """
@@ -134,7 +133,7 @@ class ProjectAdapter:
         return self._project_loader.loaded_project().Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
-    def well_name(self, well_id: uuid.UUID):
+    def well_name(self, well_id: str):
         """
         Return the name of the specified well.
 
@@ -144,7 +143,7 @@ class ProjectAdapter:
         return self.well_map()[well_id].Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
-    def well_display_name(self, well_id: uuid.UUID):
+    def well_display_name(self, well_id: str):
         """
         Return the name of the specified well for displays.
 
