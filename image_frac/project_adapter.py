@@ -29,11 +29,35 @@ IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Applicatio
 sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum)
+from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+def net_well_id(net_well: IWell) -> str:
+    """
+    Extract the "well ID" from a .NET `IWell` instance.
+
+    Although this method is available "publicly," the author intends it to be "private" to this module.
+
+    :param net_well:  The .NET IWell whose ID is sought.
+    :return: The value used to identify this well.
+    """
+
+    # TODO: This method should be available from `IWell` instead of here.
+    #  When that method / property is available, we **must** change this method.
+    if net_well.Uwi and net_well.Uwi.strip():
+        return net_well.Uwi.strip()
+
+    if net_well.DisplayName and net_well.DisplayName.strip():
+        return net_well.DisplayName.strip()
+
+    if net_well.Name and net_well.Name.strip():
+        return net_well.Name.strip()
+
+    raise ValueError('No well ID available.')
 
 
 class ProjectAdapter:
