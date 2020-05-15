@@ -15,7 +15,6 @@
 import os.path
 import sys
 from typing import KeysView, List, Union
-import uuid
 
 import clr
 import deal
@@ -29,11 +28,35 @@ IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Applicatio
 sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum)
+from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+def net_well_id(net_well: IWell) -> str:
+    """
+    Extract the "well ID" from a .NET `IWell` instance.
+
+    Although this method is available "publicly," the author intends it to be "private" to this module.
+
+    :param net_well:  The .NET IWell whose ID is sought.
+    :return: The value used to identify this well.
+    """
+
+    # TODO: This method should be available from `IWell` instead of here.
+    #  When that method / property is available, we **must** change this method.
+    if net_well.Uwi and net_well.Uwi.strip():
+        return net_well.Uwi.strip()
+
+    if net_well.DisplayName and net_well.DisplayName.strip():
+        return net_well.DisplayName.strip()
+
+    if net_well.Name and net_well.Name.strip():
+        return net_well.Name.strip()
+
+    raise ValueError('No well ID available.')
 
 
 class ProjectAdapter:
@@ -48,15 +71,15 @@ class ProjectAdapter:
         """
         self._project_loader = project_loader
 
-        self._wells = None
+        self._wells = {}
 
     def well_map(self):
         if not self._wells:
-            self._wells = {uuid.uuid4(): w for w in self._project_loader.loaded_project().Wells.Items}
+            self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
         return self._wells
 
     @deal.pre(lambda self, well_id: well_id is not None)
-    def trajectory_points(self, well_id: uuid.UUID) -> Union[vmath.Vector3Array, np.array]:
+    def trajectory_points(self, well_id: str) -> Union[vmath.Vector3Array, np.array]:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
 
@@ -95,7 +118,7 @@ class ProjectAdapter:
         """
         return np.array([e.As(project_length_unit) for e in coordinates])
 
-    def well_ids(self) -> KeysView[uuid.UUID]:
+    def well_ids(self) -> KeysView[str]:
         """
         Return sequence identifiers for all wells in this project.
         """
@@ -110,7 +133,7 @@ class ProjectAdapter:
         return self._project_loader.loaded_project().Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
-    def well_name(self, well_id: uuid.UUID):
+    def well_name(self, well_id: str):
         """
         Return the name of the specified well.
 
@@ -120,7 +143,7 @@ class ProjectAdapter:
         return self.well_map()[well_id].Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
-    def well_display_name(self, well_id: uuid.UUID):
+    def well_display_name(self, well_id: str):
         """
         Return the name of the specified well for displays.
 
