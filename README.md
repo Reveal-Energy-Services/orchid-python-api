@@ -1,8 +1,8 @@
 # Introduction 
 
-This project defines the implementation of the Python API for ImageFrac4.
+This project defines the implementation of the Python API for Orchid.
 
-Specifically, the `image_frac` package exposes the ImageFrac4 API to Python applications and the Python REPL.
+Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
 Additionally, this project contains a number of demonstration applications:
 
 - `plot_trajectories.py`
@@ -16,7 +16,7 @@ The first three applications plot:
 - The time series for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
 
-The last application demonstrates using `image_frac` package and Pandas to perform some typical treatment calculations.
+The last application demonstrates using `orchid` package and Pandas to perform some typical treatment calculations.
 
 # Getting Started
 

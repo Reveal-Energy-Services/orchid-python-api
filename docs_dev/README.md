@@ -2,7 +2,7 @@
 
 ## Purpose and Scope
 
-This document provides an overview of the ImageFrac4 Python API for developers. It models the overall 
+This document provides an overview of the Orchid Python API for developers. It models the overall 
 structure of the package and its demo applications.
 
 ### WARNING: Just Sketches

@@ -21,8 +21,8 @@ import matplotlib.pyplot as plt
 # noinspection PyUnresolvedReferences
 import seaborn as sns
 
-from image_frac.project_adapter import ProjectAdapter
-from image_frac.project_loader import ProjectLoader
+from orchid.project_adapter import ProjectAdapter
+from orchid.project_loader import ProjectLoader
 
 
 @deal.pre(lambda ifrac_pathname: ifrac_pathname is not None)

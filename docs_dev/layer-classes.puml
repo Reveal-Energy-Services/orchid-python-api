@@ -13,7 +13,7 @@ package UseCaseCoordinator {
     class ProjectCoordinator
 }
 
-package ImageFrac4 {
+package orchid {
     class ProjectLoader
     class ScriptAdapter
     interface IProjectReader

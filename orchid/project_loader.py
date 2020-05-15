@@ -16,7 +16,7 @@ import clr
 import os.path
 import sys
 
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
 
 sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
@@ -26,7 +26,7 @@ from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 
 
-class ImageFracError(Exception):
+class OrchidError(Exception):
     pass
 
 
@@ -45,7 +45,7 @@ class ProjectLoader:
 
     def loaded_project(self):
         """
-        Return the loaded ImageFrac4 project.
+        Return the loaded Orchid project.
 
         :return: The loaded `IProject`.
 

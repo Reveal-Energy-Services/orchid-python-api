@@ -14,7 +14,7 @@
 
 import argparse
 
-import image_frac
+import orchid
 
 
 if __name__ == '__main__':
@@ -22,4 +22,4 @@ if __name__ == '__main__':
     parser.add_argument('pathname', help="Path name of the IMAGEFrac project file ('.ifrac').")
 
     options = parser.parse_args()
-    image_frac.plot_trajectories(options.pathname)
+    orchid.plot_trajectories(options.pathname)

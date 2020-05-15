@@ -34,10 +34,10 @@ from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, e
 import numpy.testing as npt
 import vectormath as vmath
 
-from image_frac.project_adapter import ProjectAdapter
-from image_frac.project_loader import ProjectLoader
+from orchid.project_adapter import ProjectAdapter
+from orchid.project_loader import ProjectLoader
 
-sys.path.append(r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
+sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWell

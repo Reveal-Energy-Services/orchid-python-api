@@ -21,9 +21,9 @@ import deal
 import numpy as np
 import vectormath as vmath
 
-from image_frac.project_loader import ProjectLoader
+from orchid.project_loader import ProjectLoader
 
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/ImageFracApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
 
 sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
