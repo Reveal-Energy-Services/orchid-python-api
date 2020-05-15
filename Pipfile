@@ -8,6 +8,7 @@ sphinx = "*"
 ipython = "*"
 pyhamcrest = "*"
 behave = "*"
+jupyter = "*"
 
 [packages]
 pythonnet = "*"
