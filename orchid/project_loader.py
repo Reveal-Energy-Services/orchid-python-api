@@ -16,7 +16,7 @@ import clr
 import os.path
 import sys
 
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
 
 sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')

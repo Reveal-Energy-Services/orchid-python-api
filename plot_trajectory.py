@@ -19,7 +19,7 @@ import orchid
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('pathname', help="Path name of the IMAGEFrac project file ('.ifrac').")
+    parser.add_argument('pathname', help="Path name of the project ('.ifrac') file.")
 
     options = parser.parse_args()
     orchid.plot_trajectories(options.pathname)
