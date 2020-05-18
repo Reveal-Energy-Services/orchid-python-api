@@ -32,6 +32,7 @@ import clr
 import deal
 from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
+from orchid.pressure_curve import ProjectPressureCurves
 from orchid.project_adapter import ProjectAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.wells_facade import WellsFacade
@@ -55,6 +56,13 @@ class TestProjectLoader(unittest.TestCase):
 
     def test_ctor_no_loader_raises_exception(self):
         assert_that(calling(ProjectAdapter).with_args(None), raises(deal.PreContractError))
+
+    def test_ctor_return_all_pressures(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='psi',
+                                                                well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.all_pressure_curves(), instance_of(ProjectPressureCurves))
 
     def test_ctor_return_all_wells(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',

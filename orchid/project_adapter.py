@@ -15,6 +15,7 @@
 import clr
 import deal
 
+from orchid.pressure_curve import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
 from orchid.wells_facade import WellsFacade
 
@@ -29,11 +30,19 @@ class ProjectAdapter:
     @deal.pre(lambda self, project_loader: project_loader is not None)
     def __init__(self, project_loader: ProjectLoader):
         """
-        Construct an instance adapting he project available from project_loader.
+        Construct an instance adapting he project available from net_project.
 
         :param project_loader: Loads an IProject to be adapted.
         """
         self._project_loader = project_loader
+
+    def all_pressure_curves(self):
+        """
+        Return a container of pressure curves indexed by time series id.
+        :return: The container of pressure curves.
+        """
+        result = ProjectPressureCurves(self._project_loader)
+        return result
 
     def all_wells(self):
         """
