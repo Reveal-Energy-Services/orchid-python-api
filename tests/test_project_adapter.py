@@ -30,12 +30,11 @@ import unittest.mock
 # and the .NET types used for specs.
 import clr
 import deal
-from hamcrest import assert_that, equal_to, has_length, contains_exactly, calling, raises
-import numpy.testing as npt
-import vectormath as vmath
+from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
 from orchid.project_adapter import ProjectAdapter
 from orchid.project_loader import ProjectLoader
+from orchid.wells_facade import WellsFacade
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')
@@ -53,6 +52,13 @@ class TestProjectLoader(unittest.TestCase):
     # - Trajectory points
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_ctor_return_all_wells(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
+                                                                well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.all_wells(), instance_of(WellsFacade))
 
     def test_returns_meter_project_length_unit_from_net_project_length_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',

@@ -12,13 +12,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from typing import List
-
 import clr
 import deal
-import numpy as np
 
 from orchid.project_loader import ProjectLoader
+from orchid.wells_facade import WellsFacade
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
@@ -36,6 +34,10 @@ class ProjectAdapter:
         :param project_loader: Loads an IProject to be adapted.
         """
         self._project_loader = project_loader
+
+    def all_wells(self):
+        result = WellsFacade(self._project_loader)
+        return result
 
     def name(self):
         """
