@@ -63,6 +63,10 @@ class WellsFacade:
     accessing wells of a project.
     """
 
+    # TODO: I currently call this class a "Facade"; however, I open open to other suggestions.
+    # This post on StackOverflow describes alternative names to "<Whatever>Manager":
+    # https://stackoverflow.com/questions/1866794/naming-classes-how-to-avoid-calling-everything-a-whatevermanager
+
     @deal.pre(lambda self, project_loader: project_loader is not None)
     def __init__(self, project_loader: ProjectLoader):
         """
