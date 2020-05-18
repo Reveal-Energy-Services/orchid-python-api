@@ -23,7 +23,8 @@ seaborn = "*"
 python_version = "3.7"
 
 [scripts]
-plot_trajectory = "python plot_trajectory.py"
 ipython = "ipython"
+jupyter_lab = "jupyter lab"
+plot_trajectory = "python plot_trajectory.py"
 test_project_loader = "python orchid/project_loader.py -v"
 test_project_adapter = "python orchid/project_adapter.py -v"

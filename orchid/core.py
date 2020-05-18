@@ -52,12 +52,13 @@ def plot_trajectories(ifrac_pathname: str) -> None:
     :return: None
     """
     project = load_project(ifrac_pathname)
-    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project.default_well_colors()]
-    well_ids = list(project.well_ids())
-    trajectories = [project.trajectory_points(well_id) for well_id in well_ids]
+    wells_facade = project.all_wells()
+    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in wells_facade.default_well_colors()]
+    well_ids = list(wells_facade.well_ids())
+    trajectories = [wells_facade.trajectory_points(well_id) for well_id in well_ids]
     for i in range(len(well_ids)):
         plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
-                 label=f'{project.well_display_name(well_ids[i])}',
+                 label=f'{wells_facade.well_display_name(well_ids[i])}',
                  color=default_well_colors[i % len(default_well_colors)])
     plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
     plt.legend(loc='best')
