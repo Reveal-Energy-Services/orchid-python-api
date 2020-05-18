@@ -17,7 +17,7 @@ import unittest
 import deal
 from hamcrest import assert_that, equal_to, is_, calling, raises
 
-import image_frac
+import orchid
 
 
 class TestCoreLoadProject(unittest.TestCase):
@@ -25,13 +25,13 @@ class TestCoreLoadProject(unittest.TestCase):
         assert_that(2 + 2, is_(equal_to(4)))
 
     def test_no_pathname_load_project_raises_exception(self):
-        assert_that(calling(image_frac.load_project).with_args(None), raises(deal.PreContractError))
+        assert_that(calling(orchid.load_project).with_args(None), raises(deal.PreContractError))
 
     def test_empty_pathname_load_project_raises_exception(self):
-        assert_that(calling(image_frac.load_project).with_args(''), raises(deal.PreContractError))
+        assert_that(calling(orchid.load_project).with_args(''), raises(deal.PreContractError))
 
     def test_whitespace_pathname_load_project_raises_exception(self):
-        assert_that(calling(image_frac.load_project).with_args('\t'), raises(deal.PreContractError))
+        assert_that(calling(orchid.load_project).with_args('\t'), raises(deal.PreContractError))
 
 
 if __name__ == '__main__':

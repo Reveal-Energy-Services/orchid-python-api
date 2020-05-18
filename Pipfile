@@ -8,6 +8,7 @@ sphinx = "*"
 ipython = "*"
 pyhamcrest = "*"
 behave = "*"
+jupyter = "*"
 
 [packages]
 pythonnet = "*"
@@ -24,5 +25,5 @@ python_version = "3.7"
 [scripts]
 plot_trajectory = "python plot_trajectory.py"
 ipython = "ipython"
-test_project_loader = "python image_frac/project_loader.py -v"
-test_project_adapter = "python image_frac/project_adapter.py -v"
+test_project_loader = "python orchid/project_loader.py -v"
+test_project_adapter = "python orchid/project_adapter.py -v"
