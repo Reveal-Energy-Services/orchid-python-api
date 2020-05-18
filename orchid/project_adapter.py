@@ -36,6 +36,11 @@ class ProjectAdapter:
         self._project_loader = project_loader
 
     def all_wells(self):
+        """
+        Return an object managing all wells from this project.
+
+        :return: The object managing all wells for this project.
+        """
         result = WellsFacade(self._project_loader)
         return result
 
