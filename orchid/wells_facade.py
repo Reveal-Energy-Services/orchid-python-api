@@ -84,6 +84,7 @@ class WellsFacade:
         return self._wells
 
     @deal.pre(lambda self, well_id: well_id is not None)
+    @deal.pre(lambda self, well_id: len(well_id.strip()) > 0)
     def trajectory_points(self, well_id: str) -> Union[vmath.Vector3Array, np.array]:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
@@ -138,6 +139,7 @@ class WellsFacade:
         return self._project_loader.loaded_project().Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
+    @deal.pre(lambda self, well_id: len(well_id.strip()) > 0)
     def well_name(self, well_id: str):
         """
         Return the name of the specified well.
@@ -148,6 +150,7 @@ class WellsFacade:
         return self._well_map()[well_id].Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
+    @deal.pre(lambda self, well_id: len(well_id.strip()) > 0)
     def well_display_name(self, well_id: str):
         """
         Return the name of the specified well for displays.

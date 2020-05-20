@@ -128,29 +128,16 @@ class ProjectPressureCurvesTest(unittest.TestCase):
             expected_series = pd.Series(sample_values[i], sample_times[i])
             npt.assert_allclose(sut.pressure_curve_samples(curve_names[i]), expected_series)
 
-    @staticmethod
-    def test_pressure_curve_samples_with_no_curve_name_raises_exception():
+    def test_pressure_curve_samples_with_invalid_curve_name_raises_exception(self):
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
         sut = create_sut(stub_net_project)
 
-        # noinspection PyTypeChecker
-        assert_that(calling(sut.pressure_curve_samples).with_args(None), raises(deal.PreContractError))
-
-    @staticmethod
-    def test_pressure_curve_samples_with_empty_curve_name_raises_exception():
-        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
-        sut = create_sut(stub_net_project)
-
-        # noinspection PyTypeChecker
-        assert_that(calling(sut.pressure_curve_samples).with_args(''), raises(deal.PreContractError))
-
-    @staticmethod
-    def test_pressure_curve_samples_with_white_space_curve_name_raises_exception():
-        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
-        sut = create_sut(stub_net_project)
-
-        # noinspection PyTypeChecker
-        assert_that(calling(sut.pressure_curve_samples).with_args('\v'), raises(deal.PreContractError))
+        # Using self.subTest as a context manager to parameterize a unit test. Note that the
+        # test count treats this as a single test; however, failures are reported as a
+        # "SubTest Error" with detail listing the specific failure(s).
+        for invalid_curve_name in [None, '', '\v']:
+            with self.subTest(invalid_curve_name=invalid_curve_name):
+                self.assertRaises(deal.PreContractError, sut.pressure_curve_samples, invalid_curve_name)
 
 
 def create_stub_net_project(curve_names=None, samples=None, project_pressure_unit_abbreviation=''):
