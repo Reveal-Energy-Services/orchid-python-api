@@ -52,6 +52,9 @@ class TestWellsFacade(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_ctor_no_loader_raises_exception(self):
+        assert_that(calling(WellsFacade).with_args(None), raises(deal.PreContractError))
+
     def test_no_well_ids_for_project_with_no_wells(self):
         stub_project_loader = unittest.mock.MagicMock(name='stub_project_loader', spec=ProjectLoader)
         sut = WellsFacade(stub_project_loader)
@@ -103,29 +106,32 @@ class TestWellsFacade(unittest.TestCase):
                             vmath.Vector3Array([[768385, 8320613, 7515], [768359, 8320703, 7516],
                                                 [768331, 8320792, 7517]]))
 
-    def test_ctor_no_loader_raises_exception(self):
-        assert_that(calling(WellsFacade).with_args(None), raises(deal.PreContractError))
-
-    def test_trajectory_points_no_well_id_raises_exception(self):
+    def test_trajectory_points_invalid_well_id_raises_exception(self):
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
                                                    northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
-        assert_that(calling(sut.trajectory_points).with_args(None), raises(deal.PreContractError))
+        for invalid_well_id in [None, '', '\t']:
+            with self.subTest(invalid_well_id=invalid_well_id):
+                self.assertRaises(deal.PreContractError, sut.trajectory_points, invalid_well_id)
 
     def test_well_name_no_well_id_raises_exception(self):
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
                                                    northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
-        assert_that(calling(sut.well_name).with_args(None), raises(deal.PreContractError))
+        for invalid_well_id in [None, '', '    ']:
+            with self.subTest(invalid_well_id=invalid_well_id):
+                self.assertRaises(deal.PreContractError, sut.well_name, invalid_well_id)
 
     def test_display_well_name_no_well_id_raises_exception(self):
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
                                                    northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
-        assert_that(calling(sut.well_display_name).with_args(None), raises(deal.PreContractError))
+        for invalid_well_id in [None, '', '\r']:
+            with self.subTest(invalid_well_id=invalid_well_id):
+                self.assertRaises(deal.PreContractError, sut.well_display_name, invalid_well_id)
 
 
 def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None,

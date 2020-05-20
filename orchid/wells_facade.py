@@ -20,6 +20,7 @@ import numpy as np
 import vectormath as vmath
 
 from orchid.project_loader import ProjectLoader
+import orchid.validation
 
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
@@ -67,7 +68,7 @@ class WellsFacade:
     # This post on StackOverflow describes alternative names to "<Whatever>Manager":
     # https://stackoverflow.com/questions/1866794/naming-classes-how-to-avoid-calling-everything-a-whatevermanager
 
-    @deal.pre(lambda self, project_loader: project_loader is not None)
+    @deal.pre(orchid.validation.arg_not_none)
     def __init__(self, project_loader: ProjectLoader):
         """
         Construct an instance adapting the .NET `IProject` available from project_loader.
@@ -83,7 +84,8 @@ class WellsFacade:
             self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
         return self._wells
 
-    @deal.pre(lambda self, well_id: well_id is not None)
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def trajectory_points(self, well_id: str) -> Union[vmath.Vector3Array, np.array]:
         """
         Return the subsurface points of the well bore of well_id in the specified reference frame and with depth datum.
@@ -137,7 +139,8 @@ class WellsFacade:
         """
         return self._project_loader.loaded_project().Name
 
-    @deal.pre(lambda self, well_id: well_id is not None)
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def well_name(self, well_id: str):
         """
         Return the name of the specified well.
@@ -147,7 +150,8 @@ class WellsFacade:
         """
         return self._well_map()[well_id].Name
 
-    @deal.pre(lambda self, well_id: well_id is not None)
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def well_display_name(self, well_id: str):
         """
         Return the name of the specified well for displays.
