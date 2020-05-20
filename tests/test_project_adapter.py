@@ -32,6 +32,7 @@ import clr
 import deal
 from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
+from orchid.pressure_curve import ProjectPressureCurves
 from orchid.project_adapter import ProjectAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.wells_facade import WellsFacade
@@ -52,6 +53,16 @@ class TestProjectLoader(unittest.TestCase):
     # - Trajectory points
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_ctor_no_loader_raises_exception(self):
+        assert_that(calling(ProjectAdapter).with_args(None), raises(deal.PreContractError))
+
+    def test_ctor_return_all_pressures(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='psi',
+                                                                well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.all_pressure_curves(), instance_of(ProjectPressureCurves))
 
     def test_ctor_return_all_wells(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
@@ -74,12 +85,24 @@ class TestProjectLoader(unittest.TestCase):
 
         assert_that(sut.length_unit(), equal_to('ft'))
 
-    def test_ctor_no_loader_raises_exception(self):
-        assert_that(calling(ProjectAdapter).with_args(None), raises(deal.PreContractError))
+    def test_returns_kPa_project_pressure_unit_from_net_project_pressure_units(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='kPa',
+                                                                well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.pressure_unit(), equal_to('kPa'))
+
+    def test_returns_psi_project_pressure_unit_from_net_project_pressure_units(self):
+        stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='psi',
+                                                                well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.pressure_unit(), equal_to('psi'))
 
 
-def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', well_names=None, well_display_names=None,
-                                         well_uwis=None, eastings=None, northings=None, tvds=None):
+def create_stub_net_project_abbreviation(well_names=None, well_display_names=None,
+                                         well_uwis=None, eastings=None, northings=None, tvds=None,
+                                         project_length_unit_abbreviation='', project_pressure_unit_abbreviation=''):
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
     well_uwis = well_uwis if well_uwis else []
@@ -92,6 +115,10 @@ def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', we
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
     elif project_length_unit_abbreviation == 'm':
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
+    if project_pressure_unit_abbreviation == 'psi':
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
+    elif project_pressure_unit_abbreviation == 'kPa':
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
 
     stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
 

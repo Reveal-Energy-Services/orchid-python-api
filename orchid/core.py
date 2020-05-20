@@ -44,6 +44,35 @@ def load_project(ifrac_pathname: str) -> ProjectAdapter:
 # TODO: Add **kwargs eventually?
 # Although the original proposal included kwargs to control the plotting, I do not know what those arguments
 # might actually be right now so I have not included the argument. Adding this argument is low-cost.
+def plot_pressures(ifrac_pathname: str) -> None:
+    """
+    Plot all the the surface pressure curves for the project of interest.
+
+    :param ifrac_pathname: The path identifying the data file of the project of interest.
+    :return: None
+    """
+    project = load_project(ifrac_pathname)
+    all_pressure_curves = project.all_pressure_curves()
+    all_wells = project.all_wells()
+    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in all_wells.default_well_colors()]
+    pressure_curve_ids = all_pressure_curves.pressure_curve_ids()
+    surface_pressure_curves = [all_pressure_curves.samples(pressure_curve_id)
+                               for pressure_curve_id in pressure_curve_ids]
+    for i in range(len(pressure_curve_ids)):
+        plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
+                 label=f'{all_wells.well_display_name(well_ids[i])}',
+                 color=default_well_colors[i % len(default_well_colors)])
+    plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
+    plt.legend(loc='best')
+    plt.xlabel(f'Easting ({project.length_unit()})')
+    plt.ylabel(f'Northing ({project.length_unit()})')
+
+    plt.show()
+
+
+# TODO: Add **kwargs eventually?
+# Although the original proposal included kwargs to control the plotting, I do not know what those arguments
+# might actually be right now so I have not included the argument. Adding this argument is low-cost.
 def plot_trajectories(ifrac_pathname: str) -> None:
     """
     Plot the trajectories for all the wells in the project of interest.

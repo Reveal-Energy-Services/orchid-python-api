@@ -59,7 +59,7 @@ class TestWellsFacade(unittest.TestCase):
         assert_that(sut.well_ids(), has_length(0))
 
     def test_one_well_id_for_project_with_one_well(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -67,8 +67,8 @@ class TestWellsFacade(unittest.TestCase):
 
     def test_many_wells_ids_for_project_with_many_wells(self):
         well_uwis = ['03-293-91256-93-16', '66-253-17741-53-93', '03-76-97935-41-93']
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'],
-                                                                well_uwis=well_uwis)
+        stub_net_project = create_stub_net_project(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'],
+                                                   well_uwis=well_uwis)
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -76,27 +76,27 @@ class TestWellsFacade(unittest.TestCase):
         assert_that(sut.well_ids(), contains_exactly(*well_uwis))
 
     def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
-                                                                northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
+                                                   northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.trajectory_points('dont-care-well'), is_(empty()))
 
     def test_one_trajectory_point_for_well_with_one_trajectory_point(self):
-        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
-                                                                well_names=['dont-care-well'], eastings=[[185939]],
-                                                                northings=[[280875]], tvds=[[2250]])
+        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='m',
+                                                   well_names=['dont-care-well'], eastings=[[185939]],
+                                                   northings=[[280875]], tvds=[[2250]])
         sut = create_sut(stub_net_project)
 
         npt.assert_allclose(sut.trajectory_points('dont-care-well'),
                             vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
     def test_many_trajectory_points_for_well_with_many_trajectory_points(self):
-        stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='ft',
-                                                                well_names=['dont-care-well'],
-                                                                eastings=[[768385, 768359, 768331]],
-                                                                northings=[[8320613, 8320703, 8320792]],
-                                                                tvds=[[7515, 7516, 7517]])
+        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='ft',
+                                                   well_names=['dont-care-well'],
+                                                   eastings=[[768385, 768359, 768331]],
+                                                   northings=[[8320613, 8320703, 8320792]],
+                                                   tvds=[[7515, 7516, 7517]])
         sut = create_sut(stub_net_project)
 
         npt.assert_allclose(sut.trajectory_points('dont-care-well'),
@@ -107,29 +107,29 @@ class TestWellsFacade(unittest.TestCase):
         assert_that(calling(WellsFacade).with_args(None), raises(deal.PreContractError))
 
     def test_trajectory_points_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
-                                                                northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
+                                                   northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.trajectory_points).with_args(None), raises(deal.PreContractError))
 
     def test_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
-                                                                northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
+                                                   northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.well_name).with_args(None), raises(deal.PreContractError))
 
     def test_display_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'], eastings=[],
-                                                                northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
+                                                   northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.well_display_name).with_args(None), raises(deal.PreContractError))
 
 
-def create_stub_net_project_abbreviation(project_length_unit_abbreviation='', well_names=None, well_display_names=None,
-                                         well_uwis=None, eastings=None, northings=None, tvds=None):
+def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None,
+                            well_uwis=None, eastings=None, northings=None, tvds=None):
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
     well_uwis = well_uwis if well_uwis else []
