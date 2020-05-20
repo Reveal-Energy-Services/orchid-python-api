@@ -78,7 +78,7 @@ class WellsFacade:
 
         self._wells = {}
 
-    def well_map(self):
+    def _well_map(self):
         if not self._wells:
             self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
         return self._wells
@@ -94,7 +94,7 @@ class WellsFacade:
         bushing depth datum).
         """
         project = self._project_loader.loaded_project()
-        well = self.well_map()[well_id]
+        well = self._well_map()[well_id]
         trajectory = well.Trajectory
         eastings = self._coordinates_to_array(trajectory.GetEastingArray(WellReferenceFrameXy.Project),
                                               project.ProjectUnits.LengthUnit)
@@ -127,7 +127,7 @@ class WellsFacade:
         """
         Return sequence identifiers for all wells in this project.
         """
-        return self.well_map().keys()
+        return self._well_map().keys()
 
     def name(self):
         """
@@ -145,7 +145,7 @@ class WellsFacade:
         :param well_id: The value identifying the well of interest.
         :return: The name of the well of interest.
         """
-        return self.well_map()[well_id].Name
+        return self._well_map()[well_id].Name
 
     @deal.pre(lambda self, well_id: well_id is not None)
     def well_display_name(self, well_id: str):
@@ -155,7 +155,7 @@ class WellsFacade:
         :param well_id: The value identifying the well of interest.
         :return: The name of the well of interest.
         """
-        return self.well_map()[well_id].DisplayName
+        return self._well_map()[well_id].DisplayName
 
     def default_well_colors(self):
         return [tuple(map(lambda color_component: round(color_component * 255), color))

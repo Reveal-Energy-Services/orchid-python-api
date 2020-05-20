@@ -12,11 +12,63 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from typing import Sequence
+
 import deal
+import numpy as np
+import pandas as pd
 
 from orchid.project_loader import ProjectLoader
 
 
 class ProjectPressureCurves:
+    """
+    A container for .NET Wells indexed by time series IDs.
+    """
+
+    @deal.pre(lambda self, net_project: net_project is not None)
     def __init__(self, net_project: ProjectLoader):
-        pass
+        """
+        Construct an instance wrapping the loaded .NET `IProject`.
+
+        :param net_project: The `IProject` being wrapped.
+        """
+        self._project_loader = net_project
+
+        self._pressure_curves = {}
+
+    def _pressure_curve_map(self):
+        if not self._pressure_curves:
+            self._pressure_curves.update({c.DisplayName: c for
+                                          c in self._project_loader.loaded_project().WellTimeSeriesList.Items})
+        return self._pressure_curves
+
+    def pressure_curve_ids(self) -> Sequence[str]:
+        """
+        Return the pressure curve identifiers for all pressure curves.
+        :return: A list of all pressure curve identifiers.
+        """
+
+        return list(self._pressure_curve_map().keys())
+
+    def pressure_curve_samples(self, curve_id: str) -> np.array:
+        """
+        Return a pandas time series containing the samples for the pressure curve identified by `curve_id`.
+
+        :param curve_id: Identifies a specific pressure curve in the project.
+
+        :return: A sequence of sample pressures (implicitly in the project pressure units)."""
+        curve = self._pressure_curve_map()[curve_id]
+
+        # TODO: Premature optimization?
+        # The following code uses a technique from a StackOverflow post on creating a pandas `Series` from a
+        # sequence of Python tuples. All the code is less clear, it avoids looping over a relatively "large"
+        # array (> 100k items) multiple time.
+        # https://stackoverflow.com/questions/53363688/converting-a-list-of-tuples-to-a-pandas-series
+        stamp_value_pairs = [(s.Timestamp, s.Value) for s in curve.GetOrderedTimeSeriesHistory()]
+        if stamp_value_pairs:
+            (timestamps, values) = zip(*stamp_value_pairs)
+            result = pd.Series(values, timestamps)
+            return result
+        else:
+            return pd.Series([], dtype=float)

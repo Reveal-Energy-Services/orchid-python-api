@@ -12,7 +12,14 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-# High-level API
-from .core import load_project
-from .core import plot_trajectories
-from .core import plot_pressures
+import argparse
+
+import orchid
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('pathname', help="Path name of the project ('.ifrac') file.")
+
+    options = parser.parse_args()
+    orchid.plot_pressures(options.pathname)
