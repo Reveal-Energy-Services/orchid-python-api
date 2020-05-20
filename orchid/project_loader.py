@@ -16,6 +16,10 @@ import clr
 import os.path
 import sys
 
+import deal
+
+import orchid.validation
+
 IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
 
 sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
@@ -33,6 +37,8 @@ class OrchidError(Exception):
 class ProjectLoader:
     """Provides an .NET IProject to be adapted."""
 
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def __init__(self, project_pathname: str):
         """
         Construct an instance that loads project data from project_pathname

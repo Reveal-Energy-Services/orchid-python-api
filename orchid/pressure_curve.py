@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 
 from orchid.project_loader import ProjectLoader
+import orchid.validation
 
 
 class ProjectPressureCurves:
@@ -26,7 +27,7 @@ class ProjectPressureCurves:
     A container for .NET Wells indexed by time series IDs.
     """
 
-    @deal.pre(lambda self, net_project: net_project is not None)
+    @deal.pre(orchid.validation.arg_not_none)
     def __init__(self, net_project: ProjectLoader):
         """
         Construct an instance wrapping the loaded .NET `IProject`.
@@ -51,8 +52,8 @@ class ProjectPressureCurves:
 
         return list(self._pressure_curve_map().keys())
 
-    @deal.pre(lambda self, curve_id: curve_id is not None)
-    @deal.pre(lambda self, curve_id: len(curve_id.strip()) > 0)
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def pressure_curve_samples(self, curve_id: str) -> np.array:
         """
         Return a pandas time series containing the samples for the pressure curve identified by `curve_id`.
