@@ -51,6 +51,9 @@ class ProjectPressureCurves:
 
         return list(self._pressure_curve_map().keys())
 
+    @deal.pre(lambda self, curve_id: curve_id is not None)
+    @deal.pre(lambda self, curve_id: len(curve_id) > 0)
+    @deal.pre(lambda self, curve_id: len(curve_id.strip()) > 0)
     def pressure_curve_samples(self, curve_id: str) -> np.array:
         """
         Return a pandas time series containing the samples for the pressure curve identified by `curve_id`.

@@ -128,6 +128,30 @@ class ProjectPressureCurvesTest(unittest.TestCase):
             expected_series = pd.Series(sample_values[i], sample_times[i])
             npt.assert_allclose(sut.pressure_curve_samples(curve_names[i]), expected_series)
 
+    @staticmethod
+    def test_pressure_curve_samples_with_no_curve_name_raises_exception():
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        assert_that(calling(sut.pressure_curve_samples).with_args(None), raises(deal.PreContractError))
+
+    @staticmethod
+    def test_pressure_curve_samples_with_empty_curve_name_raises_exception():
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        assert_that(calling(sut.pressure_curve_samples).with_args(''), raises(deal.PreContractError))
+
+    @staticmethod
+    def test_pressure_curve_samples_with_white_space_curve_name_raises_exception():
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        assert_that(calling(sut.pressure_curve_samples).with_args('\v'), raises(deal.PreContractError))
+
 
 def create_stub_net_project(curve_names=None, samples=None, project_pressure_unit_abbreviation=''):
     curve_names = curve_names if curve_names else []
