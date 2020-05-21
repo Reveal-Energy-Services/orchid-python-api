@@ -15,6 +15,7 @@
 #
 
 import deal
+import numpy as np
 import matplotlib.pyplot as plt
 # The following import is included for its "side-effects" of an improved color schemes and plot styles.
 # (See the "Tip" in section 9.2 of "Python for Data Analysis" for details.)
@@ -53,19 +54,23 @@ def plot_pressures(ifrac_pathname: str) -> None:
     """
     project = load_project(ifrac_pathname)
     all_pressure_curves = project.all_pressure_curves()
-    all_wells = project.all_wells()
-    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in all_wells.default_well_colors()]
     pressure_curve_ids = all_pressure_curves.pressure_curve_ids()
-    surface_pressure_curves = [all_pressure_curves.samples(pressure_curve_id)
+    surface_pressure_curves = [all_pressure_curves.pressure_curve_samples(pressure_curve_id)
                                for pressure_curve_id in pressure_curve_ids]
-    for i in range(len(pressure_curve_ids)):
-        plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
-                 label=f'{all_wells.well_display_name(well_ids[i])}',
-                 color=default_well_colors[i % len(default_well_colors)])
-    plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
-    plt.legend(loc='best')
-    plt.xlabel(f'Easting ({project.length_unit()})')
-    plt.ylabel(f'Northing ({project.length_unit()})')
+    # TODO: Remove hard-coding
+    figure, axes = plt.subplots(2, 2)
+    curves_to_plot = np.reshape(surface_pressure_curves, (2, 2))
+    for i in range(len(axes)):
+        for j in range(len(axes[0])):
+            curves_to_plot[i, j].plot(ax=axes[i, j])
+    # for i in range(len(pressure_curve_ids)):
+    #     plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
+    #              label=f'{all_wells.well_display_name(well_ids[i])}',
+    #              color=default_well_colors[i % len(default_well_colors)])
+    # plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
+    # plt.legend(loc='best')
+    # plt.xlabel(f'Easting ({project.length_unit()})')
+    # plt.ylabel(f'Northing ({project.length_unit()})')
 
     plt.show()
 
