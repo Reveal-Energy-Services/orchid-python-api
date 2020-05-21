@@ -33,7 +33,7 @@ import deal
 from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
 from orchid.pressure_curve import ProjectPressureCurves
-from orchid.project_adapter import ProjectAdapter
+from orchid.project import ProjectAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.project_wells import ProjectWells
 
@@ -47,7 +47,7 @@ clr.AddReference('UnitsNet')
 import UnitsNet
 
 
-class TestProjectLoader(unittest.TestCase):
+class TestProject(unittest.TestCase):
     # Test ideas:
     # Return correct abbreviation for the project's length units
     # - Trajectory points

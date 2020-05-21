@@ -25,7 +25,7 @@ import pandas as pd
 # noinspection PyUnresolvedReferences
 import seaborn as sns
 
-from orchid.project_adapter import ProjectAdapter
+from orchid.project import ProjectAdapter
 from orchid.project_loader import ProjectLoader
 
 
@@ -58,10 +58,10 @@ def plot_pressures(ifrac_pathname: str) -> None:
     project = load_project(ifrac_pathname)
     project_wells = project.all_wells()
     default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project_wells.default_well_colors()]
-    all_pressure_curves = project.all_pressure_curves()
-    pressure_curve_ids = all_pressure_curves.pressure_curve_ids()
-    pressure_curve_display_names = [all_pressure_curves.display_name(curve_id) for curve_id in pressure_curve_ids]
-    surface_pressure_curves = [all_pressure_curves.pressure_curve_samples(pressure_curve_id)
+    project_pressure_curves = project.all_pressure_curves()
+    pressure_curve_ids = project_pressure_curves.pressure_curve_ids()
+    pressure_curve_display_names = [project_pressure_curves.display_name(curve_id) for curve_id in pressure_curve_ids]
+    surface_pressure_curves = [project_pressure_curves.pressure_curve_samples(pressure_curve_id)
                                for pressure_curve_id in pressure_curve_ids]
 
     # TODO: Remove hard-coding
