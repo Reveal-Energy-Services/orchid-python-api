@@ -47,7 +47,6 @@ def load_project(ifrac_pathname: str) -> ProjectAdapter:
 # might actually be right now so I have not included the argument. Adding this argument is low-cost.
 #
 # Candidate fixes:
-# - Units on y-axes
 # - Add subplot titles
 # - Use well-default colors
 # - Extract plot single onto subplot axes
@@ -69,6 +68,7 @@ def plot_pressures(ifrac_pathname: str) -> None:
     for i in range(len(axes)):
         for j in range(len(axes[0])):
             curves_to_plot[i, j].plot(ax=axes[i, j])
+            axes[i, j].set_ylabel(f'Pressure ({project.pressure_unit()})')
             x_tick_labels = axes[i, j].get_xticklabels()
             plt.setp(x_tick_labels, rotation=30)
     # for i in range(len(pressure_curve_ids)):
