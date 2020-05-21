@@ -39,6 +39,11 @@ from orchid.pressure_curve import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
+
+clr.AddReference('System')
+# noinspection PyUnresolvedReferences
+from System import DateTime
+
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWellSampledQuantityTimeSeries
@@ -49,9 +54,10 @@ import UnitsNet
 
 
 class Sample:
-    def __init__(self, timestamp, value):
+    def __init__(self, time_point: datetime.datetime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        self.Timestamp = timestamp
+        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
+                                  time_point.minute, time_point.second)
         self.Value = value
 
 
@@ -135,9 +141,28 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         # Using self.subTest as a context manager to parameterize a unit test. Note that the
         # test count treats this as a single test; however, failures are reported as a
         # "SubTest Error" with detail listing the specific failure(s).
-        for invalid_curve_name in [None, '', '\v']:
-            with self.subTest(invalid_curve_name=invalid_curve_name):
-                self.assertRaises(deal.PreContractError, sut.pressure_curve_samples, invalid_curve_name)
+        for invalid_curve_id in [None, '', '\v']:
+            with self.subTest(invalid_curve_name=invalid_curve_id):
+                self.assertRaises(deal.PreContractError, sut.pressure_curve_samples, invalid_curve_id)
+
+    @staticmethod
+    def test_one_curve_display_name_for_project_with_one_pressure_curve():
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        assert_that(sut.display_name('oppugnavi'), equal_to('oppugnavi'))
+
+    def test_display_name_with_invalid_curve_id_raises_exception(self):
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # Using self.subTest as a context manager to parameterize a unit test. Note that the
+        # test count treats this as a single test; however, failures are reported as a
+        # "SubTest Error" with detail listing the specific failure(s).
+        for invalid_curve_id in [None, '', '\v']:
+            with self.subTest(invalid_curve_name=invalid_curve_id):
+                self.assertRaises(deal.PreContractError, sut.display_name, invalid_curve_id)
 
 
 def create_stub_net_project(curve_names=None, samples=None, project_pressure_unit_abbreviation=''):
