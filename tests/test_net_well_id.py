@@ -18,7 +18,7 @@ import unittest.mock
 import clr
 from hamcrest import assert_that, is_, equal_to, calling, raises, has_properties
 
-import orchid.wells_facade
+import orchid.project_wells
 
 
 IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
@@ -38,7 +38,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = None
         stub_well.Uwi = '49-240-45978-50-76'
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('49-240-45978-50-76')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('49-240-45978-50-76')))
 
     def test_well_id_is_display_name_if_net_well_uwi_is_none(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -46,7 +46,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = 'paries'
         stub_well.Uwi = None
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('paries')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('paries')))
 
     def test_well_id_is_display_name_if_net_well_uwi_is_empty(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -54,7 +54,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = 'paries'
         stub_well.Uwi = ''
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('paries')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('paries')))
 
     def test_well_id_is_display_name_if_net_well_uwi_is_white_space(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -62,7 +62,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = 'paries'
         stub_well.Uwi = '\n'
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('paries')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('paries')))
 
     def test_well_id_is_name_if_net_well_display_name_is_none(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -70,7 +70,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = None
         stub_well.Uwi = None
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('cibus')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('cibus')))
 
     def test_well_id_is_name_if_net_well_display_name_is_empty(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -78,7 +78,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = ''
         stub_well.Uwi = None
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('cibus')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('cibus')))
 
     def test_well_id_is_name_if_net_well_display_name_is_white_space(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -86,7 +86,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = '\f'
         stub_well.Uwi = None
 
-        assert_that(orchid.wells_facade.net_well_id(stub_well), is_(equal_to('cibus')))
+        assert_that(orchid.project_wells.net_well_id(stub_well), is_(equal_to('cibus')))
 
     def test_well_id_raises_exception_if_all_candidates_none(self):
         stub_well = unittest.mock.MagicMock(name='mock_net_well', spec=IWell)
@@ -94,7 +94,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = None
         stub_well.Uwi = None
 
-        assert_that(calling(orchid.wells_facade.net_well_id).with_args(stub_well),
+        assert_that(calling(orchid.project_wells.net_well_id).with_args(stub_well),
                     raises(ValueError, matching=has_properties(args=('No well ID available.',))))
 
     def test_well_id_raises_exception_if_well_name_empty(self):
@@ -103,7 +103,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = None
         stub_well.Uwi = None
 
-        assert_that(calling(orchid.wells_facade.net_well_id).with_args(stub_well),
+        assert_that(calling(orchid.project_wells.net_well_id).with_args(stub_well),
                     raises(ValueError, matching=has_properties(args=('No well ID available.',))))
 
     def test_well_id_raises_exception_if_well_name_white_space(self):
@@ -112,7 +112,7 @@ class TestNetWellId(unittest.TestCase):
         stub_well.DisplayName = None
         stub_well.Uwi = None
 
-        assert_that(calling(orchid.wells_facade.net_well_id).with_args(stub_well),
+        assert_that(calling(orchid.project_wells.net_well_id).with_args(stub_well),
                     raises(ValueError, matching=has_properties(args=('No well ID available.',))))
 
 

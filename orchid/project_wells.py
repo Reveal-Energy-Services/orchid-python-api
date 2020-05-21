@@ -55,8 +55,8 @@ def net_well_id(net_well: IWell) -> str:
     raise ValueError('No well ID available.')
 
 
-class WellsFacade:
-    """Plays the role of a GOF Facade for .NET Wells.
+class ProjectWells:
+    """Provides a single class to access information about all wells in a project.
 
     In this role, this class has three responsibilities. First, it acts as a GOF Facade, providing a simpler
     interface than that provided by navigation through and interaction with the .NET DOM. Second, it adapts

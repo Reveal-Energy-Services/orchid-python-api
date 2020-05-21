@@ -35,7 +35,7 @@ from hamcrest import assert_that, equal_to, instance_of, calling, raises
 from orchid.pressure_curve import ProjectPressureCurves
 from orchid.project_adapter import ProjectAdapter
 from orchid.project_loader import ProjectLoader
-from orchid.wells_facade import WellsFacade
+from orchid.project_wells import ProjectWells
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')
@@ -69,7 +69,7 @@ class TestProjectLoader(unittest.TestCase):
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.all_wells(), instance_of(WellsFacade))
+        assert_that(sut.all_wells(), instance_of(ProjectWells))
 
     def test_returns_meter_project_length_unit_from_net_project_length_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
