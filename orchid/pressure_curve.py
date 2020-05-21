@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime
 from typing import Sequence
 
 import deal
@@ -68,10 +69,16 @@ class ProjectPressureCurves:
         # sequence of Python tuples. All the code is less clear, it avoids looping over a relatively "large"
         # array (> 100k items) multiple time.
         # https://stackoverflow.com/questions/53363688/converting-a-list-of-tuples-to-a-pandas-series
-        stamp_value_pairs = [(s.Timestamp, s.Value) for s in curve.GetOrderedTimeSeriesHistory()]
+        stamp_value_pairs = [(self._as_datetime(s.Timestamp), s.Value) for s in curve.GetOrderedTimeSeriesHistory()]
         if stamp_value_pairs:
             (timestamps, values) = zip(*stamp_value_pairs)
             result = pd.Series(values, timestamps)
             return result
         else:
             return pd.Series([], dtype=float)
+
+    @staticmethod
+    def _as_datetime(net_time_point) -> datetime.datetime:
+        result = datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                                   net_time_point.Hour, net_time_point.Minute, net_time_point.Second)
+        return result
