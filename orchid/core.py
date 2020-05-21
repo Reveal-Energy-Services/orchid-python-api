@@ -14,9 +14,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from typing import Tuple
+
 import deal
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 # The following import is included for its "side-effects" of an improved color schemes and plot styles.
 # (See the "Tip" in section 9.2 of "Python for Data Analysis" for details.)
 # noinspection PyUnresolvedReferences
@@ -45,9 +48,6 @@ def load_project(ifrac_pathname: str) -> ProjectAdapter:
 # TODO: Add **kwargs eventually?
 # Although the original proposal included kwargs to control the plotting, I do not know what those arguments
 # might actually be right now so I have not included the argument. Adding this argument is low-cost.
-#
-# Candidate fixes:
-# - Extract plot single onto subplot axes
 def plot_pressures(ifrac_pathname: str) -> None:
     """
     Plot all the the surface pressure curves for the project of interest.
@@ -75,13 +75,32 @@ def plot_pressures(ifrac_pathname: str) -> None:
     colors_to_use = np.reshape(default_well_colors[:4], (2, 2))
     for i in range(len(axes)):
         for j in range(len(axes[0])):
-            curves_to_plot[i, j].plot(ax=axes[i, j], color=colors_to_use[i, j])
-            axes[i, j].set_ylabel(f'Pressure ({project.pressure_unit()})')
-            axes[i, j].title.set_text(names_to_display[i, j])
-            x_tick_labels = axes[i, j].get_xticklabels()
-            plt.setp(x_tick_labels, rotation=30)
+            series_to_plot = curves_to_plot[i, j]
+            series_name = names_to_display[i, j]
+            pressure_unit_abbreviation = project.pressure_unit()
+            ax = axes[i, j]
+            colors = colors_to_use[i, j]
+
+            plot_time_series(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
 
     plt.show()
+
+
+def plot_time_series(series_to_plot: pd.Series, axes: plt.axes, series_color: Tuple[int],
+                     pressure_unit_abbreviation: str, series_name: str) -> None:
+    """
+    Plot the specified time series using the supplied details
+    :param series_to_plot:  The (pandas) time series to plot.
+    :param axes: The matplotlib.axes.Axes on which to plot the curve.
+    :param series_color: The color of the curve to plot (an RGB tuple)
+    :param pressure_unit_abbreviation: The abbreviation of the (project) pressure unit.
+    :param series_name: The name of the series to plot.
+    """
+    series_to_plot.plot(ax=axes, color=series_color)
+    axes.set_ylabel(f'Pressure ({pressure_unit_abbreviation})')
+    axes.title.set_text(series_name)
+    x_tick_labels = axes.get_xticklabels()
+    plt.setp(x_tick_labels, rotation=30)
 
 
 # TODO: Add **kwargs eventually?
