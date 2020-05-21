@@ -82,3 +82,12 @@ class ProjectPressureCurves:
         result = datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                                    net_time_point.Hour, net_time_point.Minute, net_time_point.Second)
         return result
+
+    def display_name(self, curve_id: str) -> str:
+        """
+        Return the name used to recognize the pressure curve identified by curve_id.
+
+        :param curve_id: The value used to identify a specific pressure curve.
+        :return: The name used by engineers to describe this curve.
+        """
+        return self._pressure_curve_map()[curve_id].DisplayName

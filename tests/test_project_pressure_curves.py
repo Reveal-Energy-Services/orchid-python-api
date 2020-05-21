@@ -39,6 +39,11 @@ from orchid.pressure_curve import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
+
+clr.AddReference('System')
+# noinspection PyUnresolvedReferences
+from System import DateTime
+
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWellSampledQuantityTimeSeries
@@ -49,9 +54,10 @@ import UnitsNet
 
 
 class Sample:
-    def __init__(self, timestamp, value):
+    def __init__(self, time_point: datetime.datetime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        self.Timestamp = timestamp
+        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
+                                  time_point.minute, time_point.second)
         self.Value = value
 
 
@@ -138,6 +144,14 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         for invalid_curve_name in [None, '', '\v']:
             with self.subTest(invalid_curve_name=invalid_curve_name):
                 self.assertRaises(deal.PreContractError, sut.pressure_curve_samples, invalid_curve_name)
+
+    @staticmethod
+    def test_one_curve_display_name_for_project_with_one_pressure_curve():
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # noinspection PyTypeChecker
+        assert_that(sut.display_name('oppugnavi'), equal_to('oppugnavi'))
 
 
 def create_stub_net_project(curve_names=None, samples=None, project_pressure_unit_abbreviation=''):
