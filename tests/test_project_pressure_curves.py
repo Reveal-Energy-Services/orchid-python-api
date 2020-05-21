@@ -141,9 +141,9 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         # Using self.subTest as a context manager to parameterize a unit test. Note that the
         # test count treats this as a single test; however, failures are reported as a
         # "SubTest Error" with detail listing the specific failure(s).
-        for invalid_curve_name in [None, '', '\v']:
-            with self.subTest(invalid_curve_name=invalid_curve_name):
-                self.assertRaises(deal.PreContractError, sut.pressure_curve_samples, invalid_curve_name)
+        for invalid_curve_id in [None, '', '\v']:
+            with self.subTest(invalid_curve_name=invalid_curve_id):
+                self.assertRaises(deal.PreContractError, sut.pressure_curve_samples, invalid_curve_id)
 
     @staticmethod
     def test_one_curve_display_name_for_project_with_one_pressure_curve():
@@ -152,6 +152,17 @@ class ProjectPressureCurvesTest(unittest.TestCase):
 
         # noinspection PyTypeChecker
         assert_that(sut.display_name('oppugnavi'), equal_to('oppugnavi'))
+
+    def test_display_name_with_invalid_curve_id_raises_exception(self):
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
+        sut = create_sut(stub_net_project)
+
+        # Using self.subTest as a context manager to parameterize a unit test. Note that the
+        # test count treats this as a single test; however, failures are reported as a
+        # "SubTest Error" with detail listing the specific failure(s).
+        for invalid_curve_id in [None, '', '\v']:
+            with self.subTest(invalid_curve_name=invalid_curve_id):
+                self.assertRaises(deal.PreContractError, sut.display_name, invalid_curve_id)
 
 
 def create_stub_net_project(curve_names=None, samples=None, project_pressure_unit_abbreviation=''):

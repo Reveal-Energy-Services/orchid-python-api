@@ -83,6 +83,8 @@ class ProjectPressureCurves:
                                    net_time_point.Hour, net_time_point.Minute, net_time_point.Second)
         return result
 
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def display_name(self, curve_id: str) -> str:
         """
         Return the name used to recognize the pressure curve identified by curve_id.
