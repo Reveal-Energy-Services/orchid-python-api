@@ -35,7 +35,7 @@ from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, co
 import numpy.testing as npt
 import pandas as pd
 
-from orchid.pressure_curve import ProjectPressureCurves
+from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')

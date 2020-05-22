@@ -15,9 +15,9 @@
 import clr
 import deal
 
-from orchid.pressure_curve import ProjectPressureCurves
+from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
-from orchid.wells_facade import WellsFacade
+from orchid.project_wells import ProjectWells
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
@@ -50,7 +50,7 @@ class ProjectAdapter:
 
         :return: The object managing all wells for this project.
         """
-        result = WellsFacade(self._project_loader)
+        result = ProjectWells(self._project_loader)
         return result
 
     def name(self):

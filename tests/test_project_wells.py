@@ -34,7 +34,7 @@ from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, e
 import numpy.testing as npt
 import vectormath as vmath
 
-from orchid.wells_facade import WellsFacade
+from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
@@ -47,17 +47,17 @@ clr.AddReference('UnitsNet')
 import UnitsNet
 
 
-class TestWellsFacade(unittest.TestCase):
+class TestProjectWells(unittest.TestCase):
     # Test ideas:
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
     def test_ctor_no_loader_raises_exception(self):
-        assert_that(calling(WellsFacade).with_args(None), raises(deal.PreContractError))
+        assert_that(calling(ProjectWells).with_args(None), raises(deal.PreContractError))
 
     def test_no_well_ids_for_project_with_no_wells(self):
         stub_project_loader = unittest.mock.MagicMock(name='stub_project_loader', spec=ProjectLoader)
-        sut = WellsFacade(stub_project_loader)
+        sut = ProjectWells(stub_project_loader)
         # noinspection PyTypeChecker
         assert_that(sut.well_ids(), has_length(0))
 
@@ -181,7 +181,7 @@ def create_sut(stub_net_project):
     patched_loader = ProjectLoader('dont_care')
     patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
 
-    sut = WellsFacade(patched_loader)
+    sut = ProjectWells(patched_loader)
     return sut
 
 

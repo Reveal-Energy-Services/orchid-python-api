@@ -16,3 +16,4 @@
 from .core import load_project
 from .core import plot_trajectories
 from .core import plot_pressures
+from .core import plot_pressure_curve

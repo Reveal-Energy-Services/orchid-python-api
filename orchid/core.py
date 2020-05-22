@@ -18,6 +18,7 @@ from typing import Tuple
 
 import deal
 import numpy as np
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import pandas as pd
 # The following import is included for its "side-effects" of an improved color schemes and plot styles.
@@ -25,7 +26,7 @@ import pandas as pd
 # noinspection PyUnresolvedReferences
 import seaborn as sns
 
-from orchid.project_adapter import ProjectAdapter
+from orchid.project import ProjectAdapter
 from orchid.project_loader import ProjectLoader
 
 
@@ -56,12 +57,12 @@ def plot_pressures(ifrac_pathname: str) -> None:
     :return: None
     """
     project = load_project(ifrac_pathname)
-    wells_facade = project.all_wells()
-    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in wells_facade.default_well_colors()]
-    all_pressure_curves = project.all_pressure_curves()
-    pressure_curve_ids = all_pressure_curves.pressure_curve_ids()
-    pressure_curve_display_names = [all_pressure_curves.display_name(curve_id) for curve_id in pressure_curve_ids]
-    surface_pressure_curves = [all_pressure_curves.pressure_curve_samples(pressure_curve_id)
+    project_wells = project.all_wells()
+    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project_wells.default_well_colors()]
+    project_pressure_curves = project.all_pressure_curves()
+    pressure_curve_ids = project_pressure_curves.pressure_curve_ids()
+    pressure_curve_display_names = [project_pressure_curves.display_name(curve_id) for curve_id in pressure_curve_ids]
+    surface_pressure_curves = [project_pressure_curves.pressure_curve_samples(pressure_curve_id)
                                for pressure_curve_id in pressure_curve_ids]
 
     # TODO: Remove hard-coding
@@ -81,13 +82,13 @@ def plot_pressures(ifrac_pathname: str) -> None:
             ax = axes[i, j]
             colors = colors_to_use[i, j]
 
-            plot_time_series(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
+            plot_pressure_curve(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
 
     plt.show()
 
 
-def plot_time_series(series_to_plot: pd.Series, axes: plt.axes, series_color: Tuple[int],
-                     pressure_unit_abbreviation: str, series_name: str) -> None:
+def plot_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes, series_color: Tuple[int],
+                        pressure_unit_abbreviation: str, series_name: str) -> None:
     """
     Plot the specified time series using the supplied details
     :param series_to_plot:  The (pandas) time series to plot.
@@ -114,13 +115,13 @@ def plot_trajectories(ifrac_pathname: str) -> None:
     :return: None
     """
     project = load_project(ifrac_pathname)
-    wells_facade = project.all_wells()
-    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in wells_facade.default_well_colors()]
-    well_ids = list(wells_facade.well_ids())
-    trajectories = [wells_facade.trajectory_points(well_id) for well_id in well_ids]
+    project_wells = project.all_wells()
+    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project_wells.default_well_colors()]
+    well_ids = list(project_wells.well_ids())
+    trajectories = [project_wells.trajectory_points(well_id) for well_id in well_ids]
     for i in range(len(well_ids)):
         plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
-                 label=f'{wells_facade.well_display_name(well_ids[i])}',
+                 label=f'{project_wells.well_display_name(well_ids[i])}',
                  color=default_well_colors[i % len(default_well_colors)])
     plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
     plt.legend(loc='best')
