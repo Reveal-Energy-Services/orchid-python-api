@@ -16,7 +16,6 @@ import datetime
 from typing import Sequence
 
 import deal
-import numpy as np
 import pandas as pd
 
 from orchid.project_loader import ProjectLoader
@@ -55,7 +54,7 @@ class ProjectPressureCurves:
 
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
-    def pressure_curve_samples(self, curve_id: str) -> np.array:
+    def pressure_curve_samples(self, curve_id: str) -> pd.Series:
         """
         Return a pandas time series containing the samples for the pressure curve identified by `curve_id`.
 
