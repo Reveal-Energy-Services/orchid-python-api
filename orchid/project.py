@@ -15,7 +15,7 @@
 import clr
 import deal
 
-from orchid.pressure_curve import ProjectPressureCurves
+from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
 from orchid.project_wells import ProjectWells
 

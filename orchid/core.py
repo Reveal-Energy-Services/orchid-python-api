@@ -18,6 +18,7 @@ from typing import Tuple
 
 import deal
 import numpy as np
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import pandas as pd
 # The following import is included for its "side-effects" of an improved color schemes and plot styles.
@@ -81,13 +82,13 @@ def plot_pressures(ifrac_pathname: str) -> None:
             ax = axes[i, j]
             colors = colors_to_use[i, j]
 
-            plot_time_series(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
+            plot_pressure_curve(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
 
     plt.show()
 
 
-def plot_time_series(series_to_plot: pd.Series, axes: plt.axes, series_color: Tuple[int],
-                     pressure_unit_abbreviation: str, series_name: str) -> None:
+def plot_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes, series_color: Tuple[int],
+                        pressure_unit_abbreviation: str, series_name: str) -> None:
     """
     Plot the specified time series using the supplied details
     :param series_to_plot:  The (pandas) time series to plot.

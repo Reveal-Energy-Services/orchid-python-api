@@ -32,7 +32,7 @@ import clr
 import deal
 from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
-from orchid.pressure_curve import ProjectPressureCurves
+from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project import ProjectAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.project_wells import ProjectWells
