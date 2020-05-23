@@ -13,13 +13,20 @@
 #
 
 import datetime
+import sys
 from typing import Sequence
 
+import clr
 import deal
 import pandas as pd
 
 from orchid.project_loader import ProjectLoader
 import orchid.validation
+
+sys.path.append(r'c:\src\OrchidApp\ImageFrac\ImageFrac.Application\bin\Debug')
+clr.AddReference('UnitsNet')
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 class ProjectPressureCurves:
@@ -41,7 +48,8 @@ class ProjectPressureCurves:
     def _pressure_curve_map(self):
         if not self._pressure_curves:
             self._pressure_curves.update({c.DisplayName: c for
-                                          c in self._project_loader.loaded_project().WellTimeSeriesList.Items})
+                                          c in self._project_loader.loaded_project().WellTimeSeriesList.Items if
+                                          c.SampledQuantityType == UnitsNet.QuantityType.Pressure})
         return self._pressure_curves
 
     def pressure_curve_ids(self) -> Sequence[str]:

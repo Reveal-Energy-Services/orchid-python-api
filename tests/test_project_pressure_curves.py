@@ -13,6 +13,7 @@
 #
 
 import datetime
+import itertools
 import sys
 import unittest.mock
 
@@ -82,7 +83,6 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'])
         sut = create_sut(stub_net_project)
 
-        # noinspection PyTypeChecker
         assert_that(sut.pressure_curve_ids(), contains_exactly('oppugnavi'))
 
     @staticmethod
@@ -165,9 +165,13 @@ class ProjectPressureCurvesTest(unittest.TestCase):
                 self.assertRaises(deal.PreContractError, sut.display_name, invalid_curve_id)
 
 
-def create_stub_net_project(curve_names=None, samples=None, project_pressure_unit_abbreviation=''):
+def create_stub_net_project(curve_names=None, samples=None, samples_physical_quantities=None,
+                            project_pressure_unit_abbreviation=''):
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
+    samples_physical_quantities = (samples_physical_quantities
+                                   if samples_physical_quantities
+                                   else list(itertools.repeat('pressure', len(curve_names))))
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     if project_pressure_unit_abbreviation == 'psi':
@@ -180,9 +184,11 @@ def create_stub_net_project(curve_names=None, samples=None, project_pressure_uni
     stub_net_project.WellTimeSeriesList.Items = \
         [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
          for curve_name in curve_names]
+    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure}
     for i in range(len(curve_names)):
         stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
         stub_curve.DisplayName = curve_names[i] if curve_names else None
+        stub_curve.SampledQuantityType = quantity_name_type_map[samples_physical_quantities[i]]
         stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
     return stub_net_project
 
