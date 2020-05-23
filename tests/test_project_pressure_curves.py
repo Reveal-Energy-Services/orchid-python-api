@@ -75,6 +75,15 @@ class ProjectPressureCurvesTest(unittest.TestCase):
     def test_all_pressure_curves_returns_empty_if_no_pressure_curves():
         stub_loader = unittest.mock.MagicMock(name='stub_loader', spec=ProjectLoader)
         sut = ProjectPressureCurves(stub_loader)
+
+        # noinspection PyTypeChecker
+        assert_that(sut.pressure_curve_ids(), has_length(0))
+
+    @staticmethod
+    def test_all_pressure_curves_returns_empty_if_only_temperature_curves():
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], curves_physical_quantities=['temperature'])
+        sut = create_sut(stub_net_project)
+
         # noinspection PyTypeChecker
         assert_that(sut.pressure_curve_ids(), has_length(0))
 
@@ -95,8 +104,17 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         # Unpack `expected_well_ids` because `contains_exactly` expects multiple items not a list
         assert_that(sut.pressure_curve_ids(), contains_exactly(*pressure_curve_names))
 
+    def test_two_pressure_curves_ids_for_project_with_three_curves_but_only_two_pressure(self):
+        pressure_curve_names = ['iris', 'convenes', 'commune']
+        curves_physical_quantities = ['pressure', 'temperature', 'pressure']
+        stub_net_project = create_stub_net_project(curve_names=pressure_curve_names,
+                                                   curves_physical_quantities=curves_physical_quantities)
+        sut = create_sut(stub_net_project)
+
+        self.assertEqual(sut.pressure_curve_ids(), ['iris', 'commune'])
+
     @staticmethod
-    def test_no_samples_for_project_with_one_pressure_curve_but_empty_history():
+    def test_no_samples_for_project_with_one_pressure_curve_but_no_samples():
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
         sut = create_sut(stub_net_project)
 
@@ -165,13 +183,13 @@ class ProjectPressureCurvesTest(unittest.TestCase):
                 self.assertRaises(deal.PreContractError, sut.display_name, invalid_curve_id)
 
 
-def create_stub_net_project(curve_names=None, samples=None, samples_physical_quantities=None,
+def create_stub_net_project(curve_names=None, samples=None, curves_physical_quantities=None,
                             project_pressure_unit_abbreviation=''):
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
-    samples_physical_quantities = (samples_physical_quantities
-                                   if samples_physical_quantities
-                                   else list(itertools.repeat('pressure', len(curve_names))))
+    curves_physical_quantities = (curves_physical_quantities
+                                  if curves_physical_quantities
+                                  else list(itertools.repeat('pressure', len(curve_names))))
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     if project_pressure_unit_abbreviation == 'psi':
@@ -184,11 +202,12 @@ def create_stub_net_project(curve_names=None, samples=None, samples_physical_qua
     stub_net_project.WellTimeSeriesList.Items = \
         [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
          for curve_name in curve_names]
-    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure}
+    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
+                              'temperature': UnitsNet.QuantityType.Temperature}
     for i in range(len(curve_names)):
         stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
         stub_curve.DisplayName = curve_names[i] if curve_names else None
-        stub_curve.SampledQuantityType = quantity_name_type_map[samples_physical_quantities[i]]
+        stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
         stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
     return stub_net_project
 
