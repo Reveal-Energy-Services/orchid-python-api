@@ -129,3 +129,14 @@ def plot_trajectories(ifrac_pathname: str) -> None:
     plt.ylabel(f'Northing ({project.length_unit()})')
 
     plt.show()
+
+
+# TODO: Add **kwargs eventually?
+# Although the original proposal included kwargs to control the plotting, I do not know what those arguments
+# might actually be right now so I have not included the argument. Adding this argument is low-cost.
+def plot_treatment(pathname, well, stage_no):
+    print(pathname)
+    print(well)
+    print(stage_no)
+    print(type(stage_no))
+    return None

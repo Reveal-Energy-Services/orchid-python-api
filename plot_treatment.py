@@ -1,3 +1,4 @@
+#! py -3
 #
 # This file is part of IMAGEFrac (R) and related technologies.
 #
@@ -12,9 +13,16 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-# High-level API
-from .core import load_project
-from .core import plot_pressures
-from .core import plot_pressure_curve
-from .core import plot_trajectories
-from .core import plot_treatment
+import argparse
+
+import orchid
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('pathname', help="Path name of the project ('.ifrac') file.")
+    parser.add_argument('well', help="Name of the well containing the stage of interest.")
+    parser.add_argument('stage_no', type=int, help="Number of the stage of interest.")
+
+    options = parser.parse_args()
+    orchid.plot_treatment(options.pathname, options.well, options.stage_no)
