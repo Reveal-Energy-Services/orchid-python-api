@@ -1,3 +1,4 @@
+#! py -3
 #
 # This file is part of IMAGEFrac (R) and related technologies.
 #
