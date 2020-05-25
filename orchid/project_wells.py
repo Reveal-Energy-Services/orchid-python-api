@@ -86,12 +86,13 @@ class ProjectWells:
             self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
         return self._wells
 
-    def pressure_curve(self, well_name, stage_no):
+    def treatement_curves(self, well_name, stage_no):
         values = [100, 200, 100]
         start_date = datetime.datetime.utcnow()
-        pressure_curve = pd.Series(data=values, index=[start_date + i * datetime.timedelta(seconds=30)
-                                                       for i in range(len(values))])
-        return pressure_curve
+        result = pd.DataFrame(data={'treating_pressure': values, 'rate': values, 'concentration': values},
+                              index=[start_date + i * datetime.timedelta(seconds=30)
+                                     for i in range(len(values))])
+        return result
 
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)

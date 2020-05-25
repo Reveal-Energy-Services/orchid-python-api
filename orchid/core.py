@@ -145,8 +145,7 @@ def plot_treatment(ifrac_pathname, well_name, stage_no):
     """
     project = load_project(ifrac_pathname)
     project_wells = project.all_wells()
-    pressure_curve = project_wells.pressure_curve(well_name, stage_no)
-    fig, axes = plt.subplots(1, 1)
-    plot_pressure_curve(pressure_curve, axes, (1, 0, 0), project.pressure_unit(), 'Treatment pressure')
+    result = project_wells.treatement_curves(well_name, stage_no)
+    result.plot(subplots=True)
 
     plt.show()
