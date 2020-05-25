@@ -29,6 +29,11 @@ clr.AddReference('UnitsNet')
 import UnitsNet
 
 
+# TODO: Consider renaming to ProjectSurfacePressureCurves or ProjectMonitorPressureCurves
+# The terms "pressure" and "pressure curve" are overloaded. Are we discussing the pressure of a column
+# measured by a gauge on a monitor well or do we mean the pressure exerted by a fluid used to treat a
+# specific stage. We have chosen to name the column for the latter "treating pressure"; we probably want to
+# name these other pressures monitor pressure to help the human reader "fall into the pit of success."
 class ProjectPressureCurves:
     """
     A container for .NET Wells indexed by time series IDs.
