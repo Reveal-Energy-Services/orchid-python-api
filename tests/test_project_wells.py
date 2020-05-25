@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime
 import sys
 import unittest.mock
 
@@ -32,10 +33,12 @@ import clr
 import deal
 from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, empty, calling, raises
 import numpy.testing as npt
+import pandas as pd
 import vectormath as vmath
 
 from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
+from tests.stub_net_sample import StubNetSample
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')
@@ -49,6 +52,12 @@ import UnitsNet
 
 class TestProjectWells(unittest.TestCase):
     # Test ideas:
+    # - No treatment if no well of interest
+    # - No treatment for if no stage of interest (in well)
+    # - No treatment if for well of interest
+    # - No treatment for for stage of interest (in well)
+    # - Single treatment for well and stage of interest (US Oilfield)
+    # - Single treatment for well and stage of interest (metric)
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -71,7 +80,7 @@ class TestProjectWells(unittest.TestCase):
     def test_many_wells_ids_for_project_with_many_wells(self):
         well_uwis = ['03-293-91256-93-16', '66-253-17741-53-93', '03-76-97935-41-93']
         stub_net_project = create_stub_net_project(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'],
-                                                   well_uwis=well_uwis)
+                                                   uwis=well_uwis)
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -79,27 +88,23 @@ class TestProjectWells(unittest.TestCase):
         assert_that(sut.well_ids(), contains_exactly(*well_uwis))
 
     def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.trajectory_points('dont-care-well'), is_(empty()))
 
     def test_one_trajectory_point_for_well_with_one_trajectory_point(self):
-        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='m',
-                                                   well_names=['dont-care-well'], eastings=[[185939]],
-                                                   northings=[[280875]], tvds=[[2250]])
+        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='m', well_names=['dont-care-well'],
+                                                   eastings=[[185939]], northings=[[280875]], tvds=[[2250]])
         sut = create_sut(stub_net_project)
 
         npt.assert_allclose(sut.trajectory_points('dont-care-well'),
                             vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
     def test_many_trajectory_points_for_well_with_many_trajectory_points(self):
-        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='ft',
-                                                   well_names=['dont-care-well'],
+        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='ft', well_names=['dont-care-well'],
                                                    eastings=[[768385, 768359, 768331]],
-                                                   northings=[[8320613, 8320703, 8320792]],
-                                                   tvds=[[7515, 7516, 7517]])
+                                                   northings=[[8320613, 8320703, 8320792]], tvds=[[7515, 7516, 7517]])
         sut = create_sut(stub_net_project)
 
         npt.assert_allclose(sut.trajectory_points('dont-care-well'),
@@ -107,8 +112,7 @@ class TestProjectWells(unittest.TestCase):
                                                 [768331, 8320792, 7517]]))
 
     def test_trajectory_points_invalid_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         for invalid_well_id in [None, '', '\t']:
@@ -116,8 +120,7 @@ class TestProjectWells(unittest.TestCase):
                 self.assertRaises(deal.PreContractError, sut.trajectory_points, invalid_well_id)
 
     def test_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         for invalid_well_id in [None, '', '    ']:
@@ -125,20 +128,68 @@ class TestProjectWells(unittest.TestCase):
                 self.assertRaises(deal.PreContractError, sut.well_name, invalid_well_id)
 
     def test_display_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         for invalid_well_id in [None, '', '\r']:
             with self.subTest(invalid_well_id=invalid_well_id):
                 self.assertRaises(deal.PreContractError, sut.well_display_name, invalid_well_id)
 
+    def test_no_treatment_if_no_well_with_specific_name(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.treatement_curves('trudero', 40).empty)
+
+    # def test_treatment_curves_for_well_and_stage(self):
+    #     start_time_point = datetime.datetime(2024, 4, 6, 16, 18, 1)
+    #     treating_pressure_values = [6730, 6692, 6808]
+    #     treating_pressure_time_points = [start_time_point + i * datetime.timedelta(seconds=30)
+    #                                      for i in range(len(treating_pressure_values))]
+    #     treating_pressure_samples = [StubNetSample(st, sv) for (st, sv) in zip(treating_pressure_time_points,
+    #                                                                            treating_pressure_values)]
+    #     stub_net_project = create_stub_net_project(well_names=['perditus'],
+    #                                                treating_pressure_samples=treating_pressure_samples)
+    #     sut = create_sut(stub_net_project)
+    #
+    #     actual_treatment_curves = sut.treatment_curves('perditus', 6)
+    #     expected_treatment_curves = pd.DataFrame({'treating_pressure': treating_pressure_values},
+    #                                              index=treating_pressure_time_points)
+    #     assert_that(actual_treatment_curves, equal_to(expected_treatment_curves))
+
+    def test_wells_by_name_empty_if_no_well_with_specified_name_in_project(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditum'), is_(empty()))
+
+    def test_wells_by_name_returns_one_item_if_one_well_with_specified_name_in_project(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditus'), has_length(equal_to(1)))
+
+    def test_wells_by_name_returns_one_item_if_one_well_with_specified_name_in_project_but_many_wells(self):
+        stub_net_project = create_stub_net_project(well_names=['recidivus', 'trusi', 'perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditus'), has_length(equal_to(1)))
+
+    def test_wells_by_name_returns_many_items_if_many_wells_with_specified_name_in_project(self):
+        stub_net_project = create_stub_net_project(well_names=['recidivus', 'perditus', 'perditus'],
+                                                   uwis=['06-120-72781-16-45', '56-659-26378-28-77',
+                                                         '66-814-49035-82-57'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditus'), has_length(equal_to(2)))
+
 
 def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None,
-                            well_uwis=None, eastings=None, northings=None, tvds=None):
+                            uwis=None, eastings=None, northings=None, tvds=None,
+                            treating_pressure_samples=None):
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
-    well_uwis = well_uwis if well_uwis else []
+    uwis = uwis if uwis else []
     eastings = eastings if eastings else []
     northings = northings if northings else []
     tvds = tvds if tvds else []
@@ -153,7 +204,7 @@ def create_stub_net_project(project_length_unit_abbreviation='', well_names=None
 
     for i in range(len(well_names)):
         stub_well = stub_net_project.Wells.Items[i]
-        stub_well.Uwi = well_uwis[i] if well_uwis else None
+        stub_well.Uwi = uwis[i] if uwis else None
         stub_well.DisplayName = well_display_names[i] if well_display_names else None
         stub_well.Name = well_names[i]
 

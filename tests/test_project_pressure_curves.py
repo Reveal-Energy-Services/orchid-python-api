@@ -38,6 +38,7 @@ import pandas as pd
 
 from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
+from tests.stub_net_sample import StubNetSample
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 
@@ -52,14 +53,6 @@ from ImageFrac.FractureDiagnostics import IProject, IWellSampledQuantityTimeSeri
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
-
-
-class Sample:
-    def __init__(self, time_point: datetime.datetime, value: float):
-        # I chose to use capitalized names for compatability with .NET
-        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                  time_point.minute, time_point.second)
-        self.Value = value
 
 
 class ProjectPressureCurvesTest(unittest.TestCase):
@@ -81,7 +74,8 @@ class ProjectPressureCurvesTest(unittest.TestCase):
 
     @staticmethod
     def test_all_pressure_curves_returns_empty_if_only_temperature_curves():
-        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], curves_physical_quantities=['temperature'])
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'],
+                                                   curves_physical_quantities=['temperature'])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -124,8 +118,8 @@ class ProjectPressureCurvesTest(unittest.TestCase):
     @staticmethod
     def test_one_sample_for_project_with_one_sample():
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'],
-                                                   samples=[[Sample(datetime.datetime(2016, 7, 17, 15, 31, 58),
-                                                                    0.10456)]],
+                                                   samples=[[StubNetSample(datetime.datetime(2016, 7, 17, 15, 31, 58),
+                                                                           0.10456)]],
                                                    project_pressure_unit_abbreviation='MPa')
         sut = create_sut(stub_net_project)
 
@@ -141,7 +135,7 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         sample_times = [[start_times[i] + j * datetime.timedelta(seconds=30) for j in range(len(sample_values[i]))] for
                         i in range(len(sample_values))]
         sample_parameters = [zip(sample_times[i], sample_values[i]) for i in range(len(start_times))]
-        samples = [[Sample(*sps) for sps in list(sample_parameters[i])] for i in range(len(sample_parameters))]
+        samples = [[StubNetSample(*sps) for sps in list(sample_parameters[i])] for i in range(len(sample_parameters))]
         stub_net_project = \
             create_stub_net_project(curve_names=curve_names,
                                     samples=samples,

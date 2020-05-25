@@ -12,7 +12,6 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
 from typing import KeysView, List, Union
 
 import clr
@@ -87,11 +86,23 @@ class ProjectWells:
         return self._wells
 
     def treatement_curves(self, well_name, stage_no):
-        values = [100, 200, 100]
-        start_date = datetime.datetime.utcnow()
-        result = pd.DataFrame(data={'treating_pressure': values, 'rate': values, 'concentration': values},
-                              index=[start_date + i * datetime.timedelta(seconds=30)
-                                     for i in range(len(values))])
+        # values = [100, 200, 100]
+        # start_date = datetime.datetime.utcnow()
+        # result = pd.DataFrame(data={'treating_pressure': values, 'rate': values, 'concentration': values},
+        #                       index=[start_date + i * datetime.timedelta(seconds=30)
+        #                              for i in range(len(values))])
+        # return result
+        #
+        # candidate_wells = self.wells_by_name(well_name)
+        # assert len(candidate_wells) <= 1
+        # well = candidate_wells[0]
+        # candidate_stages = [s.DisplayStageNumber for s in well.Stages if s.DisplayStageNumber == stage_no]
+        # assert len(candidate_stages) <= 1
+        # stage = candidate_stages[0]
+        # net_treatment_curves = stage.TreatmentCurves.Items
+        # assert len(net_treatment_curves) == 3
+        #
+        result = pd.DataFrame(data={'treating_pressure': [], 'rate': [], 'concentration': []})
         return result
 
     @deal.pre(orchid.validation.arg_not_none)
@@ -148,6 +159,14 @@ class ProjectWells:
         :return:  The name of this project.
         """
         return self._project_loader.loaded_project().Name
+
+    def wells_by_name(self, well_name):
+        """
+        Return all wells with the name, well_name.
+        :param well_name: The name of the well of interest
+        """
+        result = [w for w in self._well_map().values() if w.Name == well_name]
+        return result
 
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
