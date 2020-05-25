@@ -87,7 +87,7 @@ def plot_pressures(ifrac_pathname: str) -> None:
     plt.show()
 
 
-def plot_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes, series_color: Tuple[int],
+def plot_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes, series_color: Tuple[int, int, int],
                         pressure_unit_abbreviation: str, series_name: str) -> None:
     """
     Plot the specified time series using the supplied details
@@ -134,9 +134,19 @@ def plot_trajectories(ifrac_pathname: str) -> None:
 # TODO: Add **kwargs eventually?
 # Although the original proposal included kwargs to control the plotting, I do not know what those arguments
 # might actually be right now so I have not included the argument. Adding this argument is low-cost.
-def plot_treatment(pathname, well, stage_no):
-    print(pathname)
-    print(well)
-    print(stage_no)
-    print(type(stage_no))
-    return None
+def plot_treatment(ifrac_pathname, well_name, stage_no):
+    """
+    Plot the treatment curve for the specified well and stage in the project of interest.
+
+    :param ifrac_pathname: The path identifying the data file of the project of interest.
+    :param well_name: The name of the well whose stages are of interest.
+    :param stage_no: The number of the stage of interest.
+    :return: None
+    """
+    project = load_project(ifrac_pathname)
+    project_wells = project.all_wells()
+    pressure_curve = project_wells.pressure_curve(well_name, stage_no)
+    fig, axes = plt.subplots(1, 1)
+    plot_pressure_curve(pressure_curve, axes, (1, 0, 0), project.pressure_unit(), 'Treatment pressure')
+
+    plt.show()
