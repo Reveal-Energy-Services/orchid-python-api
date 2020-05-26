@@ -21,10 +21,8 @@ import orchid
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('pathname', help="Path name of the project ('.ifrac') file.")
-
-    # TODO Add options to control plotting better
-    # I have chosen to hard-code data for now. My next set of commits will begin to parameterize the plotting
-    # functions to allow for finer control in other situations.
+    parser.add_argument('well', help="Name of the well containing the stage of interest.")
+    parser.add_argument('stage_no', type=int, help="Number of the stage of interest.")
 
     options = parser.parse_args()
-    orchid.plot_pressures(options.pathname)
+    orchid.plot_treatment(options.pathname, options.well, options.stage_no)
