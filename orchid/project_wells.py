@@ -23,7 +23,7 @@ import vectormath as vmath
 from orchid.project_loader import ProjectLoader
 import orchid.validation
 
-clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
+clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
