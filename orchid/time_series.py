@@ -14,19 +14,24 @@
 
 import datetime
 
+# noinspection PyUnresolvedReferences
 import clr
+import numpy as np
+import pandas as pd
+
 # noinspection PyUnresolvedReferences
 from System import DateTime
 
 
 # TODO: Change to return pandas time series
-def transform_net_samples(net_samples):
+def transform_net_samples(net_samples) -> pd.Series:
     """
     Transform a sequence of .NET samples (ticks) to a
     :param net_samples: The sequence of .NET samples (each an implementation of `ITick<double>`).
     :return: The pandas (Time) `Series` for the values.
     """
-    result = [(_as_datetime(net_sample.Timestamp), net_sample.Value) for net_sample in net_samples]
+    result = pd.Series(data=[s.Value for s in net_samples], index=[_as_datetime(s.Timestamp) for s in net_samples],
+                       dtype=np.float64)
     return result
 
 

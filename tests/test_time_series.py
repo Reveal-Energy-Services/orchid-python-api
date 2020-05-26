@@ -15,7 +15,8 @@
 import datetime
 import unittest
 
-from hamcrest import assert_that, is_, empty, equal_to
+from hamcrest import assert_that, is_, equal_to
+import pandas as pd
 
 from orchid.time_series import transform_net_samples
 
@@ -36,7 +37,7 @@ class TestTimeSeries(unittest.TestCase):
         samples = []
         actual_time_series = transform_net_samples(samples)
 
-        assert_that(actual_time_series, is_(empty()))
+        assert_that(actual_time_series.empty, is_(True))
 
     def test_time_series_transform_returns_one_item_when_one_net_samples(self):
         start_time_point = datetime.datetime(2021, 7, 30, 15, 44, 22)
@@ -44,7 +45,10 @@ class TestTimeSeries(unittest.TestCase):
         sample_time_points, samples = create_samples(sample_values, start_time_point)
         actual_time_series = transform_net_samples(samples)
 
-        assert_that(actual_time_series, is_([(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]))
+        pd.testing.assert_series_equal(actual_time_series,
+                                       pd.Series(data=sample_values,
+                                                 index=[start_time_point + i * datetime.timedelta(seconds=30)
+                                                        for i in range(len(sample_values))]))
 
     def test_time_series_transform_returns_many_items_when_many_net_samples(self):
         start_time_point = datetime.datetime(2018, 11, 7, 17, 50, 18)
@@ -52,7 +56,10 @@ class TestTimeSeries(unittest.TestCase):
         sample_time_points, samples = create_samples(sample_values, start_time_point)
         actual_time_series = transform_net_samples(samples)
 
-        assert_that(actual_time_series, is_([(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]))
+        pd.testing.assert_series_equal(actual_time_series,
+                                       pd.Series(data=sample_values,
+                                                 index=[start_time_point + i * datetime.timedelta(seconds=30)
+                                                        for i in range(len(sample_values))]))
 
 
 if __name__ == '__main__':

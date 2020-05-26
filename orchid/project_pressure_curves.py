@@ -82,13 +82,8 @@ class ProjectPressureCurves:
         # sequence of Python tuples. All the code is less clear, it avoids looping over a relatively "large"
         # array (> 100k items) multiple time.
         # https://stackoverflow.com/questions/53363688/converting-a-list-of-tuples-to-a-pandas-series
-        stamp_value_pairs = transform_net_samples(curve.GetOrderedTimeSeriesHistory())
-        if stamp_value_pairs:
-            (timestamps, values) = zip(*stamp_value_pairs)
-            result = pd.Series(values, timestamps)
-            return result
-        else:
-            return pd.Series([], dtype=float)
+        result = transform_net_samples(curve.GetOrderedTimeSeriesHistory())
+        return result
 
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)

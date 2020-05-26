@@ -33,7 +33,6 @@ import unittest.mock
 import clr
 import deal
 from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
-import numpy.testing as npt
 import pandas as pd
 
 from orchid.project_pressure_curves import ProjectPressureCurves
@@ -123,8 +122,8 @@ class ProjectPressureCurvesTest(unittest.TestCase):
                                                    project_pressure_unit_abbreviation='MPa')
         sut = create_sut(stub_net_project)
 
-        npt.assert_allclose(sut.pressure_curve_samples('oppugnavi'),
-                            pd.Series([0.10456], [datetime.datetime(2016, 7, 17, 15, 31, 58)]))
+        expected_series = pd.Series(data=[0.10456], index=[datetime.datetime(2016, 7, 17, 15, 31, 58)])
+        pd.testing.assert_series_equal(sut.pressure_curve_samples('oppugnavi'), expected_series)
 
     @staticmethod
     def test_many_samples_for_project_with_many_samples():
@@ -144,7 +143,7 @@ class ProjectPressureCurvesTest(unittest.TestCase):
 
         for i in range(len(curve_names)):
             expected_series = pd.Series(sample_values[i], sample_times[i])
-            npt.assert_allclose(sut.pressure_curve_samples(curve_names[i]), expected_series)
+            pd.testing.assert_series_equal(sut.pressure_curve_samples(curve_names[i]), expected_series)
 
     def test_pressure_curve_samples_with_invalid_curve_name_raises_exception(self):
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])
