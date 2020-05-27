@@ -19,6 +19,7 @@ properties required during testing but do not actually implement the .NET class 
 """
 
 import datetime
+from typing import Sequence
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -42,9 +43,12 @@ IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/b
 if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
     sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 
-clr.AddReference('System')
 # noinspection PyUnresolvedReferences
 from System import DateTime
+
+clr.AddReference('UnitsNet')
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 class StubNetSample:
@@ -65,7 +69,41 @@ def create_30_second_time_points(start_time_point: datetime.datetime, count: int
     return [start_time_point + i * datetime.timedelta(seconds=30) for i in range(count)]
 
 
-def create_net_time_series(start_time_point, sample_values):
+def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Sequence[StubNetSample]:
+    """
+    Create a stub .NET time series.
+
+    The "stub .NET" nature is satisfied by returning a sequence in which each item is an instance of `StubNetSample`.
+
+    :param start_time_point: The time point at which the time series starts.
+    :param sample_values: The values in the stub samples.
+    :return: A sequence a samples implementing the `ITick<double>` interface using "duck typing."
+    """
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
     return samples
+
+
+class StubNetTreatmentCurve:
+    def __init__(self, curve_name, curve_quantity, time_series):
+        self._time_series = time_series
+        self.SampledQuantityName = curve_name
+        if curve_quantity == 'pressure':
+            self.SampledQuantityType = UnitsNet.QuantityType.Pressure
+        elif curve_quantity == 'ratio':
+            self.SampledQuantityType = UnitsNet.QuantityType.Ratio
+
+    # noinspection PyPep8Naming
+    def GetOrderedTimeSeriesHistory(self):
+        return self._time_series
+
+
+def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
+    treating_pressure_time_series = create_stub_net_time_series(start_time_point, treating_pressure_values)
+    treating_pressure_curve = StubNetTreatmentCurve('Pressure', 'pressure', treating_pressure_time_series)
+    rate_time_series = create_stub_net_time_series(start_time_point, rate_values)
+    rate_curve = StubNetTreatmentCurve('Slurry Rate', 'ratio', rate_time_series)
+    concentration_time_series = create_stub_net_time_series(start_time_point, concentration_values)
+    concentration_curve = StubNetTreatmentCurve('Proppant Concentration', 'ratio', concentration_time_series)
+
+    return [treating_pressure_curve, rate_curve, concentration_curve]

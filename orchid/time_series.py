@@ -14,7 +14,7 @@
 
 import datetime
 
-# noinspection PyUnresolvedReferences
+import more_itertools
 import numpy as np
 
 # TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
@@ -28,6 +28,21 @@ import pandas as pd
 
 # noinspection PyUnresolvedReferences
 from System import DateTime
+
+clr.AddReference('UnitsNet')
+# noinspection PyUnresolvedReferences
+import UnitsNet
+
+
+def _as_datetime(net_time_point: DateTime) -> datetime.datetime:
+    """
+    Convert a .NET `DateTime` struct to a Python `datetime.datetime` object.
+    :param net_time_point:  The .NET `DateTime` instance to convert.
+    :return: The Python `datetime.datetime` instance equivalent to `net_time_point`.
+    """
+    result = datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                               net_time_point.Hour, net_time_point.Minute, net_time_point.Second)
+    return result
 
 
 def transform_net_time_series(net_time_series, name=None) -> pd.Series:
@@ -43,12 +58,23 @@ def transform_net_time_series(net_time_series, name=None) -> pd.Series:
     return result
 
 
-def _as_datetime(net_time_point: DateTime) -> datetime.datetime:
-    """
-    Convert a .NET `DateTime` struct to a Python `datetime.datetime` object.
-    :param net_time_point:  The .NET `DateTime` instance to convert.
-    :return: The Python `datetime.datetime` instance equivalent to `net_time_point`.
-    """
-    result = datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                               net_time_point.Hour, net_time_point.Minute, net_time_point.Second)
+def transform_net_treatment(net_treatment_curves):
+    if len(net_treatment_curves) == 0:
+        return pd.DataFrame()
+
+    net_treating_pressure = more_itertools.one(filter(lambda c: c.SampledQuantityType == UnitsNet.QuantityType.Pressure,
+                                                      net_treatment_curves))
+    treating_pressure = transform_net_time_series(net_treating_pressure.GetOrderedTimeSeriesHistory(),
+                                                  name='Treating Pressure')
+    net_rate = more_itertools.one(filter(lambda c: (c.SampledQuantityType == UnitsNet.QuantityType.Ratio and
+                                                    c.SampledQuantityName == 'Slurry Rate'),
+                                         net_treatment_curves))
+    rate = transform_net_time_series(net_rate.GetOrderedTimeSeriesHistory(),
+                                     name=net_rate.SampledQuantityName)
+    net_concentration = more_itertools.one(filter(lambda c: (c.SampledQuantityType == UnitsNet.QuantityType.Ratio and
+                                                             c.SampledQuantityName == 'Proppant Concentration'),
+                                                  net_treatment_curves))
+    concentration = transform_net_time_series(net_concentration.GetOrderedTimeSeriesHistory(),
+                                              name=net_concentration.SampledQuantityName)
+    result = pd.concat([treating_pressure, rate, concentration], axis=1)
     return result
