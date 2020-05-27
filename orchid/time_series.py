@@ -15,8 +15,15 @@
 import datetime
 
 # noinspection PyUnresolvedReferences
-import clr
 import numpy as np
+
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+# noinspection PyUnresolvedReferences
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 import pandas as pd
 
 # noinspection PyUnresolvedReferences

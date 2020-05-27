@@ -29,18 +29,23 @@ import unittest.mock
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
-import clr
+
+
 import deal
 from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, empty, calling, raises
 import numpy.testing as npt
-import pandas as pd
 import vectormath as vmath
 
 from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
-from tests.stub_net import StubNetSample
 
-sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWell

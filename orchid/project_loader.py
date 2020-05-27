@@ -12,17 +12,19 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import clr
 import os.path
-import sys
 
 import deal
 
 import orchid.validation
 
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
 IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 
-sys.path.append(os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR))
 clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter

@@ -14,7 +14,6 @@
 
 from typing import KeysView, List, Union
 
-import clr
 import deal
 import numpy as np
 import pandas as pd
@@ -22,6 +21,13 @@ import vectormath as vmath
 
 from orchid.project_loader import ProjectLoader
 import orchid.validation
+
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences

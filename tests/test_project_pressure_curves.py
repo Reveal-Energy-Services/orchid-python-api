@@ -14,8 +14,14 @@
 
 import datetime
 import itertools
-import sys
 import unittest.mock
+
+import deal
+from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
+import pandas as pd
+
+from orchid.project_pressure_curves import ProjectPressureCurves
+from orchid.project_loader import ProjectLoader
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -30,16 +36,13 @@ import unittest.mock
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
 import clr
-import deal
-from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
-import pandas as pd
-
-from orchid.project_pressure_curves import ProjectPressureCurves
-from orchid.project_loader import ProjectLoader
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 from tests.stub_net import StubNetSample
-
-sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 
 clr.AddReference('System')
 # noinspection PyUnresolvedReferences

@@ -12,18 +12,20 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import sys
 import unittest.mock
 
-import clr
 from hamcrest import assert_that, is_, equal_to, calling, raises, has_properties
 
+
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 import orchid.project_wells
 
-
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug'
-sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
-clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
+clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
