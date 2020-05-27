@@ -18,7 +18,7 @@ import unittest
 from hamcrest import assert_that, is_, equal_to
 import pandas as pd
 
-from orchid.time_series import transform_net_samples
+from orchid.time_series import transform_net_time_series
 
 from tests.stub_net_sample import StubNetSample
 
@@ -35,7 +35,7 @@ class TestTimeSeries(unittest.TestCase):
 
     def test_time_series_transform_returns_no_items_when_no_net_samples(self):
         samples = []
-        actual_time_series = transform_net_samples(samples)
+        actual_time_series = transform_net_time_series(samples)
 
         assert_that(actual_time_series.empty, is_(True))
 
@@ -43,7 +43,7 @@ class TestTimeSeries(unittest.TestCase):
         start_time_point = datetime.datetime(2021, 7, 30, 15, 44, 22)
         sample_values = [3.684]
         sample_time_points, samples = create_samples(sample_values, start_time_point)
-        actual_time_series = transform_net_samples(samples)
+        actual_time_series = transform_net_time_series(samples)
 
         pd.testing.assert_series_equal(actual_time_series,
                                        pd.Series(data=sample_values,
@@ -54,7 +54,7 @@ class TestTimeSeries(unittest.TestCase):
         start_time_point = datetime.datetime(2018, 11, 7, 17, 50, 18)
         sample_values = [68.67, 67.08, 78.78]
         sample_time_points, samples = create_samples(sample_values, start_time_point)
-        actual_time_series = transform_net_samples(samples)
+        actual_time_series = transform_net_time_series(samples)
 
         pd.testing.assert_series_equal(actual_time_series,
                                        pd.Series(data=sample_values,

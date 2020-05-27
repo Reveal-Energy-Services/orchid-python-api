@@ -22,7 +22,7 @@ import pandas as pd
 
 from orchid.project_loader import ProjectLoader
 import orchid.validation
-from orchid.time_series import transform_net_samples
+from orchid.time_series import transform_net_time_series
 
 sys.path.append(r'c:\src\OrchidApp\ImageFrac\ImageFrac.Application\bin\Debug')
 clr.AddReference('UnitsNet')
@@ -82,7 +82,7 @@ class ProjectPressureCurves:
         # sequence of Python tuples. All the code is less clear, it avoids looping over a relatively "large"
         # array (> 100k items) multiple time.
         # https://stackoverflow.com/questions/53363688/converting-a-list-of-tuples-to-a-pandas-series
-        result = transform_net_samples(curve.GetOrderedTimeSeriesHistory())
+        result = transform_net_time_series(curve.GetOrderedTimeSeriesHistory())
         return result
 
     @deal.pre(orchid.validation.arg_not_none)

@@ -23,15 +23,16 @@ import pandas as pd
 from System import DateTime
 
 
-# TODO: Change to return pandas time series
-def transform_net_samples(net_samples) -> pd.Series:
+def transform_net_time_series(net_time_series, name=None) -> pd.Series:
     """
     Transform a sequence of .NET samples (ticks) to a
-    :param net_samples: The sequence of .NET samples (each an implementation of `ITick<double>`).
+    :param net_time_series: The sequence of .NET samples (each an implementation of `ITick<double>`).
+    :param name: The name used to identify this time series (used to identify columns in pandas `DataFrame`s.
     :return: The pandas (Time) `Series` for the values.
     """
-    result = pd.Series(data=[s.Value for s in net_samples], index=[_as_datetime(s.Timestamp) for s in net_samples],
-                       dtype=np.float64)
+    result = pd.Series(data=[s.Value for s in net_time_series],
+                       index=[_as_datetime(s.Timestamp) for s in net_time_series],
+                       dtype=np.float64, name=name)
     return result
 
 
