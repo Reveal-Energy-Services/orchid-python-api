@@ -14,6 +14,7 @@
 
 import datetime
 
+import deal
 import more_itertools
 import numpy as np
 
@@ -45,6 +46,7 @@ def _as_datetime(net_time_point: DateTime) -> datetime.datetime:
     return result
 
 
+@deal.pre(lambda net_time_series, **kwargs: net_time_series is not None)
 def transform_net_time_series(net_time_series, name=None) -> pd.Series:
     """
     Transform a sequence of .NET samples (ticks) to a
@@ -58,6 +60,7 @@ def transform_net_time_series(net_time_series, name=None) -> pd.Series:
     return result
 
 
+@deal.pre(lambda net_treatment_curve: net_treatment_curve is not None)
 def transform_net_treatment(net_treatment_curves):
     """
     Transform the (3) .NET treatment curves into a pandas DataFrame.
