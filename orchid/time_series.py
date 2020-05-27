@@ -59,6 +59,11 @@ def transform_net_time_series(net_time_series, name=None) -> pd.Series:
 
 
 def transform_net_treatment(net_treatment_curves):
+    """
+    Transform the (3) .NET treatment curves into a pandas DataFrame.
+    :param net_treatment_curves: The sequence of .NET treatment curves
+    :return: The pandas `DataFrame` for the .NET treatment curves.
+    """
     if len(net_treatment_curves) == 0:
         return pd.DataFrame()
 

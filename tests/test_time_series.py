@@ -75,6 +75,22 @@ class TestTimeSeries(unittest.TestCase):
                                                                               len(treating_pressures)))
         pd.testing.assert_frame_equal(actual_treatments, expected_treatments)
 
+    def test_treatment_transform_returns_treatment_when_many_samples(self):
+        start_time_point = datetime.datetime(2018, 10, 3, 16, 14, 33)
+        treating_pressures = [276.3, 276.3, 278.5]
+        rate = [219.2, 207.6, 278.5]
+        concentration = [5.386, 5.757, 4.878]
+
+        stub_net_treatment = create_net_treatment(start_time_point, treating_pressures, rate, concentration)
+        actual_treatments = transform_net_treatment(stub_net_treatment)
+
+        expected_treatments = pd.DataFrame(data={'Treating Pressure': treating_pressures,
+                                                 'Slurry Rate': rate,
+                                                 'Proppant Concentration': concentration},
+                                           index=create_30_second_time_points(start_time_point,
+                                                                              len(treating_pressures)))
+        pd.testing.assert_frame_equal(actual_treatments, expected_treatments)
+
 
 if __name__ == '__main__':
     unittest.main()
