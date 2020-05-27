@@ -38,7 +38,7 @@ import vectormath as vmath
 
 from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
-from tests.stub_net_sample import StubNetSample
+from tests.stub_net import StubNetSample
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 clr.AddReference('ImageFrac.FractureDiagnostics')

@@ -20,7 +20,7 @@ import pandas as pd
 
 from orchid.time_series import transform_net_time_series
 
-from tests.stub_net_sample import StubNetSample
+from tests.stub_net import StubNetSample
 
 
 def create_samples(sample_values, start_time_point):

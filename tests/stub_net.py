@@ -12,6 +12,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+"""A module for creating 'stub" .NET classes for use in testing.
+
+Note that these stubs are "duck typing" stubs for .NET classes; that is, they have the same methods and
+properties required during testing but do not actually implement the .NET class interfaces.
+"""
+
 import datetime
 import sys
 

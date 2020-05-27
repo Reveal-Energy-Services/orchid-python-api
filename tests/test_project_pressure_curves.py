@@ -37,7 +37,7 @@ import pandas as pd
 
 from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
-from tests.stub_net_sample import StubNetSample
+from tests.stub_net import StubNetSample
 
 sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
 
