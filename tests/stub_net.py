@@ -19,7 +19,6 @@ properties required during testing but do not actually implement the .NET class 
 """
 
 import datetime
-import sys
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -54,3 +53,19 @@ class StubNetSample:
         self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
                                   time_point.minute, time_point.second)
         self.Value = value
+
+
+def create_30_second_time_points(start_time_point: datetime.datetime, count: int):
+    """
+    Create a sequence of `count` time points, 30-seconds apart.
+    :param start_time_point: The starting time point of the sequence.
+    :param count: The number of time points in the sequence.
+    :return: The sequence of time points.
+    """
+    return [start_time_point + i * datetime.timedelta(seconds=30) for i in range(count)]
+
+
+def create_net_time_series(start_time_point, sample_values):
+    sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
+    samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
+    return samples
