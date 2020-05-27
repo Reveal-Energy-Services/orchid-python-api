@@ -33,7 +33,7 @@ def create_30_second_time_points(start_time_point: datetime.datetime, count: int
     return [start_time_point + i * datetime.timedelta(seconds=30) for i in range(count)]
 
 
-def create_samples(sample_values, start_time_point):
+def create_time_series(sample_values, start_time_point):
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
     return samples
@@ -44,16 +44,16 @@ class TestTimeSeries(unittest.TestCase):
         assert_that(2 + 2, is_(equal_to(4)))
 
     def test_time_series_transform_returns_no_items_when_no_net_samples(self):
-        samples = []
-        actual_time_series = transform_net_time_series(samples)
+        sample_values = []
+        actual_time_series = transform_net_time_series(sample_values)
 
         assert_that(actual_time_series.empty, is_(True))
 
     def test_time_series_transform_returns_one_item_when_one_net_samples(self):
         start_time_point = datetime.datetime(2021, 7, 30, 15, 44, 22)
         sample_values = [3.684]
-        samples = create_samples(sample_values, start_time_point)
-        actual_time_series = transform_net_time_series(samples)
+        net_time_series = create_time_series(sample_values, start_time_point)
+        actual_time_series = transform_net_time_series(net_time_series)
 
         pd.testing.assert_series_equal(actual_time_series,
                                        pd.Series(data=sample_values,
@@ -63,8 +63,8 @@ class TestTimeSeries(unittest.TestCase):
     def test_time_series_transform_returns_many_items_when_many_net_samples(self):
         start_time_point = datetime.datetime(2018, 11, 7, 17, 50, 18)
         sample_values = [68.67, 67.08, 78.78]
-        samples = create_samples(sample_values, start_time_point)
-        actual_time_series = transform_net_time_series(samples)
+        net_time_series = create_time_series(sample_values, start_time_point)
+        actual_time_series = transform_net_time_series(net_time_series)
 
         pd.testing.assert_series_equal(actual_time_series,
                                        pd.Series(data=sample_values,
