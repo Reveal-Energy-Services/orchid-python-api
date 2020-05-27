@@ -23,10 +23,20 @@ from orchid.time_series import transform_net_time_series
 from tests.stub_net import StubNetSample
 
 
+def create_30_second_time_points(start_time_point: datetime.datetime, count: int):
+    """
+    Create a sequence of `count` time points, 30-seconds apart.
+    :param start_time_point: The starting time point of the sequence.
+    :param count: The number of time points in the sequence.
+    :return: The sequence of time points.
+    """
+    return [start_time_point + i * datetime.timedelta(seconds=30) for i in range(count)]
+
+
 def create_samples(sample_values, start_time_point):
-    sample_time_points = [start_time_point + i * datetime.timedelta(seconds=30) for i in range(len(sample_values))]
+    sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
-    return sample_time_points, samples
+    return samples
 
 
 class TestTimeSeries(unittest.TestCase):
@@ -42,24 +52,24 @@ class TestTimeSeries(unittest.TestCase):
     def test_time_series_transform_returns_one_item_when_one_net_samples(self):
         start_time_point = datetime.datetime(2021, 7, 30, 15, 44, 22)
         sample_values = [3.684]
-        sample_time_points, samples = create_samples(sample_values, start_time_point)
+        samples = create_samples(sample_values, start_time_point)
         actual_time_series = transform_net_time_series(samples)
 
         pd.testing.assert_series_equal(actual_time_series,
                                        pd.Series(data=sample_values,
-                                                 index=[start_time_point + i * datetime.timedelta(seconds=30)
-                                                        for i in range(len(sample_values))]))
+                                                 index=create_30_second_time_points(start_time_point,
+                                                                                    len(sample_values))))
 
     def test_time_series_transform_returns_many_items_when_many_net_samples(self):
         start_time_point = datetime.datetime(2018, 11, 7, 17, 50, 18)
         sample_values = [68.67, 67.08, 78.78]
-        sample_time_points, samples = create_samples(sample_values, start_time_point)
+        samples = create_samples(sample_values, start_time_point)
         actual_time_series = transform_net_time_series(samples)
 
         pd.testing.assert_series_equal(actual_time_series,
                                        pd.Series(data=sample_values,
-                                                 index=[start_time_point + i * datetime.timedelta(seconds=30)
-                                                        for i in range(len(sample_values))]))
+                                                 index=create_30_second_time_points(start_time_point,
+                                                                                    len(sample_values))))
 
 
 if __name__ == '__main__':
