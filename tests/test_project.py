@@ -81,28 +81,28 @@ class TestProject(unittest.TestCase):
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.length_unit(), equal_to('m'))
+        assert_that(sut.unit('length'), equal_to('m'))
 
     def test_returns_feet_project_length_unit_from_net_project_length_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='ft',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.length_unit(), equal_to('ft'))
+        assert_that(sut.unit('length'), equal_to('ft'))
 
     def test_returns_kPa_project_pressure_unit_from_net_project_pressure_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='kPa',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.pressure_unit(), equal_to('kPa'))
+        assert_that(sut.unit('pressure'), equal_to('kPa'))
 
     def test_returns_psi_project_pressure_unit_from_net_project_pressure_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='psi',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.pressure_unit(), equal_to('psi'))
+        assert_that(sut.unit('pressure'), equal_to('psi'))
 
 
 def create_stub_net_project_abbreviation(well_names=None, well_display_names=None,

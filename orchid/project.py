@@ -67,21 +67,19 @@ class ProjectAdapter:
         """
         return self._project_loader.loaded_project().Name
 
-    # TODO: On third unit, change to single implementation perhaps using a dictionary
-    def length_unit(self):
+    def unit(self, physical_quantity):
         """
-        Return the length unit for the project.
-        :return: The length unit for the project.
+        Return the abbreviation for the specified `physical_quantity` of this project.
+        :param physical_quantity: The name of the physical quantity.
+        :return: The abbreviation of the specified physical quantity.
         """
-        project_length_unit = self._project_loader.loaded_project().ProjectUnits.LengthUnit
-        result = UnitsNet.Length.GetAbbreviation(project_length_unit)
-        return result
+        def pressure_unit():
+            return UnitsNet.Pressure.GetAbbreviation(self._project_loader.loaded_project().ProjectUnits.PressureUnit)
 
-    def pressure_unit(self):
-        """
-        Return the pressure unit for the project.
-        :return: The pressure unit for the project.
-        """
-        project_pressure_unit = self._project_loader.loaded_project().ProjectUnits.PressureUnit
-        result = UnitsNet.Pressure.GetAbbreviation(project_pressure_unit)
-        return result
+        def length_unit():
+            return UnitsNet.Length.GetAbbreviation(self._project_loader.loaded_project().ProjectUnits.LengthUnit)
+
+        quantity_function_map = {'pressure': pressure_unit,
+                                 'length': length_unit}
+
+        return quantity_function_map[physical_quantity]()

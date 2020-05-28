@@ -78,7 +78,7 @@ def plot_pressures(ifrac_pathname: str) -> None:
         for j in range(len(axes[0])):
             series_to_plot = curves_to_plot[i, j]
             series_name = names_to_display[i, j]
-            pressure_unit_abbreviation = project.pressure_unit()
+            pressure_unit_abbreviation = project.unit('pressure')
             ax = axes[i, j]
             colors = colors_to_use[i, j]
 
@@ -125,8 +125,8 @@ def plot_trajectories(ifrac_pathname: str) -> None:
                  color=default_well_colors[i % len(default_well_colors)])
     plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
     plt.legend(loc='best')
-    plt.xlabel(f'Easting ({project.length_unit()})')
-    plt.ylabel(f'Northing ({project.length_unit()})')
+    plt.xlabel(f'Easting ({project.unit("length")})')
+    plt.ylabel(f'Northing ({project.unit("length")})')
 
     plt.show()
 
@@ -145,7 +145,12 @@ def plot_treatment(ifrac_pathname, well_name, stage_no):
     """
     project = load_project(ifrac_pathname)
     project_wells = project.all_wells()
-    result = project_wells.treatment_curves(well_name, stage_no)
-    result.plot(subplots=True)
+    treatment_curves = project_wells.treatment_curves(well_name, stage_no)
+    axes = treatment_curves.plot(subplots=True, title=f'Treatment Curves: Stage {stage_no} of Well {well_name}')
+
+    # treatment_curves_units = project_wells.treatemnt_curves_units(well_name, stage_no)
+    # axes(0, 0).set_ylabel(f'{treatment_curves_units["Treating Pressure"]}')
+    # axes(1, 0).set_ylabel(f'{treatment_curves_units["Slurry Rate"]}')
+    # axes(2, 0).set_ylabel(f'{treatment_curves_units["Proppant Concentration"]}')
 
     plt.show()
