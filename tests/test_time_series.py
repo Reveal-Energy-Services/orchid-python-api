@@ -35,6 +35,11 @@ def assert_equal_treatments(concentration, rate, start_time_point, treating_pres
 
 
 class TestTimeSeries(unittest.TestCase):
+    # Test ideas:
+    # - transform_net_treatment
+    #   - no treating pressure generates empty named column
+    #   - no rate returns generates empty named column
+    #   - no concentration generates empty named column
     def test_canary(self):
         assert_that(2 + 2, is_(equal_to(4)))
 
