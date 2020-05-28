@@ -76,33 +76,63 @@ class TestProject(unittest.TestCase):
 
         assert_that(sut.all_wells(), instance_of(ProjectWells))
 
-    def test_returns_meter_project_length_unit_from_net_project_length_units(self):
+    def test_returns_meter_project_unit_from_net_project_length_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='m',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.unit('length'), equal_to('m'))
 
-    def test_returns_feet_project_length_unit_from_net_project_length_units(self):
+    def test_returns_feet_project_unit_from_net_project_length_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_length_unit_abbreviation='ft',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.unit('length'), equal_to('ft'))
 
-    def test_returns_kPa_project_pressure_unit_from_net_project_pressure_units(self):
+    def test_returns_kPa_project_unit_from_net_project_pressure_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='kPa',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.unit('pressure'), equal_to('kPa'))
 
-    def test_returns_psi_project_pressure_unit_from_net_project_pressure_units(self):
+    def test_returns_psi_project_unit_from_net_project_pressure_units(self):
         stub_net_project = create_stub_net_project_abbreviation(project_pressure_unit_abbreviation='psi',
                                                                 well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.unit('pressure'), equal_to('psi'))
+    #
+    # def test_returns_bpm_project_unit_from_net_slurry_rate_units(self):
+    #     stub_net_project = create_stub_net_project_abbreviation(project_volume_unit_abbreviation='bbl',
+    #                                                             project_duration_unit_abbreviation='min',
+    #                                                             well_names=['dont-care-well'])
+    #     sut = create_sut(stub_net_project)
+    #
+    #     assert_that(sut.unit('pressure'), equal_to('psi'))
+
+
+def set_project_unit(stub_net_project, abbreviation):
+    def set_foot_length_unit():
+        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
+
+    def set_meter_length_unit():
+        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
+
+    def set_pressure_psi_length_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
+
+    def set_pressure_kpa_length_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
+
+    abbreviation_unit_map = {'ft': set_foot_length_unit,
+                             'm': set_meter_length_unit,
+                             'psi': set_pressure_psi_length_unit,
+                             'kPa': set_pressure_kpa_length_unit}
+
+    if abbreviation in abbreviation_unit_map.keys():
+        abbreviation_unit_map[abbreviation]()
 
 
 def create_stub_net_project_abbreviation(well_names=None, well_display_names=None,
@@ -116,14 +146,8 @@ def create_stub_net_project_abbreviation(well_names=None, well_display_names=Non
     tvds = tvds if tvds else []
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
-    if project_length_unit_abbreviation == 'ft':
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
-    elif project_length_unit_abbreviation == 'm':
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
-    if project_pressure_unit_abbreviation == 'psi':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
-    elif project_pressure_unit_abbreviation == 'kPa':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
+    set_project_unit(stub_net_project, project_length_unit_abbreviation)
+    set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
 
     stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
 
