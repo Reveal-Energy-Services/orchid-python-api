@@ -145,7 +145,7 @@ def plot_treatment(ifrac_pathname, well_name, stage_no):
     """
     project = load_project(ifrac_pathname)
     project_wells = project.all_wells()
-    result = project_wells.treatement_curves(well_name, stage_no)
+    result = project_wells.treatment_curves(well_name, stage_no)
     result.plot(subplots=True)
 
     plt.show()
