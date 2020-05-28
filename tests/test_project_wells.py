@@ -55,6 +55,8 @@ import UnitsNet
 
 class TestProjectWells(unittest.TestCase):
     # Test ideas:
+    # - Call transform_net_treatment correctly with one stage with stage number 1
+    # - Call transform_net_treatment correctly with one stage with stage number 40
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -132,6 +134,42 @@ class TestProjectWells(unittest.TestCase):
             with self.subTest(invalid_well_id=invalid_well_id):
                 self.assertRaises(deal.PreContractError, sut.well_display_name, invalid_well_id)
 
+    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    def test_treatment_curves_calls_transform_treatment_when_stage_number_1(self, mock_transform_net_transform):
+        stub_treatment_curves = unittest.mock.MagicMock(name='stub_treatment_curves')
+        stub_net_project = create_stub_net_project(well_names=['perditus'],
+                                                   about_stages=[(1, stub_treatment_curves)])
+        sut = create_sut(stub_net_project)
+
+        sut.treatment_curves('perditus', 1)
+
+        mock_transform_net_transform.assert_called_with(stub_treatment_curves)
+
+    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    def test_treatment_curves_calls_transform_treatment_when_stage_number_40(self, mock_transform_net_transform):
+        stub_treatment_curves = unittest.mock.MagicMock(name='stub_treatment_curves')
+        stub_net_project = create_stub_net_project(well_names=['perditus'],
+                                                   about_stages=[(1, stub_treatment_curves)])
+        sut = create_sut(stub_net_project)
+
+        sut.treatment_curves('perditus', 1)
+
+        mock_transform_net_transform.assert_called_with(stub_treatment_curves)
+
+    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    def test_treatment_curves_calls_transform_treatment_but_stage_numbers_gap(self, mock_transform_net_transform):
+        stub_treatment_curves = [unittest.mock.MagicMock(name=f'stub_treatment_curves_{i}') for i in range(4)]
+        stub_net_project = create_stub_net_project(well_names=['perditus'],
+                                                   about_stages=[(1, stub_treatment_curves[0]),
+                                                                 (2, stub_treatment_curves[1]),
+                                                                 (3, stub_treatment_curves[2]),
+                                                                 (5, stub_treatment_curves[3])])
+        sut = create_sut(stub_net_project)
+
+        sut.treatment_curves('perditus', 5)
+
+        mock_transform_net_transform.assert_called_with(stub_treatment_curves[3])
+
     def test_treatment_curves_invalid_well_name_raises_exception(self):
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'])
         sut = create_sut(stub_net_project)
@@ -160,13 +198,7 @@ class TestProjectWells(unittest.TestCase):
         assert_that(calling(sut.treatment_curves).with_args('perditus', 40), raises(ValueError, 'perditus'))
 
     def test_treatment_curves_stage_number_greater_than_number_of_stages(self):
-        stub_net_project = create_stub_net_project(well_names=['perditus'], about_stages=[('corem', [])])
-        sut = create_sut(stub_net_project)
-
-        assert_that(calling(sut.treatment_curves).with_args('perditus', 40), raises(ValueError, '40'))
-
-    def test_treatment_curves_returns_empty_when_stage_has_no_treatment_curves(self):
-        stub_net_project = create_stub_net_project(well_names=['perditus'], about_stages=[('corem', [])])
+        stub_net_project = create_stub_net_project(well_names=['perditus'], about_stages=[(3, [])])
         sut = create_sut(stub_net_project)
 
         assert_that(calling(sut.treatment_curves).with_args('perditus', 40), raises(ValueError, '40'))
@@ -198,10 +230,10 @@ class TestProjectWells(unittest.TestCase):
         assert_that(sut.wells_by_name('perditus'), has_length(equal_to(2)))
 
 
-def create_stub_stage(stage_name, treatment_curves):
-    result = unittest.mock.MagicMock(name=stage_name, spec=IStage)
-    result.get_DisplayStageNumber.return_value = stage_name
-    result.TreatmentCurves = treatment_curves
+def create_stub_stage(stage_no, treatment_curves):
+    result = unittest.mock.MagicMock(name=stage_no, spec=IStage)
+    result.DisplayStageNumber = stage_no
+    result.TreatmentCurves.Items = treatment_curves
 
     return result
 
@@ -241,8 +273,8 @@ def create_stub_net_project(project_length_unit_abbreviation='', well_names=None
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
 
-        stub_well.Stages.get_Items.return_value = [create_stub_stage(stage_name, treatment_curve)
-                                                   for (stage_name, treatment_curve) in about_stages]
+        stub_well.Stages.Items = [create_stub_stage(stage_no, treatment_curves)
+                                  for (stage_no, treatment_curves) in about_stages]
 
     return stub_net_project
 

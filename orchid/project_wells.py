@@ -136,14 +136,15 @@ class ProjectWells:
         """
         candidate_wells = self.wells_by_name(well_name)
         if len(candidate_wells) != 1:
-            raise ValueError(f'Found {len(candidate_wells)} with name, "{well_name}". Expected 1.')
+            raise ValueError(f'Found {len(candidate_wells)} wells with name, "{well_name}". Expected 1.')
 
         well_of_interest = more_itertools.one(candidate_wells)
         candidate_stages = list(filter(lambda s: s.DisplayStageNumber == stage_no, well_of_interest.Stages.Items))
         if len(candidate_stages) == 0:
-            raise ValueError(f'Found {len(candidate_stages)} with stage number, {stage_no}. Expected 1.')
+            raise ValueError(f'Found {len(candidate_stages)} stages with stage number, {stage_no}, in well,'
+                             f' "{well_name}". Expected 1.')
         stage_of_interest = more_itertools.one(candidate_stages)
-        net_treatment_curves = stage_of_interest.TreatmentCurves.Item
+        net_treatment_curves = stage_of_interest.TreatmentCurves.Items
         result = orchid.time_series.transform_net_treatment(net_treatment_curves)
         return result
 
