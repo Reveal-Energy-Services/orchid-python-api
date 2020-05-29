@@ -22,6 +22,7 @@ import pandas as pd
 
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_loader import ProjectLoader
+from tests.stub_net import create_stub_net_project
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -177,35 +178,6 @@ class ProjectMonitorPressureCurvesTest(unittest.TestCase):
         for invalid_curve_id in [None, '', '\v']:
             with self.subTest(invalid_curve_name=invalid_curve_id):
                 self.assertRaises(deal.PreContractError, sut.display_name, invalid_curve_id)
-
-
-def create_stub_net_project(curve_names=None, samples=None, curves_physical_quantities=None,
-                            project_pressure_unit_abbreviation=''):
-    curve_names = curve_names if curve_names else []
-    samples = samples if samples else []
-    curves_physical_quantities = (curves_physical_quantities
-                                  if curves_physical_quantities
-                                  else list(itertools.repeat('pressure', len(curve_names))))
-
-    stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
-    if project_pressure_unit_abbreviation == 'psi':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
-    elif project_pressure_unit_abbreviation == 'kPa':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
-    elif project_pressure_unit_abbreviation == 'MPa':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Megapascal
-
-    stub_net_project.WellTimeSeriesList.Items = \
-        [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
-         for curve_name in curve_names]
-    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
-                              'temperature': UnitsNet.QuantityType.Temperature}
-    for i in range(len(curve_names)):
-        stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
-        stub_curve.DisplayName = curve_names[i] if curve_names else None
-        stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
-        stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
-    return stub_net_project
 
 
 def create_sut(stub_net_project):

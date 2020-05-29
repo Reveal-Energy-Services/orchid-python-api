@@ -19,6 +19,7 @@ properties required during testing but do not actually implement the .NET class 
 """
 
 import datetime
+import itertools
 import unittest.mock
 from typing import Sequence
 
@@ -49,7 +50,7 @@ from System import DateTime
 
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWell, IStage
+from ImageFrac.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
@@ -128,8 +129,11 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     return result
 
 
-def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None, uwis=None,
-                            eastings=None, northings=None, tvds=None, about_stages=None):
+def create_stub_net_project(project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
+                            well_names=None, well_display_names=None, uwis=None,
+                            eastings=None, northings=None, tvds=None,
+                            about_stages=None,
+                            curve_names=None, samples=None, curves_physical_quantities=None):
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
     uwis = uwis if uwis else []
@@ -137,12 +141,24 @@ def create_stub_net_project(project_length_unit_abbreviation='', well_names=None
     northings = northings if northings else []
     tvds = tvds if tvds else []
     about_stages = about_stages if about_stages else []
+    curve_names = curve_names if curve_names else []
+    samples = samples if samples else []
+    curves_physical_quantities = (curves_physical_quantities
+                                  if curves_physical_quantities
+                                  else list(itertools.repeat('pressure', len(curve_names))))
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     if project_length_unit_abbreviation == 'ft':
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
     elif project_length_unit_abbreviation == 'm':
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
+
+    if project_pressure_unit_abbreviation == 'psi':
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
+    elif project_pressure_unit_abbreviation == 'kPa':
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
+    elif project_pressure_unit_abbreviation == 'MPa':
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Megapascal
 
     stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
 
@@ -165,5 +181,16 @@ def create_stub_net_project(project_length_unit_abbreviation='', well_names=None
 
         stub_well.Stages.Items = [create_stub_stage(stage_no, treatment_curves)
                                   for (stage_no, treatment_curves) in about_stages]
+
+    stub_net_project.WellTimeSeriesList.Items = \
+        [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
+         for curve_name in curve_names]
+    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
+                              'temperature': UnitsNet.QuantityType.Temperature}
+    for i in range(len(curve_names)):
+        stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
+        stub_curve.DisplayName = curve_names[i] if curve_names else None
+        stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
+        stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
 
     return stub_net_project
