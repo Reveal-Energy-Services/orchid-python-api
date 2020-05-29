@@ -12,16 +12,21 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
-import sys
 from typing import Sequence
 
-import clr
 import deal
 import pandas as pd
 
 from orchid.project_loader import ProjectLoader
 import orchid.validation
+from orchid.time_series import transform_net_time_series
+
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 
 sys.path.append(r'c:\src\OrchidApp\ImageFrac\ImageFrac.Application\bin\Debug')
 clr.AddReference('UnitsNet')
@@ -81,18 +86,7 @@ class ProjectPressureCurves:
         # sequence of Python tuples. All the code is less clear, it avoids looping over a relatively "large"
         # array (> 100k items) multiple time.
         # https://stackoverflow.com/questions/53363688/converting-a-list-of-tuples-to-a-pandas-series
-        stamp_value_pairs = [(self._as_datetime(s.Timestamp), s.Value) for s in curve.GetOrderedTimeSeriesHistory()]
-        if stamp_value_pairs:
-            (timestamps, values) = zip(*stamp_value_pairs)
-            result = pd.Series(values, timestamps)
-            return result
-        else:
-            return pd.Series([], dtype=float)
-
-    @staticmethod
-    def _as_datetime(net_time_point) -> datetime.datetime:
-        result = datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                                   net_time_point.Hour, net_time_point.Minute, net_time_point.Second)
+        result = transform_net_time_series(curve.GetOrderedTimeSeriesHistory())
         return result
 
     @deal.pre(orchid.validation.arg_not_none)

@@ -12,7 +12,6 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import sys
 import unittest.mock
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
@@ -28,7 +27,8 @@ import unittest.mock
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
-import clr
+
+
 import deal
 from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, empty, calling, raises
 import numpy.testing as npt
@@ -37,10 +37,16 @@ import vectormath as vmath
 from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
 
-sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWell
+from ImageFrac.FractureDiagnostics import IProject, IWell, IStage
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
@@ -49,6 +55,8 @@ import UnitsNet
 
 class TestProjectWells(unittest.TestCase):
     # Test ideas:
+    # - Call transform_net_treatment correctly with one stage with stage number 1
+    # - Call transform_net_treatment correctly with one stage with stage number 40
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -71,7 +79,7 @@ class TestProjectWells(unittest.TestCase):
     def test_many_wells_ids_for_project_with_many_wells(self):
         well_uwis = ['03-293-91256-93-16', '66-253-17741-53-93', '03-76-97935-41-93']
         stub_net_project = create_stub_net_project(well_names=['dont-care-1', 'dont-car-2', 'dont-care-3'],
-                                                   well_uwis=well_uwis)
+                                                   uwis=well_uwis)
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -79,27 +87,23 @@ class TestProjectWells(unittest.TestCase):
         assert_that(sut.well_ids(), contains_exactly(*well_uwis))
 
     def test_no_trajectory_points_for_project_with_one_well_but_empty_trajectory(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         assert_that(sut.trajectory_points('dont-care-well'), is_(empty()))
 
     def test_one_trajectory_point_for_well_with_one_trajectory_point(self):
-        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='m',
-                                                   well_names=['dont-care-well'], eastings=[[185939]],
-                                                   northings=[[280875]], tvds=[[2250]])
+        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='m', well_names=['dont-care-well'],
+                                                   eastings=[[185939]], northings=[[280875]], tvds=[[2250]])
         sut = create_sut(stub_net_project)
 
         npt.assert_allclose(sut.trajectory_points('dont-care-well'),
                             vmath.Vector3Array(vmath.Vector3(185939, 280875, 2250)))
 
     def test_many_trajectory_points_for_well_with_many_trajectory_points(self):
-        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='ft',
-                                                   well_names=['dont-care-well'],
+        stub_net_project = create_stub_net_project(project_length_unit_abbreviation='ft', well_names=['dont-care-well'],
                                                    eastings=[[768385, 768359, 768331]],
-                                                   northings=[[8320613, 8320703, 8320792]],
-                                                   tvds=[[7515, 7516, 7517]])
+                                                   northings=[[8320613, 8320703, 8320792]], tvds=[[7515, 7516, 7517]])
         sut = create_sut(stub_net_project)
 
         npt.assert_allclose(sut.trajectory_points('dont-care-well'),
@@ -107,8 +111,7 @@ class TestProjectWells(unittest.TestCase):
                                                 [768331, 8320792, 7517]]))
 
     def test_trajectory_points_invalid_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         for invalid_well_id in [None, '', '\t']:
@@ -116,8 +119,7 @@ class TestProjectWells(unittest.TestCase):
                 self.assertRaises(deal.PreContractError, sut.trajectory_points, invalid_well_id)
 
     def test_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         for invalid_well_id in [None, '', '    ']:
@@ -125,23 +127,126 @@ class TestProjectWells(unittest.TestCase):
                 self.assertRaises(deal.PreContractError, sut.well_name, invalid_well_id)
 
     def test_display_well_name_no_well_id_raises_exception(self):
-        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[],
-                                                   northings=[], tvds=[])
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'], eastings=[], northings=[], tvds=[])
         sut = create_sut(stub_net_project)
 
         for invalid_well_id in [None, '', '\r']:
             with self.subTest(invalid_well_id=invalid_well_id):
                 self.assertRaises(deal.PreContractError, sut.well_display_name, invalid_well_id)
 
+    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    def test_treatment_curves_calls_transform_treatment_when_stage_number_1(self, mock_transform_net_transform):
+        stub_treatment_curves = unittest.mock.MagicMock(name='stub_treatment_curves')
+        stub_net_project = create_stub_net_project(well_names=['perditus'],
+                                                   about_stages=[(1, stub_treatment_curves)])
+        sut = create_sut(stub_net_project)
 
-def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None,
-                            well_uwis=None, eastings=None, northings=None, tvds=None):
+        sut.treatment_curves('perditus', 1)
+
+        mock_transform_net_transform.assert_called_with(stub_treatment_curves)
+
+    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    def test_treatment_curves_calls_transform_treatment_when_stage_number_40(self, mock_transform_net_transform):
+        stub_treatment_curves = unittest.mock.MagicMock(name='stub_treatment_curves')
+        stub_net_project = create_stub_net_project(well_names=['perditus'],
+                                                   about_stages=[(1, stub_treatment_curves)])
+        sut = create_sut(stub_net_project)
+
+        sut.treatment_curves('perditus', 1)
+
+        mock_transform_net_transform.assert_called_with(stub_treatment_curves)
+
+    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    def test_treatment_curves_calls_transform_treatment_but_stage_numbers_gap(self, mock_transform_net_transform):
+        stub_treatment_curves = [unittest.mock.MagicMock(name=f'stub_treatment_curves_{i}') for i in range(4)]
+        stub_net_project = create_stub_net_project(well_names=['perditus'],
+                                                   about_stages=[(1, stub_treatment_curves[0]),
+                                                                 (2, stub_treatment_curves[1]),
+                                                                 (3, stub_treatment_curves[2]),
+                                                                 (5, stub_treatment_curves[3])])
+        sut = create_sut(stub_net_project)
+
+        sut.treatment_curves('perditus', 5)
+
+        mock_transform_net_transform.assert_called_with(stub_treatment_curves[3])
+
+    def test_treatment_curves_invalid_well_name_raises_exception(self):
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        for invalid_well_name in [None, '', '\t']:
+            with self.subTest(invalid_well_name=invalid_well_name):
+                self.assertRaises(deal.PreContractError, sut.treatment_curves, invalid_well_name, 40)
+
+    def test_treatment_curves_stage_no_zero_raises_exception(self):
+        stub_net_project = create_stub_net_project(well_names=['dont-care-well'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.treatment_curves).with_args('clavis', 0), raises(deal.PreContractError))
+
+    def test_treatment_curves_well_name_not_found(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.treatment_curves).with_args('perditum', 40), raises(ValueError, 'perditum'))
+
+    def test_treatment_curves_many_well_names_not_found(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus', 'perditus'],
+                                                   uwis=['13-747-7053-70-64', '10-815-48659-44-52'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.treatment_curves).with_args('perditus', 40), raises(ValueError, 'perditus'))
+
+    def test_treatment_curves_stage_number_greater_than_number_of_stages(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'], about_stages=[(3, [])])
+        sut = create_sut(stub_net_project)
+
+        assert_that(calling(sut.treatment_curves).with_args('perditus', 40), raises(ValueError, '40'))
+
+    def test_wells_by_name_empty_if_no_well_with_specified_name_in_project(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditum'), is_(empty()))
+
+    def test_wells_by_name_returns_one_item_if_one_well_with_specified_name_in_project(self):
+        stub_net_project = create_stub_net_project(well_names=['perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditus'), has_length(equal_to(1)))
+
+    def test_wells_by_name_returns_one_item_if_one_well_with_specified_name_in_project_but_many_wells(self):
+        stub_net_project = create_stub_net_project(well_names=['recidivus', 'trusi', 'perditus'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditus'), has_length(equal_to(1)))
+
+    def test_wells_by_name_returns_many_items_if_many_wells_with_specified_name_in_project(self):
+        stub_net_project = create_stub_net_project(well_names=['recidivus', 'perditus', 'perditus'],
+                                                   uwis=['06-120-72781-16-45', '56-659-26378-28-77',
+                                                         '66-814-49035-82-57'])
+        sut = create_sut(stub_net_project)
+
+        assert_that(sut.wells_by_name('perditus'), has_length(equal_to(2)))
+
+
+def create_stub_stage(stage_no, treatment_curves):
+    result = unittest.mock.MagicMock(name=stage_no, spec=IStage)
+    result.DisplayStageNumber = stage_no
+    result.TreatmentCurves.Items = treatment_curves
+
+    return result
+
+
+def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None, uwis=None,
+                            eastings=None, northings=None, tvds=None, about_stages=None):
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
-    well_uwis = well_uwis if well_uwis else []
+    uwis = uwis if uwis else []
     eastings = eastings if eastings else []
     northings = northings if northings else []
     tvds = tvds if tvds else []
+    about_stages = about_stages if about_stages else []
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     if project_length_unit_abbreviation == 'ft':
@@ -153,7 +258,7 @@ def create_stub_net_project(project_length_unit_abbreviation='', well_names=None
 
     for i in range(len(well_names)):
         stub_well = stub_net_project.Wells.Items[i]
-        stub_well.Uwi = well_uwis[i] if well_uwis else None
+        stub_well.Uwi = uwis[i] if uwis else None
         stub_well.DisplayName = well_display_names[i] if well_display_names else None
         stub_well.Name = well_names[i]
 
@@ -167,6 +272,9 @@ def create_stub_net_project(project_length_unit_abbreviation='', well_names=None
         stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
+
+        stub_well.Stages.Items = [create_stub_stage(stage_no, treatment_curves)
+                                  for (stage_no, treatment_curves) in about_stages]
 
     return stub_net_project
 

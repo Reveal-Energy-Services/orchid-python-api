@@ -12,12 +12,18 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import clr
 import deal
 
 from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
 from orchid.project_wells import ProjectWells
+
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences

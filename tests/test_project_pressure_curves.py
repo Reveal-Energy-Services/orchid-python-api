@@ -14,8 +14,14 @@
 
 import datetime
 import itertools
-import sys
 import unittest.mock
+
+import deal
+from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
+import pandas as pd
+
+from orchid.project_pressure_curves import ProjectPressureCurves
+from orchid.project_loader import ProjectLoader
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -30,16 +36,13 @@ import unittest.mock
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
 import clr
-import deal
-from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
-import numpy.testing as npt
-import pandas as pd
-
-from orchid.project_pressure_curves import ProjectPressureCurves
-from orchid.project_loader import ProjectLoader
-
-sys.path.append(r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/x64/Debug')
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+from tests.stub_net import StubNetSample
 
 clr.AddReference('System')
 # noinspection PyUnresolvedReferences
@@ -52,14 +55,6 @@ from ImageFrac.FractureDiagnostics import IProject, IWellSampledQuantityTimeSeri
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
-
-
-class Sample:
-    def __init__(self, time_point: datetime.datetime, value: float):
-        # I chose to use capitalized names for compatability with .NET
-        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                  time_point.minute, time_point.second)
-        self.Value = value
 
 
 class ProjectPressureCurvesTest(unittest.TestCase):
@@ -81,7 +76,8 @@ class ProjectPressureCurvesTest(unittest.TestCase):
 
     @staticmethod
     def test_all_pressure_curves_returns_empty_if_only_temperature_curves():
-        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], curves_physical_quantities=['temperature'])
+        stub_net_project = create_stub_net_project(curve_names=['oppugnavi'],
+                                                   curves_physical_quantities=['temperature'])
         sut = create_sut(stub_net_project)
 
         # noinspection PyTypeChecker
@@ -124,13 +120,13 @@ class ProjectPressureCurvesTest(unittest.TestCase):
     @staticmethod
     def test_one_sample_for_project_with_one_sample():
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'],
-                                                   samples=[[Sample(datetime.datetime(2016, 7, 17, 15, 31, 58),
-                                                                    0.10456)]],
+                                                   samples=[[StubNetSample(datetime.datetime(2016, 7, 17, 15, 31, 58),
+                                                                           0.10456)]],
                                                    project_pressure_unit_abbreviation='MPa')
         sut = create_sut(stub_net_project)
 
-        npt.assert_allclose(sut.pressure_curve_samples('oppugnavi'),
-                            pd.Series([0.10456], [datetime.datetime(2016, 7, 17, 15, 31, 58)]))
+        expected_series = pd.Series(data=[0.10456], index=[datetime.datetime(2016, 7, 17, 15, 31, 58)])
+        pd.testing.assert_series_equal(sut.pressure_curve_samples('oppugnavi'), expected_series)
 
     @staticmethod
     def test_many_samples_for_project_with_many_samples():
@@ -141,7 +137,7 @@ class ProjectPressureCurvesTest(unittest.TestCase):
         sample_times = [[start_times[i] + j * datetime.timedelta(seconds=30) for j in range(len(sample_values[i]))] for
                         i in range(len(sample_values))]
         sample_parameters = [zip(sample_times[i], sample_values[i]) for i in range(len(start_times))]
-        samples = [[Sample(*sps) for sps in list(sample_parameters[i])] for i in range(len(sample_parameters))]
+        samples = [[StubNetSample(*sps) for sps in list(sample_parameters[i])] for i in range(len(sample_parameters))]
         stub_net_project = \
             create_stub_net_project(curve_names=curve_names,
                                     samples=samples,
@@ -150,7 +146,7 @@ class ProjectPressureCurvesTest(unittest.TestCase):
 
         for i in range(len(curve_names)):
             expected_series = pd.Series(sample_values[i], sample_times[i])
-            npt.assert_allclose(sut.pressure_curve_samples(curve_names[i]), expected_series)
+            pd.testing.assert_series_equal(sut.pressure_curve_samples(curve_names[i]), expected_series)
 
     def test_pressure_curve_samples_with_invalid_curve_name_raises_exception(self):
         stub_net_project = create_stub_net_project(curve_names=['oppugnavi'], samples=[[]])

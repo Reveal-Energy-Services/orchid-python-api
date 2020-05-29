@@ -12,19 +12,26 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
 from typing import KeysView, List, Union
 
-import clr
 import deal
+import more_itertools
 import numpy as np
 import pandas as pd
 import vectormath as vmath
 
 from orchid.project_loader import ProjectLoader
+import orchid.time_series
 import orchid.validation
 
-clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
+# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
+import sys
+import clr
+IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
+    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+
+clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
@@ -86,14 +93,6 @@ class ProjectWells:
             self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
         return self._wells
 
-    def treatement_curves(self, well_name, stage_no):
-        values = [100, 200, 100]
-        start_date = datetime.datetime.utcnow()
-        result = pd.DataFrame(data={'treating_pressure': values, 'rate': values, 'concentration': values},
-                              index=[start_date + i * datetime.timedelta(seconds=30)
-                                     for i in range(len(values))])
-        return result
-
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
     def trajectory_points(self, well_id: str) -> Union[vmath.Vector3Array, np.array]:
@@ -124,6 +123,31 @@ class ProjectWells:
         else:
             return np.empty((0,))
 
+    @deal.pre(lambda _, well_name, stage_no: well_name is not None)
+    @deal.pre(lambda _, well_name, stage_no: len(well_name.strip()) > 0)
+    @deal.pre(lambda _, well_name, stage_no: stage_no > 0)
+    def treatment_curves(self, well_name: str, stage_no: int) -> pd.DataFrame:
+        """
+        Extract the treatment curves for the well and stage number of interest.
+
+        :param well_name: The name identifying the well of interest.
+        :param stage_no: The number of the stage of interest.
+        :return: The treatment curves as a pandas `DataFrame` indexed by a (time) `Series`.
+        """
+        candidate_wells = self.wells_by_name(well_name)
+        if len(candidate_wells) != 1:
+            raise ValueError(f'Found {len(candidate_wells)} wells with name, "{well_name}". Expected 1.')
+
+        well_of_interest = more_itertools.one(candidate_wells)
+        candidate_stages = list(filter(lambda s: s.DisplayStageNumber == stage_no, well_of_interest.Stages.Items))
+        if len(candidate_stages) == 0:
+            raise ValueError(f'Found {len(candidate_stages)} stages with stage number, {stage_no}, in well,'
+                             f' "{well_name}". Expected 1.')
+        stage_of_interest = more_itertools.one(candidate_stages)
+        net_treatment_curves = stage_of_interest.TreatmentCurves.Items
+        result = orchid.time_series.transform_net_treatment(net_treatment_curves)
+        return result
+
     @staticmethod
     def _coordinates_to_array(coordinates: List[UnitsNet.Length],
                               project_length_unit: UnitsNet.Units.LengthUnit) -> np.array:
@@ -148,6 +172,14 @@ class ProjectWells:
         :return:  The name of this project.
         """
         return self._project_loader.loaded_project().Name
+
+    def wells_by_name(self, well_name):
+        """
+        Return all wells with the name, well_name.
+        :param well_name: The name of the well of interest
+        """
+        result = [w for w in self._well_map().values() if w.Name == well_name]
+        return result
 
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
