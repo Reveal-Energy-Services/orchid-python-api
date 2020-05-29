@@ -14,7 +14,7 @@
 
 # High-level API
 from .core import load_project
-from .core import plot_pressures
-from .core import plot_pressure_curve
+from .core import plot_monitor_pressures
+from .core import plot_monitor_pressure_curve
 from .core import plot_trajectories
 from .core import plot_treatment

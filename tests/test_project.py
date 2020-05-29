@@ -66,7 +66,7 @@ class TestProject(unittest.TestCase):
                                                                 project_pressure_unit_abbreviation='psi')
         sut = create_sut(stub_net_project)
 
-        assert_that(sut.all_pressure_curves(), instance_of(ProjectPressureCurves))
+        assert_that(sut.monitor_pressure_curves(), instance_of(ProjectPressureCurves))
 
     def test_ctor_return_all_wells(self):
         stub_net_project = create_stub_net_project_abbreviation(well_names=['dont-care-well'],

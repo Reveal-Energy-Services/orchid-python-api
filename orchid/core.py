@@ -49,7 +49,7 @@ def load_project(ifrac_pathname: str) -> ProjectAdapter:
 # TODO: Add **kwargs eventually?
 # Although the original proposal included kwargs to control the plotting, I do not know what those arguments
 # might actually be right now so I have not included the argument. Adding this argument is low-cost.
-def plot_pressures(ifrac_pathname: str) -> None:
+def plot_monitor_pressures(ifrac_pathname: str) -> None:
     """
     Plot all the the surface pressure curves for the project of interest.
 
@@ -59,16 +59,17 @@ def plot_pressures(ifrac_pathname: str) -> None:
     project = load_project(ifrac_pathname)
     project_wells = project.all_wells()
     default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project_wells.default_well_colors()]
-    project_pressure_curves = project.all_pressure_curves()
-    pressure_curve_ids = project_pressure_curves.pressure_curve_ids()
-    pressure_curve_display_names = [project_pressure_curves.display_name(curve_id) for curve_id in pressure_curve_ids]
-    surface_pressure_curves = [project_pressure_curves.pressure_curve_samples(pressure_curve_id)
-                               for pressure_curve_id in pressure_curve_ids]
+    monitor_pressure_curves = project.monitor_pressure_curves()
+    monitor_pressure_curve_ids = monitor_pressure_curves.pressure_curve_ids()
+    monitor_pressure_curve_display_names = [monitor_pressure_curves.display_name(curve_id)
+                                            for curve_id in monitor_pressure_curve_ids]
+    surface_pressure_curves = [monitor_pressure_curves.pressure_curve_samples(pressure_curve_id)
+                               for pressure_curve_id in monitor_pressure_curve_ids]
 
     # TODO: Remove hard-coding
     figure, axes = plt.subplots(2, 2)
     curves_to_plot = np.reshape(surface_pressure_curves, (2, 2))
-    names_to_display = np.reshape(pressure_curve_display_names, (2, 2))
+    names_to_display = np.reshape(monitor_pressure_curve_display_names, (2, 2))
     # TODO: Do we need a better way to map colors to curves?
     # The following code assumes that the colors on the trajectories for each well will be identical to the
     # colors for the curves. I do not know of any guarantee that the order of curves in the time series is
@@ -82,13 +83,14 @@ def plot_pressures(ifrac_pathname: str) -> None:
             ax = axes[i, j]
             colors = colors_to_use[i, j]
 
-            plot_pressure_curve(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
+            plot_monitor_pressure_curve(series_to_plot, ax, colors, pressure_unit_abbreviation, series_name)
 
     plt.show()
 
 
-def plot_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes, series_color: Tuple[int, int, int],
-                        pressure_unit_abbreviation: str, series_name: str) -> None:
+def plot_monitor_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes,
+                                series_color: Tuple[int, int, int], pressure_unit_abbreviation: str,
+                                series_name: str) -> None:
     """
     Plot the specified time series using the supplied details
     :param series_to_plot:  The (pandas) time series to plot.
@@ -96,6 +98,7 @@ def plot_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes.Axes, s
     :param series_color: The color of the curve to plot (an RGB tuple)
     :param pressure_unit_abbreviation: The abbreviation of the (project) pressure unit.
     :param series_name: The name of the series to plot.
+    :return: None
     """
     series_to_plot.plot(ax=axes, color=series_color)
     axes.set_ylabel(f'Pressure ({pressure_unit_abbreviation})')

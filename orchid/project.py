@@ -42,7 +42,7 @@ class ProjectAdapter:
         """
         self._project_loader = project_loader
 
-    def all_pressure_curves(self):
+    def monitor_pressure_curves(self):
         """
         Return a container of pressure curves indexed by time series id.
         :return: The container of pressure curves.
