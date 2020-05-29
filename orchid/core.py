@@ -60,10 +60,10 @@ def plot_monitor_pressures(ifrac_pathname: str) -> None:
     project_wells = project.all_wells()
     default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project_wells.default_well_colors()]
     monitor_pressure_curves = project.monitor_pressure_curves()
-    monitor_pressure_curve_ids = monitor_pressure_curves.pressure_curve_ids()
+    monitor_pressure_curve_ids = monitor_pressure_curves.monitor_pressure_curve_ids()
     monitor_pressure_curve_display_names = [monitor_pressure_curves.display_name(curve_id)
                                             for curve_id in monitor_pressure_curve_ids]
-    surface_pressure_curves = [monitor_pressure_curves.pressure_curve_samples(pressure_curve_id)
+    surface_pressure_curves = [monitor_pressure_curves.monitor_pressure_curve_time_series(pressure_curve_id)
                                for pressure_curve_id in monitor_pressure_curve_ids]
 
     # TODO: Remove hard-coding

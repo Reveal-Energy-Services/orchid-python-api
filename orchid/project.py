@@ -14,7 +14,7 @@
 
 import deal
 
-from orchid.project_pressure_curves import ProjectPressureCurves
+from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_loader import ProjectLoader
 from orchid.project_wells import ProjectWells
 
@@ -47,7 +47,7 @@ class ProjectAdapter:
         Return a container of pressure curves indexed by time series id.
         :return: The container of pressure curves.
         """
-        result = ProjectPressureCurves(self._project_loader)
+        result = ProjectMonitorPressureCurves(self._project_loader)
         return result
 
     def all_wells(self):

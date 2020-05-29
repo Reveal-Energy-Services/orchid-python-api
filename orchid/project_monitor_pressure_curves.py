@@ -34,12 +34,7 @@ clr.AddReference('UnitsNet')
 import UnitsNet
 
 
-# TODO: Consider renaming to ProjectSurfacePressureCurves or ProjectMonitorPressureCurves
-# The terms "pressure" and "pressure curve" are overloaded. Are we discussing the pressure of a column
-# measured by a gauge on a monitor well or do we mean the pressure exerted by a fluid used to treat a
-# specific stage. We have chosen to name the column for the latter "treating pressure"; we probably want to
-# name these other pressures monitor pressure to help the human reader "fall into the pit of success."
-class ProjectPressureCurves:
+class ProjectMonitorPressureCurves:
     """
     A container for .NET Wells indexed by time series IDs.
     """
@@ -53,33 +48,33 @@ class ProjectPressureCurves:
         """
         self._project_loader = net_project
 
-        self._pressure_curves = {}
+        self._monitor_pressure_curves = {}
 
-    def _pressure_curve_map(self):
-        if not self._pressure_curves:
-            self._pressure_curves.update({c.DisplayName: c for
-                                          c in self._project_loader.loaded_project().WellTimeSeriesList.Items if
-                                          c.SampledQuantityType == UnitsNet.QuantityType.Pressure})
-        return self._pressure_curves
+    def _monitor_pressure_curve_map(self):
+        if not self._monitor_pressure_curves:
+            self._monitor_pressure_curves.update({c.DisplayName: c for
+                                                  c in self._project_loader.loaded_project().WellTimeSeriesList.Items if
+                                                  c.SampledQuantityType == UnitsNet.QuantityType.Pressure})
+        return self._monitor_pressure_curves
 
-    def pressure_curve_ids(self) -> Sequence[str]:
+    def monitor_pressure_curve_ids(self) -> Sequence[str]:
         """
         Return the pressure curve identifiers for all pressure curves.
         :return: A list of all pressure curve identifiers.
         """
 
-        return list(self._pressure_curve_map().keys())
+        return list(self._monitor_pressure_curve_map().keys())
 
     @deal.pre(orchid.validation.arg_not_none)
     @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
-    def pressure_curve_samples(self, curve_id: str) -> pd.Series:
+    def monitor_pressure_curve_time_series(self, curve_id: str) -> pd.Series:
         """
         Return a pandas time series containing the samples for the pressure curve identified by `curve_id`.
 
         :param curve_id: Identifies a specific pressure curve in the project.
 
         :return: A sequence of sample pressures (implicitly in the project pressure units)."""
-        curve = self._pressure_curve_map()[curve_id]
+        curve = self._monitor_pressure_curve_map()[curve_id]
 
         # TODO: Premature optimization?
         # The following code uses a technique from a StackOverflow post on creating a pandas `Series` from a
@@ -98,4 +93,4 @@ class ProjectPressureCurves:
         :param curve_id: The value used to identify a specific pressure curve.
         :return: The name used by engineers to describe this curve.
         """
-        return self._pressure_curve_map()[curve_id].DisplayName
+        return self._monitor_pressure_curve_map()[curve_id].DisplayName
