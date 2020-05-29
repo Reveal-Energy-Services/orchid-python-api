@@ -20,6 +20,7 @@ from hamcrest import assert_that, equal_to, instance_of, calling, raises
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project import ProjectAdapter
 from orchid.project_loader import ProjectLoader
+import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 from tests.stub_net import create_stub_net_project
 

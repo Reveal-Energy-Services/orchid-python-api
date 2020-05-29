@@ -14,8 +14,9 @@
 
 import deal
 
-from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_loader import ProjectLoader
+from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
+import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 
 # TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
@@ -73,30 +74,4 @@ class ProjectAdapter:
         :param physical_quantity: The name of the physical quantity.
         :return: The abbreviation of the specified physical quantity.
         """
-        def pressure_unit(net_project):
-            return UnitsNet.Pressure.GetAbbreviation(net_project.ProjectUnits.PressureUnit)
-
-        def length_unit(net_project):
-            return UnitsNet.Length.GetAbbreviation(net_project.ProjectUnits.LengthUnit)
-
-        def slurry_rate_unit(net_project):
-            volume_abbreviation = UnitsNet.Volume.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item1)
-            duration_abbreviation = \
-                ('min'
-                 if (net_project.ProjectUnits.SlurryRateUnit.Item2 == UnitsNet.Units.DurationUnit.Minute)
-                 else UnitsNet.Volume.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item2))
-            return f'{volume_abbreviation}/{duration_abbreviation}'
-
-        def proppant_concentration_unit(net_project):
-            mass_abbreviation = UnitsNet.Mass.GetAbbreviation(
-                net_project.ProjectUnits.ProppantConcentrationUnit.Item1)
-            volume_abbreviation = UnitsNet.Volume.GetAbbreviation(
-                net_project.ProjectUnits.ProppantConcentrationUnit.Item2)
-            return f'{mass_abbreviation}/{volume_abbreviation}'
-
-        quantity_function_map = {'pressure': pressure_unit,
-                                 'length': length_unit,
-                                 'slurry rate': slurry_rate_unit,
-                                 'proppant concentration': proppant_concentration_unit}
-
-        return quantity_function_map[physical_quantity](self._project_loader.loaded_project())
+        return project_units.unit(self._project_loader.loaded_project(), physical_quantity)
