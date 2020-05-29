@@ -19,6 +19,8 @@ properties required during testing but do not actually implement the .NET class 
 """
 
 import datetime
+import itertools
+import unittest.mock
 from typing import Sequence
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
@@ -45,6 +47,10 @@ if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
 
 # noinspection PyUnresolvedReferences
 from System import DateTime
+
+clr.AddReference('ImageFrac.FractureDiagnostics')
+# noinspection PyUnresolvedReferences
+from ImageFrac.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
 
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
@@ -107,3 +113,111 @@ def create_net_treatment(start_time_point, treating_pressure_values, rate_values
     concentration_curve = StubNetTreatmentCurve('Proppant Concentration', 'ratio', concentration_time_series)
 
     return [treating_pressure_curve, rate_curve, concentration_curve]
+
+
+def set_project_unit(stub_net_project, abbreviation):
+    def set_foot_length_unit():
+        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
+
+    def set_meter_length_unit():
+        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
+
+    def set_pressure_psi_length_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
+
+    def set_pressure_kpa_length_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
+
+    def set_slurry_rate_bpm_unit():
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.OilBarrel
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
+
+    def set_proppant_concentration_lb_gal_unit():
+        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Pound
+        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.UsGallon
+
+    abbreviation_unit_map = {'ft': set_foot_length_unit,
+                             'm': set_meter_length_unit,
+                             'psi': set_pressure_psi_length_unit,
+                             'kPa': set_pressure_kpa_length_unit,
+                             'bbl/min': set_slurry_rate_bpm_unit,
+                             'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit}
+
+    if abbreviation in abbreviation_unit_map.keys():
+        abbreviation_unit_map[abbreviation]()
+
+
+def create_stub_stage(stage_no, treatment_curves):
+    result = unittest.mock.MagicMock(name=stage_no, spec=IStage)
+    result.DisplayStageNumber = stage_no
+    result.TreatmentCurves.Items = treatment_curves
+
+    return result
+
+
+def quantity_coordinate(raw_coordinates, i, stub_net_project):
+    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
+              for c in raw_coordinates[i]] if raw_coordinates else []
+    return result
+
+
+def create_stub_net_project(project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
+                            slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
+                            well_names=None, well_display_names=None, uwis=None,
+                            eastings=None, northings=None, tvds=None,
+                            about_stages=None,
+                            curve_names=None, samples=None, curves_physical_quantities=None):
+
+    well_names = well_names if well_names else []
+    well_display_names = well_display_names if well_display_names else []
+    uwis = uwis if uwis else []
+    eastings = eastings if eastings else []
+    northings = northings if northings else []
+    tvds = tvds if tvds else []
+    about_stages = about_stages if about_stages else []
+    curve_names = curve_names if curve_names else []
+    samples = samples if samples else []
+    curves_physical_quantities = (curves_physical_quantities
+                                  if curves_physical_quantities
+                                  else list(itertools.repeat('pressure', len(curve_names))))
+
+    stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
+    set_project_unit(stub_net_project, project_length_unit_abbreviation)
+    set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
+    set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
+    set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
+
+    stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
+
+    for i in range(len(well_names)):
+        stub_well = stub_net_project.Wells.Items[i]
+        stub_well.Uwi = uwis[i] if uwis else None
+        stub_well.DisplayName = well_display_names[i] if well_display_names else None
+        stub_well.Name = well_names[i]
+
+        # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
+        # (https://github.com/pythonnet/pythonnet/issues/253).
+        #
+        # One of the comments identifies a work-around from StackOverflow
+        # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
+        # This post states that "the trick is to realize that the compiler creates a special static method
+        # called `op_Implicit` for your implicit conversion operator."
+        stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
+        stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
+        stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
+
+        stub_well.Stages.Items = [create_stub_stage(stage_no, treatment_curves)
+                                  for (stage_no, treatment_curves) in about_stages]
+
+    stub_net_project.WellTimeSeriesList.Items = \
+        [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
+         for curve_name in curve_names]
+    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
+                              'temperature': UnitsNet.QuantityType.Temperature}
+    for i in range(len(curve_names)):
+        stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
+        stub_curve.DisplayName = curve_names[i] if curve_names else None
+        stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
+        stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
+
+    return stub_net_project

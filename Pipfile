@@ -26,7 +26,7 @@ python_version = "3.7"
 [scripts]
 ipython = "ipython"
 jupyter_lab = "jupyter lab"
-plot_pressures = "python plot_pressures.py"
+plot_monitor_pressures = "python plot_monitor_pressures.py"
 plot_trajectory = "python plot_trajectories.py"
 plot_treatment = "python plot_treatment.py"
 test_project_loader = "python orchid/project_loader.py -v"

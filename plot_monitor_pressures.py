@@ -27,4 +27,4 @@ if __name__ == '__main__':
     # functions to allow for finer control in other situations.
 
     options = parser.parse_args()
-    orchid.plot_pressures(options.pathname)
+    orchid.plot_monitor_pressures(options.pathname)
