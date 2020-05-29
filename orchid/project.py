@@ -73,13 +73,30 @@ class ProjectAdapter:
         :param physical_quantity: The name of the physical quantity.
         :return: The abbreviation of the specified physical quantity.
         """
-        def pressure_unit():
-            return UnitsNet.Pressure.GetAbbreviation(self._project_loader.loaded_project().ProjectUnits.PressureUnit)
+        def pressure_unit(net_project):
+            return UnitsNet.Pressure.GetAbbreviation(net_project.ProjectUnits.PressureUnit)
 
-        def length_unit():
-            return UnitsNet.Length.GetAbbreviation(self._project_loader.loaded_project().ProjectUnits.LengthUnit)
+        def length_unit(net_project):
+            return UnitsNet.Length.GetAbbreviation(net_project.ProjectUnits.LengthUnit)
+
+        def slurry_rate_unit(net_project):
+            volume_abbreviation = UnitsNet.Volume.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item1)
+            duration_abbreviation = \
+                ('min'
+                 if (net_project.ProjectUnits.SlurryRateUnit.Item2 == UnitsNet.Units.DurationUnit.Minute)
+                 else UnitsNet.Volume.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item2))
+            return f'{volume_abbreviation}/{duration_abbreviation}'
+
+        def proppant_concentration_unit(net_project):
+            mass_abbreviation = UnitsNet.Mass.GetAbbreviation(
+                net_project.ProjectUnits.ProppantConcentrationUnit.Item1)
+            volume_abbreviation = UnitsNet.Volume.GetAbbreviation(
+                net_project.ProjectUnits.ProppantConcentrationUnit.Item2)
+            return f'{mass_abbreviation}/{volume_abbreviation}'
 
         quantity_function_map = {'pressure': pressure_unit,
-                                 'length': length_unit}
+                                 'length': length_unit,
+                                 'slurry rate': slurry_rate_unit,
+                                 'proppant concentration': proppant_concentration_unit}
 
-        return quantity_function_map[physical_quantity]()
+        return quantity_function_map[physical_quantity](self._project_loader.loaded_project())
