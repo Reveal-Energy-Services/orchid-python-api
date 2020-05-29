@@ -148,9 +148,8 @@ def plot_treatment(ifrac_pathname, well_name, stage_no):
     treatment_curves = project_wells.treatment_curves(well_name, stage_no)
     axes = treatment_curves.plot(subplots=True, title=f'Treatment Curves: Stage {stage_no} of Well {well_name}')
 
-    # treatment_curves_units = project_wells.treatemnt_curves_units(well_name, stage_no)
-    # axes(0, 0).set_ylabel(f'{treatment_curves_units["Treating Pressure"]}')
-    # axes(1, 0).set_ylabel(f'{treatment_curves_units["Slurry Rate"]}')
-    # axes(2, 0).set_ylabel(f'{treatment_curves_units["Proppant Concentration"]}')
+    axes[0].set_ylabel(f'{project.unit("pressure")}')
+    axes[1].set_ylabel(f'{project.unit("slurry rate")}')
+    axes[2].set_ylabel(f'{project.unit("proppant concentration")}')
 
     plt.show()
