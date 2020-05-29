@@ -14,8 +14,9 @@
 
 import deal
 
-from orchid.project_pressure_curves import ProjectPressureCurves
 from orchid.project_loader import ProjectLoader
+from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
+import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 
 # TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
@@ -42,12 +43,12 @@ class ProjectAdapter:
         """
         self._project_loader = project_loader
 
-    def all_pressure_curves(self):
+    def monitor_pressure_curves(self):
         """
         Return a container of pressure curves indexed by time series id.
         :return: The container of pressure curves.
         """
-        result = ProjectPressureCurves(self._project_loader)
+        result = ProjectMonitorPressureCurves(self._project_loader)
         return result
 
     def all_wells(self):
@@ -67,21 +68,10 @@ class ProjectAdapter:
         """
         return self._project_loader.loaded_project().Name
 
-    # TODO: On third unit, change to single implementation perhaps using a dictionary
-    def length_unit(self):
+    def unit(self, physical_quantity):
         """
-        Return the length unit for the project.
-        :return: The length unit for the project.
+        Return the abbreviation for the specified `physical_quantity` of this project.
+        :param physical_quantity: The name of the physical quantity.
+        :return: The abbreviation of the specified physical quantity.
         """
-        project_length_unit = self._project_loader.loaded_project().ProjectUnits.LengthUnit
-        result = UnitsNet.Length.GetAbbreviation(project_length_unit)
-        return result
-
-    def pressure_unit(self):
-        """
-        Return the pressure unit for the project.
-        :return: The pressure unit for the project.
-        """
-        project_pressure_unit = self._project_loader.loaded_project().ProjectUnits.PressureUnit
-        result = UnitsNet.Pressure.GetAbbreviation(project_pressure_unit)
-        return result
+        return project_units.unit(self._project_loader.loaded_project(), physical_quantity)

@@ -36,6 +36,7 @@ import vectormath as vmath
 
 from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
+from tests.stub_net import create_stub_net_project
 
 # TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
 import sys
@@ -228,61 +229,6 @@ class TestProjectWells(unittest.TestCase):
         sut = create_sut(stub_net_project)
 
         assert_that(sut.wells_by_name('perditus'), has_length(equal_to(2)))
-
-
-def create_stub_stage(stage_no, treatment_curves):
-    result = unittest.mock.MagicMock(name=stage_no, spec=IStage)
-    result.DisplayStageNumber = stage_no
-    result.TreatmentCurves.Items = treatment_curves
-
-    return result
-
-
-def create_stub_net_project(project_length_unit_abbreviation='', well_names=None, well_display_names=None, uwis=None,
-                            eastings=None, northings=None, tvds=None, about_stages=None):
-    well_names = well_names if well_names else []
-    well_display_names = well_display_names if well_display_names else []
-    uwis = uwis if uwis else []
-    eastings = eastings if eastings else []
-    northings = northings if northings else []
-    tvds = tvds if tvds else []
-    about_stages = about_stages if about_stages else []
-
-    stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
-    if project_length_unit_abbreviation == 'ft':
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
-    elif project_length_unit_abbreviation == 'm':
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
-
-    stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
-
-    for i in range(len(well_names)):
-        stub_well = stub_net_project.Wells.Items[i]
-        stub_well.Uwi = uwis[i] if uwis else None
-        stub_well.DisplayName = well_display_names[i] if well_display_names else None
-        stub_well.Name = well_names[i]
-
-        # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
-        # (https://github.com/pythonnet/pythonnet/issues/253).
-        #
-        # One of the comments identifies a work-around from StackOverflow
-        # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
-        # This post states that "the trick is to realize that the compiler creates a special static method
-        # called `op_Implicit` for your implicit conversion operator."
-        stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
-        stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
-        stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
-
-        stub_well.Stages.Items = [create_stub_stage(stage_no, treatment_curves)
-                                  for (stage_no, treatment_curves) in about_stages]
-
-    return stub_net_project
-
-
-def quantity_coordinate(raw_coordinates, i, stub_net_project):
-    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
-              for c in raw_coordinates[i]] if raw_coordinates else []
-    return result
 
 
 def create_sut(stub_net_project):
