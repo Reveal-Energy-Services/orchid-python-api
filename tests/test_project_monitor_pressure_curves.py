@@ -13,7 +13,6 @@
 #
 
 import datetime
-import itertools
 import unittest.mock
 
 import deal

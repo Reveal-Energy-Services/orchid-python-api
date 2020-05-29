@@ -115,6 +115,38 @@ def create_net_treatment(start_time_point, treating_pressure_values, rate_values
     return [treating_pressure_curve, rate_curve, concentration_curve]
 
 
+def set_project_unit(stub_net_project, abbreviation):
+    def set_foot_length_unit():
+        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
+
+    def set_meter_length_unit():
+        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
+
+    def set_pressure_psi_length_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
+
+    def set_pressure_kpa_length_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
+
+    def set_slurry_rate_bpm_unit():
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.OilBarrel
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
+
+    def set_proppant_concentration_lb_gal_unit():
+        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Pound
+        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.UsGallon
+
+    abbreviation_unit_map = {'ft': set_foot_length_unit,
+                             'm': set_meter_length_unit,
+                             'psi': set_pressure_psi_length_unit,
+                             'kPa': set_pressure_kpa_length_unit,
+                             'bbl/min': set_slurry_rate_bpm_unit,
+                             'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit}
+
+    if abbreviation in abbreviation_unit_map.keys():
+        abbreviation_unit_map[abbreviation]()
+
+
 def create_stub_stage(stage_no, treatment_curves):
     result = unittest.mock.MagicMock(name=stage_no, spec=IStage)
     result.DisplayStageNumber = stage_no
@@ -130,10 +162,12 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
 
 
 def create_stub_net_project(project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
+                            slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
                             about_stages=None,
                             curve_names=None, samples=None, curves_physical_quantities=None):
+
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
     uwis = uwis if uwis else []
@@ -148,17 +182,10 @@ def create_stub_net_project(project_length_unit_abbreviation='', project_pressur
                                   else list(itertools.repeat('pressure', len(curve_names))))
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
-    if project_length_unit_abbreviation == 'ft':
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
-    elif project_length_unit_abbreviation == 'm':
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
-
-    if project_pressure_unit_abbreviation == 'psi':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
-    elif project_pressure_unit_abbreviation == 'kPa':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
-    elif project_pressure_unit_abbreviation == 'MPa':
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Megapascal
+    set_project_unit(stub_net_project, project_length_unit_abbreviation)
+    set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
+    set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
+    set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
 
     stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
 
