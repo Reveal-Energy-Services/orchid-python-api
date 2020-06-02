@@ -19,6 +19,7 @@ deal = "*"
 matplotlib = "*"
 seaborn = "*"
 more-itertools = "*"
+pyyaml = "*"
 
 [requires]
 python_version = "3.7"
