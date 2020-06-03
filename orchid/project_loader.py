@@ -17,9 +17,7 @@ import deal
 import orchid.dot_net
 import orchid.validation
 
-orchid.dot_net.append_orchid_assemblies_directory_path()
-# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
-orchid.dot_net.add_orchid_assemblies()
+orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter

@@ -38,9 +38,7 @@ from tests.stub_net import create_stub_net_project, StubNetSample
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
 
-orchid.dot_net.append_orchid_assemblies_directory_path()
-# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
-orchid.dot_net.add_orchid_assemblies()
+orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 from System import DateTime
