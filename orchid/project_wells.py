@@ -27,7 +27,8 @@ import orchid.validation
 # TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
 import sys
 import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+import orchid.configuration
+IMAGE_FRAC_ASSEMBLIES_DIR = orchid.configuration.python_api()['directory']
 if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
     sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 

@@ -22,7 +22,8 @@ import numpy as np
 import sys
 # noinspection PyUnresolvedReferences
 import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
+import orchid.configuration
+IMAGE_FRAC_ASSEMBLIES_DIR = orchid.configuration.python_api()['directory']
 if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
     sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 import pandas as pd

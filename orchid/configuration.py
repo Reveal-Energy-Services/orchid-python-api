@@ -22,8 +22,9 @@ def python_api():
     config = {'directory': os.path.join(os.environ['LOCALAPPDATA'], 'Reveal')}
     custom = {}
 
-    if os.path.exists('python_api.yaml'):
-        with open('python_api.yaml', 'r') as in_stream:
+    config_pathname = os.path.join(os.path.join(__file__, '..', '..'), 'python_api.yaml')
+    if os.path.exists(config_pathname):
+        with open(config_pathname, 'r') as in_stream:
             custom = yaml.full_load(in_stream)
 
     config.update(custom)
