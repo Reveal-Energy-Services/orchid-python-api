@@ -12,12 +12,20 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import orchid.dot_net
-orchid.dot_net.prepare_imports()
+import os
+import os.path
 
-# High-level API
-from .core import load_project
-from .core import plot_monitor_pressures
-from .core import plot_monitor_pressure_curve
-from .core import plot_trajectories
-from .core import plot_treatment
+import yaml
+
+
+def python_api():
+    config = {'directory': os.path.join(os.environ['LOCALAPPDATA'], 'Reveal')}
+    custom = {}
+
+    config_pathname = os.path.join(os.path.join(__file__, '..', '..'), 'python_api.yaml')
+    if os.path.exists(config_pathname):
+        with open(config_pathname, 'r') as in_stream:
+            custom = yaml.full_load(in_stream)
+
+    config.update(custom)
+    return config

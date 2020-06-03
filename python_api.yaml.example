@@ -1,0 +1,5 @@
+# Replace the text, "example.user," with your Windows user name
+# if Orchid is installed in the default location. Otherwise, 
+# replace the entire directory with the pathname of the Orchid
+# binary directory.
+directory: c:\Users\example.user\AppData\Local\Reveal\Orchid

@@ -12,20 +12,10 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import os.path
-
 import deal
 
 import orchid.validation
 
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
-
-clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
@@ -66,7 +56,7 @@ class ProjectLoader:
         """
         if not self._project:
             with ScriptAdapterContext():
-                reader = ScriptAdapter.CreateProjectFileReader(self._app_settings_path())
+                reader = ScriptAdapter.CreateProjectFileReader(orchid.dot_net.app_settings_path())
                 # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
                 stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
                 try:
@@ -74,16 +64,6 @@ class ProjectLoader:
                 finally:
                     stream_reader.Close()
         return self._project
-
-    @staticmethod
-    def _app_settings_path():
-        """
-        Return the pathname of the `appSettings.json` file needed by the `SDKFacade `assembly.
-
-        :return: The required pathname.
-        """
-        result = os.path.join(IMAGE_FRAC_ASSEMBLIES_DIR, 'appSettings.json')
-        return result
 
 
 class ScriptAdapterContext:
