@@ -12,11 +12,6 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-
-import orchid.dot_net
-
-orchid.dot_net.prepare_imports()
-
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

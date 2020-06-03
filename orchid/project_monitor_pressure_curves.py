@@ -17,12 +17,9 @@ from typing import Sequence
 import deal
 import pandas as pd
 
-import orchid.dot_net
 from orchid.project_loader import ProjectLoader
 from orchid.time_series import transform_net_time_series
 import orchid.validation
-
-orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 import UnitsNet

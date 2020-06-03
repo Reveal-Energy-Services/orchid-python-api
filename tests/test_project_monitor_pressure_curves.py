@@ -24,22 +24,6 @@ from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project, StubNetSample
 
-# TODO: Remove the clr dependency and spec's using .NET types if tests too slow
-# To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
-# `spec=IProject` to a number of `MagicMock` calls. As explained in the documentation, these specs cause the
-# mocks to fail if a mocked method *does not* adhere to the interface exposed by the type used for the spec
-# (in this case, `IProject`).
-#
-# A consequence of this choice is a noticeable slowing of the tests (hypothesized to result from loading the
-# .NET assemblies and reflecting on the .NET types to determine correct names). Before this change, this
-# author noticed that tests were almost instantaneous (11 tests). Afterwards, a slight, but noticeable pause
-# occurs before the tests complete.
-#
-# If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
-# and the .NET types used for specs.
-
-orchid.dot_net.prepare_imports()
-
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences

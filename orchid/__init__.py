@@ -12,6 +12,9 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import orchid.dot_net
+orchid.dot_net.prepare_imports()
+
 # High-level API
 from .core import load_project
 from .core import plot_monitor_pressures

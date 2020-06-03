@@ -19,10 +19,6 @@ import more_itertools
 import numpy as np
 import pandas as pd
 
-import orchid.dot_net
-
-orchid.dot_net.prepare_imports()
-
 # noinspection PyUnresolvedReferences
 from System import DateTime
 

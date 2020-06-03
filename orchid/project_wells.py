@@ -20,12 +20,9 @@ import numpy as np
 import pandas as pd
 import vectormath as vmath
 
-import orchid.dot_net
 from orchid.project_loader import ProjectLoader
 import orchid.time_series
 import orchid.validation
-
-orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)

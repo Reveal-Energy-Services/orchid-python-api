@@ -14,10 +14,7 @@
 
 import deal
 
-import orchid.dot_net
 import orchid.validation
-
-orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter

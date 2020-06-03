@@ -14,13 +14,10 @@
 
 import deal
 
-import orchid.dot_net
 from orchid.project_loader import ProjectLoader
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
-
-orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 import UnitsNet

@@ -16,10 +16,7 @@ import unittest.mock
 
 from hamcrest import assert_that, is_, equal_to, calling, raises, has_properties
 
-import orchid.dot_net
 import orchid.project_wells
-
-orchid.dot_net.prepare_imports()
 
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
