@@ -17,20 +17,16 @@ import datetime
 import deal
 import more_itertools
 import numpy as np
-
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-# noinspection PyUnresolvedReferences
-import clr
-import orchid.configuration
-IMAGE_FRAC_ASSEMBLIES_DIR = orchid.configuration.python_api()['directory']
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
 import pandas as pd
+
+import orchid.dot_net
+
+orchid.dot_net.append_bin_path()
 
 # noinspection PyUnresolvedReferences
 from System import DateTime
 
+import clr
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet

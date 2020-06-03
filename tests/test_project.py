@@ -17,9 +17,10 @@ import unittest.mock
 import deal
 from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
-from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
+import orchid.dot_net
 from orchid.project import ProjectAdapter
 from orchid.project_loader import ProjectLoader
+from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_wells import ProjectWells
 from tests.stub_net import create_stub_net_project
 
@@ -36,13 +37,9 @@ from tests.stub_net import create_stub_net_project
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+orchid.dot_net.append_bin_path()
 
+import clr
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWell

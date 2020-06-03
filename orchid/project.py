@@ -14,19 +14,15 @@
 
 import deal
 
+import orchid.dot_net
 from orchid.project_loader import ProjectLoader
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-import clr
-import orchid.configuration
-IMAGE_FRAC_ASSEMBLIES_DIR = orchid.configuration.python_api()['directory']
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+orchid.dot_net.append_bin_path()
 
+import clr
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet

@@ -17,19 +17,14 @@ from typing import Sequence
 import deal
 import pandas as pd
 
+import orchid.dot_net
 from orchid.project_loader import ProjectLoader
 from orchid.time_series import transform_net_time_series
 import orchid.validation
 
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-import clr
-import orchid.configuration
-IMAGE_FRAC_ASSEMBLIES_DIR = orchid.configuration.python_api()['directory']
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+orchid.dot_net.append_bin_path()
 
-sys.path.append(r'c:\src\OrchidApp\ImageFrac\ImageFrac.Application\bin\Debug')
+import clr
 clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet

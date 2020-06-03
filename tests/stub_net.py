@@ -36,15 +36,11 @@ from typing import Sequence
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
+import orchid.dot_net
 
+orchid.dot_net.append_bin_path()
 
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
 import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
-
 # noinspection PyUnresolvedReferences
 from System import DateTime
 

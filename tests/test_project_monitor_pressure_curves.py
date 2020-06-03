@@ -19,9 +19,10 @@ import deal
 from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
 import pandas as pd
 
+import orchid.dot_net
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_loader import ProjectLoader
-from tests.stub_net import create_stub_net_project
+from tests.stub_net import create_stub_net_project, StubNetSample
 
 # TODO: Remove the clr dependency and spec's using .NET types if tests too slow
 # To mitigate risks of tests continuing to pass if the .NET types change, I have chosen to add arguments like
@@ -36,14 +37,9 @@ from tests.stub_net import create_stub_net_project
 #
 # If these slowdowns become "too expensive," our future selves will need to remove dependencies on the clr
 # and the .NET types used for specs.
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
-from tests.stub_net import StubNetSample
+orchid.dot_net.append_bin_path()
 
+import clr
 clr.AddReference('System')
 # noinspection PyUnresolvedReferences
 from System import DateTime

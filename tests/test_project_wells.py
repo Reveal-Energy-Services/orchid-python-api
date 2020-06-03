@@ -34,17 +34,14 @@ from hamcrest import assert_that, equal_to, has_length, contains_exactly, is_, e
 import numpy.testing as npt
 import vectormath as vmath
 
+import orchid.dot_net
 from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
-# TODO: Replace some of this code with configuration and/or a method to use `clr.AddReference`
-import sys
-import clr
-IMAGE_FRAC_ASSEMBLIES_DIR = r'c:/src/OrchidApp/ImageFrac/ImageFrac.Application/bin/Debug'
-if IMAGE_FRAC_ASSEMBLIES_DIR not in sys.path:
-    sys.path.append(IMAGE_FRAC_ASSEMBLIES_DIR)
+orchid.dot_net.append_bin_path()
 
+import clr
 clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWell, IStage
