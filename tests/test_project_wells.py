@@ -39,14 +39,12 @@ from orchid.project_wells import ProjectWells
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
-orchid.dot_net.append_bin_path()
+orchid.dot_net.append_orchid_assemblies_directory_path()
+# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
+orchid.dot_net.add_orchid_assemblies()
 
-import clr
-clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWell, IStage
-
-clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

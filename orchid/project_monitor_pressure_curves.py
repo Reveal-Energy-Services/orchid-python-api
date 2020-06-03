@@ -22,10 +22,10 @@ from orchid.project_loader import ProjectLoader
 from orchid.time_series import transform_net_time_series
 import orchid.validation
 
-orchid.dot_net.append_bin_path()
+orchid.dot_net.append_orchid_assemblies_directory_path()
+# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
+orchid.dot_net.add_orchid_assemblies()
 
-import clr
-clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

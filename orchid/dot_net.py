@@ -15,10 +15,31 @@
 
 import os
 import sys
+
 import orchid.configuration
 
+import clr
 
-def append_bin_path():
+
+def add_orchid_assemblies():
+    """
+    Add references to the Orchid assemblies needed by the Python API.
+
+    Although not all modules in the `orchid` package need .NET types from all the available Orchid assemblies,
+    I believe the additional cost of adding those references is far less than the cost of maintaining the
+    copy-paste, boilerplate code that results without this common function.
+    :return:
+    """
+    clr.AddReference('ImageFrac.FractureDiagnostics')
+    clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
+    clr.AddReference('UnitsNet')
+    return None
+
+
+def append_orchid_assemblies_directory_path():
+    """
+    Append the directory containing the required Orchid assemblies to `sys.path`.
+    """
     orchid_bin_dir = orchid.configuration.python_api()['directory']
     if orchid_bin_dir not in sys.path:
         sys.path.append(orchid_bin_dir)

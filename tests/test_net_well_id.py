@@ -19,10 +19,9 @@ from hamcrest import assert_that, is_, equal_to, calling, raises, has_properties
 import orchid.dot_net
 import orchid.project_wells
 
-orchid.dot_net.append_bin_path()
-
-import clr
-clr.AddReference('ImageFrac.FractureDiagnostics')
+orchid.dot_net.append_orchid_assemblies_directory_path()
+# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
+orchid.dot_net.add_orchid_assemblies()
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 

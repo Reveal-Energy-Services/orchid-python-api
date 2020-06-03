@@ -38,17 +38,14 @@ from typing import Sequence
 # and the .NET types used for specs.
 import orchid.dot_net
 
-orchid.dot_net.append_bin_path()
+orchid.dot_net.append_orchid_assemblies_directory_path()
+# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
+orchid.dot_net.add_orchid_assemblies()
 
-import clr
 # noinspection PyUnresolvedReferences
 from System import DateTime
-
-clr.AddReference('ImageFrac.FractureDiagnostics')
 # noinspection PyUnresolvedReferences
 from ImageFrac.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
-
-clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

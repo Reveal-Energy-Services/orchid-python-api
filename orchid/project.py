@@ -20,10 +20,10 @@ from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 
-orchid.dot_net.append_bin_path()
+orchid.dot_net.append_orchid_assemblies_directory_path()
+# This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
+orchid.dot_net.add_orchid_assemblies()
 
-import clr
-clr.AddReference('UnitsNet')
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
