@@ -26,7 +26,7 @@ from typing import Sequence
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

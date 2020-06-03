@@ -19,7 +19,7 @@ from hamcrest import assert_that, is_, equal_to, calling, raises, has_properties
 import orchid.project_wells
 
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
+from Orchid.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
 
 class TestNetWellId(unittest.TestCase):

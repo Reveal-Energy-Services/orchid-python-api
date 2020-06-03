@@ -24,7 +24,7 @@ from orchid.project_wells import ProjectWells
 from tests.stub_net import create_stub_net_project
 
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWell
+from Orchid.FractureDiagnostics import IProject, IWell
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

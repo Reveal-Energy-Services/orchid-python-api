@@ -27,7 +27,7 @@ from tests.stub_net import create_stub_net_project, StubNetSample
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWellSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import IProject, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

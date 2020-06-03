@@ -25,7 +25,7 @@ import orchid.time_series
 import orchid.validation
 
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
+from Orchid.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
 
 # noinspection PyUnresolvedReferences
 import UnitsNet

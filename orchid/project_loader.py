@@ -17,7 +17,7 @@ import deal
 import orchid.validation
 
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics.SDKFacade import ScriptAdapter
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 

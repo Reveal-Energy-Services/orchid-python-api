@@ -39,7 +39,7 @@ from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWell, IStage
+from Orchid.FractureDiagnostics import IProject, IWell, IStage
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

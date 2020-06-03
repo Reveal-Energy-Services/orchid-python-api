@@ -30,8 +30,8 @@ def add_orchid_assemblies():
     copy-paste, boilerplate code that results without this common function.
     :return:
     """
-    clr.AddReference('ImageFrac.FractureDiagnostics')
-    clr.AddReference('ImageFrac.FractureDiagnostics.SDKFacade')
+    clr.AddReference('Orchid.FractureDiagnostics')
+    clr.AddReference('Orchid.FractureDiagnostics.SDKFacade')
     clr.AddReference('UnitsNet')
     return None
 
