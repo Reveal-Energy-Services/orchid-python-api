@@ -40,7 +40,7 @@ def _as_datetime(net_time_point: DateTime) -> datetime.datetime:
 @deal.pre(lambda net_time_series, **kwargs: net_time_series is not None)
 def transform_net_time_series(net_time_series, name=None) -> pd.Series:
     """
-    Transform a sequence of .NET samples (ticks) to a
+    Transform a sequence of .NET samples (ticks) to a pandas (Time) Series
     :param net_time_series: The sequence of .NET samples (each an implementation of `ITick<double>`).
     :param name: The name used to identify this time series (used to identify columns in pandas `DataFrame`s.
     :return: The pandas (Time) `Series` for the values.
@@ -61,19 +61,28 @@ def transform_net_treatment(net_treatment_curves):
     if len(net_treatment_curves) == 0:
         return pd.DataFrame()
 
-    net_treating_pressure = more_itertools.one(filter(lambda c: c.SampledQuantityType == UnitsNet.QuantityType.Pressure,
-                                                      net_treatment_curves))
-    treating_pressure = transform_net_time_series(net_treating_pressure.GetOrderedTimeSeriesHistory(),
-                                                  name='Treating Pressure')
-    net_rate = more_itertools.one(filter(lambda c: (c.SampledQuantityType == UnitsNet.QuantityType.Ratio and
-                                                    c.SampledQuantityName == 'Slurry Rate'),
-                                         net_treatment_curves))
-    rate = transform_net_time_series(net_rate.GetOrderedTimeSeriesHistory(),
-                                     name=net_rate.SampledQuantityName)
-    net_concentration = more_itertools.one(filter(lambda c: (c.SampledQuantityType == UnitsNet.QuantityType.Ratio and
-                                                             c.SampledQuantityName == 'Proppant Concentration'),
-                                                  net_treatment_curves))
-    concentration = transform_net_time_series(net_concentration.GetOrderedTimeSeriesHistory(),
-                                              name=net_concentration.SampledQuantityName)
+    treating_pressure = _net_treatment_curve_to_time_series(
+        net_treatment_curves, lambda c: c.SampledQuantityType == UnitsNet.QuantityType.Pressure, 'Treating Pressure')
+    rate = _net_treatment_curve_to_time_series(
+        net_treatment_curves, lambda c: (c.SampledQuantityType == UnitsNet.QuantityType.Ratio and
+                                         c.SampledQuantityName == 'Slurry Rate'))
+    concentration = _net_treatment_curve_to_time_series(
+        net_treatment_curves, lambda c: (c.SampledQuantityType == UnitsNet.QuantityType.Ratio and
+                                         c.SampledQuantityName == 'Proppant Concentration'))
+
     result = pd.concat([treating_pressure, rate, concentration], axis=1)
+    return result
+
+
+def _net_treatment_curve_to_time_series(net_treatment_curves, predicate_fn, series_name=None):
+    """
+    Convert a .NET treatment curve to a pandas (Time) Series
+    :param net_treatment_curves: The sequence of .NET treatment curves containing the curve of interest
+    :param predicate_fn: The function used to identify the treatment curve of interest
+    :param series_name: The name identifying the Time Series. If `None`, use the curve `SampledQuantityName` property.
+    :return: The pandas (Time) Series corresponding to the .NET treatment curve
+    """
+    selected_curve = more_itertools.one(filter(predicate_fn, net_treatment_curves))
+    result = transform_net_time_series(selected_curve.GetOrderedTimeSeriesHistory(),
+                                       name=series_name if series_name else selected_curve.SampledQuantityName)
     return result
