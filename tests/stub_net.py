@@ -1,14 +1,14 @@
 #
-# This file is part of IMAGEFrac (R) and related technologies.
+# This file is part of Orchid and related technologies.
 #
 # Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
 #
 # LEGAL NOTICE:
-# IMAGEFrac contains trade secrets and otherwise confidential information
-# owned by Reveal Energy Services. Access to and use of this information is
+# Orchid contains trade secrets and otherwise confidential information
+# owned by Reveal Energy Services. Access to and use of this information is 
 # strictly limited and controlled by the Company. This file may not be copied,
-# distributed, or otherwise disclosed outside of the Company's facilities
-# except under appropriate precautions to maintain the confidentiality hereof,
+# distributed, or otherwise disclosed outside of the Company's facilities 
+# except under appropriate precautions to maintain the confidentiality hereof, 
 # and may not be used in any way not expressly authorized by the Company.
 #
 
@@ -26,7 +26,7 @@ from typing import Sequence
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
-from ImageFrac.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 

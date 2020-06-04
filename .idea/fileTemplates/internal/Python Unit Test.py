@@ -1,4 +1,3 @@
-#! py -3
 #
 # This file is part of Orchid and related technologies.
 #
@@ -13,16 +12,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import argparse
+import unittest
 
-import orchid
-
+class MyTestCase(unittest.TestCase):
+    def test_canary(self):
+        self.assertEqual(2 + 2, 5)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('pathname', help="Path name of the project ('.ifrac') file.")
-    parser.add_argument('well', help="Name of the well containing the stage of interest.")
-    parser.add_argument('stage_no', type=int, help="Number of the stage of interest.")
-
-    options = parser.parse_args()
-    orchid.plot_treatment(options.pathname, options.well, options.stage_no)
+    unittest.main()
