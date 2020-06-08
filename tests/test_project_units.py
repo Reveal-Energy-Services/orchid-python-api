@@ -16,7 +16,7 @@ import unittest.mock
 
 from hamcrest import assert_that, equal_to
 
-from orchid.project import ProjectAdapter
+from orchid.project import Project
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
@@ -70,7 +70,7 @@ def create_sut(stub_net_project):
     patched_loader = ProjectLoader('dont_care')
     patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
 
-    sut = ProjectAdapter(patched_loader)
+    sut = Project(patched_loader)
     return sut
 
 

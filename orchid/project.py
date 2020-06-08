@@ -23,7 +23,7 @@ from orchid.project_wells import ProjectWells
 import UnitsNet
 
 
-class ProjectAdapter:
+class Project:
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
     @deal.pre(lambda self, project_loader: project_loader is not None)
