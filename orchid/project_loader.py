@@ -12,14 +12,18 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import sys
+
 import deal
 
 import orchid.validation
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+from System import InvalidOperationException
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
 
 
 class OrchidError(Exception):
@@ -85,8 +89,15 @@ class ScriptAdapterContext:
     """
 
     def __enter__(self):
-        ScriptAdapter.Init()
-        return self
+        try:
+            ScriptAdapter.Init()
+            return self
+        except InvalidOperationException as ioe:
+            if 'REVEAL-CORE-0xDEADFA11' in ioe.Message:
+                print('Orchid licensing error. Please contact Orchid technical support.')
+                sys.exit(-1)
+            else:
+                raise
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         ScriptAdapter.Shutdown()

@@ -9,6 +9,7 @@ ipython = "*"
 pyhamcrest = "*"
 behave = "*"
 jupyter = "*"
+jupyterlab = "*"
 
 [packages]
 pythonnet = "*"
@@ -20,6 +21,8 @@ matplotlib = "*"
 seaborn = "*"
 more-itertools = "*"
 pyyaml = "*"
+pandas = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.7"
