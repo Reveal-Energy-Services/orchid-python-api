@@ -58,7 +58,7 @@ class Project:
 
         :return:  The name of this project.
         """
-        return self._project_loader.loaded_project().Name
+        return self._project_loader.native_project().Name
 
     def unit(self, physical_quantity):
         """
@@ -66,4 +66,4 @@ class Project:
         :param physical_quantity: The name of the physical quantity.
         :return: The abbreviation of the specified physical quantity.
         """
-        return project_units.unit(self._project_loader.loaded_project(), physical_quantity)
+        return project_units.unit(self._project_loader.native_project(), physical_quantity)
