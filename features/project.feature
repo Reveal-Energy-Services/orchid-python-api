@@ -13,8 +13,8 @@ Feature: Low-level DOM API (project)
     Given I have loaded the "Oasis_Crane_II" project
     When I query the project wells
     Then I see the well information
-        | number | name |
-        | 1 | Crane_7B |
-        | 2 | Crane_9B |
-        | 3 | Crane_41_26H |
-        | 3 | Crane_12B |
+      | name         | display_name | uwi    |
+      | Crane_7B     | Crane_7B     | No UWI |
+      | Crane_9B     | Crane_9B     | No UWI |
+      | Crane_41_26H | Crane_41_26H | No UWI |
+      | Crane_12B    | Crane_12B    | No UWI |

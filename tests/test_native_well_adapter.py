@@ -18,6 +18,9 @@ from hamcrest import assert_that, equal_to
 
 from orchid.native_well_adapter import NativeWellAdapter
 
+# noinspection PyUnresolvedReferences
+import UnitsNet
+
 
 class TestNativeWellAdapter(unittest.TestCase):
     def test_canary(self):
@@ -30,6 +33,24 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = NativeWellAdapter(stub_native_well)
 
         assert_that(sut.name(), equal_to(expected_well_name))
+
+    def test_display_name(self):
+        expected_well_display_name = 'agiles'
+        stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+        stub_native_well.DisplayName = expected_well_display_name
+        sut = NativeWellAdapter(stub_native_well)
+
+        assert_that(sut.display_name(), equal_to(expected_well_display_name))
+
+    def test_uwi(self):
+        for uwi in ['01-325-88264-47-65', None]:
+            with self.subTest(uwi=uwi):
+                expected_uwi = uwi
+                stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+                stub_native_well.Uwi = expected_uwi
+                sut = NativeWellAdapter(stub_native_well)
+
+                assert_that(sut.uwi(), equal_to(expected_uwi if expected_uwi else 'No UWI'))
 
 
 if __name__ == '__main__':

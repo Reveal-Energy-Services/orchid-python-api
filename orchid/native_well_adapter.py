@@ -34,3 +34,17 @@ class NativeWellAdapter:
         :return: The name of the adapted .NET well.
         """
         return self._adaptee.Name
+
+    def display_name(self) -> str:
+        """
+        Returns the display name of the adapted IWell
+        :return: The display name of the adapted .NET well.
+        """
+        return self._adaptee.DisplayName
+
+    def uwi(self) -> str:
+        """
+        Returns the uwi of the adapted IWell
+        :return: The uwi of the adapted .NET well.
+        """
+        return self._adaptee.Uwi if self._adaptee.Uwi else 'No UWI'

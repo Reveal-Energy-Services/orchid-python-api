@@ -66,3 +66,5 @@ def step_impl(context):
     assert_that(len(context.actual_wells), equal_to(4))
     for (actual, expected) in zip(context.actual_wells, context.table):
         assert_that(actual.name(), equal_to(expected['name']))
+        assert_that(actual.display_name(), equal_to(expected['display_name']))
+        assert_that(actual.uwi(), equal_to(expected['uwi']))
