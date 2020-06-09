@@ -63,8 +63,27 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    assert_that(len(context.actual_wells), equal_to(4))
+    assert_that(len(context.actual_wells), equal_to(len(context.table.rows)))
     for (actual, expected) in zip(context.actual_wells, context.table):
         assert_that(actual.name(), equal_to(expected['name']))
         assert_that(actual.display_name(), equal_to(expected['display_name']))
         assert_that(actual.uwi(), equal_to(expected['uwi']))
+
+
+@when("I query the project default well colors")
+def step_impl(context):
+    """
+    :type context: behave.runner.Context
+    """
+    context.actual_default_well_colors = context.project.default_well_colors()
+
+
+@then("I see the colors")
+def step_impl(context):
+    """
+    :type context: behave.runner.Context
+    """
+    assert_that(len(context.actual_default_well_colors), equal_to(len(context.table.rows)))
+    for (actual, expected) in zip(context.actual_default_well_colors, context.table):
+        for component_index, component_name in zip(range(3), ['red', 'green', 'blue']):
+            assert_that(actual[component_index], equal_to(float(expected[component_name])))

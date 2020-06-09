@@ -12,7 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from typing import Sequence
+from typing import Sequence, List, Tuple
 
 import deal
 
@@ -42,14 +42,6 @@ class Project:
         self._are_well_loaded = False
         self._wells = []
 
-    def monitor_pressure_curves(self):
-        """
-        Return a container of pressure curves indexed by time series id.
-        :return: The container of pressure curves.
-        """
-        result = ProjectMonitorPressureCurves(self._project_loader)
-        return result
-
     def all_wells(self):
         """
         Return an object managing all wells from this project.
@@ -57,6 +49,22 @@ class Project:
         :return: The object managing all wells for this project.
         """
         result = ProjectWells(self._project_loader)
+        return result
+
+    def default_well_colors(self) -> List[Tuple[float, float, float]]:
+        """
+        Calculate the default well colors for this project.
+        :return: A list of RGB tuples.
+        """
+        result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
+        return result
+
+    def monitor_pressure_curves(self):
+        """
+        Return a container of pressure curves indexed by time series id.
+        :return: The container of pressure curves.
+        """
+        result = ProjectMonitorPressureCurves(self._project_loader)
         return result
 
     def name(self):

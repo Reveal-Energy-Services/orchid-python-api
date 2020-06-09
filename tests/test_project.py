@@ -15,7 +15,7 @@
 import unittest
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, contains_exactly
 
 from orchid.project import Project
 from orchid.project_loader import ProjectLoader
@@ -45,6 +45,26 @@ class TestProject(unittest.TestCase):
         stub_native_project = create_stub_net_project(name='exsistet', well_names=['cordam', 'turbibus', 'collaris'])
         sut = create_sut(stub_native_project)
         assert_that(len(sut.wells()), equal_to(3))
+
+    def test_default_well_colors_if_no_default_well_colors(self):
+        stub_native_project = create_stub_net_project(name='exsistet')
+        sut = create_sut(stub_native_project)
+        assert_that(sut.default_well_colors(), equal_to([tuple([])]))
+
+    def test_project_default_well_colors_if_one_default_well_color(self):
+        stub_native_project = create_stub_net_project(name='exsistet', default_well_colors=[[0.142, 0.868, 0.220]])
+        sut = create_sut(stub_native_project)
+        # noinspection PyTypeChecker
+        assert_that(sut.default_well_colors(), contains_exactly((0.142, 0.868, 0.220)))
+
+    def test_project_default_well_colors_if_many_default_well_colors(self):
+        expected_default_well_colors = [(0.610, 0.779, 0.675), (0.758, 0.982, 0.720), (0.297, 0.763, 0.388)]
+        stub_native_project = create_stub_net_project(name='exsistet',
+                                                      default_well_colors=[list(t) for t
+                                                                           in expected_default_well_colors])
+        sut = create_sut(stub_native_project)
+        # noinspection PyTypeChecker
+        assert_that(sut.default_well_colors(), contains_exactly(*expected_default_well_colors))
 
 
 def create_sut(stub_net_project):

@@ -26,7 +26,7 @@ from typing import Sequence
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage, IWellSampledQuantityTimeSeries)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -135,14 +135,14 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     return result
 
 
-def create_stub_net_project(name='',
+def create_stub_net_project(name='', default_well_colors=None,
                             project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
                             slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
                             about_stages=None,
                             curve_names=None, samples=None, curves_physical_quantities=None):
-
+    default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
     uwis = uwis if uwis else []
@@ -158,6 +158,10 @@ def create_stub_net_project(name='',
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     stub_net_project.Name = name
+    plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
+    plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
+                                                                     return_value=default_well_colors)
+    stub_net_project.PlottingSettings = plotting_settings
     set_project_unit(stub_net_project, project_length_unit_abbreviation)
     set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
     set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
