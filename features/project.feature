@@ -8,3 +8,13 @@ Feature: Low-level DOM API (project)
     Given I have loaded the "Oasis_Crane_II" project
     When I query the project name
     Then I see the text "Oasis_Crane_II"
+
+  Scenario: Get the wells from a project
+    Given I have loaded the "Oasis_Crane_II" project
+    When I query the project wells
+    Then I see the well information
+        | number | name |
+        | 1 | Crane_7B |
+        | 2 | Crane_9B |
+        | 3 | Crane_41_26H |
+        | 3 | Crane_12B |

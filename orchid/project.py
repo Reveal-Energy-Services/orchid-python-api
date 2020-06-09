@@ -12,13 +12,18 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from typing import Sequence
+
 import deal
 
+from orchid.native_well_adapter import NativeWellAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import IWell
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -34,6 +39,8 @@ class Project:
         :param project_loader: Loads an IProject to be adapted.
         """
         self._project_loader = project_loader
+        self._are_well_loaded = False
+        self._wells = []
 
     def monitor_pressure_curves(self):
         """
@@ -67,3 +74,6 @@ class Project:
         :return: The abbreviation of the specified physical quantity.
         """
         return project_units.unit(self._project_loader.native_project(), physical_quantity)
+
+    def wells(self) -> Sequence[IWell]:
+        return list(map(NativeWellAdapter, self._project_loader.native_project().Wells.Items))

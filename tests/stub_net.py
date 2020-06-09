@@ -135,7 +135,8 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     return result
 
 
-def create_stub_net_project(project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
+def create_stub_net_project(name='',
+                            project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
                             slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
@@ -156,6 +157,7 @@ def create_stub_net_project(project_length_unit_abbreviation='', project_pressur
                                   else list(itertools.repeat('pressure', len(curve_names))))
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
+    stub_net_project.Name = name
     set_project_unit(stub_net_project, project_length_unit_abbreviation)
     set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
     set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)

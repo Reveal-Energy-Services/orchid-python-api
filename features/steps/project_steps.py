@@ -48,3 +48,21 @@ def step_impl(context, expected_project_name):
     :type context: behave.runner.Context
     """
     assert_that(context.actual_project_name, equal_to(expected_project_name))
+
+
+@when("I query the project wells")
+def step_impl(context):
+    """
+    :type context: behave.runner.Context
+    """
+    context.actual_wells = context.project.wells()
+
+
+@then("I see the well information")
+def step_impl(context):
+    """
+    :type context: behave.runner.Context
+    """
+    assert_that(len(context.actual_wells), equal_to(4))
+    for (actual, expected) in zip(context.actual_wells, context.table):
+        assert_that(actual.name(), equal_to(expected['name']))
