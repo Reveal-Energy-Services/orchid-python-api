@@ -81,7 +81,7 @@ class ProjectWells:
 
     def _well_map(self):
         if not self._wells:
-            self._wells.update({net_well_id(w): w for w in self._project_loader.loaded_project().Wells.Items})
+            self._wells.update({net_well_id(w): w for w in self._project_loader.native_project().Wells.Items})
         return self._wells
 
     @deal.pre(orchid.validation.arg_not_none)
@@ -95,7 +95,7 @@ class ProjectWells:
         :return: A Vector3Array containing the trajectory (in project units using project reference frame and kelly
         bushing depth datum).
         """
-        project = self._project_loader.loaded_project()
+        project = self._project_loader.native_project()
         well = self._well_map()[well_id]
         trajectory = well.Trajectory
         eastings = self._coordinates_to_array(trajectory.GetEastingArray(WellReferenceFrameXy.Project),
@@ -162,7 +162,7 @@ class ProjectWells:
 
         :return:  The name of this project.
         """
-        return self._project_loader.loaded_project().Name
+        return self._project_loader.native_project().Name
 
     def wells_by_name(self, well_name):
         """
@@ -196,7 +196,7 @@ class ProjectWells:
 
     def default_well_colors(self):
         return [tuple(map(lambda color_component: round(color_component * 255), color))
-                for color in self._project_loader.loaded_project().PlottingSettings.GetDefaultWellColors()]
+                for color in self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()]
 
 
 def _all_coordinates_available(eastings: np.array, northings: np.array, tvds: np.array) -> bool:

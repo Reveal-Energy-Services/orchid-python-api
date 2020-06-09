@@ -45,9 +45,9 @@ class ProjectLoader:
         self._project = None
         self._in_context = False
 
-    def loaded_project(self):
+    def native_project(self):
         """
-        Return the loaded Orchid project.
+        Return the native (.NET) Orchid project.
 
         :return: The loaded `IProject`.
 
@@ -55,7 +55,7 @@ class ProjectLoader:
             >>> # noinspection PyUnresolvedReferences
             >>> from project_loader import ProjectLoader
             >>> loader = ProjectLoader(r'c:/Users/larry.jones/tmp/ifa-test-data/Crane_II.ifrac')
-            >>> loader.loaded_project().Name
+            >>> loader.native_project().Name
             'Oasis_Crane_II'
         """
         if not self._project:
@@ -81,7 +81,7 @@ class ScriptAdapterContext:
     - Enters the context twice?
 
     Because I was uncertain I created this private class to model the `ScriptAdapter` context. The property,
-    `ProjectLoader.loaded_project`, enters the context if it will actually read the project and exits the
+    `ProjectLoader.native_project`, enters the context if it will actually read the project and exits the
     context when the read operation is finished.
 
     For information on Python context managers, see

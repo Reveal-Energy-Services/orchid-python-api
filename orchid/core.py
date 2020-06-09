@@ -26,14 +26,14 @@ import pandas as pd
 # noinspection PyUnresolvedReferences
 import seaborn as sns
 
-from orchid.project import ProjectAdapter
+from orchid.project import Project
 from orchid.project_loader import ProjectLoader
 
 
 @deal.pre(lambda ifrac_pathname: ifrac_pathname is not None)
 @deal.pre(lambda ifrac_pathname: len(ifrac_pathname) != 0)
 @deal.pre(lambda ifrac_pathname: len(ifrac_pathname.strip()) != 0)
-def load_project(ifrac_pathname: str) -> ProjectAdapter:
+def load_project(ifrac_pathname: str) -> Project:
     """
     Return the project for the specified `.ifrac` file.
 
@@ -42,7 +42,7 @@ def load_project(ifrac_pathname: str) -> ProjectAdapter:
     """
 
     loader = ProjectLoader(ifrac_pathname.strip())
-    result = ProjectAdapter(loader)
+    result = Project(loader)
     return result
 
 

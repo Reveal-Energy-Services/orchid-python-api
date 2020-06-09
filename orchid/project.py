@@ -23,7 +23,7 @@ from orchid.project_wells import ProjectWells
 import UnitsNet
 
 
-class ProjectAdapter:
+class Project:
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
     @deal.pre(lambda self, project_loader: project_loader is not None)
@@ -58,7 +58,7 @@ class ProjectAdapter:
 
         :return:  The name of this project.
         """
-        return self._project_loader.loaded_project().Name
+        return self._project_loader.native_project().Name
 
     def unit(self, physical_quantity):
         """
@@ -66,4 +66,4 @@ class ProjectAdapter:
         :param physical_quantity: The name of the physical quantity.
         :return: The abbreviation of the specified physical quantity.
         """
-        return project_units.unit(self._project_loader.loaded_project(), physical_quantity)
+        return project_units.unit(self._project_loader.native_project(), physical_quantity)

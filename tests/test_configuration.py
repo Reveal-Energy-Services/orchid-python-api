@@ -12,7 +12,8 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import os.path
+import os
+import pathlib
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
@@ -21,22 +22,23 @@ import orchid.configuration
 
 
 class ConfigurationTest(unittest.TestCase):
+    APP_DATA_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
+
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.mock.patch.dict('os.environ', {'LOCALAPPDATA': os.path.join('K:', os.sep, 'dolavi')})
-    @unittest.mock.patch.object(os.path, 'exists', return_value=False)
+    @unittest.mock.patch.dict('os.environ', {'LOCALAPPDATA': os.fspath(APP_DATA_PATH)})
+    @unittest.mock.patch.object(pathlib.Path, 'exists', return_value=False)
     def test_default_orchid_directory(self, _):
-        expected_directory = os.path.join('K:', os.sep, 'dolavi', 'Reveal')
+        expected_directory = ConfigurationTest.APP_DATA_PATH.joinpath('Reveal')
         assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
 
-    @unittest.mock.patch.dict('os.environ', {'LOCALAPPDATA': os.path.join('K:', os.sep, 'dolavi')})
-    @unittest.mock.patch.object(os.path, 'exists', return_value=True)
-    def test_custom_orchid_directory(self, _):
+    @staticmethod
+    def test_custom_orchid_directory():
         expected_directory = r'I:\diluvialis\Indus\Orchid'
-        with unittest.mock.patch('orchid.configuration.open',
-                                 unittest.mock.mock_open(read_data=f'directory: {expected_directory}')):
+        with unittest.mock.patch.multiple(pathlib.Path, exists=unittest.mock.MagicMock(return_value=True),
+                                          open=unittest.mock.mock_open(read_data=f'directory: {expected_directory}')):
             assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
 
 

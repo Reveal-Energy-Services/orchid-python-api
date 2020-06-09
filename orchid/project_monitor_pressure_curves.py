@@ -33,7 +33,7 @@ class ProjectMonitorPressureCurves:
     @deal.pre(orchid.validation.arg_not_none)
     def __init__(self, net_project: ProjectLoader):
         """
-        Construct an instance wrapping the loaded .NET `IProject`.
+        Construct an instance wrapping the native .NET `IProject`.
 
         :param net_project: The `IProject` being wrapped.
         """
@@ -44,7 +44,7 @@ class ProjectMonitorPressureCurves:
     def _monitor_pressure_curve_map(self):
         if not self._monitor_pressure_curves:
             self._monitor_pressure_curves.update({c.DisplayName: c for
-                                                  c in self._project_loader.loaded_project().WellTimeSeriesList.Items if
+                                                  c in self._project_loader.native_project().WellTimeSeriesList.Items if
                                                   c.SampledQuantityType == UnitsNet.QuantityType.Pressure})
         return self._monitor_pressure_curves
 

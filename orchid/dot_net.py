@@ -14,6 +14,7 @@
 
 
 import os
+import pathlib
 import sys
 
 import orchid.configuration
@@ -21,7 +22,7 @@ import orchid.configuration
 import clr
 
 
-def add_orchid_assemblies():
+def add_orchid_assemblies() -> None:
     """
     Add references to the Orchid assemblies needed by the Python API.
 
@@ -36,7 +37,7 @@ def add_orchid_assemblies():
     return None
 
 
-def append_orchid_assemblies_directory_path():
+def append_orchid_assemblies_directory_path() -> None:
     """
     Append the directory containing the required Orchid assemblies to `sys.path`.
     """
@@ -45,17 +46,17 @@ def append_orchid_assemblies_directory_path():
         sys.path.append(orchid_bin_dir)
 
 
-def app_settings_path():
+def app_settings_path() -> str:
     """
     Return the pathname of the `appSettings.json` file needed by the `SDKFacade `assembly.
 
     :return: The required pathname.
     """
-    result = os.path.join(orchid.configuration.python_api()['directory'], 'appSettings.json')
+    result = os.fspath(pathlib.Path(orchid.configuration.python_api()['directory']).joinpath('appSettings.json'))
     return result
 
 
-def prepare_imports():
+def prepare_imports() -> None:
     orchid.dot_net.append_orchid_assemblies_directory_path()
     # This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
     orchid.dot_net.add_orchid_assemblies()

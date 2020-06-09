@@ -17,7 +17,7 @@ import unittest.mock
 import deal
 from hamcrest import assert_that, equal_to, instance_of, calling, raises
 
-from orchid.project import ProjectAdapter
+from orchid.project import Project
 from orchid.project_loader import ProjectLoader
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_wells import ProjectWells
@@ -37,7 +37,7 @@ class TestProject(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_ctor_no_loader_raises_exception(self):
-        assert_that(calling(ProjectAdapter).with_args(None), raises(deal.PreContractError))
+        assert_that(calling(Project).with_args(None), raises(deal.PreContractError))
 
     def test_ctor_return_all_monitor_pressures(self):
         stub_net_project = create_stub_net_project(well_names=['dont-care-well'],
@@ -56,9 +56,9 @@ class TestProject(unittest.TestCase):
 
 def create_sut(stub_net_project):
     patched_loader = ProjectLoader('dont_care')
-    patched_loader.loaded_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
+    patched_loader.native_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
 
-    sut = ProjectAdapter(patched_loader)
+    sut = Project(patched_loader)
     return sut
 
 
