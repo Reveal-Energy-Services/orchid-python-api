@@ -1,0 +1,50 @@
+#
+# This file is part of Orchid and related technologies.
+#
+# Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
+#
+# LEGAL NOTICE:
+# Orchid contains trade secrets and otherwise confidential information
+# owned by Reveal Energy Services. Access to and use of this information is
+# strictly limited and controlled by the Company. This file may not be copied,
+# distributed, or otherwise disclosed outside of the Company's facilities
+# except under appropriate precautions to maintain the confidentiality hereof,
+# and may not be used in any way not expressly authorized by the Company.
+#
+
+from behave import *
+use_step_matcher("parse")
+
+from hamcrest import assert_that, equal_to
+
+import orchid
+
+
+PROJECT_NAME_PATHNAME_MAP = {'Oasis_Crane_II': r'c:\Users\larry.jones\tmp\ifa-test-data\Crane_II.ifrac'}
+
+
+@given('I have loaded the "{project_name}" project')
+def step_impl(context, project_name):
+    """
+    :param project_name: Name of .ifrac project to load
+    :type context: behave.runner.Context
+    """
+    project_pathname = PROJECT_NAME_PATHNAME_MAP[project_name]
+    context.project = orchid.core.load_project(project_pathname)
+
+
+@when("I query the project name")
+def step_impl(context):
+    """
+    :type context: behave.runner.Context
+    """
+    context.actual_project_name = context.project.name()
+
+
+@then('I see the text "{expected_project_name}"')
+def step_impl(context, expected_project_name):
+    """
+    :param expected_project_name: The expected name of the project.
+    :type context: behave.runner.Context
+    """
+    assert_that(context.actual_project_name, equal_to(expected_project_name))
