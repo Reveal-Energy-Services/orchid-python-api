@@ -14,6 +14,7 @@
 
 # noinspection PyUnresolvedReferences
 import orchid
+from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
@@ -41,6 +42,13 @@ class NativeWellAdapter:
         :return: The display name of the adapted .NET well.
         """
         return self._adaptee.DisplayName
+
+    def trajectory(self) -> NativeTrajectoryAdapter:
+        """
+        Returns the trajectory of the adapted IWell
+        :return: The trajectory of the adapted .NET well.
+        """
+        return NativeTrajectoryAdapter(self._adaptee.Trajectory)
 
     def uwi(self) -> str:
         """

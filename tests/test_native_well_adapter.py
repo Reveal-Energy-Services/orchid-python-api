@@ -14,8 +14,9 @@
 
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, instance_of
 
+from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
 from orchid.native_well_adapter import NativeWellAdapter
 
 # noinspection PyUnresolvedReferences
@@ -41,6 +42,15 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = NativeWellAdapter(stub_native_well)
 
         assert_that(sut.display_name(), equal_to(expected_well_display_name))
+
+    def test_trajectory(self):
+        stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+        stub_trajectory = unittest.mock.MagicMock(name='stub_native_trajectory')
+        stub_native_well.Trajectory = stub_trajectory
+        sut = NativeWellAdapter(stub_native_well)
+
+        # noinspection PyTypeChecker
+        assert_that(sut.trajectory(), instance_of(NativeTrajectoryAdapter))
 
     def test_uwi(self):
         for uwi in ['01-325-88264-47-65', None]:
