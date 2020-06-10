@@ -79,6 +79,14 @@ class ProjectWells:
 
         self._wells = {}
 
+    def name(self):
+        """
+        Return the name of the project of interest.
+
+        :return:  The name of this project.
+        """
+        return self._project_loader.native_project().Name
+
     def _well_map(self):
         if not self._wells:
             self._wells.update({net_well_id(w): w for w in self._project_loader.native_project().Wells.Items})
@@ -155,14 +163,6 @@ class ProjectWells:
         Return sequence identifiers for all wells in this project.
         """
         return self._well_map().keys()
-
-    def name(self):
-        """
-        Return the name of the project of interest.
-
-        :return:  The name of this project.
-        """
-        return self._project_loader.native_project().Name
 
     def wells_by_name(self, well_name):
         """
