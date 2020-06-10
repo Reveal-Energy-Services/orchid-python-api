@@ -12,7 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from typing import Sequence, List, Tuple
+from typing import List, Tuple
 
 import deal
 
@@ -83,5 +83,18 @@ class Project:
         """
         return project_units.unit(self._project_loader.native_project(), physical_quantity)
 
-    def wells(self) -> Sequence[IWell]:
+    def wells(self) -> List[IWell]:
+        """
+        Return all the wells in this project.
+        :return: A list of all the wells in this project.
+        """
         return list(map(NativeWellAdapter, self._project_loader.native_project().Wells.Items))
+
+    def wells_by_name(self, name) -> List[IWell]:
+        """
+        Return all the wells in this project with the specified name.
+        :param name: The name of the well(s) of interest.
+        :return: A list of all the wells in this project.
+        """
+        return [w for w in list(map(NativeWellAdapter, self._project_loader.native_project().Wells.Items)) if
+                name == w.name()]

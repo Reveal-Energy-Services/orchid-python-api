@@ -46,6 +46,32 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
         assert_that(len(sut.wells()), equal_to(3))
 
+    def test_project_wells_by_name_if_no_wells(self):
+        stub_native_project = create_stub_net_project(name='exsistet')
+        sut = create_sut(stub_native_project)
+        assert_that(len(sut.wells_by_name('clunibus')), equal_to(0))
+
+    def test_project_wells_by_name_if_no_well_with_name_found(self):
+        stub_native_project = create_stub_net_project(name='exsistet', well_names=['clunibus'])
+        sut = create_sut(stub_native_project)
+        assert_that(len(sut.wells_by_name('clunibum')), equal_to(0))
+
+    def test_project_wells_by_name_if_one_well_with_name_found(self):
+        stub_native_project = create_stub_net_project(name='exsistet', well_names=['clunibus'])
+        sut = create_sut(stub_native_project)
+        assert_that(len(sut.wells_by_name('clunibus')), equal_to(1))
+
+    def test_project_wells_by_name_if_many_wells_with_name_found(self):
+        stub_native_project = create_stub_net_project(name='exsistet',
+                                                      well_names=['cordam', 'turbibus',
+                                                                  'cordam', 'collaris',
+                                                                  'cordam'],
+                                                      uwis=["93-167-64050-25-81", "54-107-49537-17-76",
+                                                            "80-693-58647-57-44", "66-101-46368-44-99",
+                                                            "06-390-40886-62-60"])
+        sut = create_sut(stub_native_project)
+        assert_that(len(sut.wells_by_name('cordam')), equal_to(3))
+
     def test_default_well_colors_if_no_default_well_colors(self):
         stub_native_project = create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
