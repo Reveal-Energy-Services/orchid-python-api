@@ -26,7 +26,7 @@ from typing import Sequence
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IProject, IWell, IStage, IWellSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage, IWellSampledQuantityTimeSeries)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -76,6 +76,16 @@ class StubNetTreatmentCurve:
     # noinspection PyPep8Naming
     def GetOrderedTimeSeriesHistory(self):
         return self._time_series
+
+
+ABBREVIATION_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
+                         'm': UnitsNet.Units.LengthUnit.Meter,
+                         'psi': UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
+                         'kPa': UnitsNet.Units.PressureUnit.Kilopascal}
+
+
+def unit_abbreviation_to_unit(unit_abbreviation: str):
+    return ABBREVIATION_UNIT_MAP[unit_abbreviation]
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
@@ -129,19 +139,26 @@ def create_stub_stage(stage_no, treatment_curves):
     return result
 
 
+def create_stub_net_trajectory_array(magnitudes, net_unit):
+    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(magnitude), net_unit)
+              for magnitude in magnitudes] if magnitudes else []
+    return result
+
+
 def quantity_coordinate(raw_coordinates, i, stub_net_project):
     result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
               for c in raw_coordinates[i]] if raw_coordinates else []
     return result
 
 
-def create_stub_net_project(project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
+def create_stub_net_project(name='', default_well_colors=None,
+                            project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
                             slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
                             about_stages=None,
                             curve_names=None, samples=None, curves_physical_quantities=None):
-
+    default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
     uwis = uwis if uwis else []
@@ -156,6 +173,11 @@ def create_stub_net_project(project_length_unit_abbreviation='', project_pressur
                                   else list(itertools.repeat('pressure', len(curve_names))))
 
     stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
+    stub_net_project.Name = name
+    plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
+    plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
+                                                                     return_value=default_well_colors)
+    stub_net_project.PlottingSettings = plotting_settings
     set_project_unit(stub_net_project, project_length_unit_abbreviation)
     set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
     set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
