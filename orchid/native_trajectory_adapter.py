@@ -12,10 +12,10 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import deal
 import numpy as np
 
-# noinspection PyUnresolvedReferences
-import orchid
+import orchid.validation
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
@@ -31,6 +31,9 @@ class NativeTrajectoryAdapter:
                                               'project': WellReferenceFrameXy.Project,
                                               'well_head': WellReferenceFrameXy.WellHead}
 
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
+    @deal.pre(lambda _, reference_frame: reference_frame in ['absolute', 'project', 'well_head'])
     def get_easting_array(self, reference_frame: str) -> np.array:
         """
         Calculates the eastings of this trajectory in the specified `reference_frame` measured in `length_units`
@@ -42,6 +45,9 @@ class NativeTrajectoryAdapter:
         raw_eastings = self._adaptee.GetEastingArray(net_reference_frame)
         return np.array([e.As(project_length_unit) for e in raw_eastings])
 
+    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(orchid.validation.arg_neither_empty_nor_all_whitespace)
+    @deal.pre(lambda _, reference_frame: reference_frame in ['absolute', 'project', 'well_head'])
     def get_northing_array(self, reference_frame: str) -> np.array:
         """
         Calculates the northings of this trajectory in the specified `reference_frame` measured in `length_units`

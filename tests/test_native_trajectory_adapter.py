@@ -14,6 +14,7 @@
 
 import unittest.mock
 
+import deal
 from hamcrest import assert_that, equal_to, empty, contains_exactly
 
 from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
@@ -30,9 +31,8 @@ import UnitsNet
 
 
 # Test ideas
-# - Use project units when None passed for length unit
+# - No, empty or all whitespace reference frame
 # - Unrecognized reference frame
-# - Unrecognized length unit
 class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -152,6 +152,24 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         sut.get_northing_array('absolute')
 
         mock_get_northing_array.assert_called_once_with(WellReferenceFrameXy.AbsoluteStatePlane)
+
+    def test_get_xyz_array_invalid_reference_frame_raises_exception(self):
+        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+        sut = NativeTrajectoryAdapter(stub_trajectory)
+
+        for method_to_test in [sut.get_easting_array, sut.get_northing_array]:
+            for invalid_reference_frame in [None, '', '\f']:
+                with(self.subTest(method_to_test=method_to_test, invalid_well_id=invalid_reference_frame)):
+                    self.assertRaises(deal.PreContractError, method_to_test, invalid_reference_frame)
+
+    def test_get_xyz_array_unrecognized_reference_frame_raises_exception(self):
+        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+        sut = NativeTrajectoryAdapter(stub_trajectory)
+
+        for method_to_test in [sut.get_easting_array, sut.get_northing_array]:
+            with(self.subTest(method_to_test=method_to_test)):
+                # noinspection SpellCheckingInspection
+                self.assertRaises(deal.PreContractError, method_to_test, 'well_heaf')
 
 
 if __name__ == '__main__':
