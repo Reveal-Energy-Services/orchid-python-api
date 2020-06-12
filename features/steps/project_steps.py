@@ -30,7 +30,9 @@ def step_impl(context, project_name):
     :type context: behave.runner.Context
     """
     project_pathname = PROJECT_NAME_PATHNAME_MAP[project_name]
-    context.project = orchid.core.load_project(project_pathname)
+    if project_pathname not in context.loaded_projects:
+        context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
+    context.project = context.loaded_projects[project_pathname]
 
 
 @when("I query the project name")
