@@ -12,13 +12,43 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import numpy as np
+
+# noinspection PyUnresolvedReferences
+import orchid
+
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
+
+# noinspection PyUnresolvedReferences
+import UnitsNet
+
 
 class NativeTrajectoryAdapter:
     def __init__(self, native_trajectory):
-        pass
+        self._adaptee = native_trajectory
+        self._reference_frame_text_net_map = {'absolute': WellReferenceFrameXy.AbsoluteStatePlane,
+                                              'project': WellReferenceFrameXy.Project,
+                                              'well_head': WellReferenceFrameXy.WellHead}
 
-    def get_easting_array(self, reference_frame, length_unit):
-        pass
+    def get_easting_array(self, reference_frame: str) -> np.array:
+        """
+        Calculates the eastings of this trajectory in the specified `reference_frame` measured in `length_units`
+        :param reference_frame: The reference from for the easting coordinates. Valid values are 'absolute' (
+        absolute state plane), 'project', and 'well_head'.
+        """
+        net_reference_frame = self._reference_frame_text_net_map[reference_frame]
+        project_length_unit = self._adaptee.Well.Project.ProjectUnits.LengthUnit
+        raw_eastings = self._adaptee.GetEastingArray(net_reference_frame)
+        return np.array([e.As(project_length_unit) for e in raw_eastings])
 
-    def get_northing_array(self, reference_frame, length_unit):
-        pass
+    def get_northing_array(self, reference_frame: str) -> np.array:
+        """
+        Calculates the northings of this trajectory in the specified `reference_frame` measured in `length_units`
+        :param reference_frame: The reference from for the easting coordinates. Valid values are 'absolute' (
+        absolute state plane), 'project', and 'well_head'.
+        """
+        net_reference_frame = self._reference_frame_text_net_map[reference_frame]
+        project_length_unit = self._adaptee.Well.Project.ProjectUnits.LengthUnit
+        raw_northings = self._adaptee.GetNorthingArray(net_reference_frame)
+        return np.array([e.As(project_length_unit) for e in raw_northings])
