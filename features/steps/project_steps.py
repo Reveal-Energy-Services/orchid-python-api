@@ -15,7 +15,7 @@
 from behave import *
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, contains_exactly
 
 import orchid
 
@@ -65,11 +65,14 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    assert_that(len(context.actual_wells), equal_to(len(context.table.rows)))
-    for (actual, expected) in zip(context.actual_wells, context.table):
-        assert_that(actual.name(), equal_to(expected['name']))
-        assert_that(actual.display_name(), equal_to(expected['display_name']))
-        assert_that(actual.uwi(), equal_to(expected['uwi']))
+    def actual_details_to_check(well):
+        return well.name(), well.display_name(), well.uwi()
+
+    def expected_details_to_check(row):
+        return row['name'], row['display_name'], row['uwi']
+
+    assert_that(map(actual_details_to_check, context.actual_wells),
+                contains_exactly(*(list(map(expected_details_to_check, context.table.rows)))))
 
 
 @when("I query the project default well colors")
