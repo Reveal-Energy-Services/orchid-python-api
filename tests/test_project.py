@@ -74,7 +74,7 @@ class TestProject(unittest.TestCase):
                                                             "80-693-58647-57-44", "66-101-46368-44-99",
                                                             "06-390-40886-62-60"])
         sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name(), sut.wells_by_name('clunibus')), contains_exactly(*(['cordam'] * 3)))
+        assert_that(map(lambda w: w.name(), sut.wells_by_name('cordam')), contains_exactly(*(['cordam'] * 3)))
 
     def test_default_well_colors_if_no_default_well_colors(self):
         stub_native_project = create_stub_net_project(name='exsistet')
