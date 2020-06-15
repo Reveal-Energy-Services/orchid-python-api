@@ -12,8 +12,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from typing import Iterable
+
 # noinspection PyUnresolvedReferences
 import orchid
+from orchid.native_stage_adapter import NativeStageAdapter
 from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
 
 # noinspection PyUnresolvedReferences
@@ -42,6 +45,9 @@ class NativeWellAdapter:
         :return: The display name of the adapted .NET well.
         """
         return self._adaptee.DisplayName
+
+    def stages(self) -> Iterable[NativeStageAdapter]:
+        return None
 
     def trajectory(self) -> NativeTrajectoryAdapter:
         """
