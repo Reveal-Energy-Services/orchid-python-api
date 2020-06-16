@@ -18,7 +18,8 @@ import deal
 from hamcrest import assert_that, equal_to, empty, contains_exactly
 
 from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
-from tests.stub_net import create_stub_net_project, create_stub_net_trajectory_array, unit_abbreviation_to_unit
+from orchid.net_measurement import unit_abbreviation_to_unit
+from tests.stub_net import create_stub_net_project, create_stub_net_trajectory_array
 
 # noinspection PyUnresolvedReferences
 from System import Convert
