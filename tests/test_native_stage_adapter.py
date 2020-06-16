@@ -18,7 +18,7 @@ from hamcrest import assert_that, equal_to
 
 from orchid.measurement import make_measurement
 import orchid.native_stage_adapter as nsa
-from orchid.net_measurement import to_net_measurement
+from orchid.net_measurement import as_net_measurement_in_different_unit
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStage
@@ -48,7 +48,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft'))]:
             with self.subTest(expected_top=actual_top):
                 stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-                stub_net_stage.MdTop = to_net_measurement(actual_top, actual_top.unit)
+                stub_net_stage.MdTop = as_net_measurement_in_different_unit(actual_top, actual_top.unit)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 assert_that(sut.md_top(expected_top.unit), equal_to(expected_top.magnitude))

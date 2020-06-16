@@ -17,7 +17,7 @@ import unittest
 from hamcrest import assert_that, equal_to, close_to
 
 from orchid.measurement import make_measurement
-from orchid.net_measurement import to_net_measurement, unit_abbreviation_to_unit
+from orchid.net_measurement import as_net_measurement, as_net_measurement_in_different_unit
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -27,12 +27,21 @@ class TestNetMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_to_net_length_measurement(self):
-        for to_convert, expected_value, to_unit_abbreviation in [(make_measurement(44.49, 'ft'), 13.56, 'm'),
-                                                                 (make_measurement(25.93, 'm'), 85.07, 'ft')]:
-            with self.subTest(to_convert=to_convert, expected_value=expected_value,
+    def test_as_net_length_measurement_in_original_unit(self):
+        for measurement in [make_measurement(44.49, 'ft'), make_measurement(25.93, 'm')]:
+            with self.subTest(measurement=measurement):
+                actual = as_net_measurement(measurement)
+                expected_unit = (UnitsNet.Units.LengthUnit.Foot if measurement.unit == 'ft'
+                                 else UnitsNet.Units.LengthUnit.Meter)
+                assert_that(actual.Unit, equal_to(expected_unit))
+                assert_that(actual.As(expected_unit), close_to(measurement.magnitude, 5e-3))
+
+    def test_as_net_length_measurement_in_specified_unit(self):
+        for measurement, expected_value, to_unit_abbreviation in [(make_measurement(44.49, 'ft'), 13.56, 'm'),
+                                                                  (make_measurement(25.93, 'm'), 85.07, 'ft')]:
+            with self.subTest(measurement=measurement, expected_value=expected_value,
                               to_unit_abbreviation_abbreviation=to_unit_abbreviation):
-                actual = to_net_measurement(to_convert, to_unit_abbreviation)
+                actual = as_net_measurement_in_different_unit(measurement, to_unit_abbreviation)
                 expected_unit = (UnitsNet.Units.LengthUnit.Foot if to_unit_abbreviation == 'ft'
                                  else UnitsNet.Units.LengthUnit.Meter)
                 assert_that(actual.Unit, equal_to(expected_unit))

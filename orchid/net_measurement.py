@@ -25,16 +25,26 @@ ABBREVIATION_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
                          'kPa': UnitsNet.Units.PressureUnit.Kilopascal}
 
 
-def to_net_measurement(to_convert, to_unit):
+def as_net_measurement(measurement):
     """
-    Convert a Measurement to a .NET UnitsNet measurement
-    :param to_convert: The Python Measurement to convert.
-    :param to_unit: An unit abbreviation that can be converted to a .NET UnitsNet.Unit
+    Convert a Measurement to a .NET UnitsNet measurement in the same unit as the measurement.
+    :param measurement: The Python Measurement to convert.
     :return:
     """
-    net_to_convert = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(to_convert.magnitude),
-                                          ABBREVIATION_UNIT_MAP[to_convert.unit])
-    return net_to_convert.ToUnit(ABBREVIATION_UNIT_MAP[to_unit])
+    result = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                  ABBREVIATION_UNIT_MAP[measurement.unit])
+    return result
+
+
+def as_net_measurement_in_different_unit(measurement, in_unit):
+    """
+    Convert a Measurement to a .NET UnitsNet measurement in a specific unit.
+    :param measurement: The Python Measurement to convert.
+    :param in_unit: An unit abbreviation that can be converted to a .NET UnitsNet.Unit
+    :return:
+    """
+    net_to_convert = as_net_measurement(measurement)
+    return net_to_convert.ToUnit(ABBREVIATION_UNIT_MAP[in_unit])
 
 
 def unit_abbreviation_to_unit(unit_abbreviation: str):
