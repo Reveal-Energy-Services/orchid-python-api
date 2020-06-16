@@ -16,8 +16,8 @@ from typing import Iterable
 
 # noinspection PyUnresolvedReferences
 import orchid
-from orchid.native_stage_adapter import NativeStageAdapter
-from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
+import orchid.native_stage_adapter as nsa
+import orchid.native_trajectory_adapter as nta
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
@@ -46,15 +46,19 @@ class NativeWellAdapter:
         """
         return self._adaptee.DisplayName
 
-    def stages(self) -> Iterable[NativeStageAdapter]:
-        return None
+    def stages(self) -> Iterable[nsa.NativeStageAdapter]:
+        """
+        Return an iterator of NativeStageAdapters
+        :return: An iterator over the NativeStageAdapters.
+        """
+        return map(nsa.NativeStageAdapter, self._adaptee.Stages.Items)
 
-    def trajectory(self) -> NativeTrajectoryAdapter:
+    def trajectory(self) -> nta.NativeTrajectoryAdapter:
         """
         Returns the trajectory of the adapted IWell
         :return: The trajectory of the adapted .NET well.
         """
-        return NativeTrajectoryAdapter(self._adaptee.Trajectory)
+        return nta.NativeTrajectoryAdapter(self._adaptee.Trajectory)
 
     def uwi(self) -> str:
         """

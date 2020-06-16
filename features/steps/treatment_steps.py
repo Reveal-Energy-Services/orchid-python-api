@@ -14,8 +14,8 @@
 
 from behave import *
 use_step_matcher("parse")
-from hamcrest import assert_that, has_length, equal_to
-from toolz.curried import reduce
+from hamcrest import assert_that, equal_to
+from toolz.curried import *
 
 
 @when('I query the stages for each well in the project')
@@ -23,11 +23,29 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    def all_stages_for_well(well):
-        return well.stages()
+    context.stages_for_wells = [(w, w.stages()) for w in context.project.wells()]
+    # actual_size = len(pipe(context.stages_for_wells.values(),
+    #                        mapcat(list),
+    #                        list))
+    # print(actual_size)
+    # assert_that(actual_size, equal_to(136))
 
-    context.stages = map(all_stages_for_well, context.project.wells())
-    assert_that(len(list(context.stages)), equal_to(135))
+
+def aggregate_stage_treatment(stage):
+    return 0, 0, 0
+
+
+@curry
+def stage_treatment_details(project, well, stage):
+    treatment_fluid_volume, treatment_proppant, median_treatment_pressure = aggregate_stage_treatment(stage)
+    return {'project_name': project.name(),
+            'well_name': well.name(),
+            'stage_number': stage.display_stage_number(),
+            'md_top': stage.md_top(project.unit('length')),
+            'md_bottom': stage.md_bottom(project.unit('length')),
+            'total_fluid_volume': treatment_fluid_volume,
+            'treatment_proppant': treatment_proppant,
+            'median_treating_pressure': median_treatment_pressure}
 
 
 @when("I calculate the total fluid volume, proppant, and median treating pressure for each stage")
@@ -35,23 +53,49 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    raise NotImplementedError(u'I calculate the total fluid volume, proppant,'
-                              u' and median treating pressure for each stage')
+    details = []
+    for well, stages in context.stages_for_wells:
+        details.extend(map(stage_treatment_details(context.project, well), stages))
+    context.stage_treatment_details = details
 
 
-@then("I see 135 stage")
+@then("I see {stage_count:d} stages")
+def step_impl(context, stage_count):
+    """
+    :param stage_count: The expected number of stages.
+    :type context: behave.runner.Context
+    """
+    assert_that(len(context.stage_treatment_details), equal_to(stage_count))
+
+
+@step("I see correct sample values for <Project>, <WellName>, <Stage>, <MdTop>, and <MdBottom>")
 def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    raise NotImplementedError(u'I calculate the total fluid volume, proppant,'
-                              u' and median treating pressure for each stage')
+    for expected_details in context.table.rows:
+        sample_index = int(expected_details['index'])
+        assert_that(context.stage_treatment_details[sample_index]['project_name'],
+                    equal_to(expected_details['Project']))
+        assert_that(context.stage_treatment_details[sample_index]['well_name'], equal_to(expected_details['WellName']))
+        # assert_that(context.stage_treatment_details[sample_index]['stage_number'],
+        #             equal_to(int(expected_details['Stage'])))
+        # assert_that(context.stage_treatment_details[sample_index]['md_top'],
+        #             equal_to(float(expected_details['MdTop'])))
+        # assert_that(context.stage_treatment_details[sample_index]['md_bottom'],
+        #             equal_to(float(expected_details['MdBottom'])))
 
 
-@step("I see correct sample values for <WellName>, <Stage>, <MdTop>, <MdBottom>, <Volume>, <Proppant> and <Median>")
+@step("I see correct sample aggregate values for <Volume>, <Proppant> and <Median>")
 def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    raise NotImplementedError(u'STEP: And I see correct sample values for'
-                              u' <WellName>, <Stage>, <MdTop>, <MdBottom>, <Volume>, <Proppant> and <Median>')
+    for expected_details in context.table.rows:
+        sample_index = int(expected_details['index'])
+        # assert_that(context.stage_treatment_details[sample_index]['total_fluid_volume'],
+        #             equal_to(float(expected_details['Volume'])))
+        # assert_that(context.stage_treatment_details[sample_index]['treatment_proppant'],
+        #             equal_to(float(expected_details['Proppant'])))
+        # assert_that(context.stage_treatment_details[sample_index]['median_treating_pressure'],
+        #             equal_to(float(expected_details['Median'])))

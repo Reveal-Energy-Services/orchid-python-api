@@ -14,4 +14,24 @@
 
 
 class NativeStageAdapter:
-    pass
+    """Adapts a .NET IStage to be more Pythonic."""
+
+    def __init__(self, adaptee):
+        """
+        Construct an instance adapting a .NET IStage.
+        :param adaptee: The IStage instance to adapt.
+        """
+        self._adaptee = adaptee
+
+    def display_stage_number(self):
+        """
+        Determine the stage number for display purposes.
+        :return: The display stage number for the adapted .NET IStage.
+        """
+        return self._adaptee.DisplayStageNumber
+
+    def md_top(self, length_unit_abbreviation):
+        return 13467.8
+
+    def md_bottom(self, length_unit_abbreviation):
+        return 0
