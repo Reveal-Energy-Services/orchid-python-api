@@ -13,10 +13,14 @@
 #
 
 """This module contains functions for converting between instances of the (Python) `Measurement` class and
-instances of .NET UnitsNet.Quantity."""
+instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
+
+from datetime import datetime
 
 from orchid.measurement import make_measurement
 
+# noinspection PyUnresolvedReferences
+from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -28,6 +32,12 @@ ABBREVIATION_NET_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
 NET_UNIT_ABBREVIATION_MAP = {v: k for (k, v) in ABBREVIATION_NET_UNIT_MAP.items()}
 
 
+def as_datetime(net_time_point):
+    return datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                    net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                    net_time_point.Millisecond * 1000)
+
+
 def as_measurement(net_quantity):
     """
     Convert a .NET UnitsNet.Quantity to a Python Measurement.
@@ -36,6 +46,16 @@ def as_measurement(net_quantity):
     """
     result = make_measurement(net_quantity.Value, NET_UNIT_ABBREVIATION_MAP[net_quantity.Unit])
     return result
+
+
+def as_net_date_time(time_point):
+    """
+    Convert a Python `datetime.datetime` instance to a .NET `DateTime` instance.
+    :param time_point: The Python `datetime.datetime` to convert.
+    :return: The corresponding .NET `DateTime`
+    """
+    return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
+                    time_point.second, round(time_point.microsecond / 1e3))
 
 
 def as_net_quantity(measurement):
