@@ -12,11 +12,13 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime
 import unittest.mock
 
 from hamcrest import assert_that, equal_to, close_to
 
 from orchid.measurement import make_measurement
+from orchid.net_quantity import as_net_date_time
 import orchid.native_stage_adapter as nsa
 from orchid.net_quantity import as_net_quantity_in_different_unit
 
@@ -70,6 +72,24 @@ class TestNativeStageAdapter(unittest.TestCase):
                 actual_top = sut.md_bottom(expected_top.unit)
                 assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
                 assert_that(actual_top.unit, equal_to(expected_top.unit))
+
+    def test_start_time(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        expected_start_time = datetime.datetime(2024, 10, 31, 7, 31, 27, 357000)
+        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time()
+        assert_that(actual_start_time, equal_to(expected_start_time))
+
+    def test_stop_time(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        expected_stop_time = datetime.datetime(2016, 3, 31, 3, 31, 30, 947000)
+        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time()
+        assert_that(actual_stop_time, equal_to(expected_stop_time))
 
 
 if __name__ == '__main__':
