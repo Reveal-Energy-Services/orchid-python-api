@@ -14,7 +14,7 @@
 
 from behave import *
 use_step_matcher("parse")
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, close_to
 from toolz.curried import *
 
 
@@ -78,12 +78,12 @@ def step_impl(context):
         assert_that(context.stage_treatment_details[sample_index]['project_name'],
                     equal_to(expected_details['Project']))
         assert_that(context.stage_treatment_details[sample_index]['well_name'], equal_to(expected_details['WellName']))
-        # assert_that(context.stage_treatment_details[sample_index]['stage_number'],
-        #             equal_to(int(expected_details['Stage'])))
-        # assert_that(context.stage_treatment_details[sample_index]['md_top'],
-        #             equal_to(float(expected_details['MdTop'])))
-        # assert_that(context.stage_treatment_details[sample_index]['md_bottom'],
-        #             equal_to(float(expected_details['MdBottom'])))
+        assert_that(context.stage_treatment_details[sample_index]['stage_number'],
+                    equal_to(int(expected_details['Stage'])))
+        assert_that(context.stage_treatment_details[sample_index]['md_top'].magnitude,
+                    close_to(float(expected_details['MdTop']), 0.05))
+        assert_that(context.stage_treatment_details[sample_index]['md_bottom'].magnitude,
+                    close_to(float(expected_details['MdBottom']), 0.05))
 
 
 @step("I see correct sample aggregate values for <Volume>, <Proppant> and <Median>")

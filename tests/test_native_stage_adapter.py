@@ -14,11 +14,11 @@
 
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, close_to
 
 from orchid.measurement import make_measurement
 import orchid.native_stage_adapter as nsa
-from orchid.net_measurement import as_net_measurement_in_different_unit
+from orchid.net_quantity import as_net_quantity_in_different_unit
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStage
@@ -44,14 +44,32 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(sut.display_stage_number(), equal_to(expected_display_stage_number))
 
     def test_md_top(self):
-        # for expected_top, net_stage_top in [((13467.8, 'ft'), (13467.8, 'ft')), ('m', 'm'), ('ft', 'm'), ('m', 'ft')]:
-        for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft'))]:
+        for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft')),
+                                         (make_measurement(3702.48, 'm'), make_measurement(3702.48, 'm')),
+                                         (make_measurement(13467.8, 'ft'), make_measurement(4104.98, 'm')),
+                                         (make_measurement(3702.48, 'm'), make_measurement(12147.2, 'ft'))]:
             with self.subTest(expected_top=actual_top):
                 stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-                stub_net_stage.MdTop = as_net_measurement_in_different_unit(actual_top, actual_top.unit)
+                stub_net_stage.MdTop = as_net_quantity_in_different_unit(actual_top, actual_top.unit)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
-                assert_that(sut.md_top(expected_top.unit), equal_to(expected_top.magnitude))
+                actual_top = sut.md_top(expected_top.unit)
+                assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
+                assert_that(actual_top.unit, equal_to(expected_top.unit))
+
+    def test_md_bottom(self):
+        for actual_top, expected_top in [(make_measurement(13806.7, 'ft'), make_measurement(13806.7, 'ft')),
+                                         (make_measurement(4608.73, 'm'), make_measurement(4608.73, 'm')),
+                                         (make_measurement(12147.2, 'ft'), make_measurement(3702.47, 'm')),
+                                         (make_measurement(4608.73, 'm'), make_measurement(15120.5, 'ft'))]:
+            with self.subTest(expected_top=actual_top):
+                stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+                stub_net_stage.MdBottom = as_net_quantity_in_different_unit(actual_top, actual_top.unit)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_top = sut.md_bottom(expected_top.unit)
+                assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
+                assert_that(actual_top.unit, equal_to(expected_top.unit))
 
 
 if __name__ == '__main__':

@@ -12,6 +12,8 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from orchid.net_quantity import as_measurement, convert_net_quantity_to_different_unit
+
 
 class NativeStageAdapter:
     """Adapts a .NET IStage to be more Pythonic."""
@@ -31,7 +33,13 @@ class NativeStageAdapter:
         return self._adaptee.DisplayStageNumber
 
     def md_top(self, length_unit_abbreviation):
-        return 13467.8
+        original = self._adaptee.MdTop
+        md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
+        result = as_measurement(md_top_quantity)
+        return result
 
     def md_bottom(self, length_unit_abbreviation):
-        return 0
+        original = self._adaptee.MdBottom
+        md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
+        result = as_measurement(md_top_quantity)
+        return result
