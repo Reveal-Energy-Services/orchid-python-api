@@ -1,3 +1,7 @@
+# Ignore temporary / user-specific files
+python_api.yaml
+scratch.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
