@@ -15,12 +15,13 @@
 from behave import *
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, contains_exactly
 
 import orchid
 
 
-PROJECT_NAME_PATHNAME_MAP = {'Oasis_Crane_II': r'c:\Users\larry.jones\tmp\ifa-test-data\Crane_II.ifrac'}
+PROJECT_NAME_PATHNAME_MAP = {'Oasis_Crane_II': r'c:\Users\larry.jones\tmp\ifa-test-data\Crane_II.ifrac',
+                             'Demo_Project': r'c:\Users\larry.jones\tmp\TrainingDataSet\Demo_Project.ifrac'}
 
 
 @given('I have loaded the "{project_name}" project')
@@ -30,7 +31,9 @@ def step_impl(context, project_name):
     :type context: behave.runner.Context
     """
     project_pathname = PROJECT_NAME_PATHNAME_MAP[project_name]
-    context.project = orchid.core.load_project(project_pathname)
+    if project_pathname not in context.loaded_projects:
+        context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
+    context.project = context.loaded_projects[project_pathname]
 
 
 @when("I query the project name")
@@ -63,11 +66,14 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    assert_that(len(context.actual_wells), equal_to(len(context.table.rows)))
-    for (actual, expected) in zip(context.actual_wells, context.table):
-        assert_that(actual.name(), equal_to(expected['name']))
-        assert_that(actual.display_name(), equal_to(expected['display_name']))
-        assert_that(actual.uwi(), equal_to(expected['uwi']))
+    def actual_details_to_check(well):
+        return well.name(), well.display_name(), well.uwi()
+
+    def expected_details_to_check(row):
+        return row['name'], row['display_name'], row['uwi']
+
+    assert_that(map(actual_details_to_check, context.actual_wells),
+                contains_exactly(*(list(map(expected_details_to_check, context.table.rows)))))
 
 
 @when("I query the project default well colors")

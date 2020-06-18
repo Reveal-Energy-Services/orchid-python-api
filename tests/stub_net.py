@@ -78,16 +78,6 @@ class StubNetTreatmentCurve:
         return self._time_series
 
 
-ABBREVIATION_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
-                         'm': UnitsNet.Units.LengthUnit.Meter,
-                         'psi': UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
-                         'kPa': UnitsNet.Units.PressureUnit.Kilopascal}
-
-
-def unit_abbreviation_to_unit(unit_abbreviation: str):
-    return ABBREVIATION_UNIT_MAP[unit_abbreviation]
-
-
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
     treating_pressure_time_series = create_stub_net_time_series(start_time_point, treating_pressure_values)
     treating_pressure_curve = StubNetTreatmentCurve('Pressure', 'pressure', treating_pressure_time_series)
