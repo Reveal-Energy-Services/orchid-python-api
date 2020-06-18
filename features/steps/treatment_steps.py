@@ -15,7 +15,10 @@
 from behave import *
 use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
+import numpy as np
 from toolz.curried import *
+
+from orchid.time_series import transform_net_treatment
 
 
 @when('I query the stages for each well in the project')
@@ -24,14 +27,11 @@ def step_impl(context):
     :type context: behave.runner.Context
     """
     context.stages_for_wells = [(w, w.stages()) for w in context.project.wells()]
-    # actual_size = len(pipe(context.stages_for_wells.values(),
-    #                        mapcat(list),
-    #                        list))
-    # print(actual_size)
-    # assert_that(actual_size, equal_to(136))
 
 
 def aggregate_stage_treatment(stage):
+    stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time(), stage.stop_time()])
+    # treatment_curves = transform_net_treatment(stage.treatment_curves())
     return 0, 0, 0
 
 

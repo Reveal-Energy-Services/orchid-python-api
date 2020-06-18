@@ -12,6 +12,8 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import pandas as pd
+
 from orchid.measurement import Measurement
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
 
@@ -70,3 +72,7 @@ class NativeStageAdapter:
         :return: The stop time of the stage treatment.
         """
         return as_datetime(self._adaptee.StopTime)
+
+    def treatment_curves(self):
+        if not self._adaptee.TreatmentCurves.Items:
+            return pd.DataFrame(columns=['Treating Pressure', 'Slurry Rate', 'Proppant Concentration'])

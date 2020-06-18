@@ -15,7 +15,7 @@
 import datetime
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to, close_to, is_
 
 from orchid.measurement import make_measurement
 from orchid.net_quantity import as_net_date_time
@@ -29,10 +29,17 @@ import UnitsNet
 
 
 # Test ideas
-# - MD of the stage top/bottom in feet if project length unit is also feet
-# - MD of the stage bottom in meters if project length unit is also meters
-# - MD of the stage bottom in feet if project length unit is meters
-# - MD of the stage bottom in meters if project length unit is feet
+# - Treatment curves
+#   - Empty array returned from .NET
+#   - Array contains three curves each with one sample
+#   - Array contains three curves each with many samples
+#   - Array contains two curves
+#   - Array contains one curve
+#   - Array contains three curves with *different* number of samples.
+#   - Array contains no:
+#     - Treating Pressure
+#     - Slurry Rate
+#     - Proppant Concentration.
 class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -90,6 +97,28 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_stop_time = sut.stop_time()
         assert_that(actual_stop_time, equal_to(expected_stop_time))
+
+    def test_treatment_curves_no_curves(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        stub_net_stage.TreatmentCurves.Items = []
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        for curve_name in ['Treating Pressure', 'Slurry Rate', 'Proppant Concentration']:
+            actual_curve = sut.treatment_curves()[curve_name]
+            assert_that(actual_curve.empty, is_(True))
+
+    def test_treatment_curves_three_curves_one_sample_each(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        start_time_point = datetime.datetime(2021, 12, 7, 2, 56, 55)
+        pressure_values = [make_measurement(8268.6, 'psi')]
+        rate_values = []
+        concentration_values = []
+        stub_net_stage.TreatmentCurves.Items = []
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        for curve_name in ['Treating Pressure', 'Slurry Rate', 'Proppant Concentration']:
+            actual_curve = sut.treatment_curves()[curve_name]
+            assert_that(actual_curve.empty, is_(True))
 
 
 if __name__ == '__main__':
