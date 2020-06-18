@@ -18,7 +18,7 @@ from hamcrest import assert_that, equal_to, close_to
 import numpy as np
 from toolz.curried import *
 
-from orchid.time_series import transform_net_treatment
+from orchid.time_series import deprecated_transform_net_treatment
 
 
 @when('I query the stages for each well in the project')
@@ -31,7 +31,7 @@ def step_impl(context):
 
 def aggregate_stage_treatment(stage):
     stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time(), stage.stop_time()])
-    # treatment_curves = transform_net_treatment(stage.treatment_curves())
+    # treatment_curves = deprecated_transform_net_treatment(stage.treatment_curves())
     return 0, 0, 0
 
 

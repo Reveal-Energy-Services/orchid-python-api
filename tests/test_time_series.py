@@ -19,13 +19,13 @@ import deal
 from hamcrest import assert_that, is_, equal_to, calling, raises
 import pandas as pd
 
-from orchid.time_series import transform_net_time_series, transform_net_treatment
+from orchid.time_series import transform_net_time_series, deprecated_transform_net_treatment
 from tests.stub_net import create_30_second_time_points, create_stub_net_time_series, create_net_treatment
 
 
 def assert_equal_treatments(concentration, rate, start_time_point, treating_pressures):
     stub_net_treatment = create_net_treatment(start_time_point, treating_pressures, rate, concentration)
-    actual_treatments = transform_net_treatment(stub_net_treatment)
+    actual_treatments = deprecated_transform_net_treatment(stub_net_treatment)
     expected_treatments = pd.DataFrame(data={'Treating Pressure': treating_pressures,
                                              'Slurry Rate': rate,
                                              'Proppant Concentration': concentration},
@@ -36,7 +36,7 @@ def assert_equal_treatments(concentration, rate, start_time_point, treating_pres
 
 class TestTimeSeries(unittest.TestCase):
     # Test ideas:
-    # - transform_net_treatment
+    # - deprecated_transform_net_treatment
     #   - no treating pressure generates empty named column
     #   - no rate returns generates empty named column
     #   - no concentration generates empty named column
@@ -75,7 +75,7 @@ class TestTimeSeries(unittest.TestCase):
         assert_that(calling(transform_net_time_series).with_args(None), raises(deal.PreContractError))
 
     def test_treatment_net_transform_returns_no_items_when_no_net_treatment(self):
-        actual_treatments = transform_net_treatment([])
+        actual_treatments = deprecated_transform_net_treatment([])
 
         assert_that(actual_treatments.empty, is_(True))
 
@@ -96,7 +96,7 @@ class TestTimeSeries(unittest.TestCase):
         assert_equal_treatments(concentration, rate, start_time_point, treating_pressures)
 
     def test_transform_net_treatment_raises_exception_if_net_treatment_curve_none(self):
-        assert_that(calling(transform_net_treatment).with_args(None), raises(deal.PreContractError))
+        assert_that(calling(deprecated_transform_net_treatment).with_args(None), raises(deal.PreContractError))
 
 
 if __name__ == '__main__':

@@ -46,8 +46,8 @@ import UnitsNet
 
 class TestProjectWells(unittest.TestCase):
     # Test ideas:
-    # - Call transform_net_treatment correctly with one stage with stage number 1
-    # - Call transform_net_treatment correctly with one stage with stage number 40
+    # - Call deprecated_transform_net_treatment correctly with one stage with stage number 1
+    # - Call deprecated_transform_net_treatment correctly with one stage with stage number 40
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -125,7 +125,7 @@ class TestProjectWells(unittest.TestCase):
             with self.subTest(invalid_well_id=invalid_well_id):
                 self.assertRaises(deal.PreContractError, sut.well_display_name, invalid_well_id)
 
-    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    @unittest.mock.patch('orchid.time_series.deprecated_transform_net_treatment')
     def test_treatment_curves_calls_transform_treatment_when_stage_number_1(self, mock_transform_net_transform):
         stub_treatment_curves = unittest.mock.MagicMock(name='stub_treatment_curves')
         stub_net_project = create_stub_net_project(well_names=['perditus'],
@@ -136,7 +136,7 @@ class TestProjectWells(unittest.TestCase):
 
         mock_transform_net_transform.assert_called_with(stub_treatment_curves)
 
-    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    @unittest.mock.patch('orchid.time_series.deprecated_transform_net_treatment')
     def test_treatment_curves_calls_transform_treatment_when_stage_number_40(self, mock_transform_net_transform):
         stub_treatment_curves = unittest.mock.MagicMock(name='stub_treatment_curves')
         stub_net_project = create_stub_net_project(well_names=['perditus'],
@@ -147,7 +147,7 @@ class TestProjectWells(unittest.TestCase):
 
         mock_transform_net_transform.assert_called_with(stub_treatment_curves)
 
-    @unittest.mock.patch('orchid.time_series.transform_net_treatment')
+    @unittest.mock.patch('orchid.time_series.deprecated_transform_net_treatment')
     def test_treatment_curves_calls_transform_treatment_but_stage_numbers_gap(self, mock_transform_net_transform):
         stub_treatment_curves = [unittest.mock.MagicMock(name=f'stub_treatment_curves_{i}') for i in range(4)]
         stub_net_project = create_stub_net_project(well_names=['perditus'],
