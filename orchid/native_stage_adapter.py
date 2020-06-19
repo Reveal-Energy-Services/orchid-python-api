@@ -12,9 +12,10 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import pandas as pd
+from toolz.curried import map
 
 from orchid.measurement import Measurement
+from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
 
 
@@ -75,4 +76,6 @@ class NativeStageAdapter:
 
     def treatment_curves(self):
         if not self._adaptee.TreatmentCurves.Items:
-            return pd.DataFrame(columns=['Treating Pressure', 'Slurry Rate', 'Proppant Concentration'])
+            return []
+
+        return map(NativeTreatmentCurveFacade, self._adaptee.TreatmentCurves.Items)

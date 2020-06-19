@@ -12,10 +12,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
+from datetime import datetime
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to, is_
+from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly
+from toolz.curried import map
 
 from orchid.measurement import make_measurement
 from orchid.net_quantity import as_net_date_time
@@ -23,23 +24,13 @@ import orchid.native_stage_adapter as nsa
 from orchid.net_quantity import as_net_quantity_in_different_unit
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IStage
+from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 
 # Test ideas
 # - Treatment curves
-#   - Empty array returned from .NET
-#   - Array contains three curves each with one sample
-#   - Array contains three curves each with many samples
-#   - Array contains two curves
-#   - Array contains one curve
-#   - Array contains three curves with *different* number of samples.
-#   - Array contains no:
-#     - Treating Pressure
-#     - Slurry Rate
-#     - Proppant Concentration.
 class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -82,7 +73,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_start_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_start_time = datetime.datetime(2024, 10, 31, 7, 31, 27, 357000)
+        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
         stub_net_stage.StartTime = as_net_date_time(expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -91,7 +82,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_stop_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_stop_time = datetime.datetime(2016, 3, 31, 3, 31, 30, 947000)
+        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000)
         stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -103,22 +94,35 @@ class TestNativeStageAdapter(unittest.TestCase):
         stub_net_stage.TreatmentCurves.Items = []
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        for curve_name in ['Treating Pressure', 'Slurry Rate', 'Proppant Concentration']:
-            actual_curve = sut.treatment_curves()[curve_name]
-            assert_that(actual_curve.empty, is_(True))
+        actual_curve = sut.treatment_curves()
+        assert_that(actual_curve, empty())
 
-    def test_treatment_curves_three_curves_one_sample_each(self):
+    def test_treatment_curves_one_curve(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        start_time_point = datetime.datetime(2021, 12, 7, 2, 56, 55)
-        pressure_values = [make_measurement(8268.6, 'psi')]
-        rate_values = []
-        concentration_values = []
-        stub_net_stage.TreatmentCurves.Items = []
+        expected_curve_name = 'pulcher'
+        stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
+        stub_treatment_curve.DisplayName = expected_curve_name
+        stub_net_stage.TreatmentCurves.Items = [stub_treatment_curve]
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        for curve_name in ['Treating Pressure', 'Slurry Rate', 'Proppant Concentration']:
-            actual_curve = sut.treatment_curves()[curve_name]
-            assert_that(actual_curve.empty, is_(True))
+        actual_curves = list(sut.treatment_curves())
+        assert_that(map(lambda c: c.display_name(), actual_curves), contains_exactly(expected_curve_name))
+
+    def test_treatment_curves_many_curves(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        expected_curve_names = ['bancam', 'scrupamque', 'condidi']
+
+        def make_stub_treatment_curve(name):
+            stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
+            stub_treatment_curve.DisplayName = name
+            return stub_treatment_curve
+
+        stub_treatment_curves = map(make_stub_treatment_curve, expected_curve_names)
+        stub_net_stage.TreatmentCurves.Items = stub_treatment_curves
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_curves = sut.treatment_curves()
+        assert_that(map(lambda c: c.display_name(), actual_curves), contains_exactly(*expected_curve_names))
 
 
 if __name__ == '__main__':
