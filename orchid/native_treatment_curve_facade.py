@@ -12,10 +12,39 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+from toolz.curried import partial
+
+import orchid.project_units as opu
+
 
 class NativeTreatmentCurveFacade:
+
     def __init__(self, net_treatment_curve):
         self._adaptee = net_treatment_curve
+        self._quantity_name_physical_quantity_map = {'Pressure': 'pressure',
+                                                     'Slurry Rate': 'slurry rate',
+                                                     'Proppant Concentration': 'proppant concentration'}
+        # noinspection PyArgumentList
+        self._sample_unit_func = partial(opu.unit, net_treatment_curve.Stage.Well.Project)
 
-    def display_name(self):
+    def display_name(self) -> str:
+        """
+        Return the display name for this treatment curve.
+        :return: The display name of this treatment curve.
+        """
         return self._adaptee.DisplayName
+
+    def sampled_quantity_name(self) -> str:
+        """
+        Return the quantity name of the samples in this treatment curve.
+        :return: The quantity name of each sample in this treatment curve.
+        """
+        return self._adaptee.SampledQuantityName
+
+    def sampled_quantity_unit(self) -> str:
+        """
+        Return the measurement unit of the samples in this treatment curve.
+        :return: A string containing an abbreviation for the unit  of each sample in this treatment curve.
+        """
+        result = self._sample_unit_func(self._quantity_name_physical_quantity_map[self.sampled_quantity_name()])
+        return result

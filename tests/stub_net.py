@@ -106,6 +106,10 @@ def set_project_unit(stub_net_project, abbreviation):
         stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.OilBarrel
         stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
 
+    def set_slurry_rate_l_per_s_unit():
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.Liter
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Second
+
     def set_proppant_concentration_lb_gal_unit():
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Pound
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.UsGallon
@@ -115,6 +119,7 @@ def set_project_unit(stub_net_project, abbreviation):
                              'psi': set_pressure_psi_length_unit,
                              'kPa': set_pressure_kpa_length_unit,
                              'bbl/min': set_slurry_rate_bpm_unit,
+                             'l/s': set_slurry_rate_l_per_s_unit,
                              'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit}
 
     if abbreviation in abbreviation_unit_map.keys():

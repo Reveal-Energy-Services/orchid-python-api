@@ -52,11 +52,13 @@ class TestProjectUnits(unittest.TestCase):
         assert_that(sut.unit('pressure'), equal_to('psi'))
 
     def test_returns_bpm_project_unit_from_net_slurry_rate_units(self):
-        stub_net_project = create_stub_net_project(slurry_rate_unit_abbreviation='bbl/min',
-                                                   well_names=['dont-care-well'])
-        sut = create_sut(stub_net_project)
+        for unit in ['bbl/min', 'l/s']:
+            with self.subTest(unit=unit):
+                stub_net_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit,
+                                                           well_names=['dont-care-well'])
+                sut = create_sut(stub_net_project)
 
-        assert_that(sut.unit('slurry rate'), equal_to('bbl/min'))
+                assert_that(sut.unit('slurry rate'), equal_to(unit))
 
     def test_returns_lb_per_gal_project_unit_from_net_proppant_concentration_units(self):
         stub_net_project = create_stub_net_project(
