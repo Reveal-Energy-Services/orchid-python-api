@@ -48,3 +48,10 @@ class NativeTreatmentCurveFacade:
         """
         result = self._sample_unit_func(self._quantity_name_physical_quantity_map[self.sampled_quantity_name()])
         return result
+
+    def suffix(self) -> str:
+        """
+        Return the suffix for this treatment curve.
+        :return: The suffix of this treatment curve.
+        """
+        return self._adaptee.Suffix

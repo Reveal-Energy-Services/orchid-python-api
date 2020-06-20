@@ -80,6 +80,14 @@ class TestTreatmentCurveFacade(unittest.TestCase):
 
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
+    def test_suffix_from_treatment_curve(self):
+        stub_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                       spec=IStageSampledQuantityTimeSeries)
+        stub_treatment_curve.Suffix = 'hominibus'
+        sut = NativeTreatmentCurveFacade(stub_treatment_curve)
+
+        assert_that(sut.suffix(), equal_to('hominibus'))
+
 
 if __name__ == '__main__':
     unittest.main()
