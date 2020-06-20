@@ -17,6 +17,7 @@ import unittest.mock
 from hamcrest import assert_that, equal_to
 
 from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
+from tests.stub_net import create_stub_net_project
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IProject, IStageSampledQuantityTimeSeries
@@ -59,13 +60,21 @@ class TestTreatmentCurveFacade(unittest.TestCase):
         stub_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
                                                        spec=IStageSampledQuantityTimeSeries)
         stub_treatment_curve.SampledQuantityName = 'Slurry Rate'
-        stub_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
-        for (expected, (volume_unit, duration_unit)) in\
-                zip(['bbl/min', 'l/s'], [(UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
-                                         (UnitsNet.Units.VolumeUnit.Liter, UnitsNet.Units.DurationUnit.Second)]):
-            with self.subTest(unit=expected):
-                stub_project.ProjectUnits.SlurryRateUnit.Item1 = volume_unit
-                stub_project.ProjectUnits.SlurryRateUnit.Item2 = duration_unit
+        for (unit, expected) in zip(('bbl/min', 'm^3/min'), ('bbl/min', 'm\u00b3/min')):
+            stub_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit)
+            with self.subTest(expected=expected):
+                stub_treatment_curve.Stage.Well.Project = stub_project
+                sut = NativeTreatmentCurveFacade(stub_treatment_curve)
+
+                assert_that(sut.sampled_quantity_unit(), equal_to(expected))
+
+    def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
+        stub_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                       spec=IStageSampledQuantityTimeSeries)
+        stub_treatment_curve.SampledQuantityName = 'Proppant Concentration'
+        for (unit, expected) in zip(('lb/gal (U.S.)', 'kg/m^3'), ('lb/gal (U.S.)', 'kg/m\u00b3')):
+            stub_project = create_stub_net_project(proppant_concentration_unit_abbreviation=unit)
+            with self.subTest(expected=expected):
                 stub_treatment_curve.Stage.Well.Project = stub_project
                 sut = NativeTreatmentCurveFacade(stub_treatment_curve)
 
