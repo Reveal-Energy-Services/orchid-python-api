@@ -52,20 +52,24 @@ class TestProjectUnits(unittest.TestCase):
         assert_that(sut.unit('pressure'), equal_to('psi'))
 
     def test_returns_bpm_project_unit_from_net_slurry_rate_units(self):
-        for unit in ['bbl/min', 'l/s']:
+        unit_expected_map = {'bbl/min': 'bbl/min', 'm^3/min': 'm\u00b3/min'}
+        for unit in unit_expected_map.keys():
             with self.subTest(unit=unit):
                 stub_net_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit,
                                                            well_names=['dont-care-well'])
                 sut = create_sut(stub_net_project)
 
-                assert_that(sut.unit('slurry rate'), equal_to(unit))
+                assert_that(sut.unit('slurry rate'), equal_to(unit_expected_map[unit]))
 
     def test_returns_lb_per_gal_project_unit_from_net_proppant_concentration_units(self):
-        stub_net_project = create_stub_net_project(
-            proppant_concentration_unit_abbreviation='lb/gal (U.S.)', well_names=['dont-care-well'])
-        sut = create_sut(stub_net_project)
+        unit_expected_map = {'lb/gal (U.S.)': 'lb/gal (U.S.)', 'kg/m^3': 'kg/m\u00b3'}
+        for unit in ['lb/gal (U.S.)', 'kg/m^3']:
+            with self.subTest(unit=unit):
+                stub_net_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit,
+                                                           well_names=['dont-care-well'])
+                sut = create_sut(stub_net_project)
 
-        assert_that(sut.unit('proppant concentration'), equal_to('lb/gal (U.S.)'))
+                assert_that(sut.unit('proppant concentration'), equal_to(unit_expected_map[unit]))
 
 
 def create_sut(stub_net_project):

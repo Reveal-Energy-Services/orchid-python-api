@@ -96,31 +96,36 @@ def set_project_unit(stub_net_project, abbreviation):
     def set_meter_length_unit():
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
 
-    def set_pressure_psi_length_unit():
+    def set_pressure_psi_unit():
         stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
 
-    def set_pressure_kpa_length_unit():
+    def set_pressure_kpa_unit():
         stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
 
     def set_slurry_rate_bpm_unit():
         stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.OilBarrel
         stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
 
-    def set_slurry_rate_l_per_s_unit():
-        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.Liter
-        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Second
+    def set_slurry_rate_m3_per_min_unit():
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.CubicMeter
+        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
 
     def set_proppant_concentration_lb_gal_unit():
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Pound
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.UsGallon
 
+    def set_proppant_concentration_kg_per_m3_unit():
+        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Kilogram
+        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.CubicMeter
+
     abbreviation_unit_map = {'ft': set_foot_length_unit,
                              'm': set_meter_length_unit,
-                             'psi': set_pressure_psi_length_unit,
-                             'kPa': set_pressure_kpa_length_unit,
+                             'psi': set_pressure_psi_unit,
+                             'kPa': set_pressure_kpa_unit,
                              'bbl/min': set_slurry_rate_bpm_unit,
-                             'l/s': set_slurry_rate_l_per_s_unit,
-                             'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit}
+                             'm^3/min': set_slurry_rate_m3_per_min_unit,
+                             'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit,
+                             'kg/m^3': set_proppant_concentration_kg_per_m3_unit}
 
     if abbreviation in abbreviation_unit_map.keys():
         abbreviation_unit_map[abbreviation]()
