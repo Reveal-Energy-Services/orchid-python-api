@@ -57,44 +57,37 @@ class TestTreatmentCurveFacade(unittest.TestCase):
         assert_that(sut.sampled_quantity_name(), equal_to('proponeam'))
 
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.SampledQuantityName = 'Pressure'
-        stub_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
-        stub_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
-        stub_net_treatment_curve.Stage.Well.Project = stub_project
-        sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
+        for (unit, expected) in zip(('psi', 'kPa', 'MPa'), ('psi', 'kPa', 'MPa')):
+            stub_project = create_stub_net_project(project_pressure_unit_abbreviation=unit)
+            stub_net_treatment_curve = create_stub_net_treatment_curve(
+                sampled_quantity_name='Pressure', project=stub_project)
+            with self.subTest(expected=expected):
+                sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
-        assert_that(sut.sampled_quantity_unit(), equal_to('kPa'))
+                assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
     def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.SampledQuantityName = 'Slurry Rate'
         for (unit, expected) in zip(('bbl/min', 'm^3/min'), ('bbl/min', 'm\u00b3/min')):
             stub_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit)
+            stub_net_treatment_curve = create_stub_net_treatment_curve(
+                sampled_quantity_name='Slurry Rate', project=stub_project)
             with self.subTest(expected=expected):
-                stub_net_treatment_curve.Stage.Well.Project = stub_project
                 sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
     def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.SampledQuantityName = 'Proppant Concentration'
         for (unit, expected) in zip(('lb/gal (U.S.)', 'kg/m^3'), ('lb/gal (U.S.)', 'kg/m\u00b3')):
-            stub_project = create_stub_net_project(proppant_concentration_unit_abbreviation=unit)
+            stub_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit)
+            stub_net_treatment_curve = create_stub_net_treatment_curve(
+                sampled_quantity_name='Proppant Concentration', project=stub_project)
             with self.subTest(expected=expected):
-                stub_net_treatment_curve.Stage.Well.Project = stub_project
                 sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
     def test_suffix_from_treatment_curve(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.Suffix = 'hominibus'
+        stub_net_treatment_curve = create_stub_net_treatment_curve(suffix='hominibus')
         sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
         assert_that(sut.suffix(), equal_to('hominibus'))

@@ -103,6 +103,9 @@ def set_project_unit(stub_net_project, abbreviation):
     def set_pressure_kpa_unit():
         stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
 
+    def set_pressure_mpa_unit():
+        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Megapascal
+
     def set_slurry_rate_bpm_unit():
         stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.OilBarrel
         stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
@@ -123,6 +126,7 @@ def set_project_unit(stub_net_project, abbreviation):
                              'm': set_meter_length_unit,
                              'psi': set_pressure_psi_unit,
                              'kPa': set_pressure_kpa_unit,
+                             'MPa': set_pressure_mpa_unit,
                              'bbl/min': set_slurry_rate_bpm_unit,
                              'm^3/min': set_slurry_rate_m3_per_min_unit,
                              'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit,
@@ -220,11 +224,14 @@ def create_stub_net_project(name='', default_well_colors=None,
     return stub_net_project
 
 
-def create_stub_net_treatment_curve(name='', display_name='', sampled_quantity_name=''):
+def create_stub_net_treatment_curve(name='', display_name='', sampled_quantity_name='', suffix='', project=None):
     stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
                                                        spec=IStageSampledQuantityTimeSeries)
     stub_net_treatment_curve.Name = name
     stub_net_treatment_curve.DisplayName = display_name
     stub_net_treatment_curve.SampledQuantityName = sampled_quantity_name
+    stub_net_treatment_curve.Suffix = suffix
+
+    stub_net_treatment_curve.Stage.Well.Project = project
 
     return stub_net_treatment_curve
