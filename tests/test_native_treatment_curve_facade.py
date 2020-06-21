@@ -113,6 +113,8 @@ def create_sut(name='', display_name='', sampled_quantity_name='', suffix='',
                                                        spec=IStageSampledQuantityTimeSeries)
     stub_net_treatment_curve.Name = name
     stub_net_treatment_curve.DisplayName = display_name
+    stub_net_treatment_curve.get_DisplayName = unittest.mock.MagicMock('stub_get_DisplayName',
+                                                                       return_value=display_name)
     stub_net_treatment_curve.SampledQuantityName = sampled_quantity_name
     stub_net_treatment_curve.Suffix = suffix
 

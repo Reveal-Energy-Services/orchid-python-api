@@ -12,9 +12,8 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import numpy as np
 import pandas as pd
-from toolz.curried import map, partial
+from toolz.curried import curry, map, partial, thread_last
 
 from orchid.net_quantity import as_datetime
 import orchid.project_units as opu
@@ -30,12 +29,26 @@ class NativeTreatmentCurveFacade:
         # noinspection PyArgumentList
         self._sample_unit_func = partial(opu.unit, net_treatment_curve.Stage.Well.Project)
 
-    def display_name(self) -> str:
-        """
-        Return the display name for this treatment curve.
-        :return: The display name of this treatment curve.
-        """
-        return self._adaptee.DisplayName
+    def _get_net_attribute(self, item=None):
+        if not item:
+            return item
+
+        result = thread_last(item.split('_'),
+                             map(str.capitalize),
+                             lambda capitalized_pieces: ''.join(capitalized_pieces),
+                             lambda capitalized: 'get_' + capitalized,
+                             partial(getattr, self._adaptee))
+        return result
+
+    display_name = property(fget=curry(_get_net_attribute)(item='display_name'),
+                            doc='Return the display name for this treatment curve.')
+    #
+    # def display_name(self) -> str:
+    #     """
+    #     Return the display name for this treatment curve.
+    #     :return: The display name of this treatment curve.
+    #     """
+    #     return self._adaptee.DisplayName
 
     def name(self) -> str:
         """
