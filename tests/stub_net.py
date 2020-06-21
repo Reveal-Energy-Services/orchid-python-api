@@ -26,7 +26,8 @@ from typing import Sequence
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage, IWellSampledQuantityTimeSeries)
+from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
+                                        IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -217,3 +218,13 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
 
     return stub_net_project
+
+
+def create_stub_net_treatment_curve(name='', display_name='', sampled_quantity_name=''):
+    stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                       spec=IStageSampledQuantityTimeSeries)
+    stub_net_treatment_curve.Name = name
+    stub_net_treatment_curve.DisplayName = display_name
+    stub_net_treatment_curve.SampledQuantityName = sampled_quantity_name
+
+    return stub_net_treatment_curve

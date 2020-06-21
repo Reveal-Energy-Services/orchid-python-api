@@ -19,11 +19,11 @@ import unittest.mock
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
-from hamcrest import assert_that, equal_to, is_, contains_exactly
+from hamcrest import assert_that, equal_to
 
 from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
 from orchid.net_quantity import as_net_date_time
-from tests.stub_net import create_stub_net_project
+from tests.stub_net import create_stub_net_project, create_stub_net_treatment_curve
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IProject, IStageSampledQuantityTimeSeries
@@ -39,23 +39,19 @@ class TestTreatmentCurveFacade(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_display_name_from_treatment_curve(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.DisplayName = 'boni'
+        stub_net_treatment_curve = create_stub_net_treatment_curve(display_name='boni')
         sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
+        assert_that(sut.display_name(), equal_to('boni'))
+
     def test_name_from_treatment_curve(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.Name = 'magnitudina'
+        stub_net_treatment_curve = create_stub_net_treatment_curve(name='magnitudina')
         sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
         assert_that(sut.name(), equal_to('magnitudina'))
 
     def test_sampled_quantity_name_from_treatment_curve(self):
-        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                           spec=IStageSampledQuantityTimeSeries)
-        stub_net_treatment_curve.SampledQuantityName = 'proponeam'
+        stub_net_treatment_curve = create_stub_net_treatment_curve(sampled_quantity_name='proponeam')
         sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
 
         assert_that(sut.sampled_quantity_name(), equal_to('proponeam'))
