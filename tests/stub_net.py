@@ -18,7 +18,7 @@ Note that these stubs are "duck typing" stubs for .NET classes; that is, they ha
 properties required during testing but do not actually implement the .NET class interfaces.
 """
 
-import datetime
+from datetime import datetime, timedelta
 import itertools
 import unittest.mock
 from typing import Sequence
@@ -33,21 +33,21 @@ import UnitsNet
 
 
 class StubNetSample:
-    def __init__(self, time_point: datetime.datetime, value: float):
+    def __init__(self, time_point: datetime, value: float):
         # I chose to use capitalized names for compatability with .NET
         self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
                                   time_point.minute, time_point.second)
         self.Value = value
 
 
-def create_30_second_time_points(start_time_point: datetime.datetime, count: int):
+def create_30_second_time_points(start_time_point: datetime, count: int):
     """
     Create a sequence of `count` time points, 30-seconds apart.
     :param start_time_point: The starting time point of the sequence.
     :param count: The number of time points in the sequence.
     :return: The sequence of time points.
     """
-    return [start_time_point + i * datetime.timedelta(seconds=30) for i in range(count)]
+    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
 
 
 def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Sequence[StubNetSample]:
@@ -222,16 +222,3 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
 
     return stub_net_project
-
-
-def create_stub_net_treatment_curve(name='', display_name='', sampled_quantity_name='', suffix='', project=None):
-    stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                       spec=IStageSampledQuantityTimeSeries)
-    stub_net_treatment_curve.Name = name
-    stub_net_treatment_curve.DisplayName = display_name
-    stub_net_treatment_curve.SampledQuantityName = sampled_quantity_name
-    stub_net_treatment_curve.Suffix = suffix
-
-    stub_net_treatment_curve.Stage.Well.Project = project
-
-    return stub_net_treatment_curve
