@@ -15,7 +15,7 @@
 from datetime import datetime
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly
+from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items
 from toolz.curried import map
 
 from orchid.measurement import make_measurement
@@ -99,30 +99,34 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_one_curve(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_curve_name = 'pulcher'
+        expected_sampled_quantity_name = 'pulcher'
         stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
-        stub_treatment_curve.DisplayName = expected_curve_name
+        stub_treatment_curve.SampledQuantityName = expected_sampled_quantity_name
         stub_net_stage.TreatmentCurves.Items = [stub_treatment_curve]
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        actual_curves = list(sut.treatment_curves())
-        assert_that(map(lambda c: c.display_name(), actual_curves), contains_exactly(expected_curve_name))
+        actual_curves = sut.treatment_curves()
+        assert_that(actual_curves.keys(), contains_exactly(expected_sampled_quantity_name))
+        assert_that(map(lambda c: c.sampled_quantity_name(), actual_curves.values()),
+                    contains_exactly(expected_sampled_quantity_name))
 
     def test_treatment_curves_many_curves(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_curve_names = ['bancam', 'scrupamque', 'condidi']
+        expected_sampled_quantity_names = ['bancam', 'scrupamque', 'condidi']
 
         def make_stub_treatment_curve(name):
             stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
-            stub_treatment_curve.DisplayName = name
+            stub_treatment_curve.SampledQuantityName = name
             return stub_treatment_curve
 
-        stub_treatment_curves = map(make_stub_treatment_curve, expected_curve_names)
+        stub_treatment_curves = map(make_stub_treatment_curve, expected_sampled_quantity_names)
         stub_net_stage.TreatmentCurves.Items = stub_treatment_curves
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
-        assert_that(map(lambda c: c.display_name(), actual_curves), contains_exactly(*expected_curve_names))
+        assert_that(actual_curves.keys(), has_items(*expected_sampled_quantity_names))
+        assert_that(map(lambda c: c.sampled_quantity_name(), actual_curves.values()),
+                    has_items(*expected_sampled_quantity_names))
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from toolz.curried import map
+from toolz.curried import pipe, map, reduce, merge
 
 from orchid.measurement import Measurement
 from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
@@ -76,6 +76,14 @@ class NativeStageAdapter:
 
     def treatment_curves(self):
         if not self._adaptee.TreatmentCurves.Items:
-            return []
+            return {}
 
-        return map(NativeTreatmentCurveFacade, self._adaptee.TreatmentCurves.Items)
+        def add_curve(so_far, treatment_curve):
+            treatment_curve_map = {treatment_curve.sampled_quantity_name(): treatment_curve}
+            return merge(treatment_curve_map, so_far)
+
+        result = pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
+                      map(NativeTreatmentCurveFacade),  # wrap them in a facade
+                      # Transform the map to a dictionary keyed by the sampled quantity name
+                      lambda cs: reduce(add_curve, cs, {}))
+        return result
