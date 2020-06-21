@@ -12,8 +12,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from toolz.curried import partial
+import numpy as np
+import pandas as pd
+from toolz.curried import map, partial
 
+from orchid.net_quantity import as_datetime
 import orchid.project_units as opu
 
 
@@ -33,6 +36,13 @@ class NativeTreatmentCurveFacade:
         :return: The display name of this treatment curve.
         """
         return self._adaptee.DisplayName
+
+    def name(self) -> str:
+        """
+        Return the name for this treatment curve.
+        :return: The name of this treatment curve.
+        """
+        return self._adaptee.Name
 
     def sampled_quantity_name(self) -> str:
         """
@@ -55,3 +65,14 @@ class NativeTreatmentCurveFacade:
         :return: The suffix of this treatment curve.
         """
         return self._adaptee.Suffix
+
+    def time_series(self) -> pd.Series:
+        """
+        Return the suffix for this treatment curve.
+        :return: The suffix of this treatment curve.
+        """
+        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
+        samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
+        result = pd.Series(data=map(lambda s: s[1], samples), index=map(as_datetime, map(lambda s: s[0], samples)),
+                           name=self.name())
+        return result
