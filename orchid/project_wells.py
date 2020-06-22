@@ -144,7 +144,7 @@ class ProjectWells:
                              f' "{well_name}". Expected 1.')
         stage_of_interest = more_itertools.one(candidate_stages)
         net_treatment_curves = stage_of_interest.TreatmentCurves.Items
-        result = orchid.time_series.transform_net_treatment(net_treatment_curves)
+        result = orchid.time_series.deprecated_transform_net_treatment(net_treatment_curves)
         return result
 
     @staticmethod

@@ -29,7 +29,7 @@ def slurry_rate_unit(net_project):
     duration_abbreviation = \
         ('min'
          if (net_project.ProjectUnits.SlurryRateUnit.Item2 == UnitsNet.Units.DurationUnit.Minute)
-         else UnitsNet.Volume.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item2))
+         else UnitsNet.Duration.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item2))
     return f'{volume_abbreviation}/{duration_abbreviation}'
 
 

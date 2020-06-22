@@ -52,7 +52,7 @@ def transform_net_time_series(net_time_series, name=None) -> pd.Series:
 
 
 @deal.pre(lambda net_treatment_curve: net_treatment_curve is not None)
-def transform_net_treatment(net_treatment_curves):
+def deprecated_transform_net_treatment(net_treatment_curves):
     """
     Transform the (3) .NET treatment curves into a pandas DataFrame.
     :param net_treatment_curves: The sequence of .NET treatment curves

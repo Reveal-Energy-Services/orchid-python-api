@@ -18,8 +18,6 @@ from hamcrest import assert_that, equal_to, close_to
 import numpy as np
 from toolz.curried import *
 
-from orchid.time_series import transform_net_treatment
-
 
 @when('I query the stages for each well in the project')
 def step_impl(context):
@@ -30,8 +28,23 @@ def step_impl(context):
 
 
 def aggregate_stage_treatment(stage):
-    stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time(), stage.stop_time()])
-    # treatment_curves = transform_net_treatment(stage.treatment_curves())
+    # Ensure pressure, rate, concentration time series are present and have the same time basis.
+    # treatment_curves = stage.treatment_curves()
+    # expected_curves = {'Pressure', 'Slurry Rate', 'Proppant Concentration'}
+    # assert expected_curves.issubset(set(treatment_curves.keys())), \
+    #     f'Expected curves {expected_curves}. Found {list(treatment_curves.keys())}'
+    # (pressure_time_series, rate_time_series, concentration_time_series) = pipe(expected_curves,
+    #                                                                            map(lambda n: treatment_curves[n]),
+    #                                                                            map(lambda tc: tc.time_series()))
+    # assert (len(pressure_time_series) == len(rate_time_series) and
+    #         len(rate_time_series) == len(concentration_time_series)), f'Expected equal-length treatment curves.'
+    # # noinspection PyTypeChecker
+    # assert (all(pressure_time_series.index == rate_time_series.index) and
+    #         all(rate_time_series.index == concentration_time_series.index)), \
+    #     f'Expected treatment curves with same time basis.'
+    #
+    # stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time(), stage.stop_time()])
+
     return 0, 0, 0
 
 
