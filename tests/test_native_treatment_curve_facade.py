@@ -38,17 +38,17 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_display_name_from_treatment_curve(self):
         sut = create_sut(display_name='boni')
 
-        assert_that(sut.display_name(), equal_to('boni'))
+        assert_that(sut.display_name, equal_to('boni'))
 
     def test_name_from_treatment_curve(self):
         sut = create_sut(name='magnitudina')
 
-        assert_that(sut.name(), equal_to('magnitudina'))
+        assert_that(sut.name, equal_to('magnitudina'))
 
     def test_sampled_quantity_name_from_treatment_curve(self):
         sut = create_sut(sampled_quantity_name='proponeam')
 
-        assert_that(sut.sampled_quantity_name(), equal_to('proponeam'))
+        assert_that(sut.sampled_quantity_name, equal_to('proponeam'))
 
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
         for (unit, expected) in zip(('psi', 'kPa', 'MPa'), ('psi', 'kPa', 'MPa')):
@@ -74,7 +74,7 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_suffix_from_treatment_curve(self):
         sut = create_sut(suffix='hominibus')
 
-        assert_that(sut.suffix(), equal_to('hominibus'))
+        assert_that(sut.suffix, equal_to('hominibus'))
 
     def test_empty_time_series_from_curve_with_no_samples(self):
         values = []

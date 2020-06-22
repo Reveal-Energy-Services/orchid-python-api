@@ -79,7 +79,7 @@ class NativeStageAdapter:
             return {}
 
         def add_curve(so_far, treatment_curve):
-            treatment_curve_map = {treatment_curve.sampled_quantity_name(): treatment_curve}
+            treatment_curve_map = {treatment_curve.sampled_quantity_name: treatment_curve}
             return merge(treatment_curve_map, so_far)
 
         result = pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves

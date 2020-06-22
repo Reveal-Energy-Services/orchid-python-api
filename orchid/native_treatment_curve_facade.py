@@ -35,11 +35,14 @@ def _dom_property(attribute_name, docstring):
     # than I needed to apply `curry` to the "getter method" I also defined in the class in order to pass he
     # attribute name at definition time (because `self` was only available at run-time).
     def getter(self):
-        result = thread_last(attribute_name.split('_'),  # split the attribute name into words
-                             map(str.capitalize),  # capitalize each word
-                             lambda capitalized_pieces: ''.join(capitalized_pieces),  # concatenate words
-                             lambda capitalized: 'get_' + capitalized,  # convert to .NET get method for property
-                             partial(getattr, self._adaptee))  # look up this new attribute in the adaptee
+        # The function, `thread_last`, from `toolz.curried`, "splices" threads a value (the first argument)
+        # through each of the remaining functions as the *last* argument to each of these functions.
+        result_func = thread_last(attribute_name.split('_'),  # split the attribute name into words
+                                  map(str.capitalize),  # capitalize each word
+                                  lambda capitalized_pieces: ''.join(capitalized_pieces),  # concatenate words
+                                  lambda capitalized: 'get_' + capitalized,  # convert to .NET get method for property
+                                  partial(getattr, self._adaptee))  # look up this new attribute in the adaptee
+        result = result_func()
         return result
 
     # Ensure no setter for the DOM properties
@@ -66,7 +69,7 @@ class NativeTreatmentCurveFacade:
         Return the measurement unit of the samples in this treatment curve.
         :return: A string containing an abbreviation for the unit  of each sample in this treatment curve.
         """
-        result = self._sample_unit_func(self._quantity_name_physical_quantity_map[self.sampled_quantity_name()])
+        result = self._sample_unit_func(self._quantity_name_physical_quantity_map[self.sampled_quantity_name])
         return result
 
     def time_series(self) -> pd.Series:
@@ -77,5 +80,5 @@ class NativeTreatmentCurveFacade:
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
         result = pd.Series(data=map(lambda s: s[1], samples), index=map(as_datetime, map(lambda s: s[0], samples)),
-                           name=self.name())
+                           name=self.name)
         return result

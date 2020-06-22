@@ -109,7 +109,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), contains_exactly(expected_sampled_quantity_name))
-        assert_that(map(lambda c: c.sampled_quantity_name(), actual_curves.values()),
+        assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     contains_exactly(expected_sampled_quantity_name))
 
     def test_treatment_curves_many_curves(self):
@@ -129,7 +129,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), has_items(*expected_sampled_quantity_names))
-        assert_that(map(lambda c: c.sampled_quantity_name(), actual_curves.values()),
+        assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     has_items(*expected_sampled_quantity_names))
 
 
