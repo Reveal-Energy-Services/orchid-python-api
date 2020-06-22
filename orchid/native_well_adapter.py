@@ -16,6 +16,7 @@ from typing import Iterable
 
 # noinspection PyUnresolvedReferences
 import orchid
+import orchid.dot_net as odn
 import orchid.native_stage_adapter as nsa
 import orchid.native_trajectory_adapter as nta
 
@@ -32,19 +33,8 @@ class NativeWellAdapter:
         """
         self._adaptee = native_well
 
-    def name(self) -> str:
-        """
-        Returns the name of the adapted IWell
-        :return: The name of the adapted .NET well.
-        """
-        return self._adaptee.Name
-
-    def display_name(self) -> str:
-        """
-        Returns the display name of the adapted IWell
-        :return: The display name of the adapted .NET well.
-        """
-        return self._adaptee.DisplayName
+    name = odn.dom_property('name', 'The name of the adapted .NET well.')
+    display_name = odn.dom_property('display_name', 'The display name of the adapted .NET well.')
 
     def stages(self) -> Iterable[nsa.NativeStageAdapter]:
         """

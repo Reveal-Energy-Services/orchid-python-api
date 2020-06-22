@@ -32,18 +32,19 @@ class TestNativeWellAdapter(unittest.TestCase):
     def test_name(self):
         expected_well_name = 'sapientiarum'
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-        stub_native_well.Name = expected_well_name
+        stub_native_well.get_Name = unittest.mock.MagicMock(name='stub_get_name', return_value=expected_well_name)
         sut = nwa.NativeWellAdapter(stub_native_well)
 
-        assert_that(sut.name(), equal_to(expected_well_name))
+        assert_that(sut.name, equal_to(expected_well_name))
 
     def test_display_name(self):
         expected_well_display_name = 'agiles'
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-        stub_native_well.DisplayName = expected_well_display_name
+        stub_native_well.get_DisplayName = unittest.mock.MagicMock(
+            name='stub_get_display_name', return_value=expected_well_display_name)
         sut = nwa.NativeWellAdapter(stub_native_well)
 
-        assert_that(sut.display_name(), equal_to(expected_well_display_name))
+        assert_that(sut.display_name, equal_to(expected_well_display_name))
 
     def test_trajectory(self):
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')

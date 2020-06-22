@@ -52,7 +52,7 @@ def aggregate_stage_treatment(stage):
 def stage_treatment_details(project, well, stage):
     treatment_fluid_volume, treatment_proppant, median_treatment_pressure = aggregate_stage_treatment(stage)
     return {'project_name': project.name(),
-            'well_name': well.name(),
+            'well_name': well.name,
             'stage_number': stage.display_stage_number,
             'md_top': stage.md_top(project.unit('length')),
             'md_bottom': stage.md_bottom(project.unit('length')),
