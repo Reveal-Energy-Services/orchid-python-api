@@ -24,6 +24,10 @@ import orchid.native_trajectory_adapter as nta
 from Orchid.FractureDiagnostics import IWell
 
 
+def replace_no_uwi_with_text(uwi):
+    return uwi if uwi else 'No UWI'
+
+
 class NativeWellAdapter:
     """Adapts a native IWell to python."""
     def __init__(self, native_well: IWell):
@@ -35,6 +39,9 @@ class NativeWellAdapter:
 
     name = odn.dom_property('name', 'The name of the adapted .NET well.')
     display_name = odn.dom_property('display_name', 'The display name of the adapted .NET well.')
+    trajectory = odn.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
+                                              nta.NativeTrajectoryAdapter)
+    uwi = odn.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
     def stages(self) -> Iterable[nsa.NativeStageAdapter]:
         """
@@ -43,16 +50,9 @@ class NativeWellAdapter:
         """
         return map(nsa.NativeStageAdapter, self._adaptee.Stages.Items)
 
-    def trajectory(self) -> nta.NativeTrajectoryAdapter:
-        """
-        Returns the trajectory of the adapted IWell
-        :return: The trajectory of the adapted .NET well.
-        """
-        return nta.NativeTrajectoryAdapter(self._adaptee.Trajectory)
-
-    def uwi(self) -> str:
-        """
-        Returns the uwi of the adapted IWell
-        :return: The uwi of the adapted .NET well.
-        """
-        return self._adaptee.Uwi if self._adaptee.Uwi else 'No UWI'
+    # def trajectory(self) -> nta.NativeTrajectoryAdapter:
+    #     """
+    #     Returns the trajectory of the adapted IWell
+    #     :return: The trajectory of the adapted .NET well.
+    #     """
+    #     return nta.NativeTrajectoryAdapter(self._adaptee.Trajectory)

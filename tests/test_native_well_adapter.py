@@ -53,17 +53,17 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         # noinspection PyTypeChecker
-        assert_that(sut.trajectory(), instance_of(nta.NativeTrajectoryAdapter))
+        assert_that(sut.trajectory, instance_of(nta.NativeTrajectoryAdapter))
 
     def test_uwi(self):
         for uwi in ['01-325-88264-47-65', None]:
             with self.subTest(uwi=uwi):
                 expected_uwi = uwi
                 stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-                stub_native_well.Uwi = expected_uwi
+                stub_native_well.get_Uwi = unittest.mock.MagicMock(name='stub_get_uwi', return_value=expected_uwi)
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
-                assert_that(sut.uwi(), equal_to(expected_uwi if expected_uwi else 'No UWI'))
+                assert_that(sut.uwi, equal_to(expected_uwi if expected_uwi else 'No UWI'))
 
 
 if __name__ == '__main__':

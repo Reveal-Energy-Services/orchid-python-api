@@ -31,6 +31,8 @@ class NativeStageAdapter:
         self._adaptee = adaptee
 
     display_stage_number = odn.dom_property('display_stage_number', 'The display stage number for the stage.')
+    start_time = odn.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
+    stop_time = odn.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """
@@ -55,20 +57,6 @@ class NativeStageAdapter:
         md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
         result = as_measurement(md_top_quantity)
         return result
-
-    def start_time(self):
-        """
-        Calculate the start time of the treatment for this stage.
-        :return: The start time of the stage treatment.
-        """
-        return as_datetime(self._adaptee.StartTime)
-
-    def stop_time(self):
-        """
-        Calculate the stop time of the treatment for this stage.
-        :return: The stop time of the stage treatment.
-        """
-        return as_datetime(self._adaptee.StopTime)
 
     def treatment_curves(self):
         if not self._adaptee.TreatmentCurves.Items:

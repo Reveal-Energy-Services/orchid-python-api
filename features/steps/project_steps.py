@@ -67,7 +67,7 @@ def step_impl(context):
     :type context: behave.runner.Context
     """
     def actual_details_to_check(well):
-        return well.name, well.display_name, well.uwi()
+        return well.name, well.display_name, well.uwi
 
     def expected_details_to_check(row):
         return row['name'], row['display_name'], row['uwi']

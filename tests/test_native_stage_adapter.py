@@ -75,19 +75,21 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_start_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
-        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
+        stub_net_stage.get_StartTime = unittest.mock.MagicMock(name='stub_get_start_time',
+                                                               return_value=as_net_date_time(expected_start_time))
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        actual_start_time = sut.start_time()
+        actual_start_time = sut.start_time
         assert_that(actual_start_time, equal_to(expected_start_time))
 
     def test_stop_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000)
-        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
+        stub_net_stage.get_StopTime = unittest.mock.MagicMock(name='stub_get_stop_time',
+                                                              return_value=as_net_date_time(expected_stop_time))
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        actual_stop_time = sut.stop_time()
+        actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_treatment_curves_no_curves(self):
