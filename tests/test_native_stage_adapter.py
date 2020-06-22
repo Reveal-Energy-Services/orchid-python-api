@@ -102,6 +102,8 @@ class TestNativeStageAdapter(unittest.TestCase):
         expected_sampled_quantity_name = 'pulcher'
         stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
         stub_treatment_curve.SampledQuantityName = expected_sampled_quantity_name
+        stub_treatment_curve.get_SampledQuantityName = unittest.mock.MagicMock(
+            'stub_get_SampledQuantityName', return_value=expected_sampled_quantity_name)
         stub_net_stage.TreatmentCurves.Items = [stub_treatment_curve]
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -117,6 +119,8 @@ class TestNativeStageAdapter(unittest.TestCase):
         def make_stub_treatment_curve(name):
             stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
             stub_treatment_curve.SampledQuantityName = name
+            stub_treatment_curve.get_SampledQuantityName = unittest.mock.MagicMock('stub_get_SampledQuantityName',
+                                                                                   return_value=name)
             return stub_treatment_curve
 
         stub_treatment_curves = map(make_stub_treatment_curve, expected_sampled_quantity_names)
