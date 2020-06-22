@@ -38,10 +38,11 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_display_stage_number(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_display_stage_number = 11
-        stub_net_stage.DisplayStageNumber = expected_display_stage_number
+        stub_net_stage.get_DisplayStageNumber = unittest.mock.MagicMock(name='stub_display_stage_number',
+                                                                        return_value=expected_display_stage_number)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        assert_that(sut.display_stage_number(), equal_to(expected_display_stage_number))
+        assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
 
     def test_md_top(self):
         for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft')),

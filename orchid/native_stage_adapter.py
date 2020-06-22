@@ -14,6 +14,7 @@
 
 from toolz.curried import pipe, map, reduce, merge
 
+import orchid.dot_net as odn
 from orchid.measurement import Measurement
 from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
@@ -29,12 +30,7 @@ class NativeStageAdapter:
         """
         self._adaptee = adaptee
 
-    def display_stage_number(self):
-        """
-        Determine the stage number for display purposes.
-        :return: The display stage number for the adapted .NET IStage.
-        """
-        return self._adaptee.DisplayStageNumber
+    display_stage_number = odn.dom_property('display_stage_number', 'The display stage number for the stage.')
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """
