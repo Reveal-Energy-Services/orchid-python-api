@@ -15,7 +15,8 @@
 from behave import *
 use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
-from toolz.curried import *
+import numpy as np
+import toolz.curried as toolz
 
 
 @when('I query the stages for each well in the project')
@@ -28,26 +29,28 @@ def step_impl(context):
 
 def aggregate_stage_treatment(stage):
     # Ensure pressure, rate, concentration time series are present and have the same time basis.
-    # treatment_curves = stage.treatment_curves()
-    # expected_curves = {'Pressure', 'Slurry Rate', 'Proppant Concentration'}
-    # assert expected_curves.issubset(set(treatment_curves.keys())), \
-    #     f'Expected curves {expected_curves}. Found {list(treatment_curves.keys())}'
-    # (pressure_time_series, rate_time_series, concentration_time_series) = pipe(expected_curves,
-    #                                                                            map(lambda n: treatment_curves[n]),
-    #                                                                            map(lambda tc: tc.time_series()))
-    # assert (len(pressure_time_series) == len(rate_time_series) and
-    #         len(rate_time_series) == len(concentration_time_series)), f'Expected equal-length treatment curves.'
-    # # noinspection PyTypeChecker
-    # assert (all(pressure_time_series.index == rate_time_series.index) and
-    #         all(rate_time_series.index == concentration_time_series.index)), \
-    #     f'Expected treatment curves with same time basis.'
-    #
-    # stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time(), stage.stop_time()])
+    treatment_curves = stage.treatment_curves()
+    expected_curves = {'Pressure', 'Slurry Rate', 'Proppant Concentration'}
+    assert expected_curves.issubset(set(treatment_curves.keys())), \
+        f'Expected curves {expected_curves}. Found {list(treatment_curves.keys())}' \
+        f' for stage number: {stage.display_stage_number()}'
+    (pressure_time_series, rate_time_series,
+     concentration_time_series) = toolz.pipe(expected_curves,
+                                             toolz.map(lambda n: treatment_curves[n]),
+                                             toolz.map(lambda tc: tc.time_series()))
+    assert (len(pressure_time_series) == len(rate_time_series) and
+            len(rate_time_series) == len(concentration_time_series)), f'Expected equal-length treatment curves.'
+    # noinspection PyTypeChecker
+    assert (all(pressure_time_series.index == rate_time_series.index) and
+            all(rate_time_series.index == concentration_time_series.index)), \
+        f'Expected treatment curves with same time basis.'
+
+    stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time, stage.stop_time])
 
     return 0, 0, 0
 
 
-@curry
+@toolz.curry
 def stage_treatment_details(project, well, stage):
     treatment_fluid_volume, treatment_proppant, median_treatment_pressure = aggregate_stage_treatment(stage)
     return {'project_name': project.name,
@@ -60,13 +63,24 @@ def stage_treatment_details(project, well, stage):
             'median_treating_pressure': median_treatment_pressure}
 
 
+def has_single_stage(well_stage_pair):
+    # Since stages, the second argument to this function, is actually a map, once it is completely iterated,
+    # it no longer produces items. This behavior is one of the breaking changes introduced in Python 3. (See
+    # https://stackoverflow.com/questions/21715268/list-returned-by-map-function-disappears-after-one-use#:~:text=In%20Python%203%2C%20map%20returns,as%20though%20it%20were%20empty.&text=If%20you%20need%20to%20use,list%20instead%20of%20an%20iterator.)
+    # Since an iterator *does not* support `len`, I must use the following code to determine if I have a
+    # single stage.
+    well, _ = well_stage_pair
+    return toolz.count(well.stages) == 1
+
+
 @when("I calculate the total fluid volume, proppant, and median treating pressure for each stage")
 def step_impl(context):
     """
     :type context: behave.runner.Context
     """
     details = []
-    for well, stages in context.stages_for_wells:
+    # The filter in the following code is based on a heuristic for
+    for well, stages in toolz.filter(toolz.complement(has_single_stage), context.stages_for_wells):
         details.extend(map(stage_treatment_details(context.project, well), stages))
     context.stage_treatment_details = details
 
