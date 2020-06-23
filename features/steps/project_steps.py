@@ -41,7 +41,7 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.actual_project_name = context.project.name()
+    context.actual_project_name = context.project.name
 
 
 @then('I see the text "{expected_project_name}"')
@@ -58,7 +58,7 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.actual_wells = context.project.wells()
+    context.actual_wells = context.project.wells
 
 
 @then("I see the well information")

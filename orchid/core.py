@@ -126,7 +126,7 @@ def plot_trajectories(ifrac_pathname: str) -> None:
         plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
                  label=f'{project_wells.well_display_name(well_ids[i])}',
                  color=default_well_colors[i % len(default_well_colors)])
-    plt.title(f'{project.name()} Well Trajectories (Project Coordinates)')
+    plt.title(f'{project.name} Well Trajectories (Project Coordinates)')
     plt.legend(loc='best')
     plt.xlabel(f'Easting ({project.unit("length")})')
     plt.ylabel(f'Northing ({project.unit("length")})')
