@@ -24,6 +24,7 @@ more-itertools = "*"
 pyyaml = "*"
 pandas = "*"
 typing-extensions = "*"
+toolz = "*"
 
 [requires]
 python_version = "3.7"
