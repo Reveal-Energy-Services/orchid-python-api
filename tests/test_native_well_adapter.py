@@ -16,6 +16,7 @@ import unittest.mock
 
 from hamcrest import assert_that, equal_to, instance_of
 
+import orchid.native_stage_adapter as nsa
 import orchid.native_trajectory_adapter as nta
 import orchid.native_well_adapter as nwa
 
@@ -45,6 +46,29 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
+
+    def test_stages_length_if_different_net_stages_length(self):
+        for expected_stages in [[], ['one'], ['one', 'two', 'three']]:
+            with self.subTest(expected_stages=expected_stages):
+                stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+                expected_stages = []
+                stub_native_well.get_Stages.get_Items = unittest.mock.MagicMock(name='stub_get_items',
+                                                                                return_value=expected_stages)
+                sut = nwa.NativeWellAdapter(stub_native_well)
+
+                assert_that(len(list(sut.stages)), equal_to(len(expected_stages)))
+
+    def test_stages_returns_correct_wrapper(self):
+        for expected_stages in [['one'], ['one', 'two', 'three']]:
+            with self.subTest(expected_stages=expected_stages):
+                stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+                expected_stages = []
+                stub_native_well.get_Stages.get_Items = unittest.mock.MagicMock(name='stub_get_items',
+                                                                                return_value=expected_stages)
+                sut = nwa.NativeWellAdapter(stub_native_well)
+
+                for actual in list(sut.stages):
+                    assert_that(actual, instance_of(nsa.NativeStageAdapter))
 
     def test_trajectory(self):
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')

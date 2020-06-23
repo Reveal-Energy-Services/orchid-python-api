@@ -24,7 +24,7 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.stages_for_wells = [(w, w.stages()) for w in context.project.wells()]
+    context.stages_for_wells = [(w, w.stages) for w in context.project.wells()]
 
 
 def aggregate_stage_treatment(stage):
