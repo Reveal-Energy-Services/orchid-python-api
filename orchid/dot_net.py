@@ -66,9 +66,9 @@ def prepare_imports() -> None:
 
 def dom_property(attribute_name, docstring):
     """
-    Return the property of the DOM corresponding to `attribute_name` with doc string, `docstring`.
+    Return the property of the DOM corresponding to `attribute_name` with doc string.
     :param attribute_name: The name of the original attribute.
-    :param docstring: The doc string to be attached to the resultant property.
+    :param docstring: The doc string to be attached to the resulting property.
     :return: The property value from the DOM.
     """
 
@@ -82,13 +82,11 @@ def dom_property(attribute_name, docstring):
     def getter(self):
         # The function, `thread_last`, from `toolz.curried`, "splices" threads a value (the first argument)
         # through each of the remaining functions as the *last* argument to each of these functions.
-        result_func = toolz.thread_last(
+        result = toolz.thread_last(
             attribute_name.split('_'),  # split the attribute name into words
             toolz.map(str.capitalize),  # capitalize each word
             lambda capitalized_pieces: ''.join(capitalized_pieces),  # concatenate words
-            lambda capitalized: 'get_' + capitalized,  # convert to .NET get method for property
             toolz.partial(getattr, self._adaptee))  # look up this new attribute in the adaptee
-        result = result_func()
         return result
 
     # Ensure no setter for the DOM properties
@@ -97,9 +95,9 @@ def dom_property(attribute_name, docstring):
 
 def transformed_dom_property(attribute_name, docstring, transformer):
     """
-    Return the transformed property of the DOM corresponding to `attribute_name` with doc string, `docstring`.
+    Return the transformed property of the DOM corresponding to `attribute_name`.
     :param attribute_name: The name of the original attribute.
-    :param docstring: The doc string to be attached to the resultant property.
+    :param docstring: The doc string to be attached to the resulting property.
     :param transformer: A callable invoked on the value returned by the .NET DOM property.
     :return: The transformed property value from the DOM.
     """
@@ -114,13 +112,12 @@ def transformed_dom_property(attribute_name, docstring, transformer):
     def getter(self):
         # The function, `thread_last`, from `toolz.curried`, "splices" threads a value (the first argument)
         # through each of the remaining functions as the *last* argument to each of these functions.
-        result_func = toolz.thread_last(
+        raw_result = toolz.thread_last(
             attribute_name.split('_'),  # split the attribute name into words
             toolz.map(str.capitalize),  # capitalize each word
             lambda capitalized_pieces: ''.join(capitalized_pieces),  # concatenate words
-            lambda capitalized: 'get_' + capitalized,  # convert to .NET get method for property
             toolz.partial(getattr, self._adaptee))  # look up this new attribute in the adaptee
-        result = transformer(result_func())
+        result = transformer(raw_result)
         return result
 
     # Ensure no setter for the DOM properties
@@ -146,13 +143,11 @@ def transformed_dom_property_iterator(attribute_name, docstring, transformer):
     def getter(self):
         # The function, `thread_last`, from `toolz.curried`, "splices" threads a value (the first argument)
         # through each of the remaining functions as the *last* argument to each of these functions.
-        container_func = toolz.thread_last(
+        container = toolz.thread_last(
             attribute_name.split('_'),  # split the attribute name into words
             toolz.map(str.capitalize),  # capitalize each word
             lambda capitalized_pieces: ''.join(capitalized_pieces),  # concatenate words
-            lambda capitalized: 'get_' + capitalized,  # convert to .NET get method for property
             toolz.partial(getattr, self._adaptee))  # look up this new attribute in the adaptee
-        container = container_func()
         result = toolz.map(transformer, container.Items)
         return result
 

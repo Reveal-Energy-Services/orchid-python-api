@@ -33,7 +33,7 @@ class TestNativeWellAdapter(unittest.TestCase):
     def test_name(self):
         expected_well_name = 'sapientiarum'
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-        stub_native_well.get_Name = unittest.mock.MagicMock(name='stub_get_name', return_value=expected_well_name)
+        stub_native_well.Name = expected_well_name
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         assert_that(sut.name, equal_to(expected_well_name))
@@ -41,8 +41,7 @@ class TestNativeWellAdapter(unittest.TestCase):
     def test_display_name(self):
         expected_well_display_name = 'agiles'
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-        stub_native_well.get_DisplayName = unittest.mock.MagicMock(
-            name='stub_get_display_name', return_value=expected_well_display_name)
+        stub_native_well.DisplayName = expected_well_display_name
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
@@ -52,8 +51,6 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(expected_stages=expected_stages):
                 stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
                 expected_stages = []
-                stub_native_well.get_Stages.get_Items = unittest.mock.MagicMock(name='stub_get_items',
-                                                                                return_value=expected_stages)
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 assert_that(len(list(sut.stages)), equal_to(len(expected_stages)))
@@ -63,8 +60,7 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(expected_stages=expected_stages):
                 stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
                 expected_stages = []
-                stub_native_well.get_Stages.get_Items = unittest.mock.MagicMock(name='stub_get_items',
-                                                                                return_value=expected_stages)
+                stub_native_well.Stages.Items = expected_stages
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 for actual in list(sut.stages):
@@ -84,7 +80,7 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(uwi=uwi):
                 expected_uwi = uwi
                 stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-                stub_native_well.get_Uwi = unittest.mock.MagicMock(name='stub_get_uwi', return_value=expected_uwi)
+                stub_native_well.Uwi = expected_uwi
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 assert_that(sut.uwi, equal_to(expected_uwi if expected_uwi else 'No UWI'))

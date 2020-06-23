@@ -195,7 +195,6 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_well.Uwi = uwis[i] if uwis else None
         stub_well.DisplayName = well_display_names[i] if well_display_names else None
         stub_well.Name = well_names[i]
-        stub_well.get_Name = unittest.mock.MagicMock(name='stub_get_name', return_value=well_names[i])
 
         # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
         # (https://github.com/pythonnet/pythonnet/issues/253).

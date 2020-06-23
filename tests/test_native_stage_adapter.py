@@ -38,8 +38,7 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_display_stage_number(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_display_stage_number = 11
-        stub_net_stage.get_DisplayStageNumber = unittest.mock.MagicMock(name='stub_display_stage_number',
-                                                                        return_value=expected_display_stage_number)
+        stub_net_stage.DisplayStageNumber = expected_display_stage_number
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
@@ -75,8 +74,7 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_start_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
-        stub_net_stage.get_StartTime = unittest.mock.MagicMock(name='stub_get_start_time',
-                                                               return_value=as_net_date_time(expected_start_time))
+        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_start_time = sut.start_time
@@ -85,8 +83,7 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_stop_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000)
-        stub_net_stage.get_StopTime = unittest.mock.MagicMock(name='stub_get_stop_time',
-                                                              return_value=as_net_date_time(expected_stop_time))
+        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_stop_time = sut.stop_time
@@ -105,8 +102,6 @@ class TestNativeStageAdapter(unittest.TestCase):
         expected_sampled_quantity_name = 'pulcher'
         stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
         stub_treatment_curve.SampledQuantityName = expected_sampled_quantity_name
-        stub_treatment_curve.get_SampledQuantityName = unittest.mock.MagicMock(
-            'stub_get_SampledQuantityName', return_value=expected_sampled_quantity_name)
         stub_net_stage.TreatmentCurves.Items = [stub_treatment_curve]
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -122,8 +117,6 @@ class TestNativeStageAdapter(unittest.TestCase):
         def make_stub_treatment_curve(name):
             stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
             stub_treatment_curve.SampledQuantityName = name
-            stub_treatment_curve.get_SampledQuantityName = unittest.mock.MagicMock('stub_get_SampledQuantityName',
-                                                                                   return_value=name)
             return stub_treatment_curve
 
         stub_treatment_curves = map(make_stub_treatment_curve, expected_sampled_quantity_names)

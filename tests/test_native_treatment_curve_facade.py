@@ -112,15 +112,9 @@ def create_sut(name='', display_name='', sampled_quantity_name='', suffix='',
     stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
                                                        spec=IStageSampledQuantityTimeSeries)
     stub_net_treatment_curve.Name = name
-    stub_net_treatment_curve.get_Name = unittest.mock.MagicMock('stub_get_Name', return_value=name)
     stub_net_treatment_curve.DisplayName = display_name
-    stub_net_treatment_curve.get_DisplayName = unittest.mock.MagicMock('stub_get_DisplayName',
-                                                                       return_value=display_name)
     stub_net_treatment_curve.SampledQuantityName = sampled_quantity_name
-    stub_net_treatment_curve.get_SampledQuantityName = unittest.mock.MagicMock('stub_get_SampledQuantityName',
-                                                                               return_value=sampled_quantity_name)
     stub_net_treatment_curve.Suffix = suffix
-    stub_net_treatment_curve.get_Suffix = unittest.mock.MagicMock('stub_get_Suffix', return_value=suffix)
 
     actual_values = values if values else []
     time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(actual_values))]
