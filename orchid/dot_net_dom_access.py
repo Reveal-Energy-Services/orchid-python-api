@@ -24,7 +24,7 @@ import toolz.curried as toolz
 # attribute name at definition time (because `self` was only available at run-time).
 
 
-def get_dot_not_property_value(attribute_name, dom_object):
+def get_dot_net_property_value(attribute_name, dom_object):
     """
     Return the value of the DOM property whose name corresponds to `attribute_name`.
     :param attribute_name: The Python `attribute_name`.
@@ -63,7 +63,7 @@ def dom_property(attribute_name, docstring):
     :return: The Python property wrapping the value of the DOM property.
     """
     def getter(self):
-        result = get_dot_not_property_value(attribute_name, self._adaptee)
+        result = get_dot_net_property_value(attribute_name, self._adaptee)
         return result
 
     # Ensure no setter for the DOM properties
@@ -79,7 +79,7 @@ def transformed_dom_property(attribute_name, docstring, transformer):
     :return: The Python property wrapping the transformed value of the DOM property.
     """
     def getter(self):
-        raw_result = get_dot_not_property_value(attribute_name, self._adaptee)
+        raw_result = get_dot_net_property_value(attribute_name, self._adaptee)
         result = transformer(raw_result)
         return result
 
@@ -96,7 +96,7 @@ def transformed_dom_property_iterator(attribute_name, docstring, transformer):
     :return: The Python property wrapping a Python iterator mapping values from the DOM property (collection) items.
     """
     def getter(self):
-        container = get_dot_not_property_value(attribute_name, self._adaptee)
+        container = get_dot_net_property_value(attribute_name, self._adaptee)
         result = toolz.map(transformer, container.Items)
         return result
 
