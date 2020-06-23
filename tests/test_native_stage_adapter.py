@@ -41,7 +41,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         stub_net_stage.DisplayStageNumber = expected_display_stage_number
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        assert_that(sut.display_stage_number(), equal_to(expected_display_stage_number))
+        assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
 
     def test_md_top(self):
         for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft')),
@@ -77,7 +77,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         stub_net_stage.StartTime = as_net_date_time(expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        actual_start_time = sut.start_time()
+        actual_start_time = sut.start_time
         assert_that(actual_start_time, equal_to(expected_start_time))
 
     def test_stop_time(self):
@@ -86,7 +86,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        actual_stop_time = sut.stop_time()
+        actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_treatment_curves_no_curves(self):
@@ -107,7 +107,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), contains_exactly(expected_sampled_quantity_name))
-        assert_that(map(lambda c: c.sampled_quantity_name(), actual_curves.values()),
+        assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     contains_exactly(expected_sampled_quantity_name))
 
     def test_treatment_curves_many_curves(self):
@@ -125,7 +125,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), has_items(*expected_sampled_quantity_names))
-        assert_that(map(lambda c: c.sampled_quantity_name(), actual_curves.values()),
+        assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     has_items(*expected_sampled_quantity_names))
 
 

@@ -28,7 +28,7 @@ def step_impl(context, well_name):
     actual_wells = context.project.wells_by_name(well_name)
     assert_that(actual_wells, has_length(1))
     actual_well = actual_wells[0]
-    context.trajectory = actual_well.trajectory()
+    context.trajectory = actual_well.trajectory
 
 
 @when('I query the easting and northing arrays in the project reference frame in project units')

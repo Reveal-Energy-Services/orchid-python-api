@@ -97,4 +97,4 @@ class Project:
         :return: A list of all the wells in this project.
         """
         return [w for w in list(map(NativeWellAdapter, self._project_loader.native_project().Wells.Items)) if
-                name == w.name()]
+                name == w.name]

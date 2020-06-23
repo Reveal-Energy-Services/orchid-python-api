@@ -12,15 +12,18 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from typing import Iterable
-
 # noinspection PyUnresolvedReferences
 import orchid
+import orchid.dot_net_dom_access as dna
 import orchid.native_stage_adapter as nsa
 import orchid.native_trajectory_adapter as nta
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
+
+
+def replace_no_uwi_with_text(uwi):
+    return uwi if uwi else 'No UWI'
 
 
 class NativeWellAdapter:
@@ -32,37 +35,10 @@ class NativeWellAdapter:
         """
         self._adaptee = native_well
 
-    def name(self) -> str:
-        """
-        Returns the name of the adapted IWell
-        :return: The name of the adapted .NET well.
-        """
-        return self._adaptee.Name
-
-    def display_name(self) -> str:
-        """
-        Returns the display name of the adapted IWell
-        :return: The display name of the adapted .NET well.
-        """
-        return self._adaptee.DisplayName
-
-    def stages(self) -> Iterable[nsa.NativeStageAdapter]:
-        """
-        Return an iterator of NativeStageAdapters
-        :return: An iterator over the NativeStageAdapters.
-        """
-        return map(nsa.NativeStageAdapter, self._adaptee.Stages.Items)
-
-    def trajectory(self) -> nta.NativeTrajectoryAdapter:
-        """
-        Returns the trajectory of the adapted IWell
-        :return: The trajectory of the adapted .NET well.
-        """
-        return nta.NativeTrajectoryAdapter(self._adaptee.Trajectory)
-
-    def uwi(self) -> str:
-        """
-        Returns the uwi of the adapted IWell
-        :return: The uwi of the adapted .NET well.
-        """
-        return self._adaptee.Uwi if self._adaptee.Uwi else 'No UWI'
+    name = dna.dom_property('name', 'The name of the adapted .NET well.')
+    display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
+    stages = dna.transformed_dom_property_iterator('stages', 'An iterator over the NativeStageAdapters.',
+                                                   nsa.NativeStageAdapter)
+    trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
+                                              nta.NativeTrajectoryAdapter)
+    uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)

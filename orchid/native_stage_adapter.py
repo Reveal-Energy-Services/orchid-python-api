@@ -14,6 +14,7 @@
 
 from toolz.curried import pipe, map, reduce, merge
 
+import orchid.dot_net_dom_access as dna
 from orchid.measurement import Measurement
 from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
@@ -29,12 +30,9 @@ class NativeStageAdapter:
         """
         self._adaptee = adaptee
 
-    def display_stage_number(self):
-        """
-        Determine the stage number for display purposes.
-        :return: The display stage number for the adapted .NET IStage.
-        """
-        return self._adaptee.DisplayStageNumber
+    display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
+    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
+    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """
@@ -60,26 +58,12 @@ class NativeStageAdapter:
         result = as_measurement(md_top_quantity)
         return result
 
-    def start_time(self):
-        """
-        Calculate the start time of the treatment for this stage.
-        :return: The start time of the stage treatment.
-        """
-        return as_datetime(self._adaptee.StartTime)
-
-    def stop_time(self):
-        """
-        Calculate the stop time of the treatment for this stage.
-        :return: The stop time of the stage treatment.
-        """
-        return as_datetime(self._adaptee.StopTime)
-
     def treatment_curves(self):
         if not self._adaptee.TreatmentCurves.Items:
             return {}
 
         def add_curve(so_far, treatment_curve):
-            treatment_curve_map = {treatment_curve.sampled_quantity_name(): treatment_curve}
+            treatment_curve_map = {treatment_curve.sampled_quantity_name: treatment_curve}
             return merge(treatment_curve_map, so_far)
 
         result = pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
