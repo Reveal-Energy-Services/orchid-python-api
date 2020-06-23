@@ -15,7 +15,7 @@
 import pandas as pd
 from toolz.curried import map, partial
 
-import orchid.dot_net as odn
+import orchid.dot_net_dom_access as dna
 from orchid.net_quantity import as_datetime
 import orchid.project_units as opu
 
@@ -29,11 +29,11 @@ class NativeTreatmentCurveFacade:
         # noinspection PyArgumentList
         self._sample_unit_func = partial(opu.unit, net_treatment_curve.Stage.Well.Project)
 
-    display_name = odn.dom_property('display_name', 'Return the display name for this treatment curve.')
-    name = odn.dom_property('name', 'Return the name for this treatment curve.')
-    sampled_quantity_name = odn.dom_property('sampled_quantity_name',
+    display_name = dna.dom_property('display_name', 'Return the display name for this treatment curve.')
+    name = dna.dom_property('name', 'Return the name for this treatment curve.')
+    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
                                              'Return the sampled quantity name for this treatment curve.')
-    suffix = odn.dom_property('suffix', 'Return the suffix for this treatment curve.')
+    suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
     def sampled_quantity_unit(self) -> str:
         """

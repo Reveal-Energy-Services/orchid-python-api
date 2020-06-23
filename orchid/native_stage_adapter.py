@@ -14,7 +14,7 @@
 
 from toolz.curried import pipe, map, reduce, merge
 
-import orchid.dot_net as odn
+import orchid.dot_net_dom_access as dna
 from orchid.measurement import Measurement
 from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
@@ -30,9 +30,9 @@ class NativeStageAdapter:
         """
         self._adaptee = adaptee
 
-    display_stage_number = odn.dom_property('display_stage_number', 'The display stage number for the stage.')
-    start_time = odn.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
-    stop_time = odn.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
+    display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
+    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
+    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """

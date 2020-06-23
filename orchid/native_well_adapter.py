@@ -14,7 +14,7 @@
 
 # noinspection PyUnresolvedReferences
 import orchid
-import orchid.dot_net as odn
+import orchid.dot_net_dom_access as dna
 import orchid.native_stage_adapter as nsa
 import orchid.native_trajectory_adapter as nta
 
@@ -35,10 +35,10 @@ class NativeWellAdapter:
         """
         self._adaptee = native_well
 
-    name = odn.dom_property('name', 'The name of the adapted .NET well.')
-    display_name = odn.dom_property('display_name', 'The display name of the adapted .NET well.')
-    stages = odn.transformed_dom_property_iterator('stages', 'An iterator over the NativeStageAdapters.',
+    name = dna.dom_property('name', 'The name of the adapted .NET well.')
+    display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
+    stages = dna.transformed_dom_property_iterator('stages', 'An iterator over the NativeStageAdapters.',
                                                    nsa.NativeStageAdapter)
-    trajectory = odn.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
+    trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
                                               nta.NativeTrajectoryAdapter)
-    uwi = odn.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
+    uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
