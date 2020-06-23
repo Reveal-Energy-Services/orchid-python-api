@@ -20,15 +20,8 @@ from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
 
 
-class NativeStageAdapter:
+class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
-
-    def __init__(self, adaptee):
-        """
-        Construct an instance adapting a .NET IStage.
-        :param adaptee: The IStage instance to adapt.
-        """
-        self._adaptee = adaptee
 
     display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)

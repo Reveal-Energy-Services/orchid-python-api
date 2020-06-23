@@ -19,10 +19,17 @@ import orchid.dot_net_dom_access as dna
 from orchid.net_quantity import as_datetime
 import orchid.project_units as opu
 
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries
 
-class NativeTreatmentCurveFacade:
-    def __init__(self, net_treatment_curve):
-        self._adaptee = net_treatment_curve
+
+class NativeTreatmentCurveFacade(dna.DotNetAdapter):
+    def __init__(self, net_treatment_curve: IStageSampledQuantityTimeSeries):
+        """
+        Constructs an instance adapting a .NET IStageSampledQuantityTimeSeries.
+        :param net_treatment_curve: The .NET stage time series to be adapted.
+        """
+        super().__init__(net_treatment_curve)
         self._quantity_name_physical_quantity_map = {'Pressure': 'pressure',
                                                      'Slurry Rate': 'slurry rate',
                                                      'Proppant Concentration': 'proppant concentration'}

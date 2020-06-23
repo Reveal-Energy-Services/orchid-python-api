@@ -29,24 +29,24 @@ class TestProject(unittest.TestCase):
     def test_project_name(self):
         stub_native_project = create_stub_net_project(name='commodorum')
         sut = create_sut(stub_native_project)
-        assert_that(sut.name(), equal_to('commodorum'))
+        assert_that(sut.name, equal_to('commodorum'))
 
     def test_project_wells_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
-        assert_that(sut.wells(), contains_exactly())
+        assert_that(sut.wells, contains_exactly())
 
     def test_project_wells_if_one_well(self):
         expected_well_names = ['clunibus']
         stub_native_project = create_stub_net_project(name='exsistet', well_names=expected_well_names)
         sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells()), contains_exactly(*expected_well_names))
+        assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
 
     def test_project_wells_if_many_wells(self):
         expected_well_names = ['cordam', 'turbibus', 'collaris']
         stub_native_project = create_stub_net_project(name='exsistet', well_names=expected_well_names)
         sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells()), contains_exactly(*expected_well_names))
+        assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
 
     def test_project_wells_by_name_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')

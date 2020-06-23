@@ -15,7 +15,9 @@
 from typing import List, Tuple, Iterable
 
 import deal
+import toolz.curried as toolz
 
+import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
@@ -28,7 +30,7 @@ from Orchid.FractureDiagnostics import IWell
 import UnitsNet
 
 
-class Project:
+class Project(dna.DotNetAdapter):
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
     @deal.pre(lambda self, project_loader: project_loader is not None)
@@ -38,9 +40,14 @@ class Project:
 
         :param project_loader: Loads an IProject to be adapted.
         """
+        super().__init__(project_loader.native_project())
         self._project_loader = project_loader
         self._are_well_loaded = False
         self._wells = []
+
+    name = dna.dom_property('name', 'The name of this project.')
+    wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
+                                                  NativeWellAdapter)
 
     def all_wells(self):
         """
@@ -67,14 +74,6 @@ class Project:
         result = ProjectMonitorPressureCurves(self._project_loader)
         return result
 
-    def name(self):
-        """
-        Return the name of the project of interest.
-
-        :return:  The name of this project.
-        """
-        return self._project_loader.native_project().Name
-
     def unit(self, physical_quantity):
         """
         Return the abbreviation for the specified `physical_quantity` of this project.
@@ -83,18 +82,10 @@ class Project:
         """
         return project_units.unit(self._project_loader.native_project(), physical_quantity)
 
-    def wells(self) -> Iterable[IWell]:
-        """
-        Return all the wells in this project.
-        :return: A list of all the wells in this project.
-        """
-        return map(NativeWellAdapter, self._project_loader.native_project().Wells.Items)
-
     def wells_by_name(self, name) -> Iterable[IWell]:
         """
         Return all the wells in this project with the specified name.
         :param name: The name of the well(s) of interest.
         :return: A list of all the wells in this project.
         """
-        return [w for w in list(map(NativeWellAdapter, self._project_loader.native_project().Wells.Items)) if
-                name == w.name]
+        return toolz.filter(lambda w: name == w.name, self.wells)

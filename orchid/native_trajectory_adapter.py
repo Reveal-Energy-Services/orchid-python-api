@@ -16,17 +16,22 @@ import deal
 import numpy as np
 
 import orchid.validation
+import orchid.dot_net_dom_access as dna
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import (WellReferenceFrameXy, DepthDatum, IWell)
+from Orchid.FractureDiagnostics import (IWellTrajectory, WellReferenceFrameXy, DepthDatum, IWell)
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 
-class NativeTrajectoryAdapter:
-    def __init__(self, native_trajectory):
-        self._adaptee = native_trajectory
+class NativeTrajectoryAdapter(dna.DotNetAdapter):
+    def __init__(self, net_trajectory: IWellTrajectory):
+        """
+        Constructs an instance adapting a .NET IWellTrajectory.
+        :param net_trajectory: The .NET stage time series to be adapted.
+        """
+        super().__init__(net_trajectory)
         self._reference_frame_text_net_map = {'absolute': WellReferenceFrameXy.AbsoluteStatePlane,
                                               'project': WellReferenceFrameXy.Project,
                                               'well_head': WellReferenceFrameXy.WellHead}

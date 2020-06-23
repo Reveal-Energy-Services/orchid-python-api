@@ -16,7 +16,7 @@ from behave import *
 use_step_matcher("parse")
 import numpy as np
 
-from hamcrest import assert_that, equal_to, has_length
+from hamcrest import assert_that, has_length
 
 
 @when('I query the trajectory for well "{well_name}"')
@@ -25,7 +25,8 @@ def step_impl(context, well_name):
     :param well_name: Name of the well of interest
     :type context: behave.runner.Context
     """
-    actual_wells = context.project.wells_by_name(well_name)
+    actual_wells = list(context.project.wells_by_name(well_name))
+    # noinspection PyTypeChecker
     assert_that(actual_wells, has_length(1))
     actual_well = actual_wells[0]
     context.trajectory = actual_well.trajectory
