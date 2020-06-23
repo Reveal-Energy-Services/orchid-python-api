@@ -26,14 +26,14 @@ def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
 
 
-class NativeWellAdapter:
+class NativeWellAdapter(dna.DotNetAdapter):
     """Adapts a native IWell to python."""
-    def __init__(self, native_well: IWell):
+    def __init__(self, net_well: IWell):
         """
         Constructs an instance adapting a .NET IWell.
-        :param native_well: The .NET well to be adapted.
+        :param net_well: The .NET well to be adapted.
         """
-        self._adaptee = native_well
+        super().__init__(net_well)
 
     name = dna.dom_property('name', 'The name of the adapted .NET well.')
     display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
