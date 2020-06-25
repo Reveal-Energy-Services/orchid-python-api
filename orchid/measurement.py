@@ -18,7 +18,6 @@ import collections
 import numbers
 
 import deal
-import numpy as np
 
 
 Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], module=__name__)
@@ -28,11 +27,9 @@ def argument_neither_none_empty_nor_all_whitespace(arg):
     return (arg is not None) and (len(arg.strip()) > 0)
 
 
-@deal.pre(lambda values, _source_unit, _target_unit: values is not None)
-@deal.pre(lambda values, _source_unit, _target_unit: issubclass(values.dtype.type, numbers.Real))
-@deal.pre(lambda _values, source_unit, _target_unit: argument_neither_none_empty_nor_all_whitespace(source_unit))
-@deal.pre(lambda _values, _source_unit, target_unit: argument_neither_none_empty_nor_all_whitespace(target_unit))
-def convert_np_values(values: np.ndarray, source_unit, target_unit):
+@deal.pre(lambda source_unit, _target_unit: argument_neither_none_empty_nor_all_whitespace(source_unit))
+@deal.pre(lambda _source_unit, target_unit: argument_neither_none_empty_nor_all_whitespace(target_unit))
+def get_conversion_factor(source_unit, target_unit):
     def validate_unit(candidate, all_valid, name):
         if candidate not in all_valid:
             raise ValueError(f'{name.capitalize()} unit, "{candidate}", unrecognized.')
@@ -42,7 +39,7 @@ def convert_np_values(values: np.ndarray, source_unit, target_unit):
 
     if ((source_unit == 'bbl/min' and target_unit == 'bbl/s') or
             (source_unit == 'm^3/min' and target_unit == 'm^3/s')):
-        return values / 60
+        return 1.0 / 60.0
 
     raise ValueError(f'Source unit, "{source_unit}", or target unit, "{target_unit}", unrecognized.')
 
