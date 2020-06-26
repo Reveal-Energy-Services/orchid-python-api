@@ -81,7 +81,9 @@ def aggregate_stage_treatment(stage):
                            stage_concentration)
     stage_proppant = integrate.trapz(stage_proppant_rate.values, (stage_proppant_rate.index - stage_start_time).seconds)
 
-    return stage_fluid, stage_proppant, df['p'].median()
+    median_pressure = pressure[stage_start_time:stage_end_time].median()
+
+    return stage_fluid, stage_proppant, median_pressure
 
 
 @toolz.curry
