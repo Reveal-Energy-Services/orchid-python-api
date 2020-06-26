@@ -81,11 +81,6 @@ def aggregate_stage_treatment(stage):
                            stage_concentration)
     stage_proppant = integrate.trapz(stage_proppant_rate.values, (stage_proppant_rate.index - stage_start_time).seconds)
 
-    if stage.display_stage_number == 1:
-        print(f'Stage: {stage.display_stage_number}')
-        print(f'  Duration: ({stage_start_time}, {stage_end_time}), '
-              f'Sample count: {len(df)}, Fluid volume: {result.r}')
-
     return stage_fluid, stage_proppant, df['p'].median()
 
 
