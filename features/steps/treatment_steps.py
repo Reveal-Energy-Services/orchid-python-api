@@ -52,7 +52,10 @@ def aggregate_stage_treatment(stage):
         return local_result
 
     def slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor():
-        return 42 / 60.0
+        source_slurry_rate_unit = treatment_curves['Slurry Rate'].sampled_quantity_unit()
+        target_slurry_rate_unit = 'gal/s'
+        local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
+        return local_result
 
     d = {
         't': treatment_curves_df.index.values,
