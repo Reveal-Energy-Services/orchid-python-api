@@ -16,7 +16,11 @@ from behave import *
 use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import numpy as np
+import pandas as pd
+from scipy import integrate
 import toolz.curried as toolz
+
+import orchid.time_series
 
 
 @when('I query the stages for each well in the project')
@@ -27,27 +31,34 @@ def step_impl(context):
     context.stages_for_wells = [(w, w.stages) for w in context.project.wells]
 
 
+# noinspection PyProtectedMember
 def aggregate_stage_treatment(stage):
-    # Ensure pressure, rate, concentration time series are present and have the same time basis.
-    treatment_curves = stage.treatment_curves()
-    expected_curves = {'Pressure', 'Slurry Rate', 'Proppant Concentration'}
-    assert expected_curves.issubset(set(treatment_curves.keys())), \
-        f'Expected curves {expected_curves}. Found {list(treatment_curves.keys())}' \
-        f' for stage number: {stage.display_stage_number()}'
-    (pressure_time_series, rate_time_series,
-     concentration_time_series) = toolz.pipe(expected_curves,
-                                             toolz.map(lambda n: treatment_curves[n]),
-                                             toolz.map(lambda tc: tc.time_series()))
-    assert (len(pressure_time_series) == len(rate_time_series) and
-            len(rate_time_series) == len(concentration_time_series)), f'Expected equal-length treatment curves.'
-    # noinspection PyTypeChecker
-    assert (all(pressure_time_series.index == rate_time_series.index) and
-            all(rate_time_series.index == concentration_time_series.index)), \
-        f'Expected treatment curves with same time basis.'
+    stage_start_time = np.datetime64(orchid.time_series._as_datetime(stage._adaptee.StartTime))
+    stage_end_time = np.datetime64(orchid.time_series._as_datetime(stage._adaptee.StopTime))
 
-    stage_start_time_np, stage_stop_time_np = map(np.datetime64, [stage.start_time, stage.stop_time])
+    treatment_curves_df = orchid.time_series.deprecated_transform_net_treatment(stage._adaptee.TreatmentCurves.Items)
 
-    return 0, 0, 0
+    time_base = np.timedelta64(1, 's')
+    nrows = treatment_curves_df.shape[0];
+
+    # print(f'{stage.Well.Name}-{stage.DisplayStageNumber}')
+
+    d = {
+        't': treatment_curves_df.index.values,
+        'dt': (treatment_curves_df.index.values - stage_start_time) / np.timedelta64(1, 's'),
+        'p': treatment_curves_df['Treating Pressure'],
+        'r': treatment_curves_df['Slurry Rate'] / 60.0,
+        'c': (42 * treatment_curves_df['Slurry Rate'] / 60.0) * treatment_curves_df['Proppant Concentration'],
+    }
+    df = pd.DataFrame(data=d)
+    df = df[(df['t'] >= stage_start_time) & (df['t'] <= stage_end_time)]
+    result = df.iloc[:, 2:].apply(lambda x: integrate.trapz(x, df['dt']))
+    if stage._adaptee.DisplayStageNumber == 1:
+        print(f'Stage: {stage._adaptee.DisplayStageNumber}')
+        print(f'  Duration: ({stage_start_time}, {stage_end_time}), '
+              f'Sample count: {len(df)}, Fluid volume: {result.r}')
+
+    return result.r, result.c, df['p'].median()
 
 
 @toolz.curry
