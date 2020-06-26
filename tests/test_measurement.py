@@ -79,22 +79,24 @@ class TestMeasurement(unittest.TestCase):
                             close_to(target_value, tolerance))
 
     def test_convert_raises_error_if_source_unit_unknown(self):
-        for (unknown_source, known_target, unknown_pattern) in [('m^3/m', 'm^3/min', 'm\\^3/m'),
-                                                                ('bbl/sec', 'gal/s', 'bbl/sec')]:
+        for ((unknown_source, known_target), (source_pattern, target_pattern)) in \
+                [(('m^3/m', 'm^3/min'), ('m\\^3/m', 'm\\^3/min')),
+                 (('bbl/sec', 'gal/s'), ('bbl/sec', 'gal/s'))]:
             with self.subTest(unknown_source=unknown_source, known_target=known_target,
-                              unknown_pattern=unknown_pattern):
+                              source_pattern=source_pattern, target_pattern=target_pattern):
                 # noinspection SpellCheckingInspection
                 assert_that(calling(om.get_conversion_factor).with_args(unknown_source, known_target),
-                            raises(ValueError, pattern=f'"{unknown_pattern}".*[uU]nrecognized'))
+                            raises(KeyError, pattern=f"('{source_pattern}', '{target_pattern}')"))
 
     def test_convert_raises_error_if_target_unit_unknown(self):
-        for (known_source, unknown_target, unknown_pattern) in [('m^3/min', 'm^3/m', 'm\\^3/m'),
-                                                                ('bbl/min', 'gao/s', 'gao/s')]:
+        for ((known_source, unknown_target), (source_pattern, target_pattern)) in \
+                [(('m^3/min', 'm^3/m'), ('m\\^3/min', 'm\\^3/m')),
+                 (('bbl/min', 'gao/s'), ('bbl/min', 'gao/s'))]:
             with self.subTest(known_source=known_source, unknown_target=unknown_target,
-                              unknown_pattern=unknown_pattern):
+                              source_pattern=source_pattern, target_pattern=target_pattern):
                 # noinspection SpellCheckingInspection
                 assert_that(calling(om.get_conversion_factor).with_args(known_source, unknown_target),
-                            raises(ValueError, pattern=f'"{unknown_pattern}".*[uU]nrecognized'))
+                            raises(KeyError, pattern=f"('{source_pattern}', '{target_pattern}')"))
 
     def test_convert_raises_error_if_source_unit_invalid(self):
         for invalid_source_unit in [None, '', '\n']:
