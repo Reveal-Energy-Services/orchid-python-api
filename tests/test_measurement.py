@@ -16,9 +16,6 @@ import unittest
 
 import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
-import numpy as np
-import numpy.testing as npt
-import toolz.curried as toolz
 
 import orchid.measurement as om
 
@@ -71,9 +68,11 @@ class TestMeasurement(unittest.TestCase):
                 assert_that(calling(om.volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
 
     def test_convert_single_item_values_returns_converted_single_item_values(self):
-        for (source_value, source_unit,
-             target_value, target_unit, tolerance) in [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 5e5),
-                                                       (18.1424, 'm^3/min', 0.302373, 'm^3/s', 5e4)]:
+        # The 6's in the following tolerances are caused by the round half-even that we use in expected values
+        for (source_value, source_unit, target_value, target_unit, tolerance) in \
+                [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 6e-5),
+                 (18.1424, 'm^3/min', 0.302373, 'm^3/s', 6e-7),
+                 (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5)]:
             with self.subTest(source_source_unit=source_unit, target_unit=target_unit):
                 assert_that(source_value * om.get_conversion_factor(source_unit, target_unit),
                             close_to(target_value, tolerance))
@@ -84,9 +83,13 @@ class TestMeasurement(unittest.TestCase):
                     raises(ValueError, pattern=f'"m\\^3/m".*[uU]nrecognized'))
 
     def test_convert_raises_error_if_target_unit_unknown(self):
-        # noinspection SpellCheckingInspection
-        assert_that(calling(om.get_conversion_factor).with_args('m^3/min', 'm^3/m'),
-                    raises(ValueError, pattern=f'"m\\^3/m".*[uU]nrecognized'))
+        for (known_source, unknown_target, unknown_pattern) in [('m^3/min', 'm^3/m', 'm\\^3/m'),
+                                                                ('bbl/min', 'gao/s', 'gao/s')]:
+            with self.subTest(known_source=known_source, unknown_target=unknown_target,
+                              unknown_pattern=unknown_pattern):
+                # noinspection SpellCheckingInspection
+                assert_that(calling(om.get_conversion_factor).with_args(known_source, unknown_target),
+                            raises(ValueError, pattern=f'"{unknown_pattern}".*[uU]nrecognized'))
 
     def test_convert_raises_error_if_source_unit_invalid(self):
         for invalid_source_unit in [None, '', '\n']:

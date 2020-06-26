@@ -35,11 +35,13 @@ def get_conversion_factor(source_unit, target_unit):
             raise ValueError(f'{name.capitalize()} unit, "{candidate}", unrecognized.')
 
     validate_unit(source_unit, {'bbl/min', 'm^3/min'}, 'source')
-    validate_unit(target_unit, {'bbl/s', 'm^3/s'}, 'target')
+    validate_unit(target_unit, {'bbl/s', 'gal/s', 'm^3/s'}, 'target')
 
     if ((source_unit == 'bbl/min' and target_unit == 'bbl/s') or
             (source_unit == 'm^3/min' and target_unit == 'm^3/s')):
         return 1.0 / 60.0
+    elif source_unit == 'bbl/min' and target_unit == 'gal/s':
+        return 42 / 60.0
 
     raise ValueError(f'Source unit, "{source_unit}", or target unit, "{target_unit}", unrecognized.')
 
