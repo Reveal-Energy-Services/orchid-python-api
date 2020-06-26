@@ -61,12 +61,16 @@ def aggregate_stage_treatment(stage):
     df = pd.DataFrame(data=d)
     df = df[(df['t'] >= stage_start_time) & (df['t'] <= stage_end_time)]
     result = df.iloc[:, 2:].apply(lambda x: integrate.trapz(x, df['dt']))
+
+    stage_rate = rate[stage_start_time:stage_end_time] * slurry_rate_per_min_to_per_second_conversion_factor()
+    stage_fluid = integrate.trapz(stage_rate.values, (stage_rate.index - stage_start_time).seconds)
+
     if stage.display_stage_number == 1:
         print(f'Stage: {stage.display_stage_number}')
         print(f'  Duration: ({stage_start_time}, {stage_end_time}), '
               f'Sample count: {len(df)}, Fluid volume: {result.r}')
 
-    return result.r, result.c, df['p'].median()
+    return stage_fluid, result.c, df['p'].median()
 
 
 @toolz.curry
