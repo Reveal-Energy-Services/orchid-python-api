@@ -125,10 +125,10 @@ def step_impl(context):
     """
     for expected_details in context.table.rows:
         sample_index = int(expected_details['index'])
-        # tolerance 0.006 addresses half-even rounding of expected values
+        # tolerances of 0.006, 0.6 address half-even rounding of expected values
         assert_that(context.stage_treatment_details[sample_index]['total_fluid_volume'],
                     close_to(float(expected_details['Volume']), 0.006))
-        # assert_that(context.stage_treatment_details[sample_index]['treatment_proppant'],
-        #             equal_to(float(expected_details['Proppant'])))
+        assert_that(context.stage_treatment_details[sample_index]['treatment_proppant'],
+                    close_to(float(expected_details['Proppant']), 0.6))
         # assert_that(context.stage_treatment_details[sample_index]['median_treating_pressure'],
         #             equal_to(float(expected_details['Median'])))
