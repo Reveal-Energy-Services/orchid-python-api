@@ -51,12 +51,16 @@ def aggregate_stage_treatment(stage):
         local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
         return local_result
 
+    def slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor():
+        return 42 / 60.0
+
     d = {
         't': treatment_curves_df.index.values,
         'dt': (treatment_curves_df.index.values - stage_start_time) / np.timedelta64(1, 's'),
         'p': treatment_curves_df['Treating Pressure'],
         'r': treatment_curves_df['Slurry Rate'] * slurry_rate_per_min_to_per_second_conversion_factor(),
-        'c': (42 * treatment_curves_df['Slurry Rate'] / 60.0) * treatment_curves_df['Proppant Concentration'],
+        'c': ((treatment_curves_df['Slurry Rate'] * slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor()) *
+              treatment_curves_df['Proppant Concentration'])
     }
     df = pd.DataFrame(data=d)
     df = df[(df['t'] >= stage_start_time) & (df['t'] <= stage_end_time)]
@@ -64,6 +68,11 @@ def aggregate_stage_treatment(stage):
 
     stage_rate = rate[stage_start_time:stage_end_time] * slurry_rate_per_min_to_per_second_conversion_factor()
     stage_fluid = integrate.trapz(stage_rate.values, (stage_rate.index - stage_start_time).seconds)
+
+    stage_concentration = concentration[stage_start_time:stage_end_time]
+    stage_proppant_rate = (stage_rate * slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor() *
+                           stage_concentration)
+    stage_proppant = integrate.trapz(stage_proppant_rate.values, (stage_proppant_rate.index - stage_start_time).seconds)
 
     if stage.display_stage_number == 1:
         print(f'Stage: {stage.display_stage_number}')
