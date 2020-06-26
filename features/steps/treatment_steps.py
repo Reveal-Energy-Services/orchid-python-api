@@ -57,6 +57,10 @@ def aggregate_stage_treatment(stage):
         local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
         return local_result
 
+    def slurry_rate_bbl_per_second_to_gal_per_second_conversion_factor():
+        local_result = om.get_conversion_factor('bbl/s', 'gal/s')
+        return local_result
+
     d = {
         't': treatment_curves_df.index.values,
         'dt': (treatment_curves_df.index.values - stage_start_time) / np.timedelta64(1, 's'),
@@ -69,12 +73,11 @@ def aggregate_stage_treatment(stage):
     df = df[(df['t'] >= stage_start_time) & (df['t'] <= stage_end_time)]
     result = df.iloc[:, 2:].apply(lambda x: integrate.trapz(x, df['dt']))
 
-    raw_stage_rate = rate[stage_start_time:stage_end_time]
-    stage_rate = raw_stage_rate * slurry_rate_per_min_to_per_second_conversion_factor()
+    stage_rate = rate[stage_start_time:stage_end_time] * slurry_rate_per_min_to_per_second_conversion_factor()
     stage_fluid = integrate.trapz(stage_rate.values, (stage_rate.index - stage_start_time).seconds)
 
     stage_concentration = concentration[stage_start_time:stage_end_time]
-    stage_proppant_rate = (raw_stage_rate * slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor() *
+    stage_proppant_rate = (stage_rate * slurry_rate_bbl_per_second_to_gal_per_second_conversion_factor() *
                            stage_concentration)
     stage_proppant = integrate.trapz(stage_proppant_rate.values, (stage_proppant_rate.index - stage_start_time).seconds)
 
