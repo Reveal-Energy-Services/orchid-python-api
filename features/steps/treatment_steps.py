@@ -38,11 +38,6 @@ def aggregate_stage_treatment(stage):
 
     treatment_curves_df = orchid.time_series.deprecated_transform_net_treatment(stage._adaptee.TreatmentCurves.Items)
 
-    time_base = np.timedelta64(1, 's')
-    nrows = treatment_curves_df.shape[0];
-
-    # print(f'{stage.Well.Name}-{stage.DisplayStageNumber}')
-
     d = {
         't': treatment_curves_df.index.values,
         'dt': (treatment_curves_df.index.values - stage_start_time) / np.timedelta64(1, 's'),
