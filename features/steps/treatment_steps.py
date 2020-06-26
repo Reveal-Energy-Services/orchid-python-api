@@ -16,7 +16,6 @@ from behave import *
 use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import numpy as np
-import pandas as pd
 from scipy import integrate
 import toolz.curried as toolz
 
@@ -43,7 +42,6 @@ def aggregate_stage_treatment(stage):
     rate.name = 'Slurry Rate'
     concentration = treatment_curves['Proppant Concentration'].time_series()
     concentration.name = 'Proppant Concentration'
-    treatment_curves_df = pd.concat([pressure, rate, concentration], axis=1)
 
     def slurry_rate_per_min_to_per_second_conversion_factor():
         source_slurry_rate_unit = treatment_curves['Slurry Rate'].sampled_quantity_unit()
@@ -51,27 +49,9 @@ def aggregate_stage_treatment(stage):
         local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
         return local_result
 
-    def slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor():
-        source_slurry_rate_unit = treatment_curves['Slurry Rate'].sampled_quantity_unit()
-        target_slurry_rate_unit = 'gal/s'
-        local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
-        return local_result
-
     def slurry_rate_bbl_per_second_to_gal_per_second_conversion_factor():
         local_result = om.get_conversion_factor('bbl/s', 'gal/s')
         return local_result
-
-    d = {
-        't': treatment_curves_df.index.values,
-        'dt': (treatment_curves_df.index.values - stage_start_time) / np.timedelta64(1, 's'),
-        'p': treatment_curves_df['Treating Pressure'],
-        'r': treatment_curves_df['Slurry Rate'] * slurry_rate_per_min_to_per_second_conversion_factor(),
-        'c': ((treatment_curves_df['Slurry Rate'] * slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor()) *
-              treatment_curves_df['Proppant Concentration'])
-    }
-    df = pd.DataFrame(data=d)
-    df = df[(df['t'] >= stage_start_time) & (df['t'] <= stage_end_time)]
-    result = df.iloc[:, 2:].apply(lambda x: integrate.trapz(x, df['dt']))
 
     stage_rate = rate[stage_start_time:stage_end_time] * slurry_rate_per_min_to_per_second_conversion_factor()
     stage_fluid = integrate.trapz(stage_rate.values, (stage_rate.index - stage_start_time).seconds)
