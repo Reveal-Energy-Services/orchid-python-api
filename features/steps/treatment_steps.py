@@ -33,8 +33,8 @@ def step_impl(context):
 
 # noinspection PyProtectedMember
 def aggregate_stage_treatment(stage):
-    stage_start_time = np.datetime64(orchid.time_series._as_datetime(stage._adaptee.StartTime))
-    stage_end_time = np.datetime64(orchid.time_series._as_datetime(stage._adaptee.StopTime))
+    stage_start_time = np.datetime64(stage.start_time)
+    stage_end_time = np.datetime64(stage.stop_time)
 
     treatment_curves_df = orchid.time_series.deprecated_transform_net_treatment(stage._adaptee.TreatmentCurves.Items)
 
