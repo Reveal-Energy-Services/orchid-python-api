@@ -69,11 +69,12 @@ def aggregate_stage_treatment(stage):
     df = df[(df['t'] >= stage_start_time) & (df['t'] <= stage_end_time)]
     result = df.iloc[:, 2:].apply(lambda x: integrate.trapz(x, df['dt']))
 
-    stage_rate = rate[stage_start_time:stage_end_time] * slurry_rate_per_min_to_per_second_conversion_factor()
+    raw_stage_rate = rate[stage_start_time:stage_end_time]
+    stage_rate = raw_stage_rate * slurry_rate_per_min_to_per_second_conversion_factor()
     stage_fluid = integrate.trapz(stage_rate.values, (stage_rate.index - stage_start_time).seconds)
 
     stage_concentration = concentration[stage_start_time:stage_end_time]
-    stage_proppant_rate = (stage_rate * slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor() *
+    stage_proppant_rate = (raw_stage_rate * slurry_rate_bbl_per_min_to_gal_per_second_conversion_factor() *
                            stage_concentration)
     stage_proppant = integrate.trapz(stage_proppant_rate.values, (stage_proppant_rate.index - stage_start_time).seconds)
 
@@ -82,7 +83,7 @@ def aggregate_stage_treatment(stage):
         print(f'  Duration: ({stage_start_time}, {stage_end_time}), '
               f'Sample count: {len(df)}, Fluid volume: {result.r}')
 
-    return stage_fluid, result.c, df['p'].median()
+    return stage_fluid, stage_proppant, df['p'].median()
 
 
 @toolz.curry
