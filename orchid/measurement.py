@@ -34,7 +34,7 @@ def get_conversion_factor(source_unit, target_unit):
         if candidate not in all_valid:
             raise ValueError(f'{name.capitalize()} unit, "{candidate}", unrecognized.')
 
-    validate_unit(source_unit, {'bbl/min', 'm^3/min'}, 'source')
+    validate_unit(source_unit, {'bbl/min', 'm^3/min', 'bbl/s'}, 'source')
     validate_unit(target_unit, {'bbl/s', 'gal/s', 'm^3/s'}, 'target')
 
     if ((source_unit == 'bbl/min' and target_unit == 'bbl/s') or
@@ -42,6 +42,8 @@ def get_conversion_factor(source_unit, target_unit):
         return 1.0 / 60.0
     elif source_unit == 'bbl/min' and target_unit == 'gal/s':
         return 42 / 60.0
+    elif source_unit == 'bbl/s' and target_unit == 'gal/s':
+        return 42.0
 
     raise ValueError(f'Source unit, "{source_unit}", or target unit, "{target_unit}", unrecognized.')
 

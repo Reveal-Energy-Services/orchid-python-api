@@ -72,15 +72,20 @@ class TestMeasurement(unittest.TestCase):
         for (source_value, source_unit, target_value, target_unit, tolerance) in \
                 [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 6e-5),
                  (18.1424, 'm^3/min', 0.302373, 'm^3/s', 6e-7),
-                 (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5)]:
+                 (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5),
+                 (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5)]:
             with self.subTest(source_source_unit=source_unit, target_unit=target_unit):
                 assert_that(source_value * om.get_conversion_factor(source_unit, target_unit),
                             close_to(target_value, tolerance))
 
     def test_convert_raises_error_if_source_unit_unknown(self):
-        # noinspection SpellCheckingInspection
-        assert_that(calling(om.get_conversion_factor).with_args('m^3/m', 'm^3/min'),
-                    raises(ValueError, pattern=f'"m\\^3/m".*[uU]nrecognized'))
+        for (unknown_source, known_target, unknown_pattern) in [('m^3/m', 'm^3/min', 'm\\^3/m'),
+                                                                ('bbl/sec', 'gal/s', 'bbl/sec')]:
+            with self.subTest(unknown_source=unknown_source, known_target=known_target,
+                              unknown_pattern=unknown_pattern):
+                # noinspection SpellCheckingInspection
+                assert_that(calling(om.get_conversion_factor).with_args(unknown_source, known_target),
+                            raises(ValueError, pattern=f'"{unknown_pattern}".*[uU]nrecognized'))
 
     def test_convert_raises_error_if_target_unit_unknown(self):
         for (known_source, unknown_target, unknown_pattern) in [('m^3/min', 'm^3/m', 'm\\^3/m'),
