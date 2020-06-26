@@ -20,6 +20,7 @@ import pandas as pd
 from scipy import integrate
 import toolz.curried as toolz
 
+import orchid.measurement as om
 import orchid.time_series
 
 
@@ -38,11 +39,18 @@ def aggregate_stage_treatment(stage):
 
     treatment_curves_df = orchid.time_series.deprecated_transform_net_treatment(stage._adaptee.TreatmentCurves.Items)
 
+    def slurry_rate_per_min_to_per_second_conversion_factor():
+        treatment_curves = stage.treatment_curves()
+        source_slurry_rate_unit = treatment_curves['Slurry Rate'].sampled_quantity_unit()
+        target_slurry_rate_unit = f'{om.volume_unit(source_slurry_rate_unit)}/s'
+        local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
+        return local_result
+
     d = {
         't': treatment_curves_df.index.values,
         'dt': (treatment_curves_df.index.values - stage_start_time) / np.timedelta64(1, 's'),
         'p': treatment_curves_df['Treating Pressure'],
-        'r': treatment_curves_df['Slurry Rate'] / 60.0,
+        'r': treatment_curves_df['Slurry Rate'] * slurry_rate_per_min_to_per_second_conversion_factor(),
         'c': (42 * treatment_curves_df['Slurry Rate'] / 60.0) * treatment_curves_df['Proppant Concentration'],
     }
     df = pd.DataFrame(data=d)
