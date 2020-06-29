@@ -24,11 +24,13 @@ more-itertools = "*"
 pyyaml = "*"
 pandas = "*"
 typing-extensions = "*"
+toolz = "*"
 
 [requires]
 python_version = "3.7"
 
 [scripts]
+behave = "behave"
 ipython = "ipython"
 jupyter_lab = "jupyter lab"
 plot_monitor_pressures = "python plot_monitor_pressures.py"
