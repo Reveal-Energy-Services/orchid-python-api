@@ -23,6 +23,8 @@ import itertools
 import unittest.mock
 from typing import Sequence
 
+import orchid.native_treatment_curve_facade as ontc
+
 # noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
@@ -81,11 +83,13 @@ class StubNetTreatmentCurve:
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
     treating_pressure_time_series = create_stub_net_time_series(start_time_point, treating_pressure_values)
-    treating_pressure_curve = StubNetTreatmentCurve('Pressure', 'pressure', treating_pressure_time_series)
+    treating_pressure_curve = StubNetTreatmentCurve(ontc.TREATING_PRESSURE, 'pressure',
+                                                    treating_pressure_time_series)
     rate_time_series = create_stub_net_time_series(start_time_point, rate_values)
-    rate_curve = StubNetTreatmentCurve('Slurry Rate', 'ratio', rate_time_series)
+    rate_curve = StubNetTreatmentCurve(ontc.SLURRY_RATE, 'ratio', rate_time_series)
     concentration_time_series = create_stub_net_time_series(start_time_point, concentration_values)
-    concentration_curve = StubNetTreatmentCurve('Proppant Concentration', 'ratio', concentration_time_series)
+    concentration_curve = StubNetTreatmentCurve(ontc.PROPPANT_CONCENTRATION, 'ratio',
+                                                concentration_time_series)
 
     return [treating_pressure_curve, rate_curve, concentration_curve]
 

@@ -20,6 +20,7 @@ from scipy import integrate
 import toolz.curried as toolz
 
 import orchid.measurement as om
+import orchid.native_treatment_curve_facade as ontc
 
 
 @when('I query the stages for each well in the project')
@@ -36,11 +37,11 @@ def aggregate_stage_treatment(stage):
     stage_end_time = np.datetime64(stage.stop_time)
 
     treatment_curves = stage.treatment_curves()
-    pressure = treatment_curves['Pressure'].time_series()
+    pressure = treatment_curves[ontc.TREATING_PRESSURE].time_series()
     pressure.name = 'Treating Pressure'
-    rate = treatment_curves['Slurry Rate'].time_series()
+    rate = treatment_curves[ontc.SLURRY_RATE].time_series()
     rate.name = 'Slurry Rate'
-    concentration = treatment_curves['Proppant Concentration'].time_series()
+    concentration = treatment_curves[ontc.PROPPANT_CONCENTRATION].time_series()
     concentration.name = 'Proppant Concentration'
 
     def slurry_rate_per_min_to_per_second_conversion_factor():

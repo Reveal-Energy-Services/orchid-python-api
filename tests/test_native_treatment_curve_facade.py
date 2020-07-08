@@ -21,7 +21,7 @@ import pandas as pd
 import pandas.testing as pdt
 from hamcrest import assert_that, equal_to
 
-from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
+import orchid.native_treatment_curve_facade as ontc
 from orchid.net_quantity import as_net_date_time
 from tests.stub_net import create_stub_net_project
 
@@ -53,21 +53,21 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
         for (unit, expected) in zip(('psi', 'kPa', 'MPa'), ('psi', 'kPa', 'MPa')):
             stub_project = create_stub_net_project(project_pressure_unit_abbreviation=unit)
-            sut = create_sut(sampled_quantity_name='Pressure', project=stub_project)
+            sut = create_sut(sampled_quantity_name=ontc.TREATING_PRESSURE, project=stub_project)
             with self.subTest(expected=expected):
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
     def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
         for (unit, expected) in zip(('bbl/min', 'm^3/min'), ('bbl/min', 'm\u00b3/min')):
             stub_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit)
-            sut = create_sut(sampled_quantity_name='Slurry Rate', project=stub_project)
+            sut = create_sut(sampled_quantity_name=ontc.SLURRY_RATE, project=stub_project)
             with self.subTest(expected=expected):
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
     def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
         for (unit, expected) in zip(('lb/gal (U.S.)', 'kg/m^3'), ('lb/gal (U.S.)', 'kg/m\u00b3')):
             stub_project = create_stub_net_project(slurry_rate_unit_abbreviation=unit)
-            sut = create_sut(sampled_quantity_name='Proppant Concentration', project=stub_project)
+            sut = create_sut(sampled_quantity_name=ontc.PROPPANT_CONCENTRATION, project=stub_project)
             with self.subTest(expected=expected):
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected))
 
@@ -124,7 +124,7 @@ def create_sut(name='', display_name='', sampled_quantity_name='', suffix='',
 
     stub_net_treatment_curve.Stage.Well.Project = project
 
-    sut = NativeTreatmentCurveFacade(stub_net_treatment_curve)
+    sut = ontc.NativeTreatmentCurveFacade(stub_net_treatment_curve)
     return sut
 
 

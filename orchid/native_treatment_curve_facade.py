@@ -22,6 +22,10 @@ import orchid.project_units as opu
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries
 
+PROPPANT_CONCENTRATION = 'Proppant Concentration'
+SLURRY_RATE = 'Slurry Rate'
+TREATING_PRESSURE = 'Pressure'
+
 
 class NativeTreatmentCurveFacade(dna.DotNetAdapter):
     def __init__(self, net_treatment_curve: IStageSampledQuantityTimeSeries):
@@ -30,9 +34,9 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
         :param net_treatment_curve: The .NET stage time series to be adapted.
         """
         super().__init__(net_treatment_curve)
-        self._quantity_name_physical_quantity_map = {'Pressure': 'pressure',
-                                                     'Slurry Rate': 'slurry rate',
-                                                     'Proppant Concentration': 'proppant concentration'}
+        self._quantity_name_physical_quantity_map = {TREATING_PRESSURE: 'pressure',
+                                                     SLURRY_RATE: 'slurry rate',
+                                                     PROPPANT_CONCENTRATION: 'proppant concentration'}
         # noinspection PyArgumentList
         self._sample_unit_func = partial(opu.unit, net_treatment_curve.Stage.Well.Project)
 
