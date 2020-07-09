@@ -41,7 +41,7 @@ Feature: Low-level DOM API (project)
       | Montney    | Vert_01   | Vert_01      | No UWI | 7f38537e-293b-4b88-8b85-099b28e43c6e |
 
   Scenario: Get the default well colors from a project
-    Given I have loaded the "Oasis_Crane_II" project
+    Given I have loaded the project for the field, 'Montney'
     When I query the project default well colors
     Then I see the colors
       | red   | green | blue  |
