@@ -14,6 +14,17 @@ Feature: Low-level DOM API (project)
       | Project_frankNstein_Permian_UTM13_FEET.ifrac   | Project_frankNstein_subset02_UTM13_FEET |
       | Project-frankNstein_Montney_UTM13_METERS.ifrac | Project-frankNstein                     |
 
+  Scenario Outline: Get the well counts from a project
+    Given I have loaded the project for the field, '<field name>'
+    When I query the project wells
+    Then I see that the project, <project name>, has <well count> wells
+
+    Examples: Bakken
+      | field name | project name                            | well count |
+      | Bakken     | frankNstein_Bakken_UTM13_FEET           | 4          |
+      | Permian    | Project_frankNstein_subset02_UTM13_FEET | 4          |
+      | Montney    | Project-frankNstein                     | 4          |
+
   Scenario Outline: Get the wells from a project
     Given I have loaded the project for the field, '<field name>'
     When I query the project wells

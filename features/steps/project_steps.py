@@ -25,11 +25,11 @@ import orchid
 
 PROJECT_NAME_PATHNAME_MAP = {'Oasis_Crane_II': r'c:\Users\larry.jones\tmp\ifa-test-data\Crane_II.ifrac',
                              'Demo_Project': r'c:\Users\larry.jones\tmp\TrainingDataSet\Demo_Project.ifrac'}
-FIELD_NAME_PATHNAME_MAP = {'Bakken': r'c:\src\Orchid.IntegrationTestData\frankNstein_Bakken_UTM13_FEET.ifrac',
-                           'Permian':
-                               r'c:\src\Orchid.IntegrationTestData\Project_frankNstein_Permian_UTM13_FEET.ifrac',
-                           'Montney':
-                               r'c:\src\Orchid.IntegrationTestData\Project-frankNstein_Montney_UTM13_METERS.ifrac'}
+FIELD_NAME_PATHNAME_MAP = {
+    'Bakken': r'c:\src\Orchid.IntegrationTestData\frankNstein_Bakken_UTM13_FEET.ifrac',
+    'Permian': r'c:\src\Orchid.IntegrationTestData\Project_frankNstein_Permian_UTM13_FEET.ifrac',
+    'Montney': r'c:\src\Orchid.IntegrationTestData\Project-frankNstein_Montney_UTM13_METERS.ifrac'
+}
 
 
 @given("I have loaded a project from the file, '{filename}'")
@@ -92,6 +92,21 @@ def step_impl(context):
     :type context: behave.runner.Context
     """
     context.actual_wells = context.project.wells
+
+
+# noinspection PyBDDParameters
+@then("I see that the project, {project_name}, has {well_count:d} wells")
+def step_impl(context, project_name, well_count):
+    """
+    :type context: behave.runner.Context
+    :type project_name: str
+    :param project_name: The name identifying the project of interest.
+    :type well_count: int
+    :param well_count: The number of wells in the project of interest.
+    """
+    context.execute_steps(f'When I query the project name')
+    context.execute_steps(f'Then I see the text "{project_name}"')
+    assert_that(len(list(context.actual_wells)), equal_to(well_count))
 
 
 @then("I see the well details {well_name}, {display_name}, and {uwi} for {object_id}")
