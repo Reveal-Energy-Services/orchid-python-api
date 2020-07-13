@@ -16,7 +16,7 @@ from behave import *
 use_step_matcher("parse")
 import numpy as np
 
-from hamcrest import assert_that, has_length
+from hamcrest import assert_that, has_length, close_to
 
 
 @when('I query the trajectory for well "{well_name}"')
@@ -49,6 +49,23 @@ def step_impl(context, count):
     """
     assert_that(context.easting_array, has_length(count))
     assert_that(context.northing_array, has_length(count))
+
+
+# noinspection PyBDDParameters
+@then("I see correct {easting:g} and {northing:g} values at {index:d}")
+def step_impl(context, easting, northing, index):
+    """
+    :type context: behave.runner.Context
+    :param easting: The easting value from the trajectory at index.
+    :type easting: float
+    :param northing: The northing value for the trajectory at index.
+    :type northing: float
+    :param index: The index of the well trajectory being sampled.
+    :type index: int
+    """
+    # Delta of 0.6 accounts for half-even rounding
+    assert_that(context.easting_array[index], close_to(easting, 6e-1))
+    assert_that(context.northing_array[index], close_to(northing, 6e-1))
 
 
 @then('I see correct <easting> and <northing> values for specific points')
