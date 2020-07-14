@@ -66,14 +66,17 @@ def step_impl(context, easting, northing, index):
     :param index: The index of the well trajectory being sampled.
     :type index: int
     """
-    # Delta of 0.6 accounts for half-even rounding
     delta = 0.0
     bakken_well_names = set(toolz.map(lambda d: f'Demo_{d}H', [1, 2, 3, 4]))
     permian_well_names = set(toolz.map(lambda d: f'C{d}', [1, 2, 3])).union(['P1'])
+    montney_well_names = set(toolz.map(lambda d: f'Hori_0{d}', [1, 2, 3])).union(['Vert_01'])
+    # Delta of magnitude 6 accounts for half-even rounding
     if context.well_name in bakken_well_names:
         delta = 6e-1
     elif context.well_name in permian_well_names:
         delta = 6e-3
+    elif context.well_name in montney_well_names:
+        delta = 6e-4
 
     assert_that(context.easting_array[index], close_to(easting, delta))
     assert_that(context.northing_array[index], close_to(northing, delta))
