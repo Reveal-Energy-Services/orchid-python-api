@@ -37,6 +37,9 @@ Feature: Low-level trajectory API (DOM API)
       | Bakken     | Demo_4H   | 14    | -13042   | 35390     |
       | Bakken     | Demo_4H   | 144   | -13383   | 34595     |
       | Bakken     | Demo_4H   | 140   | -13224   | 34576     |
+
+    Examples: Permian
+      | field name | well name | index | easting  | northing  |
       | Permian    | C1        | 0     | -60.14   | -0.91     |
       | Permian    | C1        | 527   | -391.31  | -4712.97  |
       | Permian    | C1        | 506   | -387.02  | -2731.01  |
@@ -61,6 +64,9 @@ Feature: Low-level trajectory API (DOM API)
       | Permian    | P1        | 410   | 114.31   | 92.34     |
       | Permian    | P1        | 57    | 66.38    | 28.36     |
       | Permian    | P1        | 519   | 214.53   | -3659.28  |
+
+    Examples: Montney
+      | field name | well name | index | easting  | northing  |
       | Montney    | Hori_01   | 0     | -615.050 | 376.682   |
       | Montney    | Hori_01   | 101   | -545.283 | 203.339   |
       | Montney    | Hori_01   | 13    | -645.919 | 362.269   |
