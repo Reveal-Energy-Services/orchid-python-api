@@ -38,6 +38,30 @@ Feature: Low-level trajectory API (DOM API)
       | Bakken     | Demo_4H   | 14    | -13042  | 35390    |
       | Bakken     | Demo_4H   | 144   | -13383  | 34595    |
       | Bakken     | Demo_4H   | 140   | -13224  | 34576    |
+      | Permian    | C1        | 0     | -60.14  | -0.91    |
+      | Permian    | C1        | 527   | -391.31 | -4712.97 |
+      | Permian    | C1        | 506   | -387.02 | -2731.01 |
+      | Permian    | C1        | 316   | -190.85 | -37.16   |
+      | Permian    | C1        | 355   | -195.47 | -39.29   |
+      | Permian    | C1        | 419   | -205.74 | -70.32   |
+      | Permian    | C2        | 0     | -19.88  | -0.29    |
+      | Permian    | C2        | 527   | -65.28  | -4856.17 |
+      | Permian    | C2        | 525   | -72.04  | -4687.58 |
+      | Permian    | C2        | 487   | -130.08 | -1103.93 |
+      | Permian    | C2        | 331   | -46.12  | 65.84    |
+      | Permian    | C2        | 240   | -36.54  | 60.61    |
+      | Permian    | C3        | 0     | 59.97   | 0.89     |
+      | Permian    | C3        | 530   | 529.25  | -5169.96 |
+      | Permian    | C3        | 478   | 427.90  | -475.20  |
+      | Permian    | C3        | 374   | 197.17  | 35.92    |
+      | Permian    | C3        | 182   | 150.80  | 18.43    |
+      | Permian    | C3        | 132   | 130.82  | 12.05    |
+      | Permian    | P1        | 0     | 20.04   | 0.30     |
+      | Permian    | P1        | 535   | 229.52  | -5114.54 |
+      | Permian    | P1        | 478   | 172.42  | -259.50  |
+      | Permian    | P1        | 410   | 114.31  | 92.34    |
+      | Permian    | P1        | 57    | 66.38   | 28.36    |
+      | Permian    | P1        | 519   | 214.53  | -3659.28 |
 
 
   Scenario: Get the easting and northing trajectories in project units (old)

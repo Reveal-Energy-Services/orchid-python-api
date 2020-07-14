@@ -14,6 +14,7 @@
 
 from behave import *
 use_step_matcher("parse")
+import toolz.curried as toolz
 import numpy as np
 
 from hamcrest import assert_that, has_length, close_to
@@ -25,6 +26,8 @@ def step_impl(context, well_name):
     :param well_name: Name of the well of interest
     :type context: behave.runner.Context
     """
+    # Remember the `well_name` to correctly calculate the delta for `close_to` in trajectory step
+    context.well_name = well_name
     actual_wells = list(context.project.wells_by_name(well_name))
     # noinspection PyTypeChecker
     assert_that(actual_wells, has_length(1))
@@ -64,8 +67,16 @@ def step_impl(context, easting, northing, index):
     :type index: int
     """
     # Delta of 0.6 accounts for half-even rounding
-    assert_that(context.easting_array[index], close_to(easting, 6e-1))
-    assert_that(context.northing_array[index], close_to(northing, 6e-1))
+    delta = 0.0
+    bakken_well_names = set(toolz.map(lambda d: f'Demo_{d}H', [1, 2, 3, 4]))
+    permian_well_names = set(toolz.map(lambda d: f'C{d}', [1, 2, 3])).union(['P1'])
+    if context.well_name in bakken_well_names:
+        delta = 6e-1
+    elif context.well_name in permian_well_names:
+        delta = 6e-3
+
+    assert_that(context.easting_array[index], close_to(easting, delta))
+    assert_that(context.northing_array[index], close_to(northing, delta))
 
 
 @then('I see correct <easting> and <northing> values for specific points')
