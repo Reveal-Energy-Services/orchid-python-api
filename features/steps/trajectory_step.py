@@ -66,20 +66,34 @@ def step_impl(context, easting, northing, index):
     :param index: The index of the well trajectory being sampled.
     :type index: int
     """
-    delta = 0.0
-    bakken_well_names = set(toolz.map(lambda d: f'Demo_{d}H', [1, 2, 3, 4]))
-    permian_well_names = set(toolz.map(lambda d: f'C{d}', [1, 2, 3])).union(['P1'])
-    montney_well_names = set(toolz.map(lambda d: f'Hori_0{d}', [1, 2, 3])).union(['Vert_01'])
-    # Delta of magnitude 6 accounts for half-even rounding
-    if context.well_name in bakken_well_names:
-        delta = 6e-1
-    elif context.well_name in permian_well_names:
-        delta = 6e-3
-    elif context.well_name in montney_well_names:
-        delta = 6e-4
+    assert_that(context.easting_array[index], close_to(easting, close_to_delta(context.well_name)))
+    assert_that(context.northing_array[index], close_to(northing, close_to_delta(context.well_name)))
 
-    assert_that(context.easting_array[index], close_to(easting, delta))
-    assert_that(context.northing_array[index], close_to(northing, delta))
+
+def close_to_delta(well_name_to_test):
+    """
+    Calculate the delta value to be used in a `close_to` comparison of trajectory points.
+    :param well_name_to_test: The acceptance test well_name used to calculate the appropriate delta.
+    :return: The value to be used as the third argument to `close_to` based on the well name.
+    """
+    def is_bakken_well(to_test):
+        return to_test in set(toolz.map(lambda d: f'Demo_{d}H', [1, 2, 3, 4]))
+
+    def is_permian_well(to_test):
+        return to_test in set(toolz.map(lambda d: f'C{d}', [1, 2, 3])).union(['P1'])
+
+    def is_montney_well(to_test):
+        return to_test in set(toolz.map(lambda d: f'Hori_0{d}', [1, 2, 3])).union(['Vert_01'])
+
+    result = 0.0
+    # Delta of magnitude 6 accounts for half-even rounding
+    if is_bakken_well(well_name_to_test):
+        result = 6e-1
+    elif is_permian_well(well_name_to_test):
+        result = 6e-3
+    elif is_montney_well(well_name_to_test):
+        result = 6e-4
+    return result
 
 
 @then('I see correct <easting> and <northing> values for specific points')
