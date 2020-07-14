@@ -17,7 +17,7 @@ import pathlib
 from behave import *
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to, contains_exactly
+from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
 import orchid
@@ -126,21 +126,6 @@ def step_impl(context, well_name, display_name, uwi, object_id):
         actual_to_test = (tmp_to_test[0], tmp_to_test[1], None, str(tmp_to_test[3]))
 
     assert_that(actual_to_test, equal_to(expected_details_to_check()))
-
-
-@then("I see the well information")
-def step_impl(context):
-    """
-    :type context: behave.runner.Context
-    """
-    def actual_details_to_check(well):
-        return well.name, well.display_name, well.uwi
-
-    def expected_details_to_check(row):
-        return row['name'], row['display_name'], row['uwi']
-
-    assert_that(map(actual_details_to_check, context.actual_wells),
-                contains_exactly(*(list(map(expected_details_to_check, context.table.rows)))))
 
 
 @when("I query the project default well colors")
