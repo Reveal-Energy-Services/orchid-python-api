@@ -4,7 +4,6 @@ Feature: Low-level DOM API (stage)
   I want to access Orchid projects conveniently using Python
   In order to leverage my existing knowledge, code and data
 
-  @wip
   Scenario Outline: Get the stage counts for each well in a project
     Given I have loaded the project for the field, '<field name>'
     When I query the project wells
