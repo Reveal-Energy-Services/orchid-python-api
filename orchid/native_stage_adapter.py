@@ -16,7 +16,7 @@ from toolz.curried import pipe, map, reduce, merge
 
 import orchid.dot_net_dom_access as dna
 from orchid.measurement import Measurement
-from orchid.native_treatment_curve_facade import NativeTreatmentCurveFacade
+import orchid.native_treatment_curve_facade as ntc
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
 
 
@@ -26,6 +26,11 @@ class NativeStageAdapter(dna.DotNetAdapter):
     display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
+
+    @staticmethod
+    def _sampled_quantity_name_curve_map(sampled_quantity_name):
+        return {'Pressure': ntc.TREATING_PRESSURE, 'Slurry Rate': ntc.SLURRY_RATE,
+                'Proppant Concentration': ntc.PROPPANT_CONCENTRATION}[sampled_quantity_name]
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """
@@ -56,11 +61,12 @@ class NativeStageAdapter(dna.DotNetAdapter):
             return {}
 
         def add_curve(so_far, treatment_curve):
-            treatment_curve_map = {treatment_curve.sampled_quantity_name: treatment_curve}
+            curve_name = self._sampled_quantity_name_curve_map(treatment_curve.sampled_quantity_name)
+            treatment_curve_map = {curve_name: treatment_curve}
             return merge(treatment_curve_map, so_far)
 
         result = pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
-                      map(NativeTreatmentCurveFacade),  # wrap them in a facade
+                      map(ntc.NativeTreatmentCurveFacade),  # wrap them in a facade
                       # Transform the map to a dictionary keyed by the sampled quantity name
                       lambda cs: reduce(add_curve, cs, {}))
         return result

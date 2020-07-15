@@ -19,7 +19,6 @@ import deal
 from hamcrest import assert_that, is_, equal_to, calling, raises, has_length, contains_exactly, empty
 import pandas as pd
 
-import orchid.dot_net
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project, StubNetSample

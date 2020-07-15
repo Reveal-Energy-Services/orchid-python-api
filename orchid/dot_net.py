@@ -17,8 +17,6 @@ import os
 import pathlib
 import sys
 
-import toolz.curried as toolz
-
 import orchid.configuration
 
 import clr

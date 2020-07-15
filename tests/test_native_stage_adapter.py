@@ -21,6 +21,7 @@ from toolz.curried import map
 from orchid.measurement import make_measurement
 from orchid.net_quantity import as_net_date_time
 import orchid.native_stage_adapter as nsa
+import orchid.native_treatment_curve_facade as ntc
 from orchid.net_quantity import as_net_quantity_in_different_unit
 
 # noinspection PyUnresolvedReferences
@@ -99,7 +100,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_one_curve(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_sampled_quantity_name = 'pulcher'
+        expected_sampled_quantity_name = 'Slurry Rate'
         stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
         stub_treatment_curve.SampledQuantityName = expected_sampled_quantity_name
         stub_net_stage.TreatmentCurves.Items = [stub_treatment_curve]
@@ -112,7 +113,8 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_many_curves(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_sampled_quantity_names = ['bancam', 'scrupamque', 'condidi']
+        expected_sampled_quantity_names = ['Pressure', 'Slurry Rate', 'Proppant Concentration']
+        expected_curve_names = [ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.TREATING_PRESSURE]
 
         def make_stub_treatment_curve(name):
             stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
@@ -124,7 +126,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
-        assert_that(actual_curves.keys(), has_items(*expected_sampled_quantity_names))
+        assert_that(actual_curves.keys(), has_items(*expected_curve_names))
         assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     has_items(*expected_sampled_quantity_names))
 

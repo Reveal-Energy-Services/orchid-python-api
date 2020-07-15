@@ -67,9 +67,11 @@ def plot_monitor_pressures(ifrac_pathname: str) -> None:
                                for pressure_curve_id in monitor_pressure_curve_ids]
 
     # TODO: Remove hard-coding
-    figure, axes = plt.subplots(2, 2)
-    curves_to_plot = np.reshape(surface_pressure_curves, (2, 2))
-    names_to_display = np.reshape(monitor_pressure_curve_display_names, (2, 2))
+    curves_shape = (2, 2)
+    max_curve_count = curves_shape[0] * curves_shape[1]
+    figure, axes = plt.subplots(*curves_shape)
+    curves_to_plot = np.reshape(surface_pressure_curves[:max_curve_count], curves_shape)
+    names_to_display = np.reshape(monitor_pressure_curve_display_names[:max_curve_count], curves_shape)
     # TODO: Do we need a better way to map colors to curves?
     # The following code assumes that the colors on the trajectories for each well will be identical to the
     # colors for the curves. I do not know of any guarantee that the order of curves in the time series is

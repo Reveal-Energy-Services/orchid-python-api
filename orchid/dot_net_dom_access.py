@@ -15,15 +15,6 @@
 import toolz.curried as toolz
 
 
-class DotNetAdapter:
-    def __init__(self, adaptee):
-        """
-        Construct an instance adapting a .NET IStage.
-        :param adaptee: The .NET DOM object to adapt.
-        """
-        self._adaptee = adaptee
-
-
 # These methods in this module are based on the StackOverflow post:
 # https://stackoverflow.com/questions/36580931/python-property-factory-or-descriptor-class-for-wrapping-an-external-library
 #
@@ -111,3 +102,14 @@ def transformed_dom_property_iterator(attribute_name, docstring, transformer):
 
     # Ensure no setter for the DOM properties
     return property(fget=getter, doc=docstring, fset=None)
+
+
+class DotNetAdapter:
+    def __init__(self, adaptee):
+        """
+        Construct an instance adapting a .NET IStage.
+        :param adaptee: The .NET DOM object to adapt.
+        """
+        self._adaptee = adaptee
+
+    object_id = dom_property('object_id', 'The object ID of the adapted .NET DOM object.')
