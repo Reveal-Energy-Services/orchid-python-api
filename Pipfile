@@ -11,6 +11,9 @@ behave = "*"
 jupyter = "*"
 jupyterlab = "*"
 scipy = "*"
+pipenv-setup = "*"
+setuptools = "*"
+wheel = "*"
 
 [packages]
 pythonnet = "*"
