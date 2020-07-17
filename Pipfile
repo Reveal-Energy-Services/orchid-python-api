@@ -14,6 +14,7 @@ scipy = "*"
 pipenv-setup = "*"
 setuptools = "*"
 wheel = "*"
+invoke = "*"
 
 [packages]
 pythonnet = "*"
