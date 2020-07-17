@@ -13,6 +13,7 @@
 #
 
 
+import logging
 import os
 import pathlib
 import sys
@@ -43,6 +44,7 @@ def append_orchid_assemblies_directory_path() -> None:
     """
     orchid_bin_dir = orchid.configuration.python_api()['directory']
     if orchid_bin_dir not in sys.path:
+        logging.info(f'Appending {orchid_bin_dir} to `sys.path`')
         sys.path.append(orchid_bin_dir)
 
 

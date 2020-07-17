@@ -12,8 +12,10 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import orchid.dot_net
-orchid.dot_net.prepare_imports()
+# import orchid.dot_net
+# orchid.dot_net.prepare_imports()
+from .dot_net import prepare_imports
+prepare_imports()
 
 # High-level API
 from .core import load_project
