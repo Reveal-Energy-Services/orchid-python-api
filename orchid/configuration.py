@@ -36,7 +36,6 @@ def python_api():
     # This code looks for the configuration file, `python_api.yaml`, in the parent directory of the package.
     # This choice works great for a developer, but I'm less clear that it would work for a data scientist at
     # a customer. (Because it would depend on where the Python package is installed.)
-    # custom_config_path = pathlib.Path(__file__).joinpath('..', '..', 'python_api.yaml')
     custom_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
     if custom_config_path.exists():
         with custom_config_path.open('r') as in_stream:
