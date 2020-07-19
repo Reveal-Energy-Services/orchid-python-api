@@ -18,12 +18,13 @@ import shutil
 import sys
 
 # noinspection PyPackageRequirements
-from invoke import task
+from invoke import task, Collection
 
 
 # logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
+
 
 
 @task
@@ -175,3 +176,19 @@ def virtual_env_remove(context, dirname='.'):
     with context.cd(dirname):
         context.run('pipenv --rm')
         context.run('del Pipfile Pipfile.lock')
+
+
+# Create and organize namespaces
+
+# Namespace root
+ns = Collection()
+ns.add_task(build)
+ns.add_task(clean)
+ns.add_task(package)
+
+virtual_env_namespace = Collection('venv')
+virtual_env_namespace.add_task(virtual_env_remove, name='remove')
+virtual_env_namespace.add_task(virtual_env_create, name='create')
+virtual_env_namespace.add_task(virtual_env_install, name='install-dist')
+
+ns.add_collection(virtual_env_namespace)
