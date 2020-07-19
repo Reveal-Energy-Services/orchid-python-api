@@ -15,6 +15,7 @@
 import logging
 import pathlib
 import shutil
+import sys
 
 # noinspection PyPackageRequirements
 from invoke import task
@@ -23,6 +24,20 @@ from invoke import task
 # logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
+
+
+@task
+def build(context, docs=False):
+    """
+    Build this project, optionally building the project documentation.
+
+    Args:
+        context: The task context (unused).
+        docs (bool): Flag set `True` if you wish to build the project documentation.
+    """
+    context.run("python setup.py build")
+    if docs:
+        context.run("sphinx-build docs docs/_build")
 
 
 # Remember: the `invoke` package does not (yet) support parameter annotations.
@@ -80,20 +95,6 @@ def clean(_context, docs=False, bytecode=False, extra=''):
 
 
 @task
-def build(context, docs=False):
-    """
-    Build this project, optionally building the project documentation.
-
-    Args:
-        context: The task context (unused).
-        docs (bool): Flag set `True` if you wish to build the project documentation.
-    """
-    context.run("python setup.py build")
-    if docs:
-        context.run("sphinx-build docs docs/_build")
-
-
-@task
 def package(context, skip_source=False, skip_binary=False):
     """
     Package this project for distribution. By default, create *both* a source and binary distribution.
@@ -106,3 +107,71 @@ def package(context, skip_source=False, skip_binary=False):
     source_option = 'sdist' if not skip_source else ''
     wheel_option = 'bdist_wheel' if not skip_binary else ''
     context.run(f'python setup.py {source_option} {wheel_option} ')
+
+
+@task
+def virtual_env_create(context, dirname='.', python_ver='3.7.7'):
+    """
+    Create the virtual environment associated with `dirname` (Python interpreter only).
+    Args:
+        context: The task context.
+        dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
+    """
+    with context.cd(dirname):
+        context.run(f'pipenv install --python={python_ver}')
+
+
+def is_venv():
+    """
+    Determines if a task is running in a virtual environment.
+
+    This function is copied from the Stack Overflow post, https://stackoverflow.com/a/42580137/2809027.
+    Although not the accepted answer, a commenter states that this implementation "authoritative update
+    correctly detecting all non-Anaconda venvs."
+
+    Returns: True if task is running in a non-Anaconda virtual environment for Python 3 or Python 2.
+    """
+    def has_real_prefix():
+        return hasattr(sys, 'real_prefix')
+
+    def has_base_prefix():
+        return hasattr(sys, 'base_prefix')
+
+    def base_prefix_differs_from_sys_prefix():
+        return sys.base_prefix != sys.prefix
+
+    result = (has_real_prefix() or (has_base_prefix() and base_prefix_differs_from_sys_prefix()))
+    return result
+
+
+@task
+def virtual_env_install(context, dist_dirname, dirname='.', dist_filename='orchid-2020.4.0-py3-none-any.whl'):
+    """
+    Install the distribution, `dist_filename`, located in, `dist_dirname`, into `dirname`.
+
+    WARNING: This task will *not* run outside a virtual environment (perhaps created by `pipenv shell`.)
+
+    Args:
+        context: The task context.
+        dirname: The pathname of the directory whose virtual environment is to be removed. (Default '.')
+        dist_dirname: The pathname of the directory containing the distribution to install.
+        dist_filename (str): The filename of the distribution to install. (Default: binary `orchid` 2020.4.0)
+    """
+    assert is_venv(), 'Not in virtual environment. Installation can only occur in a virtual environment.'
+
+    with context.cd(dirname):
+        context.run(f'pip install {str(pathlib.Path(dist_dirname).joinpath(dist_filename))}')
+
+
+@task
+def virtual_env_remove(context, dirname='.'):
+    """
+    Remove the virtual environment associated with `dirname`.
+    Args:
+        context: The task context.
+        dirname: The optional pathname of the directory whose virtual environment is to be removed. (Default '.')
+    """
+    with context.cd(dirname):
+        context.run('pipenv --rm')
+        context.run('del Pipfile Pipfile.lock')
