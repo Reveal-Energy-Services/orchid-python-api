@@ -13,7 +13,7 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = "orchid"
-DESCRIPTION = "Defines the Python API for Orchid."
+DESCRIPTION = "Defines the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 URL = "https://github.com/me/myproject"
 EMAIL = "support@reveal-energy.com"
 AUTHOR = "Reveal Energy Services, Inc."
