@@ -12,10 +12,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import json
 import logging
 import pathlib
 import shutil
 import sys
+import toml
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
@@ -111,6 +113,31 @@ def package(context, skip_source=False, skip_binary=False):
 
 
 @task
+def pipfile_to_poetry(context):
+    """
+    Print `poetry` commands to add Pipfile dependencies to the poetry project file (`pyproject.toml`).
+    Args:
+        context: The task context.
+    """
+    pipfile = toml.load(pathlib.Path("Pipfile").open())
+    pipfile_lock = json.load(pathlib.Path("Pipfile.lock").open())
+
+    for required_package in pipfile["packages"]:
+        try:
+            version = pipfile_lock["default"][str(required_package)]["version"]
+            print(f"poetry add {required_package}={version.replace('==', '')}")
+        except KeyError:
+            pass
+
+    for dev_package in pipfile["dev-packages"]:
+        try:
+            version = pipfile_lock["develop"][str(dev_package)]["version"]
+            print(f"poetry add --dev {dev_package}={version.replace('==', '')}")
+        except KeyError:
+            pass
+
+
+@task
 def virtual_env_create(context, dirname='.', python_ver='3.7.7'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
@@ -185,6 +212,7 @@ ns = Collection()
 ns.add_task(build)
 ns.add_task(clean)
 ns.add_task(package)
+ns.add_task(pipfile_to_poetry)
 
 virtual_env_namespace = Collection('venv')
 virtual_env_namespace.add_task(virtual_env_remove, name='remove')

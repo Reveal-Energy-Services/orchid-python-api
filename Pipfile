@@ -15,6 +15,7 @@ pipenv-setup = "*"
 setuptools = "*"
 wheel = "*"
 invoke = "*"
+toml = "*"
 
 [packages]
 pythonnet = "*"
