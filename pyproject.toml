@@ -39,9 +39,8 @@ classifiers=[
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 # Perhaps these includes need be in an examples/samples subdirectory?
-include=["*.ipynb"]
-exclude=[".gitignore",
-         "scratch.ipynb"]
+include=["plot*.py", "tests/*.py", "jupyter_demo.ipynb"]
+exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
