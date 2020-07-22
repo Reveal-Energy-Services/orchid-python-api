@@ -137,7 +137,7 @@ def pipfile_to_poetry(_context):
 
 
 @task
-def virtual_env_create(context, dirname='.', python_ver='3.7.7'):
+def pipenv_create_venv(context, dirname='.', python_ver='3.7.7'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
@@ -149,50 +149,8 @@ def virtual_env_create(context, dirname='.', python_ver='3.7.7'):
         context.run(f'pipenv install --python={python_ver}')
 
 
-def is_venv():
-    """
-    Determines if a task is running in a virtual environment.
-
-    This function is copied from the Stack Overflow post, https://stackoverflow.com/a/42580137/2809027.
-    Although not the accepted answer, a commenter states that this implementation "authoritative update
-    correctly detecting all non-Anaconda venvs."
-
-    Returns: True if task is running in a non-Anaconda virtual environment for Python 3 or Python 2.
-    """
-    def has_real_prefix():
-        return hasattr(sys, 'real_prefix')
-
-    def has_base_prefix():
-        return hasattr(sys, 'base_prefix')
-
-    def base_prefix_differs_from_sys_prefix():
-        return sys.base_prefix != sys.prefix
-
-    result = (has_real_prefix() or (has_base_prefix() and base_prefix_differs_from_sys_prefix()))
-    return result
-
-
 @task
-def virtual_env_install(context, dist_dirname, dirname='.', dist_filename='orchid-2020.4.0-py3-none-any.whl'):
-    """
-    Install the distribution, `dist_filename`, located in, `dist_dirname`, into `dirname`.
-
-    WARNING: This task will *not* run outside a virtual environment (perhaps created by `pipenv shell`.)
-
-    Args:
-        context: The task context.
-        dirname: The pathname of the directory whose virtual environment is to be removed. (Default '.')
-        dist_dirname: The pathname of the directory containing the distribution to install.
-        dist_filename (str): The filename of the distribution to install. (Default: binary `orchid` 2020.4.0)
-    """
-    assert is_venv(), 'Not in virtual environment. Installation can only occur in a virtual environment.'
-
-    with context.cd(dirname):
-        context.run(f'pip install {str(pathlib.Path(dist_dirname).joinpath(dist_filename))}')
-
-
-@task
-def virtual_env_remove(context, dirname='.'):
+def pipenv_remove_venv(context, dirname='.'):
     """
     Remove the virtual environment associated with `dirname`.
     Args:
@@ -213,9 +171,8 @@ ns.add_task(clean)
 ns.add_task(package)
 ns.add_task(pipfile_to_poetry)
 
-virtual_env_namespace = Collection('venv')
-virtual_env_namespace.add_task(virtual_env_remove, name='remove')
-virtual_env_namespace.add_task(virtual_env_create, name='create')
-virtual_env_namespace.add_task(virtual_env_install, name='install-dist')
+pipenv_venv_ns = Collection('pipenv-venv')
+pipenv_venv_ns.add_task(pipenv_remove_venv, name='remove')
+pipenv_venv_ns.add_task(pipenv_create_venv, name='create')
 
-ns.add_collection(virtual_env_namespace)
+ns.add_collection(pipenv_venv_ns)
