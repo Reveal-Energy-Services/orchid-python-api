@@ -17,16 +17,15 @@ import logging
 import pathlib
 import shutil
 import sys
-import toml
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
+import toml
 
 
 # logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
-
 
 
 @task
@@ -113,11 +112,11 @@ def package(context, skip_source=False, skip_binary=False):
 
 
 @task
-def pipfile_to_poetry(context):
+def pipfile_to_poetry(_context):
     """
     Print `poetry` commands to add Pipfile dependencies to the poetry project file (`pyproject.toml`).
     Args:
-        context: The task context.
+        _context: The task context (unused).
     """
     pipfile = toml.load(pathlib.Path("Pipfile").open())
     pipfile_lock = json.load(pathlib.Path("Pipfile.lock").open())

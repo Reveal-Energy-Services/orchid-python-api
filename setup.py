@@ -146,7 +146,7 @@ setup(
     # extras_require=EXTRAS,
     extras_require={},
     include_package_data=True,
-    license="MIT",
+    license="Apache-2.0",
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -162,7 +162,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        # 'License :: OSI Approved :: MIT License',
+        "License :: OSI Approved :: Apache-2.0 License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
