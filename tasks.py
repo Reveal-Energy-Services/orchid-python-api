@@ -16,7 +16,6 @@ import json
 import logging
 import pathlib
 import shutil
-import sys
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
@@ -29,7 +28,7 @@ log = logging.getLogger(__name__)
 
 
 @task
-def build(context, docs=False):
+def setup_build(context, docs=False):
     """
     Build this project, optionally building the project documentation.
 
@@ -97,7 +96,7 @@ def clean(_context, docs=False, bytecode=False, extra=''):
 
 
 @task
-def package(context, skip_source=False, skip_binary=False):
+def setup_package(context, skip_source=False, skip_binary=False):
     """
     Package this project for distribution. By default, create *both* a source and binary distribution.
 
@@ -162,17 +161,58 @@ def pipenv_remove_venv(context, dirname='.'):
         context.run('del Pipfile Pipfile.lock')
 
 
+@task
+def poetry_build(context, skip_source=False, skip_binary=False):
+    """
+    Package this project for distribution. By default, create *both* a source and binary distribution.
+
+    Args:
+        context: The task context (unused).
+        skip_source (bool) : Flag set `True` if you wish to *not* building a source distribution.
+        skip_binary (bool): Flag set `True` if you wish to *not* building a binary (skip_binary) distribution.
+        Note that either `skip_source` or `skip_binary` can be set `True`, but *not* both.
+    """
+    assert not (skip_source and skip_binary), 'Cannot skip both source and binary.'
+
+    chosen_format = ''
+    if skip_source:
+        chosen_format = 'wheel'
+    elif skip_binary:
+        chosen_format = 'sdist'
+    format_option = '' if not chosen_format else f'--format={chosen_format}'
+    context.run(f'poetry build {format_option}')
+
+
 # Create and organize namespaces
 
 # Namespace root
 ns = Collection()
-ns.add_task(build)
 ns.add_task(clean)
-ns.add_task(package)
 ns.add_task(pipfile_to_poetry)
 
 pipenv_venv_ns = Collection('pipenv-venv')
 pipenv_venv_ns.add_task(pipenv_remove_venv, name='remove')
 pipenv_venv_ns.add_task(pipenv_create_venv, name='create')
 
+poetry_ns = Collection('poetry')
+# According to the documentation, aliases should be an iterable of alias names; however, the "build" aliases
+# appears neither in listing available tasks nor does `invoke` recognize the name as a sub-task. Finally, if
+# I add the alias to the task itself, it *is* handled correctly.
+#
+# Right now, my best guess as to the cause of the error is line 273 of `collection.py`:
+#
+#   `self.tasks.alias(self.transform(alias), to=name)`
+#
+# In this line, `self.tasks` is of type `Lexicon`; however, line 15 of `vendor/lexicon/__init__.py` seems to
+# set the attribute to be *aliases*. (Singular in the former case but *plural* in the latter.)
+#
+# At some time, we need to file a bug and perhaps submit a patch.
+poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
+
+setup_ns = Collection('setup')
+setup_ns.add_task(setup_build, name='build')
+setup_ns.add_task(setup_package, name='package')
+
 ns.add_collection(pipenv_venv_ns)
+ns.add_collection(poetry_ns)
+ns.add_collection(setup_ns)
