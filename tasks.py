@@ -16,6 +16,7 @@ import json
 import logging
 import pathlib
 import shutil
+import sys
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
@@ -183,6 +184,52 @@ def poetry_build(context, skip_source=False, skip_binary=False):
     context.run(f'poetry build {format_option}')
 
 
+@task
+def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
+    """
+    Create the virtual environment associated with `dirname` (Python interpreter only).
+    Args:
+        context: The task context.
+        dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
+    """
+    python_option_map = {'3.7.7': r'C:\Users\larry.jones\AppData\Local\Programs\Python\Python37\python.exe',
+                         '3.8.4': r'C:\Users\larry.jones\AppData\Local\Programs\Python\Python38\python.exe'}
+    python_option = python_option_map.get(python_ver, '')
+    with context.cd(dirname):
+        context.run(f'poetry env use {python_option}')
+        context.run(f'poetry shell')
+
+
+@task
+def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
+    """
+    Remove the virtual environment associated with `dirname`.
+    Args:
+        context: The task context.
+        dirname (str): The optional pathname of the directory whose virtual environment is to be removed.
+            (Default '.')
+        venv_name (str): The name of the virtual environment to delete (and associated with `dirname`).
+        python_path (str): The full path to the python interpreter used to create the environment.
+            Note: specify either `venv_name` or `python-path` but not both.
+    """
+    assert not (venv_name and python_path), "Specify either `venv_name` or `python_path` but not both."
+
+    with context.cd(dirname):
+        context.run(f'poetry env remove {venv_name or python_path}')
+        # context.run('del pyproject.toml')
+
+# Steps for poetry
+# Create a virtual environment
+# - Create new "project": `poetry new`
+# - Change `pyproject.toml` to use Python 3.7
+# - Configure poetry to use Python 3.7 `poetry env use /full/poth/to/python3.7/binary`
+# - Create virtual environment `poetry shell`
+# Install orchid in newly created virtual environment
+# - Remove all files is target directory except `pyproject.toml`
+# - Execute `pip install /path/to/dist/to_install`
+
+
 # Create and organize namespaces
 
 # Namespace root
@@ -208,6 +255,8 @@ poetry_ns = Collection('poetry')
 #
 # At some time, we need to file a bug and perhaps submit a patch.
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
+poetry_ns.add_task(poetry_create_venv, name='create')
+poetry_ns.add_task(poetry_remove_venv, name='remove')
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
