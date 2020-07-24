@@ -4,8 +4,7 @@ version = "2020.4.0-beta"
 description = "Define the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = ["Reveal Energy Services, Inc. <support@reveal-energy.com>"]
 maintainers = ["Reveal Energy Services, Inc. <support@reveal-energy.com>"]
-# License details?
-license="Proprietary"
+license="Apache-2.0"
 readme = "README.md"
 # Zendesk portal? Beta registration? Main web site?
 homepage=""
@@ -39,7 +38,7 @@ classifiers=[
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 # Perhaps these includes need be in an examples/samples subdirectory?
-include=["plot*.py", "tests/*.py", "jupyter_demo.ipynb"]
+include=["LICENSE", "plot*.py", "tests/*.py", "jupyter_demo.ipynb"]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]

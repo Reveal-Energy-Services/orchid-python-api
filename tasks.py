@@ -14,23 +14,24 @@
 
 import json
 import logging
+import os
 import pathlib
 import shutil
-import sys
-import toml
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
+import toml
+import toolz.curried as toolz
 
 
+# Commented out for ease of introducing DEBUG logging.
 # logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
 
 
-
 @task
-def build(context, docs=False):
+def setup_build(context, docs=False):
     """
     Build this project, optionally building the project documentation.
 
@@ -98,7 +99,7 @@ def clean(_context, docs=False, bytecode=False, extra=''):
 
 
 @task
-def package(context, skip_source=False, skip_binary=False):
+def setup_package(context, skip_source=False, skip_binary=False):
     """
     Package this project for distribution. By default, create *both* a source and binary distribution.
 
@@ -113,11 +114,11 @@ def package(context, skip_source=False, skip_binary=False):
 
 
 @task
-def pipfile_to_poetry(context):
+def pipfile_to_poetry(_context):
     """
     Print `poetry` commands to add Pipfile dependencies to the poetry project file (`pyproject.toml`).
     Args:
-        context: The task context.
+        _context: The task context (unused).
     """
     pipfile = toml.load(pathlib.Path("Pipfile").open())
     pipfile_lock = json.load(pathlib.Path("Pipfile.lock").open())
@@ -138,7 +139,7 @@ def pipfile_to_poetry(context):
 
 
 @task
-def virtual_env_create(context, dirname='.', python_ver='3.7.7'):
+def pipenv_create_venv(context, dirname='.', python_ver='3.7.7'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
@@ -150,50 +151,8 @@ def virtual_env_create(context, dirname='.', python_ver='3.7.7'):
         context.run(f'pipenv install --python={python_ver}')
 
 
-def is_venv():
-    """
-    Determines if a task is running in a virtual environment.
-
-    This function is copied from the Stack Overflow post, https://stackoverflow.com/a/42580137/2809027.
-    Although not the accepted answer, a commenter states that this implementation "authoritative update
-    correctly detecting all non-Anaconda venvs."
-
-    Returns: True if task is running in a non-Anaconda virtual environment for Python 3 or Python 2.
-    """
-    def has_real_prefix():
-        return hasattr(sys, 'real_prefix')
-
-    def has_base_prefix():
-        return hasattr(sys, 'base_prefix')
-
-    def base_prefix_differs_from_sys_prefix():
-        return sys.base_prefix != sys.prefix
-
-    result = (has_real_prefix() or (has_base_prefix() and base_prefix_differs_from_sys_prefix()))
-    return result
-
-
 @task
-def virtual_env_install(context, dist_dirname, dirname='.', dist_filename='orchid-2020.4.0-py3-none-any.whl'):
-    """
-    Install the distribution, `dist_filename`, located in, `dist_dirname`, into `dirname`.
-
-    WARNING: This task will *not* run outside a virtual environment (perhaps created by `pipenv shell`.)
-
-    Args:
-        context: The task context.
-        dirname: The pathname of the directory whose virtual environment is to be removed. (Default '.')
-        dist_dirname: The pathname of the directory containing the distribution to install.
-        dist_filename (str): The filename of the distribution to install. (Default: binary `orchid` 2020.4.0)
-    """
-    assert is_venv(), 'Not in virtual environment. Installation can only occur in a virtual environment.'
-
-    with context.cd(dirname):
-        context.run(f'pip install {str(pathlib.Path(dist_dirname).joinpath(dist_filename))}')
-
-
-@task
-def virtual_env_remove(context, dirname='.'):
+def pipenv_remove_venv(context, dirname='.'):
     """
     Remove the virtual environment associated with `dirname`.
     Args:
@@ -205,18 +164,109 @@ def virtual_env_remove(context, dirname='.'):
         context.run('del Pipfile Pipfile.lock')
 
 
+@task
+def poetry_build(context, skip_source=False, skip_binary=False):
+    """
+    Package this project for distribution. By default, create *both* a source and binary distribution.
+
+    Args:
+        context: The task context (unused).
+        skip_source (bool) : Flag set `True` if you wish to *not* building a source distribution.
+        skip_binary (bool): Flag set `True` if you wish to *not* building a binary (skip_binary) distribution.
+        Note that either `skip_source` or `skip_binary` can be set `True`, but *not* both.
+    """
+    assert not (skip_source and skip_binary), 'Cannot skip both source and binary.'
+
+    chosen_format = ''
+    if skip_source:
+        chosen_format = 'wheel'
+    elif skip_binary:
+        chosen_format = 'sdist'
+    format_option = '' if not chosen_format else f'--format={chosen_format}'
+    context.run(f'poetry build {format_option}')
+
+
+@task
+def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
+    """
+    Create the virtual environment associated with `dirname` (Python interpreter only).
+    Args:
+        context: The task context.
+        dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
+    """
+    python_paths = list(toolz.pipe(['37', '38'],
+                                   toolz.map(lambda v: pathlib.Path('Programs').joinpath('Python', f'Python{v}',
+                                                                                         'python.exe')),
+                                   toolz.map(lambda suffix: pathlib.Path(
+                                       os.environ['LOCALAPPDATA']).joinpath(suffix))))
+    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.4'), python_paths)}
+    python_option = python_option_map.get(python_ver, '')
+    with context.cd(dirname):
+        context.run(f'poetry env use {python_option}')
+
+
+@task
+def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
+    """
+    Remove the virtual environment associated with `dirname`.
+    Args:
+        context: The task context.
+        dirname (str): The optional pathname of the directory whose virtual environment is to be removed.
+            (Default '.')
+        venv_name (str): The name of the virtual environment to delete (and associated with `dirname`).
+        python_path (str): The full path to the python interpreter used to create the environment.
+            Note: specify either `venv_name` or `python-path` but not both.
+    """
+    assert not (venv_name and python_path), "Specify either `venv_name` or `python_path` but not both."
+
+    with context.cd(dirname):
+        context.run(f'poetry env remove {venv_name or python_path}')
+        # context.run('del pyproject.toml')
+
+# Steps for poetry
+# Create a virtual environment
+# - Create new "project": `poetry new`
+# - Change `pyproject.toml` to use Python 3.7
+# - Configure poetry to use Python 3.7 `poetry env use /full/poth/to/python3.7/binary`
+# - Create virtual environment `poetry shell`
+# Install orchid in newly created virtual environment
+# - Remove all files is target directory except `pyproject.toml`
+# - Execute `pip install /path/to/dist/to_install`
+
+
 # Create and organize namespaces
 
 # Namespace root
 ns = Collection()
-ns.add_task(build)
 ns.add_task(clean)
-ns.add_task(package)
 ns.add_task(pipfile_to_poetry)
 
-virtual_env_namespace = Collection('venv')
-virtual_env_namespace.add_task(virtual_env_remove, name='remove')
-virtual_env_namespace.add_task(virtual_env_create, name='create')
-virtual_env_namespace.add_task(virtual_env_install, name='install-dist')
+pipenv_venv_ns = Collection('pipenv-venv')
+pipenv_venv_ns.add_task(pipenv_remove_venv, name='remove')
+pipenv_venv_ns.add_task(pipenv_create_venv, name='create')
 
-ns.add_collection(virtual_env_namespace)
+poetry_ns = Collection('poetry')
+# According to the documentation, aliases should be an iterable of alias names; however, the "build" aliases
+# appears neither in listing available tasks nor does `invoke` recognize the name as a sub-task. Finally, if
+# I add the alias to the task itself, it *is* handled correctly.
+#
+# Right now, my best guess as to the cause of the error is line 273 of `collection.py`:
+#
+#   `self.tasks.alias(self.transform(alias), to=name)`
+#
+# In this line, `self.tasks` is of type `Lexicon`; however, line 15 of `vendor/lexicon/__init__.py` seems to
+# set the attribute to be *aliases*. (Singular in the former case but *plural* in the latter.)
+#
+# At some time, we need to file a bug and perhaps submit a patch.
+poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
+poetry_ns.add_task(poetry_create_venv, name='create')
+poetry_ns.add_task(poetry_remove_venv, name='remove')
+
+setup_ns = Collection('setup')
+setup_ns.add_task(setup_build, name='build')
+setup_ns.add_task(setup_package, name='package')
+
+ns.add_collection(pipenv_venv_ns)
+ns.add_collection(poetry_ns)
+ns.add_collection(setup_ns)
