@@ -19,6 +19,7 @@ import sys
 
 import orchid.configuration
 
+# noinspection PyPackageRequirements
 import clr
 
 

@@ -12,12 +12,4 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from .dot_net import prepare_imports
-prepare_imports()
-
-# High-level API
-from .core import load_project
-from .core import plot_monitor_pressures
-from .core import plot_monitor_pressure_curve
-from .core import plot_trajectories
-from .core import plot_treatment
+__version__ = '2020.4.0'
