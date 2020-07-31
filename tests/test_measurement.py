@@ -71,7 +71,7 @@ class TestMeasurement(unittest.TestCase):
         # The 6's in the following tolerances are caused by the round half-even that we use in expected values
         for (source_value, source_unit, target_value, target_unit, tolerance) in \
                 [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 6e-5),
-                 (18.1424, 'm^3/min', 0.302373, 'm^3/s', 6e-7),
+                 (18.1424, 'm\u00b3/min', 0.302373, 'm^3/s', 6e-7),
                  (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5),
                  (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5)]:
             with self.subTest(source_source_unit=source_unit, target_unit=target_unit):

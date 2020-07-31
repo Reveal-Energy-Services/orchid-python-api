@@ -24,7 +24,7 @@ Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], modul
 
 
 CONVERSION_FACTORS = {('bbl/min', 'bbl/s'): 1.0 / 60.0,
-                      ('m^3/min', 'm^3/s'): 1.0 / 60.0,
+                      ('m\u00b3/min', 'm^3/s'): 1.0 / 60.0,
                       ('bbl/min', 'gal/s'): 42.0 / 60,
                       ('bbl/s', 'gal/s'): 42}
 
