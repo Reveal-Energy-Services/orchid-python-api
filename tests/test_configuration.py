@@ -28,10 +28,11 @@ class ConfigurationTest(unittest.TestCase):
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.mock.patch.dict('os.environ', {'LOCALAPPDATA': os.fspath(APP_DATA_PATH)})
+    @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(APP_DATA_PATH)})
     @unittest.mock.patch.object(pathlib.Path, 'exists', return_value=False)
     def test_default_orchid_directory(self, _):
-        expected_directory = ConfigurationTest.APP_DATA_PATH.joinpath('Reveal')
+        expected_directory = str(ConfigurationTest.APP_DATA_PATH.joinpath('Reveal Energy Services, Inc',
+                                                                          'Orchid', 'Orchid-2020.4.101.13633'))
         assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
 
     @staticmethod

@@ -14,15 +14,16 @@
 
 import os
 import pathlib
+from typing import Dict
 
 import yaml
 
 
-def python_api():
+def python_api() -> Dict[str, str]:
     """
     Calculate the configuration for the Python API.
 
-    :return: The Python API configuration.
+        Returns: The Python API configuration.
     """
 
     # My general intent is that an actual user need not provide *any* configuration. Specifically, I assume
@@ -30,7 +31,8 @@ def python_api():
     # Further, I assume that the Orchid application is installed in the "standard" location for user-specific
     # code; that is, `AppData/Local` of the users "home" directory. This location is identified by the
     # environment variable, `LOCALAPPDATA`, which is set by Windows.
-    config = {'directory': pathlib.Path(os.environ['LOCALAPPDATA']).joinpath('Reveal')}
+    config = {'directory': str(pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
+                                                                                 'Orchid', 'Orchid-2020.4.101.13633'))}
     custom = {}
 
     # This code looks for the configuration file, `python_api.yaml`, in the parent directory of the package.
