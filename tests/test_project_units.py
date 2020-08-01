@@ -15,6 +15,7 @@
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
+import toolz.curried as toolz
 
 from orchid.project import Project
 from orchid.project_loader import ProjectLoader
@@ -23,25 +24,18 @@ from tests.stub_net import create_stub_net_project
 
 class TestProjectUnits(unittest.TestCase):
 
-    def test_returns_correct_length_unit_for_project(self):
-        units = ['ft', 'm']
-        for unit in units:
-            with self.subTest(unit=unit):
-                stub_net_project = create_stub_net_project(well_names=['dont-care-well'],
-                                                           project_length_unit_abbreviation=unit)
-                sut = create_sut(stub_net_project)
+    def test_returns_correct_unit_for_project(self):
+        about_units = [('length', 'project_length_unit_abbreviation', ('ft', 'm')),
+                       ('pressure', 'project_pressure_unit_abbreviation', ('psi', 'kPa'))]
+        default_options = {'well_names': ['dont-care-well']}
+        for quantity, abbreviation_name, units in about_units:
+            for unit in units:
+                with self.subTest(unit=unit):
+                    options = toolz.assoc(default_options, abbreviation_name, unit)
+                    stub_net_project = create_stub_net_project(**options)
+                    sut = create_sut(stub_net_project)
 
-                assert_that(sut.unit('length'), equal_to(unit))
-
-    def test_returns_correct_pressure_unit_for_project(self):
-        units = ['psi', 'kPa']
-        for unit in units:
-            with self.subTest(unit=unit):
-                stub_net_project = create_stub_net_project(well_names=['dont-care-well'],
-                                                           project_pressure_unit_abbreviation=unit)
-                sut = create_sut(stub_net_project)
-
-                assert_that(sut.unit('pressure'), equal_to(unit))
+                    assert_that(sut.unit(quantity), equal_to(unit))
 
     def test_returns_correct_slurry_rate_unit_for_project(self):
         slurry_rate_abbreviations = ['bbl/min', 'm^3/min']
