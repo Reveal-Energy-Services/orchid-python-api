@@ -44,10 +44,17 @@ class TestMeasurement(unittest.TestCase):
             with self.subTest(invalid_unit=invalid_unit):
                 assert_that(calling(om.make_measurement).with_args(1, invalid_unit), raises(deal.PreContractError))
 
-    def test_correct_volume_unit_from_known_unit(self):
-        units = ['bbl/min', 'm^3/min']
+    def test_correct_slurry_rate_volume_unit_from_known_unit(self):
+        units_to_test = ['bbl/min', 'm^3/min']
         volume_units = ['bbl', 'm^3']
-        for unit, expected in zip(units, volume_units):
+        for unit, expected in zip(units_to_test, volume_units):
+            with self.subTest(unit=unit, expected=expected):
+                assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
+
+    def test_correct_proppant_concentration_mass_unit_from_known_unit(self):
+        units_to_test = ['bbl/min', 'm^3/min']
+        mass_units = ['bbl', 'm^3']
+        for unit, expected in zip(units_to_test, mass_units):
             with self.subTest(unit=unit, expected=expected):
                 assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
 
