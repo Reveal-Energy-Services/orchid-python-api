@@ -26,6 +26,7 @@ class TestProjectUnits(unittest.TestCase):
 
     def test_returns_correct_unit_for_project(self):
         about_units = [('length', 'project_length_unit_abbreviation', ('ft', 'm'), ('ft', 'm')),
+                       ('mass', 'project_mass_unit_abbreviation', ('lb', 'kg'), ('lb', 'kg')),
                        ('pressure', 'project_pressure_unit_abbreviation', ('psi', 'kPa'), ('psi', 'kPa')),
                        ('slurry rate', 'slurry_rate_unit_abbreviation',
                         ('bbl/min', 'm^3/min'), ('bbl/min', 'm\u00b3/min')),

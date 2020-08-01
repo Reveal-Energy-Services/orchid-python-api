@@ -95,11 +95,17 @@ def create_net_treatment(start_time_point, treating_pressure_values, rate_values
 
 
 def set_project_unit(stub_net_project, abbreviation):
-    def set_foot_length_unit():
+    def set_length_foot_unit():
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
 
-    def set_meter_length_unit():
+    def set_length_meter_unit():
         stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
+
+    def set_mass_lb_unit():
+        stub_net_project.ProjectUnits.MassUnit = UnitsNet.Units.MassUnit.Pound
+
+    def set_mass_kg_unit():
+        stub_net_project.ProjectUnits.MassUnit = UnitsNet.Units.MassUnit.Kilogram
 
     def set_pressure_psi_unit():
         stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
@@ -126,8 +132,10 @@ def set_project_unit(stub_net_project, abbreviation):
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Kilogram
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.CubicMeter
 
-    abbreviation_unit_map = {'ft': set_foot_length_unit,
-                             'm': set_meter_length_unit,
+    abbreviation_unit_map = {'ft': set_length_foot_unit,
+                             'm': set_length_meter_unit,
+                             'lb': set_mass_lb_unit,
+                             'kg': set_mass_kg_unit,
                              'psi': set_pressure_psi_unit,
                              'kPa': set_pressure_kpa_unit,
                              'MPa': set_pressure_mpa_unit,
@@ -161,7 +169,9 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
 
 
 def create_stub_net_project(name='', default_well_colors=None,
-                            project_length_unit_abbreviation='', project_pressure_unit_abbreviation='',
+                            project_length_unit_abbreviation='',
+                            project_mass_unit_abbreviation='',
+                            project_pressure_unit_abbreviation='',
                             slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
@@ -188,6 +198,7 @@ def create_stub_net_project(name='', default_well_colors=None,
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
     set_project_unit(stub_net_project, project_length_unit_abbreviation)
+    set_project_unit(stub_net_project, project_mass_unit_abbreviation)
     set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
     set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
     set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
