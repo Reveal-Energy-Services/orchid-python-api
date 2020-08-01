@@ -57,6 +57,18 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return result
 
     def treatment_curves(self):
+        """
+        Returns the dictionary of treatment curves for this treatment_stage.
+
+        Request a specific curve from the dictionary using the constants defined in `orchid`:
+
+        - `PROPPANT_CONCENTRATION`
+        - `SLURRY_RATE`
+        - `TREATING_PRESSURE`
+
+        Returns:
+            The dictionary containing the available treatment curves.
+        """
         if not self._adaptee.TreatmentCurves.Items:
             return {}
 

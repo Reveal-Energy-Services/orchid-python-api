@@ -24,7 +24,7 @@ from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries
 
 PROPPANT_CONCENTRATION = 'Proppant Concentration'
 SLURRY_RATE = 'Slurry Rate'
-TREATING_PRESSURE = 'Treating Pressure'
+TREATING_PRESSURE = 'Pressure'
 
 
 class NativeTreatmentCurveFacade(dna.DotNetAdapter):

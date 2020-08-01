@@ -52,7 +52,7 @@ def make_measurement(magnitude, unit):
 
 
 @deal.pre(lambda slurry_rate_unit: argument_neither_none_empty_nor_all_whitespace(slurry_rate_unit))
-def volume_unit(slurry_rate_unit):
+def slurry_rate_volume_unit(slurry_rate_unit):
     """
     Extract the volume unit from the compound `slurry_rate_unit`.
     :param slurry_rate_unit:  The abbreviation for the compound slurry rate unit.

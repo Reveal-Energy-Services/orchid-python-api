@@ -49,7 +49,7 @@ class TestMeasurement(unittest.TestCase):
         volume_units = ['bbl', 'm^3']
         for unit, expected in zip(units, volume_units):
             with self.subTest(unit=unit, expected=expected):
-                assert_that(om.volume_unit(unit), equal_to(expected))
+                assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
 
     def test_raises_error_if_unknown_unit(self):
         unknown_units = ['bbl/m', 'm^3/min\f', '\tbbl/min']
@@ -57,7 +57,7 @@ class TestMeasurement(unittest.TestCase):
         for unknown_unit, message_unit in zip(unknown_units, message_units):
             with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
                 # noinspection SpellCheckingInspection
-                assert_that(calling(om.volume_unit).with_args(unknown_unit),
+                assert_that(calling(om.slurry_rate_volume_unit).with_args(unknown_unit),
                             raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
 
     def test_raises_error_if_invalid_unit(self):
@@ -65,7 +65,7 @@ class TestMeasurement(unittest.TestCase):
         for invalid_unit in invalid_units:
             with self.subTest(invalid_unit=invalid_unit):
                 # noinspection SpellCheckingInspection
-                assert_that(calling(om.volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
+                assert_that(calling(om.slurry_rate_volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
 
     def test_convert_single_item_values_returns_converted_single_item_values(self):
         # The 6's in the following tolerances are caused by the round half-even that we use in expected values

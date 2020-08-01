@@ -96,10 +96,10 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
         start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000)
-        sut = create_sut(name='palmis', values=values, start_time_point=start_time_point)
+        sut = create_sut(name='clavis', values=values, start_time_point=start_time_point)
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        expected = pd.Series(data=values, index=expected_time_points, name='palmis')
+        expected = pd.Series(data=values, index=expected_time_points, name='clavis')
         pdt.assert_series_equal(sut.time_series(), expected)
 
 
