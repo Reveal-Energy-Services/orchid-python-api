@@ -51,28 +51,45 @@ class TestMeasurement(unittest.TestCase):
             with self.subTest(unit=unit, expected=expected):
                 assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
 
-    def test_correct_proppant_concentration_mass_unit_from_known_unit(self):
-        units_to_test = ['bbl/min', 'm^3/min']
-        mass_units = ['bbl', 'm^3']
-        for unit, expected in zip(units_to_test, mass_units):
-            with self.subTest(unit=unit, expected=expected):
-                assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
-
-    def test_raises_error_if_unknown_unit(self):
+    def test_raises_error_if_unknown_slurry_rate_unit(self):
         unknown_units = ['bbl/m', 'm^3/min\f', '\tbbl/min']
-        message_units = ['bbl/m', 'm\\^3/min\f', '\tbbl/min']
+        message_units = ['bbl/m', r'm\^3/min\f', '\tbbl/min']
         for unknown_unit, message_unit in zip(unknown_units, message_units):
             with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
                 # noinspection SpellCheckingInspection
                 assert_that(calling(om.slurry_rate_volume_unit).with_args(unknown_unit),
                             raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
 
-    def test_raises_error_if_invalid_unit(self):
+    def test_raises_error_if_invalid_slurry_rate_unit(self):
         invalid_units = [None, '', '\r']
         for invalid_unit in invalid_units:
             with self.subTest(invalid_unit=invalid_unit):
                 # noinspection SpellCheckingInspection
                 assert_that(calling(om.slurry_rate_volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
+
+    def test_correct_proppant_concentration_mass_unit_from_known_unit(self):
+        units_to_test = ['lb/gal (U.S.)', 'kg/m^3']
+        mass_units = ['lb', 'kg']
+        for unit, expected in zip(units_to_test, mass_units):
+            with self.subTest(unit=unit, expected=expected):
+                assert_that(om.proppant_concentration_mass_unit(unit), equal_to(expected))
+
+    def test_raises_error_if_unknown_proppant_concentration_unit(self):
+        unknown_units = ['lb/gal', 'kg/m^3\f', '  lb/gal (U.S.)']
+        message_units = ['lb/gal', r'kg/m\^3\f', r'  lb/gal \(U.S.\)']
+        for unknown_unit, message_unit in zip(unknown_units, message_units):
+            with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
+                # noinspection SpellCheckingInspection
+                assert_that(calling(om.proppant_concentration_mass_unit).with_args(unknown_unit),
+                            raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
+
+    def test_raises_error_if_invalid_proppant_concentration_unit(self):
+        invalid_units = [None, '', '\r']
+        for invalid_unit in invalid_units:
+            with self.subTest(invalid_unit=invalid_unit):
+                # noinspection SpellCheckingInspection
+                assert_that(calling(om.proppant_concentration_mass_unit).with_args(invalid_unit),
+                            raises(deal.PreContractError))
 
     def test_convert_single_item_values_returns_converted_single_item_values(self):
         # The 6's in the following tolerances are caused by the round half-even that we use in expected values

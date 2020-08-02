@@ -26,4 +26,4 @@ from .core import plot_treatment
 from .native_treatment_curve_facade import (PROPPANT_CONCENTRATION, SLURRY_RATE, TREATING_PRESSURE)
 
 # Helpful functions
-from .measurement import (get_conversion_factor, slurry_rate_volume_unit)
+from .measurement import (get_conversion_factor, slurry_rate_volume_unit, proppant_concentration_mass_unit)

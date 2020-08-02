@@ -64,3 +64,23 @@ def slurry_rate_volume_unit(slurry_rate_unit):
         return 'm^3'
     else:
         raise ValueError(f'Unit, "{slurry_rate_unit}", unrecognized.')
+
+
+@deal.pre(lambda proppant_concentration_unit: argument_neither_none_empty_nor_all_whitespace(
+    proppant_concentration_unit))
+def proppant_concentration_mass_unit(proppant_concentration_unit):
+    """
+    Extract the mass unit from the compound `proppant_concentration_unit`.
+
+    Args:
+        proppant_concentration_unit: The abbreviation for the proppant concentration unit.
+
+    Returns:
+        The abbreviation for the mass unit of the proppant concentration unit.
+    """
+    if proppant_concentration_unit == 'lb/gal (U.S.)':
+        return 'lb'
+    elif proppant_concentration_unit == 'kg/m^3':
+        return 'kg'
+    else:
+        raise ValueError(f'Unit, "{proppant_concentration_unit}", unrecognized.')
