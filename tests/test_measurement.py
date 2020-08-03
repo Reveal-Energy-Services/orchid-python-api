@@ -45,8 +45,8 @@ class TestMeasurement(unittest.TestCase):
                 assert_that(calling(om.make_measurement).with_args(1, invalid_unit), raises(deal.PreContractError))
 
     def test_correct_slurry_rate_volume_unit_from_known_unit(self):
-        units_to_test = ['bbl/min', 'm^3/min']
-        volume_units = ['bbl', 'm^3']
+        units_to_test = ['bbl/min', 'm^3/min', 'm\u00b3/min']
+        volume_units = ['bbl', 'm^3', 'm\u00b3']
         for unit, expected in zip(units_to_test, volume_units):
             with self.subTest(unit=unit, expected=expected):
                 assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
@@ -68,8 +68,8 @@ class TestMeasurement(unittest.TestCase):
                 assert_that(calling(om.slurry_rate_volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
 
     def test_correct_proppant_concentration_mass_unit_from_known_unit(self):
-        units_to_test = ['lb/gal (U.S.)', 'kg/m^3']
-        mass_units = ['lb', 'kg']
+        units_to_test = ['lb/gal (U.S.)', 'kg/m^3', 'kg/m\u00b3']
+        mass_units = ['lb', 'kg', 'kg']
         for unit, expected in zip(units_to_test, mass_units):
             with self.subTest(unit=unit, expected=expected):
                 assert_that(om.proppant_concentration_mass_unit(unit), equal_to(expected))
@@ -96,6 +96,7 @@ class TestMeasurement(unittest.TestCase):
         for (source_value, source_unit, target_value, target_unit, tolerance) in \
                 [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 6e-5),
                  (18.1424, 'm\u00b3/min', 0.302373, 'm^3/s', 6e-7),
+                 (18.1424, 'm\u00b3/min', 0.302373, 'm\u00b3/s', 6e-7),
                  (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5),
                  (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5)]:
             with self.subTest(source_source_unit=source_unit, target_unit=target_unit):
