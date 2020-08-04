@@ -27,7 +27,10 @@ CONVERSION_FACTORS = {('bbl/min', 'bbl/s'): 1.0 / 60.0,
                       ('m\u00b3/min', 'm^3/s'): 1.0 / 60.0,
                       ('m\u00b3/min', 'm\u00b3/s'): 1.0 / 60.0,
                       ('bbl/min', 'gal/s'): 42.0 / 60,
-                      ('bbl/s', 'gal/s'): 42}
+                      ('bbl/s', 'gal/s'): 42,
+                      ('m\u00b3', 'bbl'): 6.28981,
+                      ('kg', 'lb'): 2.20462,
+                      ('kPa', 'psi'): 0.145038}
 
 
 def argument_neither_none_empty_nor_all_whitespace(arg):

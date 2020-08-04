@@ -98,7 +98,10 @@ class TestMeasurement(unittest.TestCase):
                  (18.1424, 'm\u00b3/min', 0.302373, 'm^3/s', 6e-7),
                  (18.1424, 'm\u00b3/min', 0.302373, 'm\u00b3/s', 6e-7),
                  (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5),
-                 (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5)]:
+                 (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5),
+                 (13.5354, 'm\u00b3', 85.1351, 'bbl', 6e-5),
+                 (445.683, 'kg', 982.562, 'lb', 6e-4),
+                 (165.501, 'kPa', 24.0039, 'psi', 6e-5)]:
             with self.subTest(source_source_unit=source_unit, target_unit=target_unit):
                 assert_that(source_value * om.get_conversion_factor(source_unit, target_unit),
                             close_to(target_value, tolerance))
