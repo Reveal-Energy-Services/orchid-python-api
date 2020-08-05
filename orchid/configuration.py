@@ -12,11 +12,30 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import logging
 import os
 import pathlib
+import re
 from typing import Dict
 
+import toolz.curried as toolz
 import yaml
+
+_logger = logging.getLogger(__name__)
+
+
+class ConfigurationError(Exception):
+    pass
+
+
+@toolz.curry
+def sort_installations(candidate_pattern, user_friendly_pattern, path):
+    match_result = re.match(candidate_pattern, path.name)
+    if not match_result:
+        raise ConfigurationError(f'Expected directories matching {user_friendly_pattern} but found, "{str(path)}".')
+
+    sortable_version = match_result.groups()
+    return sortable_version
 
 
 def python_api() -> Dict[str, str]:
@@ -24,24 +43,38 @@ def python_api() -> Dict[str, str]:
     Calculate the configuration for the Python API.
 
         Returns: The Python API configuration.
+
+        BEWARE: The returned configuration will not have an 'directory' key if Orchid is neither installed
+        nor configured with `$HOME/.orchid/python.yaml`.
     """
 
-    # My general intent is that an actual user need not provide *any* configuration. Specifically, I assume
-    # that the user has installed the `orchid` package (Python API) with the Orchid application itself.
-    # Further, I assume that the Orchid application is installed in the "standard" location for user-specific
-    # code; that is, `AppData/Local` of the users "home" directory. This location is identified by the
-    # environment variable, `LOCALAPPDATA`, which is set by Windows.
-    config = {'directory': str(pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
-                                                                                 'Orchid', 'Orchid-2020.4.101.13633'))}
-    custom = {}
+    # My general intent is that an actual user need not provide *any* configuration. Specifically,
+    # I assume that the Orchid application is installed in the "standard" location,
+    # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`
+    standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
+                                                                            'Orchid')
 
-    # This code looks for the configuration file, `python_api.yaml`, in the parent directory of the package.
-    # This choice works great for a developer, but I'm less clear that it would work for a data scientist at
-    # a customer. (Because it would depend on where the Python package is installed.)
+    candidate_pattern = re.compile(r'Orchid-(\d{4})\.([1234])\.(\d+).(\d+)$')
+    candidates = list(toolz.map(
+        str,
+        sorted(standard_orchid_dir.glob('Orchid*'),
+               key=sort_installations(candidate_pattern,
+                                      '"Orchid-(major).(minor).(patch).(build)" (all integers)'), reverse=True)))
+    _logger.debug(f'candidates={candidates}')
+    default = {}
+    if len(candidates) > 0:
+        default = {'directory': toolz.first(candidates)}
+    _logger.debug(f'default configuration={default}')
+
+    # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory in the
+    # user-specific home directory.
+    custom = {}
     custom_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
     if custom_config_path.exists():
         with custom_config_path.open('r') as in_stream:
             custom = yaml.full_load(in_stream)
+    _logger.debug(f'custom configuration={custom}')
 
-    config.update(custom)
-    return config
+    result = toolz.merge(default, custom)
+    _logger.debug(f'result configuration={result}')
+    return result
