@@ -222,6 +222,29 @@ def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
         context.run(f'poetry env remove {venv_name or python_path}')
         # context.run('del pyproject.toml')
 
+
+@task
+def poetry_update_version(context):
+    """
+    Update the poetry version in `pyproject.toml` to the version stored in orchid/VERSION.
+
+    Args:
+        context: The task context.
+    """
+    with open('pyproject.toml') as in_stream:
+        source_toml = toml.loads(in_stream.read())
+
+    project_slug = source_toml['tool']['poetry']['name'].lower().replace('-', '_').replace(' ', '_')
+    with open(os.path.join(pathlib.Path(__file__).parent, project_slug, 'VERSION')) as f:
+        version_text = f.read().strip()
+
+    target_toml = source_toml.copy()
+    target_toml['tool']['poetry']['version'] = version_text
+
+    with open('pyproject.toml', 'w') as out_stream:
+        out_stream.write(toml.dumps(target_toml))
+
+
 # Steps for poetry
 # Create a virtual environment
 # - Create new "project": `poetry new`
@@ -260,6 +283,7 @@ poetry_ns = Collection('poetry')
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
 poetry_ns.add_task(poetry_create_venv, name='create')
 poetry_ns.add_task(poetry_remove_venv, name='remove')
+poetry_ns.add_task(poetry_update_version, name='update-ver')
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
