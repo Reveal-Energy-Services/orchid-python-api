@@ -16,12 +16,16 @@
 import UnitsNet
 
 
-def pressure_unit(net_project):
-    return UnitsNet.Pressure.GetAbbreviation(net_project.ProjectUnits.PressureUnit)
-
-
 def length_unit(net_project):
     return UnitsNet.Length.GetAbbreviation(net_project.ProjectUnits.LengthUnit)
+
+
+def mass_unit(net_project):
+    return UnitsNet.Mass.GetAbbreviation(net_project.ProjectUnits.MassUnit)
+
+
+def pressure_unit(net_project):
+    return UnitsNet.Pressure.GetAbbreviation(net_project.ProjectUnits.PressureUnit)
 
 
 def slurry_rate_unit(net_project):
@@ -48,8 +52,9 @@ def unit(net_project, physical_quantity):
     :param physical_quantity: The name of the physical quantity.
     :return: The abbreviation of the specified physical quantity.
     """
-    quantity_function_map = {'pressure': pressure_unit,
-                             'length': length_unit,
+    quantity_function_map = {'length': length_unit,
+                             'mass': mass_unit,
+                             'pressure': pressure_unit,
                              'slurry rate': slurry_rate_unit,
                              'proppant concentration': proppant_concentration_unit}
 

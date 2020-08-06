@@ -44,36 +44,64 @@ class TestMeasurement(unittest.TestCase):
             with self.subTest(invalid_unit=invalid_unit):
                 assert_that(calling(om.make_measurement).with_args(1, invalid_unit), raises(deal.PreContractError))
 
-    def test_correct_volume_unit_from_known_unit(self):
-        units = ['bbl/min', 'm^3/min']
-        volume_units = ['bbl', 'm^3']
-        for unit, expected in zip(units, volume_units):
+    def test_correct_slurry_rate_volume_unit_from_known_unit(self):
+        units_to_test = ['bbl/min', 'm^3/min', 'm\u00b3/min']
+        volume_units = ['bbl', 'm^3', 'm\u00b3']
+        for unit, expected in zip(units_to_test, volume_units):
             with self.subTest(unit=unit, expected=expected):
-                assert_that(om.volume_unit(unit), equal_to(expected))
+                assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
 
-    def test_raises_error_if_unknown_unit(self):
+    def test_raises_error_if_unknown_slurry_rate_unit(self):
         unknown_units = ['bbl/m', 'm^3/min\f', '\tbbl/min']
-        message_units = ['bbl/m', 'm\\^3/min\f', '\tbbl/min']
+        message_units = ['bbl/m', r'm\^3/min\f', '\tbbl/min']
         for unknown_unit, message_unit in zip(unknown_units, message_units):
             with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
                 # noinspection SpellCheckingInspection
-                assert_that(calling(om.volume_unit).with_args(unknown_unit),
+                assert_that(calling(om.slurry_rate_volume_unit).with_args(unknown_unit),
                             raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
 
-    def test_raises_error_if_invalid_unit(self):
+    def test_raises_error_if_invalid_slurry_rate_unit(self):
         invalid_units = [None, '', '\r']
         for invalid_unit in invalid_units:
             with self.subTest(invalid_unit=invalid_unit):
                 # noinspection SpellCheckingInspection
-                assert_that(calling(om.volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
+                assert_that(calling(om.slurry_rate_volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
+
+    def test_correct_proppant_concentration_mass_unit_from_known_unit(self):
+        units_to_test = ['lb/gal (U.S.)', 'kg/m^3', 'kg/m\u00b3']
+        mass_units = ['lb', 'kg', 'kg']
+        for unit, expected in zip(units_to_test, mass_units):
+            with self.subTest(unit=unit, expected=expected):
+                assert_that(om.proppant_concentration_mass_unit(unit), equal_to(expected))
+
+    def test_raises_error_if_unknown_proppant_concentration_unit(self):
+        unknown_units = ['lb/gal', 'kg/m^3\f', '  lb/gal (U.S.)']
+        message_units = ['lb/gal', r'kg/m\^3\f', r'  lb/gal \(U.S.\)']
+        for unknown_unit, message_unit in zip(unknown_units, message_units):
+            with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
+                # noinspection SpellCheckingInspection
+                assert_that(calling(om.proppant_concentration_mass_unit).with_args(unknown_unit),
+                            raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
+
+    def test_raises_error_if_invalid_proppant_concentration_unit(self):
+        invalid_units = [None, '', '\r']
+        for invalid_unit in invalid_units:
+            with self.subTest(invalid_unit=invalid_unit):
+                # noinspection SpellCheckingInspection
+                assert_that(calling(om.proppant_concentration_mass_unit).with_args(invalid_unit),
+                            raises(deal.PreContractError))
 
     def test_convert_single_item_values_returns_converted_single_item_values(self):
         # The 6's in the following tolerances are caused by the round half-even that we use in expected values
         for (source_value, source_unit, target_value, target_unit, tolerance) in \
                 [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 6e-5),
-                 (18.1424, 'm^3/min', 0.302373, 'm^3/s', 6e-7),
+                 (18.1424, 'm\u00b3/min', 0.302373, 'm^3/s', 6e-7),
+                 (18.1424, 'm\u00b3/min', 0.302373, 'm\u00b3/s', 6e-7),
                  (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5),
-                 (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5)]:
+                 (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5),
+                 (13.5354, 'm\u00b3', 85.1351, 'bbl', 6e-5),
+                 (445.683, 'kg', 982.562, 'lb', 6e-4),
+                 (165.501, 'kPa', 24.0039, 'psi', 6e-5)]:
             with self.subTest(source_source_unit=source_unit, target_unit=target_unit):
                 assert_that(source_value * om.get_conversion_factor(source_unit, target_unit),
                             close_to(target_value, tolerance))

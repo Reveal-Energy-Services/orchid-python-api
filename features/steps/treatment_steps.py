@@ -46,7 +46,7 @@ def aggregate_stage_treatment(stage):
 
     def slurry_rate_per_min_to_per_second_conversion_factor():
         source_slurry_rate_unit = treatment_curves['Slurry Rate'].sampled_quantity_unit()
-        target_slurry_rate_unit = f'{om.volume_unit(source_slurry_rate_unit)}/s'
+        target_slurry_rate_unit = f'{om.slurry_rate_volume_unit(source_slurry_rate_unit)}/s'
         local_result = om.get_conversion_factor(source_slurry_rate_unit, target_slurry_rate_unit)
         return local_result
 

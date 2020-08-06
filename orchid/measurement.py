@@ -24,9 +24,13 @@ Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], modul
 
 
 CONVERSION_FACTORS = {('bbl/min', 'bbl/s'): 1.0 / 60.0,
-                      ('m^3/min', 'm^3/s'): 1.0 / 60.0,
+                      ('m\u00b3/min', 'm^3/s'): 1.0 / 60.0,
+                      ('m\u00b3/min', 'm\u00b3/s'): 1.0 / 60.0,
                       ('bbl/min', 'gal/s'): 42.0 / 60,
-                      ('bbl/s', 'gal/s'): 42}
+                      ('bbl/s', 'gal/s'): 42,
+                      ('m\u00b3', 'bbl'): 6.28981,
+                      ('kg', 'lb'): 2.20462,
+                      ('kPa', 'psi'): 0.145038}
 
 
 def argument_neither_none_empty_nor_all_whitespace(arg):
@@ -52,7 +56,7 @@ def make_measurement(magnitude, unit):
 
 
 @deal.pre(lambda slurry_rate_unit: argument_neither_none_empty_nor_all_whitespace(slurry_rate_unit))
-def volume_unit(slurry_rate_unit):
+def slurry_rate_volume_unit(slurry_rate_unit):
     """
     Extract the volume unit from the compound `slurry_rate_unit`.
     :param slurry_rate_unit:  The abbreviation for the compound slurry rate unit.
@@ -62,5 +66,27 @@ def volume_unit(slurry_rate_unit):
         return 'bbl'
     elif slurry_rate_unit == 'm^3/min':
         return 'm^3'
+    elif slurry_rate_unit == 'm\u00b3/min':
+        return 'm\u00b3'
     else:
         raise ValueError(f'Unit, "{slurry_rate_unit}", unrecognized.')
+
+
+@deal.pre(lambda proppant_concentration_unit: argument_neither_none_empty_nor_all_whitespace(
+    proppant_concentration_unit))
+def proppant_concentration_mass_unit(proppant_concentration_unit):
+    """
+    Extract the mass unit from the compound `proppant_concentration_unit`.
+
+    Args:
+        proppant_concentration_unit: The abbreviation for the proppant concentration unit.
+
+    Returns:
+        The abbreviation for the mass unit of the proppant concentration unit.
+    """
+    if proppant_concentration_unit == 'lb/gal (U.S.)':
+        return 'lb'
+    elif proppant_concentration_unit == 'kg/m^3' or proppant_concentration_unit == 'kg/m\u00b3':
+        return 'kg'
+    else:
+        raise ValueError(f'Unit, "{proppant_concentration_unit}", unrecognized.')
