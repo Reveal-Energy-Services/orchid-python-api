@@ -1,0 +1,60 @@
+#
+# This file is part of Orchid and related technologies.
+#
+# Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
+#
+# LEGAL NOTICE:
+# Orchid contains trade secrets and otherwise confidential information
+# owned by Reveal Energy Services. Access to and use of this information is 
+# strictly limited and controlled by the Company. This file may not be copied,
+# distributed, or otherwise disclosed outside of the Company's facilities 
+# except under appropriate precautions to maintain the confidentiality hereof, 
+# and may not be used in any way not expressly authorized by the Company.
+#
+
+from collections import namedtuple
+import pathlib
+from typing import Tuple
+
+import toolz.curried as toolz
+
+
+VersionId = namedtuple('VersionId', ['major', 'minor', 'patch', 'build'])
+
+
+class Version:
+    def __init__(self, version=()):
+        """
+        Constructs an instance.
+
+        If no version is supplied, this method will try to read the file, 'VERSION', in the same directory
+        as this module.
+
+        Args:
+            version (Tuple[int, int, int, int]): The 4-part (major, minor, patch, build)
+            version identifier.
+        """
+        if version:
+            self._major, self._minor, self._patch, self._build = version
+        else:
+            with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
+                text_version = version_file.read()
+                self._major, self._minor, self._patch, self._build = toolz.map(int, text_version.split('.'))
+
+    def __eq__(self, other):
+        if not isinstance(other, Version):
+            return False
+
+        return self.id() == other.id()
+
+    def __repr__(self):
+        return f'Version(major={self._major}, minor={self._minor}, patch={self._patch}, build={self._build})'
+
+    def id(self) -> VersionId:
+        """
+        Calculates the version identifier.
+
+        Returns:
+            The identifier for this instance.
+        """
+        return VersionId(self._major, self._minor, self._patch, self._build)
