@@ -21,6 +21,9 @@ from typing import Dict
 import toolz.curried as toolz
 import yaml
 
+import orchid.version
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -53,17 +56,9 @@ def python_api() -> Dict[str, str]:
     # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`
     standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
                                                                             'Orchid')
-
-    candidate_pattern = re.compile(r'Orchid-(\d{4})\.([1234])\.(\d+).(\d+)$')
-    candidates = list(toolz.map(
-        str,
-        sorted(standard_orchid_dir.glob('Orchid*'),
-               key=sort_installations(candidate_pattern,
-                                      '"Orchid-(major).(minor).(patch).(build)" (all integers)'), reverse=True)))
-    _logger.debug(f'candidates={candidates}')
-    default = {}
-    if len(candidates) > 0:
-        default = {'directory': toolz.first(candidates)}
+    version_id = orchid.version.Version().id()
+    version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}.{version_id.build}'
+    default = {'directory': str(standard_orchid_dir.joinpath(version_dirname))}
     _logger.debug(f'default configuration={default}')
 
     # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory in the
