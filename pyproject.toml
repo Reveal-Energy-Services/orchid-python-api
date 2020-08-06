@@ -1,10 +1,14 @@
+[build-system]
+requires = [ "poetry>=0.12",]
+build-backend = "poetry.masonry.api"
+
 [tool.poetry]
 name = "orchid"
-version = "2020.4.0-beta"
+version = "2020.4.101.13633"
 description = "Define the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
-authors = ["Reveal Energy Services, Inc. <support@reveal-energy.com>"]
-maintainers = ["Reveal Energy Services, Inc. <support@reveal-energy.com>"]
-license="Apache-2.0"
+authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
+maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
+license = "Apache-2.0"
 readme = "README.md"
 # Zendesk portal? Beta registration? Main web site?
 homepage=""
@@ -76,8 +80,4 @@ plot_treatment = "plot_treatment:main"
 
 [tool.poetry.urls]
 # Zendesk?
-"Issues" = ""
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+Issues = ""
