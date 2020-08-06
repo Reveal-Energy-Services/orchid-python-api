@@ -21,7 +21,6 @@ import shutil
 # noinspection PyPackageRequirements
 from invoke import task, Collection
 import toml
-import toolz.curried as toolz
 
 
 # Commented out for ease of introducing DEBUG logging.
@@ -195,11 +194,10 @@ def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
         dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
         python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
     """
-    python_paths = list(toolz.pipe(['37', '38'],
-                                   toolz.map(lambda v: pathlib.Path('Programs').joinpath('Python', f'Python{v}',
-                                                                                         'python.exe')),
-                                   toolz.map(lambda suffix: pathlib.Path(
-                                       os.environ['LOCALAPPDATA']).joinpath(suffix))))
+    python_minor_versions = ['37', '38']
+    python_exe_relative_paths = [pathlib.Path('Programs').joinpath('Python', f'Python{v}', 'python.exe') for
+                                 v in python_minor_versions]
+    python_paths = [pathlib.Path(os.environ['LOCALAPPDATA']).joinpath(rp) for rp in python_exe_relative_paths]
     python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.4'), python_paths)}
     python_option = python_option_map.get(python_ver, '')
     with context.cd(dirname):
