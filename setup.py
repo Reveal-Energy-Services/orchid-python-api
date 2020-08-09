@@ -123,7 +123,7 @@ setup(
     url=URL,
     packages=find_packages(include=["orchid", "tests"]),
     # Including the `jupyter_demo` notebook is merely for example.
-    scripts=['plot_trajectories.py', 'plot_monitor_pressures.py', 'plot_treatment.py', 'jupyter_demo.ipynb'],
+    scripts=['plot_monitor_pressures.py', 'jupyter_demo.ipynb'],
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
     # entry_points={

@@ -22,8 +22,6 @@ prepare_imports()
 from .core import load_project
 from .core import plot_monitor_pressures
 from .core import plot_monitor_pressure_curve
-from .core import plot_trajectories
-from .core import plot_treatment
 
 # Helpful constants
 from .native_treatment_curve_facade import (PROPPANT_CONCENTRATION, SLURRY_RATE, TREATING_PRESSURE)

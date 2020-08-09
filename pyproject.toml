@@ -74,9 +74,7 @@ invoke = "1.4.1"
 toml = "0.10.1"
 
 [tool.poetry.scripts]
-plot_trajectories = "plot_trajectories:main"
 plot_monitor_pressures = "plot_monitor_pressures:main"
-plot_treatment = "plot_treatment:main"
 
 [tool.poetry.urls]
 # Zendesk?
