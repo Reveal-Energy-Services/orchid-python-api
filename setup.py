@@ -1,5 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#
+#  Licensed under the Apache License, Version 2.0 (the "License"); 
+#  you may not use this file except in compliance with the License. 
+#  You may obtain a copy of the License at 
+#
+#      http://www.apache.org/licenses/LICENSE-2.0 
+#
+#  Unless required by applicable law or agreed to in writing, software 
+#  distributed under the License is distributed on an "AS IS" BASIS, 
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+#  See the License for the specific language governing permissions and 
+#  limitations under the License. 
+#
+# This file is part of Orchid and related technologies.
+#
+
 
 # Note: To use the 'upload' functionality of this file, you must:
 #   $ pipenv install twine --dev
@@ -105,8 +122,8 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(include=["orchid", "tests"]),
-    # Including the `jupyter_demo` notebook is merely for example.
-    scripts=['plot_trajectories.py', 'plot_monitor_pressures.py', 'plot_treatment.py', 'jupyter_demo.ipynb'],
+    # Including the notebooks in `examples`.
+    scripts=['plot_monitor_pressures.py', "examples/*.ipynb"],
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
     # entry_points={
@@ -122,7 +139,6 @@ setup(
         "kiwisolver==1.2.0; python_version >= '3.6'",
         "lazy-object-proxy==1.4.3; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "matplotlib==3.2.2",
-        "more-itertools==8.4.0",
         "numpy==1.19.0",
         "pandas==1.0.5",
         "pycparser==2.20; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
@@ -140,7 +156,6 @@ setup(
         "typeguard==2.9.1; python_full_version >= '3.5.3'",
         "typing-extensions==3.7.4.2",
         "vaa==0.2.1",
-        "vectormath==0.2.2",
         "wrapt==1.12.1",
     ],
     dependency_links=[],

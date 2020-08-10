@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
+#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#
+#  Licensed under the Apache License, Version 2.0 (the "License"); 
+#  you may not use this file except in compliance with the License. 
+#  You may obtain a copy of the License at 
+#
+#      http://www.apache.org/licenses/LICENSE-2.0 
+#
+#  Unless required by applicable law or agreed to in writing, software 
+#  distributed under the License is distributed on an "AS IS" BASIS, 
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+#  See the License for the specific language governing permissions and 
+#  limitations under the License. 
 #
 # This file is part of Orchid and related technologies.
-#
-# Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
-#
-# LEGAL NOTICE:
-# Orchid contains trade secrets and otherwise confidential information
-# owned by Reveal Energy Services. Access to and use of this information is 
-# strictly limited and controlled by the Company. This file may not be copied,
-# distributed, or otherwise disclosed outside of the Company's facilities 
-# except under appropriate precautions to maintain the confidentiality hereof, 
-# and may not be used in any way not expressly authorized by the Company.
 #
 
 from typing import Tuple
@@ -107,54 +110,3 @@ def plot_monitor_pressure_curve(series_to_plot: pd.Series, axes: matplotlib.axes
     axes.title.set_text(series_name)
     x_tick_labels = axes.get_xticklabels()
     plt.setp(x_tick_labels, rotation=30)
-
-
-# TODO: Add **kwargs eventually?
-# Although the original proposal included kwargs to control the plotting, I do not know what those arguments
-# might actually be right now so I have not included the argument. Adding this argument is low-cost.
-def plot_trajectories(ifrac_pathname: str) -> None:
-    """
-    Plot the trajectories for all the wells in the project of interest.
-
-    :param ifrac_pathname: The path identifying the data file of the project of interest.
-    :return: None
-    """
-    project = load_project(ifrac_pathname)
-    project_wells = project.all_wells()
-    default_well_colors = ['#%02x%02x%02x' % (r, g, b) for (r, g, b) in project_wells.default_well_colors()]
-    well_ids = list(project_wells.well_ids())
-    trajectories = [project_wells.trajectory_points(well_id) for well_id in well_ids]
-    for i in range(len(well_ids)):
-        plt.plot([p.x for p in trajectories[i]], [p.y for p in trajectories[i]],
-                 label=f'{project_wells.well_display_name(well_ids[i])}',
-                 color=default_well_colors[i % len(default_well_colors)])
-    plt.title(f'{project.name} Well Trajectories (Project Coordinates)')
-    plt.legend(loc='best')
-    plt.xlabel(f'Easting ({project.unit("length")})')
-    plt.ylabel(f'Northing ({project.unit("length")})')
-
-    plt.show()
-
-
-# TODO: Add **kwargs eventually?
-# Although the original proposal included kwargs to control the plotting, I do not know what those arguments
-# might actually be right now so I have not included the argument. Adding this argument is low-cost.
-def plot_treatment(ifrac_pathname, well_name, stage_no):
-    """
-    Plot the treatment curve for the specified well and stage in the project of interest.
-
-    :param ifrac_pathname: The path identifying the data file of the project of interest.
-    :param well_name: The name of the well whose stages are of interest.
-    :param stage_no: The number of the stage of interest.
-    :return: None
-    """
-    project = load_project(ifrac_pathname)
-    project_wells = project.all_wells()
-    treatment_curves = project_wells.treatment_curves(well_name, stage_no)
-    axes = treatment_curves.plot(subplots=True, title=f'Treatment Curves: Stage {stage_no} of Well {well_name}')
-
-    axes[0].set_ylabel(f'{project.unit("pressure")}')
-    axes[1].set_ylabel(f'{project.unit("slurry rate")}')
-    axes[2].set_ylabel(f'{project.unit("proppant concentration")}')
-
-    plt.show()
