@@ -23,6 +23,12 @@ import deal
 Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], module=__name__)
 
 
+# TODO: Wrap UnitsNet and custom (ratio) types
+# This solution, although initially usefully, is not very extensible. I believe, after a discussion with
+# Scott, that a better solution would wrap .NET code: both the `UnitsNet` package and the custom types we
+# wrote for slurry rate and proppant concentration. Because of the imminent, initial release, I have chosen
+# not to make that change at this time. As part of this change, I will introduce symbolic constants so that
+# user can use "Intellisense" if available.
 CONVERSION_FACTORS = {('bbl/min', 'bbl/s'): 1.0 / 60.0,
                       ('m\u00b3/min', 'm^3/s'): 1.0 / 60.0,
                       ('m\u00b3/min', 'm\u00b3/s'): 1.0 / 60.0,

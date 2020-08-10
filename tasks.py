@@ -21,7 +21,6 @@ import shutil
 # noinspection PyPackageRequirements
 from invoke import task, Collection
 import toml
-import toolz.curried as toolz
 
 
 # Commented out for ease of introducing DEBUG logging.
@@ -195,11 +194,10 @@ def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
         dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
         python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
     """
-    python_paths = list(toolz.pipe(['37', '38'],
-                                   toolz.map(lambda v: pathlib.Path('Programs').joinpath('Python', f'Python{v}',
-                                                                                         'python.exe')),
-                                   toolz.map(lambda suffix: pathlib.Path(
-                                       os.environ['LOCALAPPDATA']).joinpath(suffix))))
+    python_minor_versions = ['37', '38']
+    python_exe_relative_paths = [pathlib.Path('Programs').joinpath('Python', f'Python{v}', 'python.exe') for
+                                 v in python_minor_versions]
+    python_paths = [pathlib.Path(os.environ['LOCALAPPDATA']).joinpath(rp) for rp in python_exe_relative_paths]
     python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.4'), python_paths)}
     python_option = python_option_map.get(python_ver, '')
     with context.cd(dirname):
@@ -223,6 +221,29 @@ def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
     with context.cd(dirname):
         context.run(f'poetry env remove {venv_name or python_path}')
         # context.run('del pyproject.toml')
+
+
+@task
+def poetry_update_version(context):
+    """
+    Update the poetry version in `pyproject.toml` to the version stored in orchid/VERSION.
+
+    Args:
+        context: The task context.
+    """
+    with open('pyproject.toml') as in_stream:
+        source_toml = toml.loads(in_stream.read())
+
+    project_slug = source_toml['tool']['poetry']['name'].lower().replace('-', '_').replace(' ', '_')
+    with open(os.path.join(pathlib.Path(__file__).parent, project_slug, 'VERSION')) as f:
+        version_text = f.read().strip()
+
+    target_toml = source_toml.copy()
+    target_toml['tool']['poetry']['version'] = version_text
+
+    with open('pyproject.toml', 'w') as out_stream:
+        out_stream.write(toml.dumps(target_toml))
+
 
 # Steps for poetry
 # Create a virtual environment
@@ -262,6 +283,7 @@ poetry_ns = Collection('poetry')
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
 poetry_ns.add_task(poetry_create_venv, name='create')
 poetry_ns.add_task(poetry_remove_venv, name='remove')
+poetry_ns.add_task(poetry_update_version, name='update-ver')
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
