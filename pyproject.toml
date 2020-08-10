@@ -42,7 +42,7 @@ classifiers=[
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 # Perhaps these includes need be in an examples/samples subdirectory?
-include=["LICENSE", "plot*.py", "tests/*.py", "jupyter_demo.ipynb"]
+include=["LICENSE", "tests/*.py", "examples/*.ipynb"]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
@@ -50,11 +50,9 @@ python = "^3.7"
 pythonnet = "2.5.1"
 numpy = "1.19.0"
 python-dateutil = "2.8.1"
-vectormath = "0.2.2"
 deal = "3.9.0"
 matplotlib = "3.3.0"
 seaborn = "0.10.1"
-more-itertools = "8.4.0"
 pyyaml = "5.3.1"
 pandas = "1.0.5"
 typing-extensions = "3.7.4.2"

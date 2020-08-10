@@ -122,8 +122,8 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(include=["orchid", "tests"]),
-    # Including the `jupyter_demo` notebook is merely for example.
-    scripts=['plot_monitor_pressures.py', 'jupyter_demo.ipynb'],
+    # Including the notebooks in `examples`.
+    scripts=['plot_monitor_pressures.py', "examples/*.ipynb"],
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
     # entry_points={
@@ -139,7 +139,6 @@ setup(
         "kiwisolver==1.2.0; python_version >= '3.6'",
         "lazy-object-proxy==1.4.3; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "matplotlib==3.2.2",
-        "more-itertools==8.4.0",
         "numpy==1.19.0",
         "pandas==1.0.5",
         "pycparser==2.20; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
@@ -157,7 +156,6 @@ setup(
         "typeguard==2.9.1; python_full_version >= '3.5.3'",
         "typing-extensions==3.7.4.2",
         "vaa==0.2.1",
-        "vectormath==0.2.2",
         "wrapt==1.12.1",
     ],
     dependency_links=[],
