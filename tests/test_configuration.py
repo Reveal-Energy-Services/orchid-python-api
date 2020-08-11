@@ -20,7 +20,6 @@ import pathlib
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
-import toolz.curried as toolz
 
 import orchid.configuration
 
@@ -48,14 +47,7 @@ def multi_mock_open(*file_contents):
 class ConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
     REVEAL_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
-    no_candidates = []
-    one_candidate = REVEAL_ROOT.joinpath('Orchid-2020.4.101.13633')
-    many_candidates = list(toolz.map(toolz.curry(REVEAL_ROOT.joinpath), ['Orchid-2020.4.101.86940',
-                                                                         'Orchid-2020.4.139.82023',
-                                                                         'Orchid-2020.4.151.44838']))
-    no_dash_candidate = [REVEAL_ROOT.joinpath('Orchid2020.4.101.13633')]
-    no_dots_candidate = [REVEAL_ROOT.joinpath('Orchid-2020')]
-    non_int_candidate = [REVEAL_ROOT.joinpath('Orchid-2020.4.101.cf1f55b')]
+    one_candidate = REVEAL_ROOT.joinpath('Orchid-2020.4.151')
 
     @staticmethod
     def test_canary_test():
@@ -67,7 +59,7 @@ class ConfigurationTest(unittest.TestCase):
                                   # SUT *does not* read the (developer) configuration file.
                                   exists=unittest.mock.MagicMock(return_value=False),
                                   # Path.open is actually called by orchid.configuration.Version()
-                                  open=unittest.mock.mock_open(read_data='2020.4.101.13633'))
+                                  open=unittest.mock.mock_open(read_data='2020.4.151'))
     def test_orchid_one_installed(self):
         assert_that(orchid.configuration.python_api()['directory'],
                     equal_to(str(ConfigurationTest.one_candidate)))
@@ -77,7 +69,7 @@ class ConfigurationTest(unittest.TestCase):
         expected_directory = r'I:\diluvialis\Indus\Orchid'
         with unittest.mock.patch.multiple(pathlib.Path,
                                           exists=unittest.mock.MagicMock(return_value=True),
-                                          open=multi_mock_open('2020.4.101.13633', f'directory: {expected_directory}')):
+                                          open=multi_mock_open('2020.4.101', f'directory: {expected_directory}')):
             assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
 
 
