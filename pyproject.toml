@@ -4,19 +4,15 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid"
-version = "2020.4.101.13633"
-description = "Define the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
+version = "2020.4.151"
+description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 license = "Apache-2.0"
 readme = "README.md"
-# Zendesk portal? Beta registration? Main web site?
-homepage=""
-# Github? Azure repository?
-repository=""
-# Zendesk portal?
-documentation=""
-# Other keywords?
+homepage="https://github.com/Reveal-Energy-Services/orchid-python-api"
+repository="https://github.com/Reveal-Energy-Services/orchid-python-api"
+documentation="https://github.com/Reveal-Energy-Services/orchid-python-api/wiki"
 keywords=["Orchid",
           "Fracture Diagnostics"]
 # Other classifiers? Other ideas? Removals?
@@ -41,8 +37,7 @@ classifiers=[
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-# Perhaps these includes need be in an examples/samples subdirectory?
-include=["LICENSE", "tests/*.py", "examples/*.ipynb"]
+include=["LICENSE", "tests/*.py", "examples/*.py", "examples/*.ipynb"]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
@@ -75,5 +70,4 @@ toml = "0.10.1"
 plot_monitor_pressures = "plot_monitor_pressures:main"
 
 [tool.poetry.urls]
-# Zendesk?
-Issues = ""
+Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
