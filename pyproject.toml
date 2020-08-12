@@ -66,8 +66,5 @@ wheel = "0.34.2"
 invoke = "1.4.1"
 toml = "0.10.1"
 
-[tool.poetry.scripts]
-plot_monitor_pressures = "examples/plot_monitor_pressures:main"
-
 [tool.poetry.urls]
 Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
