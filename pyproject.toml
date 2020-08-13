@@ -3,7 +3,7 @@ requires = [ "poetry>=0.12",]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "orchid"
+name = "orchid-python-api"
 version = "2020.4.151"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -15,7 +15,6 @@ repository="https://github.com/Reveal-Energy-Services/orchid-python-api"
 documentation="https://github.com/Reveal-Energy-Services/orchid-python-api/wiki"
 keywords=["Orchid",
           "Fracture Diagnostics"]
-# Other classifiers? Other ideas? Removals?
 classifiers=[
     # Trove classifiers
     # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -31,13 +30,13 @@ classifiers=[
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    # 'License :: OSI Approved :: MIT License',
+    "License :: OSI Approved :: Apached-2.0 License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-include=["LICENSE", "tests/*.py", "examples/*.py", "examples/*.ipynb"]
+include=["LICENSE", "orchid/*.py", "orchid/VERSION", "tests/*.py", "examples/*.py", "examples/*.ipynb"]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
