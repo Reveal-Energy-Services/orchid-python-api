@@ -277,7 +277,7 @@ def poetry_update_version(context):
 # Create a virtual environment
 # - Create new "project": `poetry new`
 # - Change `pyproject.toml` to use Python 3.7
-# - Configure poetry to use Python 3.7 `poetry env use /full/poth/to/python3.7/binary`
+# - Configure poetry to use Python 3.7 `poetry env use /full/path/to/python3.7/binary`
 # - Create virtual environment `poetry shell`
 # Install orchid in newly created virtual environment
 # - Remove all files is target directory except `pyproject.toml`
@@ -309,11 +309,14 @@ poetry_ns = Collection('poetry')
 #
 # At some time, we need to file a bug and perhaps submit a patch.
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
-poetry_ns.add_task(poetry_configure_api_token, name='configure-api-token')
-poetry_ns.add_task(poetry_configure_test_pypi, name='configure-test-pypi')
 poetry_ns.add_task(poetry_create_venv, name='create')
 poetry_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_task(poetry_update_version, name='update-ver')
+
+poetry_config_ns = Collection('config')
+poetry_config_ns.add_task(poetry_configure_api_token, name='api-token')
+poetry_config_ns.add_task(poetry_configure_test_pypi, name='test-pypi')
+poetry_ns.add_collection(poetry_config_ns)
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
