@@ -29,13 +29,13 @@ class TestVersion(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_supplied_version(self):
-        assert_that(version.Version(version=(2017, 3, 6970, 466160)),
-                    equal_to(version.Version(version=(2017, 3, 6970, 466160))))
+        assert_that(version.Version(version=(2017, 3, 6970)),
+                    equal_to(version.Version(version=(2017, 3, 6970))))
 
     def test_read_version(self):
         with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
-                                          open=unittest.mock.mock_open(read_data='2018.3.3497.133205')):
-            assert_that(version.Version(), equal_to(version.Version(version=(2018, 3, 3497, 133205))))
+                                          open=unittest.mock.mock_open(read_data='2018.3.3497')):
+            assert_that(version.Version(), equal_to(version.Version(version=(2018, 3, 3497))))
 
 
 if __name__ == '__main__':

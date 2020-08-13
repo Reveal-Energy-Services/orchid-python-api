@@ -190,6 +190,30 @@ def poetry_build(context, skip_source=False, skip_binary=False):
 
 
 @task
+def poetry_configure_api_token(context, token, repository='pypi'):
+    """
+    Set the (PyPI) API token for configured poetry repository.
+
+    Args:
+        context: The task context (unused).
+        token (str): The generated API token (including  the `pypi` prefix).
+        repository (str) : The name of the configured repository (default: `pypi`).
+    """
+    context.run(f'poetry config pypi-token.{repository} {token}')
+
+
+@task
+def poetry_configure_test_pypi(context):
+    """
+    Add the test.pypi.org repository to the poetry configuration.
+
+    Args:
+        context: The task context (unused).
+    """
+    context.run('poetry config repositories.test-pypi https://test.pypi.org/legacy/')
+
+
+@task
 def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
@@ -233,7 +257,7 @@ def poetry_update_version(context):
     Update the poetry version in `pyproject.toml` to the version stored in orchid/VERSION.
 
     Args:
-        context: The task context.
+        context: The task context (unused).
     """
     with open('pyproject.toml') as in_stream:
         source_toml = toml.loads(in_stream.read())
@@ -253,7 +277,7 @@ def poetry_update_version(context):
 # Create a virtual environment
 # - Create new "project": `poetry new`
 # - Change `pyproject.toml` to use Python 3.7
-# - Configure poetry to use Python 3.7 `poetry env use /full/poth/to/python3.7/binary`
+# - Configure poetry to use Python 3.7 `poetry env use /full/path/to/python3.7/binary`
 # - Create virtual environment `poetry shell`
 # Install orchid in newly created virtual environment
 # - Remove all files is target directory except `pyproject.toml`
@@ -288,6 +312,11 @@ poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
 poetry_ns.add_task(poetry_create_venv, name='create')
 poetry_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_task(poetry_update_version, name='update-ver')
+
+poetry_config_ns = Collection('config')
+poetry_config_ns.add_task(poetry_configure_api_token, name='api-token')
+poetry_config_ns.add_task(poetry_configure_test_pypi, name='test-pypi')
+poetry_ns.add_collection(poetry_config_ns)
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')

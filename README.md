@@ -1,26 +1,76 @@
 # Introduction 
 
-This project defines the implementation of the Python API for Orchid.
+This project defines the implementation of the Python API for Orchid*.
+
+(*Orchid in a mark of Revel Energy Services. Inc.)
 
 Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
-Additionally, this project contains a number of demonstration applications:
+Additionally, this project contains a number of examples in the `examples` directory:
 
-- `plot_trajectories.py`
-- `plot_time_series.py`
-- `plot_treatment.py`
-- `summarize_treatment.py`
+- `plot_trajectories.ipynb`
+- `plot_treatment.ipynb`
+- `plot_monitor_pressure.py`
+- `completion_analysis.ipynb`
 
-The first three applications plot:
+The first two notebooks plot:
 
 - The well trajectories for a project
-- The time series for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
 
-The last application demonstrates using `orchid` package and Pandas to perform some typical treatment calculations.
+The console application, `plot_monitor_pressure.py`, plots the monitor pressure curves for a project specified as a
+command line argument. 
+ 
+Finally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion performed on
+ two different wells in a project.
 
 # Getting Started
 
-## Overview
+## End-user Usage
+
+We recommend the use of virtual environments to use the Orchid Python API. This choice avoids putting 
+Orchid-specific-packages in your system Python environment.
+
+You have several options to create and manage virtual environments: `venv`, `pipenv`, `poetry`, and `conda`.
+The `venv ` is available as a standard Python package and is a spartan tool to manage environments. `poetry`
+is a tool targeting developers but can be used by end-users. Our recommended tool is `pipenv`. It provides a 
+good balance between `venv ` and `poetry`. Remember, both `pipenv` and `poetry` must be installed in your 
+Python environment separately from Python itself, but can be installed using `pip`. Finally, `conda` supports 
+the creation of virtual environments, but assumes that you have installed a Python distribution using Anaconda
+or miniconda. We will not describe `conda` further.
+
+Using any of `pipenv`, `venv` or `poetry`, your first step is to create a directory for *your* project. Then, 
+change into *your* project directory.
+
+### Pipenv
+
+- Create virtual environment (using Powershell (recommended) or Windows console)
+    - `</path/to/python-3.7/installation/Scripts/pipenv install`
+    - `pipenv shell`
+    - `pip install orchid-python-api`
+        
+## Venv
+
+- Create a directory to host all your virtual environments. A good choice is 
+`</path/to/user/directory/.virtualenvs>`. In subsequent steps, I will use the directory, 
+`</path/to/user/directory/.virtualenvs/orchid-python-api>`, to hold my virtual environment.
+- Create virtual environment (using Powershell (recommended) or Windows console)
+    - Create an empty virtual environment
+        - `</path/to/python-3.7/installation/python -m venv </path/to/user/directory/.virtualenvs/orchid-python-api>`
+    - Activate the virtual environment
+        - `</path/to/user/directory/.virtualenvs/orchid-python-api/bin/Activate.ps1>` in Powershell or
+        - `</path/to/user/directory/.virtualenvs/orchid-python-api/bin/Activate.bat>` in Windows console
+    - Install orchid-python-api
+        - `pip install orchid-python-api`
+        
+### Poetry
+
+- Create a an empty virtual environment (using Powershell (recommended) or Windows console) by executing,
+    `poetry env use /c/Users/larry.jones/AppData/Local/Programs/Python/Python37/python`
+- Install packages into the empty virtual environment
+    - `poetry shell`
+    - `pip install orchid-python-api`
+
+## Development Overview
 
 To understand the structure of the code, the [development README](./docs_dev/README.md) contains an overview of 
 the application / package design.
@@ -106,14 +156,6 @@ Finally, many, many, many other tools exist to support Python ranging from "edit
 and Sublime. You can most likely use whatever editing environment you are familiar with (or, like me, more than one).
 Remember the recommendation from the book, _The Pragmatic Programmer_: "Find one editor and stick to it."
 
-## End-user Usage
-
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
-
 # Build and Test Locally
 
 TODO: Describe and show how to build your code and run the tests. 
@@ -122,8 +164,8 @@ TODO: Describe and show how to build your code and run the tests.
 
 To contribute to this project, follow our typical development process:
 
-- Clone this repository using [HTTPS](https://reveal-energy.visualstudio.com/ImageFrac/_git/PythonApi) or
-  [SSH](reveal-energy@vs-ssh.visualstudio.com:v3/reveal-energy/ImageFrac/PythonApi)
+- Clone this repository using [HTTPS](https://github.com/Reveal-Energy-Services/orchid-python-api.git) or
+  [SSH](git@github.com:Reveal-Energy-Services/orchid-python-api.git)
 - Create a branch for you work typically branching from `develop`
 - Make changes on your branch
 - Push your branch to the Azure DevOps repository
@@ -132,10 +174,3 @@ To contribute to this project, follow our typical development process:
 
 Although not yet enforced, any changes will need to pass all unit tests and any integration tests that are part of the
 project before the pull request can be completed.
-
-If you want to learn more about creating good readme files then refer the following
-[guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also
-seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
