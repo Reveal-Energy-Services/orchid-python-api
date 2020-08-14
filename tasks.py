@@ -233,6 +233,18 @@ def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
 
 
 @task
+def poetry_publish(context, repository):
+    """
+    Publish the created source and binary distributions to the specified repository.
+
+    Args:
+        context: The task context (unused).
+        repository (str) : The name of the configured repository.
+    """
+    context.run(f'poetry publish --repository={repository}')
+
+
+@task
 def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
     """
     Remove the virtual environment associated with `dirname`.
@@ -310,6 +322,7 @@ poetry_ns = Collection('poetry')
 # At some time, we need to file a bug and perhaps submit a patch.
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
 poetry_ns.add_task(poetry_create_venv, name='create')
+poetry_ns.add_task(poetry_publish, name='publish')
 poetry_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_task(poetry_update_version, name='update-ver')
 
