@@ -22,6 +22,7 @@ import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
+from orchid.native_well_time_series_adapter import NativeWellTimeSeriesAdapter
 from orchid.project_loader import ProjectLoader
 from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
@@ -92,3 +93,16 @@ class Project(dna.DotNetAdapter):
         :return: A list of all the wells in this project.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
+
+    def well_time_series(self) -> Iterable[NativeWellTimeSeriesAdapter]:
+        """
+            Return a sequence of well time series for this project.
+        Returns:
+            An iterable of well time series.
+        """
+        native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
+        if len(native_time_series_list_items) > 0:
+            return toolz.map(NativeWellTimeSeriesAdapter,
+                             self._project_loader.native_project().WellTimeSeriesList.Items)
+        else:
+            return []

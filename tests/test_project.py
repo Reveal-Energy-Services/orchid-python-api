@@ -15,16 +15,22 @@
 # This file is part of Orchid and related technologies.
 #
 
+import datetime
 import unittest
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, contains_exactly
+from hamcrest import assert_that, equal_to, contains_exactly, is_, empty
+import toolz.curried as toolz
 
 from orchid.project import Project
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
 
+# Test ideas
+# - No well time series returns empty well time series
+# - One well time series returns one well time series
+# - Many well time series
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -98,6 +104,46 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
         # noinspection PyTypeChecker
         assert_that(sut.default_well_colors(), contains_exactly(*expected_default_well_colors))
+
+    def test_well_time_series_returns_empty_if_no_well_time_series(self):
+        expected_well_time_series = []
+        stub_native_project = create_stub_net_project(samples=expected_well_time_series)
+        sut = create_sut(stub_native_project)
+
+        # noinspection PyTypeChecker
+        assert_that(sut.well_time_series(), is_(empty()))
+
+    def test_well_time_series_returns_one_if_one_well_time_series(self):
+        curve_name = 'gestum'
+        curve_quantity = 'pressure'
+        sample_start = datetime.datetime(2018, 11, 14, 0, 58, 32, 136000)
+        sample_values = [0.617, 0.408, 2.806]
+        samples = [(sample_start + datetime.timedelta(seconds=30) * i, sample_values[i])
+                   for i in range(len(sample_values))]
+        stub_native_project = create_stub_net_project(name='non curo', curve_names=[curve_name],
+                                                      curves_physical_quantities=[curve_quantity],
+                                                      samples=[samples])
+        sut = create_sut(stub_native_project)
+
+        # noinspection PyTypeChecker
+        assert_that(len(list(sut.well_time_series())), equal_to(1))
+
+    def test_well_time_series_returns_many_if_many_well_time_series(self):
+        curve_names = ['superseduisti', 'mulctaverim', 'veniae']
+        curve_quantity_names = ['temperature', 'pressure', 'pressure']
+        sample_starts = [datetime.datetime(2019, 3, 7, 10, 2, 13, 131000),
+                         datetime.datetime(2019, 8, 1, 16, 50, 45, 500000),
+                         datetime.datetime(2016, 3, 21, 20, 15, 19, 54000)]
+        sample_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
+        samples = [[(sample_start + datetime.timedelta(seconds=30) * i, sample_values[i])
+                   for i in range(len(sample_values))] for sample_start in sample_starts]
+        stub_native_project = create_stub_net_project(name='non curo', curve_names=curve_names,
+                                                      curves_physical_quantities=curve_quantity_names,
+                                                      samples=samples)
+        sut = create_sut(stub_native_project)
+
+        # noinspection PyTypeChecker
+        assert_that(len(list(sut.well_time_series())), equal_to(3))
 
 
 def create_sut(stub_net_project):
