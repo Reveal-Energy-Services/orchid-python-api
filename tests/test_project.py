@@ -27,6 +27,22 @@ from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
 
+@toolz.curry
+def make_sample(start, value):
+    return start, value
+
+
+@toolz.curry
+def make_samples(start, values):
+    return toolz.map(make_sample(start), values)
+
+
+@toolz.curry
+def make_samples_for_starts(starts, values_for_starts):
+    return toolz.pipe(zip(starts, values_for_starts),
+                      toolz.map(lambda start_values_pair: make_samples(start_values_pair[0], start_values_pair[1])))
+
+
 # Test ideas
 # - No well time series returns empty well time series
 # - One well time series returns one well time series
@@ -113,20 +129,13 @@ class TestProject(unittest.TestCase):
         # noinspection PyTypeChecker
         assert_that(sut.well_time_series(), is_(empty()))
 
-    @staticmethod
-    @toolz.curry
-    def make_samples_at_index(start, index_value_pair):
-        n, value = index_value_pair
-        return start + datetime.timedelta(seconds=30) * n, value
-
     def test_well_time_series_returns_one_if_one_well_time_series(self):
         curve_name = 'gestum'
         curve_quantity = 'pressure'
         sample_start = datetime.datetime(2018, 11, 14, 0, 58, 32, 136000)
         sample_values = [0.617, 0.408, 2.806]
 
-        samples = toolz.pipe(enumerate(sample_values),
-                             toolz.map(self.make_samples_at_index(sample_start)))
+        samples = make_samples(sample_start, sample_values)
         stub_native_project = create_stub_net_project(name='non curo', curve_names=[curve_name],
                                                       curves_physical_quantities=[curve_quantity],
                                                       samples=[samples])
@@ -143,15 +152,7 @@ class TestProject(unittest.TestCase):
                          datetime.datetime(2016, 3, 21, 20, 15, 19, 54000)]
         samples_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
 
-        @toolz.curry
-        def make_samples(start, values):
-            return list(toolz.map(self.make_samples_at_index(start), enumerate(values)))
-
-        samples = list(toolz.pipe(zip(sample_starts, samples_values),
-                                  toolz.map(lambda start_values_pair: make_samples(start_values_pair[0],
-                                                                                   start_values_pair[1]))))
-        # samples = [[(sample_start + datetime.timedelta(seconds=30) * i, samples_values[i])
-        #            for i in range(len(samples_values))] for sample_start in sample_starts]
+        samples = list(make_samples_for_starts(sample_starts, samples_values))
         stub_native_project = create_stub_net_project(name='non curo', curve_names=curve_names,
                                                       curves_physical_quantities=curve_quantity_names,
                                                       samples=samples)
