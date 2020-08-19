@@ -23,7 +23,7 @@ from orchid.net_quantity import as_datetime
 import orchid.physical_quantity as pq
 
 
-class NativeWellTimeSeriesAdapter(dna.DotNetAdapter):
+class NativeMonitorCurveFacade(dna.DotNetAdapter):
     def __init__(self, native_well_time_series):
         super().__init__(native_well_time_series)
 
