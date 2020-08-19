@@ -17,6 +17,7 @@
 
 
 import orchid.dot_net_dom_access as dna
+import orchid.physical_quantity as pq
 
 
 class NativeWellTimeSeriesAdapter(dna.DotNetAdapter):
@@ -24,3 +25,9 @@ class NativeWellTimeSeriesAdapter(dna.DotNetAdapter):
         super().__init__(native_well_time_series)
 
     display_name = dna.dom_property('display_name', 'The display name of the .NET well time series.')
+    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
+                                             'The name describing the physical quantity of each sample of the .NET '
+                                             'well time series.')
+    sampled_quantity_type = dna.transformed_dom_property('sampled_quantity_type',
+                                                         'The physical quantity of each sample.',
+                                                         pq.to_physical_quantity)

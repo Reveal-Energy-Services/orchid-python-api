@@ -21,6 +21,7 @@ import unittest.mock as mock
 from hamcrest import assert_that, equal_to
 
 import orchid.native_well_time_series_adapter as nwtsa
+from orchid.physical_quantity import PhysicalQuantity
 
 
 class TestWellTimeSeries(unittest.TestCase):
@@ -35,6 +36,24 @@ class TestWellTimeSeries(unittest.TestCase):
 
         assert_that(sut.display_name, equal_to(expected_display_name))
 
+    def test_sampled_quantity_name(self):
+        expected_quantity_name = 'perspici'
+        stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
+        stub_native_well_time_series.SampledQuantityName = expected_quantity_name
+        sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
+
+        assert_that(sut.sampled_quantity_name, equal_to(expected_quantity_name))
+
+    def test_sampled_quantity_type(self):
+        native_quantity_types = [68, 83]  # hard-coded UnitsNet.QuantityType.Pressure and Temperature
+        physical_quantities = [PhysicalQuantity.PRESSURE, PhysicalQuantity.TEMPERATURE]
+        for native_quantity_type, physical_quantity in zip(native_quantity_types, physical_quantities):
+            with self.subTest(native_quantity_type=native_quantity_type, physical_quantity=physical_quantity):
+                stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
+                stub_native_well_time_series.SampledQuantityType = native_quantity_type
+                sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
+
+                assert_that(sut.sampled_quantity_type, equal_to(physical_quantity))
 
 
 if __name__ == '__main__':
