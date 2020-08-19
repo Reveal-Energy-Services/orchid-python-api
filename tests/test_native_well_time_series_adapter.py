@@ -39,23 +39,29 @@ def make_raw_sample(start, index, value):
     return start + datetime.timedelta(seconds=30) * index, value
 
 
+def make_samples(start_time_point, values):
+    make_raw_sample_from_start = make_raw_sample(start_time_point)
+    samples = toolz.pipe(enumerate(values),
+                         toolz.map(lambda index_value_pair: make_raw_sample_from_start(*index_value_pair)),
+                         toolz.map(lambda point_value_pair: (as_net_date_time(point_value_pair[0]),
+                                                             point_value_pair[1])),
+                         toolz.map(lambda net_point_value_pair: StubSample(*net_point_value_pair)))
+    return samples
+
+
 class TestWellTimeSeries(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
     def test_name(self):
         expected_display_name = 'excoriaverunt'
-        stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-        stub_native_well_time_series.DisplayName = expected_display_name
-        sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
+        sut = create_sut(display_name=expected_display_name)
 
         assert_that(sut.display_name, equal_to(expected_display_name))
 
     def test_sampled_quantity_name(self):
         expected_quantity_name = 'perspici'
-        stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-        stub_native_well_time_series.SampledQuantityName = expected_quantity_name
-        sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
+        sut = create_sut(sampled_quantity_name=expected_quantity_name)
 
         assert_that(sut.sampled_quantity_name, equal_to(expected_quantity_name))
 
@@ -64,10 +70,7 @@ class TestWellTimeSeries(unittest.TestCase):
         physical_quantities = [PhysicalQuantity.PRESSURE, PhysicalQuantity.TEMPERATURE]
         for native_quantity_type, physical_quantity in zip(native_quantity_types, physical_quantities):
             with self.subTest(native_quantity_type=native_quantity_type, physical_quantity=physical_quantity):
-                stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-                stub_native_well_time_series.SampledQuantityType = native_quantity_type
-                sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
-
+                sut = create_sut(sampled_quantity_type=native_quantity_type)
                 assert_that(sut.sampled_quantity_type, equal_to(physical_quantity))
 
     def test_empty_time_series_if_no_samples(self):
@@ -79,11 +82,7 @@ class TestWellTimeSeries(unittest.TestCase):
                                  start_time_point + datetime.timedelta(seconds=30) * index_value_pair[0],
                                  index_value_pair[1])))
 
-        stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-        stub_native_well_time_series.DisplayName = display_name
-        stub_native_well_time_series.GetOrderedTimeSeriesHistory = mock.MagicMock(name='stub_time_series',
-                                                                                  return_value=samples)
-        sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
+        sut = create_sut(display_name=display_name, samples=samples)
 
         expected = pd.Series(data=[], index=[], name=display_name, dtype=np.float64)
         pdt.assert_series_equal(sut.time_series(), expected)
@@ -93,19 +92,12 @@ class TestWellTimeSeries(unittest.TestCase):
         values = [26.3945]
         start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39, 340000)
 
-        make_raw_sample_from_start = make_raw_sample(start_time_point)
-        samples = toolz.pipe(enumerate(values),
-                             toolz.map(lambda index_value_pair: make_raw_sample_from_start(*index_value_pair)),
-                             toolz.map(lambda point_value_pair: (as_net_date_time(point_value_pair[0]),
-                                                                 point_value_pair[1])),
-                             toolz.map(lambda net_point_value_pair: StubSample(*net_point_value_pair)))
+        self.assert_equal_time_series(display_name, start_time_point, values)
 
-        stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-        stub_native_well_time_series.DisplayName = display_name
-        stub_native_well_time_series.GetOrderedTimeSeriesHistory = mock.MagicMock(name='stub_time_series',
-                                                                                  return_value=samples)
-        sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
-
+    @staticmethod
+    def assert_equal_time_series(display_name, start_time_point, values):
+        samples = make_samples(start_time_point, values)
+        sut = create_sut(display_name=display_name, samples=samples)
         expected_time_points = [start_time_point + n * datetime.timedelta(seconds=30) for n in range(len(values))]
         expected = pd.Series(data=values, index=expected_time_points, name=display_name)
         pdt.assert_series_equal(sut.time_series(), expected)
@@ -115,22 +107,19 @@ class TestWellTimeSeries(unittest.TestCase):
         values = [75.75, 62.36, 62.69]
         start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15, 241000)
 
-        make_raw_sample_from_start = make_raw_sample(start_time_point)
-        samples = toolz.pipe(enumerate(values),
-                             toolz.map(lambda index_value_pair: make_raw_sample_from_start(*index_value_pair)),
-                             toolz.map(lambda point_value_pair: (as_net_date_time(point_value_pair[0]),
-                                                                 point_value_pair[1])),
-                             toolz.map(lambda net_point_value_pair: StubSample(*net_point_value_pair)))
+        self.assert_equal_time_series(display_name, start_time_point, values)
 
-        stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-        stub_native_well_time_series.DisplayName = display_name
-        stub_native_well_time_series.GetOrderedTimeSeriesHistory = mock.MagicMock(name='stub_time_series',
-                                                                                  return_value=samples)
-        sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
 
-        expected_time_points = [start_time_point + n * datetime.timedelta(seconds=30) for n in range(len(values))]
-        expected = pd.Series(data=values, index=expected_time_points, name=display_name)
-        pdt.assert_series_equal(sut.time_series(), expected)
+def create_sut(display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None):
+    stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
+    stub_native_well_time_series.DisplayName = display_name
+    stub_native_well_time_series.SampledQuantityName = sampled_quantity_name
+    stub_native_well_time_series.SampledQuantityType = sampled_quantity_type
+    stub_native_well_time_series.GetOrderedTimeSeriesHistory = mock.MagicMock(name='stub_time_series',
+                                                                              return_value=samples)
+
+    sut = nwtsa.NativeWellTimeSeriesAdapter(stub_native_well_time_series)
+    return sut
 
 
 if __name__ == '__main__':
