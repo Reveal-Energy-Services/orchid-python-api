@@ -16,7 +16,10 @@
 #
 
 
+import pandas as pd
+
 import orchid.dot_net_dom_access as dna
+from orchid.net_quantity import as_datetime
 import orchid.physical_quantity as pq
 
 
@@ -31,3 +34,14 @@ class NativeWellTimeSeriesAdapter(dna.DotNetAdapter):
     sampled_quantity_type = dna.transformed_dom_property('sampled_quantity_type',
                                                          'The physical quantity of each sample.',
                                                          pq.to_physical_quantity)
+
+    def time_series(self) -> pd.Series:
+        """
+        Return the suffix for this treatment curve.
+        :return: The suffix of this treatment curve.
+        """
+        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
+        samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
+        result = pd.Series(data=map(lambda s: s[1], samples), index=map(as_datetime, map(lambda s: s[0], samples)),
+                           name=self.display_name)
+        return result
