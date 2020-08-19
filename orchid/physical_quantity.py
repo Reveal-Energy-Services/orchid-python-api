@@ -13,44 +13,68 @@
 #
 
 
+from collections import namedtuple
 from enum import Enum
+from typing import Union
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 
-class NoValue(Enum):
-    """"An 'abstract base class' for enumerations with na values such as `PhysicalQuantity`."""
+PROPPANT_CONCENTRATION_NAME = 'proppant concentration'
+SLURRY_RATE_NAME = 'slurry rate'
+
+
+About = namedtuple('About', ['name', 'quantity_type'])
+
+
+class PhysicalQuantity(About, Enum):
+    """The enumeration of physical quantities available via the Orchid Python API."""
+
+    LENGTH = About('length', UnitsNet.QuantityType.Length)
+    MASS = About('mass', UnitsNet.QuantityType.Mass)
+    PRESSURE = About('pressure', UnitsNet.QuantityType.Pressure)
+    PROPPANT_CONCENTRATION = About('proppant concentration', UnitsNet.QuantityType.Ratio)
+    SLURRY_RATE = About('slurry rate', UnitsNet.QuantityType.Ratio)
+    TEMPERATURE = About('temperature', UnitsNet.QuantityType.Temperature)
+
     def __repr__(self):
-        """
-            Calculate the representation of this class.
-        Returns:
-            str: The textual representation of this class. (See
-            https://docs.python.org/3/reference/datamodel.html#object.__repr__ for details.)
-        """
-        return f'{self.__class__.__name__}({self.name})'
+        return f'<PhysicalQuantity: {str(self.value)}>'
+
+    def __str__(self):
+        return self.value.name
 
 
-class PhysicalQuantity(NoValue):
-    """Models the set of physical quantities support by the Orchid Python API."""
-    LENGTH = 'length'
-    MASS = 'mass'
-    PRESSURE = 'pressure'
-    PROPPANT_CONCENTRATION = 'proppant concentration'
-    SLURRY_RATE = 'slurry rate'
-    TEMPERATURE = 'temperature'
+def to_units_net_quantity_type(physical_quantity: PhysicalQuantity) -> UnitsNet.QuantityType:
+    """
+    Convert a PhysicalQuantity to a UnitsNet.QuantityType
 
-    def to_units_net_quantity_type(self) -> UnitsNet.QuantityType:
-        """
-        Returns:
-            The UnitsNet QuantityType corresponding to this quantity.
-        """
-        quantity_quantity_type_map = {
-            PhysicalQuantity.LENGTH: UnitsNet.QuantityType.Length,
-            PhysicalQuantity.MASS: UnitsNet.QuantityType.Mass,
-            PhysicalQuantity.PRESSURE: UnitsNet.QuantityType.Pressure,
-            PhysicalQuantity.PROPPANT_CONCENTRATION: UnitsNet.QuantityType.Ratio,
-            PhysicalQuantity.SLURRY_RATE: UnitsNet.QuantityType.Ratio,
-            PhysicalQuantity.TEMPERATURE: UnitsNet.QuantityType.Temperature,
-        }
-        return quantity_quantity_type_map[self]
+    Args:
+        physical_quantity: The PhysicalQuantity to convert.
+
+    Returns:
+        The UnitsNet.QuantityType corresponding to `physical_quantity`.
+    """
+    return physical_quantity.value.quantity_type
+
+
+def to_physical_quantity(quantity_type: UnitsNet.QuantityType, name: Union[str, None] = None) -> PhysicalQuantity:
+    """
+    Convert a `UnitsNet.QuantityType` (with an optional `name`) to a `PhysicalQuantity`.
+
+    Args:
+        quantity_type: The UnitsNet.QuantityType to convert.
+        name: The optional name of the physical quantity.
+
+    Returns:
+        The `PhysicalQuantity` corresponding to `quantity_type` and `name`.
+    """
+    quantity_types_name_map = {
+        UnitsNet.QuantityType.Length: 'length',
+        UnitsNet.QuantityType.Mass: 'mass',
+        UnitsNet.QuantityType.Pressure: 'pressure',
+        UnitsNet.QuantityType.Temperature: 'temperature',
+    }
+    if not name:
+        name = quantity_types_name_map[quantity_type]
+    return PhysicalQuantity((name, quantity_type))
