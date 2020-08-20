@@ -8,20 +8,18 @@ Specifically, the `orchid` package exposes the Orchid API to Python applications
 Additionally, this project contains a number of examples in the `examples` directory:
 
 - `plot_trajectories.ipynb`
+- `plot_monitor_curves.ipynb`
 - `plot_treatment.ipynb`
-- `plot_monitor_pressure.py`
 - `completion_analysis.ipynb`
 
-The first two notebooks plot:
+The first three notebooks plot:
 
 - The well trajectories for a project
+- The monitor curves for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
-
-The console application, `plot_monitor_pressure.py`, plots the monitor pressure curves for a project specified as a
-command line argument. 
  
-Finally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion performed on
- two different wells in a project.
+Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
+ performed on two different wells in a project.
 
 # Getting Started
 

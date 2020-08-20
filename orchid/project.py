@@ -22,10 +22,9 @@ import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
+from orchid.native_monitor_curve_facade import NativeMonitorCurveFacade
 from orchid.project_loader import ProjectLoader
-from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
-from orchid.project_wells import ProjectWells
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
@@ -52,29 +51,12 @@ class Project(dna.DotNetAdapter):
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   NativeWellAdapter)
 
-    def all_wells(self):
-        """
-        Return an object managing all wells from this project.
-
-        :return: The object managing all wells for this project.
-        """
-        result = ProjectWells(self._project_loader)
-        return result
-
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
         Calculate the default well colors for this project.
         :return: A list of RGB tuples.
         """
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
-        return result
-
-    def monitor_pressure_curves(self):
-        """
-        Return a container of pressure curves indexed by time series id.
-        :return: The container of pressure curves.
-        """
-        result = ProjectMonitorPressureCurves(self._project_loader)
         return result
 
     def unit(self, physical_quantity):
@@ -92,3 +74,16 @@ class Project(dna.DotNetAdapter):
         :return: A list of all the wells in this project.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
+
+    def monitor_curves(self) -> Iterable[NativeMonitorCurveFacade]:
+        """
+            Return a sequence of well time series for this project.
+        Returns:
+            An iterable of well time series.
+        """
+        native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
+        if len(native_time_series_list_items) > 0:
+            return toolz.map(NativeMonitorCurveFacade,
+                             self._project_loader.native_project().WellTimeSeriesList.Items)
+        else:
+            return []

@@ -34,7 +34,8 @@ class TestProjectUnits(unittest.TestCase):
                        ('slurry rate', 'slurry_rate_unit_abbreviation',
                         ('bbl/min', 'm^3/min'), ('bbl/min', 'm\u00b3/min')),
                        ('proppant concentration', 'proppant_concentration_unit_abbreviation',
-                        ('lb/gal (U.S.)', 'kg/m^3'), ('lb/gal (U.S.)', 'kg/m\u00b3'))]
+                        ('lb/gal (U.S.)', 'kg/m^3'), ('lb/gal (U.S.)', 'kg/m\u00b3')),
+                       ('temperature', 'project_temperature_unit_abbreviation', ('F', 'C'), ('\u00b0F', '\u00b0C'))]
         default_options = {'well_names': ['dont-care-well']}
         for quantity, abbreviation_name, abbreviations, units in about_units:
             for abbreviation, unit in zip(abbreviations, units):

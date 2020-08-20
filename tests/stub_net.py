@@ -135,6 +135,12 @@ def set_project_unit(stub_net_project, abbreviation):
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Kilogram
         stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.CubicMeter
 
+    def set_temperature_f_unit():
+        stub_net_project.ProjectUnits.TemperatureUnit = UnitsNet.Units.TemperatureUnit.DegreeFahrenheit
+
+    def set_temperature_c_unit():
+        stub_net_project.ProjectUnits.TemperatureUnit = UnitsNet.Units.TemperatureUnit.DegreeCelsius
+
     abbreviation_unit_map = {'ft': set_length_foot_unit,
                              'm': set_length_meter_unit,
                              'lb': set_mass_lb_unit,
@@ -145,7 +151,9 @@ def set_project_unit(stub_net_project, abbreviation):
                              'bbl/min': set_slurry_rate_bpm_unit,
                              'm^3/min': set_slurry_rate_m3_per_min_unit,
                              'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit,
-                             'kg/m^3': set_proppant_concentration_kg_per_m3_unit}
+                             'kg/m^3': set_proppant_concentration_kg_per_m3_unit,
+                             'F': set_temperature_f_unit,
+                             'C': set_temperature_c_unit}
 
     if abbreviation in abbreviation_unit_map.keys():
         abbreviation_unit_map[abbreviation]()
@@ -176,6 +184,7 @@ def create_stub_net_project(name='', default_well_colors=None,
                             project_mass_unit_abbreviation='',
                             project_pressure_unit_abbreviation='',
                             slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
+                            project_temperature_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
                             about_stages=None,
@@ -205,6 +214,7 @@ def create_stub_net_project(name='', default_well_colors=None,
     set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
     set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
     set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
+    set_project_unit(stub_net_project, project_temperature_unit_abbreviation)
 
     stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
 

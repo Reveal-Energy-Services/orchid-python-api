@@ -15,60 +15,83 @@
 # This file is part of Orchid and related technologies.
 #
 
+import datetime
 import unittest
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, contains_exactly
+import deal
+from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
+import toolz.curried as toolz
 
 from orchid.project import Project
 from orchid.project_loader import ProjectLoader
 from tests.stub_net import create_stub_net_project
 
 
+@toolz.curry
+def make_sample(start, value):
+    return start, value
+
+
+@toolz.curry
+def make_samples(start, values):
+    return toolz.map(make_sample(start), values)
+
+
+@toolz.curry
+def make_samples_for_starts(starts, values_for_starts):
+    return toolz.pipe(zip(starts, values_for_starts),
+                      toolz.map(lambda start_values_pair: make_samples(start_values_pair[0], start_values_pair[1])))
+
+
+# Test ideas
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_project_name(self):
+    def test_ctor_no_loader_raises_exception(self):
+        assert_that(calling(Project).with_args(None), raises(deal.PreContractError))
+
+    def test_name(self):
         stub_native_project = create_stub_net_project(name='commodorum')
         sut = create_sut(stub_native_project)
         assert_that(sut.name, equal_to('commodorum'))
 
-    def test_project_wells_if_no_wells(self):
+    def test_wells_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
         assert_that(sut.wells, contains_exactly())
 
-    def test_project_wells_if_one_well(self):
+    def test_wells_if_one_well(self):
         expected_well_names = ['clunibus']
         stub_native_project = create_stub_net_project(name='exsistet', well_names=expected_well_names)
         sut = create_sut(stub_native_project)
         assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
 
-    def test_project_wells_if_many_wells(self):
+    def test_wells_if_many_wells(self):
         expected_well_names = ['cordam', 'turbibus', 'collaris']
         stub_native_project = create_stub_net_project(name='exsistet', well_names=expected_well_names)
         sut = create_sut(stub_native_project)
         assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
 
-    def test_project_wells_by_name_if_no_wells(self):
+    def test_wells_by_name_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
         assert_that(sut.wells_by_name('clunibus'), contains_exactly())
 
-    def test_project_wells_by_name_if_no_well_with_name_found(self):
+    def test_wells_by_name_if_no_well_with_name_found(self):
         expected_well_names = ['clunibus']
         stub_native_project = create_stub_net_project(name='exsistet', well_names=expected_well_names)
         sut = create_sut(stub_native_project)
         assert_that(map(lambda w: w.name, sut.wells_by_name('clunibus')), contains_exactly(*expected_well_names))
 
-    def test_project_wells_by_name_if_one_well_with_name_found(self):
+    def test_wells_by_name_if_one_well_with_name_found(self):
         expected_well_names = ['clunibus']
         stub_native_project = create_stub_net_project(name='exsistet', well_names=['clunibus'])
         sut = create_sut(stub_native_project)
         assert_that(map(lambda w: w.name, sut.wells_by_name('clunibus')), contains_exactly(*expected_well_names))
 
-    def test_project_wells_by_name_if_many_wells_with_name_found(self):
+    def test_wells_by_name_if_many_wells_with_name_found(self):
         stub_native_project = create_stub_net_project(name='exsistet',
                                                       well_names=['cordam', 'turbibus',
                                                                   'cordam', 'collaris',
@@ -84,13 +107,13 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
         assert_that(sut.default_well_colors(), equal_to([tuple([])]))
 
-    def test_project_default_well_colors_if_one_default_well_color(self):
+    def test_default_well_colors_if_one_default_well_color(self):
         stub_native_project = create_stub_net_project(name='exsistet', default_well_colors=[[0.142, 0.868, 0.220]])
         sut = create_sut(stub_native_project)
         # noinspection PyTypeChecker
         assert_that(sut.default_well_colors(), contains_exactly((0.142, 0.868, 0.220)))
 
-    def test_project_default_well_colors_if_many_default_well_colors(self):
+    def test_default_well_colors_if_many_default_well_colors(self):
         expected_default_well_colors = [(0.610, 0.779, 0.675), (0.758, 0.982, 0.720), (0.297, 0.763, 0.388)]
         stub_native_project = create_stub_net_project(name='exsistet',
                                                       default_well_colors=[list(t) for t
@@ -98,6 +121,46 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
         # noinspection PyTypeChecker
         assert_that(sut.default_well_colors(), contains_exactly(*expected_default_well_colors))
+
+    def test_well_time_series_returns_empty_if_no_well_time_series(self):
+        expected_well_time_series = []
+        stub_native_project = create_stub_net_project(samples=expected_well_time_series)
+        sut = create_sut(stub_native_project)
+
+        # noinspection PyTypeChecker
+        assert_that(sut.monitor_curves(), is_(empty()))
+
+    def test_well_time_series_returns_one_if_one_well_time_series(self):
+        curve_name = 'gestum'
+        curve_quantity = 'pressure'
+        sample_start = datetime.datetime(2018, 11, 14, 0, 58, 32, 136000)
+        sample_values = [0.617, 0.408, 2.806]
+
+        samples = make_samples(sample_start, sample_values)
+        stub_native_project = create_stub_net_project(name='non curo', curve_names=[curve_name],
+                                                      curves_physical_quantities=[curve_quantity],
+                                                      samples=[samples])
+        sut = create_sut(stub_native_project)
+
+        # noinspection PyTypeChecker
+        assert_that(len(list(sut.monitor_curves())), equal_to(1))
+
+    def test_well_time_series_returns_many_if_many_well_time_series(self):
+        curve_names = ['superseduisti', 'mulctaverim', 'veniae']
+        curve_quantity_names = ['temperature', 'pressure', 'pressure']
+        sample_starts = [datetime.datetime(2019, 3, 7, 10, 2, 13, 131000),
+                         datetime.datetime(2019, 8, 1, 16, 50, 45, 500000),
+                         datetime.datetime(2016, 3, 21, 20, 15, 19, 54000)]
+        samples_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
+
+        samples = list(make_samples_for_starts(sample_starts, samples_values))
+        stub_native_project = create_stub_net_project(name='non curo', curve_names=curve_names,
+                                                      curves_physical_quantities=curve_quantity_names,
+                                                      samples=samples)
+        sut = create_sut(stub_native_project)
+
+        # noinspection PyTypeChecker
+        assert_that(len(list(sut.monitor_curves())), equal_to(3))
 
 
 def create_sut(stub_net_project):
