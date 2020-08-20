@@ -48,6 +48,10 @@ def proppant_concentration_unit(net_project):
     return f'{mass_abbreviation}/{volume_abbreviation}'
 
 
+def temperature_unit(net_project):
+    return UnitsNet.Temperature.GetAbbreviation(net_project.ProjectUnits.TemperatureUnit)
+
+
 def unit(net_project, physical_quantity):
     """
     Return the abbreviation for the specified `physical_quantity` of this project.
@@ -59,6 +63,7 @@ def unit(net_project, physical_quantity):
                              'mass': mass_unit,
                              'pressure': pressure_unit,
                              'slurry rate': slurry_rate_unit,
-                             'proppant concentration': proppant_concentration_unit}
+                             'proppant concentration': proppant_concentration_unit,
+                             'temperature': temperature_unit}
 
     return quantity_function_map[physical_quantity](net_project)

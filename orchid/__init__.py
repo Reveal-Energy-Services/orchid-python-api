@@ -28,3 +28,4 @@ from .native_treatment_curve_facade import (PROPPANT_CONCENTRATION, SLURRY_RATE,
 
 # Helpful functions
 from .measurement import (get_conversion_factor, slurry_rate_volume_unit, proppant_concentration_mass_unit)
+from .physical_quantity import to_physical_quantity
