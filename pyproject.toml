@@ -35,7 +35,7 @@ classifiers=[
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-include=["LICENSE", "orchid/*.py", "orchid/VERSION", "tests/*.py", "examples/*.py", "examples/*.ipynb"]
+include=["LICENSE", "orchid/*.py", "orchid/VERSION", "tests/*.py", "examples/*.ipynb"]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]

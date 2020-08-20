@@ -123,7 +123,7 @@ setup(
     url=URL,
     packages=find_packages(include=["orchid", "tests"]),
     # Including the notebooks in `examples`.
-    scripts=['plot_monitor_pressures.py', "examples/*.ipynb"],
+    scripts=["examples/*.ipynb"],
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
     # entry_points={
