@@ -20,8 +20,6 @@ prepare_imports()
 
 # High-level API
 from .core import load_project
-from .core import plot_monitor_pressures
-from .core import plot_monitor_pressure_curve
 
 # Helpful constants
 from .native_treatment_curve_facade import (PROPPANT_CONCENTRATION, SLURRY_RATE, TREATING_PRESSURE)
