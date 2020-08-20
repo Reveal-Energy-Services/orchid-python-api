@@ -24,7 +24,6 @@ import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
 from orchid.native_monitor_curve_facade import NativeMonitorCurveFacade
 from orchid.project_loader import ProjectLoader
-from orchid.project_monitor_pressure_curves import ProjectMonitorPressureCurves
 import orchid.project_units as project_units
 from orchid.project_wells import ProjectWells
 
@@ -68,14 +67,6 @@ class Project(dna.DotNetAdapter):
         :return: A list of RGB tuples.
         """
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
-        return result
-
-    def monitor_pressure_curves(self):
-        """
-        Return a container of pressure curves indexed by time series id.
-        :return: The container of pressure curves.
-        """
-        result = ProjectMonitorPressureCurves(self._project_loader)
         return result
 
     def unit(self, physical_quantity):

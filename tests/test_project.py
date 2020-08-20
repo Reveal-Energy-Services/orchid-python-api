@@ -19,7 +19,7 @@ import datetime
 import unittest
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, contains_exactly, is_, empty
+from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
 import toolz.curried as toolz
 
 from orchid.project import Project
@@ -50,6 +50,9 @@ def make_samples_for_starts(starts, values_for_starts):
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_ctor_no_loader_raises_exception(self):
+        assert_that(calling(Project).with_args(None), raises(deal.PreContractError))
 
     def test_name(self):
         stub_native_project = create_stub_net_project(name='commodorum')
