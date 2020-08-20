@@ -19,6 +19,7 @@ import datetime
 import unittest
 import unittest.mock
 
+import deal
 from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
 import toolz.curried as toolz
 

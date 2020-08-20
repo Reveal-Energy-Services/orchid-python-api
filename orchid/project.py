@@ -25,7 +25,6 @@ from orchid.native_well_adapter import NativeWellAdapter
 from orchid.native_monitor_curve_facade import NativeMonitorCurveFacade
 from orchid.project_loader import ProjectLoader
 import orchid.project_units as project_units
-from orchid.project_wells import ProjectWells
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
@@ -51,15 +50,6 @@ class Project(dna.DotNetAdapter):
     name = dna.dom_property('name', 'The name of this project.')
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   NativeWellAdapter)
-
-    def all_wells(self):
-        """
-        Return an object managing all wells from this project.
-
-        :return: The object managing all wells for this project.
-        """
-        result = ProjectWells(self._project_loader)
-        return result
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
