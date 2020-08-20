@@ -45,9 +45,6 @@ def make_samples_for_starts(starts, values_for_starts):
 
 
 # Test ideas
-# - No well time series returns empty well time series
-# - One well time series returns one well time series
-# - Many well time series
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
