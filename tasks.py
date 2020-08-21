@@ -239,9 +239,15 @@ def poetry_publish(context, repository):
 
     Args:
         context: The task context (unused).
-        repository (str) : The name of the configured repository.
+        repository (str) : The name of the configured repository (either `pypi` or `test-pypi`).
     """
-    context.run(f'poetry publish --repository={repository}')
+    # Although the documentation seems to indicate that `pypi` is the alias for PyPI, supplying the string,
+    # `pypi` did not work when I tried. (Given the subsequent behavior, I may not have waited long enough.)
+    # Consequently, if I supply `pypi` to the task, I invoke `publish` with *no arguments*.
+    if repository == 'pypi':
+        context.run(f'poetry publish')
+    else:
+        context.run(f'poetry publish --repository={repository}')
 
 
 @task
