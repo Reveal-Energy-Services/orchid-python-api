@@ -246,8 +246,10 @@ def poetry_publish(context, repository):
     # Consequently, if I supply `pypi` to the task, I invoke `publish` with *no arguments*.
     if repository == 'pypi':
         context.run(f'poetry publish')
-    else:
+    elif repository == 'test-pypi':
         context.run(f'poetry publish --repository={repository}')
+    else:
+        raise ValueError(f'Unexpected repository, "{repository}." Only "pypi" and "test-pypi" allowed.')
 
 
 @task
