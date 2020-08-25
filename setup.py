@@ -29,7 +29,7 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = "orchid"
+NAME = "orchid-python-api"
 DESCRIPTION = "Defines the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 URL = "https://github.com/me/myproject"
 EMAIL = "support@reveal-energy.com"
@@ -66,7 +66,11 @@ except FileNotFoundError:
 about = {}
 if not VERSION:
     project_slug = NAME.lower().replace('-', '_').replace(' ', '_')
-    with open(os.path.join(here, project_slug, 'VERSION')) as f:
+    # TODO: move version to `orchid_python_api`
+    # Use the `packaging` package to handle version parsing correctly
+    # Calculate the orchid package name from the `project_slug`
+    orchid_package_name = project_slug.replace('_python_api', '')
+    with open(os.path.join(here, orchid_package_name, 'VERSION')) as f:
         version_text = f.read().strip()
         about['__version__'] = version_text
 else:
