@@ -24,12 +24,12 @@ performed on two different wells in a project.
  
 To use these examples, you may want to invoke the commands
 
-- `copy_examples`
-- `use_installed_test_data`
+- `copy_orchid_examples`
+- `use_orchid_test_data`
 
-Use the first command to copy the example files into your current directory (associated with a virtual 
-environment). Use the second command to change the examples to refer to the installed location of the Orchid 
-test data files. Both commands are 
+Use the first command to copy the example files into your current (virtual environment) directory. Use the 
+second command to change the examples to refer to the installed location of the Orchid test data files. Both 
+commands are 
     - Command line commands that run in a console / terminal
     - Support a help flag (`-h` / `--help`) to provide you with help on running the commands
 

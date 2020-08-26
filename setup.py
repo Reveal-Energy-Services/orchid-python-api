@@ -127,7 +127,7 @@ setup(
     url=URL,
     packages=find_packages(include=["orchid", "tests"]),
     # Including the notebooks in `examples`.
-    scripts=["examples/*.ipynb"],
+    scripts=["copy_orchid_examples.py", "use_orchid_test_data.py", "orchid_python_api/examples/*.ipynb"],
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
     # entry_points={
