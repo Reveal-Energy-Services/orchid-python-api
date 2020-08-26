@@ -38,7 +38,12 @@ def copy_examples_to(target_dir: str) -> None:
         target_dir: The target for the examples.
     """
     examples_glob = str(site_packages_path().joinpath('orchid_python_api', 'examples', '*.ipynb'))
-    for src in glob.glob(examples_glob):
+    candidates = glob.glob(examples_glob)
+    if not candidates:
+        print(f'No examples matching "{examples_glob}"')
+        return
+
+    for src in candidates:
         shutil.copy2(str(src), target_dir)
         print(f'Copied "{str(src)}" to "{target_dir}"')
 
@@ -51,7 +56,8 @@ def main(cli_args: Optional[Sequence[str]] = None):
     """
     cli_args = cli_args if cli_args else sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description='Copy Orchid Python API examples to specified directory')
+    parser = argparse.ArgumentParser(
+        description='Copy Orchid Python API examples from installed package to specified directory')
     parser.add_argument('-t', '--target-dir', default='.',
                         help='Directory into which to copy the Orchid Python API examples '
                              '(default: current directory)')
