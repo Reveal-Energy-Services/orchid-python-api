@@ -15,8 +15,20 @@
 
 
 import argparse
+import glob
+import pathlib
+import shutil
+import site
 import sys
 from typing import Optional, Sequence
+
+
+def site_packages_path() -> pathlib.Path:
+    candidate_site_packages = [pn for pn in site.getsitepackages() if pn.find('site-packages') != -1]
+    assert len(candidate_site_packages) == 1
+
+    result = pathlib.Path(candidate_site_packages[0])
+    return result
 
 
 def copy_examples_to(target_dir: str) -> None:
@@ -25,7 +37,10 @@ def copy_examples_to(target_dir: str) -> None:
     Args:
         target_dir: The target for the examples.
     """
-    print(f'Copying examples to "{target_dir}".')
+    examples_glob = str(site_packages_path().joinpath('orchid_python_api', 'examples', '*.ipynb'))
+    for src in glob.glob(examples_glob):
+        shutil.copy2(str(src), target_dir)
+        print(f'Copied "{str(src)}" to "{target_dir}"')
 
 
 def main(cli_args: Optional[Sequence[str]] = None):
