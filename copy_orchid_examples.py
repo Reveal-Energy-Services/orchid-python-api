@@ -31,11 +31,12 @@ def site_packages_path() -> pathlib.Path:
     return result
 
 
-def copy_examples_to(target_dir: str) -> None:
+def copy_examples_to(target_dir: str, overwrite: bool) -> None:
     """
     Copy the Orchid Python API examples into the specified, `target_dir`.
     Args:
         target_dir: The target for the examples.
+        overwrite: Flag: true if script will overwrite existing files with the same name in the target_dir.
     """
     examples_glob = str(site_packages_path().joinpath('orchid_python_api', 'examples', '*.ipynb'))
     candidates = glob.glob(examples_glob)
@@ -44,8 +45,13 @@ def copy_examples_to(target_dir: str) -> None:
         return
 
     for src in candidates:
-        shutil.copy2(str(src), target_dir)
-        print(f'Copied "{str(src)}" to "{target_dir}"')
+        target_path = pathlib.Path(target_dir).joinpath(pathlib.Path(src).name)
+        duplicate_in_target = target_path.exists()
+        if duplicate_in_target and not overwrite:
+            print(f'Skipping "{src}". Already exists.')
+        else:
+            shutil.copy2(src, target_dir)
+            print(f'Copied "{src}" to "{target_dir}"')
 
 
 def main(cli_args: Optional[Sequence[str]] = None):
@@ -61,9 +67,11 @@ def main(cli_args: Optional[Sequence[str]] = None):
     parser.add_argument('-t', '--target-dir', default='.',
                         help='Directory into which to copy the Orchid Python API examples '
                              '(default: current directory)')
+    parser.add_argument('-o', '--overwrite', action='store_true', default=False,
+                        help='Overwrite existing files in target directory',)
 
     args = parser.parse_args(cli_args)
-    copy_examples_to(args.target_dir)
+    copy_examples_to(args.target_dir, args.overwrite)
 
 
 if __name__ == '__main__':
