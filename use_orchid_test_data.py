@@ -17,45 +17,47 @@
 import argparse
 import glob
 import pathlib
-import re
 import shutil
 import sys
 import tempfile
 from typing import Optional, Sequence
 
 
-def sed_inplace(filename, pattern: str, repl: str):
+def replace_test_data_dir(example_pathname: str, to_replace: str, replacement: str):
     """
-    Perform the pure-Python equivalent of in-place `sed` substitution: e.g.,
-    `sed -i -e 's/'${pattern}'/'${repl}' "${filename}"`.
+    Replace (the leading) `to_replace` with `replacement` in `example_pathname`.
 
-    This implementation was copied from [StackOverflow](
+    This implementation is based on the implementation of `sed_inplace` from [StackOverflow](
     https://stackoverflow.com/questions/4427542/how-to-do-sed-like-text-replace-with-python/31499114)
     retrieved on 26-Aug-2020.
+
+    Args:
+        example_pathname: The pathname identifying the example file in which to perform the replacement.
+        to_replace: The component of the test data pathname to replace.
+        replacement: The replacement for the component being replaced.
+
     """
-    # For efficiency, precompile the passed regular expression.
-    pattern_compiled = re.compile(pattern)
 
     # For portability, NamedTemporaryFile() defaults to mode "w+b" (i.e., binary
     # writing with updating). This is usually a good thing. In this case,
     # however, binary writing imposes non-trivial encoding constraints trivially
     # resolved by switching to text writing. Let's do that.
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp_file:
-        with open(filename) as src_file:
+        with open(example_pathname) as src_file:
+            print()
+            print(f'Transforming: "{example_pathname}"')
             for line in src_file:
-                print()
-                print(f'Transforming: "{filename}"')
-                transformed_line = pattern_compiled.sub(repl, line)
+                # Only replace the *first* instance of `to_replace`
+                transformed_line = line.replace(to_replace, replacement, 1)
                 if transformed_line != line:
-                    # `end=''` removes automatic newline
-                    print(f'  Before: "{line}"', end='')
-                    print(f'  After:  "{transformed_line}"', end='')
-                tmp_file.write(pattern_compiled.sub(repl, line))
+                    print(f'  Before: {line.strip()}')
+                    print(f'  After:  {transformed_line.strip()}')
+                tmp_file.write(transformed_line)
 
     # Overwrite the original file with the munged temporary file in a
     # manner preserving file attributes (e.g., permissions).
-    shutil.copystat(filename, tmp_file.name)
-    shutil.move(tmp_file.name, filename)
+    shutil.copystat(example_pathname, tmp_file.name)
+    shutil.move(tmp_file.name, example_pathname)
 
 
 def change_examples_test_dir(test_data_dir: str, examples_dir: str) -> None:
@@ -67,8 +69,9 @@ def change_examples_test_dir(test_data_dir: str, examples_dir: str) -> None:
         examples_dir: The directory containing the Orchid Python API examples.
     """
     for example_path in glob.glob(str(pathlib.Path(examples_dir).joinpath('*.ipynb'))):
-        sed_inplace(example_path, r'\path\to', test_data_dir)
-        print(f'Change test data directory(ies) of "{example_path}" to "{test_data_dir}".')
+        dir_with_backslashes = str(pathlib.Path(test_data_dir))  # ensure backslash (Windows) separator
+        replacement = dir_with_backslashes.replace('\\', '\\\\')  # replace single backslash with double
+        replace_test_data_dir(example_path, r'\\path\\to\\Orchid.IntegrationTestData', replacement)
 
 
 def main(cli_args: Optional[Sequence[str]] = None):
