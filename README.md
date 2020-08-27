@@ -5,7 +5,8 @@ This project defines the implementation of the Python API for Orchid*.
 (*Orchid in a mark of Revel Energy Services. Inc.)
 
 Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
-Additionally, this project contains a number of examples in the `examples` directory:
+Additionally, this project installs four examples in the `examples` directory of the `orchid-python-api`
+package:
 
 - `plot_trajectories.ipynb`
 - `plot_monitor_curves.ipynb`
@@ -19,7 +20,19 @@ The first three notebooks plot:
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
  
 Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
- performed on two different wells in a project.
+performed on two different wells in a project.
+ 
+To use these examples, you may want to invoke the commands
+
+- `copy_orchid_examples`
+- `use_orchid_test_data`
+
+Use the first command to copy the example files into your an optionally specified (virtual environment)
+directory. (The default destination is your current working directory.) Use the second command to change the
+examples in an optionally specified directory (your current directory) to refer to the specified location of 
+the Orchid test data files. Both commands are 
+    - Command line commands that run in a console / terminal
+    - Support a help flag (`-h` / `--help`) to provide you with help on running the commands
 
 # Getting Started
 

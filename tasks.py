@@ -239,9 +239,17 @@ def poetry_publish(context, repository):
 
     Args:
         context: The task context (unused).
-        repository (str) : The name of the configured repository.
+        repository (str) : The name of the configured repository (either `pypi` or `test-pypi`).
     """
-    context.run(f'poetry publish --repository={repository}')
+    # Although the documentation seems to indicate that `pypi` is the alias for PyPI, supplying the string,
+    # `pypi` did not work when I tried. (Given the subsequent behavior, I may not have waited long enough.)
+    # Consequently, if I supply `pypi` to the task, I invoke `publish` with *no arguments*.
+    if repository == 'pypi':
+        context.run(f'poetry publish')
+    elif repository == 'test-pypi':
+        context.run(f'poetry publish --repository={repository}')
+    else:
+        raise ValueError(f'Unexpected repository, "{repository}." Only "pypi" and "test-pypi" allowed.')
 
 
 @task
@@ -275,7 +283,11 @@ def poetry_update_version(context):
         source_toml = toml.loads(in_stream.read())
 
     project_slug = source_toml['tool']['poetry']['name'].lower().replace('-', '_').replace(' ', '_')
-    with open(os.path.join(pathlib.Path(__file__).parent, project_slug, 'VERSION')) as f:
+    # TODO: move version to `orchid_python_api`
+    # Use the `packaging` package to handle version parsing correctly
+    # Calculate the `orchid` project name from the `project_slug`
+    orchid_package_name = project_slug.replace('_python_api', '')
+    with open(os.path.join(pathlib.Path(__file__).parent, orchid_package_name, 'VERSION')) as f:
         version_text = f.read().strip()
 
     target_toml = source_toml.copy()
