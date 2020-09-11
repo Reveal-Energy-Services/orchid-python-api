@@ -171,6 +171,44 @@ Remember the recommendation from the book, _The Pragmatic Programmer_: "Find one
 
 TODO: Describe and show how to build your code and run the tests. 
 
+# Publish a release
+
+Publishing a release has a number of general steps. These steps are optional except for 
+[the last step](#publish-to-pypi). Here are the steps:
+
+- [Update dependencies](#update-dependencies)
+- [Update API version](#update-api-version)
+- [Build and test locally](#build-and-test-locally)
+- [Publish to TestPyPI](#publish-to-testpypi)
+- [Publish to PyPI](#publish-to-pypi)
+
+Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
+    - `invoke --help` (for general help on `invoke`)
+    - `invoke --list` (to list the available tasks)
+    - `invoke poetry.remove --help` (for help on a specific command listed)
+    
+to perform these tasks.
+
+## Update dependencies
+
+To update the project dependencies:
+- Remove the existing virtualenv
+    - Run either `invoke poetry.remove`
+    - Or  `poetry env remove <virtualenv name>`
+- Create a new skeleton virtual environment
+    - Run either `invoke poetry.create [dirname]`
+    - Or `poetry env use <python 3.7 executable path>`
+- Update the dependencies
+    - Run `poetry update`
+
+## Update API version
+
+## Build and test locally
+
+## Publish to TestPyPI
+
+## Publish to PyPI
+
 # Contribute
 
 To contribute to this project, follow our typical development process:

@@ -233,6 +233,16 @@ def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
 
 
 @task
+def poetry_list_env(context):
+    """
+    List all the poetry environments.
+    Args:
+        context: The task context.
+    """
+    context.run('poetry env list')
+
+
+@task
 def poetry_publish(context, repository):
     """
     Publish the created source and binary distributions to the specified repository.
@@ -342,6 +352,10 @@ poetry_config_ns = Collection('config')
 poetry_config_ns.add_task(poetry_configure_api_token, name='api-token')
 poetry_config_ns.add_task(poetry_configure_test_pypi, name='test-pypi')
 poetry_ns.add_collection(poetry_config_ns)
+
+poetry_env_ns = Collection('env')
+poetry_env_ns.add_task(poetry_list_env, name='list')
+poetry_ns.add_collection(poetry_env_ns)
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
