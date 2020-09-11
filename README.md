@@ -76,7 +76,7 @@ change into *your* project directory.
 ### Poetry
 
 - Create a an empty virtual environment (using Powershell (recommended) or Windows console) by executing,
-    `poetry env use /c/Users/larry.jones/AppData/Local/Programs/Python/Python37/python`
+    `poetry env use </path/to/python-3.7-executable>`
 - Install packages into the empty virtual environment
     - `poetry shell`
     - `pip install orchid-python-api`
