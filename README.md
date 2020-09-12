@@ -83,7 +83,7 @@ change into *your* project directory.
 
 ## Development Overview
 
-To understand the structure of the code, the [development README](./docs_dev/README.md) contains an overview of 
+To understand the structure of the code, the file, `./docs_dev/README.md`, contains an overview of 
 the application / package design.
 
 ## Development
