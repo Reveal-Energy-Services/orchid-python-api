@@ -98,17 +98,16 @@ def step_impl(context):
 
 
 # noinspection PyBDDParameters
-@then("I see that the project, {project_name}, has {well_count:d} wells")
-def step_impl(context, project_name, well_count):
+@then("I see that the project, {project}, has {well_count:d} wells")
+def step_impl(context, project, well_count):
     """
-    :type context: behave.runner.Context
-    :type project_name: str
-    :param project_name: The name identifying the project of interest.
-    :type well_count: int
-    :param well_count: The number of wells in the project of interest.
+    Args:
+        context (behave.runner.Context): The test context.
+        project (str): The name identifying the project of interest.
+        well_count (int): The number of wells in the project of interest.
     """
     context.execute_steps(f'When I query the project name')
-    context.execute_steps(f'Then I see the text "{project_name}"')
+    context.execute_steps(f'Then I see the text "{project}"')
     assert_that(len(list(context.actual_wells)), equal_to(well_count))
 
 

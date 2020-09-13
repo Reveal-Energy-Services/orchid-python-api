@@ -23,9 +23,9 @@ Feature: Low-level DOM API (project)
   Scenario Outline: Get the name of a project
     Given I have loaded a project from the file, '<filename>'
     When I query the project name
-    Then I see the text "<project name>"
+    Then I see the text "<project>"
     Examples:
-      | filename                                       | project name                            |
+      | filename                                       | project                                 |
       | frankNstein_Bakken_UTM13_FEET.ifrac            | frankNstein_Bakken_UTM13_FEET           |
       | Project_frankNstein_Permian_UTM13_FEET.ifrac   | Project_frankNstein_subset02_UTM13_FEET |
       | Project-frankNstein_Montney_UTM13_METERS.ifrac | Project-frankNstein                     |
@@ -33,10 +33,10 @@ Feature: Low-level DOM API (project)
   Scenario Outline: Get the well counts from a project
     Given I have loaded the project for the field, '<field>'
     When I query the project wells
-    Then I see that the project, <project name>, has <well count> wells
+    Then I see that the project, <project>, has <well count> wells
 
     Examples: Bakken
-      | field   | project name                            | well count |
+      | field   | project                                 | well count |
       | Bakken  | frankNstein_Bakken_UTM13_FEET           | 4          |
       | Permian | Project_frankNstein_subset02_UTM13_FEET | 4          |
       | Montney | Project-frankNstein                     | 4          |
