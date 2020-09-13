@@ -48,13 +48,13 @@ def step_impl(context, filename):
     context.project = context.loaded_projects[project_pathname]
 
 
-@given("I have loaded the project for the field, '{field_name}'")
-def step_impl(context, field_name):
+@given("I have loaded the project for the field, '{field}'")
+def step_impl(context, field):
     """
     :type context: behave.runner.Context
-    :param field_name: The name of the field of the project.
+    :param field: The name of the field of the project.
     """
-    project_pathname = FIELD_NAME_PATHNAME_MAP[field_name]
+    project_pathname = FIELD_NAME_PATHNAME_MAP[field]
     if project_pathname not in context.loaded_projects:
         context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
     context.project = context.loaded_projects[project_pathname]
