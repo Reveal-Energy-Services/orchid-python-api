@@ -23,15 +23,15 @@ import numpy as np
 from hamcrest import assert_that, has_length, close_to
 
 
-@when('I query the trajectory for well "{well_name}"')
-def step_impl(context, well_name):
+@when('I query the trajectory for well "{well}"')
+def step_impl(context, well):
     """
-    :param well_name: Name of the well of interest
+    :param well: Name of the well of interest
     :type context: behave.runner.Context
     """
-    # Remember the `well_name` to correctly calculate the delta for `close_to` in trajectory step
-    context.well_name = well_name
-    actual_wells = list(context.project.wells_by_name(well_name))
+    # Remember the `well` to correctly calculate the delta for `close_to` in trajectory step
+    context.well = well
+    actual_wells = list(context.project.wells_by_name(well))
     # noinspection PyTypeChecker
     assert_that(actual_wells, has_length(1))
     actual_well = actual_wells[0]
@@ -69,14 +69,14 @@ def step_impl(context, easting, northing, index):
     :param index: The index of the well trajectory being sampled.
     :type index: int
     """
-    assert_that(context.easting_array[index], close_to(easting, close_to_delta(context.well_name)))
-    assert_that(context.northing_array[index], close_to(northing, close_to_delta(context.well_name)))
+    assert_that(context.easting_array[index], close_to(easting, close_to_delta(context.well)))
+    assert_that(context.northing_array[index], close_to(northing, close_to_delta(context.well)))
 
 
-def close_to_delta(well_name_to_test):
+def close_to_delta(well_to_test):
     """
     Calculate the delta value to be used in a `close_to` comparison of trajectory points.
-    :param well_name_to_test: The acceptance test well_name used to calculate the appropriate delta.
+    :param well_to_test: The name of the well used to calculate the appropriate delta.
     :return: The value to be used as the third argument to `close_to` based on the well name.
     """
     def is_bakken_well(to_test):
@@ -90,11 +90,11 @@ def close_to_delta(well_name_to_test):
 
     result = 0.0
     # Delta of magnitude 6 accounts for half-even rounding
-    if is_bakken_well(well_name_to_test):
+    if is_bakken_well(well_to_test):
         result = 6e-1
-    elif is_permian_well(well_name_to_test):
+    elif is_permian_well(well_to_test):
         result = 6e-3
-    elif is_montney_well(well_name_to_test):
+    elif is_montney_well(well_to_test):
         result = 6e-4
     return result
 
