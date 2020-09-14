@@ -182,11 +182,12 @@ Publishing a release has a number of general steps. These steps are optional exc
 - [Publish to TestPyPI](#publish-to-testpypi)
 - [Publish to PyPI](#publish-to-pypi)
 
+Throughout these tasks, you will repeatedly [Run all tests](#run-all-orchid-tests)
+
 Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
     - `invoke --help` (for general help on `invoke`)
     - `invoke --list` (to list the available tasks)
     - `invoke poetry.remove --help` (for help on a specific command listed)
-    
 to perform these tasks.
 
 ## Update dependencies
@@ -208,6 +209,33 @@ To update the project dependencies:
 ## Publish to TestPyPI
 
 ## Publish to PyPI
+
+## Run all orchid tests
+
+To run all orchid tests
+- Run unit tests
+- Run acceptance (feature) tests
+- Run examples
+    - Prepare to run examples
+        - If orchid-python-api is installed in the virtual environment,
+            - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
+            - Run `python ./use_orchid_test_data.py </path/to/integration-test-data>`
+        - If orchid-python-api not (yet) installed,
+            - Copy the example notebooks to the orchid project repository root
+                - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+           - Run `python ./use_orchid_test_data.py </path/to/integration-test-data>`
+    - Activate `poetry shell` if not activated
+    - Open Jupyter by running `jupyter lab` in the shell
+    - Within Jupyter,
+        Successfully run notebook, `plot_trajectories.ipynb`
+            1. Open notebook
+            2. Run all cells of notebook
+            3. Wait patiently
+            4. Verify that no exceptions occurred
+        - Repeat for notebooks:
+            - `plot_monitor_curves.ipynb`
+            - `plot_treatment.ipynb`
+            - `completion_analysis.ipynb`
 
 # Contribute
 
