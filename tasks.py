@@ -325,9 +325,13 @@ ns = Collection()
 ns.add_task(clean)
 ns.add_task(pipfile_to_poetry)
 
-pipenv_venv_ns = Collection('pipenv-venv')
+pipenv_ns = Collection('pipenv')
+
+pipenv_venv_ns = Collection('venv')
 pipenv_venv_ns.add_task(pipenv_remove_venv, name='remove')
 pipenv_venv_ns.add_task(pipenv_create_venv, name='create')
+
+pipenv_ns.add_collection(pipenv_venv_ns)
 
 poetry_ns = Collection('poetry')
 # According to the documentation, aliases should be an iterable of alias names; however, the "build" aliases
@@ -343,9 +347,7 @@ poetry_ns = Collection('poetry')
 #
 # At some time, we need to file a bug and perhaps submit a patch.
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
-poetry_ns.add_task(poetry_create_venv, name='create')
 poetry_ns.add_task(poetry_publish, name='publish')
-poetry_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_task(poetry_update_version, name='update-ver')
 
 poetry_config_ns = Collection('config')
@@ -361,6 +363,12 @@ setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
 setup_ns.add_task(setup_package, name='package')
 
-ns.add_collection(pipenv_venv_ns)
+poetry_venv_ns = Collection('venv')
+poetry_venv_ns.add_task(poetry_create_venv, name='create')
+poetry_venv_ns.add_task(poetry_remove_venv, name='remove')
+poetry_ns.add_collection(poetry_venv_ns)
+
+ns.add_collection(pipenv_ns)
 ns.add_collection(poetry_ns)
+ns.add_collection(poetry_venv_ns)
 ns.add_collection(setup_ns)
