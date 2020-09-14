@@ -53,13 +53,6 @@ class ProjectLoader:
         Return the native (.NET) Orchid project.
 
         :return: The loaded `IProject`.
-
-        :example:
-            >>> # noinspection PyUnresolvedReferences
-            >>> from project_loader import ProjectLoader
-            >>> loader = ProjectLoader(r'c:/Users/larry.jones/tmp/ifa-test-data/Crane_II.ifrac')
-            >>> loader.native_project().Name
-            'Oasis_Crane_II'
         """
         if not self._project:
             with ScriptAdapterContext():
