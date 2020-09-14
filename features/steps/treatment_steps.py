@@ -73,14 +73,15 @@ def aggregate_stage_treatment(stage):
 @toolz.curry
 def stage_treatment_details(project, well, stage):
     treatment_fluid_volume, treatment_proppant, median_treatment_pressure = aggregate_stage_treatment(stage)
+    # TODO: Remove 'project_name' since it is no longer needed for subsequent tests
     return {'project_name': project.name,
             'well_name': well.name,
             'stage_number': stage.display_stage_number,
             'md_top': stage.md_top(project.unit('length')),
             'md_bottom': stage.md_bottom(project.unit('length')),
-            'total_fluid_volume': treatment_fluid_volume,
-            'treatment_proppant': treatment_proppant,
-            'median_treating_pressure': median_treatment_pressure}
+            'volume': treatment_fluid_volume,
+            'proppant': treatment_proppant,
+            'median': median_treatment_pressure}
 
 
 def has_single_stage(well_stage_pair):
@@ -105,7 +106,7 @@ def step_impl(context):
     context.stage_treatment_details = details
 
 
-@then("I see {stage_count:d} stages")
+@then("I see {stage_count:d} stages for the project")
 def step_impl(context, stage_count):
     """
     :param stage_count: The expected number of stages.
@@ -114,35 +115,36 @@ def step_impl(context, stage_count):
     assert_that(len(context.stage_treatment_details), equal_to(stage_count))
 
 
-@step("I see correct sample values for <Project>, <WellName>, <Stage>, <MdTop>, and <MdBottom>")
-def step_impl(context):
+# noinspection PyBDDParameters
+@step("I see correct sample values for {index:d}, {well}, {stage:d}, {md_top:g}, and {md_bottom:g}")
+def step_impl(context, index, well, stage, md_top, md_bottom):
     """
-    :type context: behave.runner.Context
+    Args:
+        context (behave.runner.Context): Test context
+        index (int): The index of the expected details
+        well (str): The name of the well for the stage
+        stage (int): The stage of interest
+        md_top (float): The measured depth of the stage top
+        md_bottom (float): The measured depth of the stage bottom
     """
-    for expected_details in context.table.rows:
-        sample_index = int(expected_details['index'])
-        assert_that(context.stage_treatment_details[sample_index]['project_name'],
-                    equal_to(expected_details['Project']))
-        assert_that(context.stage_treatment_details[sample_index]['well_name'], equal_to(expected_details['WellName']))
-        assert_that(context.stage_treatment_details[sample_index]['stage_number'],
-                    equal_to(int(expected_details['Stage'])))
-        assert_that(context.stage_treatment_details[sample_index]['md_top'].magnitude,
-                    close_to(float(expected_details['MdTop']), 0.05))
-        assert_that(context.stage_treatment_details[sample_index]['md_bottom'].magnitude,
-                    close_to(float(expected_details['MdBottom']), 0.05))
+    assert_that(context.stage_treatment_details[index]['well_name'], equal_to(well))
+    assert_that(int(context.stage_treatment_details[index]['stage_number']), equal_to(stage))
+    assert_that(context.stage_treatment_details[index]['md_top'].magnitude, close_to(float(md_top), 0.05))
+    assert_that(context.stage_treatment_details[index]['md_bottom'].magnitude, close_to(float(md_bottom), 0.05))
 
 
-@step("I see correct sample aggregate values for <Volume>, <Proppant> and <Median>")
-def step_impl(context):
+# noinspection PyBDDParameters
+@step("I see correct sample aggregate values for {index:d}, {volume:g}, {proppant:g} and {median:g}")
+def step_impl(context, index, volume, proppant, median):
     """
-    :type context: behave.runner.Context
+    Args:
+        context (behave.runner.Context): Test context
+        index (int): The index of the expected details
+        volume (float): The total volume of fluid pumped stage treatment
+        proppant (float): The total quantity of proppant injected during stage treatment
+        median (float0: The median treating pressure during stage treatment
     """
-    for expected_details in context.table.rows:
-        sample_index = int(expected_details['index'])
-        # tolerances of 0.006 and 0.6 address "round half to even" of expected values
-        assert_that(context.stage_treatment_details[sample_index]['total_fluid_volume'],
-                    close_to(float(expected_details['Volume']), 0.006))
-        assert_that(context.stage_treatment_details[sample_index]['treatment_proppant'],
-                    close_to(float(expected_details['Proppant']), 0.6))
-        assert_that(context.stage_treatment_details[sample_index]['median_treating_pressure'],
-                    close_to(float(expected_details['Median']), 0.006))
+    # tolerances of 0.006 and 0.6 address "round half to even" of expected values
+    assert_that(context.stage_treatment_details[index]['volume'], close_to(float(volume), 0.006))
+    assert_that(context.stage_treatment_details[index]['proppant'], close_to(float(proppant), 0.6))
+    assert_that(context.stage_treatment_details[index]['median'], close_to(float(median), 0.006))

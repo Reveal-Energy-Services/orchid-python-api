@@ -60,18 +60,6 @@ def step_impl(context, field):
     context.project = context.loaded_projects[project_pathname]
 
 
-@given('I have loaded the "{project_name}" project')
-def step_impl(context, project_name):
-    """
-    :param project_name: Name of .ifrac project to load
-    :type context: behave.runner.Context
-    """
-    project_pathname = PROJECT_NAME_PATHNAME_MAP[project_name]
-    if project_pathname not in context.loaded_projects:
-        context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
-    context.project = context.loaded_projects[project_pathname]
-
-
 @when("I query the project name")
 def step_impl(context):
     """
@@ -111,16 +99,16 @@ def step_impl(context, project, well_count):
     assert_that(len(list(context.actual_wells)), equal_to(well_count))
 
 
-@then("I see the well details {well_name}, {display_name}, and {uwi} for {object_id}")
-def step_impl(context, well_name, display_name, uwi, object_id):
-    def actual_details_to_check(well):
-        return well.name, well.display_name, well.uwi, str(well.object_id)
+@then("I see the well details {well}, {display_name}, and {uwi} for {object_id}")
+def step_impl(context, well, display_name, uwi, object_id):
+    def actual_details_to_check(well_adapter):
+        return well_adapter.name, well_adapter.display_name, well_adapter.uwi, str(well_adapter.object_id)
 
     def expected_details_to_check():
-        return well_name, display_name, uwi, object_id
+        return well, display_name, uwi, object_id
 
     tmp_to_test = toolz.pipe(toolz.map(actual_details_to_check, context.actual_wells),
-                             toolz.filter(lambda d: d[0] == well_name),
+                             toolz.filter(lambda d: d[0] == well),
                              toolz.first)
 
     actual_to_test = tmp_to_test
