@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "2020.4.191"
+version = "2020.4.232"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -35,7 +35,7 @@ classifiers=[
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-include=["LICENSE", "orchid/*.py", "orchid/VERSION", "tests/*.py", "orchid_python_api/examples/*.ipynb",
+include=["LICENSE", "orchid/*.py", "orchid/VERSION", "orchid_python_api/examples/*.ipynb",
     "copy_orchid_examples.py", "use_orchid_test_data.py"]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
