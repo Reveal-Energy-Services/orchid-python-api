@@ -182,41 +182,112 @@ Publishing a release has a number of general steps. These steps are optional exc
 - [Publish to TestPyPI](#publish-to-testpypi)
 - [Publish to PyPI](#publish-to-pypi)
 
-Throughout these tasks, you will repeatedly [Run all tests](#run-all-orchid-tests)
+Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 
 Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
     - `invoke --help` (for general help on `invoke`)
     - `invoke --list` (to list the available tasks)
-    - `invoke poetry.remove --help` (for help on a specific command listed)
+    - `invoke poetry.venv.remove --help` (for help on a specific command listed)
 to perform these tasks.
 
 ## Update dependencies
 
 To update the project dependencies:
-- Remove the existing virtualenv
-    - Run either `invoke poetry.remove`
-    - Or  `poetry env remove <virtualenv name>`
-- Create a new skeleton virtual environment
-    - Run either `invoke poetry.create [dirname]`
-    - Or `poetry env use <python 3.7 executable path>`
+
+- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- In a Powershell window, navigate to the directory of the new virtualenv
+- Activate the virtualenv (run `poetry shell`)
 - Update the dependencies
     - Run `poetry update`
 
 ## Update API version
 
+- Open the file `orchid/VERSION` for editing
+- Change the version in the file to the updated value. Copying it is safest if at all possible. The log files
+  print the version number as part of the banner which eases the ability to copy that version number. (Beware, 
+  currently a version containing anything but numeric values will cause the Orchid Python API to fail 
+  at run-time. During the beta program, we are manually removing the "-beta" suffix from the version.)
+- Open the file `pyproject.toml` for editing.
+- Copy the version number from `orchid/VERSION` to the value of the `version` key of the file. (The automated
+  task, `update-ver`, visible when running `invoke --list` performs this task automatically. However, as a 
+  "side-effect", this task *removes* all the comment lines from the `.toml` file. The author does not 
+  believe that we are ready to lose all those reminders yet.)
+
 ## Build and test locally
+
+### Package a distribution
+
+- Open a terminal and navigate to the project repository root.
+- Remove the `dist` directory if present.
+- Invoke the command `invoke poetry.package`
+- Review the built packages. Ensure that:
+    - The version number is correct.
+    - The build process builds both 
+        - A source distribution (`.tar.gz` file)
+        - A binary (wheel) distribution (`.whl` file)
+        
+### Install local package
+
+- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- In a Powershell window, navigate to the directory of the new virtualenv
+- Activate the virtualenv (run `pipenv shell`)
+- Install the package distribution by running `pip install </path/to/package-distribution>`
+
+- Install "jupyter lab" by running `pip install jupyterlab`
+Finally, [Run all examples](#run-orchid-examples)
+
+Finally, [Run orchid examples](#run-orchid-examples).
 
 ## Publish to TestPyPI
 
 ## Publish to PyPI
 
-## Run all orchid tests
+## Common tasks
+
+### Create a new, clean virtualenv
+
+These instructions assume you have created a test virtual directory using `pipenv`. This tool is simpler to
+use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
+instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
+- Navigate to the repository root
+- Remove the existing virtualenv if any
+    - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
+    exists, running this task will produce a message like:
+    
+    >> invoke pipenv.venv.remove --dirname=/c/inst/orchid/pipenv
+    >> No virtualenv has been created for this project yet!
+    >> Aborted!
+                                                                                                                                                                                                                    
+- Create a new skeleton virtual environment
+    - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+
+### Run all orchid tests
 
 To run all orchid tests
 - Run unit tests
 - Run acceptance (feature) tests
-- Run examples
-    - Prepare to run examples
+- [Run examples](#run-orchid-examples)
+
+### Run orchid examples
+
+- Prepare to run examples
+    - If you are testing a `pipenv` virtual environment
+        - Navigate to the directory associated with the virtual environment
+        - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`
+        - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
+          `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
+        - Verify that the current directory has four notebooks:
+            - `plot_trajectories.ipynb`
+            - `plot_monitor_curves.ipynb`
+            - `plot_treatment.ipynb`
+            - `completion_analysis.ipynb`
+        - The notebooks, as installed, contain a symbolic reference to the Orchid training data. Change this
+          symbolic reference to an actual reference by:
+            - Either running 
+              `python </path/to/virtualenv/Lib/site-packages/use_orchid_test_data.py </path/to/training-data>`
+            - Or by editing each notebook replacing the symbolic strings, "/path/to", with a concrete path to
+              your installed training data.
+    - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
             - Run `python ./use_orchid_test_data.py </path/to/integration-test-data>`
@@ -224,18 +295,18 @@ To run all orchid tests
             - Copy the example notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
            - Run `python ./use_orchid_test_data.py </path/to/integration-test-data>`
-    - Activate `poetry shell` if not activated
-    - Open Jupyter by running `jupyter lab` in the shell
-    - Within Jupyter,
-        Successfully run notebook, `plot_trajectories.ipynb`
-            1. Open notebook
-            2. Run all cells of notebook
-            3. Wait patiently
-            4. Verify that no exceptions occurred
-        - Repeat for notebooks:
-            - `plot_monitor_curves.ipynb`
-            - `plot_treatment.ipynb`
-            - `completion_analysis.ipynb`
+- Activate `poetry shell` if not activated
+- Open Jupyter by running `jupyter lab` in the shell
+- Within Jupyter,
+    Successfully run notebook, `plot_trajectories.ipynb`
+        1. Open notebook
+        2. Run all cells of notebook
+        3. Wait patiently
+        4. Verify that no exceptions occurred
+    - Repeat for remaining notebooks:
+        - `plot_monitor_curves.ipynb`
+        - `plot_treatment.ipynb`
+        - `completion_analysis.ipynb`
 
 # Contribute
 
