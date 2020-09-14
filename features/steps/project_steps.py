@@ -26,8 +26,6 @@ import toolz.curried as toolz
 import orchid
 
 
-PROJECT_NAME_PATHNAME_MAP = {'Oasis_Crane_II': r'c:\Users\larry.jones\tmp\ifa-test-data\Crane_II.ifrac',
-                             'Demo_Project': r'c:\Users\larry.jones\tmp\TrainingDataSet\Demo_Project.ifrac'}
 FIELD_NAME_PATHNAME_MAP = {
     'Bakken': r'c:\src\Orchid.IntegrationTestData\frankNstein_Bakken_UTM13_FEET.ifrac',
     'Permian': r'c:\src\Orchid.IntegrationTestData\Project_frankNstein_Permian_UTM13_FEET.ifrac',
