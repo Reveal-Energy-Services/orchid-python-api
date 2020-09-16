@@ -29,6 +29,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
     display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
+    display_name_with_well = dna.dom_property('display_name_with_well', 'The display stage number including the well')
+    cluster_count = dna.dom_property('number_of_clusters', 'The number of clusters for this stage')
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
