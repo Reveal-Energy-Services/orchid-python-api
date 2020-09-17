@@ -28,7 +28,7 @@ SLURRY_RATE_NAME = 'slurry rate'
 About = namedtuple('About', ['name', 'quantity_type'])
 
 
-class PhysicalQuantity(About, Enum):
+class PhysicalQuantity(Enum):
     """The enumeration of physical quantities available via the Orchid Python API."""
 
     LENGTH = About('length', UnitsNet.QuantityType.Length)
