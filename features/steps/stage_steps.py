@@ -52,10 +52,13 @@ def get_stages(well_stages_pair):
 
 
 @toolz.curry
-def find_stage(selector_func, not_1_message_func, all_stages):
+def find_stage(display_name_with_well, all_stages):
+    def has_display_name_with_well(stage_to_test):
+        return stage_to_test.display_name_with_well == display_name_with_well
+
     candidates = list(toolz.pipe(all_stages,
-                                 toolz.filter(selector_func)))
-    assert len(candidates) == 1, f'Expected 1 stage with "{not_1_message_func()}". Found {len(candidates)}.'
+                                 toolz.filter(has_display_name_with_well)))
+    assert len(candidates) == 1, f'Expected 1 stage with "{display_name_with_well}". Found {len(candidates)}.'
     return candidates[0]
 
 
@@ -78,17 +81,10 @@ def step_impl(context, stage, display_name_with_well, md_top, md_bottom, cluster
         md_bottom (str): The measured depth of the stage bottom.
         cluster_count (int): The number of clusters for the stage.
     """
-
-    def has_display_name_with_well(stage_to_test):
-        return stage_to_test.display_name_with_well == display_name_with_well
-
-    def not_1_message():
-        return display_name_with_well
-
     stage_of_interest = toolz.pipe(context.stages_for_wells,
                                    toolz.map(get_stages),
                                    toolz.concat,
-                                   toolz.partial(find_stage, has_display_name_with_well, not_1_message))
+                                   toolz.partial(find_stage, display_name_with_well))
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage))
     assert_measurement_equal(stage_of_interest.md_top(context.project.unit(str(opq.PhysicalQuantity.LENGTH))),
@@ -111,23 +107,17 @@ def step_impl(context, display_name_with_well, x, y, tvdss, stage_length):
         stage_length (str): The length of the stage in project length units.
     """
 
-    def has_display_name_with_well(stage_to_test):
-        return stage_to_test.display_name_with_well == display_name_with_well
-
-    def not_1_message():
-        return display_name_with_well
-
     stage_of_interest = toolz.pipe(context.stages_for_wells,
                                    toolz.map(get_stages),
                                    toolz.concat,
-                                   toolz.partial(find_stage, has_display_name_with_well, not_1_message))
+                                   toolz.partial(find_stage, display_name_with_well))
 
     assert_measurement_equal(
         stage_of_interest.center_location_x(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
                                             oro.WellReferenceFrameXy.PROJECT),
         x)
     assert_measurement_equal(
-        stage_of_interest.center_location_y(context.project.unit( opq.PhysicalQuantity.LENGTH.value.name),
+        stage_of_interest.center_location_y(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
                                             oro.WellReferenceFrameXy.PROJECT),
         y)
     assert_measurement_equal(
