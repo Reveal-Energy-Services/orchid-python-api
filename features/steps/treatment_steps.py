@@ -31,7 +31,7 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.stages_for_wells = [(w, w.stages) for w in context.project.wells]
+    context.stages_for_wells = [(w, list(w.stages)) for w in context.project.wells]
 
 
 # noinspection PyProtectedMember

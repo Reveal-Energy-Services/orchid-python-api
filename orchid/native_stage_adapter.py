@@ -15,12 +15,16 @@
 # This file is part of Orchid and related technologies.
 #
 
-from toolz.curried import pipe, map, reduce, merge
+import functools
+from typing import Tuple
+
+import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
 from orchid.measurement import Measurement
 import orchid.native_treatment_curve_facade as ntc
-from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
+from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
+import orchid.reference_origin as oro
 
 
 class NativeStageAdapter(dna.DotNetAdapter):
@@ -37,12 +41,133 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return {'Pressure': ntc.TREATING_PRESSURE, 'Slurry Rate': ntc.SLURRY_RATE,
                 'Proppant Concentration': ntc.PROPPANT_CONCENTRATION}[sampled_quantity_name]
 
+    def _center_location_depth(self, length_unit_abbreviation: str, depth_datum: oro.DepthDatum) -> Measurement:
+        """
+        Return the depth of the stage center relative to the specified `depth_datum.`
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+            depth_datum: The reference datum for the depth.
+        """
+        _, _, result = self.center_location(length_unit_abbreviation,
+                                            oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, depth_datum)
+
+        return result
+
+    @functools.lru_cache()
+    def center_location(self, length_unit_abbreviation: str, xy_reference_frame: oro.WellReferenceFrameXy,
+                        depth_datum: oro.DepthDatum):
+        """
+        Return the location of the center of this stage in the `xy_well_reference_frame` using the `depth_datum`
+        in the specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+            xy_reference_frame: The reference frame for x-y coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The location, x, y, and depth, of the stage center as a measurement.
+        """
+        net_subsurface_point = self._adaptee.GetStageLocationCenter(xy_reference_frame.value,
+                                                                    depth_datum.value)
+        result = toolz.pipe(
+            (net_subsurface_point.X, net_subsurface_point.Y, net_subsurface_point.Depth),
+            toolz.map(lambda coord: convert_net_quantity_to_different_unit(coord,
+                                                                           length_unit_abbreviation)),
+            toolz.map(as_measurement),
+            tuple)
+        return result
+
+    def center_location_md(self, length_unit_abbreviation: str) -> Measurement:
+        """
+        Return the measured depth of the stage center in project units.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+        """
+        return self._center_location_depth(length_unit_abbreviation, oro.DepthDatum.KELLY_BUSHING)
+
+    def center_location_tvdgl(self, length_unit_abbreviation: str) -> Measurement:
+        """
+        Returns the total vertical depth from ground level of the stage center in project units.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+        """
+        return self._center_location_depth(length_unit_abbreviation, oro.DepthDatum.GROUND_LEVEL)
+
+    def center_location_tvdss(self, length_unit_abbreviation: str) -> Measurement:
+        """
+        Returns the total vertical depth from sea level of the stage center in project units.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+        """
+        return self._center_location_depth(length_unit_abbreviation, oro.DepthDatum.SEA_LEVEL)
+
+    def center_location_xy(self, length_unit_abbreviation: str,
+                           xy_well_reference_frame: oro.WellReferenceFrameXy) -> Tuple[Measurement, Measurement]:
+        """
+        Return the x-y location of the stage center in the `xy_well_reference_frame` in project units.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+            xy_well_reference_frame: The reference frame defining the origin.
+
+        Returns:
+            A tuple
+        """
+        x, y, _ = self.center_location(length_unit_abbreviation, xy_well_reference_frame,
+                                       oro.DepthDatum.KELLY_BUSHING)
+
+        return x, y
+
+    def center_location_x(self, length_unit_abbreviation: str,
+                          xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+        """
+        Return the x location of the stage center relative to the specified reference frame in the
+        specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+            xy_well_reference_frame: The reference frame defining the origin.
+
+        Returns:
+            A measurement.
+        """
+        x, _, _ = self.center_location(length_unit_abbreviation, xy_well_reference_frame,
+                                       oro.DepthDatum.KELLY_BUSHING)
+
+        return x
+
+    def center_location_y(self, length_unit_abbreviation: str,
+                          xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+        """
+        Return the y location of the stage center in the `xy_well_reference_frame` in the specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the requested resultant length unit.
+            xy_well_reference_frame: The reference frame defining the origin.
+
+        Returns:
+            A measurement.
+        """
+        _, y, _ = self.center_location(length_unit_abbreviation, xy_well_reference_frame,
+                                       oro.DepthDatum.KELLY_BUSHING)
+
+        return y
+
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """
         Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
         in the specified unit.
-        :param length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
-        :return: The measured depth of the stage top in the specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the requested resultant length unit.
+
+        Returns;
+         The measured depth of the stage top in the specified unit.
         """
         original = self._adaptee.MdTop
         md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
@@ -53,12 +178,31 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
         Return the measured depth of the bottom of this stage (farthest from the well head / closest to the toe)
         in the specified unit.
-        :param length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
-        :return: The measured depth of the stage bottom in the specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+
+        Returns:
+             The measured depth of the stage bottom in the specified unit.
         """
         original = self._adaptee.MdBottom
         md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
         result = as_measurement(md_top_quantity)
+        return result
+
+    def stage_length(self, length_unit_abbreviation: str) -> Measurement:
+        """
+        Return the stage length in the specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+
+        Returns:
+            The Measurement of the length of this stage.
+        """
+        length_magnitude = \
+            self.md_bottom(length_unit_abbreviation).magnitude - self.md_top(length_unit_abbreviation).magnitude
+        result = make_measurement(length_magnitude, length_unit_abbreviation)
         return result
 
     def treatment_curves(self):
@@ -80,10 +224,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
         def add_curve(so_far, treatment_curve):
             curve_name = self._sampled_quantity_name_curve_map(treatment_curve.sampled_quantity_name)
             treatment_curve_map = {curve_name: treatment_curve}
-            return merge(treatment_curve_map, so_far)
+            return toolz.merge(treatment_curve_map, so_far)
 
-        result = pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
-                      map(ntc.NativeTreatmentCurveFacade),  # wrap them in a facade
-                      # Transform the map to a dictionary keyed by the sampled quantity name
-                      lambda cs: reduce(add_curve, cs, {}))
+        result = toolz.pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
+                            toolz.map(ntc.NativeTreatmentCurveFacade),  # wrap them in a facade
+                            # Transform the map to a dictionary keyed by the sampled quantity name
+                            lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
