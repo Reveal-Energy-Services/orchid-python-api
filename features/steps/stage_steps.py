@@ -70,21 +70,22 @@ def assert_measurement_equal(actual, expected):
 
 
 # noinspection PyBDDParameters
-@then("I see the correct {stage:d}, {display_name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
-def step_impl(context, stage, display_name_with_well, md_top, md_bottom, cluster_count):
+@then("I see the correct {stage:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
+def step_impl(context, stage, name_with_well, md_top, md_bottom, cluster_count):
     """
     Args:
         context (behave.runner.Context): The test context.
         stage (int): The displayed stage number of the stage of interest
-        display_name_with_well (str): The display name with the well of the stage of interest
+        name_with_well (str): The display name with the well of the stage of interest.
         md_top (str): The measured depth of the stage top.
         md_bottom (str): The measured depth of the stage bottom.
         cluster_count (int): The number of clusters for the stage.
+
     """
     stage_of_interest = toolz.pipe(context.stages_for_wells,
                                    toolz.map(get_stages),
                                    toolz.concat,
-                                   toolz.partial(find_stage, display_name_with_well))
+                                   toolz.partial(find_stage, name_with_well))
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage))
     assert_measurement_equal(stage_of_interest.md_top(context.project.unit(str(opq.PhysicalQuantity.LENGTH))),
@@ -95,14 +96,14 @@ def step_impl(context, stage, display_name_with_well, md_top, md_bottom, cluster
 
 
 # noinspection PyBDDParameters
-@step("I see the correct additional stage data {display_name_with_well}, {x}, {y}, {tvdss} and {stage_length}")
-def step_impl(context, display_name_with_well, x, y, tvdss, stage_length):
+@step("I see the correct additional stage data {name_with_well}, {easting}, {northing}, {tvdss} and {stage_length}")
+def step_impl(context, name_with_well, easting, northing, tvdss, stage_length):
     """
     Args:
         context (behave.runner.Context): The test context.
-        display_name_with_well (str): The display name with the well of the stage of interest
-        x (str): The x-coordinate of the stage center in project coordinates and in project length units.
-        y (str): The y-coordinate of the stage center in project coordinates and in project length units.
+        name_with_well (str): The display name with the well of the stage of interest
+        easting (str): The x-coordinate of the stage center in project coordinates and in project length units.
+        northing (str): The y-coordinate of the stage center in project coordinates and in project length units.
         tvdss (str): The total vertical depth of the stage center relative to sea level and in project length units.
         stage_length (str): The length of the stage in project length units.
     """
@@ -110,16 +111,16 @@ def step_impl(context, display_name_with_well, x, y, tvdss, stage_length):
     stage_of_interest = toolz.pipe(context.stages_for_wells,
                                    toolz.map(get_stages),
                                    toolz.concat,
-                                   toolz.partial(find_stage, display_name_with_well))
+                                   toolz.partial(find_stage, name_with_well))
 
     assert_measurement_equal(
-        stage_of_interest.center_location_x(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
-                                            oro.WellReferenceFrameXy.PROJECT),
-        x)
+        stage_of_interest.center_location_easting(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
+                                                  oro.WellReferenceFrameXy.PROJECT),
+        easting)
     assert_measurement_equal(
-        stage_of_interest.center_location_y(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
-                                            oro.WellReferenceFrameXy.PROJECT),
-        y)
+        stage_of_interest.center_location_northing(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
+                                                   oro.WellReferenceFrameXy.PROJECT),
+        northing)
     assert_measurement_equal(
         stage_of_interest.center_location_tvdss(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name)),
         tvdss)

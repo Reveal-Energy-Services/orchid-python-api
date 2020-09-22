@@ -63,11 +63,11 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
         Args:
             length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
-            xy_reference_frame: The reference frame for x-y coordinates.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
             depth_datum: The datum from which we measure depths.
 
         Returns:
-            The location, x, y, and depth, of the stage center as a measurement.
+            The location, easting, northing, and depth, of the stage center as a measurement.
         """
         net_subsurface_point = self._adaptee.GetStageLocationCenter(xy_reference_frame.value,
                                                                     depth_datum.value)
@@ -109,7 +109,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
     def center_location_xy(self, length_unit_abbreviation: str,
                            xy_well_reference_frame: oro.WellReferenceFrameXy) -> Tuple[Measurement, Measurement]:
         """
-        Return the x-y location of the stage center in the `xy_well_reference_frame` in project units.
+        Return the easting-northing location of the stage center in the `xy_well_reference_frame` in project units.
 
         Args:
             length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
@@ -123,10 +123,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
         return x, y
 
-    def center_location_x(self, length_unit_abbreviation: str,
-                          xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+    def center_location_easting(self, length_unit_abbreviation: str,
+                                xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
         """
-        Return the x location of the stage center relative to the specified reference frame in the
+        Return the easting location of the stage center relative to the specified reference frame in the
         specified unit.
 
         Args:
@@ -141,10 +141,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
         return x
 
-    def center_location_y(self, length_unit_abbreviation: str,
-                          xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+    def center_location_northing(self, length_unit_abbreviation: str,
+                                 xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
         """
-        Return the y location of the stage center in the `xy_well_reference_frame` in the specified unit.
+        Return the northing location of the stage center in the `xy_well_reference_frame` in the specified unit.
 
         Args:
             length_unit_abbreviation: An abbreviation of the requested resultant length unit.
