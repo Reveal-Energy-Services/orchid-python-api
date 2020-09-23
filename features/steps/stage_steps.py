@@ -96,16 +96,17 @@ def step_impl(context, stage, name_with_well, md_top, md_bottom, cluster_count):
 
 
 # noinspection PyBDDParameters
-@step("I see the correct additional stage data {name_with_well}, {easting}, {northing}, {tvdss} and {stage_length}")
-def step_impl(context, name_with_well, easting, northing, tvdss, stage_length):
+@step("I see additional data {stage:d}, {name_with_well}, {easting}, {northing}, {tvdss} and {length}")
+def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     """
     Args:
         context (behave.runner.Context): The test context.
+        stage (int): The displayed stage number
         name_with_well (str): The display name with the well of the stage of interest
         easting (str): The x-coordinate of the stage center in project coordinates and in project length units.
         northing (str): The y-coordinate of the stage center in project coordinates and in project length units.
         tvdss (str): The total vertical depth of the stage center relative to sea level and in project length units.
-        stage_length (str): The length of the stage in project length units.
+        length (str): The length of the stage in project length units.
     """
 
     stage_of_interest = toolz.pipe(context.stages_for_wells,
@@ -126,4 +127,4 @@ def step_impl(context, name_with_well, easting, northing, tvdss, stage_length):
         tvdss)
     assert_measurement_equal(
         stage_of_interest.stage_length(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name)),
-        stage_length)
+        length)

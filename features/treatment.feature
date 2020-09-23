@@ -81,39 +81,39 @@ Feature: Low-level stages API (DOM)
   Scenario Outline: Calculate additional information to support stage tool tips
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see the correct additional stage data <name_with_well>, <easting>, <northing>, <tvdss> and <stage_length>
+    And I see additional data <stage>, <name_with_well>, <easting>, <northing>, <tvdss> and <length>
 
     Examples: Bakken
-      | field  | name_with_well   | easting      | northing    | tvdss       | stage_length |
-      | Bakken | Demo_1H-Stage-1  | -22918.59 ft | 36877.27 ft | 10707.32 ft | 50.66 ft     |
-      | Bakken | Demo_1H-Stage-50 | -13363.32 ft | 36868.75 ft | 10770.12 ft | 147.10 ft    |
-      | Bakken | Demo_1H-Stage-9  | -21408.04 ft | 36880.20 ft | 10719.38 ft | 147.22 ft    |
-      | Bakken | Demo_1H-Stage-33 | -16699.31 ft | 36878.51 ft | 10740.07 ft | 147.22 ft    |
-      | Bakken | Demo_2H-Stage-1  | -22920.25 ft | 36102.40 ft | 10711.98 ft | 75.08 ft     |
-      | Bakken | Demo_2H-Stage-50 | -13291.11 ft | 36157.69 ft | 10767.44 ft | 147.15 ft    |
-      | Bakken | Demo_2H-Stage-21 | -19012.26 ft | 36106.84 ft | 10731.78 ft | 148.05 ft    |
-      | Bakken | Demo_2H-Stage-8  | -21577.64 ft | 36083.34 ft | 10727.67 ft | 148.05 ft    |
-      | Bakken | Demo_3H-Stage-1  | -17651.57 ft | 35498.61 ft | 10756.04 ft | 10300.0 ft   |
-      | Bakken | Demo_4H-Stage-1  | -22941.22 ft | 34633.37 ft | 10717.32 ft | 65.93 ft     |
-      | Bakken | Demo_4H-Stage-35 | -13456.91 ft | 34600.45 ft | 10765.60 ft | 225.0 ft     |
-      | Bakken | Demo_4H-Stage-7  | -21643.18 ft | 34607.90 ft | 10722.36 ft | 245.0 ft     |
-      | Bakken | Demo_4H-Stage-26 | -16066.09 ft | 34600.48 ft | 10754.27 ft | 245.0 ft     |
+      | field  | stage | name_with_well   | easting      | northing    | tvdss       | length      |
+      | Bakken | 1     | Demo_1H-Stage-1  | -22918.59 ft | 36877.27 ft | 10707.32 ft | 50.66 ft    |
+      | Bakken | 50    | Demo_1H-Stage-50 | -13363.32 ft | 36868.75 ft | 10770.12 ft | 147.11 ft   |
+      | Bakken | 9     | Demo_1H-Stage-9  | -21408.04 ft | 36880.20 ft | 10719.38 ft | 147.22 ft   |
+      | Bakken | 33    | Demo_1H-Stage-33 | -16699.31 ft | 36878.51 ft | 10740.07 ft | 147.22 ft   |
+      | Bakken | 1     | Demo_2H-Stage-1  | -22920.25 ft | 36102.40 ft | 10711.98 ft | 75.08 ft    |
+      | Bakken | 50    | Demo_2H-Stage-50 | -13291.11 ft | 36157.69 ft | 10767.44 ft | 147.15 ft   |
+      | Bakken | 21    | Demo_2H-Stage-21 | -19012.26 ft | 36106.84 ft | 10731.78 ft | 148.05 ft   |
+      | Bakken | 8     | Demo_2H-Stage-8  | -21577.64 ft | 36083.34 ft | 10727.67 ft | 148.05 ft   |
+      | Bakken | 1     | Demo_3H-Stage-1  | -17651.57 ft | 35498.61 ft | 10756.04 ft | 10300.00 ft |
+      | Bakken | 1     | Demo_4H-Stage-1  | -22941.22 ft | 34633.37 ft | 10717.32 ft | 65.93 ft    |
+      | Bakken | 35    | Demo_4H-Stage-35 | -13456.91 ft | 34600.45 ft | 10765.60 ft | 225.00 ft   |
+      | Bakken | 7     | Demo_4H-Stage-7  | -21643.18 ft | 34607.90 ft | 10722.36 ft | 245.00 ft   |
+      | Bakken | 26    | Demo_4H-Stage-26 | -16066.09 ft | 34600.48 ft | 10754.28 ft | 245.00 ft   |
 
     Examples: Montney
-      | field   | name_with_well   | easting   | northing   | tvdss     | stage_length |
-      | Montney | Hori_01-Stage-1  | 1798.47 m | -1645.40 m | 1715.62 m | 174.5 m      |
-      | Montney | Hori_01-Stage-15 | -411.39 m | 70.92 m    | 1690.61 m | 175.5 m      |
-      | Montney | Hori_01-Stage-8  | 695.63 m  | -785.57 m  | 1705.04 m | 174.5 m      |
-      | Montney | Hori_01-Stage-2  | 1640.41 m | -1524.58 m | 1714.82 m | 174.5 m      |
-      | Montney | Hori_02-Stage-1  | 1823.90 m | -1468.04 m | 1819.17 m | 39.0 m       |
-      | Montney | Hori_02-Stage-29 | -294.27 m | 158.02 m   | 1806.98 m | 72.0 m       |
-      | Montney | Hori_02-Stage-8  | 1302.97 m | -1070.91 m | 1820.75 m | 72.5 m       |
-      | Montney | Hori_02-Stage-14 | 846.41 m  | -720.02 m  | 1817.50 m | 72.5 m       |
-      | Montney | Hori_03-Stage-1  | 1832.20 m | -1288.07 m | 1698.90 m | 75.5 m       |
-      | Montney | Hori_03-Stage-28 | -335.48 m | 311.16 m   | 1689.96 m | 75.5 m       |
-      | Montney | Hori_03-Stage-9  | 1200.95 m | -797.29 m  | 1695.73 m | 75.5 m       |
-      | Montney | Hori_03-Stage-20 | 328.02 m  | -128.77 m  | 1691.35 m | 75.5 m       |
-      | Montney | Vert_01-Stage-1  | 1842.15 m | -1133.05 m | 1784.75 m | 35.5 m       |
-      | Montney | Vert_01-Stage-2  | 1842.15 m | -1133.05 m | 1734.75 m | 35.5 m       |
-      | Montney | Vert_01-Stage-3  | 1842.15 m | -1133.05 m | 1684.75 m | 35.5 m       |
-      | Montney | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m       |
+      | field   | stage | name_with_well   | easting   | northing   | tvdss     | length  |
+      | Montney | 1     | Hori_01-Stage-1  | 1798.47 m | -1645.40 m | 1715.62 m | 174.5 m |
+      | Montney | 15    | Hori_01-Stage-15 | -411.39 m | 70.92 m    | 1690.61 m | 175.5 m |
+      | Montney | 8     | Hori_01-Stage-8  | 695.63 m  | -785.57 m  | 1705.04 m | 174.5 m |
+      | Montney | 2     | Hori_01-Stage-2  | 1640.41 m | -1524.58 m | 1714.82 m | 174.5 m |
+      | Montney | 1     | Hori_02-Stage-1  | 1823.90 m | -1468.04 m | 1819.17 m | 39.0 m  |
+      | Montney | 29    | Hori_02-Stage-29 | -294.27 m | 158.02 m   | 1806.98 m | 72.0 m  |
+      | Montney | 8     | Hori_02-Stage-8  | 1302.97 m | -1070.91 m | 1820.75 m | 72.5 m  |
+      | Montney | 14    | Hori_02-Stage-14 | 846.41 m  | -720.02 m  | 1817.50 m | 72.5 m  |
+      | Montney | 1     | Hori_03-Stage-1  | 1832.20 m | -1288.07 m | 1698.90 m | 75.5 m  |
+      | Montney | 28    | Hori_03-Stage-28 | -335.48 m | 311.16 m   | 1689.96 m | 75.5 m  |
+      | Montney | 9     | Hori_03-Stage-9  | 1200.95 m | -797.29 m  | 1695.73 m | 75.5 m  |
+      | Montney | 20    | Hori_03-Stage-20 | 328.02 m  | -128.77 m  | 1691.35 m | 75.5 m  |
+      | Montney | 1     | Vert_01-Stage-1  | 1842.15 m | -1133.05 m | 1784.75 m | 35.5 m  |
+      | Montney | 2     | Vert_01-Stage-2  | 1842.15 m | -1133.05 m | 1734.75 m | 35.5 m  |
+      | Montney | 3     | Vert_01-Stage-3  | 1842.15 m | -1133.05 m | 1684.75 m | 35.5 m  |
+      | Montney | 4     | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m  |
