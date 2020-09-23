@@ -85,8 +85,8 @@ Feature: Low-level stages API (DOM)
 
     Examples: Bakken
       | field  | name_with_well   | easting      | northing    | tvdss       | stage_length |
-      | Bakken | Demo_1H-Stage-1  | -22918.59 ft | 36877.26 ft | 10707.32 ft | 50.66 ft     |
-      | Bakken | Demo_1H-Stage-50 | -13363.32 ft | 36868.74 ft | 10770.12 ft | 147.10 ft    |
+      | Bakken | Demo_1H-Stage-1  | -22918.59 ft | 36877.27 ft | 10707.32 ft | 50.66 ft     |
+      | Bakken | Demo_1H-Stage-50 | -13363.32 ft | 36868.75 ft | 10770.12 ft | 147.10 ft    |
       | Bakken | Demo_1H-Stage-9  | -21408.04 ft | 36880.20 ft | 10719.38 ft | 147.22 ft    |
       | Bakken | Demo_1H-Stage-33 | -16699.31 ft | 36878.51 ft | 10740.07 ft | 147.22 ft    |
       | Bakken | Demo_2H-Stage-1  | -22920.25 ft | 36102.40 ft | 10711.98 ft | 75.08 ft     |
