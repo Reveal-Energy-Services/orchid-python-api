@@ -50,25 +50,25 @@ class TestNativeStageAdapter(unittest.TestCase):
             unit, points = unit_points_pair
             return list(toolz.map(unit, points))
 
+        def make_locations(location_points, location_units, maker_func):
+            location_abbreviations = toolz.map(lambda u: u.abbreviation, location_units)
+            measurement_maker_funcs = toolz.map(toolz.flip(make_measurement), location_abbreviations)
+            result = toolz.pipe(zip(measurement_maker_funcs, location_points),
+                                toolz.map(maker_func),
+                                list)
+            return result
+
         actual_location_points = [(200469.40, 549527.27, 2297.12),
                                   (198747.28, 2142202.68, 2771.32),
                                   (423829, 6976698, 9604.67)]
         actual_location_units = [units.Metric.LENGTH, units.Metric.LENGTH, units.UsOilfield.LENGTH]
-        actual_location_abbrevs = toolz.map(lambda u: u.abbreviation, actual_location_units)
-        actual_measurement_maker_funcs = toolz.map(toolz.flip(make_measurement), actual_location_abbrevs)
-        actual_locations = toolz.pipe(zip(actual_measurement_maker_funcs, actual_location_points),
-                                      toolz.map(maker),
-                                      list)
+        actual_locations = make_locations(actual_location_points, actual_location_units, maker)
 
         expected_location_points = [(657708.00, 1802910.99, 7536.48),
                                     (198747.28, 2142202.68, 2771.32),
                                     (129183.08, 2126497.55, 2927.50)]
         expected_location_units = [units.UsOilfield.LENGTH, units.Metric.LENGTH, units.Metric.LENGTH]
-        expected_location_abbrevs = toolz.map(lambda u: u.abbreviation, expected_location_units)
-        expected_measurement_maker_funcs = toolz.map(toolz.flip(make_measurement), expected_location_abbrevs)
-        expected_location = toolz.pipe(zip(expected_measurement_maker_funcs, expected_location_points),
-                                       toolz.map(maker),
-                                       list)
+        expected_location = make_locations(expected_location_points, expected_location_units, maker)
 
         test_data = [(oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, oro.DepthDatum.GROUND_LEVEL,
                       actual_locations[0], expected_location[0]),
