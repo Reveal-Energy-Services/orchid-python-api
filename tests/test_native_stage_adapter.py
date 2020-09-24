@@ -36,7 +36,7 @@ from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, 
 import UnitsNet
 
 
-SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth', 'unit'])
+SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 
 # Test ideas
@@ -48,13 +48,18 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_center_location_returns_stage_location_center_in_project_units(self):
         def maker(unit_points_pair):
             unit, points = unit_points_pair
-            return list(toolz.map(unit, points))
+            return toolz.map(unit, points)
+
+        def make_subsurface_location(measured_coords):
+            result = SubsurfaceLocation(*measured_coords)
+            return result
 
         def make_locations(location_points, location_units, maker_func):
             location_abbreviations = toolz.map(lambda u: u.abbreviation, location_units)
             measurement_maker_funcs = toolz.map(toolz.flip(make_measurement), location_abbreviations)
             result = toolz.pipe(zip(measurement_maker_funcs, location_points),
                                 toolz.map(maker_func),
+                                toolz.map(make_subsurface_location),
                                 list)
             return result
 
@@ -82,18 +87,18 @@ class TestNativeStageAdapter(unittest.TestCase):
                 stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
                 actual_subsurface_point = unittest.mock.MagicMock(name='stub_net_subsurface_point',
                                                                   spec='ISubsurfacePoint')
-                actual_subsurface_point.X = as_net_quantity(actual_location[0])
-                actual_subsurface_point.Y = as_net_quantity(actual_location[1])
-                actual_subsurface_point.Depth = as_net_quantity(actual_location[2])
+                actual_subsurface_point.X = as_net_quantity(actual_location.x)
+                actual_subsurface_point.Y = as_net_quantity(actual_location.y)
+                actual_subsurface_point.Depth = as_net_quantity(actual_location.depth)
                 stub_net_stage.GetStageLocationCenter = unittest.mock.MagicMock(name='stub_get_stage_location_center',
                                                                                 return_value=actual_subsurface_point)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_center_location = sut.center_location(expected_location[0].unit, xy_origin, depth_origin)
                 # delta of "7" is a result of half-even rounding and truncation
-                assert_that(actual_center_location[0].magnitude, close_to(expected_location[0].magnitude, 7e-2))
-                assert_that(actual_center_location[1].magnitude, close_to(expected_location[1].magnitude, 7e-2))
-                assert_that(actual_center_location[2].magnitude, close_to(expected_location[2].magnitude, 7e-2))
+                assert_that(actual_center_location[0].magnitude, close_to(expected_location.x.magnitude, 7e-2))
+                assert_that(actual_center_location[1].magnitude, close_to(expected_location.y.magnitude, 7e-2))
+                assert_that(actual_center_location[2].magnitude, close_to(expected_location.depth.magnitude, 7e-2))
 
     def test_display_stage_number(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
