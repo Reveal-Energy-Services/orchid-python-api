@@ -15,22 +15,28 @@
 # This file is part of Orchid and related technologies.
 #
 
+from collections import namedtuple
 from datetime import datetime
 import unittest.mock
 
 from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items
-from toolz.curried import map
+import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
-from orchid.net_quantity import as_net_date_time
+from orchid.net_quantity import as_net_date_time, as_net_quantity
 import orchid.native_stage_adapter as nsa
 import orchid.native_treatment_curve_facade as ntc
 from orchid.net_quantity import as_net_quantity_in_different_unit
+import orchid.reference_origin as oro
+import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, ISubsurfacePoint
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth', 'unit'])
 
 
 # Test ideas
@@ -38,6 +44,56 @@ import UnitsNet
 class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_center_location_returns_stage_location_center_in_project_units(self):
+        def maker(unit_points_pair):
+            unit, points = unit_points_pair
+            return list(toolz.map(unit, points))
+
+        actual_location_points = [(200469.40, 549527.27, 2297.12),
+                                  (198747.28, 2142202.68, 2771.32),
+                                  (423829, 6976698, 9604.67)]
+        actual_location_units = [units.Metric.LENGTH, units.Metric.LENGTH, units.UsOilfield.LENGTH]
+        actual_location_abbrevs = toolz.map(lambda u: u.abbreviation, actual_location_units)
+        actual_measurement_maker_funcs = toolz.map(toolz.flip(make_measurement), actual_location_abbrevs)
+        actual_locations = toolz.pipe(zip(actual_measurement_maker_funcs, actual_location_points),
+                                      toolz.map(maker),
+                                      list)
+
+        expected_location_points = [(657708.00, 1802910.99, 7536.48),
+                                    (198747.28, 2142202.68, 2771.32),
+                                    (129183.08, 2126497.55, 2927.50)]
+        expected_location_units = [units.UsOilfield.LENGTH, units.Metric.LENGTH, units.Metric.LENGTH]
+        expected_location_abbrevs = toolz.map(lambda u: u.abbreviation, expected_location_units)
+        expected_measurement_maker_funcs = toolz.map(toolz.flip(make_measurement), expected_location_abbrevs)
+        expected_location = toolz.pipe(zip(expected_measurement_maker_funcs, expected_location_points),
+                                       toolz.map(maker),
+                                       list)
+
+        test_data = [(oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, oro.DepthDatum.GROUND_LEVEL,
+                      actual_locations[0], expected_location[0]),
+                     (oro.WellReferenceFrameXy.PROJECT, oro.DepthDatum.KELLY_BUSHING,
+                      actual_locations[1], expected_location[1]),
+                     (oro.WellReferenceFrameXy.WELL_HEAD, oro.DepthDatum.SEA_LEVEL,
+                      actual_locations[2], expected_location[2])]
+        for xy_origin, depth_origin, actual_location, expected_location in test_data:
+            with self.subTest(xy_origin=xy_origin, depth_origin=depth_origin,
+                              actual_location=actual_location, expected_location=expected_location):
+                stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+                actual_subsurface_point = unittest.mock.MagicMock(name='stub_net_subsurface_point',
+                                                                  spec='ISubsurfacePoint')
+                actual_subsurface_point.X = as_net_quantity(actual_location[0])
+                actual_subsurface_point.Y = as_net_quantity(actual_location[1])
+                actual_subsurface_point.Depth = as_net_quantity(actual_location[2])
+                stub_net_stage.GetStageLocationCenter = unittest.mock.MagicMock(name='stub_get_stage_location_center',
+                                                                                return_value=actual_subsurface_point)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_center_location = sut.center_location(expected_location[0].unit, xy_origin, depth_origin)
+                # delta of "7" is a result of half-even rounding and truncation
+                assert_that(actual_center_location[0].magnitude, close_to(expected_location[0].magnitude, 7e-2))
+                assert_that(actual_center_location[1].magnitude, close_to(expected_location[1].magnitude, 7e-2))
+                assert_that(actual_center_location[2].magnitude, close_to(expected_location[2].magnitude, 7e-2))
 
     def test_display_stage_number(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
@@ -111,7 +167,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), contains_exactly(expected_sampled_quantity_name))
-        assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
+        assert_that(toolz.map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     contains_exactly(expected_sampled_quantity_name))
 
     def test_treatment_curves_many_curves(self):
@@ -124,13 +180,13 @@ class TestNativeStageAdapter(unittest.TestCase):
             stub_treatment_curve.SampledQuantityName = name
             return stub_treatment_curve
 
-        stub_treatment_curves = map(make_stub_treatment_curve, expected_sampled_quantity_names)
+        stub_treatment_curves = toolz.map(make_stub_treatment_curve, expected_sampled_quantity_names)
         stub_net_stage.TreatmentCurves.Items = stub_treatment_curves
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), has_items(*expected_curve_names))
-        assert_that(map(lambda c: c.sampled_quantity_name, actual_curves.values()),
+        assert_that(toolz.map(lambda c: c.sampled_quantity_name, actual_curves.values()),
                     has_items(*expected_sampled_quantity_names))
 
 
