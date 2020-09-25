@@ -13,12 +13,13 @@
 #
 
 
+import abc
+
+
 import orchid.dot_net_dom_access as dna
 import orchid.net_quantity as onq
 
 import toolz.curried as toolz
-
-from orchid import dot_net_dom_access as dna
 
 
 class BaseSubsurfacePoint(dna.DotNetAdapter):
@@ -26,6 +27,30 @@ class BaseSubsurfacePoint(dna.DotNetAdapter):
                                     'The datum or origin for the z-coordinate of this point.')
     xy_origin = dna.dom_property('well_reference_frame_xy',
                                  'The reference frame or origin for the x-y coordinates of this point.')
+
+    @property
+    @abc.abstractmethod
+    def x(self):
+        """The x-coordinate of this point."""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def y(self):
+        """The y-coordinate of this point."""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def depth(self):
+        """The depth of this point."""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def md_kelly_bushing(self):
+        """The md_kelly_bushing of this point."""
+        pass
 
 
 class SubsurfacePoint(BaseSubsurfacePoint):
