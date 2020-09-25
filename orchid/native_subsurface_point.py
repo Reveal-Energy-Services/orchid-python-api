@@ -16,6 +16,8 @@
 import orchid.dot_net_dom_access as dna
 import orchid.net_quantity as onq
 
+import toolz.curried as toolz
+
 
 class SubsurfacePoint(dna.DotNetAdapter):
     """Adapts a .NET ISubsurfacePoint to be more Pythonic."""
@@ -31,20 +33,39 @@ class SubsurfacePoint(dna.DotNetAdapter):
     depth_origin = dna.dom_property('depth_datum',
                                     'The datum or origin for the z-coordinate of this point.')
 
-    # TODO: Really need to reconcile older units approach (strings) with newer approach (unit_system)
+    def as_length_unit(self, as_length_unit):
+        return SubsurfacePointInLengthUnit(self._adaptee, as_length_unit)
 
-    def x_as(self, length_unit_abbreviation):
-        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.X,
-                                                                             length_unit_abbreviation))
 
-    def y_as(self, length_unit_abbreviation):
-        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.Y,
-                                                                             length_unit_abbreviation))
+class SubsurfacePointInLengthUnit(dna.DotNetAdapter):
+    """Adapts a .NET ISubsurfacePoint to be more Pythonic. Always returns lengths in the specified units."""
 
-    def depth_as(self, length_unit_abbreviation):
-        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.Depth,
-                                                                             length_unit_abbreviation))
+    def __init__(self, adaptee, in_length_unit):
+        super().__init__(adaptee)
+        self._length_converter_func = toolz.flip(onq.convert_net_quantity_to_different_unit,
+                                                 in_length_unit.abbreviation)
 
-    def md_kelly_bushing_as(self, length_unit_abbreviation):
-        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.MdKellyBushing,
-                                                                             length_unit_abbreviation))
+    xy_origin = dna.dom_property('well_reference_frame_xy',
+                                 'The reference frame or origin for the x-y coordinates of this point.')
+    depth_origin = dna.dom_property('depth_datum',
+                                    'The datum or origin for the z-coordinate of this point.')
+
+    @property
+    def x(self):
+        """The x-coordinate of this point."""
+        return onq.as_measurement(self._length_converter_func(self._adaptee.X))
+
+    @property
+    def y(self):
+        """The y-coordinate of this point."""
+        return onq.as_measurement(self._length_converter_func(self._adaptee.Y))
+
+    @property
+    def depth(self):
+        """The depth of this point."""
+        return onq.as_measurement(self._length_converter_func(self._adaptee.Depth))
+
+    @property
+    def md_kelly_bushing(self):
+        """The md_kelly_bushing of this point."""
+        return onq.as_measurement(self._length_converter_func(self._adaptee.MdKellyBushing))

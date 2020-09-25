@@ -117,26 +117,27 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
             return ScalarQuantity(magnitude=magnitude, unit=unit)
 
         all_test_data = [((126834.6, 321614.0, 1836.6, 3136.3), units.Metric.LENGTH,
-                          (416124, 1055164, 6025.56, 10289.7), units.UsOilfield.LENGTH.abbreviation),
+                          (416124, 1055164, 6025.56, 10289.7), units.UsOilfield.LENGTH),
                          ((444401, 9009999, 7799.91, 6722.57), units.UsOilfield.LENGTH,
-                          (135453.42, 2746247.70, 2377.41, 2049.04), units.Metric.LENGTH.abbreviation)]
-        for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit_abbreviation in all_test_data:
+                          (135453.42, 2746247.70, 2377.41, 2049.04), units.Metric.LENGTH)]
+        for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit in all_test_data:
             with self.subTest(length_magnitudes=length_magnitudes, length_unit=length_unit,
                               as_length_magnitudes=as_length_magnitudes,
-                              as_length_unit_abbreviation=as_length_unit_abbreviation):
+                              as_length_unit=as_length_unit):
                 from_lengths = list(toolz.map(toolz.flip(ScalarQuantity, length_unit), length_magnitudes))
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2],
                                  md_kelly_bushing=from_lengths[3])
+                actual_as_length_unit = sut.as_length_unit(as_length_unit)
 
-                expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit_abbreviation),
+                expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit.abbreviation),
                                                   as_length_magnitudes))
-                assert_that_scalar_quantities_close_to(sut.x_as(as_length_unit_abbreviation),
+                assert_that_scalar_quantities_close_to(actual_as_length_unit.x,
                                                        expected_lengths[0], 6e-2)
-                assert_that_scalar_quantities_close_to(sut.y_as(as_length_unit_abbreviation),
+                assert_that_scalar_quantities_close_to(actual_as_length_unit.y,
                                                        expected_lengths[1], 6e-2)
-                assert_that_scalar_quantities_close_to(sut.depth_as(as_length_unit_abbreviation),
+                assert_that_scalar_quantities_close_to(actual_as_length_unit.depth,
                                                        expected_lengths[2], 6e-2)
-                assert_that_scalar_quantities_close_to(sut.md_kelly_bushing_as(as_length_unit_abbreviation),
+                assert_that_scalar_quantities_close_to(actual_as_length_unit.md_kelly_bushing,
                                                        expected_lengths[3], 6e-2)
 
 
