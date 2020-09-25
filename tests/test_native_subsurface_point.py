@@ -12,60 +12,81 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import math
 import unittest
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, close_to
+from hamcrest.core.base_matcher import BaseMatcher, T
+from hamcrest.core.description import Description
 
+import orchid.measurement as om
 import orchid.native_subsurface_point as nsp
 import orchid.reference_origin as oro
+import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import ISubsurfacePoint
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 # Test ideas
-# - xy_origin
-# - depth_origin
 class TestNativeSubsurfacePoint(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
 
     def test_x(self):
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-        expected_x = -2725.83
-        stub_subsurface_point.X = expected_x
+        x_magnitude = -2725.83
+        actual_x = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(x_magnitude),
+                                        units.Metric.LENGTH.net_unit)
+        stub_subsurface_point.X = actual_x
 
         sut = nsp.SubsurfacePoint(stub_subsurface_point)
 
-        assert_that(sut.x, equal_to(expected_x))
+        expected_x = om.make_measurement(x_magnitude, units.Metric.LENGTH.abbreviation)
+        assert_that(sut.x.unit, equal_to(expected_x.unit))
+        assert_that(sut.x.magnitude, close_to(expected_x.magnitude, 6e-2))
 
     def test_y(self):
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-        expected_y = 1656448.10
-        stub_subsurface_point.Y = expected_y
+        y_magnitude = 1656448.10
+        actual_y = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(y_magnitude),
+                                        units.Metric.LENGTH.net_unit)
+        stub_subsurface_point.Y = actual_y
 
         sut = nsp.SubsurfacePoint(stub_subsurface_point)
 
-        assert_that(sut.y, equal_to(expected_y))
+        expected_y = om.make_measurement(y_magnitude, units.Metric.LENGTH.abbreviation)
+        assert_that(sut.y.unit, equal_to(expected_y.unit))
+        assert_that(sut.y.magnitude, close_to(expected_y.magnitude, 6e-2))
 
     def test_depth(self):
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-        expected_depth = 8945.60
-        stub_subsurface_point.Depth = expected_depth
+        depth_magnitude = 1656448.10
+        actual_depth = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(depth_magnitude),
+                                            units.Metric.LENGTH.net_unit)
+        stub_subsurface_point.Depth = actual_depth
 
         sut = nsp.SubsurfacePoint(stub_subsurface_point)
 
-        assert_that(sut.depth, equal_to(expected_depth))
+        expected_depth = om.make_measurement(depth_magnitude, units.Metric.LENGTH.abbreviation)
+        assert_that(sut.depth.unit, equal_to(expected_depth.unit))
+        assert_that(sut.depth.magnitude, close_to(expected_depth.magnitude, 6e-2))
 
     def test_md_kelly_bushing(self):
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-        expected_md_kelly_bushing = 3131.45
-        stub_subsurface_point.MdKellyBushing = expected_md_kelly_bushing
+        md_kelly_bushing_magnitude = 1656448.10
+        actual_md_kelly_bushing = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(md_kelly_bushing_magnitude),
+                                                       units.Metric.LENGTH.net_unit)
+        stub_subsurface_point.MdKellyBushing = actual_md_kelly_bushing
 
         sut = nsp.SubsurfacePoint(stub_subsurface_point)
 
-        assert_that(sut.md_kelly_bushing, equal_to(expected_md_kelly_bushing))
+        expected_md_kelly_bushing = om.make_measurement(md_kelly_bushing_magnitude, units.Metric.LENGTH.abbreviation)
+        assert_that(sut.md_kelly_bushing.unit, equal_to(expected_md_kelly_bushing.unit))
+        assert_that(sut.md_kelly_bushing.magnitude, close_to(expected_md_kelly_bushing.magnitude, 6e-2))
 
     def test_xy_origin(self):
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)

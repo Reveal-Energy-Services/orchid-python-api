@@ -14,16 +14,19 @@
 
 
 import orchid.dot_net_dom_access as dna
+import orchid.net_quantity as onq
+# import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
 
 
 class SubsurfacePoint(dna.DotNetAdapter):
     """Adapts a .NET ISubsurfacePoint to be more Pythonic."""
 
-    x = dna.dom_property('x', 'The x-coordinate of this point.')
-    y = dna.dom_property('y', 'The y-coordinate of this point.')
-    depth = dna.dom_property('depth', 'The z-coordinate (depth) of this point.')
-    md_kelly_bushing = dna.dom_property('md_kelly_bushing',
-                                        'The measured depth of this point relative to the kelly bushing.')
+    x = dna.transformed_dom_property('x', 'The x-coordinate of this point.', onq.as_measurement)
+    y = dna.transformed_dom_property('y', 'The y-coordinate of this point.', onq.as_measurement)
+    depth = dna.transformed_dom_property('depth', 'The z-coordinate (depth) of this point.', onq.as_measurement)
+    md_kelly_bushing = dna.transformed_dom_property('md_kelly_bushing',
+                                                    'The measured depth of this point relative to the kelly bushing.',
+                                                    onq.as_measurement)
     xy_origin = dna.dom_property('well_reference_frame_xy',
                                  'The reference frame or origin for the x-y coordinates of this point.')
     depth_origin = dna.dom_property('depth_datum',
