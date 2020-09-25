@@ -17,6 +17,7 @@ import unittest
 import unittest.mock
 
 from hamcrest import assert_that, equal_to, close_to
+import toolz.curried as toolz
 
 import orchid.measurement as om
 import orchid.native_subsurface_point as nsp
@@ -33,23 +34,34 @@ ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 
 
 def create_sut(x=None, y=None, depth=None, md_kelly_bushing=None, xy_origin=None, depth_origin=None):
+    @toolz.curry
+    def set_x(subsurface_point, to_value):
+        subsurface_point.X = to_value
+
+    @toolz.curry
+    def set_y(subsurface_point, to_value):
+        subsurface_point.Y = to_value
+
+    @toolz.curry
+    def set_depth(subsurface_point, to_value):
+        subsurface_point.Depth = to_value
+
+    @toolz.curry
+    def set_md_kelly_bushing(subsurface_point, to_value):
+        subsurface_point.MdKellyBushing = to_value
+
+    def set_actual_length_if_has_length(set_func, maybe_length):
+        """Invokes `set_func()` if `maybe_length` is 'truthy'."""
+        if maybe_length:
+            length = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(maybe_length.magnitude),
+                                          maybe_length.unit.net_unit)
+            set_func(length)
+
     stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-    if x:
-        actual_x = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(x.magnitude),
-                                        x.unit.net_unit)
-        stub_subsurface_point.X = actual_x
-    if y:
-        actual_y = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(y.magnitude),
-                                        y.unit.net_unit)
-        stub_subsurface_point.Y = actual_y
-    if depth:
-        actual_depth = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(depth.magnitude),
-                                            depth.unit.net_unit)
-        stub_subsurface_point.Depth = actual_depth
-    if md_kelly_bushing:
-        actual_md_kelly_bushing = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(md_kelly_bushing.magnitude),
-                                                       md_kelly_bushing.unit.net_unit)
-        stub_subsurface_point.MdKellyBushing = actual_md_kelly_bushing
+    set_actual_length_if_has_length(set_x(stub_subsurface_point), x)
+    set_actual_length_if_has_length(set_y(stub_subsurface_point), y)
+    set_actual_length_if_has_length(set_depth(stub_subsurface_point), depth)
+    set_actual_length_if_has_length(set_md_kelly_bushing(stub_subsurface_point), md_kelly_bushing)
     if xy_origin:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
     if depth_origin:
