@@ -15,7 +15,6 @@
 
 import orchid.dot_net_dom_access as dna
 import orchid.net_quantity as onq
-# import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
 
 
 class SubsurfacePoint(dna.DotNetAdapter):
@@ -31,3 +30,21 @@ class SubsurfacePoint(dna.DotNetAdapter):
                                  'The reference frame or origin for the x-y coordinates of this point.')
     depth_origin = dna.dom_property('depth_datum',
                                     'The datum or origin for the z-coordinate of this point.')
+
+    # TODO: Really need to reconcile older units approach (strings) with newer approach (unit_system)
+
+    def x_as(self, length_unit_abbreviation):
+        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.X,
+                                                                             length_unit_abbreviation))
+
+    def y_as(self, length_unit_abbreviation):
+        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.Y,
+                                                                             length_unit_abbreviation))
+
+    def depth_as(self, length_unit_abbreviation):
+        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.Depth,
+                                                                             length_unit_abbreviation))
+
+    def md_kelly_bushing_as(self, length_unit_abbreviation):
+        return onq.as_measurement(onq.convert_net_quantity_to_different_unit(self._adaptee.MdKellyBushing,
+                                                                             length_unit_abbreviation))
