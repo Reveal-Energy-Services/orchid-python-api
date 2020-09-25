@@ -34,10 +34,10 @@ class SubsurfacePoint(dna.DotNetAdapter):
                                     'The datum or origin for the z-coordinate of this point.')
 
     def as_length_unit(self, as_length_unit):
-        return SubsurfacePointInLengthUnit(self._adaptee, as_length_unit)
+        return SubsurfacePointUsingLengthUnit(self._adaptee, as_length_unit)
 
 
-class SubsurfacePointInLengthUnit(dna.DotNetAdapter):
+class SubsurfacePointUsingLengthUnit(dna.DotNetAdapter):
     """Adapts a .NET ISubsurfacePoint to be more Pythonic. Always returns lengths in the specified units."""
 
     def __init__(self, adaptee, in_length_unit):
