@@ -33,7 +33,7 @@ import UnitsNet
 ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 
 
-def create_sut(x=None, y=None, depth=None, md_kelly_bushing=None, xy_origin=None, depth_origin=None):
+def create_sut(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
     def make_length_unit(scalar_quantity):
         return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
                                     scalar_quantity.unit.net_unit)
@@ -45,8 +45,6 @@ def create_sut(x=None, y=None, depth=None, md_kelly_bushing=None, xy_origin=None
         stub_subsurface_point.Y = make_length_unit(y)
     if depth:
         stub_subsurface_point.Depth = make_length_unit(depth)
-    if md_kelly_bushing:
-        stub_subsurface_point.MdKellyBushing = make_length_unit(md_kelly_bushing)
     if xy_origin:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
     if depth_origin:
@@ -87,14 +85,6 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit.abbreviation)
         assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
 
-    def test_md_kelly_bushing(self):
-        scalar_md_kelly_bushing = ScalarQuantity(3131.45, units.Metric.LENGTH)
-        sut = create_sut(md_kelly_bushing=scalar_md_kelly_bushing)
-
-        expected_md_kelly_bushing = om.make_measurement(scalar_md_kelly_bushing.magnitude,
-                                                        units.Metric.LENGTH.abbreviation)
-        assert_that_scalar_quantities_close_to(sut.md_kelly_bushing, expected_md_kelly_bushing, 6e-2)
-
     def test_xy_origin(self):
         expected_xy_origin = oro.WellReferenceFrameXy.PROJECT
         sut = create_sut(xy_origin=expected_xy_origin)
@@ -125,8 +115,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
                               as_length_magnitudes=as_length_magnitudes,
                               as_length_unit=as_length_unit):
                 from_lengths = list(toolz.map(toolz.flip(ScalarQuantity, length_unit), length_magnitudes))
-                sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2],
-                                 md_kelly_bushing=from_lengths[3])
+                sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
 
                 expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit.abbreviation),
@@ -137,8 +126,6 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
                                                        expected_lengths[1], 6e-2)
                 assert_that_scalar_quantities_close_to(actual_as_length_unit.depth,
                                                        expected_lengths[2], 6e-2)
-                assert_that_scalar_quantities_close_to(actual_as_length_unit.md_kelly_bushing,
-                                                       expected_lengths[3], 6e-2)
 
 
 if __name__ == '__main__':

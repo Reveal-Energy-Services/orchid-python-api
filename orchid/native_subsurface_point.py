@@ -46,12 +46,6 @@ class BaseSubsurfacePoint(dna.DotNetAdapter):
         """The depth of this point."""
         pass
 
-    @property
-    @abc.abstractmethod
-    def md_kelly_bushing(self):
-        """The md_kelly_bushing of this point."""
-        pass
-
 
 class SubsurfacePoint(BaseSubsurfacePoint):
     """Adapts a .NET ISubsurfacePoint to be more Pythonic."""
@@ -59,9 +53,6 @@ class SubsurfacePoint(BaseSubsurfacePoint):
     x = dna.transformed_dom_property('x', 'The x-coordinate of this point.', onq.as_measurement)
     y = dna.transformed_dom_property('y', 'The y-coordinate of this point.', onq.as_measurement)
     depth = dna.transformed_dom_property('depth', 'The z-coordinate (depth) of this point.', onq.as_measurement)
-    md_kelly_bushing = dna.transformed_dom_property('md_kelly_bushing',
-                                                    'The measured depth of this point relative to the kelly bushing.',
-                                                    onq.as_measurement)
 
     def as_length_unit(self, as_length_unit):
         return SubsurfacePointUsingLengthUnit(self._adaptee, as_length_unit)
@@ -89,8 +80,3 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
     def depth(self):
         """The depth of this point."""
         return onq.as_measurement(self._length_converter_func(self._adaptee.Depth))
-
-    @property
-    def md_kelly_bushing(self):
-        """The md_kelly_bushing of this point."""
-        return onq.as_measurement(self._length_converter_func(self._adaptee.MdKellyBushing))
