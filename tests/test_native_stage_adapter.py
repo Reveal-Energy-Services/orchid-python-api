@@ -38,6 +38,8 @@ import UnitsNet
 
 ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
+AboutCenter = namedtuple('AboutCenter', ['x', 'y', 'depth', 'unit'])
+AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
 
 
 # Test ideas
@@ -46,7 +48,48 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_center_location_returns_stage_location_center_in_project_units(self):
+    def test_center_location_returns_stage_location_center_in_requested_unit(self):
+        def make_subsurface_coordinate(center_coord, center_unit):
+            return as_net_quantity(make_measurement(center_coord, center_unit.abbreviation))
+
+        actual_centers = [AboutCenter(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
+                          AboutCenter(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                          AboutCenter(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
+        expected_centers = [AboutCenter(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
+                            AboutCenter(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                            AboutCenter(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
+        origin_references = [AboutOrigin(oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, oro.DepthDatum.GROUND_LEVEL),
+                             AboutOrigin(oro.WellReferenceFrameXy.PROJECT, oro.DepthDatum.KELLY_BUSHING),
+                             AboutOrigin(oro.WellReferenceFrameXy.WELL_HEAD, oro.DepthDatum.SEA_LEVEL)]
+
+        for (actual_center, expected_center, origin_reference) in\
+                zip(actual_centers, expected_centers, origin_references):
+            def center_mock_func(*args):
+                result = unittest.mock.MagicMock(name='stub_net_subsurface_point',
+                                                 spec='ISubsurfacePoint')
+                if (args[0] == oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
+                        args[1] == oro.DepthDatum.GROUND_LEVEL):
+                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
+                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
+                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
+                elif args[0] == oro.WellReferenceFrameXy.PROJECT and args[1] == oro.DepthDatum.KELLY_BUSHING:
+                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
+                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
+                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
+                elif args[0] == oro.WellReferenceFrameXy.WELL_HEAD and args[1] == oro.DepthDatum.SEA_LEVEL:
+                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
+                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
+                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
+                return result
+
+            stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+            stub_net_stage.GetStageLocationCenter = unittest.mock.MagicMock(name='stub_get_stage_location_center',
+                                                                            side_effect=center_mock_func)
+            sut = nsa.NativeStageAdapter(stub_net_stage)
+
+            actual = sut.center_location_new(expected_center.unit, origin_reference.xy, origin_reference.depth)
+
+    def test_center_location_returns_stage_location_center_in_project_units_obsolete(self):
         def maker(unit_points_pair):
             unit, points = unit_points_pair
             return toolz.map(unit, points)

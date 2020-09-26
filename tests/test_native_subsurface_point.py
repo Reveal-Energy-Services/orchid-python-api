@@ -16,13 +16,15 @@ from collections import namedtuple
 import unittest
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
 import orchid.measurement as om
 import orchid.native_subsurface_point as nsp
 import orchid.reference_origin as oro
 import orchid.unit_system as units
+
+import tests.custom_matchers as tcm
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import ISubsurfacePoint
@@ -45,18 +47,13 @@ def create_sut(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
         stub_subsurface_point.Y = make_length_unit(y)
     if depth:
         stub_subsurface_point.Depth = make_length_unit(depth)
-    if xy_origin:
+    if xy_origin is not None:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
-    if depth_origin:
+    if depth_origin is not None:
         stub_subsurface_point.DepthDatum = depth_origin
 
     sut = nsp.SubsurfacePoint(stub_subsurface_point)
     return sut
-
-
-def assert_that_scalar_quantities_close_to(actual_x, expected_x, tolerance):
-    assert_that(actual_x.unit, equal_to(expected_x.unit))
-    assert_that(actual_x.magnitude, close_to(expected_x.magnitude, tolerance))
 
 
 # Test ideas
@@ -69,21 +66,21 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         sut = create_sut(x=scalar_x)
 
         expected_x = om.make_measurement(scalar_x.magnitude, scalar_x.unit.abbreviation)
-        assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
+        tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
         scalar_y = ScalarQuantity(1656448.10, units.Metric.LENGTH)
         sut = create_sut(y=scalar_y)
 
         expected_y = om.make_measurement(scalar_y.magnitude, scalar_y.unit.abbreviation)
-        assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
+        tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
 
     def test_depth(self):
         scalar_depth = ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(depth=scalar_depth)
 
         expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit.abbreviation)
-        assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
+        tcm.assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
 
     def test_xy_origin(self):
         expected_xy_origin = oro.WellReferenceFrameXy.PROJECT
@@ -120,12 +117,12 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
 
                 expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit.abbreviation),
                                                   as_length_magnitudes))
-                assert_that_scalar_quantities_close_to(actual_as_length_unit.x,
-                                                       expected_lengths[0], 6e-2)
-                assert_that_scalar_quantities_close_to(actual_as_length_unit.y,
-                                                       expected_lengths[1], 6e-2)
-                assert_that_scalar_quantities_close_to(actual_as_length_unit.depth,
-                                                       expected_lengths[2], 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.x,
+                                                           expected_lengths[0], 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.y,
+                                                           expected_lengths[1], 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.depth,
+                                                           expected_lengths[2], 6e-2)
 
 
 if __name__ == '__main__':
