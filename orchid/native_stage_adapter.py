@@ -16,7 +16,7 @@
 #
 
 import functools
-from typing import Tuple
+from typing import Tuple, Union
 
 import toolz.curried as toolz
 
@@ -25,6 +25,7 @@ from orchid.measurement import Measurement
 import orchid.native_treatment_curve_facade as ntc
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
 import orchid.reference_origin as oro
+import orchid.unit_system as units
 
 
 class NativeStageAdapter(dna.DotNetAdapter):
@@ -79,6 +80,59 @@ class NativeStageAdapter(dna.DotNetAdapter):
             tuple)
         return result
 
+    @functools.lru_cache()
+    def center_location_new(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                            xy_reference_frame: oro.WellReferenceFrameXy,
+                            depth_datum: oro.DepthDatum):
+        """
+        Return the location of the center of this stage in the `xy_well_reference_frame` using the `depth_datum`
+        in the specified unit.
+
+        Args:
+            in_length_unit: The unit of length available from the returned value.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The `BaseSubsurfacePoint` of the stage center.
+        """
+        return self.center_location(in_length_unit.abbreviation, xy_reference_frame, depth_datum)
+
+    def center_location_easting(self, length_unit: Union[units.UsOilfield, units.Metric],
+                                xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+        """
+        Return the easting location of the stage center relative to the specified reference frame in the
+        specified unit.
+
+        Args:
+            length_unit: An abbreviation of the unit of length for the returned Measurement.
+            xy_well_reference_frame: The reference frame defining the origin.
+
+        Returns:
+            A measurement.
+        """
+        x, _, _ = self.center_location_new(length_unit, xy_well_reference_frame,
+                                           oro.DepthDatum.KELLY_BUSHING)
+
+        return x
+
+    def center_location_northing(self, length_unit_abbreviation: str,
+                                 xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+        """
+        Return the northing location of the stage center in the `xy_well_reference_frame` in the specified unit.
+
+        Args:
+            length_unit_abbreviation: An abbreviation of the requested resultant length unit.
+            xy_well_reference_frame: The reference frame defining the origin.
+
+        Returns:
+            A measurement.
+        """
+        _, y, _ = self.center_location(length_unit_abbreviation, xy_well_reference_frame,
+                                       oro.DepthDatum.KELLY_BUSHING)
+
+        return y
+
     def center_location_md(self, length_unit_abbreviation: str) -> Measurement:
         """
         Return the measured depth of the stage center in project units.
@@ -122,41 +176,6 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                        oro.DepthDatum.KELLY_BUSHING)
 
         return x, y
-
-    def center_location_easting(self, length_unit_abbreviation: str,
-                                xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
-        """
-        Return the easting location of the stage center relative to the specified reference frame in the
-        specified unit.
-
-        Args:
-            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
-            xy_well_reference_frame: The reference frame defining the origin.
-
-        Returns:
-            A measurement.
-        """
-        x, _, _ = self.center_location(length_unit_abbreviation, xy_well_reference_frame,
-                                       oro.DepthDatum.KELLY_BUSHING)
-
-        return x
-
-    def center_location_northing(self, length_unit_abbreviation: str,
-                                 xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
-        """
-        Return the northing location of the stage center in the `xy_well_reference_frame` in the specified unit.
-
-        Args:
-            length_unit_abbreviation: An abbreviation of the requested resultant length unit.
-            xy_well_reference_frame: The reference frame defining the origin.
-
-        Returns:
-            A measurement.
-        """
-        _, y, _ = self.center_location(length_unit_abbreviation, xy_well_reference_frame,
-                                       oro.DepthDatum.KELLY_BUSHING)
-
-        return y
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """

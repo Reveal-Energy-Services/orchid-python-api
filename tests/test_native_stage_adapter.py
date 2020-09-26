@@ -30,12 +30,13 @@ from orchid.net_quantity import as_net_quantity_in_different_unit
 import orchid.reference_origin as oro
 import orchid.unit_system as units
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, ISubsurfacePoint
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 
+ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 
@@ -75,14 +76,14 @@ class TestNativeStageAdapter(unittest.TestCase):
         expected_location_units = [units.UsOilfield.LENGTH, units.Metric.LENGTH, units.Metric.LENGTH]
         expected_location = make_locations(expected_location_points, expected_location_units, maker)
 
-        test_data = [(oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, oro.DepthDatum.GROUND_LEVEL,
-                      actual_locations[0], expected_location[0]),
-                     (oro.WellReferenceFrameXy.PROJECT, oro.DepthDatum.KELLY_BUSHING,
-                      actual_locations[1], expected_location[1]),
-                     (oro.WellReferenceFrameXy.WELL_HEAD, oro.DepthDatum.SEA_LEVEL,
-                      actual_locations[2], expected_location[2])]
-        for xy_origin, depth_origin, actual_location, expected_location in test_data:
-            with self.subTest(xy_origin=xy_origin, depth_origin=depth_origin,
+        test_data = [(expected_location_units[0], oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                      oro.DepthDatum.GROUND_LEVEL, actual_locations[0], expected_location[0]),
+                     (expected_location_units[1], oro.WellReferenceFrameXy.PROJECT,
+                      oro.DepthDatum.KELLY_BUSHING, actual_locations[1], expected_location[1]),
+                     (expected_location_units[2], oro.WellReferenceFrameXy.WELL_HEAD,
+                      oro.DepthDatum.SEA_LEVEL, actual_locations[2], expected_location[2])]
+        for expected_unit, xy_origin, depth_origin, actual_location, expected_location in test_data:
+            with self.subTest(expected_unit=expected_unit, xy_origin=xy_origin, depth_origin=depth_origin,
                               actual_location=actual_location, expected_location=expected_location):
                 stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
                 actual_subsurface_point = unittest.mock.MagicMock(name='stub_net_subsurface_point',
@@ -94,11 +95,37 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                                                 return_value=actual_subsurface_point)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
-                actual_center_location = sut.center_location(expected_location[0].unit, xy_origin, depth_origin)
+                actual_center_location = sut.center_location_new(expected_unit, xy_origin, depth_origin)
                 # delta of "7" is a result of half-even rounding and truncation
                 assert_that(actual_center_location[0].magnitude, close_to(expected_location.x.magnitude, 7e-2))
                 assert_that(actual_center_location[1].magnitude, close_to(expected_location.y.magnitude, 7e-2))
                 assert_that(actual_center_location[2].magnitude, close_to(expected_location.depth.magnitude, 7e-2))
+
+    def test_center_easting_returns_center_easting(self):
+        test_from_unit = units.UsOilfield.LENGTH
+        test_from_location = toolz.pipe((756153, 2721212, 8590.78),
+                                        toolz.map(toolz.flip(make_measurement, test_from_unit.abbreviation)),
+                                        lambda coords: SubsurfaceLocation(*coords))
+        test_to_unit = units.Metric.LENGTH
+        test_to_location = toolz.pipe((230475.43, 829425.42, 2618.47),
+                                      toolz.map(toolz.flip(make_measurement, test_to_unit.abbreviation)),
+                                      lambda coords: SubsurfaceLocation(*coords))
+        for from_location, to_location, to_unit in [(test_from_location, test_to_location, test_to_unit)]:
+            with self.subTest(from_location=from_location, to_location=to_location, to_unit=to_unit):
+                stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+                stub_subsurface_point = unittest.mock.MagicMock(name='stub_net_subsurface_point',
+                                                                spec=ISubsurfacePoint)
+                stub_subsurface_point.X = as_net_quantity(from_location.x)
+                stub_subsurface_point.Y = as_net_quantity(from_location.y)
+                stub_subsurface_point.Depth = as_net_quantity(from_location.depth)
+                stub_net_stage.GetStageLocationCenter = unittest.mock.MagicMock(name='stub_get_stage_location_center',
+                                                                                return_value=stub_subsurface_point)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                dont_care_xy_origin = oro.WellReferenceFrameXy.PROJECT
+                actual_center_easting = sut.center_location_easting(to_unit, dont_care_xy_origin)
+                assert_that(actual_center_easting.magnitude, close_to(to_location.x.magnitude, 7e-2))
+                assert_that(actual_center_easting.unit, equal_to(to_unit.abbreviation))
 
     def test_display_stage_number(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
