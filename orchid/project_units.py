@@ -52,7 +52,7 @@ def temperature_unit(net_project):
     return UnitsNet.Temperature.GetAbbreviation(net_project.ProjectUnits.TemperatureUnit)
 
 
-def unit(net_project, physical_quantity):
+def unit_abbreviation(net_project, physical_quantity):
     """
     Return the abbreviation for the specified `physical_quantity` of this project.
     :param net_project: The .NET project to query

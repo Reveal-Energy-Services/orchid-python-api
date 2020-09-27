@@ -65,7 +65,7 @@ class Project(dna.DotNetAdapter):
         :param physical_quantity: The name of the physical quantity.
         :return: The abbreviation of the specified physical quantity.
         """
-        return project_units.unit(self._project_loader.native_project(), physical_quantity)
+        return project_units.unit_abbreviation(self._project_loader.native_project(), physical_quantity)
 
     def wells_by_name(self, name) -> Iterable[IWell]:
         """
