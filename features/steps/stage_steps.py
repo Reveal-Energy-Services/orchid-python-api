@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+# noinspection PyPackageRequirements
 from behave import *
 use_step_matcher("parse")
 
@@ -88,10 +89,12 @@ def step_impl(context, stage, name_with_well, md_top, md_bottom, cluster_count):
                                    toolz.partial(find_stage, name_with_well))
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage))
-    assert_measurement_equal(stage_of_interest.md_top(context.project.unit(str(opq.PhysicalQuantity.LENGTH))),
-                             md_top)
-    assert_measurement_equal(stage_of_interest.md_bottom(context.project.unit(str(opq.PhysicalQuantity.LENGTH))),
-                             md_bottom)
+    assert_measurement_equal(
+        stage_of_interest.md_top(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
+        md_top)
+    assert_measurement_equal(
+        stage_of_interest.md_bottom(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
+        md_bottom)
     assert_that(stage_of_interest.cluster_count, equal_to(cluster_count))
 
 
@@ -115,16 +118,16 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
                                    toolz.partial(find_stage, name_with_well))
 
     assert_measurement_equal(
-        stage_of_interest.center_location_easting(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
+        stage_of_interest.center_location_easting(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH)),
                                                   oro.WellReferenceFrameXy.PROJECT),
         easting)
     assert_measurement_equal(
-        stage_of_interest.center_location_northing(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name),
+        stage_of_interest.center_location_northing(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH)),
                                                    oro.WellReferenceFrameXy.PROJECT),
         northing)
     assert_measurement_equal(
-        stage_of_interest.center_location_tvdss(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name)),
+        stage_of_interest.center_location_tvdss(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
         tvdss)
     assert_measurement_equal(
-        stage_of_interest.stage_length(context.project.unit(opq.PhysicalQuantity.LENGTH.value.name)),
+        stage_of_interest.stage_length(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
         length)

@@ -44,7 +44,7 @@ class TestProjectUnits(unittest.TestCase):
                     stub_net_project = create_stub_net_project(**options)
                     sut = create_sut(stub_net_project)
 
-                    assert_that(sut.unit(quantity), equal_to(unit))
+                    assert_that(sut.unit_abbreviation(quantity), equal_to(unit))
 
 
 def create_sut(stub_net_project):

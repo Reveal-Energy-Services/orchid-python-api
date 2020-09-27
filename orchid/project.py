@@ -59,7 +59,7 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def unit(self, physical_quantity):
+    def unit_abbreviation(self, physical_quantity):
         """
         Return the abbreviation for the specified `physical_quantity` of this project.
         :param physical_quantity: The name of the physical quantity.

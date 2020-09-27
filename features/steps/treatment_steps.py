@@ -15,10 +15,12 @@
 # This file is part of Orchid and related technologies.
 #
 
+# noinspection PyPackageRequirements
 from behave import *
 use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import numpy as np
+# noinspection PyPackageRequirements
 from scipy import integrate
 import toolz.curried as toolz
 
@@ -77,8 +79,8 @@ def stage_treatment_details(project, well, stage):
     return {'project_name': project.name,
             'well_name': well.name,
             'stage_number': stage.display_stage_number,
-            'md_top': stage.md_top(project.unit('length')),
-            'md_bottom': stage.md_bottom(project.unit('length')),
+            'md_top': stage.md_top(project.unit_abbreviation('length')),
+            'md_bottom': stage.md_bottom(project.unit_abbreviation('length')),
             'volume': treatment_fluid_volume,
             'proppant': treatment_proppant,
             'median': median_treatment_pressure}
