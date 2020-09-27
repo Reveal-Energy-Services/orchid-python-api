@@ -12,8 +12,6 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from collections import namedtuple
-import unittest
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
@@ -25,6 +23,7 @@ import orchid.reference_origin as oro
 import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
+import tests.stub_net as stub_net
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import ISubsurfacePoint
@@ -32,25 +31,8 @@ from Orchid.FractureDiagnostics import ISubsurfacePoint
 import UnitsNet
 
 
-ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
-
-
 def create_sut(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
-    def make_length_unit(scalar_quantity):
-        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
-                                    scalar_quantity.unit.net_unit)
-
-    stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-    if x:
-        stub_subsurface_point.X = make_length_unit(x)
-    if y:
-        stub_subsurface_point.Y = make_length_unit(y)
-    if depth:
-        stub_subsurface_point.Depth = make_length_unit(depth)
-    if xy_origin is not None:
-        stub_subsurface_point.WellReferenceFrameXy = xy_origin
-    if depth_origin is not None:
-        stub_subsurface_point.DepthDatum = depth_origin
+    stub_subsurface_point = stub_net.create_stub_subsurface_point(x, y, depth, xy_origin, depth_origin)
 
     sut = nsp.SubsurfacePoint(stub_subsurface_point)
     return sut
@@ -62,21 +44,21 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_x(self):
-        scalar_x = ScalarQuantity(-2725.83, units.Metric.LENGTH)
+        scalar_x = tcm.ScalarQuantity(-2725.83, units.Metric.LENGTH)
         sut = create_sut(x=scalar_x)
 
         expected_x = om.make_measurement(scalar_x.magnitude, scalar_x.unit.abbreviation)
         tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
-        scalar_y = ScalarQuantity(1656448.10, units.Metric.LENGTH)
+        scalar_y = tcm.ScalarQuantity(1656448.10, units.Metric.LENGTH)
         sut = create_sut(y=scalar_y)
 
         expected_y = om.make_measurement(scalar_y.magnitude, scalar_y.unit.abbreviation)
         tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
 
     def test_depth(self):
-        scalar_depth = ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
+        scalar_depth = tcm.ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(depth=scalar_depth)
 
         expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit.abbreviation)
@@ -101,7 +83,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
     def test_as_length_unit(self):
         @toolz.curry
         def make_scalar_quantity(magnitude, unit):
-            return ScalarQuantity(magnitude=magnitude, unit=unit)
+            return tcm.ScalarQuantity(magnitude=magnitude, unit=unit)
 
         all_test_data = [((126834.6, 321614.0, 1836.6, 3136.3), units.Metric.LENGTH,
                           (416124, 1055164, 6025.56, 10289.7), units.UsOilfield.LENGTH),
@@ -111,7 +93,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
             with self.subTest(length_magnitudes=length_magnitudes, length_unit=length_unit,
                               as_length_magnitudes=as_length_magnitudes,
                               as_length_unit=as_length_unit):
-                from_lengths = list(toolz.map(toolz.flip(ScalarQuantity, length_unit), length_magnitudes))
+                from_lengths = list(toolz.map(toolz.flip(tcm.ScalarQuantity, length_unit), length_magnitudes))
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
 
