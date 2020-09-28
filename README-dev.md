@@ -167,6 +167,8 @@ Remember the recommendation from the book, _The Pragmatic Programmer_: "Find one
 
 - Install "jupyter lab" by running `pip install jupyterlab`
 
+- [Ensure installation of correct Orchid version](#ensure-correct-orchid)
+
 Finally, [Run orchid examples](#run-installed-orchid-examples).
 
 # Publish a release
@@ -217,6 +219,30 @@ To update the project dependencies:
 
 ## Common tasks
 
+### Ensure correct Orchid
+
+By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
+system. To ensure the correct version of Orchid is installed, 
+
+- Navigate to the orchid installation directory, `$PROGRAMFILES\Reveal Energy Services, Inc\Orchid`
+- List that directory
+- You should see a directory named something like, `Orchid-<python-api-version>`, where `<python-api-version>` 
+  is a symbolic reference for the version number in which you are interested.
+- Navigate into the version specific information. For example, `Orchid-2020.4.232`
+- You should see files like:
+    - `Orchid.Application.exe`
+    - `Orchid.FractureDiagnostics.dll`
+    - `appSettings.json`
+    - Many, many others
+    
+To make doubly certain, you could run `Orchid.Application.exe` and ensure that the application displays the 
+correct version number in the main window title bar.
+
+If it is not installed, you'll need to:
+
+- Install the appropriate version from the Web portal
+- Perhaps repeat these steps
+
 ### Create a new, clean virtualenv
 
 These instructions assume you have created a test virtual directory using `pipenv`. This tool is simpler to
@@ -227,7 +253,7 @@ instructions assume that your test directory is something like `<path/to/inst/or
     - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
     exists, running this task will produce a message like:
     
-    >> invoke pipenv.venv.remove --dirname=/c/inst/orchid/pipenv
+    >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
     >> No virtualenv has been created for this project yet!
     >> Aborted!
                                                                                                                                                                                                                     
@@ -270,7 +296,9 @@ To run all orchid tests
 - Prepare to run examples
     - If you are testing a `pipenv` virtual environment
         - Navigate to the directory associated with the virtual environment
-        - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`
+        - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`. Be sure to specify 
+          `python` to run the script with the version of python install in the virtual environment and **not**
+          the system version of python.
         - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
         - Verify that the current directory has four notebooks:
@@ -292,7 +320,6 @@ To run all orchid tests
             - Copy the example notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
            - Run `python ./use_orchid_test_data.py </path/to/integration-test-data>`
-- Activate `poetry shell` if not activated
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
     Successfully run notebook, `plot_trajectories.ipynb`
