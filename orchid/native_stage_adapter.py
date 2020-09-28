@@ -116,7 +116,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Args:
             length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit.abbreviation, oro.DepthDatum.KELLY_BUSHING)
+        return self._center_location_depth(length_unit, oro.DepthDatum.KELLY_BUSHING)
 
     def center_location_tvdgl(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
         """
@@ -125,7 +125,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Args:
             length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit.abbreviation, oro.DepthDatum.GROUND_LEVEL)
+        return self._center_location_depth(length_unit, oro.DepthDatum.GROUND_LEVEL)
 
     def center_location_tvdss(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
         """
@@ -134,7 +134,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Args:
             length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit.abbreviation, oro.DepthDatum.SEA_LEVEL)
+        return self._center_location_depth(length_unit, oro.DepthDatum.SEA_LEVEL)
 
     def center_location_xy(self, length_unit: Union[units.UsOilfield, units.Metric],
                            xy_well_reference_frame: oro.WellReferenceFrameXy) -> Tuple[Measurement, Measurement]:

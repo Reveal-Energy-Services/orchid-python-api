@@ -24,6 +24,7 @@ import toolz.curried as toolz
 
 import orchid.physical_quantity as opq
 import orchid.reference_origin as oro
+import orchid.unit_system as units
 
 
 # noinspection PyBDDParameters
@@ -117,17 +118,17 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
                                    toolz.concat,
                                    toolz.partial(find_stage, name_with_well))
 
+    in_length_unit_abbreviation = context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))
+    in_length_unit = units.abbreviation_to_unit(in_length_unit_abbreviation)
     assert_measurement_equal(
-        stage_of_interest.center_location_easting(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH)),
-                                                  oro.WellReferenceFrameXy.PROJECT),
+        stage_of_interest.center_location_easting(in_length_unit, oro.WellReferenceFrameXy.PROJECT),
         easting)
     assert_measurement_equal(
-        stage_of_interest.center_location_northing(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH)),
-                                                   oro.WellReferenceFrameXy.PROJECT),
+        stage_of_interest.center_location_northing(in_length_unit, oro.WellReferenceFrameXy.PROJECT),
         northing)
     assert_measurement_equal(
-        stage_of_interest.center_location_tvdss(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
+        stage_of_interest.center_location_tvdss(in_length_unit),
         tvdss)
     assert_measurement_equal(
-        stage_of_interest.stage_length(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
+        stage_of_interest.stage_length(in_length_unit_abbreviation),
         length)

@@ -16,7 +16,6 @@
 from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
-from typing import Union
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -41,6 +40,23 @@ class UnitSystem(Enum):
         raise NotImplementedError()
 
 
+# TODO: expand both unit systems to all units in the .NET `UnitSystem` class:
+# - Length
+# - Angle
+# - Pressure
+# - Force
+# - Volume
+# - Mass
+# - Power
+# - Density
+# - Temperature
+# - ProppantConcentration
+# - SlurryRate
+# - Energy
+
+# TODO: Replace usage of unit abbreviations (strings) with UnitSystem concrete child classes.
+
+
 class UsOilfield(UnitSystem):
     """The enumeration of U. S. oilfield units available via the Orchid Python API."""
 
@@ -57,3 +73,21 @@ class Metric(UnitSystem):
 
     def system_name(self):
         return 'Metric'
+
+
+def abbreviation_to_unit(unit_abbreviation: str) -> UnitSystem:
+    """
+    Determines the `UnitSystem` member corresponding to `unit_abbreviation`.
+
+    Args:
+        unit_abbreviation: The abbreviation to convert.
+
+    Returns:
+        The corresponding `UnitSystem` member.
+    """
+    if unit_abbreviation == 'ft':
+        return UsOilfield.LENGTH
+    elif unit_abbreviation == 'm':
+        return Metric.LENGTH
+    else:
+        raise ValueError(f'Unrecognized unit abbreviation, "{unit_abbreviation}".')
