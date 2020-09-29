@@ -203,6 +203,17 @@ def poetry_configure_api_token(context, token, repository='pypi'):
 
 
 @task
+def poetry_configure_list(context):
+    """
+    List the configuration of poetry.
+
+    Args:
+        context: The task context (unused).
+    """
+    context.run('poetry config --list')
+
+
+@task
 def poetry_configure_test_pypi(context):
     """
     Add the test.pypi.org repository to the poetry configuration.
@@ -352,6 +363,7 @@ poetry_ns.add_task(poetry_update_version, name='update-ver')
 
 poetry_config_ns = Collection('config')
 poetry_config_ns.add_task(poetry_configure_api_token, name='api-token')
+poetry_config_ns.add_task(poetry_configure_list, name='list')
 poetry_config_ns.add_task(poetry_configure_test_pypi, name='test-pypi')
 poetry_ns.add_collection(poetry_config_ns)
 

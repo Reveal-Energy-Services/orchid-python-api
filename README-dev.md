@@ -215,6 +215,76 @@ To update the project dependencies:
   
 ## Publish to TestPyPI
 
+The steps to publish to TestPyPi are very similar to the steps for 
+[Build and install locally](#build-and-test-locally) and for [Publish to PyPI](#publish-to-pypi). For an 
+introduction to the process (but some different steps), review the 
+[Python Packaging Guide](https://packaging.python.org/guides/using-testpypi/).
+
+- [Package a distribution](#package-a-distribution)
+
+### Configure TestPyPI as a `poetry` repository
+
+- Determine if TestPyPI is already configured by running either:
+    - `invoke poetry.config.list`
+    - `poetry config --list`
+- Examine the output for the key, `repositories.test-pypi.url`
+- If key is present, `poetry` is already configured so skip to 
+  [Publish distribution to TestPyP](#publish-distribution-to-testpypi)
+- To configure the TestPyPI repository, run either
+    - `invoke poetry.config.test-pypi` or
+    - `poetry config repositories.test-pypi https://test.pypi.org/legacy/`
+    
+Once configured, you will also need to configure the API token for the TestPyPI web site. Because the API 
+token is a security token, the author is unaware of any way to examine if the token has already been 
+configured. However, configuring an already configured token **does not** cause an error. 
+
+To generate an API token, complete the steps described at [PyPI help](https://pypi.org/help/#apitoken) but for
+the PyPI web site.
+
+Once generated, add it to the `poetry` configuration by executing either:
+
+- `invoke poetry.config.api-token -r test-pypi -t <token>` or
+- `poetry config pypi-token.test-pypi my-token`
+    
+### Publish distribution to TestPyPI
+
+To publish the distribution to TestPyPI execute either:
+
+- `invoke poetry.publish test-pypi` or
+- `poetry publish --repository=test-pypi`
+
+Once published, test the published distribution by:
+
+- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- In a Powershell window, navigate to the directory of the new virtualenv
+- Activate the virtualenv (run `pipenv shell`)
+- Install the package distribution by running the command, 
+  `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`. 
+  
+Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error 
+stating that a package version is unavailable. For example, 
+
+> pip install --index-url https://test.pypi.org/simple/ orchid-python-api
+> Looking in indexes: https://test.pypi.org/simple/
+> Collecting orchid-python-api
+>  Downloading https://test-files.pythonhosted.org/packages/90/89/cf9fd41f8dea07ae54898cc6b6951280d4509e55caec703d4b540a57135a/orchid_python_api-2020.4.232-py3-none-any.whl (55 kB)
+>     |████████████████████████████████| 55 kB 622 kB/s
+> ERROR: Could not find a version that satisfies the requirement numpy==1.19.0 (from orchid-python-api) (from versions 1.9.3)
+> ERROR: No matching distribution found for numpy==1.19.0 (from orchid-python-api)
+
+The workaround for this issue is to:
+
+- [Install a local distribution](#install-local-package). This action will install all the dependent packages
+  available on your workstation.
+- Remove orchid by running the command, `pip uninstall orchid-python-api <version>` where `<version>` is 
+  replaced by a version identifier like, '2020.4.232'.
+
+Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
+
+Install the jupyter-lab package by running `pip install jupyterlab`
+
+Finally, [Run orchid examples](#run-installed-orchid-examples).
+
 ## Publish to PyPI
 
 ## Common tasks
@@ -248,6 +318,7 @@ If it is not installed, you'll need to:
 These instructions assume you have created a test virtual directory using `pipenv`. This tool is simpler to
 use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
 instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
+
 - Navigate to the repository root
 - Remove the existing virtualenv if any
     - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
@@ -256,10 +327,12 @@ instructions assume that your test directory is something like `<path/to/inst/or
     >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
     >> No virtualenv has been created for this project yet!
     >> Aborted!
+                                                                                                                                                                                                                        >
+- If present, delete all leftover files the from virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
     - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
-
+    
 ### Run all orchid tests
 
 To run all orchid tests
