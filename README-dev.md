@@ -239,12 +239,12 @@ token is a security token, the author is unaware of any way to examine if the to
 configured. However, configuring an already configured token **does not** cause an error. 
 
 To generate an API token, complete the steps described at [PyPI help](https://pypi.org/help/#apitoken) but for
-the PyPI web site.
+the TestPyPI web site.
 
 Once generated, add it to the `poetry` configuration by executing either:
 
 - `invoke poetry.config.api-token -r test-pypi -t <token>` or
-- `poetry config pypi-token.test-pypi my-token`
+- `poetry config pypi-token.test-pypi <token>`
     
 ### Publish distribution to TestPyPI
 
@@ -287,6 +287,36 @@ Finally, [Run orchid examples](#run-installed-orchid-examples).
 
 ## Publish to PyPI
 
+You will most likely need to configure the API token for PyPI. 
+
+To generate an API token, complete the steps described at [PyPI help](https://pypi.org/help/#apitoken).
+
+Once generated, add it to the `poetry` configuration by executing either:
+
+- `invoke poetry.config.api-token -r pypi -t <token>` or
+- `poetry config pypi-token.pypi <token>`
+
+To publish the distribution to PyPI execute either:
+
+- `invoke poetry.publish pypi` or
+- `poetry publish --repository=pypi`
+
+If you navigate to `https://pypi.org/` and search for "orchid-python-api" (no quotation marks), you should 
+see the version of the distribution you have created. If not, but no error was reported, you most likely \
+**have not** configured your API token correctly.
+
+Once published, test the published distribution by:
+
+- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- In a Powershell window, navigate to the directory of the new virtualenv
+- Activate the virtualenv (run `pipenv shell`)
+- Install the package distribution by running the command, 
+  `pip install orchid-python-api`. 
+  
+Install the jupyter-lab package by running `pip install jupyterlab`
+
+Finally, [Run orchid examples](#run-installed-orchid-examples).
+  
 ## Common tasks
 
 ### Ensure correct Orchid
