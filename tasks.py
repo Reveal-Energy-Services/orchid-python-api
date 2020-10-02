@@ -203,6 +203,17 @@ def poetry_configure_api_token(context, token, repository='pypi'):
 
 
 @task
+def poetry_configure_list(context):
+    """
+    List the configuration of poetry.
+
+    Args:
+        context: The task context (unused).
+    """
+    context.run('poetry config --list')
+
+
+@task
 def poetry_configure_test_pypi(context):
     """
     Add the test.pypi.org repository to the poetry configuration.
@@ -230,6 +241,16 @@ def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
     python_option = python_option_map.get(python_ver, '')
     with context.cd(dirname):
         context.run(f'poetry env use {python_option}')
+
+
+@task
+def poetry_list_env(context):
+    """
+    List all the poetry environments.
+    Args:
+        context: The task context.
+    """
+    context.run('poetry env list')
 
 
 @task
@@ -315,9 +336,13 @@ ns = Collection()
 ns.add_task(clean)
 ns.add_task(pipfile_to_poetry)
 
-pipenv_venv_ns = Collection('pipenv-venv')
+pipenv_ns = Collection('pipenv')
+
+pipenv_venv_ns = Collection('venv')
 pipenv_venv_ns.add_task(pipenv_remove_venv, name='remove')
 pipenv_venv_ns.add_task(pipenv_create_venv, name='create')
+
+pipenv_ns.add_collection(pipenv_venv_ns)
 
 poetry_ns = Collection('poetry')
 # According to the documentation, aliases should be an iterable of alias names; however, the "build" aliases
@@ -333,20 +358,29 @@ poetry_ns = Collection('poetry')
 #
 # At some time, we need to file a bug and perhaps submit a patch.
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
-poetry_ns.add_task(poetry_create_venv, name='create')
 poetry_ns.add_task(poetry_publish, name='publish')
-poetry_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_task(poetry_update_version, name='update-ver')
 
 poetry_config_ns = Collection('config')
 poetry_config_ns.add_task(poetry_configure_api_token, name='api-token')
+poetry_config_ns.add_task(poetry_configure_list, name='list')
 poetry_config_ns.add_task(poetry_configure_test_pypi, name='test-pypi')
 poetry_ns.add_collection(poetry_config_ns)
+
+poetry_env_ns = Collection('env')
+poetry_env_ns.add_task(poetry_list_env, name='list')
+poetry_ns.add_collection(poetry_env_ns)
 
 setup_ns = Collection('setup')
 setup_ns.add_task(setup_build, name='build')
 setup_ns.add_task(setup_package, name='package')
 
-ns.add_collection(pipenv_venv_ns)
+poetry_venv_ns = Collection('venv')
+poetry_venv_ns.add_task(poetry_create_venv, name='create')
+poetry_venv_ns.add_task(poetry_remove_venv, name='remove')
+poetry_ns.add_collection(poetry_venv_ns)
+
+ns.add_collection(pipenv_ns)
 ns.add_collection(poetry_ns)
+ns.add_collection(poetry_venv_ns)
 ns.add_collection(setup_ns)

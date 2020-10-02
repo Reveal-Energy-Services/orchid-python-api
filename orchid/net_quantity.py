@@ -20,6 +20,8 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 from datetime import datetime
 
+import toolz.curried as toolz
+
 from orchid.measurement import make_measurement
 
 # noinspection PyUnresolvedReferences
@@ -83,6 +85,7 @@ def as_net_quantity_in_different_unit(measurement, in_unit):
     return net_to_convert.ToUnit(ABBREVIATION_NET_UNIT_MAP[in_unit])
 
 
+@toolz.curry
 def convert_net_quantity_to_different_unit(net_quantity, to_unit):
     """
     Convert one .NET UnitsNet.Quantity to a .NET UnitsNet.Quantity in a specific unit.

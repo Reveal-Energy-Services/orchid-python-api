@@ -28,11 +28,12 @@ from typing import Sequence
 
 import orchid.native_treatment_curve_facade as ontc
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
-                                        IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries)
+                                        IStageSampledQuantityTimeSeries, ISubsurfacePoint,
+                                        IWellSampledQuantityTimeSeries)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -82,6 +83,11 @@ class StubNetTreatmentCurve:
     # noinspection PyPep8Naming
     def GetOrderedTimeSeriesHistory(self):
         return self._time_series
+
+
+def make_length_unit(scalar_quantity):
+    return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
+                                scalar_quantity.unit.net_unit)
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
@@ -165,6 +171,21 @@ def create_stub_stage(stage_no, treatment_curves):
     result.TreatmentCurves.Items = treatment_curves
 
     return result
+
+
+def create_stub_subsurface_point(x, y, depth, xy_origin, depth_origin):
+    stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
+    if x:
+        stub_subsurface_point.X = make_length_unit(x)
+    if y:
+        stub_subsurface_point.Y = make_length_unit(y)
+    if depth:
+        stub_subsurface_point.Depth = make_length_unit(depth)
+    if xy_origin is not None:
+        stub_subsurface_point.WellReferenceFrameXy = xy_origin
+    if depth_origin is not None:
+        stub_subsurface_point.DepthDatum = depth_origin
+    return stub_subsurface_point
 
 
 def create_stub_net_trajectory_array(magnitudes, net_unit):

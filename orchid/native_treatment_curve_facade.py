@@ -41,7 +41,7 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
                                                      SLURRY_RATE: 'slurry rate',
                                                      PROPPANT_CONCENTRATION: 'proppant concentration'}
         # noinspection PyArgumentList
-        self._sample_unit_func = partial(opu.unit, net_treatment_curve.Stage.Well.Project)
+        self._sample_unit_func = partial(opu.unit_abbreviation, net_treatment_curve.Stage.Well.Project)
 
     display_name = dna.dom_property('display_name', 'Return the display name for this treatment curve.')
     name = dna.dom_property('name', 'Return the name for this treatment curve.')

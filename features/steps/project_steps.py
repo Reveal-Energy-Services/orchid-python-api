@@ -26,8 +26,6 @@ import toolz.curried as toolz
 import orchid
 
 
-PROJECT_NAME_PATHNAME_MAP = {'Oasis_Crane_II': r'c:\Users\larry.jones\tmp\ifa-test-data\Crane_II.ifrac',
-                             'Demo_Project': r'c:\Users\larry.jones\tmp\TrainingDataSet\Demo_Project.ifrac'}
 FIELD_NAME_PATHNAME_MAP = {
     'Bakken': r'c:\src\Orchid.IntegrationTestData\frankNstein_Bakken_UTM13_FEET.ifrac',
     'Permian': r'c:\src\Orchid.IntegrationTestData\Project_frankNstein_Permian_UTM13_FEET.ifrac',
@@ -48,25 +46,13 @@ def step_impl(context, filename):
     context.project = context.loaded_projects[project_pathname]
 
 
-@given("I have loaded the project for the field, '{field_name}'")
-def step_impl(context, field_name):
+@given("I have loaded the project for the field, '{field}'")
+def step_impl(context, field):
     """
     :type context: behave.runner.Context
-    :param field_name: The name of the field of the project.
+    :param field: The name of the field of the project.
     """
-    project_pathname = FIELD_NAME_PATHNAME_MAP[field_name]
-    if project_pathname not in context.loaded_projects:
-        context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
-    context.project = context.loaded_projects[project_pathname]
-
-
-@given('I have loaded the "{project_name}" project')
-def step_impl(context, project_name):
-    """
-    :param project_name: Name of .ifrac project to load
-    :type context: behave.runner.Context
-    """
-    project_pathname = PROJECT_NAME_PATHNAME_MAP[project_name]
+    project_pathname = FIELD_NAME_PATHNAME_MAP[field]
     if project_pathname not in context.loaded_projects:
         context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
     context.project = context.loaded_projects[project_pathname]
@@ -98,30 +84,29 @@ def step_impl(context):
 
 
 # noinspection PyBDDParameters
-@then("I see that the project, {project_name}, has {well_count:d} wells")
-def step_impl(context, project_name, well_count):
+@then("I see that the project, {project}, has {well_count:d} wells")
+def step_impl(context, project, well_count):
     """
-    :type context: behave.runner.Context
-    :type project_name: str
-    :param project_name: The name identifying the project of interest.
-    :type well_count: int
-    :param well_count: The number of wells in the project of interest.
+    Args:
+        context (behave.runner.Context): The test context.
+        project (str): The name identifying the project of interest.
+        well_count (int): The number of wells in the project of interest.
     """
     context.execute_steps(f'When I query the project name')
-    context.execute_steps(f'Then I see the text "{project_name}"')
+    context.execute_steps(f'Then I see the text "{project}"')
     assert_that(len(list(context.actual_wells)), equal_to(well_count))
 
 
-@then("I see the well details {well_name}, {display_name}, and {uwi} for {object_id}")
-def step_impl(context, well_name, display_name, uwi, object_id):
-    def actual_details_to_check(well):
-        return well.name, well.display_name, well.uwi, str(well.object_id)
+@then("I see the well details {well}, {display_name}, and {uwi} for {object_id}")
+def step_impl(context, well, display_name, uwi, object_id):
+    def actual_details_to_check(well_adapter):
+        return well_adapter.name, well_adapter.display_name, well_adapter.uwi, str(well_adapter.object_id)
 
     def expected_details_to_check():
-        return well_name, display_name, uwi, object_id
+        return well, display_name, uwi, object_id
 
     tmp_to_test = toolz.pipe(toolz.map(actual_details_to_check, context.actual_wells),
-                             toolz.filter(lambda d: d[0] == well_name),
+                             toolz.filter(lambda d: d[0] == well),
                              toolz.first)
 
     actual_to_test = tmp_to_test

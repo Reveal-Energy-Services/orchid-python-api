@@ -59,13 +59,13 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def unit(self, physical_quantity):
+    def unit_abbreviation(self, physical_quantity):
         """
         Return the abbreviation for the specified `physical_quantity` of this project.
         :param physical_quantity: The name of the physical quantity.
         :return: The abbreviation of the specified physical quantity.
         """
-        return project_units.unit(self._project_loader.native_project(), physical_quantity)
+        return project_units.unit_abbreviation(self._project_loader.native_project(), physical_quantity)
 
     def wells_by_name(self, name) -> Iterable[IWell]:
         """
