@@ -44,34 +44,63 @@ def sort_installations(candidate_pattern, user_friendly_pattern, path):
     return sortable_version
 
 
-def python_api() -> Dict[str, str]:
+def get_file_configuration() -> Dict:
     """
-    Calculate the configuration for the Python API.
+    Returns the API configuration read from the file system.
 
-        Returns: The Python API configuration.
-
-        BEWARE: The returned configuration will not have an 'directory' key if Orchid is neither installed
-        nor configured with `$HOME/.orchid/python.yaml`.
+    Returns:
+        A python dictionary with the default (always available configuration).
     """
 
-    # My general intent is that an actual user need not provide *any* configuration. Specifically,
-    # I assume that the Orchid application is installed in the "standard" location,
-    # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`
-    standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
-                                                                            'Orchid')
-    version_id = orchid.version.Version().id()
-    version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}'
-    default = {'directory': str(standard_orchid_dir.joinpath(version_dirname))}
-    _logger.debug(f'default configuration={default}')
-
-    # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory in the
-    # user-specific home directory.
+    # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory of the
+    # user-specific (and system-specific) home directory. See the Python documentation of `home()` for
+    # details.
     custom = {}
     custom_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
     if custom_config_path.exists():
         with custom_config_path.open('r') as in_stream:
             custom = yaml.full_load(in_stream)
     _logger.debug(f'custom configuration={custom}')
+    return custom
+
+
+def get_default_configuration() -> Dict:
+    """
+    Returns final fallback API configuration.
+
+    Returns:
+        A Python dictionary with the default (always available configuration).
+
+    Warning:
+        Although we have striven to make the default configuration a working configuration, we can only ensure
+        that the default configuration meets the minimal "syntax" required by the Python API. For example, if
+        Orchid is **not** installed in the default location, and the `directory` key is not overridden by a
+        higher priority configuration, the Python API will **fail** to load the Orchid assemblies and throw
+        an exception at runtime.
+    """
+
+    # Symbolically, the standard location for the installed Orchid binaries is
+    # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`. The following code
+    # calculates an actual location by substituting the current version number for the symbol,
+    # `<version-specific-directory`.
+    standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
+                                                                            'Orchid')
+    version_id = orchid.version.Version().id()
+    version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}'
+    default = {'directory': str(standard_orchid_dir.joinpath(version_dirname))}
+    _logger.debug(f'default configuration={default}')
+    return default
+
+
+def python_api() -> Dict[str, str]:
+    """
+    Calculate the configuration for the Python API.
+
+        Returns: The Python API configuration.
+    """
+
+    default = get_default_configuration()
+    custom = get_file_configuration()
 
     result = toolz.merge(default, custom)
     _logger.debug(f'result configuration={result}')
