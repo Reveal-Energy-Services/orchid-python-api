@@ -21,6 +21,7 @@ import unittest.mock
 
 from hamcrest import assert_that, equal_to
 
+from orchid.version import Version, VersionId
 import orchid.configuration
 
 
@@ -71,6 +72,35 @@ class ConfigurationTest(unittest.TestCase):
                                           exists=unittest.mock.MagicMock(return_value=True),
                                           open=multi_mock_open('2020.4.101', f'directory: {expected_directory}')):
             assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
+
+
+# Test ideas
+# - Default location of Orchid binaries
+class FallbackConfigurationTest(unittest.TestCase):
+    @staticmethod
+    def test_canary_test():
+        assert_that(2 + 2, equal_to(4))
+
+    @staticmethod
+    def test_orchid_bin_dir_based_on_version_id():
+        version_id = VersionId(3, 1, 4)
+        with unittest.mock.patch('orchid.version.Version', spec=Version) as stub_version:
+            to_patch = stub_version.return_value
+            to_patch.id.return_value = version_id
+            actual_fallback = orchid.configuration.get_fallback_configuration()
+
+            expected_fallback_bin_directory = pathlib.Path(os.environ['ProgramFiles']).joinpath(
+                'Reveal Energy Services, Inc', 'Orchid',
+                f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}')
+            assert_that(actual_fallback['directory'], equal_to(str(expected_fallback_bin_directory)))
+
+
+# Test ideas
+# - Location of Orchid binaries from file system
+class FileConfigurationTest(unittest.TestCase):
+    @staticmethod
+    def test_canary_test():
+        assert_that(2 + 2, equal_to(4))
 
 
 if __name__ == '__main__':

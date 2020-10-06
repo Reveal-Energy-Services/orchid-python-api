@@ -64,7 +64,7 @@ def get_file_configuration() -> Dict:
     return custom
 
 
-def get_default_configuration() -> Dict:
+def get_fallback_configuration() -> Dict:
     """
     Returns final fallback API configuration.
 
@@ -99,7 +99,7 @@ def python_api() -> Dict[str, str]:
         Returns: The Python API configuration.
     """
 
-    default = get_default_configuration()
+    default = get_fallback_configuration()
     custom = get_file_configuration()
 
     result = toolz.merge(default, custom)
