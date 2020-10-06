@@ -86,6 +86,26 @@ class ConfigurationTest(unittest.TestCase):
 
 
 # Test ideas
+class EnvironmentConfigurationTest(unittest.TestCase):
+    @staticmethod
+    def test_configuration_contains_orchid_bin_value_if_orchid_bin_exists_in_environment():
+        expected_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
+        with unittest.mock.patch.dict('os.environ', {'ORCHID_BIN': str(expected_path)}):
+            actual = orchid.configuration.get_environment_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual, has_entry('directory', str(expected_path)))
+
+    @staticmethod
+    def test_configuration_empty_if_no_orchid_bin_exists_in_environment():
+        with unittest.mock.patch.dict('os.environ', {}):
+            actual = orchid.configuration.get_environment_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual, empty())
+
+
+# Test ideas
 class FallbackConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
     ORCHID_VER_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')

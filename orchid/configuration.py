@@ -18,7 +18,6 @@
 import logging
 import os
 import pathlib
-import re
 from typing import Dict
 
 import toolz.curried as toolz
@@ -34,34 +33,20 @@ class ConfigurationError(Exception):
     pass
 
 
-@toolz.curry
-def sort_installations(candidate_pattern, user_friendly_pattern, path):
-    match_result = re.match(candidate_pattern, path.name)
-    if not match_result:
-        raise ConfigurationError(f'Expected directories matching {user_friendly_pattern} but found, "{str(path)}".')
-
-    sortable_version = match_result.groups()
-    return sortable_version
+# Candidate environment variable names
+BIN_DIR = 'ORCHID_BIN'
 
 
-def get_file_configuration() -> Dict:
+def get_environment_configuration() -> Dict:
     """
-    Returns the API configuration read from the file system.
+    Gets the API configuration from the system environment.
 
     Returns:
-        A python dictionary with the default (always available configuration).
+        The configuration, if any, calculated from the system environment.
     """
+    environment_bin_dir_config = {'directory': os.environ[BIN_DIR]} if BIN_DIR in os.environ else {}
 
-    # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory of the
-    # user-specific (and system-specific) home directory. See the Python documentation of `home()` for
-    # details.
-    custom = {}
-    custom_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
-    if custom_config_path.exists():
-        with custom_config_path.open('r') as in_stream:
-            custom = yaml.full_load(in_stream)
-    _logger.debug(f'custom configuration={custom}')
-    return custom
+    return environment_bin_dir_config
 
 
 def get_fallback_configuration() -> Dict:
@@ -90,6 +75,26 @@ def get_fallback_configuration() -> Dict:
     default = {'directory': str(standard_orchid_dir.joinpath(version_dirname))}
     _logger.debug(f'default configuration={default}')
     return default
+
+
+def get_file_configuration() -> Dict:
+    """
+    Returns the API configuration read from the file system.
+
+    Returns:
+        A python dictionary with the default (always available configuration).
+    """
+
+    # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory of the
+    # user-specific (and system-specific) home directory. See the Python documentation of `home()` for
+    # details.
+    custom = {}
+    custom_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
+    if custom_config_path.exists():
+        with custom_config_path.open('r') as in_stream:
+            custom = yaml.full_load(in_stream)
+    _logger.debug(f'custom configuration={custom}')
+    return custom
 
 
 def python_api() -> Dict[str, str]:
