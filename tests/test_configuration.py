@@ -77,20 +77,22 @@ class ConfigurationTest(unittest.TestCase):
 # Test ideas
 # - Default location of Orchid binaries
 class FallbackConfigurationTest(unittest.TestCase):
+    PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
+    ORCHID_VER_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
+
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
 
-    @staticmethod
-    def test_orchid_bin_dir_based_on_version_id():
+    @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
+    def test_orchid_bin_dir_based_on_version_id(self):
         version_id = VersionId(3, 1, 4)
         with unittest.mock.patch('orchid.version.Version', spec=Version) as stub_version:
             to_patch = stub_version.return_value
             to_patch.id.return_value = version_id
             actual_fallback = orchid.configuration.get_fallback_configuration()
 
-            expected_fallback_bin_directory = pathlib.Path(os.environ['ProgramFiles']).joinpath(
-                'Reveal Energy Services, Inc', 'Orchid',
+            expected_fallback_bin_directory = pathlib.Path(self.ORCHID_VER_ROOT).joinpath(
                 f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}')
             assert_that(actual_fallback['directory'], equal_to(str(expected_fallback_bin_directory)))
 
