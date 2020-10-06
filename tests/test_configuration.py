@@ -46,36 +46,46 @@ def multi_mock_open(*file_contents):
 
 # Test ideas
 class ConfigurationTest(unittest.TestCase):
-    PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
-    REVEAL_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
-    one_candidate = REVEAL_ROOT.joinpath('Orchid-2020.4.151')
-
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
-    @unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
-                                  # Setting Path.exists to return False ensures that the
-                                  # SUT *does not* read the (developer) configuration file.
-                                  exists=unittest.mock.MagicMock(return_value=False),
-                                  # Path.open is actually called by orchid.configuration.Version()
-                                  open=unittest.mock.mock_open(read_data='2020.4.151'))
-    def test_orchid_one_installed(self):
-        assert_that(orchid.configuration.python_api()['directory'],
-                    equal_to(str(ConfigurationTest.one_candidate)))
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_no_file_configuration_returns_default(self, stub_get_fallback_configuration, stub_get_file_configuration):
+        expected_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = expected_configuration
+        stub_get_file_configuration.return_value = {}
+        actual = orchid.configuration.python_api()
 
-    @staticmethod
-    def test_custom_orchid_directory():
-        expected_directory = r'I:\diluvialis\Indus\Orchid'
-        with unittest.mock.patch.multiple(pathlib.Path,
-                                          exists=unittest.mock.MagicMock(return_value=True),
-                                          open=multi_mock_open('2020.4.101', f'directory: {expected_directory}')):
-            assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_file_configuration_overrides_default(self, stub_get_fallback_configuration, stub_get_file_configuration):
+        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        expected_configuration = {'coniunx': 'magnitudo/colubrae'}
+        stub_get_file_configuration.return_value = expected_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_merge_file_and_fallback_configuration_if_distinct(self, stub_get_fallback_configuration,
+                                                               stub_get_file_configuration):
+        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        expected_configuration = {'fur': 'deliciam/providit'}
+        stub_get_file_configuration.return_value = expected_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to({'coniunx': 'barbarus/ponet',
+                                      'fur': 'deliciam/providit'}))
 
 
 # Test ideas
-# - Default location of Orchid binaries
 class FallbackConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
     ORCHID_VER_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
@@ -98,7 +108,6 @@ class FallbackConfigurationTest(unittest.TestCase):
 
 
 # Test ideas
-# - Location of Orchid binaries from file system
 class FileConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
 
