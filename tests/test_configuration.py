@@ -19,7 +19,7 @@ import os
 import pathlib
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_entry, empty
 
 from orchid.version import Version, VersionId
 import orchid.configuration
@@ -100,9 +100,36 @@ class FallbackConfigurationTest(unittest.TestCase):
 # Test ideas
 # - Location of Orchid binaries from file system
 class FileConfigurationTest(unittest.TestCase):
+    PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
+
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
+
+    @staticmethod
+    def test_file_config_returns_empty_if_no_config_file():
+        home_path = pathlib.Path(r'I:\diluvialis\Indus')
+        with unittest.mock.patch.multiple(pathlib.Path,
+                                          home=unittest.mock.MagicMock(return_value=home_path),
+                                          exists=unittest.mock.MagicMock(return_value=False)):
+            actual = orchid.configuration.get_file_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual, empty())
+
+    @unittest.mock.patch('orchid.configuration.yaml')
+    def test_config_file_exists_configuration_contains_file_version(self, yaml_stub):
+        home_path = pathlib.Path(r'O:\pretium\inane')
+        expected_directory = r'I:\diluvialis\Indus\Orchid'
+        yaml_stub.full_load = unittest.mock.MagicMock(return_value={'directory': expected_directory})
+        with unittest.mock.patch.multiple(pathlib.Path,
+                                          home=unittest.mock.MagicMock(return_value=home_path),
+                                          exists=unittest.mock.MagicMock(return_value=True),
+                                          open=multi_mock_open('foobar')):
+            actual = orchid.configuration.get_file_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual, has_entry('directory', expected_directory))
 
 
 if __name__ == '__main__':
