@@ -104,9 +104,10 @@ def python_api() -> Dict[str, str]:
         Returns: The Python API configuration.
     """
 
-    default = get_fallback_configuration()
-    custom = get_file_configuration()
+    fallback_configuration = get_fallback_configuration()
+    file_configuration = get_file_configuration()
+    env_configuration = get_environment_configuration()
 
-    result = toolz.merge(default, custom)
+    result = toolz.merge(fallback_configuration, file_configuration, env_configuration)
     _logger.debug(f'result configuration={result}')
     return result
