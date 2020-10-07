@@ -76,6 +76,88 @@ and yet provides a fairly simple interface. We will assume in this document that
 - Install orchid by running `pip install orchid-python-api`.
 - Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
 
+## Configure the Orchid Python API
+
+The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
+the installation, you may need to configure the Orchid Python API to refer to different locations.A
+
+### Using the fallback configuration
+
+If you installed the latest version Orchid using the installation defaults and you installed the 
+`orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
+installation. For your information, the default installation location is,
+`%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
+the corresponding version of Orchid.
+
+### Using an environment variable
+
+This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
+rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
+made available for a narrow set of tools on your system or available to all your tools depending on arcane
+technical rules that you need not understand.) 
+
+To use environment variables to configure the Orchid Python API, you will need to create the environment 
+variable `ORCHID_ROOT` and set its value to the root Orchid installation directory. (For your information, the
+version-specific Orchid binary files, `.exe`'s and `.dll`'s should be in a subdirectory of `ORCHID_ROOT` 
+with a name like `Orchid-2020.4.232`.) 
+
+This document assumes you want to create a long-term configuration that survives a system restart and is 
+available to all your tools. Symbolically, this document will refer to the root of the Orchid installation as
+`/path/to/orchid-installation`. 
+
+To create the required environment variable, enter the search term "environment variables" in the Windows-10 
+search box and select the item named, "Edit environment variables for your account." The system will then 
+present your with the "Environment Variables" dialog. Under the section named "User variables for 
+<your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_ROOT". (These two 
+words are separated by the underscore, (_) symbol.)
+
+Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
+which Orchid is installed, `/path/to/orchid-installation`. This will paste the directory name into the 
+"Variable Value" text box. Verify that the directory is copied directly and the click "OK". Verify that you
+see the name `ORCHID_ROOT` with the correct value in the "User variables for <your.username>" list. Finally,
+click "OK" to dismiss the "Environment Variables" dialog.
+
+Although you have now created the `ORCHID_ROOT` environment variable with the appropriate value, "new" tools 
+could now use that variable. However, the details of "new" is technical and may not correspond to your 
+what you expect. If you understand these details, you can jump to [Verify Installation](#verify-installation).
+If you are not confident of these details, restart your system before proceeding to 
+[Verify Installation](#verify-installation).
+
+### Using an configuration file
+
+Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
+easier to change than an environment variable and does not require a system restart to work best. However, it
+requires more knowledge and work on your part. In general, a configuration file is better if your requirements
+change "often". For example, if you are working with multiple, side-by-side Orchid versions and Orchid Python 
+API versions, you may find it faster and easier to create a configuration file once and change it as you 
+change Orchid / Orchid Python API versions.
+
+To create a configuration file used by the Orchid Python API, you create a file named `python_api.yaml`
+and put it in the directory, `/path/to/home-directory/.orchid`, where `/path/to/home-directory` is a 
+symbolic reference to your home directory. Technically, the format of the file is `YAML` ("YAML Ain't Markup
+Language"), a "human friendly data serialization standard". (For technical details, visit 
+[the website](https://yaml.org/). For a gentler introduction, visit 
+[the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
+introductions / tutorials.)
+
+Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
+expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in 
+each installed `orchid-python-api` package. Assuming you created a virtual environment as described in 
+[Step-by step install](#step-by-step-install), you can find this example file, `python_api.yaml.example`, in
+the directory, `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`. 
+
+To use this configuration file as an example:
+
+- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
+  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
+   /path/to/home-directory/.orchid/python_api.yaml`
+- Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
+
+The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash), 
+that describe the information expected by the Orchid Python API. In summary, you'll need to provide a value
+for the `directory` key that contains the pathname of the directory containing the Orchid binaries 
+corresponding to the installed version of the `orchid-python-api` package.
+
 # Verify installation
 
 ## Jupyter lab

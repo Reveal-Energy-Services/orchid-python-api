@@ -119,7 +119,7 @@ class EnvironmentConfigurationTest(unittest.TestCase):
     @staticmethod
     def test_configuration_contains_orchid_bin_value_if_orchid_bin_exists_in_environment():
         expected_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
-        with unittest.mock.patch.dict('os.environ', {'ORCHID_BIN': str(expected_path)}):
+        with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOT': str(expected_path)}):
             actual = orchid.configuration.get_environment_configuration()
 
             # noinspection PyTypeChecker

@@ -34,7 +34,7 @@ class ConfigurationError(Exception):
 
 
 # Candidate environment variable names
-BIN_DIR = 'ORCHID_BIN'
+ORCHID_ROOT = 'ORCHID_ROOT'
 
 
 def get_environment_configuration() -> Dict:
@@ -44,7 +44,7 @@ def get_environment_configuration() -> Dict:
     Returns:
         The configuration, if any, calculated from the system environment.
     """
-    environment_bin_dir_config = {'directory': os.environ[BIN_DIR]} if BIN_DIR in os.environ else {}
+    environment_bin_dir_config = {'directory': os.environ[ORCHID_ROOT]} if ORCHID_ROOT in os.environ else {}
 
     return environment_bin_dir_config
 
