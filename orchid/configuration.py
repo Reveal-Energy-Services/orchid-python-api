@@ -44,7 +44,7 @@ def get_environment_configuration() -> Dict:
     Returns:
         The configuration, if any, calculated from the system environment.
     """
-    environment_bin_dir_config = {'directory': os.environ[ORCHID_ROOT]} if ORCHID_ROOT in os.environ else {}
+    environment_bin_dir_config = {'orchid': {'root': os.environ[ORCHID_ROOT]}} if ORCHID_ROOT in os.environ else {}
 
     return environment_bin_dir_config
 
@@ -72,7 +72,7 @@ def get_fallback_configuration() -> Dict:
                                                                             'Orchid')
     version_id = orchid.version.Version().id()
     version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}'
-    default = {'directory': str(standard_orchid_dir.joinpath(version_dirname))}
+    default = {'orchid': {'root': str(standard_orchid_dir.joinpath(version_dirname))}}
     _logger.debug(f'default configuration={default}')
     return default
 

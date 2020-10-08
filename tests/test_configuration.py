@@ -123,7 +123,7 @@ class EnvironmentConfigurationTest(unittest.TestCase):
             actual = orchid.configuration.get_environment_configuration()
 
             # noinspection PyTypeChecker
-            assert_that(actual, has_entry('directory', str(expected_path)))
+            assert_that(actual['orchid'], has_entry('root', str(expected_path)))
 
     @staticmethod
     def test_configuration_empty_if_no_orchid_bin_exists_in_environment():
@@ -153,7 +153,7 @@ class FallbackConfigurationTest(unittest.TestCase):
 
             expected_fallback_bin_directory = pathlib.Path(self.ORCHID_VER_ROOT).joinpath(
                 f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}')
-            assert_that(actual_fallback['directory'], equal_to(str(expected_fallback_bin_directory)))
+            assert_that(actual_fallback['orchid'], has_entry('root', str(expected_fallback_bin_directory)))
 
 
 # Test ideas

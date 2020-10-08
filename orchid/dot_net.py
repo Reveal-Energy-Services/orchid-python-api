@@ -22,6 +22,8 @@ import sys
 
 import orchid.configuration
 
+import toolz.curried as toolz
+
 # noinspection PyPackageRequirements
 import clr
 
@@ -45,7 +47,7 @@ def append_orchid_assemblies_directory_path() -> None:
     """
     Append the directory containing the required Orchid assemblies to `sys.path`.
     """
-    orchid_bin_dir = orchid.configuration.python_api()['directory']
+    orchid_bin_dir = toolz.get_in(['orchid', 'root'], orchid.configuration.python_api())
     if orchid_bin_dir not in sys.path:
         sys.path.append(orchid_bin_dir)
 
@@ -56,7 +58,8 @@ def app_settings_path() -> str:
 
     :return: The required pathname.
     """
-    result = os.fspath(pathlib.Path(orchid.configuration.python_api()['directory']).joinpath('appSettings.json'))
+    result = os.fspath(pathlib.Path(toolz.get_in(['orchid', 'root'],
+                                                 orchid.configuration.python_api())).joinpath('appSettings.json'))
     return result
 
 

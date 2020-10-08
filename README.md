@@ -155,7 +155,7 @@ To use this configuration file as an example:
 
 The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash), 
 that describe the information expected by the Orchid Python API. In summary, you'll need to provide a value
-for the `directory` key that contains the pathname of the directory containing the Orchid binaries 
+for the 'orchid' > 'root' key that contains the pathname of the directory containing the Orchid binaries
 corresponding to the installed version of the `orchid-python-api` package.
 
 # Verify installation
