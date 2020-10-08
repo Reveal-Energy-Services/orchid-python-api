@@ -1,0 +1,2 @@
+# Replace the value of the `directory` key with the pathname into which you installed Orchid.
+directory: c:\path\to\orchid-installation
