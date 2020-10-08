@@ -131,5 +131,5 @@ def training_data_path() -> pathlib.Path:
         This function raises KeyError if the training directory path is not available from the package
         configuration.
     """
-    result = toolz.get_in(['orchid', 'training_data'], python_api())
+    result = pathlib.Path(toolz.get_in(['orchid', 'training_data'], python_api()))
     return result
