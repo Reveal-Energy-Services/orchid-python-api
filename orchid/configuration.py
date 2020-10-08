@@ -33,8 +33,9 @@ class ConfigurationError(Exception):
     pass
 
 
-# Candidate environment variable names
-ORCHID_ROOT = 'ORCHID_ROOT'
+# Constants for environment variable names
+ORCHID_ROOT_ENV_VAR = 'ORCHID_ROOT'
+ORCHID_TRAINING_DATA_ENV_VAR = 'ORCHID_TRAINING_DATA'
 
 
 def get_environment_configuration() -> Dict:
@@ -44,9 +45,15 @@ def get_environment_configuration() -> Dict:
     Returns:
         The configuration, if any, calculated from the system environment.
     """
-    environment_bin_dir_config = {'orchid': {'root': os.environ[ORCHID_ROOT]}} if ORCHID_ROOT in os.environ else {}
-
-    return environment_bin_dir_config
+    if ORCHID_ROOT_ENV_VAR in os.environ and ORCHID_TRAINING_DATA_ENV_VAR in os.environ:
+        return {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR],
+                           'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
+    elif ORCHID_ROOT_ENV_VAR in os.environ:
+        return {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR]}}
+    elif ORCHID_TRAINING_DATA_ENV_VAR in os.environ:
+        return {'orchid': {'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
+    else:
+        return {}
 
 
 def get_fallback_configuration() -> Dict:
@@ -110,4 +117,19 @@ def python_api() -> Dict[str, str]:
 
     result = toolz.merge(fallback_configuration, file_configuration, env_configuration)
     _logger.debug(f'result configuration={result}')
+    return result
+
+
+def training_data_path() -> pathlib.Path:
+    """
+    Returns the path of the directory containing the Orchid training data.
+
+    Returns:
+        The Orchid training data path.
+
+    Raises:
+        This function raises KeyError if the training directory path is not available from the package
+        configuration.
+    """
+    result = toolz.get_in(['orchid', 'training_data'], python_api())
     return result
