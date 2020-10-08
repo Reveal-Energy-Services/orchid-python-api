@@ -121,7 +121,8 @@ class EnvironmentConfigurationTest(unittest.TestCase):
         expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
         expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
         with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOT': str(expected_root_path),
-                                                     'ORCHID_TRAINING_DATA': str(expected_training_data_path)}):
+                                                     'ORCHID_TRAINING_DATA': str(expected_training_data_path)},
+                                      clear=True):
             actual = orchid.configuration.get_environment_configuration()
 
             # noinspection PyTypeChecker
@@ -133,7 +134,8 @@ class EnvironmentConfigurationTest(unittest.TestCase):
         expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
         expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
         with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOT': str(expected_root_path),
-                                                     'ORCHID_TRAINING_DATUM': str(expected_training_data_path)}):
+                                                     'ORCHID_TRAINING_DATUM': str(expected_training_data_path)},
+                                      clear=True):
             actual = orchid.configuration.get_environment_configuration()
 
             # noinspection PyTypeChecker
@@ -145,7 +147,8 @@ class EnvironmentConfigurationTest(unittest.TestCase):
         expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
         expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
         with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOF': str(expected_root_path),
-                                                     'ORCHID_TRAINING_DATA': str(expected_training_data_path)}):
+                                                     'ORCHID_TRAINING_DATA': str(expected_training_data_path)},
+                                      clear=True):
             actual = orchid.configuration.get_environment_configuration()
 
             # noinspection PyTypeChecker
@@ -157,7 +160,8 @@ class EnvironmentConfigurationTest(unittest.TestCase):
         expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
         expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
         with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOF': str(expected_root_path),
-                                                     'ORCHID_TRAINING_DATUM': str(expected_training_data_path)}):
+                                                     'ORCHID_TRAINING_DATUM': str(expected_training_data_path)},
+                                      clear=True):
             actual = orchid.configuration.get_environment_configuration()
 
             # noinspection PyTypeChecker
