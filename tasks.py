@@ -24,6 +24,7 @@ import shutil
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
+# noinspection PyPackageRequirements
 import toml
 
 
@@ -114,6 +115,41 @@ def setup_package(context, skip_source=False, skip_binary=False):
     source_option = 'sdist' if not skip_source else ''
     wheel_option = 'bdist_wheel' if not skip_binary else ''
     context.run(f'python setup.py {source_option} {wheel_option} ')
+
+
+def example_notebooks_names():
+    """Returns the sequence of example notebook names."""
+    example_notebook_stems = ['completion_analysis', 'plot_monitor_curves', 'plot_trajectories', 'plot_treatment']
+    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), example_notebook_stems)
+    return result
+
+
+@task
+def examples_clean_notebooks(_context, directory='.'):
+    """
+    Remove all the example notebooks from a specified directory.
+
+    Args:
+        _context: The task context (unused).
+        directory: The directory from which I remove the example notebooks. (Default: current directory)
+    """
+    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_notebooks_names())
+    for notebook_path_to_remove in notebook_paths_to_remove:
+        notebook_path_to_remove.unlink(missing_ok=True)
+
+
+@task
+def examples_copy_notebooks(_context, target_dir='.'):
+    """
+    Copy all the example notebooks to a specified directory.
+
+    Args:
+        _context: The task context (unused).
+        target_dir: The directory into which I copy the example notebooks. (Default: current directory)
+    """
+    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_notebooks_names())
+    for source_file in source_files:
+        shutil.copy2(source_file, target_dir)
 
 
 @task
@@ -293,12 +329,12 @@ def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
 
 
 @task
-def poetry_update_version(context):
+def poetry_update_version(_context):
     """
     Update the poetry version in `pyproject.toml` to the version stored in orchid/VERSION.
 
     Args:
-        context: The task context (unused).
+        _context: The task context (unused).
     """
     with open('pyproject.toml') as in_stream:
         source_toml = toml.loads(in_stream.read())
@@ -335,6 +371,10 @@ def poetry_update_version(context):
 ns = Collection()
 ns.add_task(clean)
 ns.add_task(pipfile_to_poetry)
+
+examples_ns = Collection('examples')
+examples_ns.add_task(examples_clean_notebooks, name='clean-notebooks')
+examples_ns.add_task(examples_copy_notebooks, name='copy-notebooks')
 
 pipenv_ns = Collection('pipenv')
 
@@ -380,6 +420,7 @@ poetry_venv_ns.add_task(poetry_create_venv, name='create')
 poetry_venv_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_collection(poetry_venv_ns)
 
+ns.add_collection(examples_ns)
 ns.add_collection(pipenv_ns)
 ns.add_collection(poetry_ns)
 ns.add_collection(poetry_venv_ns)

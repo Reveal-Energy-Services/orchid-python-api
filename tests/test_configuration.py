@@ -19,8 +19,9 @@ import os
 import pathlib
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_entry, empty, not_, has_key, has_entries, all_of
 
+from orchid.version import Version, VersionId
 import orchid.configuration
 
 
@@ -45,32 +46,207 @@ def multi_mock_open(*file_contents):
 
 # Test ideas
 class ConfigurationTest(unittest.TestCase):
+    @staticmethod
+    def test_canary_test():
+        assert_that(2 + 2, equal_to(4))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_no_env_no_file_configuration_returns_default(self, stub_get_fallback_configuration,
+                                                          stub_get_file_configuration,
+                                                          stub_get_environment_configuration):
+        expected_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = expected_configuration
+        stub_get_file_configuration.return_value = {}
+        stub_get_environment_configuration.return_value = {}
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_no_env_but_file_configuration_overrides_fallback(self, stub_get_fallback_configuration,
+                                                              stub_get_file_configuration,
+                                                              stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        expected_configuration = {'coniunx': 'magnitudo/colubrae'}
+        stub_get_file_configuration.return_value = expected_configuration
+        stub_get_environment_configuration.return_value = {}
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_env_but_no_file_configuration_overrides_fallback(self, stub_get_fallback_configuration,
+                                                              stub_get_file_configuration,
+                                                              stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        file_configuration = {}
+        stub_get_file_configuration.return_value = file_configuration
+        expected_configuration = {'coniunx': 'Gnaeus/grandisit'}
+        stub_get_environment_configuration.return_value = expected_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_merge_env_file_and_fallback_configuration_if_distinct(self, stub_get_fallback_configuration,
+                                                                   stub_get_file_configuration,
+                                                                   stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        file_configuration = {'fur': 'deliciam/providit'}
+        stub_get_file_configuration.return_value = file_configuration
+        environment_configuration = {'fluctus': 'patruelis/lapidarium'}
+        stub_get_environment_configuration.return_value = environment_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to({'coniunx': 'barbarus/ponet',
+                                      'fur': 'deliciam/providit',
+                                      'fluctus': 'patruelis/lapidarium'}))
+
+
+# Test ideas
+class EnvironmentConfigurationTest(unittest.TestCase):
+    @staticmethod
+    def test_configuration_contains_root_and_training_data_if_root_and_training_data_exist_in_environment():
+        expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
+        expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
+        with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOT': str(expected_root_path),
+                                                     'ORCHID_TRAINING_DATA': str(expected_training_data_path)},
+                                      clear=True):
+            actual = orchid.configuration.get_environment_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual['orchid'], has_entries(root=str(expected_root_path),
+                                                      training_data=str(expected_training_data_path)))
+
+    @staticmethod
+    def test_configuration_contains_root_but_no_training_data_if_only_root_in_environment():
+        expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
+        expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
+        with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOT': str(expected_root_path),
+                                                     'ORCHID_TRAINING_DATUM': str(expected_training_data_path)},
+                                      clear=True):
+            actual = orchid.configuration.get_environment_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual['orchid'], all_of(has_entries(root=str(expected_root_path)),
+                                                 not_(has_key('training_data'))))
+
+    @staticmethod
+    def test_configuration_contains_no_root_but_training_data_if_only_training_data_in_environment():
+        expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
+        expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
+        with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOF': str(expected_root_path),
+                                                     'ORCHID_TRAINING_DATA': str(expected_training_data_path)},
+                                      clear=True):
+            actual = orchid.configuration.get_environment_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual['orchid'], all_of(has_entries(training_data=str(expected_training_data_path)),
+                                                 not_(has_key('root'))))
+
+    @staticmethod
+    def test_configuration_empty_if_neither_root_nor_training_data_in_environment():
+        expected_root_path = pathlib.Path('N:/', 'pons', 'rudem', 'dilitavit')
+        expected_training_data_path = pathlib.Path('W:/', 'Venus', 'et', 'epistula')
+        with unittest.mock.patch.dict('os.environ', {'ORCHID_ROOF': str(expected_root_path),
+                                                     'ORCHID_TRAINING_DATUM': str(expected_training_data_path)},
+                                      clear=True):
+            actual = orchid.configuration.get_environment_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual, empty())
+
+
+# Test ideas
+class FallbackConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
-    REVEAL_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
-    one_candidate = REVEAL_ROOT.joinpath('Orchid-2020.4.151')
+    ORCHID_VER_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
 
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
 
     @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
-    @unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
-                                  # Setting Path.exists to return False ensures that the
-                                  # SUT *does not* read the (developer) configuration file.
-                                  exists=unittest.mock.MagicMock(return_value=False),
-                                  # Path.open is actually called by orchid.configuration.Version()
-                                  open=unittest.mock.mock_open(read_data='2020.4.151'))
-    def test_orchid_one_installed(self):
-        assert_that(orchid.configuration.python_api()['directory'],
-                    equal_to(str(ConfigurationTest.one_candidate)))
+    def test_orchid_root_dir_based_on_version_id(self):
+        version_id = VersionId(3, 1, 4)
+        with unittest.mock.patch('orchid.version.Version', spec=Version) as stub_version:
+            to_patch = stub_version.return_value
+            to_patch.id.return_value = version_id
+            actual_fallback = orchid.configuration.get_fallback_configuration()
+
+            expected_fallback_bin_directory = pathlib.Path(self.ORCHID_VER_ROOT).joinpath(
+                f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}')
+            assert_that(actual_fallback['orchid'], has_entry('root', str(expected_fallback_bin_directory)))
+
+    @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
+    def test_orchid_training_data_dir_not_present(self):
+        version_id = VersionId(3, 1, 4)
+        with unittest.mock.patch('orchid.version.Version', spec=Version) as stub_version:
+            to_patch = stub_version.return_value
+            to_patch.id.return_value = version_id
+            actual_fallback = orchid.configuration.get_fallback_configuration()
+
+            assert_that(actual_fallback['orchid'], not_(has_key('training_dat')))
+
+
+# Test ideas
+class FileConfigurationTest(unittest.TestCase):
+    PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
 
     @staticmethod
-    def test_custom_orchid_directory():
-        expected_directory = r'I:\diluvialis\Indus\Orchid'
+    def test_canary_test():
+        assert_that(2 + 2, equal_to(4))
+
+    @staticmethod
+    def test_file_config_returns_empty_if_no_config_file():
+        home_path = pathlib.Path(r'I:\diluvialis\Indus')
         with unittest.mock.patch.multiple(pathlib.Path,
+                                          home=unittest.mock.MagicMock(return_value=home_path),
+                                          exists=unittest.mock.MagicMock(return_value=False)):
+            actual = orchid.configuration.get_file_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual, empty())
+
+    @unittest.mock.patch('orchid.configuration.yaml')
+    def test_config_file_contains_root_returns_configuration_with_same_root(self, yaml_stub):
+        home_path = pathlib.Path(r'O:\pretium\inane')
+        expected_root = r'I:\diluvialis\Indus\Orchid'
+        yaml_stub.full_load = unittest.mock.MagicMock(return_value={'orchid': {'root': expected_root}})
+        with unittest.mock.patch.multiple(pathlib.Path,
+                                          home=unittest.mock.MagicMock(return_value=home_path),
                                           exists=unittest.mock.MagicMock(return_value=True),
-                                          open=multi_mock_open('2020.4.101', f'directory: {expected_directory}')):
-            assert_that(orchid.configuration.python_api()['directory'], equal_to(expected_directory))
+                                          open=multi_mock_open("don't care")):
+            actual = orchid.configuration.get_file_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual['orchid'], has_entry('root', expected_root))
+
+    @unittest.mock.patch('orchid.configuration.yaml')
+    def test_config_file_contains_training_data_returns_configuration_with_same_training_data(self, yaml_stub):
+        home_path = pathlib.Path(r'O:\pretium\inane')
+        expected_training_data = r'V:\Aegyptus\humanum\fastidiosum'
+        yaml_stub.full_load = unittest.mock.MagicMock(
+            return_value={'orchid': {'training_data': expected_training_data}})
+        with unittest.mock.patch.multiple(pathlib.Path,
+                                          home=unittest.mock.MagicMock(return_value=home_path),
+                                          exists=unittest.mock.MagicMock(return_value=True),
+                                          open=multi_mock_open("don't care")):
+            actual = orchid.configuration.get_file_configuration()
+
+            # noinspection PyTypeChecker
+            assert_that(actual['orchid'], has_entry('training_data', expected_training_data))
 
 
 if __name__ == '__main__':

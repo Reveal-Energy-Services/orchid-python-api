@@ -15,8 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
-import pathlib
-
+# noinspection PyPackageRequirements
 from behave import *
 use_step_matcher("parse")
 
@@ -27,9 +26,9 @@ import orchid
 
 
 FIELD_NAME_PATHNAME_MAP = {
-    'Bakken': r'c:\src\Orchid.IntegrationTestData\frankNstein_Bakken_UTM13_FEET.ifrac',
-    'Permian': r'c:\src\Orchid.IntegrationTestData\Project_frankNstein_Permian_UTM13_FEET.ifrac',
-    'Montney': r'c:\src\Orchid.IntegrationTestData\Project-frankNstein_Montney_UTM13_METERS.ifrac'
+    'Bakken': str(orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')),
+    'Permian': str(orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')),
+    'Montney': str(orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac'))
 }
 
 
@@ -39,8 +38,7 @@ def step_impl(context, filename):
     :type context: behave.runner.Context
     :param filename: The name of the .ifrac file to be loaded.
     """
-    project_pathname = str(pathlib.Path(__file__).joinpath(
-        '..', '..', '..', '..', 'Orchid.IntegrationTestData', filename))
+    project_pathname = str(orchid.training_data_path().joinpath(filename))
     if project_pathname not in context.loaded_projects:
         context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
     context.project = context.loaded_projects[project_pathname]

@@ -4,7 +4,7 @@ This project defines the implementation of the Python API for Orchid*.
 
 (*Orchid in a mark of Revel Energy Services. Inc.)
 
-Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
+Specifically, the `orchid` package exposes the Orchid API to Python applications and to the Python REPL.
 
 # Getting Started
 
@@ -29,23 +29,23 @@ The first three notebooks plot:
 Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
 performed on two different wells in a project.
  
-To use these examples, you may want to invoke the commands
+To use these examples: 
 
-- `copy_orchid_examples`
-- `use_orchid_test_data`
+- You may need to 
+  [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- You **must** 
+  [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- You may want to invoke the command, `copy_orchid_examples`
 
-Use the first command to copy the example files into your an optionally specified (virtual environment)
-directory. (The default destination is your current working directory.) Use the second command to change the
-examples in an optionally specified directory (your current directory) to refer to the specified location of 
-the Orchid test data files. Both commands are 
-    - Command line commands that run in a console / terminal
-    - Support a help flag (`-h` / `--help`) to provide you with help on running the commands
-
+    This command copies the example files into an optionally specified (virtual environment) directory. (The 
+    default destination is your current working directory.) Note that this command is a command-line script 
+    that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
+    provide you with help on running this command.
 
 ## End-user preparation
 
 We recommend the use of virtual environments to use the Orchid Python API. This choice avoids putting 
-Orchid-specific-packages in your system Python environment.
+Orchid-specific packages in your system Python environment.
 
 You have several options to create and manage virtual environments: `venv`, `pipenv`, `poetry`, and `conda`.
 The `venv ` is available as a standard Python package and is a spartan tool to manage environments. `poetry`
@@ -75,6 +75,161 @@ and yet provides a fairly simple interface. We will assume in this document that
 - Activate the virtual environment by running `pipenv shell`
 - Install orchid by running `pip install orchid-python-api`.
 - Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
+
+## Configure the Orchid Python API
+
+The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
+the installation, you may need to configure the Orchid Python API to refer to different locations.
+
+### Using the fallback configuration
+
+If you installed the latest version Orchid using the installation defaults and you installed the 
+`orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
+installation. For your information, the default installation location is,
+`%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
+the corresponding version of Orchid.
+
+### Using an environment variable
+
+This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
+rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
+made available for a narrow set of tools on your system or available to all your tools depending on arcane
+technical rules that you need not understand.) 
+
+To use environment variables to configure the Orchid Python API, you will need to create the environment 
+variable `ORCHID_ROOT` and set its value to the root Orchid installation directory. (For your information, the
+version-specific Orchid binary files, `.exe`'s and `.dll`'s should be in a subdirectory of `ORCHID_ROOT` 
+with a name like `Orchid-2020.4.232`.) 
+
+This document assumes you want to create a long-term configuration that survives a system restart and is 
+available to all your tools. Symbolically, this document will refer to the root of the Orchid installation as
+`/path/to/orchid-installation`. 
+
+To create the required environment variable, enter the search term "environment variables" in the Windows-10 
+search box and select the item named, "Edit environment variables for your account." The system will then 
+present your with the "Environment Variables" dialog. Under the section named "User variables for 
+<your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_ROOT". (These two 
+words are separated by the underscore, (_) symbol.)
+
+Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
+which Orchid is installed, `/path/to/orchid-installation`. This action pastes the directory name into the 
+"Variable Value" text box. Verify that the directory is correct and the click "OK". Verify that you see the 
+name `ORCHID_ROOT` with the correct value in the "User variables for <your.username>" list. Finally, click 
+"OK" to dismiss the "Environment Variables" dialog.
+
+Although you have now created the `ORCHID_ROOT` environment variable with the appropriate value, only "new" 
+tools can now use that variable. However, the details of "new" is technical and may not correspond to your 
+what you expect. If you understand these details, you can jump to [Verify Installation](#verify-installation).
+If you are not confident of these details, restart your system before proceeding to 
+[Verify Installation](#verify-installation).
+
+### Using an configuration file
+
+Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
+easier to change than an environment variable and does not require a system restart to work best. However, it
+requires more knowledge and work on your part. In general, a configuration file is better if your requirements
+change "often". For example, if you are working with multiple, side-by-side Orchid versions and Orchid Python 
+API versions, you may find it faster and easier to create a configuration file once and change it as you 
+change Orchid / Orchid Python API versions.
+
+To create a configuration file used by the Orchid Python API, you create a file named `python_api.yaml`
+and put it in the directory, `/path/to/home-directory/.orchid`, where `/path/to/home-directory` is a 
+symbolic reference to your home directory. Technically, the format of the file is `YAML` ("YAML Ain't Markup
+Language"), a "human friendly data serialization standard". (For technical details, visit 
+[the website](https://yaml.org/). For a gentler introduction, visit 
+[the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
+introductions / tutorials.)
+
+Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
+expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in 
+each installed `orchid-python-api` package. Assuming you created a virtual environment as described in 
+[Step-by step install](#step-by-step-install), you can find this example file, `python_api.yaml.example`, in
+the directory, `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`. 
+
+To use this configuration file as an example:
+
+- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
+  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
+   /path/to/home-directory/.orchid/python_api.yaml`
+- Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
+
+The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash), 
+that describe the information expected by the Orchid Python API. In summary, you'll need to provide a value
+for the 'orchid' > 'root' key that contains the pathname of the directory containing the Orchid binaries
+corresponding to the installed version of the `orchid-python-api` package.
+
+## Configure the Orchid training data
+
+The Orchid Python API **requires** a licensed Orchid installation on your workstation. However, configuring
+the Orchid Python API to find the Orchid training data is only needed to run the example Jupyter notebooks.
+
+### Using an environment variable
+
+This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
+rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
+made available for a narrow set of tools on your system or available to all your tools depending on arcane
+technical rules that you need not understand.) 
+
+To use environment variables to configure the Orchid Python API to find the Orchid training data, you will 
+need to create the environment variable `ORCHID_TRAINING_DATA` and set its value to the location of the Orchid 
+training data.
+
+This document assumes you want to create a long-term configuration that survives a system restart and is 
+available to all your tools. Symbolically, this document will refer to the Orchid training data location as
+`/path-to/orchid/training-data`. 
+
+To create the required environment variable, enter the search term "environment variables" in the Windows-10 
+search box and select the item named, "Edit environment variables for your account." The system will then 
+present your with the "Environment Variables" dialog. Under the section named "User variables for 
+<your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_TRAINING_DATA".
+(These two words are separated by the underscore, (_) symbol.)
+
+Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
+containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
+ into the "Variable Value" text box. Verify that the directory is correct and the click "OK". Verify that you
+see the name `ORCHID_TRAINING_DATA` with the correct value in the "User variables for <your.username>" list. 
+Finally, click "OK" to dismiss the "Environment Variables" dialog.
+
+Although you have now created the `ORCHID_ROOT` environment variable with the appropriate value, only "new"
+tools can now use that variable. However, the details of "new" is technical and may not correspond to your 
+what you expect. If you understand these details, you can jump to [Verify Installation](#verify-installation).
+If you are not confident of these details, restart your system before proceeding to 
+[Verify Installation](#verify-installation).
+
+### Using an configuration file
+
+Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
+configuration file. A configuration file is easier to change than an environment variable and does not require 
+a system restart to work best. However, it requires more knowledge and work on your part. In general, a 
+configuration file is better if your requirements change "often". For example, if you are working with 
+multiple, side-by-side Orchid versions and Orchid Python API versions, you may find it faster and easier to 
+create a configuration file once and change it as you change Orchid / Orchid Python API versions.
+
+To create a configuration file used by the Orchid Python API, you create a file named `python_api.yaml`
+and put it in the directory, `/path/to/home-directory/.orchid`, where `/path/to/home-directory` is a 
+symbolic reference to your home directory. Technically, the format of the file is `YAML` ("YAML Ain't Markup
+Language"), a "human friendly data serialization standard". (For technical details, visit 
+[the website](https://yaml.org/). For a gentler introduction, visit 
+[the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
+introductions / tutorials.)
+
+Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
+expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in 
+each installed `orchid-python-api` package. Assuming you created a virtual environment as described in 
+[Step-by step install](#step-by-step-install), you can find this example file, `python_api.yaml.example`, in
+the directory, `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`. 
+
+To use this configuration file as an example:
+
+- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
+  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
+   /path/to/home-directory/.orchid/python_api.yaml`
+- Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
+
+The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash), 
+that describe the information expected by the Orchid Python API. In summary, you'll need to provide a value
+for the 'orchid' > 'training_data' key that contains the pathname of the directory containing the Orchid 
+binaries corresponding to the installed version of the `orchid-python-api` package.
 
 # Verify installation
 
@@ -106,12 +261,9 @@ The import should complete with no errors.
     - `plot_monitor_curves.ipynb`
     - `plot_treatment.ipynb`
     - `completion_analysis.ipynb`
-- The notebooks, as installed, contain a symbolic reference to the Orchid training data. Change this
-  symbolic reference to an actual reference by:
-    - Either running 
-      `python </path/to/virtualenv/Lib/site-packages/use_orchid_test_data.py </path/to/training-data>`
-    - Or by editing each notebook replacing the symbolic strings, "/path/to", with a concrete path to
-      your installed training data.
+- The notebooks, as installed, "symbolically" reference the Orchid training data. To resolve this "symbolic
+  reference", 
+  [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data).
 - Activate your virtual environment by `pipenv shell` if not already activated
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
