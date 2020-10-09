@@ -411,10 +411,10 @@ To run all orchid tests
         - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
         - Verify that the current directory has four notebooks:
+            - `completion_analysis.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_monitor_curves.ipynb`
             - `plot_treatment.ipynb`
-            - `completion_analysis.ipynb`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
