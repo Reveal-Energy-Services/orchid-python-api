@@ -274,10 +274,20 @@ stating that a package version is unavailable. For example,
 
 The workaround for this issue is to:
 
-- [Install a local distribution](#install-local-package). This action will install all the dependent packages
-  available on your workstation.
+- [Install a local distribution](#install-local-package) **but do not**
+
+    - Install the `jupyterlab` package
+    - Run the tests
+    
+    This action will install all the dependent packages available on your workstation.
+    
 - Remove orchid by running the command, `pip uninstall orchid-python-api <version>` where `<version>` is 
   replaced by a version identifier like, '2020.4.232'.
+- Verify that `orchid-python-api` is uninstalled by either:
+    - Execute `pip list --local`
+    - Verify that `orchid-pyhon-api` is **not** present
+- Or by:
+    - Executing `pip list --local | select-string "orchid-python-api"` and observing no lines
 
 Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
 
@@ -345,7 +355,7 @@ If it is not installed, you'll need to:
 
 ### Create a new, clean virtualenv
 
-These instructions assume you have created a test virtual directory using `pipenv`. This tool is simpler to
+These instructions assume you will create a test virtual directory using `pipenv`. This tool is simpler to
 use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
 instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
 
@@ -411,10 +421,10 @@ To run all orchid tests
         - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
         - Verify that the current directory has four notebooks:
+            - `completion_analysis.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_monitor_curves.ipynb`
             - `plot_treatment.ipynb`
-            - `completion_analysis.ipynb`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -431,6 +441,7 @@ To run all orchid tests
     - Repeat for remaining notebooks:
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
+        - `completion_analysis.ipynb`
 
 ## Configure the Orchid Python API
 
