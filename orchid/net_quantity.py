@@ -24,7 +24,7 @@ import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -32,7 +32,8 @@ import UnitsNet
 ABBREVIATION_NET_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
                              'm': UnitsNet.Units.LengthUnit.Meter,
                              'psi': UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
-                             'kPa': UnitsNet.Units.PressureUnit.Kilopascal}
+                             'kPa': UnitsNet.Units.PressureUnit.Kilopascal,
+                             'MPa': UnitsNet.Units.PressureUnit.Megapascal}
 
 NET_UNIT_ABBREVIATION_MAP = {v: k for (k, v) in ABBREVIATION_NET_UNIT_MAP.items()}
 
@@ -69,9 +70,12 @@ def as_net_quantity(measurement):
     :param measurement: The Python Measurement to convert.
     :return: The .NET UnitsNet.Quantity corresponding to measurement.
     """
-    result = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                  ABBREVIATION_NET_UNIT_MAP[measurement.unit])
-    return result
+    if measurement.unit == 'ft' or measurement.unit == 'm':
+        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                    ABBREVIATION_NET_UNIT_MAP[measurement.unit])
+    elif measurement.unit == 'psi' or measurement.unit == 'kPa' or measurement.unit == 'MPa':
+        return UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                      ABBREVIATION_NET_UNIT_MAP[measurement.unit])
 
 
 def as_net_quantity_in_different_unit(measurement, in_unit):

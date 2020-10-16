@@ -61,6 +61,7 @@ class UsOilfield(UnitSystem):
     """The enumeration of U. S. oilfield units available via the Orchid Python API."""
 
     LENGTH = About('ft', UnitsNet.Units.LengthUnit.Foot)
+    PRESSURE = About('psi', UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
 
     def system_name(self):
         return 'USOilfield'
@@ -70,6 +71,7 @@ class Metric(UnitSystem):
     """The enumeration of metric units available via the Orchid Python API."""
 
     LENGTH = About('m', UnitsNet.Units.LengthUnit.Meter)
+    PRESSURE = About('kPa', UnitsNet.Units.PressureUnit.Kilopascal)
 
     def system_name(self):
         return 'Metric'

@@ -23,8 +23,9 @@ from hamcrest import assert_that, equal_to, close_to
 from orchid.measurement import make_measurement
 from orchid.net_quantity import (as_datetime, as_measurement, as_net_date_time, as_net_quantity,
                                  as_net_quantity_in_different_unit, convert_net_quantity_to_different_unit)
+import orchid.unit_system as units
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -75,6 +76,21 @@ class TestNetMeasurement(unittest.TestCase):
                 assert_that(actual.Minute, equal_to(expected.Minute))
                 assert_that(actual.Second, equal_to(expected.Second))
                 assert_that(actual.Millisecond, equal_to(expected.Millisecond))
+
+    def test_as_net_quantity(self):
+        for measurement, expected_magnitude, expected_unit in \
+                [(make_measurement(113.76, units.UsOilfield.LENGTH.abbreviation),
+                  113.76, UnitsNet.Units.LengthUnit.Foot),
+                 (make_measurement(72.98, units.Metric.LENGTH.abbreviation), 72.98, UnitsNet.Units.LengthUnit.Meter),
+                 (make_measurement(6888.89, units.UsOilfield.PRESSURE.abbreviation),
+                  6888.89, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
+                 (make_measurement(59849.82, units.Metric.PRESSURE.abbreviation),
+                  59849.82, UnitsNet.Units.PressureUnit.Kilopascal),
+                 (make_measurement(42.92, 'MPa'), 42.92, UnitsNet.Units.PressureUnit.Megapascal)]:
+            with self.subTest(actual=measurement, expected_magnitude=expected_magnitude, expected_unit=expected_unit):
+                actual = as_net_quantity(measurement)
+                assert_that(actual.Unit, equal_to(expected_unit))
+                assert_that(actual.Value, close_to(expected_magnitude, 5e-3))
 
     def test_as_net_length_quantity_in_original_unit(self):
         for measurement in [make_measurement(44.49, 'ft'), make_measurement(25.93, 'm')]:
