@@ -35,6 +35,8 @@ import tests.custom_matchers as tcm
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, ISubsurfacePoint
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Calculations import IFractureDiagnosticsCalculationsFactory, ITreatmentCalculations
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -132,6 +134,28 @@ class TestNativeStageAdapter(unittest.TestCase):
                 actual_top = sut.md_bottom(expected_top.unit)
                 assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
                 assert_that(actual_top.unit, equal_to(expected_top.unit))
+
+    def test_median_treating_pressure(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        expected_start_time = datetime(2023, 12, 13, 20, 3, 29, 200000)
+        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
+        expected_stop_time = datetime(2023, 12, 13, 22, 25, 51, 300000)
+        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
+        for expected_median_pressure in [make_measurement(6608.55, units.UsOilfield.PRESSURE.abbreviation),
+                                         make_measurement(30281.49, units.Metric.PRESSURE.abbreviation)]:
+            with self.subTest(expected_median_pressure=expected_median_pressure):
+                stub_net_treatment_calculations = unittest.mock.MagicMock(name='stub_net_treatment_calculations',
+                                                                          spec=ITreatmentCalculations)
+                stub_net_treatment_calculations.GetMedianTreatmentPressure = unittest.mock.MagicMock(
+                    return_value=(as_net_quantity(expected_median_pressure), None))
+                stub_net_calculations_factory = unittest.mock.MagicMock(name='stub_net_calculations_factory',
+                                                                        spec=IFractureDiagnosticsCalculationsFactory)
+                stub_net_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
+                    return_value=stub_net_treatment_calculations)
+                sut = nsa.NativeStageAdapter(stub_net_stage, stub_net_calculations_factory)
+
+                actual_median_treating = sut.median_treating_pressure()
+                tcm.assert_that_scalar_quantities_close_to(actual_median_treating, expected_median_pressure, 5e-3)
 
     def test_start_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)

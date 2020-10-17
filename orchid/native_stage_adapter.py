@@ -28,9 +28,17 @@ from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantit
 import orchid.reference_origin as oro
 import orchid.unit_system as units
 
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Factories import Calculations
+
 
 class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
+
+    def __init__(self, adaptee, calculations_factory=None):
+        super().__init__(adaptee)
+        self.calculations_factory = Calculations.FractureDiagnosticsCalculationsFactory() \
+            if not calculations_factory else calculations_factory
 
     display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
@@ -184,6 +192,28 @@ class NativeStageAdapter(dna.DotNetAdapter):
         result = as_measurement(md_top_quantity)
         return result
 
+    def median_treating_pressure(self):
+        """
+        Calculates the median treating pressure while treating this stage.
+
+        Returns:
+            A measurement of the median treating pressure.
+        """
+        treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
+        median_pressure, _ = treatment_calculator.GetMedianTreatmentPressure(self, self.start_time, self.stop_time)
+        return as_measurement(median_pressure)
+
+    def pumped_fluid_volume(self):
+        """
+        Calculates the volume of fluid pumped into this stage during treatment.
+
+        Returns:
+            A measurement of the total fluid volume.
+        """
+        treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
+        fluid_volume, _ = treatment_calculator.GetPumpedVolume(self, self.start_time, self.stop_time)
+        return fluid_volume
+
     def stage_length(self, length_unit_abbreviation: str) -> Measurement:
         """
         Return the stage length in the specified unit.
@@ -198,6 +228,17 @@ class NativeStageAdapter(dna.DotNetAdapter):
             self.md_bottom(length_unit_abbreviation).magnitude - self.md_top(length_unit_abbreviation).magnitude
         result = make_measurement(length_magnitude, length_unit_abbreviation)
         return result
+
+    def total_proppant_mass(self):
+        """
+        Calculates the total mass of proppant injected into this stage during treatment.
+
+        Returns:
+            A measurement of the injected proppant mass.
+        """
+        treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
+        proppant_mass, _ = treatment_calculator.GetProppantMass(self, self.start_time, self.stop_time)
+        return proppant_mass
 
     def treatment_curves(self):
         """
