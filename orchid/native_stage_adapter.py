@@ -212,7 +212,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
         treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
         fluid_volume, _ = treatment_calculator.GetPumpedVolume(self, self.start_time, self.stop_time)
-        return fluid_volume
+        return as_measurement(fluid_volume)
 
     def stage_length(self, length_unit_abbreviation: str) -> Measurement:
         """

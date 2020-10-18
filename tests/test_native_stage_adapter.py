@@ -157,6 +157,28 @@ class TestNativeStageAdapter(unittest.TestCase):
                 actual_median_treating = sut.median_treating_pressure()
                 tcm.assert_that_scalar_quantities_close_to(actual_median_treating, expected_median_pressure, 5e-3)
 
+    def test_pumped_fluid_volume(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        expected_start_time = datetime(2017, 5, 26, 3, 20, 5, 940000)
+        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
+        expected_stop_time = datetime(2017, 5, 26, 5, 42, 10, 936000)
+        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
+        for expected_fluid_volume in [make_measurement(7511.38, units.UsOilfield.VOLUME.abbreviation),
+                                      make_measurement(919.83, units.Metric.VOLUME.abbreviation)]:
+            with self.subTest(expected_fluid_volume=expected_fluid_volume):
+                stub_net_treatment_calculations = unittest.mock.MagicMock(name='stub_net_treatment_calculations',
+                                                                          spec=ITreatmentCalculations)
+                stub_net_treatment_calculations.GetPumpedVolume = unittest.mock.MagicMock(
+                    return_value=(as_net_quantity(expected_fluid_volume), None))
+                stub_net_calculations_factory = unittest.mock.MagicMock(name='stub_net_calculations_factory',
+                                                                        spec=IFractureDiagnosticsCalculationsFactory)
+                stub_net_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
+                    return_value=stub_net_treatment_calculations)
+                sut = nsa.NativeStageAdapter(stub_net_stage, stub_net_calculations_factory)
+
+                actual_fluid_volume = sut.pumped_fluid_volume()
+                tcm.assert_that_scalar_quantities_close_to(actual_fluid_volume, expected_fluid_volume, 5e-3)
+
     def test_start_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)

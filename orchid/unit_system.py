@@ -62,6 +62,7 @@ class UsOilfield(UnitSystem):
 
     LENGTH = About('ft', UnitsNet.Units.LengthUnit.Foot)
     PRESSURE = About('psi', UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+    VOLUME = About('bbl', UnitsNet.Units.VolumeUnit.OilBarrel)
 
     def system_name(self):
         return 'USOilfield'
@@ -72,6 +73,7 @@ class Metric(UnitSystem):
 
     LENGTH = About('m', UnitsNet.Units.LengthUnit.Meter)
     PRESSURE = About('kPa', UnitsNet.Units.PressureUnit.Kilopascal)
+    VOLUME = About('m^3', UnitsNet.Units.VolumeUnit.CubicMeter)
 
     def system_name(self):
         return 'Metric'

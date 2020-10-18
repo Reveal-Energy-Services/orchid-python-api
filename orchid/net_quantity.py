@@ -23,17 +23,20 @@ from datetime import datetime
 import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
+import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-ABBREVIATION_NET_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
-                             'm': UnitsNet.Units.LengthUnit.Meter,
-                             'psi': UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
-                             'kPa': UnitsNet.Units.PressureUnit.Kilopascal,
-                             'MPa': UnitsNet.Units.PressureUnit.Megapascal}
+ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Foot,
+                             units.Metric.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Meter,
+                             units.UsOilfield.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
+                             units.Metric.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.Kilopascal,
+                             'MPa': UnitsNet.Units.PressureUnit.Megapascal,
+                             units.UsOilfield.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.OilBarrel,
+                             units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
 
 NET_UNIT_ABBREVIATION_MAP = {v: k for (k, v) in ABBREVIATION_NET_UNIT_MAP.items()}
 
@@ -76,6 +79,9 @@ def as_net_quantity(measurement):
     elif measurement.unit == 'psi' or measurement.unit == 'kPa' or measurement.unit == 'MPa':
         return UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
                                       ABBREVIATION_NET_UNIT_MAP[measurement.unit])
+    elif measurement.unit == 'bbl' or measurement.unit == 'm^3':
+        return UnitsNet.Volume.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                    ABBREVIATION_NET_UNIT_MAP[measurement.unit])
 
 
 def as_net_quantity_in_different_unit(measurement, in_unit):
