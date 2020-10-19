@@ -42,13 +42,37 @@ class TestNetMeasurement(unittest.TestCase):
         assert_that(actual, equal_to(datetime(2020, 8, 5, 6, 59, 41, 726000)))
 
     def test_as_measurement(self):
-        for value, unit_abbreviation in [(44.49, 'ft'), (13.56, 'ft')]:
-            with self.subTest(value=value, unit_abbreviation=unit_abbreviation):
-                net_unit = (UnitsNet.Units.LengthUnit.Foot if unit_abbreviation == 'ft'
-                            else UnitsNet.Units.LengthUnit.Meter)
-                net_quantity = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(value), net_unit)
+        def make_net_quantity(magnitude, abbreviation):
+            quantity = UnitsNet.QuantityValue.op_Implicit(magnitude)
+            if abbreviation == 'ft':
+                return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Foot)
+            elif abbreviation == 'm':
+                return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
+            elif abbreviation == 'lb':
+                return UnitsNet.Length.From(quantity, UnitsNet.Units.MassUnit.Pound)
+            elif abbreviation == 'kg':
+                return UnitsNet.Length.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
+            elif abbreviation == 'psi':
+                return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+            elif abbreviation == 'kPa':
+                return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Kilopascal)
+            elif abbreviation == 'MPa':
+                return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Megapascal)
+            elif abbreviation == 'bbl':
+                return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.OilBarrel)
+            elif abbreviation == 'm^3':
+                return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.CubicMeter)
+            else:
+                raise ValueError(f'Unhandled abbreviation {abbreviation}')
+
+        for value, unit in [(44.49, 'ft'), (13.56, 'm'),
+                            # (30.94, 'lb'),
+                            (49.70, 'psi'), (342.67, 'kPa'), (0.6071, 'MPa'),
+                            (83.48, 'bbl'), (13.27, 'm^3')]:
+            with self.subTest(value=value, unit=unit):
+                net_quantity = make_net_quantity(value, unit)
                 actual = as_measurement(net_quantity)
-                expected = make_measurement(value, unit_abbreviation)
+                expected = make_measurement(value, unit)
                 assert_that(actual, expected)
 
     def test_as_net_date_time(self):
