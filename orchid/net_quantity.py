@@ -32,13 +32,21 @@ import UnitsNet
 
 ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Foot,
                              units.Metric.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Meter,
-                             units.UsOilfield.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
+                             units.UsOilfield.PRESSURE.abbreviation:
+                                 UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
                              units.Metric.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.Kilopascal,
                              'MPa': UnitsNet.Units.PressureUnit.Megapascal,
                              units.UsOilfield.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.OilBarrel,
                              units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
 
-NET_UNIT_ABBREVIATION_MAP = {v: k for (k, v) in ABBREVIATION_NET_UNIT_MAP.items()}
+NET_UNIT_ABBREVIATION_MAP = {UnitsNet.Units.LengthUnit.Foot: units.UsOilfield.LENGTH.abbreviation,
+                             UnitsNet.Units.LengthUnit.Meter: units.Metric.LENGTH.abbreviation,
+                             UnitsNet.Units.PressureUnit.PoundForcePerSquareInch:
+                                 units.UsOilfield.PRESSURE.abbreviation,
+                             UnitsNet.Units.PressureUnit.Kilopascal: units.Metric.PRESSURE.abbreviation,
+                             UnitsNet.Units.PressureUnit.Megapascal: 'MPa',
+                             UnitsNet.Units.VolumeUnit.OilBarrel: units.UsOilfield.VOLUME.abbreviation,
+                             UnitsNet.Units.VolumeUnit.CubicMeter: units.Metric.VOLUME.abbreviation}
 
 
 def as_datetime(net_time_point):
