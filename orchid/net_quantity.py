@@ -39,15 +39,6 @@ ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Unit
                              units.UsOilfield.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.OilBarrel,
                              units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
 
-NET_UNIT_ABBREVIATION_MAP = {UnitsNet.Units.LengthUnit.Foot: units.UsOilfield.LENGTH.abbreviation,
-                             UnitsNet.Units.LengthUnit.Meter: units.Metric.LENGTH.abbreviation,
-                             UnitsNet.Units.PressureUnit.PoundForcePerSquareInch:
-                                 units.UsOilfield.PRESSURE.abbreviation,
-                             UnitsNet.Units.PressureUnit.Kilopascal: units.Metric.PRESSURE.abbreviation,
-                             UnitsNet.Units.PressureUnit.Megapascal: 'MPa',
-                             UnitsNet.Units.VolumeUnit.OilBarrel: units.UsOilfield.VOLUME.abbreviation,
-                             UnitsNet.Units.VolumeUnit.CubicMeter: units.Metric.VOLUME.abbreviation}
-
 
 def as_datetime(net_time_point):
     return datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
@@ -61,7 +52,10 @@ def as_measurement(net_quantity):
     :param net_quantity: The Python Measurement to convert.
     :return: The Python Measurement corresponding to net_quantity.
     """
-    result = make_measurement(net_quantity.Value, NET_UNIT_ABBREVIATION_MAP[net_quantity.Unit])
+    net_quantity_text = str(net_quantity)
+    _, raw_net_unit_abbreviation = net_quantity_text.split()
+    net_unit_abbreviation = raw_net_unit_abbreviation if raw_net_unit_abbreviation != 'm\u00b3' else 'm^3'
+    result = make_measurement(net_quantity.Value, net_unit_abbreviation)
     return result
 
 

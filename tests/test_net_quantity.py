@@ -25,6 +25,8 @@ from orchid.net_quantity import (as_datetime, as_measurement, as_net_date_time, 
                                  as_net_quantity_in_different_unit, convert_net_quantity_to_different_unit)
 import orchid.unit_system as units
 
+import tests.custom_matchers as tcm
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
 # noinspection PyUnresolvedReferences
@@ -49,9 +51,9 @@ class TestNetMeasurement(unittest.TestCase):
             elif abbreviation == 'm':
                 return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
             elif abbreviation == 'lb':
-                return UnitsNet.Length.From(quantity, UnitsNet.Units.MassUnit.Pound)
+                return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Pound)
             elif abbreviation == 'kg':
-                return UnitsNet.Length.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
+                return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
             elif abbreviation == 'psi':
                 return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
             elif abbreviation == 'kPa':
@@ -65,15 +67,16 @@ class TestNetMeasurement(unittest.TestCase):
             else:
                 raise ValueError(f'Unhandled abbreviation {abbreviation}')
 
-        for value, unit in [(44.49, 'ft'), (13.56, 'm'),
-                            # (30.94, 'lb'),
-                            (49.70, 'psi'), (342.67, 'kPa'), (0.6071, 'MPa'),
-                            (83.48, 'bbl'), (13.27, 'm^3')]:
+        for value, unit in [(44.49, 'ft'), (13.56, 'm'),  # length
+                            (30.94, 'lb'), (68.21, 'kg'),  # mass
+                            (49.70, 'psi'), (342.67, 'kPa'), (0.6071, 'MPa'),  # pressure
+                            (83.48, 'bbl'), (13.27, 'm^3')  # volume
+                            ]:
             with self.subTest(value=value, unit=unit):
                 net_quantity = make_net_quantity(value, unit)
                 actual = as_measurement(net_quantity)
                 expected = make_measurement(value, unit)
-                assert_that(actual, expected)
+                tcm.assert_that_scalar_quantities_close_to(actual, expected, 6e-3)
 
     def test_as_net_date_time(self):
         for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23),
@@ -110,7 +113,9 @@ class TestNetMeasurement(unittest.TestCase):
                   6888.89, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
                  (make_measurement(59849.82, units.Metric.PRESSURE.abbreviation),
                   59849.82, UnitsNet.Units.PressureUnit.Kilopascal),
-                 (make_measurement(42.92, 'MPa'), 42.92, UnitsNet.Units.PressureUnit.Megapascal)]:
+                 (make_measurement(42.92, 'MPa'), 42.92, UnitsNet.Units.PressureUnit.Megapascal),
+                 (make_measurement(7216.94, 'bbl'), 7216.94, UnitsNet.Units.VolumeUnit.OilBarrel),
+                 (make_measurement(1017.09, 'm^3'), 1017.09, UnitsNet.Units.VolumeUnit.CubicMeter)]:
             with self.subTest(actual=measurement, expected_magnitude=expected_magnitude, expected_unit=expected_unit):
                 actual = as_net_quantity(measurement)
                 assert_that(actual.Unit, equal_to(expected_unit))
