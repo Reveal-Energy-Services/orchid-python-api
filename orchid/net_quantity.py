@@ -32,6 +32,8 @@ import UnitsNet
 
 ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Foot,
                              units.Metric.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Meter,
+                             units.UsOilfield.MASS.abbreviation: UnitsNet.Units.MassUnit.Pound,
+                             units.Metric.MASS.abbreviation: UnitsNet.Units.MassUnit.Kilogram,
                              units.UsOilfield.PRESSURE.abbreviation:
                                  UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
                              units.Metric.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.Kilopascal,
@@ -78,6 +80,9 @@ def as_net_quantity(measurement):
     if measurement.unit == 'ft' or measurement.unit == 'm':
         return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
                                     ABBREVIATION_NET_UNIT_MAP[measurement.unit])
+    elif measurement.unit == 'lb' or measurement.unit == 'kg':
+        return UnitsNet.Mass.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                  ABBREVIATION_NET_UNIT_MAP[measurement.unit])
     elif measurement.unit == 'psi' or measurement.unit == 'kPa' or measurement.unit == 'MPa':
         return UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
                                       ABBREVIATION_NET_UNIT_MAP[measurement.unit])

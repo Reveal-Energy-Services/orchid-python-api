@@ -33,6 +33,30 @@ from System import DateTime
 import UnitsNet
 
 
+def make_net_quantity(magnitude, abbreviation):
+    quantity = UnitsNet.QuantityValue.op_Implicit(magnitude)
+    if abbreviation == 'ft':
+        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Foot)
+    elif abbreviation == 'm':
+        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
+    elif abbreviation == 'lb':
+        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Pound)
+    elif abbreviation == 'kg':
+        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
+    elif abbreviation == 'psi':
+        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+    elif abbreviation == 'kPa':
+        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Kilopascal)
+    elif abbreviation == 'MPa':
+        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Megapascal)
+    elif abbreviation == 'bbl':
+        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.OilBarrel)
+    elif abbreviation == 'm^3' or abbreviation == 'm\u00b3':
+        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.CubicMeter)
+    else:
+        raise ValueError(f'Unhandled abbreviation {abbreviation}')
+
+
 class TestNetMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -44,29 +68,6 @@ class TestNetMeasurement(unittest.TestCase):
         assert_that(actual, equal_to(datetime(2020, 8, 5, 6, 59, 41, 726000)))
 
     def test_as_measurement(self):
-        def make_net_quantity(magnitude, abbreviation):
-            quantity = UnitsNet.QuantityValue.op_Implicit(magnitude)
-            if abbreviation == 'ft':
-                return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Foot)
-            elif abbreviation == 'm':
-                return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
-            elif abbreviation == 'lb':
-                return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Pound)
-            elif abbreviation == 'kg':
-                return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
-            elif abbreviation == 'psi':
-                return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
-            elif abbreviation == 'kPa':
-                return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Kilopascal)
-            elif abbreviation == 'MPa':
-                return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Megapascal)
-            elif abbreviation == 'bbl':
-                return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.OilBarrel)
-            elif abbreviation == 'm^3':
-                return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.CubicMeter)
-            else:
-                raise ValueError(f'Unhandled abbreviation {abbreviation}')
-
         for value, unit in [(44.49, 'ft'), (13.56, 'm'),  # length
                             (30.94, 'lb'), (68.21, 'kg'),  # mass
                             (49.70, 'psi'), (342.67, 'kPa'), (0.6071, 'MPa'),  # pressure
@@ -105,21 +106,19 @@ class TestNetMeasurement(unittest.TestCase):
                 assert_that(actual.Millisecond, equal_to(expected.Millisecond))
 
     def test_as_net_quantity(self):
-        for measurement, expected_magnitude, expected_unit in \
-                [(make_measurement(113.76, units.UsOilfield.LENGTH.abbreviation),
-                  113.76, UnitsNet.Units.LengthUnit.Foot),
-                 (make_measurement(72.98, units.Metric.LENGTH.abbreviation), 72.98, UnitsNet.Units.LengthUnit.Meter),
-                 (make_measurement(6888.89, units.UsOilfield.PRESSURE.abbreviation),
-                  6888.89, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
-                 (make_measurement(59849.82, units.Metric.PRESSURE.abbreviation),
-                  59849.82, UnitsNet.Units.PressureUnit.Kilopascal),
-                 (make_measurement(42.92, 'MPa'), 42.92, UnitsNet.Units.PressureUnit.Megapascal),
-                 (make_measurement(7216.94, 'bbl'), 7216.94, UnitsNet.Units.VolumeUnit.OilBarrel),
-                 (make_measurement(1017.09, 'm^3'), 1017.09, UnitsNet.Units.VolumeUnit.CubicMeter)]:
-            with self.subTest(actual=measurement, expected_magnitude=expected_magnitude, expected_unit=expected_unit):
+        for measurement, expected_net_quantity in \
+                [(make_measurement(113.76, units.UsOilfield.LENGTH.abbreviation), make_net_quantity(113.76, 'ft')),
+                 (make_measurement(72.98, units.Metric.LENGTH.abbreviation), make_net_quantity(72.98, 'm')),
+                 (make_measurement(7922.36, units.UsOilfield.MASS.abbreviation), make_net_quantity(7922.36, 'lb')),
+                 (make_measurement(133965.71, units.Metric.MASS.abbreviation), make_net_quantity(133965.71, 'kg')),
+                 (make_measurement(6888.89, units.UsOilfield.PRESSURE.abbreviation), make_net_quantity(6888.89, 'psi')),
+                 (make_measurement(59849.82, units.Metric.PRESSURE.abbreviation), make_net_quantity(59849.82, 'kPa')),
+                 (make_measurement(42.92, 'MPa'), make_net_quantity(42.92, 'MPa')),
+                 (make_measurement(7216.94, 'bbl'), make_net_quantity(7216.94, 'bbl')),
+                 (make_measurement(1017.09, 'm^3'), make_net_quantity(1017.09, 'm\u00b3'))]:
+            with self.subTest(actual=measurement, expected=expected_net_quantity):
                 actual = as_net_quantity(measurement)
-                assert_that(actual.Unit, equal_to(expected_unit))
-                assert_that(actual.Value, close_to(expected_magnitude, 5e-3))
+                tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_length_quantity_in_original_unit(self):
         for measurement in [make_measurement(44.49, 'ft'), make_measurement(25.93, 'm')]:
