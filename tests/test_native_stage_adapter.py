@@ -197,6 +197,28 @@ class TestNativeStageAdapter(unittest.TestCase):
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
 
+    def test_total_proppant_mass(self):
+        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
+        expected_start_time = datetime(2016, 9, 30, 5, 22, 14, 345000)
+        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
+        expected_stop_time = datetime(2016, 9, 30, 7, 3, 46, 621000)
+        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
+        for expected_proppant_mass in [make_measurement(5167.93, units.UsOilfield.MASS.abbreviation),
+                                       make_measurement(132537.16, units.Metric.MASS.abbreviation)]:
+            with self.subTest(expected_proppant_mass=expected_proppant_mass):
+                stub_net_treatment_calculations = unittest.mock.MagicMock(name='stub_net_treatment_calculations',
+                                                                          spec=ITreatmentCalculations)
+                stub_net_treatment_calculations.GetTotalProppantMass = unittest.mock.MagicMock(
+                    return_value=(as_net_quantity(expected_proppant_mass), None))
+                stub_net_calculations_factory = unittest.mock.MagicMock(name='stub_net_calculations_factory',
+                                                                        spec=IFractureDiagnosticsCalculationsFactory)
+                stub_net_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
+                    return_value=stub_net_treatment_calculations)
+                sut = nsa.NativeStageAdapter(stub_net_stage, stub_net_calculations_factory)
+
+                actual_proppant_mass = sut.total_proppant_mass()
+                tcm.assert_that_scalar_quantities_close_to(actual_proppant_mass, expected_proppant_mass, 5e-3)
+
     def test_treatment_curves_no_curves(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         stub_net_stage.TreatmentCurves.Items = []

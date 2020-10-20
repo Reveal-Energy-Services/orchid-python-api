@@ -237,8 +237,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
             A measurement of the injected proppant mass.
         """
         treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
-        proppant_mass, _ = treatment_calculator.GetProppantMass(self, self.start_time, self.stop_time)
-        return proppant_mass
+        proppant_mass, _ = treatment_calculator.GetTotalProppantMass(self, self.start_time, self.stop_time)
+        return as_measurement(proppant_mass)
 
     def treatment_curves(self):
         """
