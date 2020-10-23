@@ -45,9 +45,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
         start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
         stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
-        for expected_magnitude, unit in \
-                [(7396.93, units.UsOilfield.PRESSURE),
-                 (74.19, units.Metric.PRESSURE)]:
+        for expected_magnitude, unit in [(7396.93, units.UsOilfield.PRESSURE), (74.19, units.Metric.PRESSURE)]:
             expected_measurement = om.make_measurement(expected_magnitude, unit.abbreviation)
             net_pressure = UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(expected_magnitude),
                                                   unit.net_unit)
@@ -82,6 +80,102 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             with self.subTest(expected_warnings=expected_warnings):
                 actual_result = ntc.median_treating_pressure(stub_stage, start_time, stop_time,
                                                              calculations_factory=stub_native_calculations_factory)
+                assert_that(expected_warnings, equal_to(actual_result.warnings))
+
+    def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
+        stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
+                                                                     autospec=ITreatmentCalculations)
+        stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
+                                                                   autospec=IFractureDiagnosticsCalculationsFactory)
+        stub_native_calculations_factory.TreatmentCalculations = unittest.mock.MagicMock(
+            return_value=stub_native_treatment_calculations)
+
+        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
+        stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
+        for expected_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
+            expected_measurement = om.make_measurement(expected_magnitude, unit.abbreviation)
+            net_volume = UnitsNet.Volume.From(UnitsNet.QuantityValue.op_Implicit(expected_magnitude),
+                                              unit.net_unit)
+            stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
+            stub_native_calculation_result.Result = net_volume
+            stub_native_treatment_calculations.GetPumpedVolume = unittest.mock.MagicMock(
+                return_value=stub_native_calculation_result)
+            with self.subTest(expected_measurement=expected_measurement):
+                actual_result = ntc.pumped_fluid_volume(stub_stage, start_time, stop_time,
+                                                        calculations_factory=stub_native_calculations_factory)
+                tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
+                                                           tolerance=6e-3)
+
+    def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
+        stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
+                                                                     autospec=ITreatmentCalculations)
+        stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
+                                                                   autospec=IFractureDiagnosticsCalculationsFactory)
+        stub_native_calculations_factory.TreatmentCalculations = unittest.mock.MagicMock(
+            return_value=stub_native_treatment_calculations)
+
+        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
+        stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
+        for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
+            stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
+            stub_native_calculation_result.Result = UnitsNet.Pressure.From(
+                UnitsNet.QuantityValue.op_Implicit(8694.18), units.UsOilfield.PRESSURE.net_unit)
+            stub_native_calculation_result.Warnings = expected_warnings
+            stub_native_treatment_calculations.GetPumpedVolume = unittest.mock.MagicMock(
+                return_value=stub_native_calculation_result)
+            with self.subTest(expected_warnings=expected_warnings):
+                actual_result = ntc.pumped_fluid_volume(stub_stage, start_time, stop_time,
+                                                        calculations_factory=stub_native_calculations_factory)
+                assert_that(expected_warnings, equal_to(actual_result.warnings))
+
+    def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
+        stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
+                                                                     autospec=ITreatmentCalculations)
+        stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
+                                                                   autospec=IFractureDiagnosticsCalculationsFactory)
+        stub_native_calculations_factory.TreatmentCalculations = unittest.mock.MagicMock(
+            return_value=stub_native_treatment_calculations)
+
+        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        start_time = datetime.datetime(2020, 1, 29, 7, 35, 2)
+        stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
+        for expected_magnitude, unit in [(5414.58, units.UsOilfield.MASS), (138262.86, units.Metric.MASS)]:
+            expected_measurement = om.make_measurement(expected_magnitude, unit.abbreviation)
+            net_mass = UnitsNet.Mass.From(UnitsNet.QuantityValue.op_Implicit(expected_magnitude),
+                                          unit.net_unit)
+            stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
+            stub_native_calculation_result.Result = net_mass
+            stub_native_treatment_calculations.GetTotalProppantMass = unittest.mock.MagicMock(
+                return_value=stub_native_calculation_result)
+            with self.subTest(expected_measurement=expected_measurement):
+                actual_result = ntc.total_proppant_mass(stub_stage, start_time, stop_time,
+                                                        calculations_factory=stub_native_calculations_factory)
+                tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
+                                                           tolerance=6e-3)
+
+    def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
+        stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
+                                                                     autospec=ITreatmentCalculations)
+        stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
+                                                                   autospec=IFractureDiagnosticsCalculationsFactory)
+        stub_native_calculations_factory.TreatmentCalculations = unittest.mock.MagicMock(
+            return_value=stub_native_treatment_calculations)
+
+        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        start_time = datetime.datetime(2020, 1, 29, 7, 35, 2)
+        stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
+        for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
+            stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
+            stub_native_calculation_result.Result = UnitsNet.Mass.From(
+                UnitsNet.QuantityValue.op_Implicit(134266.36), units.Metric.MASS.net_unit)
+            stub_native_calculation_result.Warnings = expected_warnings
+            stub_native_treatment_calculations.GetTotalProppantMass = unittest.mock.MagicMock(
+                return_value=stub_native_calculation_result)
+            with self.subTest(expected_warnings=expected_warnings):
+                actual_result = ntc.total_proppant_mass(stub_stage, start_time, stop_time,
+                                                        calculations_factory=stub_native_calculations_factory)
                 assert_that(expected_warnings, equal_to(actual_result.warnings))
 
 

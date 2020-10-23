@@ -55,7 +55,7 @@ def as_measurement(net_quantity):
     :return: The Python Measurement corresponding to net_quantity.
     """
     net_quantity_text = str(net_quantity)
-    _, raw_net_unit_abbreviation = net_quantity_text.split()
+    _, raw_net_unit_abbreviation = net_quantity_text.split(maxsplit=1)
     net_unit_abbreviation = raw_net_unit_abbreviation if raw_net_unit_abbreviation != 'm\u00b3' else 'm^3'
     result = make_measurement(net_quantity.Value, net_unit_abbreviation)
     return result
