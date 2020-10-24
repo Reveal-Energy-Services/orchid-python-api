@@ -24,31 +24,41 @@ from Orchid.FractureDiagnostics.Factories.Calculations import FractureDiagnostic
 CalculationResult = namedtuple('CalculationResult', ['measurement', 'warnings'])
 
 
-def median_treating_pressure(stage, start, stop, calculations_factory=None):
+def perform_calculation(native_calculation_func, stage, start, stop, calculations_factory):
     native_calculations_factory = FractureDiagnosticsCalculationsFactory() \
         if not calculations_factory else calculations_factory
     native_treatment_calculations = native_calculations_factory.TreatmentCalculations()
-    native_calculation_result = native_treatment_calculations.GetMedianTreatmentPressure(stage, start, stop)
-    pressure = onq.as_measurement(native_calculation_result.Result)
+    native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
+    calculation_measurement = onq.as_measurement(native_calculation_result.Result)
     warnings = native_calculation_result.Warnings
-    return CalculationResult(pressure, warnings)
+    return CalculationResult(calculation_measurement, warnings)
+
+
+def median_treating_pressure(stage, start, stop, calculations_factory=None):
+
+    def median_treatment_pressure_calculation(calculations, for_stage, start_time, stop_time):
+        calculation_result = calculations.GetMedianTreatmentPressure(for_stage, start_time, stop_time)
+        return calculation_result
+
+    result = perform_calculation(median_treatment_pressure_calculation, stage, start, stop, calculations_factory)
+    return result
 
 
 def pumped_fluid_volume(stage, start, stop, calculations_factory=None):
-    native_calculations_factory = FractureDiagnosticsCalculationsFactory() \
-        if not calculations_factory else calculations_factory
-    native_treatment_calculations = native_calculations_factory.TreatmentCalculations()
-    native_calculation_result = native_treatment_calculations.GetPumpedVolume(stage, start, stop)
-    volume = onq.as_measurement(native_calculation_result.Result)
-    warnings = native_calculation_result.Warnings
-    return CalculationResult(volume, warnings)
+
+    def pumped_fluid_volume_calculation(calculations, for_stage, start_time, stop_time):
+        calculation_result = calculations.GetPumpedVolume(for_stage, start_time, stop_time)
+        return calculation_result
+
+    result = perform_calculation(pumped_fluid_volume_calculation, stage, start, stop, calculations_factory)
+    return result
 
 
 def total_proppant_mass(stage, start, stop, calculations_factory=None):
-    native_calculations_factory = FractureDiagnosticsCalculationsFactory() \
-        if not calculations_factory else calculations_factory
-    native_treatment_calculations = native_calculations_factory.TreatmentCalculations()
-    native_calculation_result = native_treatment_calculations.GetTotalProppantMass(stage, start, stop)
-    volume = onq.as_measurement(native_calculation_result.Result)
-    warnings = native_calculation_result.Warnings
-    return CalculationResult(volume, warnings)
+
+    def total_proppant_mass_calculation(calculations, for_stage, start_time, stop_time):
+        calculation_result = calculations.GetTotalProppantMass(for_stage, start_time, stop_time)
+        return calculation_result
+
+    result = perform_calculation(total_proppant_mass_calculation, stage, start, stop, calculations_factory)
+    return result
