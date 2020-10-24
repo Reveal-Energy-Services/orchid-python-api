@@ -14,17 +14,43 @@
 
 
 from collections import namedtuple
+from typing import Callable, Optional
 
 import orchid.net_quantity as onq
 
+#
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics import IStage
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Calculations import (ICalculationResult,
+                                                     IFractureDiagnosticsCalculationsFactory,
+                                                     ITreatmentCalculations)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories.Calculations import FractureDiagnosticsCalculationsFactory
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import DateTime
 
 
 CalculationResult = namedtuple('CalculationResult', ['measurement', 'warnings'])
 
 
-def perform_calculation(native_calculation_func, stage, start, stop, calculations_factory):
+def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculations, IStage, DateTime, DateTime],
+                                                          ICalculationResult],
+                        stage: IStage, start: DateTime, stop: DateTime,
+                        calculations_factory: IFractureDiagnosticsCalculationsFactory):
+    """
+    Perform the specific native calculation function for stage from start through (and including) stop.
+
+    Args:
+        native_calculation_func: The specific native treatment calculation function.
+        stage: The stage on which the calculation is being made.
+        start: The (inclusive) start time of the calculation.
+        stop: The (inclusive) stop time of the calculation.
+        calculations_factory:  The factory used to create the native treatment calculations.
+
+    Returns:
+        The calculation result (measurement and warnings) for the calculation.
+    """
     native_calculations_factory = FractureDiagnosticsCalculationsFactory() \
         if not calculations_factory else calculations_factory
     native_treatment_calculations = native_calculations_factory.TreatmentCalculations()
@@ -34,8 +60,22 @@ def perform_calculation(native_calculation_func, stage, start, stop, calculation
     return CalculationResult(calculation_measurement, warnings)
 
 
-def median_treating_pressure(stage, start, stop, calculations_factory=None):
+def median_treating_pressure(stage: IStage, start: DateTime, stop: DateTime,
+                             calculations_factory: Optional[IFractureDiagnosticsCalculationsFactory] = None):
+    """
+    Return the median treating pressure for stage from start to (and including) stop.
 
+    Args:
+        stage: The stage on which the calculation is being made.
+        start: The (inclusive) start time of the calculation.
+        stop: The (inclusive) stop time of the calculation.
+        calculations_factory:  (TEST ONLY) The (optional) factory used to create the native treatment calculations.
+                               If no factory is supplied, construct a native factory. This parameter is useful when
+                                performing unit testing.
+
+    Returns:
+        The median treating pressure result (measurement and warnings).
+    """
     def median_treatment_pressure_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetMedianTreatmentPressure(for_stage, start_time, stop_time)
         return calculation_result
@@ -44,7 +84,22 @@ def median_treating_pressure(stage, start, stop, calculations_factory=None):
     return result
 
 
-def pumped_fluid_volume(stage, start, stop, calculations_factory=None):
+def pumped_fluid_volume(stage: IStage, start: DateTime, stop: DateTime,
+                        calculations_factory: Optional[IFractureDiagnosticsCalculationsFactory] = None):
+    """
+    Return the pumped (fluid) volume for stage from start to (and including) stop.
+
+    Args:
+        stage: The stage on which the calculation is being made.
+        start: The (inclusive) start time of the calculation.
+        stop: The (inclusive) stop time of the calculation.
+        calculations_factory:  (TEST ONLY) The (optional) factory used to create the native treatment calculations.
+                               If no factory is supplied, construct a native factory. This parameter is useful when
+                                performing unit testing.
+
+    Returns:
+        The pumped (fluid) volume result (measurement and warnings).
+    """
 
     def pumped_fluid_volume_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetPumpedVolume(for_stage, start_time, stop_time)
@@ -54,8 +109,22 @@ def pumped_fluid_volume(stage, start, stop, calculations_factory=None):
     return result
 
 
-def total_proppant_mass(stage, start, stop, calculations_factory=None):
+def total_proppant_mass(stage: IStage, start: DateTime, stop: DateTime,
+                        calculations_factory: Optional[IFractureDiagnosticsCalculationsFactory] = None):
+    """
+    Return the pumped (fluid) volume for stage from start to (and including) stop.
 
+    Args:
+        stage: The stage on which the calculation is being made.
+        start: The (inclusive) start time of the calculation.
+        stop: The (inclusive) stop time of the calculation.
+        calculations_factory:  (TEST ONLY) The (optional) factory used to create the native treatment calculations.
+                               If no factory is supplied, construct a native factory. This parameter is useful when
+                                performing unit testing.
+
+    Returns:
+        The pumped (fluid) volume result (measurement and warnings).
+    """
     def total_proppant_mass_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetTotalProppantMass(for_stage, start_time, stop_time)
         return calculation_result
