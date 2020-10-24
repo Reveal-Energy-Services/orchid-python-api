@@ -40,9 +40,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
         for magnitude, unit in [(7396.93, units.UsOilfield.PRESSURE), (74.19, units.Metric.PRESSURE)]:
             expected_measurement = om.make_measurement(magnitude, unit.abbreviation)
-
-            stub_native_calculations_factory = create_native_calculations_factory(unit, magnitude)
-
+            stub_native_calculations_factory = create_native_calculations_factory(calculation_unit=unit,
+                                                                                  pressure_magnitude=magnitude)
             with self.subTest(expected_measurement=expected_measurement):
                 actual_result = ntc.median_treating_pressure(stub_stage, start_time, stop_time,
                                                              calculations_factory=stub_native_calculations_factory)
@@ -169,19 +168,23 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                 assert_that(expected_warnings, equal_to(actual_result.warnings))
 
 
-def create_native_calculations_factory(calculation_unit, calculation_magnitude):
-    net_pressure = UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(calculation_magnitude),
+def create_native_calculations_factory(warnings=None, calculation_unit=None, pressure_magnitude=None):
+    net_pressure = UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(pressure_magnitude),
                                           calculation_unit.net_unit)
     stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
+    stub_native_calculation_result.Warnings = warnings if warnings is not None else []
     stub_native_calculation_result.Result = net_pressure
+
     stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
                                                                  autospec=ITreatmentCalculations)
     stub_native_treatment_calculations.GetMedianTreatmentPressure = unittest.mock.MagicMock(
         return_value=stub_native_calculation_result)
+
     stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
                                                                autospec=IFractureDiagnosticsCalculationsFactory)
     stub_native_calculations_factory.TreatmentCalculations = unittest.mock.MagicMock(
         return_value=stub_native_treatment_calculations)
+
     return stub_native_calculations_factory
 
 
