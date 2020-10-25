@@ -53,7 +53,7 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     """
     native_calculations_factory = FractureDiagnosticsCalculationsFactory() \
         if not calculations_factory else calculations_factory
-    native_treatment_calculations = native_calculations_factory.TreatmentCalculations()
+    native_treatment_calculations = native_calculations_factory.CreateTreatmentCalculations()
     native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
     calculation_measurement = onq.as_measurement(native_calculation_result.Result)
     warnings = native_calculation_result.Warnings

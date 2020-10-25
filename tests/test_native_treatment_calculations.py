@@ -150,7 +150,7 @@ def create_native_calculations_factory(warnings=None, calculation_unit=None,
 
     stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
                                                                autospec=IFractureDiagnosticsCalculationsFactory)
-    stub_native_calculations_factory.TreatmentCalculations = unittest.mock.MagicMock(
+    stub_native_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
         return_value=stub_native_treatment_calculations)
 
     return stub_native_calculations_factory
