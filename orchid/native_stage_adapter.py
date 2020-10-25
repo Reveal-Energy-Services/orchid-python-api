@@ -24,6 +24,7 @@ import orchid.dot_net_dom_access as dna
 from orchid.measurement import Measurement
 import orchid.native_subsurface_point as nsp
 import orchid.native_treatment_curve_facade as ntc
+import orchid.native_treatment_calculations as calcs
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
 import orchid.reference_origin as oro
 import orchid.unit_system as units
@@ -192,28 +193,6 @@ class NativeStageAdapter(dna.DotNetAdapter):
         result = as_measurement(md_top_quantity)
         return result
 
-    def median_treating_pressure(self):
-        """
-        Calculates the median treating pressure while treating this stage.
-
-        Returns:
-            A measurement of the median treating pressure.
-        """
-        treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
-        median_pressure, _ = treatment_calculator.GetMedianTreatmentPressure(self, self.start_time, self.stop_time)
-        return as_measurement(median_pressure)
-
-    def pumped_fluid_volume(self):
-        """
-        Calculates the volume of fluid pumped into this stage during treatment.
-
-        Returns:
-            A measurement of the total fluid volume.
-        """
-        treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
-        fluid_volume, _ = treatment_calculator.GetPumpedVolume(self, self.start_time, self.stop_time)
-        return as_measurement(fluid_volume)
-
     def stage_length(self, length_unit_abbreviation: str) -> Measurement:
         """
         Return the stage length in the specified unit.
@@ -228,17 +207,6 @@ class NativeStageAdapter(dna.DotNetAdapter):
             self.md_bottom(length_unit_abbreviation).magnitude - self.md_top(length_unit_abbreviation).magnitude
         result = make_measurement(length_magnitude, length_unit_abbreviation)
         return result
-
-    def total_proppant_mass(self):
-        """
-        Calculates the total mass of proppant injected into this stage during treatment.
-
-        Returns:
-            A measurement of the injected proppant mass.
-        """
-        treatment_calculator = self.calculations_factory.CreateTreatmentCalculations()
-        proppant_mass, _ = treatment_calculator.GetTotalProppantMass(self, self.start_time, self.stop_time)
-        return as_measurement(proppant_mass)
 
     def treatment_curves(self):
         """

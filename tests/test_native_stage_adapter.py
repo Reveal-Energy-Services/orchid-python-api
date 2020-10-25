@@ -43,6 +43,7 @@ import UnitsNet
 
 AboutCenter = namedtuple('AboutCenter', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
+StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 
 # Test ideas
@@ -135,50 +136,6 @@ class TestNativeStageAdapter(unittest.TestCase):
                 assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
                 assert_that(actual_top.unit, equal_to(expected_top.unit))
 
-    def test_median_treating_pressure(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_start_time = datetime(2023, 12, 13, 20, 3, 29, 200000)
-        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
-        expected_stop_time = datetime(2023, 12, 13, 22, 25, 51, 300000)
-        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
-        for expected_median_pressure in [make_measurement(6608.55, units.UsOilfield.PRESSURE.abbreviation),
-                                         make_measurement(30281.49, units.Metric.PRESSURE.abbreviation)]:
-            with self.subTest(expected_median_pressure=expected_median_pressure):
-                stub_net_treatment_calculations = unittest.mock.MagicMock(name='stub_net_treatment_calculations',
-                                                                          spec=ITreatmentCalculations)
-                stub_net_treatment_calculations.GetMedianTreatmentPressure = unittest.mock.MagicMock(
-                    return_value=(as_net_quantity(expected_median_pressure), None))
-                stub_net_calculations_factory = unittest.mock.MagicMock(name='stub_net_calculations_factory',
-                                                                        spec=IFractureDiagnosticsCalculationsFactory)
-                stub_net_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
-                    return_value=stub_net_treatment_calculations)
-                sut = nsa.NativeStageAdapter(stub_net_stage, stub_net_calculations_factory)
-
-                actual_median_treating = sut.median_treating_pressure()
-                tcm.assert_that_scalar_quantities_close_to(actual_median_treating, expected_median_pressure, 5e-3)
-
-    def test_pumped_fluid_volume(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_start_time = datetime(2017, 5, 26, 3, 20, 5, 940000)
-        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
-        expected_stop_time = datetime(2017, 5, 26, 5, 42, 10, 936000)
-        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
-        for expected_fluid_volume in [make_measurement(7511.38, units.UsOilfield.VOLUME.abbreviation),
-                                      make_measurement(919.83, units.Metric.VOLUME.abbreviation)]:
-            with self.subTest(expected_fluid_volume=expected_fluid_volume):
-                stub_net_treatment_calculations = unittest.mock.MagicMock(name='stub_net_treatment_calculations',
-                                                                          spec=ITreatmentCalculations)
-                stub_net_treatment_calculations.GetPumpedVolume = unittest.mock.MagicMock(
-                    return_value=(as_net_quantity(expected_fluid_volume), None))
-                stub_net_calculations_factory = unittest.mock.MagicMock(name='stub_net_calculations_factory',
-                                                                        spec=IFractureDiagnosticsCalculationsFactory)
-                stub_net_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
-                    return_value=stub_net_treatment_calculations)
-                sut = nsa.NativeStageAdapter(stub_net_stage, stub_net_calculations_factory)
-
-                actual_fluid_volume = sut.pumped_fluid_volume()
-                tcm.assert_that_scalar_quantities_close_to(actual_fluid_volume, expected_fluid_volume, 5e-3)
-
     def test_start_time(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
@@ -196,28 +153,6 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
-
-    def test_total_proppant_mass(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        expected_start_time = datetime(2016, 9, 30, 5, 22, 14, 345000)
-        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
-        expected_stop_time = datetime(2016, 9, 30, 7, 3, 46, 621000)
-        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
-        for expected_proppant_mass in [make_measurement(5167.93, units.UsOilfield.MASS.abbreviation),
-                                       make_measurement(132537.16, units.Metric.MASS.abbreviation)]:
-            with self.subTest(expected_proppant_mass=expected_proppant_mass):
-                stub_net_treatment_calculations = unittest.mock.MagicMock(name='stub_net_treatment_calculations',
-                                                                          spec=ITreatmentCalculations)
-                stub_net_treatment_calculations.GetTotalProppantMass = unittest.mock.MagicMock(
-                    return_value=(as_net_quantity(expected_proppant_mass), None))
-                stub_net_calculations_factory = unittest.mock.MagicMock(name='stub_net_calculations_factory',
-                                                                        spec=IFractureDiagnosticsCalculationsFactory)
-                stub_net_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
-                    return_value=stub_net_treatment_calculations)
-                sut = nsa.NativeStageAdapter(stub_net_stage, stub_net_calculations_factory)
-
-                actual_proppant_mass = sut.total_proppant_mass()
-                tcm.assert_that_scalar_quantities_close_to(actual_proppant_mass, expected_proppant_mass, 5e-3)
 
     def test_treatment_curves_no_curves(self):
         stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
