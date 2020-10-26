@@ -57,14 +57,14 @@ def step_impl(context):
 
 
 # noinspection PyBDDParameters
-@step("I see correct sample values for {well}, {index:d}, {stage:d}, {volume}, {proppant} and {median}")
-def step_impl(context, well, index, stage, volume, proppant, median):
+@step("I see correct sample values for {well}, {index:d}, {stage_no:d}, {volume}, {proppant} and {median}")
+def step_impl(context, well, index, stage_no, volume, proppant, median):
     """
     Args:
         context (behave.runner.Context):
         well (str): The name of the well whose stages were sampled.
         index (int): The expected index of the sampled stage.
-        stage (int): The expected displayed stage number of the sampled stage.
+        stage_no (int): The expected displayed stage number of the sampled stage.
         volume (str): A measurement of the expected pumped fluid volume of the sampled stage.
         proppant (str): A measurement of the expected total proppant mass of the sampled stage.
         median (str): A measurement of the expected median treating pressure of the sampled stage.

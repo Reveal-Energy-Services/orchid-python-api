@@ -72,12 +72,12 @@ def assert_measurement_equal(actual, expected):
 
 
 # noinspection PyBDDParameters
-@then("I see the correct {stage:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
-def step_impl(context, stage, name_with_well, md_top, md_bottom, cluster_count):
+@then("I see the correct {stage_no:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
+def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_count):
     """
     Args:
         context (behave.runner.Context): The test context.
-        stage (int): The displayed stage number of the stage of interest
+        stage_no (int): The displayed stage number of the stage of interest
         name_with_well (str): The display name with the well of the stage of interest.
         md_top (str): The measured depth of the stage top.
         md_bottom (str): The measured depth of the stage bottom.
@@ -86,7 +86,7 @@ def step_impl(context, stage, name_with_well, md_top, md_bottom, cluster_count):
     """
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
-    assert_that(stage_of_interest.display_stage_number, equal_to(stage))
+    assert_that(stage_of_interest.display_stage_number, equal_to(stage_no))
     assert_measurement_equal(
         stage_of_interest.md_top(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
         md_top)
