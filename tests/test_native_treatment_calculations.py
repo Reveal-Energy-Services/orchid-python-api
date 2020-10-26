@@ -38,7 +38,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_result(self):
-        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        stub_stage = create_stub_stage_adapter()
         start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
         stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
         for pressure_magnitude, unit in [(7396.93, units.UsOilfield.PRESSURE), (74.19, units.Metric.PRESSURE)]:
@@ -52,7 +52,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                            tolerance=6e-3)
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
-        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        stub_stage = create_stub_stage_adapter()
         start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
         stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
@@ -65,7 +65,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                 assert_that(expected_warnings, equal_to(actual_result.warnings))
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
-        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        stub_stage = create_stub_stage_adapter()
         start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
         stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
         for volume_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
@@ -79,7 +79,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                            tolerance=6e-3)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
-        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        stub_stage = create_stub_stage_adapter()
         start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
         stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
@@ -92,7 +92,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                 assert_that(expected_warnings, equal_to(actual_result.warnings))
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
-        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        stub_stage = create_stub_stage_adapter()
         start_time = datetime.datetime(2020, 1, 29, 7, 35, 2)
         stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
         for mass_magnitude, unit in [(5414.58, units.UsOilfield.MASS), (138262.86, units.Metric.MASS)]:
@@ -106,7 +106,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                            tolerance=6e-3)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
-        stub_stage = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+        stub_stage = create_stub_stage_adapter()
         start_time = datetime.datetime(2020, 1, 29, 7, 35, 2)
         stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
@@ -154,6 +154,12 @@ def create_native_calculations_factory(warnings=None, calculation_unit=None,
         return_value=stub_native_treatment_calculations)
 
     return stub_native_calculations_factory
+
+
+def create_stub_stage_adapter():
+    result = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
+    result.dom_object = unittest.mock.Mock('mock_dom_object')
+    return result
 
 
 if __name__ == '__main__':
