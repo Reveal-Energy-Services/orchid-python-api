@@ -25,14 +25,6 @@ ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 
-def assert_that_scalar_quantities_close_to(actual, expected, tolerance):
-    assert_that(actual.unit, equal_to(expected.unit))
-    assert_that(actual.magnitude, close_to(expected.magnitude, tolerance))
-
-
-def assert_that_net_quantities_close_to(actual, expected, tolerance):
-    def get_net_unit(net_quantity):
-        _, net_unit_abbreviation = str(net_quantity).split()
-        return net_unit_abbreviation
-    assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
-    assert_that(actual.Value, close_to(expected.Value, tolerance))
+def assert_that_scalar_quantities_close_to(actual_x, expected_x, tolerance):
+    assert_that(actual_x.unit, equal_to(expected_x.unit))
+    assert_that(actual_x.magnitude, close_to(expected_x.magnitude, tolerance))

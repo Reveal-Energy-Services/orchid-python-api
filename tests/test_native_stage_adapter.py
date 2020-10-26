@@ -35,15 +35,12 @@ import tests.custom_matchers as tcm
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, ISubsurfacePoint
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Calculations import IFractureDiagnosticsCalculationsFactory, ITreatmentCalculations
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 
 AboutCenter = namedtuple('AboutCenter', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
-StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 
 # Test ideas
