@@ -38,6 +38,7 @@ def add_orchid_assemblies() -> None:
     :return:
     """
     clr.AddReference('Orchid.FractureDiagnostics')
+    clr.AddReference('Orchid.FractureDiagnostics.Factories')
     clr.AddReference('Orchid.FractureDiagnostics.SDKFacade')
     clr.AddReference('UnitsNet')
     return None
