@@ -72,21 +72,24 @@ def assert_measurement_equal(actual, expected):
 
 
 # noinspection PyBDDParameters
-@then("I see the correct {stage_no:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
-def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_count):
+@then("I see the correct {stage:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
+def step_impl(context, stage, name_with_well, md_top, md_bottom, cluster_count):
     """
     Args:
         context (behave.runner.Context): The test context.
-        stage_no (int): The displayed stage number of the stage of interest
+        stage (int): The displayed stage number of the stage of interest
         name_with_well (str): The display name with the well of the stage of interest.
         md_top (str): The measured depth of the stage top.
         md_bottom (str): The measured depth of the stage bottom.
         cluster_count (int): The number of clusters for the stage.
 
     """
-    stage_of_interest = find_stage_with_name(context, name_with_well)
+    stage_of_interest = toolz.pipe(context.stages_for_wells,
+                                   toolz.map(get_stages),
+                                   toolz.concat,
+                                   toolz.partial(find_stage, name_with_well))
 
-    assert_that(stage_of_interest.display_stage_number, equal_to(stage_no))
+    assert_that(stage_of_interest.display_stage_number, equal_to(stage))
     assert_measurement_equal(
         stage_of_interest.md_top(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
         md_top)
@@ -94,16 +97,6 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
         stage_of_interest.md_bottom(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
         md_bottom)
     assert_that(stage_of_interest.cluster_count, equal_to(cluster_count))
-
-
-def find_stage_with_name(context, name_with_well):
-    stages_of_interest = toolz.pipe(context.stages_for_wells.values(),
-                                    toolz.concat,
-                                    toolz.filter(lambda s: s.display_name_with_well == name_with_well),
-                                    list)
-    assert len(stages_of_interest) == 1
-    stage_of_interest = toolz.nth(0, stages_of_interest)
-    return stage_of_interest
 
 
 # noinspection PyBDDParameters
@@ -119,7 +112,11 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
         tvdss (str): The total vertical depth of the stage center relative to sea level and in project length units.
         length (str): The length of the stage in project length units.
     """
-    stage_of_interest = find_stage_with_name(context, name_with_well)
+
+    stage_of_interest = toolz.pipe(context.stages_for_wells,
+                                   toolz.map(get_stages),
+                                   toolz.concat,
+                                   toolz.partial(find_stage, name_with_well))
 
     in_length_unit_abbreviation = context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))
     in_length_unit = units.abbreviation_to_unit(in_length_unit_abbreviation)

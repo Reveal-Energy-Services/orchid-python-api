@@ -23,38 +23,11 @@ from hamcrest import assert_that, equal_to, close_to
 from orchid.measurement import make_measurement
 from orchid.net_quantity import (as_datetime, as_measurement, as_net_date_time, as_net_quantity,
                                  as_net_quantity_in_different_unit, convert_net_quantity_to_different_unit)
-import orchid.unit_system as units
 
-import tests.custom_matchers as tcm
-
-# noinspection PyUnresolvedReferences,PyPackageRequirements
+# noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
-
-
-def make_net_quantity(magnitude, abbreviation):
-    quantity = UnitsNet.QuantityValue.op_Implicit(magnitude)
-    if abbreviation == 'ft':
-        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Foot)
-    elif abbreviation == 'm':
-        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
-    elif abbreviation == 'lb':
-        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Pound)
-    elif abbreviation == 'kg':
-        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
-    elif abbreviation == 'psi':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
-    elif abbreviation == 'kPa':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Kilopascal)
-    elif abbreviation == 'MPa':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Megapascal)
-    elif abbreviation == 'bbl':
-        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.OilBarrel)
-    elif abbreviation == 'm^3' or abbreviation == 'm\u00b3':
-        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.CubicMeter)
-    else:
-        raise ValueError(f'Unhandled abbreviation {abbreviation}')
 
 
 class TestNetMeasurement(unittest.TestCase):
@@ -68,16 +41,14 @@ class TestNetMeasurement(unittest.TestCase):
         assert_that(actual, equal_to(datetime(2020, 8, 5, 6, 59, 41, 726000)))
 
     def test_as_measurement(self):
-        for value, unit in [(44.49, 'ft'), (13.56, 'm'),  # length
-                            (30.94, 'lb'), (68.21, 'kg'),  # mass
-                            (49.70, 'psi'), (342.67, 'kPa'), (0.6071, 'MPa'),  # pressure
-                            (83.48, 'bbl'), (13.27, 'm^3')  # volume
-                            ]:
-            with self.subTest(value=value, unit=unit):
-                net_quantity = make_net_quantity(value, unit)
+        for value, unit_abbreviation in [(44.49, 'ft'), (13.56, 'ft')]:
+            with self.subTest(value=value, unit_abbreviation=unit_abbreviation):
+                net_unit = (UnitsNet.Units.LengthUnit.Foot if unit_abbreviation == 'ft'
+                            else UnitsNet.Units.LengthUnit.Meter)
+                net_quantity = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(value), net_unit)
                 actual = as_measurement(net_quantity)
-                expected = make_measurement(value, unit)
-                tcm.assert_that_scalar_quantities_close_to(actual, expected, 6e-3)
+                expected = make_measurement(value, unit_abbreviation)
+                assert_that(actual, expected)
 
     def test_as_net_date_time(self):
         for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23),
@@ -104,21 +75,6 @@ class TestNetMeasurement(unittest.TestCase):
                 assert_that(actual.Minute, equal_to(expected.Minute))
                 assert_that(actual.Second, equal_to(expected.Second))
                 assert_that(actual.Millisecond, equal_to(expected.Millisecond))
-
-    def test_as_net_quantity(self):
-        for measurement, expected_net_quantity in \
-                [(make_measurement(113.76, units.UsOilfield.LENGTH.abbreviation), make_net_quantity(113.76, 'ft')),
-                 (make_measurement(72.98, units.Metric.LENGTH.abbreviation), make_net_quantity(72.98, 'm')),
-                 (make_measurement(7922.36, units.UsOilfield.MASS.abbreviation), make_net_quantity(7922.36, 'lb')),
-                 (make_measurement(133965.71, units.Metric.MASS.abbreviation), make_net_quantity(133965.71, 'kg')),
-                 (make_measurement(6888.89, units.UsOilfield.PRESSURE.abbreviation), make_net_quantity(6888.89, 'psi')),
-                 (make_measurement(59849.82, units.Metric.PRESSURE.abbreviation), make_net_quantity(59849.82, 'kPa')),
-                 (make_measurement(42.92, 'MPa'), make_net_quantity(42.92, 'MPa')),
-                 (make_measurement(7216.94, 'bbl'), make_net_quantity(7216.94, 'bbl')),
-                 (make_measurement(1017.09, 'm^3'), make_net_quantity(1017.09, 'm\u00b3'))]:
-            with self.subTest(actual=measurement, expected=expected_net_quantity):
-                actual = as_net_quantity(measurement)
-                tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_length_quantity_in_original_unit(self):
         for measurement in [make_measurement(44.49, 'ft'), make_measurement(25.93, 'm')]:

@@ -45,18 +45,15 @@ def get_environment_configuration() -> Dict:
     Returns:
         The configuration, if any, calculated from the system environment.
     """
-    environment_configuration = {}
     if ORCHID_ROOT_ENV_VAR in os.environ and ORCHID_TRAINING_DATA_ENV_VAR in os.environ:
-        environment_configuration = {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR],
-                                                'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
+        return {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR],
+                           'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
     elif ORCHID_ROOT_ENV_VAR in os.environ:
-        environment_configuration = {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR]}}
+        return {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR]}}
     elif ORCHID_TRAINING_DATA_ENV_VAR in os.environ:
-        environment_configuration = {'orchid': {'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
-
-    _logger.debug(f'environment configuration = {environment_configuration}')
-
-    return environment_configuration
+        return {'orchid': {'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
+    else:
+        return {}
 
 
 def get_fallback_configuration() -> Dict:
@@ -82,9 +79,9 @@ def get_fallback_configuration() -> Dict:
                                                                             'Orchid')
     version_id = orchid.version.Version().id()
     version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}'
-    fallback = {'orchid': {'root': str(standard_orchid_dir.joinpath(version_dirname))}}
-    _logger.debug(f'fallback configuration={fallback}')
-    return fallback
+    default = {'orchid': {'root': str(standard_orchid_dir.joinpath(version_dirname))}}
+    _logger.debug(f'default configuration={default}')
+    return default
 
 
 def get_file_configuration() -> Dict:
@@ -98,13 +95,13 @@ def get_file_configuration() -> Dict:
     # This code looks for the configuration file, `python_api.yaml`, in the `.orchid` sub-directory of the
     # user-specific (and system-specific) home directory. See the Python documentation of `home()` for
     # details.
-    file = {}
-    file_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
-    if file_config_path.exists():
-        with file_config_path.open('r') as in_stream:
-            file = yaml.full_load(in_stream)
-    _logger.debug(f'file configuration={file}')
-    return file
+    custom = {}
+    custom_config_path = pathlib.Path.home().joinpath('.orchid', 'python_api.yaml')
+    if custom_config_path.exists():
+        with custom_config_path.open('r') as in_stream:
+            custom = yaml.full_load(in_stream)
+    _logger.debug(f'custom configuration={custom}')
+    return custom
 
 
 def python_api() -> Dict[str, str]:

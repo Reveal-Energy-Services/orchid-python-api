@@ -28,17 +28,9 @@ from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantit
 import orchid.reference_origin as oro
 import orchid.unit_system as units
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Factories import Calculations
-
 
 class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
-
-    def __init__(self, adaptee, calculations_factory=None):
-        super().__init__(adaptee)
-        self.calculations_factory = Calculations.FractureDiagnosticsCalculationsFactory() \
-            if not calculations_factory else calculations_factory
 
     display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
