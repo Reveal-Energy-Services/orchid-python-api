@@ -35,6 +35,7 @@ To use these examples:
   [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
 - You **must** 
   [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- You may need to [view the Orchid API configuration details](#view-orchid-configuration-details)
 - You may want to invoke the command, `copy_orchid_examples`
 
     This command copies the example files into an optionally specified (virtual environment) directory. (The 
@@ -158,6 +159,9 @@ that describe the information expected by the Orchid Python API. In summary, you
 for the 'orchid' > 'root' key that contains the pathname of the directory containing the Orchid binaries
 corresponding to the installed version of the `orchid-python-api` package.
 
+If you want to ensure your configuration is correct, 
+[view the Orchid API configuration details](#view-orchid-configuration-details).
+
 ## Configure the Orchid training data
 
 The Orchid Python API **requires** a licensed Orchid installation on your workstation. However, configuring
@@ -231,6 +235,9 @@ that describe the information expected by the Orchid Python API. In summary, you
 for the 'orchid' > 'training_data' key that contains the pathname of the directory containing the Orchid 
 binaries corresponding to the installed version of the `orchid-python-api` package.
 
+If you want to ensure your configuration is correct, 
+[view the Orchid API configuration details](#view-orchid-configuration-details).
+
 # Verify installation
 
 ## Jupyter lab
@@ -276,3 +283,39 @@ The import should complete with no errors.
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
+
+# View Orchid Configuration Details
+
+To "debug" the Orchid Python API configuration, perform the following steps:
+
+- Change to the directory associated with your Python virtual environment.
+- If necessary, activate the virtual environment.
+- Within that virtual environment, invoke Python. It is important to create a new REPL so that you start with 
+  a "clean" environment.
+- Within the Python REPL, execute the following commands.
+  ```
+  import logging
+  logging.basicConfi(level=logging.DEBUG)
+  import orchid
+  ```
+  
+Enabling logging **before** importing is critical. If you have already imported `orchid`, the simplest solution 
+is to close this REPL and create another, "clean" REPL.
+
+You should see output like the following:
+
+```
+DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services, Inc\\Orchid\\Orchid-2020.4.361'}}
+DEBUG:orchid.configuration:file configuration={'orchid': {'root': 'c:\\path-to\\bin\\x64\\Debug\\net48', 'training_data ': 'c:\\path-to\\installed-training-data'}}
+DEBUG:orchid.configuration:environment configuration = {'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
+DEBUG:orchid.configuration:result configuration={'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
+```
+
+This output describes four details of the configuration. 
+
+| Configuration | Explanation |
+| ------------- | ----------- |
+| result | The configuration used by the Orchid Python API |
+| fallback | The always available configuration |
+| file | The configuration specified in your configuration file |
+| environment | The configuration specified using environment variables | 

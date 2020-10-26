@@ -23,18 +23,23 @@ from datetime import datetime
 import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
+import orchid.unit_system as units
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-ABBREVIATION_NET_UNIT_MAP = {'ft': UnitsNet.Units.LengthUnit.Foot,
-                             'm': UnitsNet.Units.LengthUnit.Meter,
-                             'psi': UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
-                             'kPa': UnitsNet.Units.PressureUnit.Kilopascal}
-
-NET_UNIT_ABBREVIATION_MAP = {v: k for (k, v) in ABBREVIATION_NET_UNIT_MAP.items()}
+ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Foot,
+                             units.Metric.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Meter,
+                             units.UsOilfield.MASS.abbreviation: UnitsNet.Units.MassUnit.Pound,
+                             units.Metric.MASS.abbreviation: UnitsNet.Units.MassUnit.Kilogram,
+                             units.UsOilfield.PRESSURE.abbreviation:
+                                 UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
+                             units.Metric.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.Kilopascal,
+                             'MPa': UnitsNet.Units.PressureUnit.Megapascal,
+                             units.UsOilfield.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.OilBarrel,
+                             units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
 
 
 def as_datetime(net_time_point):
@@ -49,7 +54,10 @@ def as_measurement(net_quantity):
     :param net_quantity: The Python Measurement to convert.
     :return: The Python Measurement corresponding to net_quantity.
     """
-    result = make_measurement(net_quantity.Value, NET_UNIT_ABBREVIATION_MAP[net_quantity.Unit])
+    net_quantity_text = str(net_quantity)
+    _, raw_net_unit_abbreviation = net_quantity_text.split(maxsplit=1)
+    net_unit_abbreviation = raw_net_unit_abbreviation if raw_net_unit_abbreviation != 'm\u00b3' else 'm^3'
+    result = make_measurement(net_quantity.Value, net_unit_abbreviation)
     return result
 
 
@@ -69,9 +77,18 @@ def as_net_quantity(measurement):
     :param measurement: The Python Measurement to convert.
     :return: The .NET UnitsNet.Quantity corresponding to measurement.
     """
-    result = UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+    if measurement.unit == 'ft' or measurement.unit == 'm':
+        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                    ABBREVIATION_NET_UNIT_MAP[measurement.unit])
+    elif measurement.unit == 'lb' or measurement.unit == 'kg':
+        return UnitsNet.Mass.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
                                   ABBREVIATION_NET_UNIT_MAP[measurement.unit])
-    return result
+    elif measurement.unit == 'psi' or measurement.unit == 'kPa' or measurement.unit == 'MPa':
+        return UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                      ABBREVIATION_NET_UNIT_MAP[measurement.unit])
+    elif measurement.unit == 'bbl' or measurement.unit == 'm^3':
+        return UnitsNet.Volume.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                    ABBREVIATION_NET_UNIT_MAP[measurement.unit])
 
 
 def as_net_quantity_in_different_unit(measurement, in_unit):

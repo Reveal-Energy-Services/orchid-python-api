@@ -116,3 +116,15 @@ class DotNetAdapter:
         self._adaptee = adaptee
 
     object_id = dom_property('object_id', 'The object ID of the adapted .NET DOM object.')
+
+    def dom_object(self):
+        """
+        (PRIVATE) Determine the DOM object being adapted.
+
+        This method is only intended to be used **INSIDE** the orchid package. It is **NOT** intended for
+        external use.
+
+        Returns:
+            The .NET DOM object being adapted.
+        """
+        return self._adaptee
