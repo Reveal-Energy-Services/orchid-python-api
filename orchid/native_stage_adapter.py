@@ -24,7 +24,6 @@ import orchid.dot_net_dom_access as dna
 from orchid.measurement import Measurement
 import orchid.native_subsurface_point as nsp
 import orchid.native_treatment_curve_facade as ntc
-import orchid.native_treatment_calculations as calcs
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
 import orchid.reference_origin as oro
 import orchid.unit_system as units
