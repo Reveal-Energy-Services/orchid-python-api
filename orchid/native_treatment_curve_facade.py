@@ -59,8 +59,8 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
 
     def time_series(self) -> pd.Series:
         """
-        Return the suffix for this treatment curve.
-        :return: The suffix of this treatment curve.
+        Return the time_series for this treatment curve.
+        :return: The time_series of this treatment curve.
         """
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))

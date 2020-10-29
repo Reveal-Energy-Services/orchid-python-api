@@ -21,12 +21,16 @@ Note that these stubs are "duck typing" stubs for .NET classes; that is, they ha
 properties required during testing but do not actually implement the .NET class interfaces.
 """
 
+from collections import namedtuple
 from datetime import datetime, timedelta
 import itertools
 import unittest.mock
 from typing import Sequence
 
+import toolz.curried as toolz
+
 import orchid.native_treatment_curve_facade as ontc
+import orchid.net_quantity as onq
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
@@ -36,6 +40,9 @@ from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, ISta
                                         IWellSampledQuantityTimeSeries)
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit_abbreviation'])
 
 
 class StubNetSample:
@@ -165,10 +172,32 @@ def set_project_unit(stub_net_project, abbreviation):
         abbreviation_unit_map[abbreviation]()
 
 
-def create_stub_stage(stage_no, treatment_curves):
-    result = unittest.mock.MagicMock(name=stage_no, spec=IStage)
-    result.DisplayStageNumber = stage_no
-    result.TreatmentCurves.Items = treatment_curves
+def create_stub_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_location_center=None,
+                      start_time=None, stop_time=None, treatment_curve_names=None):
+    result = unittest.mock.MagicMock(name=display_stage_no, spec=IStage)
+    result.DisplayStageNumber = display_stage_no
+    if md_top is not None:
+        result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit_abbreviation)
+    if md_bottom is not None:
+        result.MdBottom = onq.as_net_quantity_in_different_unit(md_bottom.measurement, md_bottom.as_unit_abbreviation)
+    if stage_location_center is not None:
+        if callable(stage_location_center):
+            result.GetStageLocationCenter = unittest.mock.MagicMock('stub_get_stage_center_location',
+                                                                    side_effect=stage_location_center)
+    if start_time is not None:
+        result.StartTime = onq.as_net_date_time(start_time)
+    if stop_time is not None:
+        result.StopTime = onq.as_net_date_time(stop_time)
+
+    def make_stub_treatment_curve(name):
+        stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
+        stub_treatment_curve.SampledQuantityName = name
+        return stub_treatment_curve
+
+    if treatment_curve_names is not None:
+        result.TreatmentCurves.Items = list(toolz.map(make_stub_treatment_curve, treatment_curve_names))
+    else:
+        result.TreatmentCurves.Items = []
 
     return result
 
@@ -208,7 +237,6 @@ def create_stub_net_project(name='', default_well_colors=None,
                             project_temperature_unit_abbreviation='',
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
-                            about_stages=None,
                             curve_names=None, samples=None, curves_physical_quantities=None):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
@@ -217,7 +245,6 @@ def create_stub_net_project(name='', default_well_colors=None,
     eastings = eastings if eastings else []
     northings = northings if northings else []
     tvds = tvds if tvds else []
-    about_stages = about_stages if about_stages else []
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
     curves_physical_quantities = (curves_physical_quantities
@@ -255,9 +282,6 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
-
-        stub_well.Stages.Items = [create_stub_stage(stage_no, treatment_curves)
-                                  for (stage_no, treatment_curves) in about_stages]
 
     stub_net_project.WellTimeSeriesList.Items = \
         [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
