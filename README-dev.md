@@ -360,9 +360,9 @@ If using the command line,
 
 - Remove any existing virtual directory by:
     - Navigate to the root directory of the repository
-    - Execute the command `poetry env remove <python-path>` to remove the virtual environment itself. The 
-      argument, `<python-path>`, is the full pathname to the Python version associated with the virtual 
-      environment.
+    - Execute the command `poetry env remove <virtual-env>` to remove the virtual environment itself. The 
+      argument, `virtual-env`, is the short name identifying the virtual environment associated with the
+      repository root.
     
     NOTE: If no such virtualenv
       exists, running this command produces a message like:
@@ -371,8 +371,8 @@ If using the command line,
       >> Environment "orchid-python-api-_tsnD6Qt-py3.7" does not exist.
       
 - Create a new, clean virtual environment by:
-    - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
-    used by the Orchid Python API (currently 3.7.7).
+    - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the 
+      Python interpreter to use for  the environment (currently Python 3.7.7 for the Orchid Python API).
 
 If using `python invoke`,
 
@@ -435,7 +435,7 @@ If using `python invoke`,
     >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
     >> No virtualenv has been created for this project yet!
     >> Aborted!
-                                                                                                                                                                                                                        >0
+    
 - If present, delete all leftover files the from virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
@@ -527,7 +527,7 @@ To run all orchid tests
 ## Configure the Orchid Python API
 
 The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
-the installation, you may need to configure the Orchid Python API to refer to different locations.A
+the installation, you may need to configure the Orchid Python API to refer to different locations.
 
 ### Using the fallback configuration
 
