@@ -37,7 +37,7 @@ from System import DateTime
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
                                         IStageSampledQuantityTimeSeries, ISubsurfacePoint,
-                                        IWellSampledQuantityTimeSeries)
+                                        IWellSampledQuantityTimeSeries, IWellTrajectory)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -221,6 +221,31 @@ def create_stub_net_trajectory_array(magnitudes, net_unit):
     result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(magnitude), net_unit)
               for magnitude in magnitudes] if magnitudes else []
     return result
+
+
+def create_stub_net_well_trajectory(project_length_unit=None, easting_magnitudes=None, northing_magnitudes=None):
+    stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+    if project_length_unit is not None:
+        stub_trajectory.Well.Project = create_stub_net_project(
+            project_length_unit_abbreviation=project_length_unit.abbreviation)
+    if easting_magnitudes is not None and project_length_unit is not None:
+        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes,
+                                                         project_length_unit.net_unit)
+        stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
+    if northing_magnitudes is not None and project_length_unit is not None:
+        stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
+                                                          project_length_unit.net_unit)
+        stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
+
+    return stub_trajectory
+
+
+def get_mock_easting_array(stub_new_well_trajectory):
+    return stub_new_well_trajectory.GetEastingArray
+
+
+def get_mock_northing_array(stub_new_well_trajectory):
+    return stub_new_well_trajectory.GetNorthingArray
 
 
 def quantity_coordinate(raw_coordinates, i, stub_net_project):

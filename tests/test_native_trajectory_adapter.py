@@ -21,13 +21,13 @@ import deal
 from hamcrest import assert_that, equal_to, empty, contains_exactly
 
 from orchid.native_trajectory_adapter import NativeTrajectoryAdapter
-from orchid.net_quantity import unit_abbreviation_to_unit
-from tests.stub_net import create_stub_net_project, create_stub_net_trajectory_array
+import orchid.unit_system as units
+from tests.stub_net import (create_stub_net_well_trajectory, get_mock_easting_array, get_mock_northing_array)
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import Convert
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IWellTrajectory, WellReferenceFrameXy
 
 # noinspection PyUnresolvedReferences
@@ -42,69 +42,55 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_get_easting_array_if_empty_easting_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        expected_eastings = []
-        stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=expected_eastings)
+        expected_easting_magnitudes = []
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.Metric.LENGTH,
+                                                          easting_magnitudes=expected_easting_magnitudes)
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_easting_array('well_head'), empty())
 
     def test_get_northing_array_if_empty_northing_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        expected_northings = []
-        stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_northings',
-                                                                  return_value=expected_northings)
+        expected_northing_magnitudes = []
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.UsOilfield.LENGTH,
+                                                          easting_magnitudes=expected_northing_magnitudes)
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_northing_array('absolute'), empty())
 
     def test_get_easting_array_if_one_item_easting_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        stub_trajectory.Well.Project = create_stub_net_project(project_length_unit_abbreviation='m')
         expected_easting_magnitudes = [789921]
-        actual_eastings = create_stub_net_trajectory_array(expected_easting_magnitudes,
-                                                           unit_abbreviation_to_unit('m'))
-        stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=actual_eastings)
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.Metric.LENGTH,
+                                                          easting_magnitudes=expected_easting_magnitudes)
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_easting_array('absolute'), contains_exactly(*expected_easting_magnitudes))
 
     def test_get_northing_array_if_one_item_northing_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        stub_trajectory.Well.Project = create_stub_net_project(project_length_unit_abbreviation='ft')
         expected_northing_magnitudes = [6936068]
-        actual_northings = create_stub_net_trajectory_array(expected_northing_magnitudes,
-                                                            unit_abbreviation_to_unit('ft'))
-        stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings',
-                                                                   return_value=actual_northings)
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.UsOilfield.LENGTH,
+                                                          northing_magnitudes=expected_northing_magnitudes)
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_northing_array('project'), contains_exactly(*expected_northing_magnitudes))
 
     def test_get_easting_array_if_many_items_easting_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        stub_trajectory.Well.Project = create_stub_net_project(project_length_unit_abbreviation='ft')
         expected_easting_magnitudes = [501040, 281770, 289780]
-        actual_eastings = create_stub_net_trajectory_array(expected_easting_magnitudes, unit_abbreviation_to_unit('ft'))
-        stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=actual_eastings)
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.UsOilfield.LENGTH,
+                                                          easting_magnitudes=expected_easting_magnitudes)
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_easting_array('absolute'), contains_exactly(*expected_easting_magnitudes))
 
     def test_get_northing_array_if_many_items_northing_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        stub_trajectory.Well.Project = create_stub_net_project(project_length_unit_abbreviation='ft')
         expected_northing_magnitudes = [8332810, 2537900, 9876464]
-        actual_northings = create_stub_net_trajectory_array(expected_northing_magnitudes,
-                                                            unit_abbreviation_to_unit('ft'))
-        stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings',
-                                                                   return_value=actual_northings)
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.UsOilfield.LENGTH,
+                                                          northing_magnitudes=expected_northing_magnitudes)
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_northing_array('well_head'), contains_exactly(*expected_northing_magnitudes))
 
     def test_send_correct_reference_frame_to_get_easting_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+        stub_trajectory = create_stub_net_well_trajectory()
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         # When debugging
@@ -121,7 +107,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                 mock_get_easting_array.assert_called_once_with(net_reference_frame)
 
     def test_send_correct_reference_frame_to_get_northing_array(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+        stub_trajectory = create_stub_net_well_trajectory()
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         # When debugging
@@ -138,27 +124,25 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                 mock_get_northing_array.assert_called_once_with(net_reference_frame)
 
     def test_send_correct_length_unit_to_get_easting_array_if_no_length_unit_specified(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        stub_trajectory.Well.Project = create_stub_net_project(project_length_unit_abbreviation='m')
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.Metric.LENGTH,
+                                                          easting_magnitudes=[])
         sut = NativeTrajectoryAdapter(stub_trajectory)
-        mock_get_easting_array = unittest.mock.MagicMock(name='stub_eastings', return_value=[])
-        stub_trajectory.GetEastingArray = mock_get_easting_array
         sut.get_easting_array('absolute')
 
+        mock_get_easting_array = get_mock_easting_array(stub_trajectory)
         mock_get_easting_array.assert_called_once_with(WellReferenceFrameXy.AbsoluteStatePlane)
 
     def test_send_correct_length_unit_to_get_northing_array_if_no_length_unit_specified(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
-        stub_trajectory.Well.Project = create_stub_net_project(project_length_unit_abbreviation='m')
+        stub_trajectory = create_stub_net_well_trajectory(project_length_unit=units.Metric.LENGTH,
+                                                          northing_magnitudes=[])
         sut = NativeTrajectoryAdapter(stub_trajectory)
-        mock_get_northing_array = unittest.mock.MagicMock(name='stub_northings', return_value=[])
-        stub_trajectory.GetNorthingArray = mock_get_northing_array
         sut.get_northing_array('absolute')
 
+        mock_get_northing_array = get_mock_northing_array(stub_trajectory)
         mock_get_northing_array.assert_called_once_with(WellReferenceFrameXy.AbsoluteStatePlane)
 
     def test_get_xyz_array_invalid_reference_frame_raises_exception(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+        stub_trajectory = create_stub_net_well_trajectory()
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         for method_to_test in [sut.get_easting_array, sut.get_northing_array]:
@@ -167,7 +151,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                     self.assertRaises(deal.PreContractError, method_to_test, invalid_reference_frame)
 
     def test_get_xyz_array_unrecognized_reference_frame_raises_exception(self):
-        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+        stub_trajectory = create_stub_net_well_trajectory()
         sut = NativeTrajectoryAdapter(stub_trajectory)
 
         for method_to_test in [sut.get_easting_array, sut.get_northing_array]:
