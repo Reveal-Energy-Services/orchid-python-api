@@ -61,7 +61,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for (actual_center, expected_center, origin_reference) in\
                 zip(actual_centers, expected_centers, origin_references):
             def center_mock_func(*args):
-                result = tsn.create_stub_subsurface_point()
+                result = tsn.create_stub_net_subsurface_point()
                 if (args[0] == oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
                         args[1] == oro.DepthDatum.GROUND_LEVEL):
                     result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
@@ -77,7 +77,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                     result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
                 return result
 
-            stub_net_stage = tsn.create_stub_stage(stage_location_center=center_mock_func)
+            stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
             sut = nsa.NativeStageAdapter(stub_net_stage)
 
             actual = sut.center_location(expected_center.unit, origin_reference.xy, origin_reference.depth)
@@ -91,7 +91,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
-        stub_net_stage = tsn.create_stub_stage(display_stage_no=expected_display_stage_number)
+        stub_net_stage = tsn.create_stub_net_stage(display_stage_no=expected_display_stage_number)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
@@ -102,7 +102,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                          (make_measurement(13467.8, 'ft'), make_measurement(4104.98, 'm')),
                                          (make_measurement(3702.48, 'm'), make_measurement(12147.2, 'ft'))]:
             with self.subTest(expected_top=actual_top):
-                stub_net_stage = tsn.create_stub_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
+                stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top.unit)
@@ -115,7 +115,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                (make_measurement(12147.2, 'ft'), make_measurement(3702.47, 'm')),
                                                (make_measurement(4608.73, 'm'), make_measurement(15120.5, 'ft'))]:
             with self.subTest(expected_bottom=actual_bottom):
-                stub_net_stage = tsn.create_stub_stage(
+                stub_net_stage = tsn.create_stub_net_stage(
                     md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -125,7 +125,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_start_time(self):
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
-        stub_net_stage = tsn.create_stub_stage(start_time=expected_start_time)
+        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_start_time = sut.start_time
@@ -133,14 +133,14 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_stop_time(self):
         expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000)
-        stub_net_stage = tsn.create_stub_stage(stop_time=expected_stop_time)
+        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_treatment_curves_no_curves(self):
-        stub_net_stage = tsn.create_stub_stage()
+        stub_net_stage = tsn.create_stub_net_stage()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curve = sut.treatment_curves()
@@ -148,7 +148,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_one_curve(self):
         expected_sampled_quantity_name = 'Slurry Rate'
-        stub_net_stage = tsn.create_stub_stage(treatment_curve_names=[expected_sampled_quantity_name])
+        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=[expected_sampled_quantity_name])
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
@@ -157,7 +157,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_many_curves(self):
         expected_sampled_quantity_names = ['Pressure', 'Slurry Rate', 'Proppant Concentration']
-        stub_net_stage = tsn.create_stub_stage(treatment_curve_names=expected_sampled_quantity_names)
+        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()

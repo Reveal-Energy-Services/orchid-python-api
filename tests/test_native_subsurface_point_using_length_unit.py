@@ -31,7 +31,7 @@ import UnitsNet
 
 
 def create_sut(length_unit, x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
-    stub_subsurface_point = stub_net.create_stub_subsurface_point(x, y, depth, xy_origin, depth_origin)
+    stub_subsurface_point = stub_net.create_stub_net_subsurface_point(x, y, depth, xy_origin, depth_origin)
 
     sut = nsp.SubsurfacePointUsingLengthUnit(stub_subsurface_point, length_unit)
     return sut

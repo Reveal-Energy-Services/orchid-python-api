@@ -172,8 +172,8 @@ def set_project_unit(stub_net_project, abbreviation):
         abbreviation_unit_map[abbreviation]()
 
 
-def create_stub_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_location_center=None,
-                      start_time=None, stop_time=None, treatment_curve_names=None):
+def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_location_center=None,
+                          start_time=None, stop_time=None, treatment_curve_names=None):
     result = unittest.mock.MagicMock(name=display_stage_no, spec=IStage)
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
@@ -202,7 +202,7 @@ def create_stub_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_lo
     return result
 
 
-def create_stub_subsurface_point(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
+def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
     stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
     if x is not None:
         stub_subsurface_point.X = make_length_unit(x)
