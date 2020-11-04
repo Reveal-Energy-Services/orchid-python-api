@@ -202,13 +202,13 @@ def create_stub_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_lo
     return result
 
 
-def create_stub_subsurface_point(x, y, depth, xy_origin, depth_origin):
+def create_stub_subsurface_point(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
     stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
-    if x:
+    if x is not None:
         stub_subsurface_point.X = make_length_unit(x)
-    if y:
+    if y is not None:
         stub_subsurface_point.Y = make_length_unit(y)
-    if depth:
+    if depth is not None:
         stub_subsurface_point.Depth = make_length_unit(depth)
     if xy_origin is not None:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
