@@ -147,7 +147,7 @@ like Atom and Sublime. You can most likely use whatever editing environment you 
 me, more than one). Remember the recommendation from the book, _The Pragmatic Programmer_: "Find one editor 
 and stick to it."
 
-# Build and Test Locally
+# Build and test locally
 
 ## Package a distribution
 
@@ -170,7 +170,7 @@ and stick to it."
 - [Ensure installation of correct Orchid version](#ensure-correct-orchid)
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
 
-Finally, [Run orchid examples](#run-installed-orchid-examples).
+Finally, [Run Orchid examples](#run-installed-orchid-examples).
 
 # Publish a release
 
@@ -195,7 +195,7 @@ to perform these tasks.
 
 To update the project dependencies:
 
-- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- [Create a new, clean development virtualenv](#create-a-new-clean-development-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `poetry shell`)
 - Update the dependencies
@@ -294,7 +294,7 @@ Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ 
 
 Install the jupyter-lab package by running `pip install jupyterlab`
 
-Finally, [Run orchid examples](#run-installed-orchid-examples).
+Finally, [Run Orchid examples](#run-installed-orchid-examples).
 
 ## Publish to PyPI
 
@@ -326,7 +326,7 @@ Once published, test the published distribution by:
   
 Install the jupyter-lab package by running `pip install jupyterlab`
 
-Finally, [Run orchid examples](#run-installed-orchid-examples).
+Finally, [Run Orchid examples](#run-installed-orchid-examples).
   
 ## Common tasks
 
@@ -354,11 +354,27 @@ If it is not installed, you'll need to:
 - Install the appropriate version from the Web portal
 - Perhaps repeat these steps
 
-### Create a new, clean virtualenv
+### Create a new, clean development virtualenv
 
-These instructions assume you will create a test virtual directory using `pipenv`. This tool is simpler to
-use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
-instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
+If using the command line,
+
+- Remove any existing virtual directory by:
+    - Navigate to the root directory of the repository
+    - Execute the command `poetry env remove <virtual-env>` to remove the virtual environment itself. The 
+      argument, `virtual-env`, is the short name identifying the virtual environment associated with the
+      repository root.
+    
+    NOTE: If no such virtualenv
+      exists, running this command produces a message like:
+     
+      >> [ValueError]
+      >> Environment "orchid-python-api-_tsnD6Qt-py3.7" does not exist.
+      
+- Create a new, clean virtual environment by:
+    - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the 
+      Python interpreter to use for  the environment (currently Python 3.7.7 for the Orchid Python API).
+
+If using `python invoke`,
 
 - Navigate to the repository root
 - Remove the existing virtualenv if any
@@ -368,11 +384,75 @@ instructions assume that your test directory is something like `<path/to/inst/or
     >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
     >> No virtualenv has been created for this project yet!
     >> Aborted!
-                                                                                                                                                                                                                        >
+                                                                                                                                                                                                                        >0
 - If present, delete all leftover files the from virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
     - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+    
+To test that you were successful,
+
+- Navigate to the virtual environment directory if not there already
+- Activate the virtualenv by executing, `pipenv shell`
+- Execute the command, `pip list --local`. You should see output like the following (but probably different 
+  version numbers)
+
+  >> Package    Version
+  >> ---------- -------
+  >> pip        20.1.1
+  >> setuptools 46.4.0
+  >> wheel      0.34.2
+
+### Create a new, clean virtualenv
+
+These instructions assume you will create a test virtual directory using `pipenv`. This tool is simpler to
+use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
+instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
+
+If using the command line,
+
+- Remove any existing virtual directory by:
+    - Navigate to the root directory of the virtual environment.
+    - Execute the command `pipenv --rm` to remove the virtual environment itself. NOTE: If no such virtualenv
+      exists, running this command produces a message like:
+     
+      >> No virtualenv has been created for this project yet!
+      
+    - Execute the command `del Pipfile Pipfile.lock` to remove the `pipenv` supporting files.
+    - Remove any other files remaining in the virtual environment directory.
+    
+- Create a new, clean virtual environment by:
+    - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
+    used by the Orchid Python API (currently 3.7.7).
+
+If using `python invoke`,
+
+- Navigate to the repository root
+- Remove the existing virtualenv if any
+    - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
+    exists, running this task will produce a message like:
+    
+    >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
+    >> No virtualenv has been created for this project yet!
+    >> Aborted!
+    
+- If present, delete all leftover files the from virtualenv directory.
+                                                                                                                                                                                                                    
+- Create a new skeleton virtual environment
+    - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+    
+To test that you were successful,
+
+- Navigate to the virtual environment directory if not there already
+- Activate the virtualenv by executing, `pipenv shell`
+- Execute the command, `pip list --local`. You should see output like the following (but probably different 
+  version numbers)
+
+  >> Package    Version
+  >> ---------- -------
+  >> pip        20.1.1
+  >> setuptools 46.4.0
+  >> wheel      0.34.2
     
 ### Run all orchid tests
 
@@ -423,8 +503,8 @@ To run all orchid tests
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
         - Verify that the current directory has four notebooks:
             - `completion_analysis.ipynb`
-            - `plot_trajectories.ipynb`
             - `plot_monitor_curves.ipynb`
+            - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
@@ -447,7 +527,7 @@ To run all orchid tests
 ## Configure the Orchid Python API
 
 The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
-the installation, you may need to configure the Orchid Python API to refer to different locations.A
+the installation, you may need to configure the Orchid Python API to refer to different locations.
 
 ### Using the fallback configuration
 

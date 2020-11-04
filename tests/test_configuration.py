@@ -45,7 +45,21 @@ def multi_mock_open(*file_contents):
 
 
 # Test ideas
+# - Fallback only (no env, no file)
+# - No env. File overrides fallback.
+# - No env. File and fallback merge.
+# - No env. File and fallback distinct at top.
+# - No file. Env overrides fallback.
+# - No file. Env and fallback merge.
+# - All three. Env overrides file.
+# - All three. Env and file merge.
+# - All three. Env and file distinct at top.
 class ConfigurationTest(unittest.TestCase):
+    """Defines the unit tests for the `configuration` module.
+
+    BEWARE: The current unit tests assume that the configuration used by the Orchid Python API is a "two-level"
+    configuration. If the dictionary becomes deeper or shallower, one would need to change these tests.
+    """
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
@@ -53,10 +67,10 @@ class ConfigurationTest(unittest.TestCase):
     @unittest.mock.patch('orchid.configuration.get_environment_configuration')
     @unittest.mock.patch('orchid.configuration.get_file_configuration')
     @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
-    def test_no_env_no_file_configuration_returns_default(self, stub_get_fallback_configuration,
-                                                          stub_get_file_configuration,
-                                                          stub_get_environment_configuration):
-        expected_configuration = {'coniunx': 'barbarus/ponet'}
+    def test_no_env_no_file_configuration_returns_fallback(self, stub_get_fallback_configuration,
+                                                           stub_get_file_configuration,
+                                                           stub_get_environment_configuration):
+        expected_configuration = {'coniunx': {'barbarus': 'ponet'}}
         stub_get_fallback_configuration.return_value = expected_configuration
         stub_get_file_configuration.return_value = {}
         stub_get_environment_configuration.return_value = {}
@@ -67,12 +81,13 @@ class ConfigurationTest(unittest.TestCase):
     @unittest.mock.patch('orchid.configuration.get_environment_configuration')
     @unittest.mock.patch('orchid.configuration.get_file_configuration')
     @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
-    def test_no_env_but_file_configuration_overrides_fallback(self, stub_get_fallback_configuration,
-                                                              stub_get_file_configuration,
-                                                              stub_get_environment_configuration):
-        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+    def test_no_env_file_overrides_fallback(self, stub_get_fallback_configuration,
+                                            stub_get_file_configuration,
+                                            stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
         stub_get_fallback_configuration.return_value = fallback_configuration
-        expected_configuration = {'coniunx': 'magnitudo/colubrae'}
+        # file_configuration = {'coniunx': {'magnitudo': 'colubrae'}}
+        expected_configuration = {'coniunx': {'barbarus': 'colubrae'}}
         stub_get_file_configuration.return_value = expected_configuration
         stub_get_environment_configuration.return_value = {}
         actual = orchid.configuration.python_api()
@@ -82,14 +97,47 @@ class ConfigurationTest(unittest.TestCase):
     @unittest.mock.patch('orchid.configuration.get_environment_configuration')
     @unittest.mock.patch('orchid.configuration.get_file_configuration')
     @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
-    def test_env_but_no_file_configuration_overrides_fallback(self, stub_get_fallback_configuration,
-                                                              stub_get_file_configuration,
-                                                              stub_get_environment_configuration):
-        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+    def test_no_env_file_and_fallback_merges(self, stub_get_fallback_configuration,
+                                             stub_get_file_configuration,
+                                             stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
         stub_get_fallback_configuration.return_value = fallback_configuration
-        file_configuration = {}
+        file_configuration = {'coniunx': {'magnitudo': 'colubrae'}}
         stub_get_file_configuration.return_value = file_configuration
-        expected_configuration = {'coniunx': 'Gnaeus/grandisit'}
+        stub_get_environment_configuration.return_value = {}
+        actual = orchid.configuration.python_api()
+
+        expected_configuration = {'coniunx': {'barbarus': 'ponet',
+                                              'magnitudo': 'colubrae'}}
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_no_env_file_and_fallback_distinct_top(self, stub_get_fallback_configuration,
+                                                   stub_get_file_configuration,
+                                                   stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        file_configuration = {'coniugis': {'barbarus': 'colubrae'}}
+        stub_get_file_configuration.return_value = file_configuration
+        stub_get_environment_configuration.return_value = {}
+        actual = orchid.configuration.python_api()
+
+        expected_configuration = {'coniunx': {'barbarus': 'ponet'},
+                                  'coniugis': {'barbarus': 'colubrae'}}
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_no_file_env_overrides_fallback(self, stub_get_fallback_configuration,
+                                            stub_get_file_configuration,
+                                            stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        stub_get_file_configuration.return_value = {}
+        expected_configuration = {'coniunx': {'barbarus': 'grandisit'}}
         stub_get_environment_configuration.return_value = expected_configuration
         actual = orchid.configuration.python_api()
 
@@ -98,20 +146,89 @@ class ConfigurationTest(unittest.TestCase):
     @unittest.mock.patch('orchid.configuration.get_environment_configuration')
     @unittest.mock.patch('orchid.configuration.get_file_configuration')
     @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
-    def test_merge_env_file_and_fallback_configuration_if_distinct(self, stub_get_fallback_configuration,
-                                                                   stub_get_file_configuration,
-                                                                   stub_get_environment_configuration):
-        fallback_configuration = {'coniunx': 'barbarus/ponet'}
+    def test_no_file_env_and_fallback_merge(self, stub_get_fallback_configuration,
+                                            stub_get_file_configuration,
+                                            stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
         stub_get_fallback_configuration.return_value = fallback_configuration
-        file_configuration = {'fur': 'deliciam/providit'}
-        stub_get_file_configuration.return_value = file_configuration
-        environment_configuration = {'fluctus': 'patruelis/lapidarium'}
+        stub_get_file_configuration.return_value = {}
+        environment_configuration_configuration = {'coniunx': {'Gnaeus': 'grandisit'}}
+        stub_get_environment_configuration.return_value = environment_configuration_configuration
+        actual = orchid.configuration.python_api()
+
+        expected_configuration = {'coniunx': {'barbarus': 'ponet',
+                                              'Gnaeus': 'grandisit'}}
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_no_file_env_and_fallback_distinct_at_top(self, stub_get_fallback_configuration,
+                                                      stub_get_file_configuration,
+                                                      stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        stub_get_file_configuration.return_value = {}
+        environment_configuration = {'coniugis': {'barbarus': 'grandisit'}}
         stub_get_environment_configuration.return_value = environment_configuration
         actual = orchid.configuration.python_api()
 
-        assert_that(actual, equal_to({'coniunx': 'barbarus/ponet',
-                                      'fur': 'deliciam/providit',
-                                      'fluctus': 'patruelis/lapidarium'}))
+        expected_configuration = {'coniunx': {'barbarus': 'ponet'},
+                                  'coniugis': {'barbarus': 'grandisit'}}
+        assert_that(actual, equal_to(expected_configuration))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_all_three_env_overrides_file(self, stub_get_fallback_configuration,
+                                          stub_get_file_configuration,
+                                          stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        file_configuration = {'coniunx': {'deliciam': 'providit'}}
+        stub_get_file_configuration.return_value = file_configuration
+        environment_configuration = {'coniunx': {'deliciam': 'lapidarium'}}
+        stub_get_environment_configuration.return_value = environment_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to({'coniunx': {'barbarus': 'ponet',
+                                                  'deliciam': 'lapidarium'}}))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_all_three_env_and_file_merge(self, stub_get_fallback_configuration,
+                                          stub_get_file_configuration,
+                                          stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        file_configuration = {'coniunx': {'deliciam': 'providit'}}
+        stub_get_file_configuration.return_value = file_configuration
+        environment_configuration = {'coniunx': {'patruelis': 'lapidarium'}}
+        stub_get_environment_configuration.return_value = environment_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to({'coniunx': {'barbarus': 'ponet',
+                                                  'deliciam': 'providit',
+                                                  'patruelis': 'lapidarium'}}))
+
+    @unittest.mock.patch('orchid.configuration.get_environment_configuration')
+    @unittest.mock.patch('orchid.configuration.get_file_configuration')
+    @unittest.mock.patch('orchid.configuration.get_fallback_configuration')
+    def test_all_three_env_overrides_file(self, stub_get_fallback_configuration,
+                                          stub_get_file_configuration,
+                                          stub_get_environment_configuration):
+        fallback_configuration = {'coniunx': {'barbarus': 'ponet'}}
+        stub_get_fallback_configuration.return_value = fallback_configuration
+        file_configuration = {'coniunx': {'deliciam': 'providit'}}
+        stub_get_file_configuration.return_value = file_configuration
+        environment_configuration = {'coniugis': {'deliciam': 'lapidarium'}}
+        stub_get_environment_configuration.return_value = environment_configuration
+        actual = orchid.configuration.python_api()
+
+        assert_that(actual, equal_to({'coniunx': {'barbarus': 'ponet',
+                                                  'deliciam': 'providit'},
+                                      'coniugis': {'deliciam': 'lapidarium'}}))
 
 
 # Test ideas

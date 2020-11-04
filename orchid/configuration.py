@@ -118,8 +118,27 @@ def python_api() -> Dict[str, str]:
     file_configuration = get_file_configuration()
     env_configuration = get_environment_configuration()
 
-    result = toolz.merge(fallback_configuration, file_configuration, env_configuration)
+    result = merge_configurations(fallback_configuration, file_configuration, env_configuration)
     _logger.debug(f'result configuration={result}')
+    return result
+
+
+def merge_configurations(fallback_configuration, file_configuration, env_configuration):
+    # The rules for merging these configurations is not the same as a simple dictionary. The rules are:
+    # - If two different configurations share a top-level key, merge the second level dictionaries.
+    # - Then merge the distinct top-level keys.
+    distinct_top_level_keys = set(toolz.concat([fallback_configuration.keys(),
+                                                file_configuration.keys(),
+                                                env_configuration.keys()]))
+    result = {}
+    for top_level_key in distinct_top_level_keys:
+        fallback_child_configuration = fallback_configuration.get(top_level_key, {})
+        file_child_configuration = file_configuration.get(top_level_key, {})
+        env_child_configuration = env_configuration.get(top_level_key, {})
+        child_configuration = toolz.merge(fallback_child_configuration,
+                                          file_child_configuration,
+                                          env_child_configuration)
+        result[top_level_key] = child_configuration
     return result
 
 
