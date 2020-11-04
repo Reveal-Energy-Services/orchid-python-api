@@ -42,24 +42,24 @@ Feature: Low-level stages API (DOM)
       | Bakken | Demo_4H | 18    | 19       | 9380.16 bbl | 6103.62 lb | 7927.32 psi |
       | Bakken | Demo_4H | 13    | 14       | 10775.5 bbl | 7530.9 lb  | 7973.23 psi |
 
-#    Examples: Montney
-#      | field   | well    | index | stage_no | volume      | proppant     | median    |
-#      | Montney | Hori_01 | 0     | 1        | 1651 m^3    | 241729.14 kg | 70.01 kPa |
-#      | Montney | Hori_01 | 14    | 15       | 1102.71 m^3 | 240220.73 kg | 59.4 kPa  |
-#      | Montney | Hori_01 | 9     | 10       | 1195.43 m^3 | 236053.95 kg | 58.83 kPa |
-#      | Montney | Hori_01 | 3     | 4        | 1434.46 m^3 | 239965.18 kg | 66.06 kPa |
-#      | Montney | Hori_02 | 0     | 1        | 904.53 m^3  | 116006.86 kg | 68.42 kPa |
-#      | Montney | Hori_02 | 28    | 29       | 483.2 m^3   | 121554.84 kg | 64 kPa    |
-#      | Montney | Hori_02 | 6     | 7        | 666.19 m^3  | 118818.07 kg | 65.6 kPa  |
-#      | Montney | Hori_02 | 19    | 20       | 612.17 m^3  | 121388.15 kg | 65.5 kPa  |
-#      | Montney | Hori_03 | 0     | 1        | 867.18 m^3  | 151695.27 kg | 70.1 kPa  |
-#      | Montney | Hori_03 | 27    | 28       | 626.74 m^3  | 152069.78 kg | 51.9 kPa  |
-#      | Montney | Hori_03 | 7     | 8        | 708.44 m^3  | 148828.75 kg | 69.1 kPa  |
-#      | Montney | Hori_03 | 23    | 24       | 553.83 m^3  | 148729.56 kg | 56.4 kPa  |
-#      | Montney | Vert_01 | 0     | 1        | NaN m^3     | NaN kg       | NaN kPa   |
-#      | Montney | Vert_01 | 3     | 4        | NaN m^3     | NaN kg       | NaN kPa   |
-#      | Montney | Vert_01 | 1     | 2        | NaN m^3     | NaN kg       | NaN kPa   |
-#      | Montney | Vert_01 | 2     | 3        | NaN m^3     | NaN kg       | NaN kPa   |
+    Examples: Montney
+      | field   | well    | index | stage_no | volume      | proppant     | median    |
+      | Montney | Hori_01 | 0     | 1        | 1651 m^3    | 241729.14 kg | 70.01 kPa |
+      | Montney | Hori_01 | 14    | 15       | 1102.71 m^3 | 240220.73 kg | 59.4 kPa  |
+      | Montney | Hori_01 | 9     | 10       | 1195.43 m^3 | 236053.95 kg | 58.83 kPa |
+      | Montney | Hori_01 | 3     | 4        | 1434.46 m^3 | 239965.18 kg | 66.06 kPa |
+      | Montney | Hori_02 | 0     | 1        | 904.53 m^3  | 116006.86 kg | 68.42 kPa |
+      | Montney | Hori_02 | 28    | 29       | 483.2 m^3   | 121554.84 kg | 64 kPa    |
+      | Montney | Hori_02 | 6     | 7        | 666.19 m^3  | 118818.07 kg | 65.6 kPa  |
+      | Montney | Hori_02 | 19    | 20       | 612.17 m^3  | 121388.15 kg | 65.5 kPa  |
+      | Montney | Hori_03 | 0     | 1        | 867.18 m^3  | 151695.27 kg | 70.1 kPa  |
+      | Montney | Hori_03 | 27    | 28       | 626.74 m^3  | 152069.78 kg | 51.8 kPa  |
+      | Montney | Hori_03 | 7     | 8        | 708.44 m^3  | 148828.75 kg | 69.1 kPa  |
+      | Montney | Hori_03 | 23    | 24       | 553.83 m^3  | 148729.56 kg | 56.4 kPa  |
+      | Montney | Vert_01 | 0     | 1        | NaN m^3     | NaN kg       | NaN kPa   |
+      | Montney | Vert_01 | 3     | 4        | NaN m^3     | NaN kg       | NaN kPa   |
+      | Montney | Vert_01 | 1     | 2        | NaN m^3     | NaN kg       | NaN kPa   |
+      | Montney | Vert_01 | 2     | 3        | NaN m^3     | NaN kg       | NaN kPa   |
 
   Scenario Outline: Calculate basic information to support stage tool tips
     Given I have loaded the project for the field, '<field>'

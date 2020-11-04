@@ -88,27 +88,35 @@ def step_impl(context, well, index, stage_no, volume, proppant, median):
 
     assert_that(aggregates_for_stage.stage.display_stage_number, equal_to(stage_no))
 
+    def assert_message(well_name, ndx, quantity_name):
+        return f'{well_name} {ndx} {quantity_name}'
+
+    assert_message_quantity_name = toolz.partial(assert_message, well, index)
+
     expected_volume_magnitude = float(volume.split()[0])
     actual_volume_magnitude = aggregates_for_stage.pumped_volume.measurement.magnitude
+    pumped_volume_message = assert_message_quantity_name('pumped volume')
     if not math.isnan(expected_volume_magnitude):
-        assert_that(actual_volume_magnitude, close_to(expected_volume_magnitude, 6e-3), 'pumped volume')
+        assert_that(actual_volume_magnitude, close_to(expected_volume_magnitude, 6e-3), pumped_volume_message)
     else:
         assert_that(math.isnan(actual_volume_magnitude), equal_to(True))
-    assert_that(aggregates_for_stage.pumped_volume.measurement.unit, equal_to(volume.split()[1]), 'pumped volume')
+    assert_that(aggregates_for_stage.pumped_volume.measurement.unit, equal_to(volume.split()[1]), pumped_volume_message)
 
     expected_proppant_magnitude = float(proppant.split()[0])
     actual_proppant_magnitude = aggregates_for_stage.proppant_mass.measurement.magnitude
+    proppant_mass_message = assert_message_quantity_name('proppant_mass')
     if not math.isnan(expected_proppant_magnitude):
-        assert_that(actual_proppant_magnitude, close_to(expected_proppant_magnitude, 6e-3), 'proppant mass')
+        assert_that(actual_proppant_magnitude, close_to(expected_proppant_magnitude, 6e-3), proppant_mass_message)
     else:
         assert_that(math.isnan(actual_proppant_magnitude), equal_to(True))
-    assert_that(aggregates_for_stage.proppant_mass.measurement.unit, equal_to(proppant.split()[1]), 'proppant mass')
+    assert_that(aggregates_for_stage.proppant_mass.measurement.unit, equal_to(proppant.split()[1]), proppant_mass_message)
 
     expected_pressure_magnitude = float(median.split()[0])
     actual_median_magnitude = aggregates_for_stage.median_treating_pressure.measurement.magnitude
+    median_pressure_message = assert_message_quantity_name('median treating pressure')
     if not math.isnan(expected_pressure_magnitude):
-        assert_that(actual_median_magnitude, close_to(expected_pressure_magnitude, 6e-3), 'median treating pressure')
+        assert_that(actual_median_magnitude, close_to(expected_pressure_magnitude, 6e-3), median_pressure_message)
     else:
         assert_that(math.isnan(actual_median_magnitude), equal_to(True))
     assert_that(aggregates_for_stage.median_treating_pressure.measurement.unit, equal_to(median.split()[1]),
-                'median treating pressure')
+                median_pressure_message)
