@@ -34,9 +34,7 @@ import tests.stub_net as tsn
 
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, ISubsurfacePoint
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Calculations import IFractureDiagnosticsCalculationsFactory, ITreatmentCalculations
+from Orchid.FractureDiagnostics import ISubsurfacePoint
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -70,7 +68,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 zip(actual_centers, expected_centers, origin_references):
             def center_mock_func(*args):
                 result = unittest.mock.MagicMock(name='stub_net_subsurface_point',
-                                                 spec='ISubsurfacePoint')
+                                                 spec=ISubsurfacePoint)
                 if (args[0] == oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
                         args[1] == oro.DepthDatum.GROUND_LEVEL):
                     result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
