@@ -20,7 +20,9 @@ from behave import *
 use_step_matcher("parse")
 
 from collections import namedtuple
+import math
 
+from hamcrest import assert_that, equal_to, close_to
 import toolz.curried as toolz
 
 import orchid.native_treatment_calculations as calcs
@@ -69,5 +71,44 @@ def step_impl(context, well, index, stage_no, volume, proppant, median):
         proppant (str): A measurement of the expected total proppant mass of the sampled stage.
         median (str): A measurement of the expected median treating pressure of the sampled stage.
     """
-    aggregates_for_well = toolz.keyfilter(lambda w: w.name == well, context.aggregates_for_stages_for_wells)
+    @toolz.curry
+    def has_well_name(well_name, well_adapter):
+        return well_adapter.name == well_name
+
+    @toolz.curry
+    def has_stage_no(number, stage_aggregate):
+        return stage_aggregate.stage.display_stage_number == number
+
+    aggregates_for_well = toolz.keyfilter(has_well_name(well), context.aggregates_for_stages_for_wells)
     assert(len(aggregates_for_well) == 1)
+
+    aggregates_for_stage = toolz.pipe(aggregates_for_well.values(),
+                                      toolz.first,
+                                      toolz.nth(index))
+
+    assert_that(aggregates_for_stage.stage.display_stage_number, equal_to(stage_no))
+
+    expected_volume_magnitude = float(volume.split()[0])
+    actual_volume_magnitude = aggregates_for_stage.pumped_volume.measurement.magnitude
+    if not math.isnan(expected_volume_magnitude):
+        assert_that(actual_volume_magnitude, close_to(expected_volume_magnitude, 6e-3), 'pumped volume')
+    else:
+        assert_that(math.isnan(actual_volume_magnitude), equal_to(True))
+    assert_that(aggregates_for_stage.pumped_volume.measurement.unit, equal_to(volume.split()[1]), 'pumped volume')
+
+    expected_proppant_magnitude = float(proppant.split()[0])
+    actual_proppant_magnitude = aggregates_for_stage.proppant_mass.measurement.magnitude
+    if not math.isnan(expected_proppant_magnitude):
+        assert_that(actual_proppant_magnitude, close_to(expected_proppant_magnitude, 6e-3), 'proppant mass')
+    else:
+        assert_that(math.isnan(actual_proppant_magnitude), equal_to(True))
+    assert_that(aggregates_for_stage.proppant_mass.measurement.unit, equal_to(proppant.split()[1]), 'proppant mass')
+
+    expected_pressure_magnitude = float(median.split()[0])
+    actual_median_magnitude = aggregates_for_stage.median_treating_pressure.measurement.magnitude
+    if not math.isnan(expected_pressure_magnitude):
+        assert_that(actual_median_magnitude, close_to(expected_pressure_magnitude, 6e-3), 'median treating pressure')
+    else:
+        assert_that(math.isnan(actual_median_magnitude), equal_to(True))
+    assert_that(aggregates_for_stage.median_treating_pressure.measurement.unit, equal_to(median.split()[1]),
+                'median treating pressure')
