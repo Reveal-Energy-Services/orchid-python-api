@@ -43,8 +43,10 @@ from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFra
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
+from orchid.net_quantity import as_net_date_time
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit_abbreviation'])
+StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 
 
 class StubNetSample:
@@ -228,15 +230,10 @@ def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stag
     if stop_time is not None:
         result.StopTime = onq.as_net_date_time(stop_time)
 
-    def make_stub_treatment_curve(sampled_quantity_name=None):
-        stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
-        stub_treatment_curve.SampledQuantityName = sampled_quantity_name
-        return stub_treatment_curve
-
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
-            lambda sampled_quantity_name: make_stub_treatment_curve(sampled_quantity_name=sampled_quantity_name),
-            treatment_curve_names))
+            lambda sampled_quantity_name: create_stub_net_sampled_quantity_time_series(
+                sampled_quantity_name=sampled_quantity_name), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
 
@@ -262,6 +259,31 @@ def create_stub_net_trajectory_array(magnitudes, net_unit):
     result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(magnitude), net_unit)
               for magnitude in magnitudes] if magnitudes else []
     return result
+
+
+def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
+                                                 sampled_quantity_name=None, suffix=None,
+                                                 values_starting_at=None, project=None):
+    stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                       spec=IStageSampledQuantityTimeSeries)
+    if name is not None:
+        stub_net_treatment_curve.Name = name
+    if display_name is not None:
+        stub_net_treatment_curve.DisplayName = display_name
+    if sampled_quantity_name is not None:
+        stub_net_treatment_curve.SampledQuantityName = sampled_quantity_name
+    if suffix is not None:
+        stub_net_treatment_curve.Suffix = suffix
+    if values_starting_at is not None:
+        values, start_time_point = values_starting_at
+        time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
+        samples = [StubSample(t, v) for (t, v) in zip(map(as_net_date_time, time_points), values)]
+        stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
+                                                                                       return_value=samples)
+    if project is not None:
+        stub_net_treatment_curve.Stage.Well.Project = project
+
+    return stub_net_treatment_curve
 
 
 def create_stub_net_well_trajectory(project_length_unit=None, easting_magnitudes=None, northing_magnitudes=None):
