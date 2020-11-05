@@ -215,7 +215,10 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
 
 def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_location_center=None,
                           start_time=None, stop_time=None, treatment_curve_names=None):
-    result = unittest.mock.MagicMock(name=display_stage_no, spec=IStage)
+    try:
+        result = unittest.mock.MagicMock(name=display_stage_no, spec=IStage)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=display_stage_no)
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit_abbreviation)
@@ -241,7 +244,10 @@ def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stag
 
 
 def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
-    stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
+    try:
+        stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point', spec=ISubsurfacePoint)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point')
     if x is not None:
         stub_subsurface_point.X = make_length_unit(x)
     if y is not None:
@@ -264,8 +270,11 @@ def create_stub_net_trajectory_array(magnitudes, net_unit):
 def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
                                                  sampled_quantity_name=None, suffix=None,
                                                  values_starting_at=None, project=None):
-    stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                       spec=IStageSampledQuantityTimeSeries)
+    try:
+        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                           spec=IStageSampledQuantityTimeSeries)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve')
     if name is not None:
         stub_net_treatment_curve.Name = name
     if display_name is not None:
@@ -287,7 +296,10 @@ def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
 
 
 def create_stub_net_well_trajectory(project_length_unit=None, easting_magnitudes=None, northing_magnitudes=None):
-    stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+    try:
+        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
     if project_length_unit is not None:
         stub_trajectory.Well.Project = create_stub_net_project(
             project_length_unit_abbreviation=project_length_unit.abbreviation)
@@ -339,9 +351,15 @@ def create_stub_net_project(name='', default_well_colors=None,
                                   if curves_physical_quantities
                                   else list(itertools.repeat('pressure', len(curve_names))))
 
-    stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
+    try:
+        stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_net_project = unittest.mock.MagicMock(name='stub_net_project')
     stub_net_project.Name = name
-    plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
+    try:
+        plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings')
     plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
@@ -352,7 +370,10 @@ def create_stub_net_project(name='', default_well_colors=None,
     set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
     set_project_unit(stub_net_project, project_temperature_unit_abbreviation)
 
-    stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
+    try:
+        stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name) for well_name in well_names]
 
     for i in range(len(well_names)):
         stub_well = stub_net_project.Wells.Items[i]
@@ -371,9 +392,12 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
 
-    stub_net_project.WellTimeSeriesList.Items = \
-        [unittest.mock.MagicMock(name=curve_name, spec=IWellSampledQuantityTimeSeries)
-         for curve_name in curve_names]
+    try:
+        stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(
+            name=curve_name, spec=IWellSampledQuantityTimeSeries) for curve_name in curve_names]
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(name=curve_name)
+                                                     for curve_name in curve_names]
     quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
                               'temperature': UnitsNet.QuantityType.Temperature}
     for i in range(len(curve_names)):
