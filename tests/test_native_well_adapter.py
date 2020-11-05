@@ -23,11 +23,6 @@ import orchid.native_stage_adapter as nsa
 import orchid.native_trajectory_adapter as nta
 import orchid.native_well_adapter as nwa
 
-# noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IProject, IWell
-# noinspection PyUnresolvedReferences
-import UnitsNet
-
 
 class TestNativeWellAdapter(unittest.TestCase):
     def test_canary(self):

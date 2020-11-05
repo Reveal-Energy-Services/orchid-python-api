@@ -28,7 +28,7 @@ from tests.stub_net import (create_stub_net_well_trajectory, get_mock_easting_ar
 from System import Convert
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import IWellTrajectory, WellReferenceFrameXy
+from Orchid.FractureDiagnostics import WellReferenceFrameXy
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
