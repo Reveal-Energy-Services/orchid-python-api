@@ -228,13 +228,15 @@ def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stag
     if stop_time is not None:
         result.StopTime = onq.as_net_date_time(stop_time)
 
-    def make_stub_treatment_curve(name):
+    def make_stub_treatment_curve(sampled_quantity_name=None):
         stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
-        stub_treatment_curve.SampledQuantityName = name
+        stub_treatment_curve.SampledQuantityName = sampled_quantity_name
         return stub_treatment_curve
 
     if treatment_curve_names is not None:
-        result.TreatmentCurves.Items = list(toolz.map(make_stub_treatment_curve, treatment_curve_names))
+        result.TreatmentCurves.Items = list(toolz.map(
+            lambda sampled_quantity_name: make_stub_treatment_curve(sampled_quantity_name=sampled_quantity_name),
+            treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
 
