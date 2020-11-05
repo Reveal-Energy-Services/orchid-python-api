@@ -39,7 +39,7 @@ include=["LICENSE", "orchid/*.py", "orchid/VERSION", "orchid_python_api/examples
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pythonnet = "2.5.1"
 numpy = "1.19.0"
 python-dateutil = "2.8.1"
