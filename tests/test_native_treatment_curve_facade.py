@@ -77,7 +77,7 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_empty_time_series_from_curve_with_no_samples(self):
         values = []
         start_time_point = datetime(2017, 7, 2, 3, 29, 10, 510000)
-        sut = create_sut(name='palmis', values=values, start_time_point=start_time_point)
+        sut = create_sut(name='palmis', values_starting_at=(values, start_time_point))
 
         expected = pd.Series(data=[], index=[], name='palmis', dtype=np.float64)
         pdt.assert_series_equal(sut.time_series(), expected)
@@ -85,7 +85,7 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_single_sample_time_series_from_curve_with_single_samples(self):
         values = [671.09]
         start_time_point = datetime(2016, 2, 9, 4, 50, 39, 340000)
-        sut = create_sut(name='palmis', values=values, start_time_point=start_time_point)
+        sut = create_sut(name='palmis', values_starting_at=(values, start_time_point))
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
         expected = pd.Series(data=values, index=expected_time_points, name='palmis')
@@ -94,18 +94,14 @@ class TestTreatmentCurveFacade(unittest.TestCase):
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
         start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000)
-        sut = create_sut(name='clavis', values=values, start_time_point=start_time_point)
+        sut = create_sut(name='clavis', values_starting_at=(values, start_time_point))
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
         expected = pd.Series(data=values, index=expected_time_points, name='clavis')
         pdt.assert_series_equal(sut.time_series(), expected)
 
 
-def create_sut(name='', display_name='', sampled_quantity_name='', suffix='',
-               values=None, start_time_point=None,
-               project=None):
-    values_starting_at = (values, start_time_point) if values is not None and start_time_point is not None else None
-
+def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', values_starting_at=None, project=None):
     stub_net_treatment_curve = tsn.create_stub_net_sampled_quantity_time_series(
         name, display_name, sampled_quantity_name, suffix, values_starting_at=values_starting_at, project=project)
 
