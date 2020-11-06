@@ -56,17 +56,10 @@ Although the Python ecosystem supports several tools to create and manage virtua
 uses `poetry` because of its support for developer tasks such as packaging and publishing. For information on 
 `poetry` see [the poetry documentation](https://python-poetry.org/docs/).
 
-### Install Poetry
+### Install Python
 
-To use `poetry`, you may need to perform up to three steps. First, if you do not have python **3** installed,
-you need to install it. To determine if python 3 is installed:
-
-- In the Windows 10, search bar, type "add or remove programs".
-- On the "Apps & features" page, search for "python"
-- If you see an item named "Python 3.x", you have python 3 installed.
-
-If Python is not installed, follow [these instructions](https://docs.python.org/3/using/windows.html). To 
-ensure access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
+Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To ensure
+access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
 [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 
 ### Ensure Command Line Access To Python
@@ -79,7 +72,14 @@ instructions, including these instructions, will assume command line access. To 
 
 You should see a result like "Python 3.x".
 
-### Install poetry
+### Install Poetry
+
+To use `poetry`, you may need to perform up to three steps. First, if you do not have python **3** installed,
+you need to install it. To determine if python 3 is installed:
+
+- In the Windows 10, search bar, type "add or remove programs".
+- On the "Apps & features" page, search for "python"
+- If you see an item named "Python 3.x", you have python 3 installed.
 
 To install `poetry`:
 
@@ -94,7 +94,7 @@ line.)
 
 To create the development environment using `poetry`:
 
-- Clone the `PyhonApi` repository into a directory on your workstation. For convenience, we'll call that
+- Clone the `PythonApi` repository into a directory on your workstation. For convenience, we'll call that
   directory `/path/to/repo`.
 - Open a command prompt
 - Navigate to the `/path/to/repo`
@@ -364,27 +364,28 @@ If using the command line,
       argument, `virtual-env`, is the short name identifying the virtual environment associated with the
       repository root.
     
-    NOTE: If no such virtualenv
-      exists, running this command produces a message like:
-     
-      >> [ValueError]
-      >> Environment "orchid-python-api-_tsnD6Qt-py3.7" does not exist.
-      
+    NOTE: If no such virtualenv exists, running this command produces a message like:
+    ```
+    [ValueError]
+    Environment "orchid-python-api-_tsnD6Qt-py3.7" does not exist.
+    ```
+  
 - Create a new, clean virtual environment by:
     - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the 
-      Python interpreter to use for  the environment (currently Python 3.7.7 for the Orchid Python API).
+      Python interpreter to use for  the environment (currently Python 3.8.6 for the Orchid Python API).
 
 If using `python invoke`,
 
 - Navigate to the repository root
 - Remove the existing virtualenv if any
     - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
-    exists, running this task will produce a message like:
-    
-    >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
-    >> No virtualenv has been created for this project yet!
-    >> Aborted!
-                                                                                                                                                                                                                        >0
+      exists, running this task will produce a message like:
+    ```
+    invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
+    No virtualenv has been created for this project yet!
+    Aborted!
+    ```
+  
 - If present, delete all leftover files the from virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
@@ -394,14 +395,16 @@ To test that you were successful,
 
 - Navigate to the virtual environment directory if not there already
 - Activate the virtualenv by executing, `pipenv shell`
-- Execute the command, `pip list --local`. You should see output like the following (but probably different 
-  version numbers)
+- Execute the command, `pip list --local`. You should see output like the following (but most likely with
+  different version numbers)
 
-  >> Package    Version
-  >> ---------- -------
-  >> pip        20.1.1
-  >> setuptools 46.4.0
-  >> wheel      0.34.2
+  ```
+  Package    Version
+  ---------- -------
+  pip        20.1.1
+  setuptools 46.4.0
+  wheel      0.34.2
+  ```
 
 ### Create a new, clean virtualenv
 
@@ -416,14 +419,14 @@ If using the command line,
     - Execute the command `pipenv --rm` to remove the virtual environment itself. NOTE: If no such virtualenv
       exists, running this command produces a message like:
      
-      >> No virtualenv has been created for this project yet!
+      ```No virtualenv has been created for this project yet!```
       
     - Execute the command `del Pipfile Pipfile.lock` to remove the `pipenv` supporting files.
     - Remove any other files remaining in the virtual environment directory.
     
 - Create a new, clean virtual environment by:
     - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
-    used by the Orchid Python API (currently 3.7.7).
+    used by the Orchid Python API (currently 3.8.6).    
 
 If using `python invoke`,
 
@@ -432,9 +435,11 @@ If using `python invoke`,
     - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
     exists, running this task will produce a message like:
     
-    >> invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
-    >> No virtualenv has been created for this project yet!
-    >> Aborted!
+    ```
+    invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
+    No virtualenv has been created for this project yet!
+    Aborted!
+    ```
     
 - If present, delete all leftover files the from virtualenv directory.
                                                                                                                                                                                                                     
@@ -448,11 +453,13 @@ To test that you were successful,
 - Execute the command, `pip list --local`. You should see output like the following (but probably different 
   version numbers)
 
-  >> Package    Version
-  >> ---------- -------
-  >> pip        20.1.1
-  >> setuptools 46.4.0
-  >> wheel      0.34.2
+  ```
+  Package    Version
+  ---------- -------
+  pip        20.1.1
+  setuptools 46.4.0
+  wheel      0.34.2
+  ```
     
 ### Run all orchid tests
 
@@ -477,7 +484,7 @@ To run all orchid tests
 - Activate `poetry shell` if not activated
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
-    Successfully run notebook, `plot_trajectories.ipynb`
+    - Successfully run notebook, `plot_trajectories.ipynb`
         1. Open notebook
         2. Run all cells of notebook
         3. Wait patiently
@@ -514,7 +521,7 @@ To run all orchid tests
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
-    Successfully run notebook, `plot_trajectories.ipynb`
+    - Successfully run notebook, `plot_trajectories.ipynb`
         1. Open notebook
         2. Run all cells of notebook
         3. Wait patiently
@@ -604,8 +611,6 @@ The example file, contains comments, introduced by a leading octothorpe characte
 that describe the information expected by the Orchid Python API. In summary, you'll need to provide a value
 for the 'orchid' > 'root' key that contains the pathname of the directory containing the Orchid binaries
 corresponding to the installed version of the `orchid-python-api` package.
-
-        - `completion_analysis.ipynb`
 
 ## Configure the Orchid training data
 
@@ -709,5 +714,6 @@ To contribute to this project, follow our typical development process:
 - Create a pull request to have have others review your branch
 - When approved, complete your pull request to merge you work onto `develop`
 
-Although not yet enforced, any changes will need to pass all unit tests and any integration tests that are part of the
-project before the pull request can be completed.
+Although not enforced automatically, any changes will need to pass all existing unit and integration tests.
+In addition, it is expected that any changes will add **both** unit and integration tests before the pull 
+request can be completed.
