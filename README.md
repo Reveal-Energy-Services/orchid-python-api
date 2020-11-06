@@ -64,11 +64,9 @@ and yet provides a fairly simple interface. We will assume in this document that
 
 # Step-by-step install
 
-- Install python 3.7 by following [these instructions](https://docs.python.org/3/using/windows.html). To 
+- Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To 
   ensure access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
   [installer start page](https://docs.python.org/3/_images/win_installer.png). 
-- Installing `pipenv` by following the 
-  [install documentation](https://pipenv.pypa.io/en/latest/install/#installing-pipenv).
 - Open a console using either `powershell` or the Windows console.
 - Create a directory for the virtual environment. We will symbolically call it `/path/to/orchid-virtualenv`.
 - Change the current working directory to by `chdir /path/to/orchid-virtualenv`.
