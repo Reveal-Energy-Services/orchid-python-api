@@ -30,17 +30,17 @@ Feature: Low-level stages API (DOM)
       | field  | well    | index | stage_no | volume      | proppant   | median      |
       | Bakken | Demo_1H | 0     | 1        | 3668.3 bbl  | 3319.26 lb | 6164.04 psi |
       | Bakken | Demo_1H | 49    | 50       | 4793.33 bbl | 3400.73 lb | 6892.08 psi |
-      | Bakken | Demo_1H | 27    | 28       | 6271.89 bbl | 4687.66 lb | 4687.66 psi |
-      | Bakken | Demo_1H | 22    | 23       | 7818.02 bbl | 6025.93 lb | 8224.48 psi |
+      | Bakken | Demo_1H | 27    | 28       | 6271.89 bbl | 4687.66 lb | 8193.22 psi |
+      | Bakken | Demo_1H | 22    | 23       | 7818.02 bbl | 6025.39 lb | 8224.48 psi |
       | Bakken | Demo_2H | 0     | 1        | 3920.99 bbl | 3499.88 lb | 6535.85 psi |
       | Bakken | Demo_2H | 49    | 50       | 5329.46 bbl | 2431.78 lb | 6496.81 psi |
       | Bakken | Demo_2H | 44    | 45       | 5371.62 bbl | 2398.45 lb | 6722.27 psi |
       | Bakken | Demo_2H | 12    | 13       | 8415.64 bbl | 4231.37 lb | 8235.68 psi |
       | Bakken | Demo_3H | 0     | 1        | NaN bbl     | NaN lb     | NaN psi     |
-      | Bakken | Demo_2H | 0     | 1        | 3870.54 bbl | 3624.81 lb | 6322.39 psi |
-      | Bakken | Demo_2H | 34    | 35       | 8294.68 bbl | 3234.65 lb | 6442.86 psi |
-      | Bakken | Demo_2H | 18    | 19       | 9380.16 bbl | 6103.62 lb | 7927.31 psi |
-      | Bakken | Demo_2H | 13    | 14       | 10775.5 bbl | 7530.9 lb  | 7973.23 psi |
+      | Bakken | Demo_4H | 0     | 1        | 3870.54 bbl | 3624.81 lb | 6322.39 psi |
+      | Bakken | Demo_4H | 34    | 35       | 8294.68 bbl | 3234.65 lb | 6442.86 psi |
+      | Bakken | Demo_4H | 18    | 19       | 9380.16 bbl | 6103.62 lb | 7927.32 psi |
+      | Bakken | Demo_4H | 13    | 14       | 10775.5 bbl | 7530.9 lb  | 7973.23 psi |
 
     Examples: Montney
       | field   | well    | index | stage_no | volume      | proppant     | median    |
@@ -53,7 +53,7 @@ Feature: Low-level stages API (DOM)
       | Montney | Hori_02 | 6     | 7        | 666.19 m^3  | 118818.07 kg | 65.6 kPa  |
       | Montney | Hori_02 | 19    | 20       | 612.17 m^3  | 121388.15 kg | 65.5 kPa  |
       | Montney | Hori_03 | 0     | 1        | 867.18 m^3  | 151695.27 kg | 70.1 kPa  |
-      | Montney | Hori_03 | 27    | 28       | 626.74 m^3  | 152069.78 kg | 51.9 kPa  |
+      | Montney | Hori_03 | 27    | 28       | 626.74 m^3  | 152069.78 kg | 51.8 kPa  |
       | Montney | Hori_03 | 7     | 8        | 708.44 m^3  | 148828.75 kg | 69.1 kPa  |
       | Montney | Hori_03 | 23    | 24       | 553.83 m^3  | 148729.56 kg | 56.4 kPa  |
       | Montney | Vert_01 | 0     | 1        | NaN m^3     | NaN kg       | NaN kPa   |
@@ -139,4 +139,4 @@ Feature: Low-level stages API (DOM)
       | Montney | 1        | Vert_01-Stage-1  | 1842.15 m | -1133.05 m | 1784.75 m | 35.5 m  |
       | Montney | 2        | Vert_01-Stage-2  | 1842.15 m | -1133.05 m | 1734.75 m | 35.5 m  |
       | Montney | 3        | Vert_01-Stage-3  | 1842.15 m | -1133.05 m | 1684.75 m | 35.5 m  |
-      | Montney | 4        | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m  |
+       | Montney | 4        | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m  |
