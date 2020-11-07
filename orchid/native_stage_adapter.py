@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+from enum import IntEnum
 import functools
 from typing import Tuple, Union
 
@@ -29,7 +30,26 @@ import orchid.reference_origin as oro
 import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics import FormationConnectionType
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
+
+
+class ConnectionType(IntEnum):
+    PLUG_AND_PERF = FormationConnectionType.PlugAndPerf,
+    SLIDING_SLEEVE = FormationConnectionType.SlidingSleeve,
+    SINGLE_POINT_ENTRY = FormationConnectionType.SinglePointEntry,
+    OPEN_HOLE = FormationConnectionType.OpenHole
+
+
+def as_connection_type(type_value):
+    @toolz.curry
+    def has_value(value, enum_type):
+        return value == enum_type.value
+
+    return toolz.pipe(iter(ConnectionType),
+                      toolz.filter(has_value(type_value)),
+                      toolz.nth(0))
 
 
 class NativeStageAdapter(dna.DotNetAdapter):
@@ -40,11 +60,20 @@ class NativeStageAdapter(dna.DotNetAdapter):
         self.calculations_factory = Calculations.FractureDiagnosticsCalculationsFactory() \
             if not calculations_factory else calculations_factory
 
-    display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage.')
-    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment.', as_datetime)
-    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment.', as_datetime)
-    display_name_with_well = dna.dom_property('display_name_with_well', 'The display stage number including the well')
     cluster_count = dna.dom_property('number_of_clusters', 'The number of clusters for this stage')
+    display_name_with_well = dna.dom_property('display_name_with_well',
+                                              'The display stage number including the well name')
+    display_name_without_well = dna.dom_property('display_name_without_well',
+                                                 'The display stage number excluding the well name')
+    display_stage_number = dna.dom_property('display_stage_number', 'The display stage number for the stage')
+    global_stage_sequence_number = dna.dom_property('global_stage_sequence_number',
+                                                    'The global sequence number of this stage')
+    order_of_completion_on_well = dna.dom_property('order_of_completion_on_well',
+                                                   'The order in which this stage was completed on its well')
+    stage_type = dna.transformed_dom_property('stage_type', 'The formation connection type of this stage',
+                                              as_connection_type)
+    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', as_datetime)
+    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', as_datetime)
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
