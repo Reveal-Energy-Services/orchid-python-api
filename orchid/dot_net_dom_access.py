@@ -15,7 +15,15 @@
 # This file is part of Orchid and related technologies.
 #
 
+import uuid
+
+import deal
 import toolz.curried as toolz
+
+import orchid.validation
+
+# noinspection PyUnresolvedReferences
+from System import Guid
 
 
 # These methods in this module are based on the StackOverflow post:
@@ -107,7 +115,12 @@ def transformed_dom_property_iterator(attribute_name, docstring, transformer):
     return property(fget=getter, doc=docstring, fset=None)
 
 
+def as_uuid(guid: Guid):
+    return uuid.UUID(str(guid))
+
+
 class DotNetAdapter:
+    @deal.pre(orchid.validation.arg_not_none)
     def __init__(self, adaptee):
         """
         Construct an instance adapting a .NET IStage.
@@ -115,7 +128,7 @@ class DotNetAdapter:
         """
         self._adaptee = adaptee
 
-    object_id = dom_property('object_id', 'The object ID of the adapted .NET DOM object.')
+    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_uuid)
 
     def dom_object(self):
         """
