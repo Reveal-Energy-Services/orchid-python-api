@@ -17,7 +17,7 @@ import unittest.mock
 import uuid
 
 import deal
-from hamcrest import assert_that, equal_to, calling, raises
+from hamcrest import assert_that, equal_to, calling, raises, close_to
 
 import orchid.dot_net_dom_access as dna
 import orchid.net_quantity as onq
@@ -26,9 +26,14 @@ import orchid.net_quantity as onq
 from System import DateTime, Guid
 
 
+def increment(n):
+    return n + 1
+
+
 class StubDomObject(dna.DotNetAdapter):
     stub_property = dna.dom_property('stub_property', '')
     stub_date_time = dna.transformed_dom_property('stub_date_time', '', onq.as_datetime)
+    stub_transformed_iterator = dna.transformed_dom_property_iterator('stub_transformed_iterator', '', increment)
 
 
 class DotNetAdapterTest(unittest.TestCase):
@@ -81,6 +86,19 @@ class DomPropertyTest(unittest.TestCase):
         sut = StubDomObject(stub_adaptee)
 
         assert_that(sut.stub_date_time, equal_to(expected))
+
+    def test_transformed_dom_property_iterator_returns_transformed(self):
+        all_original_values = [[], [-34159], [2.718, -1.414, 1.717]]
+        all_expected_values = [[], [-34158], [3.718, -0.414, 2.717]]
+        for original_values, expected_values in zip(all_original_values, all_expected_values):
+            with self.subTest(original_values=original_values, expected_values=expected_values):
+                stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
+                stub_adaptee.StubTransformedIterator.Items = original_values
+                sut = StubDomObject(stub_adaptee)
+                actual_values = list(sut.stub_transformed_iterator)
+
+                for actual, expected in zip(actual_values, expected_values):
+                    assert_that(actual, close_to(expected, 6e-4))
 
 
 if __name__ == '__main__':
