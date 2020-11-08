@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime
 import unittest.mock
 import uuid
 
@@ -19,13 +20,15 @@ import deal
 from hamcrest import assert_that, equal_to, calling, raises
 
 import orchid.dot_net_dom_access as dna
+import orchid.net_quantity as onq
 
 # noinspection PyUnresolvedReferences
-from System import Guid
+from System import DateTime, Guid
 
 
 class StubDomObject(dna.DotNetAdapter):
     stub_property = dna.dom_property('stub_property', '')
+    stub_date_time = dna.transformed_dom_property('stub_date_time', '', onq.as_datetime)
 
 
 class DotNetAdapterTest(unittest.TestCase):
@@ -68,6 +71,16 @@ class DomPropertyTest(unittest.TestCase):
                 sut = StubDomObject(stub_adaptee)
 
                 assert_that(sut.stub_property, equal_to(expected))
+
+    @staticmethod
+    def test_transformed_dom_property_returns_datetime():
+        expected = datetime.datetime(2016, 10, 16, 1, 44, 56, 305000)
+        actual = DateTime(2016, 10, 16, 1, 44, 56, 305)
+        stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
+        stub_adaptee.StubDateTime = actual
+        sut = StubDomObject(stub_adaptee)
+
+        assert_that(sut.stub_date_time, equal_to(expected))
 
 
 if __name__ == '__main__':
