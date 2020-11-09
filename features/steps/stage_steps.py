@@ -24,7 +24,7 @@ import toolz.curried as toolz
 
 import orchid.native_stage_adapter as nsa
 import orchid.physical_quantity as opq
-import orchid.reference_origin as oro
+import orchid.reference_origins as origins
 import orchid.unit_system as units
 
 
@@ -125,10 +125,10 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     in_length_unit_abbreviation = context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))
     in_length_unit = units.abbreviation_to_unit(in_length_unit_abbreviation)
     assert_measurement_equal(
-        stage_of_interest.center_location_easting(in_length_unit, oro.WellReferenceFrameXy.PROJECT),
+        stage_of_interest.center_location_easting(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
         easting)
     assert_measurement_equal(
-        stage_of_interest.center_location_northing(in_length_unit, oro.WellReferenceFrameXy.PROJECT),
+        stage_of_interest.center_location_northing(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
         northing)
     assert_measurement_equal(
         stage_of_interest.center_location_tvdss(in_length_unit),
