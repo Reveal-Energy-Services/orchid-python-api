@@ -209,8 +209,15 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
     well_of_interest = find_well_by_name(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
 
-    subsurface_location = stage_of_interest.top_location(frame, origins.DepthDatum.KELLY_BUSHING,
-                                                         context.project.units[opq.PhysicalQuantity.LENGTH])
+    length_unit_abbreviation = context.project.unit_abbreviation(opq.PhysicalQuantity.LENGTH)
+    length_unit = units.abbreviation_to_unit(length_unit_abbreviation)
+
+    frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                 'Project': origins.WellReferenceFrameXy.PROJECT,
+                                 'Well Head': origins.WellReferenceFrameXy.WELL_HEAD}
+    reference_frame = frame_reference_frame_map[frame]
+
+    subsurface_location = stage_of_interest.top_location(length_unit, reference_frame, origins.DepthDatum.KELLY_BUSHING)
 
     assert_measurement_equal(subsurface_location.x, x)
     assert_measurement_equal(subsurface_location.y, y)

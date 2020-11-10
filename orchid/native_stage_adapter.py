@@ -236,6 +236,25 @@ class NativeStageAdapter(dna.DotNetAdapter):
         result = make_measurement(length_magnitude, length_unit_abbreviation)
         return result
 
+    def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                     xy_reference_frame: origins.WellReferenceFrameXy,
+                     depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
+        """
+        Return the location of the top of this stage in the `xy_well_reference_frame` using the `depth_datum`
+        in the specified unit.
+
+        Args:
+            in_length_unit: The unit of length available from the returned value.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The `BaseSubsurfacePoint` of the stage top.
+        """
+        net_subsurface_point = self._adaptee.GetStageLocationTop(xy_reference_frame.value, depth_datum.value)
+        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+        return result
+
     def treatment_curves(self):
         """
         Returns the dictionary of treatment curves for this treatment_stage.
