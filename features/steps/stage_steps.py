@@ -151,24 +151,8 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
         global_stage_no (int): The global stage sequence number.
         connection (str): The name of the formation connection type of this stage.
     """
-    @toolz.curry
-    def has_well_name(well_name, candidate_well):
-        return candidate_well.name == well_name
-
-    wells_of_interest = toolz.pipe(context.stages_for_wells,
-                                   toolz.keyfilter(has_well_name(well)))
-    assert_that(toolz.count(wells_of_interest), equal_to(1))
-    well_of_interest = toolz.nth(0, wells_of_interest)
-
-    @toolz.curry
-    def has_stage_no(displayed_stage_no, candidate_stage):
-        return candidate_stage.display_stage_number == displayed_stage_no
-
-    stages_of_interest = toolz.pipe(context.stages_for_wells[well_of_interest],
-                                    toolz.filter(has_stage_no(stage_no)),
-                                    list)
-    assert_that(toolz.count(stages_of_interest), equal_to(1))
-    stage_of_interest = toolz.nth(0, stages_of_interest)
+    well_of_interest = find_well_by_name(context, well)
+    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
 
     assert_that(stage_of_interest.display_name_without_well, equal_to(name_without_well))
     assert_that(stage_of_interest.order_of_completion_on_well, equal_to(order))
@@ -182,3 +166,52 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
         return name_to_type_map[connection_name]
 
     assert_that(stage_of_interest.stage_type, equal_to(connection_name_to_type(connection)))
+
+
+def find_stage_by_stage_no(context, stage_no, well_of_interest):
+    @toolz.curry
+    def has_stage_no(displayed_stage_no, candidate_stage):
+        return candidate_stage.display_stage_number == displayed_stage_no
+
+    candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
+                            toolz.filter(has_stage_no(stage_no)),
+                            list)
+    assert_that(toolz.count(candidates), equal_to(1))
+    result = toolz.nth(0, candidates)
+    return result
+
+
+def find_well_by_name(context, name):
+    @toolz.curry
+    def has_well_name(well_name, candidate_well):
+        return candidate_well.name == well_name
+
+    candidates = toolz.pipe(context.stages_for_wells,
+                            toolz.keyfilter(has_well_name(name)))
+    assert_that(toolz.count(candidates), equal_to(1))
+    result = toolz.nth(0, candidates)
+    return result
+
+
+# noinspection PyBDDParameters
+@step("I see stage top location {well}, {stage_no:d}, {frame}, {x}, {y}, and {depth}")
+def step_impl(context, well, stage_no, frame, x, y, depth):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number of interest.
+        frame (str): The well reference frame in which the measurements are made.
+        x (str): The x-coordinate (easting) of the stage top subsurface location.
+        y (str): The y-coordinate (northing) of the stage top subsurface location.
+        depth (str): The depth (TVDSS) of the stage top subsurface location.
+    """
+    well_of_interest = find_well_by_name(context, well)
+    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
+
+    subsurface_location = stage_of_interest.top_location(frame, origins.DepthDatum.KELLY_BUSHING,
+                                                         context.project.units[opq.PhysicalQuantity.LENGTH])
+
+    assert_measurement_equal(subsurface_location.x, x)
+    assert_measurement_equal(subsurface_location.y, y)
+    assert_measurement_equal(subsurface_location.depth, depth)
