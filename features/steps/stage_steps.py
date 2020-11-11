@@ -25,7 +25,6 @@ import toolz.curried as toolz
 import orchid.native_stage_adapter as nsa
 import orchid.physical_quantity as opq
 import orchid.reference_origins as origins
-import orchid.unit_system as units
 
 
 # noinspection PyBDDParameters
@@ -122,8 +121,8 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     """
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
-    in_length_unit_abbreviation = context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))
-    in_length_unit = units.abbreviation_to_unit(in_length_unit_abbreviation)
+    in_length_unit = context.project.project_units.LENGTH
+    in_length_unit_abbreviation = in_length_unit.value.abbreviation
     assert_measurement_equal(
         stage_of_interest.center_location_easting(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
         easting)
