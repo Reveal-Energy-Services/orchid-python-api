@@ -209,8 +209,7 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
     well_of_interest = find_well_by_name(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
 
-    length_unit_abbreviation = context.project.unit_abbreviation(opq.PhysicalQuantity.LENGTH)
-    length_unit = units.abbreviation_to_unit(length_unit_abbreviation)
+    length_unit = context.project.project_units.LENGTH
 
     frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                  'Project': origins.WellReferenceFrameXy.PROJECT,
