@@ -25,6 +25,7 @@ import toolz.curried as toolz
 
 from orchid.project import Project
 from orchid.project_loader import ProjectLoader
+import orchid.unit_system as units
 from tests.stub_net import create_stub_net_project
 
 
@@ -56,6 +57,27 @@ class TestProject(unittest.TestCase):
         stub_native_project = create_stub_net_project(name='commodorum')
         sut = create_sut(stub_native_project)
         assert_that(sut.name, equal_to('commodorum'))
+
+    def test_project_units_if_known(self):
+        for expected_project_units in [units.Metric, units.UsOilfield]:
+            with self.subTest(expected_project_units=expected_project_units):
+                stub_native_project = create_stub_net_project(project_units=expected_project_units)
+                sut = create_sut(stub_native_project)
+
+                assert_that(sut.project_units, equal_to(expected_project_units))
+
+    def test_project_units_raises_type_error_if_unknown(self):
+        stub_native_project = create_stub_net_project()
+        sut = create_sut(stub_native_project)
+
+        # I define this "phony" function because the expression returned by a property **is not** a
+        # `callable`. By wrapping this expression in a function, I can than use `calling` and `raises`
+        # to test for an expected exception.
+        def phony_function():
+            print(sut.project_units)
+
+        # noinspection PyTypeChecker
+        assert_that(calling(phony_function), raises(ValueError, pattern='^Unrecognized unit system'))
 
     def test_wells_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')
