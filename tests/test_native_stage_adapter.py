@@ -19,26 +19,18 @@ from collections import namedtuple
 from datetime import datetime
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items
+from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items, instance_of
 import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
-from orchid.net_quantity import as_net_date_time, as_net_quantity
+from orchid.net_quantity import as_net_quantity
 import orchid.native_stage_adapter as nsa
 import orchid.native_treatment_curve_facade as ntc
-from orchid.net_quantity import as_net_quantity_in_different_unit
 import orchid.reference_origin as oro
 import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
-
-
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import IStage, IStageSampledQuantityTimeSeries, ISubsurfacePoint
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Calculations import IFractureDiagnosticsCalculationsFactory, ITreatmentCalculations
-# noinspection PyUnresolvedReferences
-import UnitsNet
+import tests.stub_net as tsn
 
 
 AboutCenter = namedtuple('AboutCenter', ['x', 'y', 'depth', 'unit'])
@@ -69,8 +61,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for (actual_center, expected_center, origin_reference) in\
                 zip(actual_centers, expected_centers, origin_references):
             def center_mock_func(*args):
-                result = unittest.mock.MagicMock(name='stub_net_subsurface_point',
-                                                 spec='ISubsurfacePoint')
+                result = tsn.create_stub_net_subsurface_point()
                 if (args[0] == oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
                         args[1] == oro.DepthDatum.GROUND_LEVEL):
                     result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
@@ -86,9 +77,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                     result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
                 return result
 
-            stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-            stub_net_stage.GetStageLocationCenter = unittest.mock.MagicMock(name='stub_get_stage_location_center',
-                                                                            side_effect=center_mock_func)
+            stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
             sut = nsa.NativeStageAdapter(stub_net_stage)
 
             actual = sut.center_location(expected_center.unit, origin_reference.xy, origin_reference.depth)
@@ -101,9 +90,8 @@ class TestNativeStageAdapter(unittest.TestCase):
             tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
 
     def test_display_stage_number(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_display_stage_number = 11
-        stub_net_stage.DisplayStageNumber = expected_display_stage_number
+        stub_net_stage = tsn.create_stub_net_stage(display_stage_no=expected_display_stage_number)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
@@ -114,8 +102,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                          (make_measurement(13467.8, 'ft'), make_measurement(4104.98, 'm')),
                                          (make_measurement(3702.48, 'm'), make_measurement(12147.2, 'ft'))]:
             with self.subTest(expected_top=actual_top):
-                stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-                stub_net_stage.MdTop = as_net_quantity_in_different_unit(actual_top, actual_top.unit)
+                stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top.unit)
@@ -123,76 +110,63 @@ class TestNativeStageAdapter(unittest.TestCase):
                 assert_that(actual_top.unit, equal_to(expected_top.unit))
 
     def test_md_bottom(self):
-        for actual_top, expected_top in [(make_measurement(13806.7, 'ft'), make_measurement(13806.7, 'ft')),
-                                         (make_measurement(4608.73, 'm'), make_measurement(4608.73, 'm')),
-                                         (make_measurement(12147.2, 'ft'), make_measurement(3702.47, 'm')),
-                                         (make_measurement(4608.73, 'm'), make_measurement(15120.5, 'ft'))]:
-            with self.subTest(expected_top=actual_top):
-                stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-                stub_net_stage.MdBottom = as_net_quantity_in_different_unit(actual_top, actual_top.unit)
+        for actual_bottom, expected_bottom in [(make_measurement(13806.7, 'ft'), make_measurement(13806.7, 'ft')),
+                                               (make_measurement(4608.73, 'm'), make_measurement(4608.73, 'm')),
+                                               (make_measurement(12147.2, 'ft'), make_measurement(3702.47, 'm')),
+                                               (make_measurement(4608.73, 'm'), make_measurement(15120.5, 'ft'))]:
+            with self.subTest(expected_bottom=actual_bottom):
+                stub_net_stage = tsn.create_stub_net_stage(
+                    md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
-                actual_top = sut.md_bottom(expected_top.unit)
-                assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
-                assert_that(actual_top.unit, equal_to(expected_top.unit))
+                actual_bottom = sut.md_bottom(expected_bottom.unit)
+                assert_that(actual_bottom.magnitude, close_to(expected_bottom.magnitude, 0.05))
+                assert_that(actual_bottom.unit, equal_to(expected_bottom.unit))
 
     def test_start_time(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
-        stub_net_stage.StartTime = as_net_date_time(expected_start_time)
+        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_start_time = sut.start_time
         assert_that(actual_start_time, equal_to(expected_start_time))
 
     def test_stop_time(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000)
-        stub_net_stage.StopTime = as_net_date_time(expected_stop_time)
+        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_treatment_curves_no_curves(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
-        stub_net_stage.TreatmentCurves.Items = []
+        stub_net_stage = tsn.create_stub_net_stage()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curve = sut.treatment_curves()
         assert_that(actual_curve, empty())
 
     def test_treatment_curves_one_curve(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_sampled_quantity_name = 'Slurry Rate'
-        stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
-        stub_treatment_curve.SampledQuantityName = expected_sampled_quantity_name
-        stub_net_stage.TreatmentCurves.Items = [stub_treatment_curve]
+        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=[expected_sampled_quantity_name])
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
         assert_that(actual_curves.keys(), contains_exactly(expected_sampled_quantity_name))
-        assert_that(toolz.map(lambda c: c.sampled_quantity_name, actual_curves.values()),
-                    contains_exactly(expected_sampled_quantity_name))
+        toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
     def test_treatment_curves_many_curves(self):
-        stub_net_stage = unittest.mock.MagicMock(name='stub_net_stage', spec=IStage)
         expected_sampled_quantity_names = ['Pressure', 'Slurry Rate', 'Proppant Concentration']
-        expected_curve_names = [ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.TREATING_PRESSURE]
-
-        def make_stub_treatment_curve(name):
-            stub_treatment_curve = unittest.mock.MagicMock(name='Treatment Curve', spec=IStageSampledQuantityTimeSeries)
-            stub_treatment_curve.SampledQuantityName = name
-            return stub_treatment_curve
-
-        stub_treatment_curves = toolz.map(make_stub_treatment_curve, expected_sampled_quantity_names)
-        stub_net_stage.TreatmentCurves.Items = stub_treatment_curves
+        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
-        assert_that(actual_curves.keys(), has_items(*expected_curve_names))
-        assert_that(toolz.map(lambda c: c.sampled_quantity_name, actual_curves.values()),
-                    has_items(*expected_sampled_quantity_names))
+        assert_that(actual_curves.keys(), has_items(ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.TREATING_PRESSURE))
+        toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
+
+
+def assert_is_native_treatment_curve_facade(curve):
+    assert_that(curve, instance_of(ntc.NativeTreatmentCurveFacade))
 
 
 if __name__ == '__main__':

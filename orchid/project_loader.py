@@ -81,7 +81,7 @@ class ScriptAdapterContext:
     context when the read operation is finished.
 
     For information on Python context managers, see
-    [the Python docs](https://docs.python.org/3.7/library/stdtypes.html#context-manager-types)
+    [the Python docs](https://docs.python.org/3.8/library/stdtypes.html#context-manager-types)
     """
 
     def __enter__(self):

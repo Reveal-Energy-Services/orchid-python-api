@@ -25,14 +25,9 @@ import orchid.unit_system as units
 import tests.custom_matchers as tcm
 import tests.stub_net as stub_net
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import ISubsurfacePoint
-# noinspection PyUnresolvedReferences
-import UnitsNet
-
 
 def create_sut(x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
-    stub_subsurface_point = stub_net.create_stub_subsurface_point(x, y, depth, xy_origin, depth_origin)
+    stub_subsurface_point = stub_net.create_stub_net_subsurface_point(x, y, depth, xy_origin, depth_origin)
 
     sut = nsp.SubsurfacePoint(stub_subsurface_point)
     return sut

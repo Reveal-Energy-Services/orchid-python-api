@@ -24,7 +24,7 @@ import orchid
 
 
 class TestCoreLoadProject(unittest.TestCase):
-    def test_canary (self):
+    def test_canary(self):
         assert_that(2 + 2, is_(equal_to(4)))
 
     def test_no_pathname_load_project_raises_exception(self):

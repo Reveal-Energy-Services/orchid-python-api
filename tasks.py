@@ -64,18 +64,20 @@ def remove_files_matching_pattern(glob_pattern):
     root_dir = pathlib.Path('.')
     log.debug(f'root_dir={str(root_dir.resolve())}')
     for to_remove in root_dir.glob(glob_pattern):
+        log.debug(f'Removing path, {str(to_remove.resolve())}')
         try:
-            # Not until 3.8
-            # to_remove.unlink(missing_ok=True)
-            log.debug(f'Removing path, {str(to_remove.resolve())}')
-            if to_remove.is_dir():
-                shutil.rmtree(to_remove)
-            else:
-                to_remove.unlink()
+            try:
+                to_remove.unlink(missing_ok=True)
+            except TypeError:
+                try:
+                    if to_remove.is_dir():
+                        shutil.rmtree(to_remove)
+                    else:
+                        to_remove.unlink()
+                except FileNotFoundError:
+                    # Skip if Python less than 3.8
+                    pass
             log.debug(f'Removed path, {str(to_remove.resolve())}')
-        except FileNotFoundError:
-            # Skip if Python less than 3.8
-            pass
         except OSError as ose:
             print(f'Error removing path, {str(to_remove.resolve())}: {ose}')
 
@@ -178,13 +180,13 @@ def pipfile_to_poetry(_context):
 
 
 @task
-def pipenv_create_venv(context, dirname='.', python_ver='3.7.7'):
+def pipenv_create_venv(context, dirname='.', python_ver='3.8.6'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
         context: The task context.
-        dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
-        python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
+        dirname (str): The pathname of the directory whose virtual environment is to be created. (Default '.')
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.6).
     """
     with context.cd(dirname):
         context.run(f'pipenv install --python={python_ver}')
@@ -261,19 +263,19 @@ def poetry_configure_test_pypi(context):
 
 
 @task
-def poetry_create_venv(context, dirname='.', python_ver='3.7.7'):
+def poetry_create_venv(context, dirname='.', python_ver='3.8.6'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
         context: The task context.
-        dirname (str): The pathname of the directory whose virtual environment is to be removed. (Default '.')
-        python_ver (str): The version of Python to install in the virtual environment (Default: 3.7.7).
+        dirname (str): The pathname of the directory whose virtual environment is to be created. (Default '.')
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.6).
     """
     python_minor_versions = ['37', '38']
     python_exe_relative_paths = [pathlib.Path('Programs').joinpath('Python', f'Python{v}', 'python.exe') for
                                  v in python_minor_versions]
     python_paths = [pathlib.Path(os.environ['LOCALAPPDATA']).joinpath(rp) for rp in python_exe_relative_paths]
-    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.4'), python_paths)}
+    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.6'), python_paths)}
     python_option = python_option_map.get(python_ver, '')
     with context.cd(dirname):
         context.run(f'poetry env use {python_option}')
@@ -325,7 +327,6 @@ def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
 
     with context.cd(dirname):
         context.run(f'poetry env remove {venv_name or python_path}')
-        # context.run('del pyproject.toml')
 
 
 @task
@@ -352,17 +353,6 @@ def poetry_update_version(_context):
 
     with open('pyproject.toml', 'w') as out_stream:
         out_stream.write(toml.dumps(target_toml))
-
-
-# Steps for poetry
-# Create a virtual environment
-# - Create new "project": `poetry new`
-# - Change `pyproject.toml` to use Python 3.7
-# - Configure poetry to use Python 3.7 `poetry env use /full/path/to/python3.7/binary`
-# - Create virtual environment `poetry shell`
-# Install orchid in newly created virtual environment
-# - Remove all files is target directory except `pyproject.toml`
-# - Execute `pip install /path/to/dist/to_install`
 
 
 # Create and organize namespaces
