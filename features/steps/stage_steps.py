@@ -22,6 +22,7 @@ use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import toolz.curried as toolz
 
+import orchid.native_stage_adapter as nsa
 import orchid.physical_quantity as opq
 import orchid.reference_origin as oro
 import orchid.unit_system as units
@@ -135,3 +136,49 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     assert_measurement_equal(
         stage_of_interest.stage_length(in_length_unit_abbreviation),
         length)
+
+
+# noinspection PyBDDParameters
+@step("I see basic data {well}, {stage_no:d}, {name_without_well}, {order:d}, {global_stage_no:d}, and {connection}")
+def step_impl(context, well, stage_no, name_without_well, order, global_stage_no, connection):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number.
+        name_without_well (str): The name of the stage **without** the well name.
+        order (int): The order of stage completion for this well.
+        global_stage_no (int): The global stage sequence number.
+        connection (str): The name of the formation connection type of this stage.
+    """
+    @toolz.curry
+    def has_well_name(well_name, candidate_well):
+        return candidate_well.name == well_name
+
+    wells_of_interest = toolz.pipe(context.stages_for_wells,
+                                   toolz.keyfilter(has_well_name(well)))
+    assert_that(toolz.count(wells_of_interest), equal_to(1))
+    well_of_interest = toolz.nth(0, wells_of_interest)
+
+    @toolz.curry
+    def has_stage_no(displayed_stage_no, candidate_stage):
+        return candidate_stage.display_stage_number == displayed_stage_no
+
+    stages_of_interest = toolz.pipe(context.stages_for_wells[well_of_interest],
+                                    toolz.filter(has_stage_no(stage_no)),
+                                    list)
+    assert_that(toolz.count(stages_of_interest), equal_to(1))
+    stage_of_interest = toolz.nth(0, stages_of_interest)
+
+    assert_that(stage_of_interest.display_name_without_well, equal_to(name_without_well))
+    assert_that(stage_of_interest.order_of_completion_on_well, equal_to(order))
+    assert_that(stage_of_interest.global_stage_sequence_number, equal_to(global_stage_no))
+
+    def connection_name_to_type(connection_name):
+        name_to_type_map = {'PlugAndPerf': nsa.ConnectionType.PLUG_AND_PERF,
+                            'SlidingSleeve': nsa.ConnectionType.SLIDING_SLEEVE,
+                            'SinglePointEntry': nsa.ConnectionType.SINGLE_POINT_ENTRY,
+                            'OpenHole': nsa.ConnectionType.OPEN_HOLE}
+        return name_to_type_map[connection_name]
+
+    assert_that(stage_of_interest.stage_type, equal_to(connection_name_to_type(connection)))
