@@ -43,20 +43,11 @@ def make_subsurface_coordinate(coord, unit):
 
 
 @toolz.curry
-def mock_subsurface_point_func(expected_location, xy_origin, depth_origin):
+def mock_subsurface_point_func(expected_location,
+                               expected_xy_origin, expected_depth_origin,
+                               actual_xy_origin, actual_depth_origin):
     result = tsn.create_stub_net_subsurface_point()
-    if (xy_origin == origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
-            depth_origin == origins.DepthDatum.GROUND_LEVEL):
-        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
-        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
-        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
-    elif (xy_origin == origins.WellReferenceFrameXy.PROJECT and
-          depth_origin == origins.DepthDatum.KELLY_BUSHING):
-        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
-        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
-        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
-    elif (xy_origin == origins.WellReferenceFrameXy.WELL_HEAD and
-          depth_origin == origins.DepthDatum.SEA_LEVEL):
+    if expected_xy_origin == actual_xy_origin and expected_depth_origin == actual_depth_origin:
         result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
         result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
         result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
@@ -70,24 +61,25 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_bottom_location_returns_stage_location_center_in_requested_unit(self):
-        actual_bottoms = [AboutLocation(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
-                          AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
-                          AboutLocation(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
-        expected_bottoms = [AboutLocation(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
-                            AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
-                            AboutLocation(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
-        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+        actual_bottoms = [AboutLocation(396924, -3247781, 6423.56, units.UsOilfield.LENGTH),
+                          AboutLocation(791628, 3859627, 7773.03, units.UsOilfield.LENGTH),
+                          AboutLocation(251799.84, 186541.56, 2263.19, units.Metric.LENGTH)]
+        expected_bottoms = [AboutLocation(396924, -3247781, 6423.56, units.UsOilfield.LENGTH),
+                            AboutLocation(241288.21, 1176414.27, 2369.22, units.Metric.LENGTH),
+                            AboutLocation(826115, 612013, 7425.16, units.UsOilfield.LENGTH)]
+        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
                                          origins.DepthDatum.GROUND_LEVEL),
-                             AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
-                                         origins.DepthDatum.KELLY_BUSHING),
+                             AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                         origins.DepthDatum.SEA_LEVEL),
                              AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD,
-                                         origins.DepthDatum.SEA_LEVEL)]
+                                         origins.DepthDatum.KELLY_BUSHING)]
 
         for (actual_bottom, expected_bottom, origin_reference) in \
                 zip(actual_bottoms, expected_bottoms, origin_references):
             with self.subTest(actual_bottom=actual_bottom, expected_bottom=expected_bottom,
                               origin_reference=origin_reference):
-                bottom_mock_func = mock_subsurface_point_func(actual_bottom)
+                bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
+                                                              origin_reference.depth)
 
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
@@ -119,7 +111,8 @@ class TestNativeStageAdapter(unittest.TestCase):
                 zip(actual_centers, expected_centers, origin_references):
             with self.subTest(actual_center=actual_center, expected_center=expected_center,
                               origin_reference=origin_reference):
-                center_mock_func = mock_subsurface_point_func(actual_center)
+                center_mock_func = mock_subsurface_point_func(actual_center, origin_reference.xy,
+                                                              origin_reference.depth)
 
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
