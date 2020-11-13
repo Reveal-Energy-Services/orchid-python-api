@@ -87,7 +87,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 zip(actual_bottoms, expected_bottoms, origin_references):
             with self.subTest(actual_bottom=actual_bottom, expected_bottom=expected_bottom,
                               origin_reference=origin_reference):
-                bottom_mock_func = mock_subsurface_point_func(expected_bottom)
+                bottom_mock_func = mock_subsurface_point_func(actual_bottom)
 
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
@@ -119,7 +119,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 zip(actual_centers, expected_centers, origin_references):
             with self.subTest(actual_center=actual_center, expected_center=expected_center,
                               origin_reference=origin_reference):
-                center_mock_func = mock_subsurface_point_func(expected_center)
+                center_mock_func = mock_subsurface_point_func(actual_center)
 
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
