@@ -80,7 +80,6 @@ class TestNativeStageAdapter(unittest.TestCase):
                               origin_reference=origin_reference):
                 bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
                                                               origin_reference.depth)
-
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -90,7 +89,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                       toolz.map(toolz.flip(make_measurement, expected_bottom[-1].abbreviation)),
                                       lambda coords: tcm.SubsurfaceLocation(*coords))
                 tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
-                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
 
     def test_center_location_returns_stage_location_center_in_requested_unit(self):
@@ -113,7 +112,6 @@ class TestNativeStageAdapter(unittest.TestCase):
                               origin_reference=origin_reference):
                 center_mock_func = mock_subsurface_point_func(actual_center, origin_reference.xy,
                                                               origin_reference.depth)
-
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -175,6 +173,38 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
+
+    def test_top_location_returns_stage_location_center_in_requested_unit(self):
+        actual_tops = [AboutLocation(73080.67, -2189943.43, 2679.41, units.Metric.LENGTH),
+                       AboutLocation(520513, 398950, 9447.48, units.UsOilfield.LENGTH),
+                       AboutLocation(20437, -4844216, 5663.84, units.UsOilfield.LENGTH)]
+        expected_tops = [AboutLocation(239766, -7184854, 8790.70, units.UsOilfield.LENGTH),
+                         AboutLocation(520513, 398950, 9447.48, units.UsOilfield.LENGTH),
+                         AboutLocation(6229.20, -1476516.99, 1726.34, units.Metric.LENGTH)]
+        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD,
+                                         origins.DepthDatum.SEA_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                         origins.DepthDatum.GROUND_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
+                                         origins.DepthDatum.KELLY_BUSHING)]
+
+        for (actual_top, expected_top, origin_reference) in \
+                zip(actual_tops, expected_tops, origin_references):
+            with self.subTest(actual_top=actual_top, expected_top=expected_top,
+                              origin_reference=origin_reference):
+                top_mock_func = mock_subsurface_point_func(actual_top, origin_reference.xy,
+                                                           origin_reference.depth)
+                stub_net_stage = tsn.create_stub_net_stage(stage_location_top=top_mock_func)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual = sut.top_location(expected_top.unit, origin_reference.xy, origin_reference.depth)
+
+                expected = toolz.pipe(expected_top[:-1],
+                                      toolz.map(toolz.flip(make_measurement, expected_top[-1].abbreviation)),
+                                      lambda coords: tcm.SubsurfaceLocation(*coords))
+                tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
 
     def test_treatment_curves_no_curves(self):
         stub_net_stage = tsn.create_stub_net_stage()
