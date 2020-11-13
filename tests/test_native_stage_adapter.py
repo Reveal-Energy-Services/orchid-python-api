@@ -33,9 +33,13 @@ import tests.custom_matchers as tcm
 import tests.stub_net as tsn
 
 
-AboutCenter = namedtuple('AboutCenter', ['x', 'y', 'depth', 'unit'])
+AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
 StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
+
+
+def make_subsurface_coordinate(coord, unit):
+    return as_net_quantity(make_measurement(coord, unit.abbreviation))
 
 
 # Test ideas
@@ -45,15 +49,12 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_center_location_returns_stage_location_center_in_requested_unit(self):
-        def make_subsurface_coordinate(center_coord, center_unit):
-            return as_net_quantity(make_measurement(center_coord, center_unit.abbreviation))
-
-        actual_centers = [AboutCenter(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
-                          AboutCenter(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
-                          AboutCenter(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
-        expected_centers = [AboutCenter(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
-                            AboutCenter(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
-                            AboutCenter(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
+        actual_centers = [AboutLocation(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
+                          AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                          AboutLocation(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
+        expected_centers = [AboutLocation(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
+                            AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                            AboutLocation(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
         origin_references = [AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                          origins.DepthDatum.GROUND_LEVEL),
                              AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
