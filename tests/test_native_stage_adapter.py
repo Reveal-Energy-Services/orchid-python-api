@@ -42,6 +42,27 @@ def make_subsurface_coordinate(coord, unit):
     return as_net_quantity(make_measurement(coord, unit.abbreviation))
 
 
+@toolz.curry
+def mock_subsurface_point_func(expected_location, xy_origin, depth_origin):
+    result = tsn.create_stub_net_subsurface_point()
+    if (xy_origin == origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
+            depth_origin == origins.DepthDatum.GROUND_LEVEL):
+        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
+        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
+        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+    elif (xy_origin == origins.WellReferenceFrameXy.PROJECT and
+          depth_origin == origins.DepthDatum.KELLY_BUSHING):
+        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
+        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
+        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+    elif (xy_origin == origins.WellReferenceFrameXy.WELL_HEAD and
+          depth_origin == origins.DepthDatum.SEA_LEVEL):
+        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
+        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
+        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+    return result
+
+
 # Test ideas
 # - Treatment curves
 class TestNativeStageAdapter(unittest.TestCase):
@@ -64,22 +85,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         for (actual_center, expected_center, origin_reference) in\
                 zip(actual_centers, expected_centers, origin_references):
-            def center_mock_func(*args):
-                result = tsn.create_stub_net_subsurface_point()
-                if (args[0] == origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
-                        args[1] == origins.DepthDatum.GROUND_LEVEL):
-                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
-                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
-                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
-                elif args[0] == origins.WellReferenceFrameXy.PROJECT and args[1] == origins.DepthDatum.KELLY_BUSHING:
-                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
-                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
-                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
-                elif args[0] == origins.WellReferenceFrameXy.WELL_HEAD and args[1] == origins.DepthDatum.SEA_LEVEL:
-                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
-                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
-                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
-                return result
+            center_mock_func = mock_subsurface_point_func(expected_center)
 
             stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
             sut = nsa.NativeStageAdapter(stub_net_stage)
