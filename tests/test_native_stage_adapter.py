@@ -69,6 +69,36 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_bottom_location_returns_stage_location_center_in_requested_unit(self):
+        actual_bottoms = [AboutLocation(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
+                          AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                          AboutLocation(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
+        expected_bottoms = [AboutLocation(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
+                            AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                            AboutLocation(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
+        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                         origins.DepthDatum.GROUND_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
+                                         origins.DepthDatum.KELLY_BUSHING),
+                             AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD,
+                                         origins.DepthDatum.SEA_LEVEL)]
+
+        for (actual_bottom, expected_bottom, origin_reference) in \
+                zip(actual_bottoms, expected_bottoms, origin_references):
+            bottom_mock_func = mock_subsurface_point_func(expected_bottom)
+
+            stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
+            sut = nsa.NativeStageAdapter(stub_net_stage)
+
+            actual = sut.bottom_location(expected_bottom.unit, origin_reference.xy, origin_reference.depth)
+
+            expected = toolz.pipe(expected_bottom[:-1],
+                                  toolz.map(toolz.flip(make_measurement, expected_bottom[-1].abbreviation)),
+                                  lambda coords: tcm.SubsurfaceLocation(*coords))
+            tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
+            tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
+            tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
+
     def test_center_location_returns_stage_location_center_in_requested_unit(self):
         actual_centers = [AboutLocation(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
                           AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),

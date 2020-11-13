@@ -215,7 +215,8 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
-def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stage_location_center=None,
+def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None,
+                          stage_location_bottom=None, stage_location_center=None,
                           start_time=None, stop_time=None, treatment_curve_names=None):
     try:
         result = unittest.mock.MagicMock(name=display_stage_no, spec=IStage)
@@ -226,6 +227,10 @@ def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None, stag
         result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit_abbreviation)
     if md_bottom is not None:
         result.MdBottom = onq.as_net_quantity_in_different_unit(md_bottom.measurement, md_bottom.as_unit_abbreviation)
+    if stage_location_bottom is not None:
+        if callable(stage_location_bottom):
+            result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
+                                                                    side_effect=stage_location_bottom)
     if stage_location_center is not None:
         if callable(stage_location_center):
             result.GetStageLocationCenter = unittest.mock.MagicMock('stub_get_stage_center_location',
