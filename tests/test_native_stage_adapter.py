@@ -30,8 +30,7 @@ import orchid.reference_origins as origins
 import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
-import tests.stub_net as tsn
-
+from tests import stub_net as tsn
 
 AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
@@ -54,8 +53,14 @@ def mock_subsurface_point_func(expected_location,
     return result
 
 
+def create_expected(expected_location):
+    expected = toolz.pipe(expected_location[:-1],
+                          toolz.map(toolz.flip(make_measurement, expected_location[-1].abbreviation)),
+                          lambda coords: tcm.SubsurfaceLocation(*coords))
+    return expected
+
+
 # Test ideas
-# - Treatment curves
 class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -81,13 +86,12 @@ class TestNativeStageAdapter(unittest.TestCase):
                 bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
                                                               origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
-                sut = nsa.NativeStageAdapter(stub_net_stage)
+                sut1 = nsa.NativeStageAdapter(stub_net_stage)
+                sut = sut1
 
                 actual = sut.bottom_location(expected_bottom.unit, origin_reference.xy, origin_reference.depth)
 
-                expected = toolz.pipe(expected_bottom[:-1],
-                                      toolz.map(toolz.flip(make_measurement, expected_bottom[-1].abbreviation)),
-                                      lambda coords: tcm.SubsurfaceLocation(*coords))
+                expected = create_expected(expected_bottom)
                 tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
@@ -117,9 +121,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
                 actual = sut.center_location(expected_center.unit, origin_reference.xy, origin_reference.depth)
 
-                expected = toolz.pipe(expected_center[:-1],
-                                      toolz.map(toolz.flip(make_measurement, expected_center[-1].abbreviation)),
-                                      lambda coords: tcm.SubsurfaceLocation(*coords))
+                expected = create_expected(expected_center)
                 tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
@@ -199,9 +201,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
                 actual = sut.top_location(expected_top.unit, origin_reference.xy, origin_reference.depth)
 
-                expected = toolz.pipe(expected_top[:-1],
-                                      toolz.map(toolz.flip(make_measurement, expected_top[-1].abbreviation)),
-                                      lambda coords: tcm.SubsurfaceLocation(*coords))
+                expected = create_expected(expected_top)
                 tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
