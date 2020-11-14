@@ -52,7 +52,7 @@ Feature: Low-level DOM API (stage)
     And I see basic data <well>, <stage_no>, <name_without_well>, <order>, <global_stage_no>, and <connection>
 
     Examples: Bakken
-      | field  | well    | stage_no | name_without_well | order | global_stage_no | connection |
+      | field  | well    | stage_no | name_without_well | order | global_stage_no | connection  |
       | Bakken | Demo_1H | 1        | Stage-1           | 0     | 4               | PlugAndPerf |
       | Bakken | Demo_1H | 50       | Stage-50          | 49    | 128             | PlugAndPerf |
       | Bakken | Demo_1H | 4        | Stage-4           | 3     | 10              | PlugAndPerf |
@@ -84,3 +84,43 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 2        | Stage-2           | 1     | 14              | PlugAndPerf |
       | Montney | Vert_01 | 3        | Stage-3           | 2     | 16              | PlugAndPerf |
       | Montney | Vert_01 | 4        | Stage-4           | 3     | 18              | PlugAndPerf |
+
+  Scenario Outline: Calculate the location top for a stage
+    Given I have loaded the project for the field, '<field>'
+    When I query the stages for each well in the project
+    And I see stage top location <well>, <stage_no>, <frame>, <x>, <y>, and <depth>
+
+    Examples: Bakken
+      | field  | well    | stage_no | frame       | x             | y              | depth       |
+      | Bakken | Demo_1H | 1        | Well Head   | -9899.14 ft   | 1327.94 ft     | 10707.58 ft |
+      | Bakken | Demo_1H | 50       | Well Head   | -295.65 ft    | 1320.65 ft     | 10769.85 ft |
+      | Bakken | Demo_1H | 4        | State Plane | 1980052.61 ft | 17498020.42 ft | 10714.07 ft |
+      | Bakken | Demo_1H | 38       | Project     | -15644.53 ft  | 36875.19 ft    | 10758.84 ft |
+      | Bakken | Demo_2H | 1        | Project     | -22882.73 ft  | 36101.34 ft    | 10712.22 ft |
+      | Bakken | Demo_2H | 50       | State Plane | 1989203.51 ft | 17497324.76 ft | 10768.23 ft |
+      | Bakken | Demo_2H | 38       | Well Head   | -2567.44 ft   | 667.26 ft      | 10754.86 ft |
+      | Bakken | Demo_2H | 19       | State Plane | 1983088.30 ft | 17497264.42 ft | 10727.03 ft |
+      | Bakken | Demo_3H | 1        | State Plane | 1989848.04 ft | 17496270.86 ft | 10767.89 ft |
+      | Bakken | Demo_4H | 1        | Well Head   | -9863.91 ft   | -759.13 ft     | 10717.53 ft |
+      | Bakken | Demo_4H | 35       | Project     | -13344.88 ft  | 34590.82 ft    | 10762.90 ft |
+      | Bakken | Demo_4H | 8        | State Plane | 1981194.48 ft | 17495772.14 ft | 10729.40 ft |
+      | Bakken | Demo_4H | 33       | State Plane | 1988534.51 ft | 17495772.51 ft | 10766.40 ft |
+
+    Examples: Montney
+      | field   | well    | stage_no | frame       | x           | y            | depth     |
+      | Montney | Hori_01 | 1        | Well Head   | 2344.53 m   | -1968.70 m   | 988.91 m  |
+      | Montney | Hori_01 | 15       | Project     | -478.23 m   | 127.63 m     | 964.28 m  |
+      | Montney | Hori_01 | 7        | Project     | 785.50 m    | -853.64 m    | 977.35 m  |
+      | Montney | Hori_01 | 10       | State Plane | 657510.84 m | 6178480.55 m | 973.21 m  |
+      | Montney | Hori_02 | 1        | Well Head   | 2423.59 m   | -1832.70 m   | 1091.25 m |
+      | Montney | Hori_02 | 29       | Project     | -322.66 m   | 180.15 m     | 1078.73 m |
+      | Montney | Hori_02 | 10       | State Plane | 658324.33 m | 6178037.58 m | 1088.78 m |
+      | Montney | Hori_02 | 26       | Project     | -91.15 m    | 8.58 m       | 1080.80 m |
+      | Montney | Hori_03 | 1        | Project     | 1802.08 m   | -1265.32 m   | 970.70 m  |
+      | Montney | Hori_03 | 28       | State Plane | 656830.01 m | 6179288.49 m | 961.03 m  |
+      | Montney | Hori_03 | 6        | Project     | 1406.83 m   | -959.62 m    | 964.31 m  |
+      | Montney | Hori_03 | 21       | Well Head   | 829.56 m    | -426.24 m    | 964.87 m  |
+      | Montney | Vert_01 | 1        | Well Head   | 0.00 m      | 0.00 m       | 1039.00 m |
+      | Montney | Vert_01 | 2        | State Plane | 659044.57 m | 6177836.62 m | 989.00 m  |
+      | Montney | Vert_01 | 3        | Well Head   | 0.00 m      | 0.00 m       | 939.00 m  |
+      | Montney | Vert_01 | 4        | Project     | 1842.15 m   | -1133.05 m   | 889.00 m  |

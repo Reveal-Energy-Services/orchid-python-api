@@ -66,4 +66,8 @@ def unit_abbreviation(net_project, physical_quantity):
                              'proppant concentration': proppant_concentration_unit,
                              'temperature': temperature_unit}
 
-    return quantity_function_map[physical_quantity](net_project)
+    try:
+        physical_quantity_name = physical_quantity.value.name
+    except AttributeError:
+        physical_quantity_name = physical_quantity
+    return quantity_function_map[physical_quantity_name](net_project)

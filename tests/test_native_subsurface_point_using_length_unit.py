@@ -18,7 +18,7 @@ from hamcrest import assert_that, equal_to
 
 import orchid.measurement as om
 import orchid.native_subsurface_point as nsp
-import orchid.reference_origin as oro
+import orchid.reference_origins as origins
 import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
@@ -61,7 +61,7 @@ class TestNativeSubsurfacePointUsingLength(unittest.TestCase):
         tcm.assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
 
     def test_xy_origin(self):
-        expected_xy_origin = oro.WellReferenceFrameXy.PROJECT
+        expected_xy_origin = origins.WellReferenceFrameXy.PROJECT
         sut = create_sut(self.DONT_CARE_LENGTH_UNIT, xy_origin=expected_xy_origin)
 
         # The expected Python Enum equals the .NET Enum because the expected value of the Python Enum **is**
@@ -69,7 +69,7 @@ class TestNativeSubsurfacePointUsingLength(unittest.TestCase):
         assert_that(sut.xy_origin, equal_to(expected_xy_origin))
 
     def test_depth_origin(self):
-        expected_depth_origin = oro.DepthDatum.GROUND_LEVEL
+        expected_depth_origin = origins.DepthDatum.GROUND_LEVEL
         sut = create_sut(self.DONT_CARE_LENGTH_UNIT, depth_origin=expected_depth_origin)
 
         # The expected Python Enum equals the .NET Enum because the expected value of the Python Enum **is**

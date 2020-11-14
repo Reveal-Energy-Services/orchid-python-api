@@ -26,7 +26,7 @@ from orchid.measurement import Measurement
 import orchid.native_subsurface_point as nsp
 import orchid.native_treatment_curve_facade as ntc
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
-import orchid.reference_origin as oro
+import orchid.reference_origins as origins
 import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -81,7 +81,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
                 'Proppant Concentration': ntc.PROPPANT_CONCENTRATION}[sampled_quantity_name]
 
     def _center_location_depth(self, length_unit: Union[units.UsOilfield, units.Metric],
-                               depth_datum: oro.DepthDatum) -> Measurement:
+                               depth_datum: origins.DepthDatum) -> Measurement:
         """
         Return the depth of the stage center relative to the specified `depth_datum.`
 
@@ -89,14 +89,14 @@ class NativeStageAdapter(dna.DotNetAdapter):
             length_unit: The unit of length for the returned Measurement.
             depth_datum: The reference datum for the depth.
         """
-        subsurface_point = self.center_location(length_unit, oro.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+        subsurface_point = self.center_location(length_unit, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                                 depth_datum)
         return subsurface_point.depth
 
     @functools.lru_cache()
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                        xy_reference_frame: oro.WellReferenceFrameXy,
-                        depth_datum: oro.DepthDatum) -> nsp.SubsurfacePoint:
+                        xy_reference_frame: origins.WellReferenceFrameXy,
+                        depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
         """
         Return the location of the center of this stage in the `xy_well_reference_frame` using the `depth_datum`
         in the specified unit.
@@ -115,7 +115,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return result
 
     def center_location_easting(self, length_unit: Union[units.UsOilfield, units.Metric],
-                                xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+                                xy_well_reference_frame: origins.WellReferenceFrameXy) -> Measurement:
         """
         Return the easting location of the stage center relative to the specified reference frame in the
         specified unit.
@@ -127,11 +127,11 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             A measurement.
         """
-        result = self.center_location(length_unit, xy_well_reference_frame, oro.DepthDatum.KELLY_BUSHING).x
+        result = self.center_location(length_unit, xy_well_reference_frame, origins.DepthDatum.KELLY_BUSHING).x
         return result
 
     def center_location_northing(self, length_unit: Union[units.UsOilfield, units.Metric],
-                                 xy_well_reference_frame: oro.WellReferenceFrameXy) -> Measurement:
+                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> Measurement:
         """
         Return the northing location of the stage center in the `xy_well_reference_frame` in the specified unit.
 
@@ -143,7 +143,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
             A measurement.
         """
         subsurface_point = self.center_location(length_unit, xy_well_reference_frame,
-                                                oro.DepthDatum.KELLY_BUSHING)
+                                                origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.y
 
     def center_location_md(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
@@ -153,7 +153,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Args:
             length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit, oro.DepthDatum.KELLY_BUSHING)
+        return self._center_location_depth(length_unit, origins.DepthDatum.KELLY_BUSHING)
 
     def center_location_tvdgl(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
         """
@@ -162,7 +162,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Args:
             length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit, oro.DepthDatum.GROUND_LEVEL)
+        return self._center_location_depth(length_unit, origins.DepthDatum.GROUND_LEVEL)
 
     def center_location_tvdss(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
         """
@@ -171,10 +171,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Args:
             length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit, oro.DepthDatum.SEA_LEVEL)
+        return self._center_location_depth(length_unit, origins.DepthDatum.SEA_LEVEL)
 
     def center_location_xy(self, length_unit: Union[units.UsOilfield, units.Metric],
-                           xy_well_reference_frame: oro.WellReferenceFrameXy) -> Tuple[Measurement, Measurement]:
+                           xy_well_reference_frame: origins.WellReferenceFrameXy) -> Tuple[Measurement, Measurement]:
         """
         Return the easting-northing location of the stage center in the `xy_well_reference_frame` in project units.
 
@@ -186,7 +186,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
             A tuple
         """
         subsurface_point = self.center_location(length_unit, xy_well_reference_frame,
-                                                oro.DepthDatum.KELLY_BUSHING)
+                                                origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.x, subsurface_point.y
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
@@ -234,6 +234,25 @@ class NativeStageAdapter(dna.DotNetAdapter):
         length_magnitude = \
             self.md_bottom(length_unit_abbreviation).magnitude - self.md_top(length_unit_abbreviation).magnitude
         result = make_measurement(length_magnitude, length_unit_abbreviation)
+        return result
+
+    def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                     xy_reference_frame: origins.WellReferenceFrameXy,
+                     depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
+        """
+        Return the location of the top of this stage in the `xy_well_reference_frame` using the `depth_datum`
+        in the specified unit.
+
+        Args:
+            in_length_unit: The unit of length available from the returned value.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The `BaseSubsurfacePoint` of the stage top.
+        """
+        net_subsurface_point = self._adaptee.GetStageLocationTop(xy_reference_frame.value, depth_datum.value)
+        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
         return result
 
     def treatment_curves(self):

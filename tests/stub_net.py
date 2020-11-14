@@ -31,13 +31,15 @@ import toolz.curried as toolz
 
 import orchid.native_treatment_curve_facade as ontc
 import orchid.net_quantity as onq
+import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
                                         IStageSampledQuantityTimeSeries, ISubsurfacePoint,
-                                        IWellSampledQuantityTimeSeries, IWellTrajectory)
+                                        IWellSampledQuantityTimeSeries, IWellTrajectory,
+                                        UnitSystem)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences
@@ -333,8 +335,10 @@ def create_stub_net_project(name='', default_well_colors=None,
                             project_length_unit_abbreviation='',
                             project_mass_unit_abbreviation='',
                             project_pressure_unit_abbreviation='',
-                            slurry_rate_unit_abbreviation='', proppant_concentration_unit_abbreviation='',
+                            slurry_rate_unit_abbreviation='',
+                            proppant_concentration_unit_abbreviation='',
                             project_temperature_unit_abbreviation='',
+                            project_units=None,
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
                             curve_names=None, samples=None, curves_physical_quantities=None):
@@ -369,6 +373,11 @@ def create_stub_net_project(name='', default_well_colors=None,
     set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
     set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
     set_project_unit(stub_net_project, project_temperature_unit_abbreviation)
+
+    if project_units == units.UsOilfield:
+        stub_net_project.ProjectUnits = UnitSystem.USOilfield()
+    elif project_units == units.Metric:
+        stub_net_project.ProjectUnits = UnitSystem.Metric()
 
     try:
         stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
