@@ -30,30 +30,79 @@ import orchid.reference_origins as origins
 import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
-import tests.stub_net as tsn
+from tests import stub_net as tsn
 
-
-AboutCenter = namedtuple('AboutCenter', ['x', 'y', 'depth', 'unit'])
+AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
 StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 
+def make_subsurface_coordinate(coord, unit):
+    return as_net_quantity(make_measurement(coord, unit.abbreviation))
+
+
+@toolz.curry
+def mock_subsurface_point_func(expected_location,
+                               expected_xy_origin, expected_depth_origin,
+                               actual_xy_origin, actual_depth_origin):
+    result = tsn.create_stub_net_subsurface_point()
+    if expected_xy_origin == actual_xy_origin and expected_depth_origin == actual_depth_origin:
+        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
+        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
+        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+    return result
+
+
+def create_expected(expected_location):
+    expected = toolz.pipe(expected_location[:-1],
+                          toolz.map(toolz.flip(make_measurement, expected_location[-1].abbreviation)),
+                          lambda coords: tcm.SubsurfaceLocation(*coords))
+    return expected
+
+
 # Test ideas
-# - Treatment curves
 class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_center_location_returns_stage_location_center_in_requested_unit(self):
-        def make_subsurface_coordinate(center_coord, center_unit):
-            return as_net_quantity(make_measurement(center_coord, center_unit.abbreviation))
+    def test_bottom_location_returns_stage_location_center_in_requested_unit(self):
+        actual_bottoms = [AboutLocation(396924, -3247781, 6423.56, units.UsOilfield.LENGTH),
+                          AboutLocation(791628, 3859627, 7773.03, units.UsOilfield.LENGTH),
+                          AboutLocation(251799.84, 186541.56, 2263.19, units.Metric.LENGTH)]
+        expected_bottoms = [AboutLocation(396924, -3247781, 6423.56, units.UsOilfield.LENGTH),
+                            AboutLocation(241288.21, 1176414.27, 2369.22, units.Metric.LENGTH),
+                            AboutLocation(826115, 612013, 7425.16, units.UsOilfield.LENGTH)]
+        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
+                                         origins.DepthDatum.GROUND_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                         origins.DepthDatum.SEA_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD,
+                                         origins.DepthDatum.KELLY_BUSHING)]
 
-        actual_centers = [AboutCenter(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
-                          AboutCenter(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
-                          AboutCenter(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
-        expected_centers = [AboutCenter(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
-                            AboutCenter(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
-                            AboutCenter(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
+        for (actual_bottom, expected_bottom, origin_reference) in \
+                zip(actual_bottoms, expected_bottoms, origin_references):
+            with self.subTest(actual_bottom=actual_bottom, expected_bottom=expected_bottom,
+                              origin_reference=origin_reference):
+                bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
+                                                              origin_reference.depth)
+                stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
+                sut1 = nsa.NativeStageAdapter(stub_net_stage)
+                sut = sut1
+
+                actual = sut.bottom_location(expected_bottom.unit, origin_reference.xy, origin_reference.depth)
+
+                expected = create_expected(expected_bottom)
+                tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
+
+    def test_center_location_returns_stage_location_center_in_requested_unit(self):
+        actual_centers = [AboutLocation(200469.40, 549527.27, 2297.12, units.Metric.LENGTH),
+                          AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                          AboutLocation(423829, 6976698, 9604.67, units.UsOilfield.LENGTH)]
+        expected_centers = [AboutLocation(657708.00, 1802910.99, 7536.48, units.UsOilfield.LENGTH),
+                            AboutLocation(198747.28, 2142202.68, 2771.32, units.Metric.LENGTH),
+                            AboutLocation(129183.08, 2126497.55, 2927.50, units.Metric.LENGTH)]
         origin_references = [AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                          origins.DepthDatum.GROUND_LEVEL),
                              AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
@@ -63,34 +112,19 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         for (actual_center, expected_center, origin_reference) in\
                 zip(actual_centers, expected_centers, origin_references):
-            def center_mock_func(*args):
-                result = tsn.create_stub_net_subsurface_point()
-                if (args[0] == origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE and
-                        args[1] == origins.DepthDatum.GROUND_LEVEL):
-                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
-                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
-                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
-                elif args[0] == origins.WellReferenceFrameXy.PROJECT and args[1] == origins.DepthDatum.KELLY_BUSHING:
-                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
-                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
-                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
-                elif args[0] == origins.WellReferenceFrameXy.WELL_HEAD and args[1] == origins.DepthDatum.SEA_LEVEL:
-                    result.X = make_subsurface_coordinate(expected_center.x, expected_center.unit)
-                    result.Y = make_subsurface_coordinate(expected_center.y, expected_center.unit)
-                    result.Depth = make_subsurface_coordinate(expected_center.depth, expected_center.unit)
-                return result
+            with self.subTest(actual_center=actual_center, expected_center=expected_center,
+                              origin_reference=origin_reference):
+                center_mock_func = mock_subsurface_point_func(actual_center, origin_reference.xy,
+                                                              origin_reference.depth)
+                stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
 
-            stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
-            sut = nsa.NativeStageAdapter(stub_net_stage)
+                actual = sut.center_location(expected_center.unit, origin_reference.xy, origin_reference.depth)
 
-            actual = sut.center_location(expected_center.unit, origin_reference.xy, origin_reference.depth)
-
-            expected = toolz.pipe(expected_center[:-1],
-                                  toolz.map(toolz.flip(make_measurement, expected_center[-1].abbreviation)),
-                                  lambda coords: tcm.SubsurfaceLocation(*coords))
-            tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
-            tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
-            tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
+                expected = create_expected(expected_center)
+                tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
@@ -141,6 +175,36 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(expected_stop_time))
+
+    def test_top_location_returns_stage_location_center_in_requested_unit(self):
+        actual_tops = [AboutLocation(73080.67, -2189943.43, 2679.41, units.Metric.LENGTH),
+                       AboutLocation(520513, 398950, 9447.48, units.UsOilfield.LENGTH),
+                       AboutLocation(20437, -4844216, 5663.84, units.UsOilfield.LENGTH)]
+        expected_tops = [AboutLocation(239766, -7184854, 8790.70, units.UsOilfield.LENGTH),
+                         AboutLocation(520513, 398950, 9447.48, units.UsOilfield.LENGTH),
+                         AboutLocation(6229.20, -1476516.99, 1726.34, units.Metric.LENGTH)]
+        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD,
+                                         origins.DepthDatum.SEA_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                         origins.DepthDatum.GROUND_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
+                                         origins.DepthDatum.KELLY_BUSHING)]
+
+        for (actual_top, expected_top, origin_reference) in \
+                zip(actual_tops, expected_tops, origin_references):
+            with self.subTest(actual_top=actual_top, expected_top=expected_top,
+                              origin_reference=origin_reference):
+                top_mock_func = mock_subsurface_point_func(actual_top, origin_reference.xy,
+                                                           origin_reference.depth)
+                stub_net_stage = tsn.create_stub_net_stage(stage_location_top=top_mock_func)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual = sut.top_location(expected_top.unit, origin_reference.xy, origin_reference.depth)
+
+                expected = create_expected(expected_top)
+                tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
 
     def test_treatment_curves_no_curves(self):
         stub_net_stage = tsn.create_stub_net_stage()

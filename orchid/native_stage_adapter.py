@@ -93,6 +93,25 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                 depth_datum)
         return subsurface_point.depth
 
+    def bottom_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                        xy_reference_frame: origins.WellReferenceFrameXy,
+                        depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
+        """
+        Return the location of the bottom of this stage in the `xy_well_reference_frame` using the
+        `depth_datum` in the specified unit.
+
+        Args:
+            in_length_unit: The unit of length available from the returned value.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The `BaseSubsurfacePoint` of the stage bottom.
+        """
+        net_subsurface_point = self._adaptee.GetStageLocationBottom(xy_reference_frame.value, depth_datum.value)
+        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+        return result
+
     @functools.lru_cache()
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,

@@ -220,3 +220,34 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
     assert_measurement_equal(subsurface_location.x, x)
     assert_measurement_equal(subsurface_location.y, y)
     assert_measurement_equal(subsurface_location.depth, depth)
+
+
+# noinspection PyBDDParameters
+@step("I see stage bottom location {well}, {stage_no:d}, {frame}, {x}, {y}, and {depth}")
+def step_impl(context, well, stage_no, frame, x, y, depth):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number of interest.
+        frame (str): The well reference frame in which the measurements are made.
+        x (str): The x-coordinate (easting) of the stage top subsurface location.
+        y (str): The y-coordinate (northing) of the stage top subsurface location.
+        depth (str): The depth (TVDSS) of the stage top subsurface location.
+    """
+    well_of_interest = find_well_by_name(context, well)
+    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
+
+    length_unit = context.project.project_units.LENGTH
+
+    frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                 'Project': origins.WellReferenceFrameXy.PROJECT,
+                                 'Well Head': origins.WellReferenceFrameXy.WELL_HEAD}
+    reference_frame = frame_reference_frame_map[frame]
+
+    subsurface_location = stage_of_interest.bottom_location(length_unit, reference_frame,
+                                                            origins.DepthDatum.KELLY_BUSHING)
+
+    assert_measurement_equal(subsurface_location.x, x)
+    assert_measurement_equal(subsurface_location.y, y)
+    assert_measurement_equal(subsurface_location.depth, depth)
