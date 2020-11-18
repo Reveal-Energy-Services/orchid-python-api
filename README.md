@@ -52,9 +52,16 @@ You have several options to create and manage virtual environments: `venv`, `pip
 The `venv ` is available as a standard Python package and is a spartan tool to manage environments. `poetry`
 is a tool targeting developers but can be used by end-users. Our recommended tool is `pipenv`. It provides a 
 good balance between `venv ` and `poetry`. Remember, both `pipenv` and `poetry` must be installed in your 
-Python environment separately from Python itself, but can be installed using `pip`. Finally, `conda` supports 
-the creation of virtual environments, but assumes that you have installed a Python distribution using Anaconda
-or miniconda. We will not describe `conda` further.
+Python environment separately from Python itself, but can be installed using `pip`. Finally, 
+[conda](https://docs.conda.io/en/latest/)
+
+> is an open source package management system and environment management system that runs on Windows, macOS
+> and Linux. Conda quickly installs, runs and updates packages and their dependencies. Conda easily creates,
+> saves, loads and switches between environments on your local computer. It was created for Python programs,
+> but it can package and distribute software for any language.
+
+Although we currently recommend `pipenv`, because we believe many of our users use `conda` (either
+ Anaconda or Miniconda), we have a [section](#step-by-step-conda-install) describing how to use `conda` to u
 
 Using any of `pipenv`, `venv` or `poetry`, your first step is to create a directory for *your* project. Then, 
 change into *your* project directory.
@@ -74,6 +81,28 @@ and yet provides a fairly simple interface. We will assume in this document that
 - Activate the virtual environment by running `pipenv shell`
 - Install orchid by running `pip install orchid-python-api`.
 - Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
+
+# Step-by-step conda install
+
+- Install [Anaconda](https://docs.anaconda.com/anaconda/install/) or
+  [Miniconda](https://docs.conda.io/en/latest/miniconda.html) following the corresponding instructions for
+  your operating system. 
+- If installing on Windows, the installer will present 
+  [this screen](https://docs.anaconda.com/_images/win-install-options.png). We have seen no need to install 
+  Anaconda / Miniconda on your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)). Although we do not
+  disagree with option to register the Anaconda / Miniconda version of Python as your default Python
+  executable, in some situations, accepting this choice can cause problems. 
+- Since we will be using **both** `conda install` and `pip install` to install packages, read the article, 
+  [Using Pip in a Conda Environment](https://www.anaconda.com/blog/using-pip-in-a-conda-environment). Our 
+  subsequent instructions assume you have read this article and have chosen how you wish to manage these
+  two package installers together.
+- Open an Anaconda (Power)shell console.
+- Create a directory for the new virtual environment. We will symbolically call it `/path/to/orchid-virtualenv`.
+- Change the current working directory to by `chdir /path/to/orchid-virtualenv`.
+- Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.8`.
+- Activate the virtual environment by running `conda activate <your-virtualenv_name>`
+- Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
+- Install orchid by running `pip install orchid-python-api`.
 
 ## Configure the Orchid Python API
 
