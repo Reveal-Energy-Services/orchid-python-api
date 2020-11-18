@@ -96,7 +96,12 @@ and yet provides a fairly simple interface. We will assume in this document that
 - Since we will be using **both** `conda install` and `pip install` to install packages, read the article, 
   [Using Pip in a Conda Environment](https://www.anaconda.com/blog/using-pip-in-a-conda-environment). Our 
   subsequent instructions assume you have read this article and have chosen how you wish to manage these
-  two package installers together.
+  two package installers together. 
+  
+The following instructions assume that you will use the simple (put perhaps not scalable) process of creating
+the `conda ` virtual environment with all packages you want to use available in the Anaconda/Miniconda
+ecosystem and, within that virtual environment, use `pip` to install `orchid-python-api`.
+
 - Open an Anaconda (Power)shell console.
 - Optionally create a directory for your work.
     - We symbolically call it `/path/to/orchid-virtualenv`.
