@@ -61,7 +61,8 @@ Python environment separately from Python itself, but can be installed using `pi
 > but it can package and distribute software for any language.
 
 Although we currently recommend `pipenv`, because we believe many of our users use `conda` (either
- Anaconda or Miniconda), we have a [section](#step-by-step-conda-install) describing how to use `conda` to u
+Anaconda or Miniconda), we have a [section](#step-by-step-conda-install) for installing the 
+`orchid-python-api` in a `conda` virtual environment.
 
 Using any of `pipenv`, `venv` or `poetry`, your first step is to create a directory for *your* project. Then, 
 change into *your* project directory.
@@ -97,8 +98,9 @@ and yet provides a fairly simple interface. We will assume in this document that
   subsequent instructions assume you have read this article and have chosen how you wish to manage these
   two package installers together.
 - Open an Anaconda (Power)shell console.
-- Create a directory for the new virtual environment. We will symbolically call it `/path/to/orchid-virtualenv`.
-- Change the current working directory to by `chdir /path/to/orchid-virtualenv`.
+- Optionally create a directory for your work.
+    - We symbolically call it `/path/to/orchid-virtualenv`.
+    - Change to the current working directory by executing `chdir /path/to/orchid-virtualenv`.
 - Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.8`.
 - Activate the virtual environment by running `conda activate <your-virtualenv_name>`
 - Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
