@@ -126,6 +126,13 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
 
+    def test_cluster_count(self):
+        expected_cluster_count = 3
+        stub_net_stage = tsn.create_stub_net_stage(cluster_count=expected_cluster_count)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        assert_that(sut.cluster_count, equal_to(expected_cluster_count))
+
     def test_display_stage_number(self):
         expected_display_stage_number = 11
         stub_net_stage = tsn.create_stub_net_stage(display_stage_no=expected_display_stage_number)
