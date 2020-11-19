@@ -255,13 +255,16 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
 
 
 # noinspection PyBDDParameters
-@step("I see stage cluster count {well}, {stage_no:d}, and {cluster_count}")
+@step("I see stage cluster count {well}, {stage_no:d}, and {cluster_count:d}")
 def step_impl(context, well, stage_no, cluster_count):
     """
     Args:
         context (behave.runner.Context): The test context
         well (str): The name of the well of interest.
         stage_no (int): The displayed stage number of interest.
-        cluster_count (str): The number of clusters in the stage of interest.
+        cluster_count (int) in the stage of interest.
     """
-    raise NotImplementedError(u'STEP: And I see stage cluster count <well>, <stage_no>, and <cluster_count>')
+    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    actual_cluster_count = stage_of_interest.cluster_count
+
+    assert_that(actual_cluster_count, equal_to(cluster_count))
