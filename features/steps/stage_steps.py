@@ -205,21 +205,32 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
         y (str): The y-coordinate (northing) of the stage top subsurface location.
         depth (str): The depth (TVDSS) of the stage top subsurface location.
     """
-    well_of_interest = find_well_by_name(context, well)
-    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
+    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    subsurface_location = stage_of_interest.top_location(context.project.project_units.LENGTH,
+                                                         reference_frame_from_frame_name(frame),
+                                                         origins.DepthDatum.KELLY_BUSHING)
 
-    length_unit = context.project.project_units.LENGTH
+    assert_equal_location_measurements(subsurface_location, x, y, depth)
 
+
+def assert_equal_location_measurements(subsurface_location, x, y, depth):
+    assert_measurement_equal(subsurface_location.x, x)
+    assert_measurement_equal(subsurface_location.y, y)
+    assert_measurement_equal(subsurface_location.depth, depth)
+
+
+def reference_frame_from_frame_name(frame):
     frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                  'Project': origins.WellReferenceFrameXy.PROJECT,
                                  'Well Head': origins.WellReferenceFrameXy.WELL_HEAD}
     reference_frame = frame_reference_frame_map[frame]
+    return reference_frame
 
-    subsurface_location = stage_of_interest.top_location(length_unit, reference_frame, origins.DepthDatum.KELLY_BUSHING)
 
-    assert_measurement_equal(subsurface_location.x, x)
-    assert_measurement_equal(subsurface_location.y, y)
-    assert_measurement_equal(subsurface_location.depth, depth)
+def find_stage_no_in_well(context, stage_no, well):
+    well_of_interest = find_well_by_name(context, well)
+    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
+    return stage_of_interest
 
 
 # noinspection PyBDDParameters
@@ -235,19 +246,22 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
         y (str): The y-coordinate (northing) of the stage top subsurface location.
         depth (str): The depth (TVDSS) of the stage top subsurface location.
     """
-    well_of_interest = find_well_by_name(context, well)
-    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
-
-    length_unit = context.project.project_units.LENGTH
-
-    frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
-                                 'Project': origins.WellReferenceFrameXy.PROJECT,
-                                 'Well Head': origins.WellReferenceFrameXy.WELL_HEAD}
-    reference_frame = frame_reference_frame_map[frame]
-
-    subsurface_location = stage_of_interest.bottom_location(length_unit, reference_frame,
+    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    subsurface_location = stage_of_interest.bottom_location(context.project.project_units.LENGTH,
+                                                            reference_frame_from_frame_name(frame),
                                                             origins.DepthDatum.KELLY_BUSHING)
 
-    assert_measurement_equal(subsurface_location.x, x)
-    assert_measurement_equal(subsurface_location.y, y)
-    assert_measurement_equal(subsurface_location.depth, depth)
+    assert_equal_location_measurements(subsurface_location, x, y, depth)
+
+
+# noinspection PyBDDParameters
+@step("I see stage cluster count {well}, {stage_no:d}, and {cluster_count}")
+def step_impl(context, well, stage_no, cluster_count):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number of interest.
+        cluster_count (str): The number of clusters in the stage of interest.
+    """
+    raise NotImplementedError(u'STEP: And I see stage cluster count <well>, <stage_no>, and <cluster_count>')
