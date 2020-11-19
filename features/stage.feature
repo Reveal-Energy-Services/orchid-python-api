@@ -125,6 +125,46 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 3        | State Plane | 659044.57 m | 6177836.62 m | 974.50 m  |
       | Montney | Vert_01 | 4        | Well Head   | 0.00 m      | 0.00 m       | 924.50 m  |
 
+  Scenario Outline: Calculate the cluster counts for a stage
+    Given I have loaded the project for the field, '<field>'
+    When I query the stages for each well in the project
+    And I see stage cluster count <well>, <stage_no>, and <cluster_count>
+
+    Examples: Bakken
+      | field  | well    | stage_no | cluster_count |
+      | Bakken | Demo_1H | 1        | 2             |
+      | Bakken | Demo_1H | 50       | 4             |
+      | Bakken | Demo_1H | 4        | 4             |
+      | Bakken | Demo_1H | 42       | 4             |
+      | Bakken | Demo_2H | 1        | 8             |
+      | Bakken | Demo_2H | 50       | 4             |
+      | Bakken | Demo_2H | 42       | 4             |
+      | Bakken | Demo_2H | 14       | 4             |
+      | Bakken | Demo_3H | 1        | 4             |
+      | Bakken | Demo_4H | 1        | 8             |
+      | Bakken | Demo_4H | 35       | 6             |
+      | Bakken | Demo_4H | 3        | 4             |
+      | Bakken | Demo_4H | 22       | 6             |
+
+    Examples: Montney
+      | field   | well    | stage_no | cluster_count |
+      | Montney | Hori_01 | 1        | 1             |
+      | Montney | Hori_01 | 15       | 1             |
+      | Montney | Hori_01 | 6        | 1             |
+      | Montney | Hori_01 | 14       | 1             |
+      | Montney | Hori_02 | 1        | 1             |
+      | Montney | Hori_02 | 28       | 1             |
+      | Montney | Hori_02 | 14       | 1             |
+      | Montney | Hori_02 | 17       | 1             |
+      | Montney | Hori_03 | 1        | 1             |
+      | Montney | Hori_03 | 28       | 1             |
+      | Montney | Hori_03 | 11       | 1             |
+      | Montney | Hori_03 | 21       | 1             |
+      | Montney | Vert_01 | 1        | 1             |
+      | Montney | Vert_01 | 2        | 1             |
+      | Montney | Vert_01 | 3        | 1             |
+      | Montney | Vert_01 | 4        | 1             |
+
   Scenario Outline: Calculate the top location for a stage
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
