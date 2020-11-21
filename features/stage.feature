@@ -165,6 +165,46 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 3        | 1             |
       | Montney | Vert_01 | 4        | 1             |
 
+  Scenario Outline: Calculate the cluster locations for a stage
+    Given I have loaded the project for the field, '<field>'
+    When I query the stages for each well in the project
+    And I see stage cluster location <well>, <stage_no>, <cluster_no>, <frame>, <x>, <y>, and <depth>
+
+    Examples: Bakken
+      | field  | well    | stage_no | cluster_no | frame       | x             | y              | depth       |
+      | Bakken | Demo_1H | 1        | 2          | Well Head   | -9899.14 ft   | 1327.94 ft     | 10707.58 ft |
+      | Bakken | Demo_1H | 50       | 3          | State Plane | 1989082.45 ft | 17498030.50 ft | 10770.00 ft |
+      | Bakken | Demo_1H | 30       | 2          | Well Head   | -4318.54 ft   | 1334.93 ft     | 10735.44 ft |
+      | Bakken | Demo_1H | 15       | 3          | Project     | -20206.80 ft  | 36852.34 ft    | 10714.62 ft |
+      | Bakken | Demo_2H | 1        | 4          | State Plane | 1979495.65 ft | 17497263.97 ft | 10711.95 ft |
+      | Bakken | Demo_2H | 50       | 1          | State Plane | 1989056.74 ft | 17497314.42 ft | 10766.31 ft |
+      | Bakken | Demo_2H | 21       | 4          | Project     | -18938.26 ft  | 36108.94 ft    | 10731.79 ft |
+      | Bakken | Demo_2H | 30       | 3          | Well Head   | -4195.14 ft   | 640.79 ft      | 10742.82 ft |
+      | Bakken | Demo_3H | 1        | 4          | Project     | -12573.22 ft  | 35109.44 ft    | 10767.89 ft |
+      | Bakken | Demo_4H | 1        | 1          | State Plane | 1979447.09 ft | 17495795.77 ft | 10717.00 ft |
+      | Bakken | Demo_4H | 35       | 3          | Project     | -13479.38 ft  | 34601.46 ft    | 10766.00 ft |
+      | Bakken | Demo_4H | 26       | 6          | State Plane | 1986477.61 ft | 17495761.50 ft | 10756.97 ft |
+      | Bakken | Demo_4H | 11       | 6          | Well Head   | -7303.75 ft   | -829.42 ft     | 10722.54 ft |
+
+    Examples: Montney
+      | field   | well    | stage_no | cluster_no | frame       | x           | y            | depth     |
+      | Montney | Hori_01 | 1        | 1          | State Plane | 659000.89 m | 6177324.27 m | 987.62 m  |
+      | Montney | Hori_01 | 15       | 1          | Well Head   | 203.66 m    | -305.76 m    | 962.61 m  |
+      | Montney | Hori_01 | 10       | 1          | Project     | 377.19 m    | -543.60 m    | 974.40 m  |
+      | Montney | Hori_01 | 2        | 1          | State Plane | 658842.83 m | 6177445.09 m | 986.82 m  |
+      | Montney | Hori_02 | 1        | 1          | Project     | 1823.90 m   | -1468.04 m   | 1091.17 m |
+      | Montney | Hori_02 | 29       | 1          | Well Head   | 320.78 m    | -218.66 m    | 1078.98 m |
+      | Montney | Hori_02 | 5        | 1          | State Plane | 658733.50 m | 6177723.22 m | 1088.52 m |
+      | Montney | Hori_02 | 17       | 1          | Project     | 619.24 m    | -543.02 m    | 1088.19 m |
+      | Montney | Hori_03 | 1        | 1          | State Plane | 659034.62 m | 6177681.60 m | 970.90 m  |
+      | Montney | Hori_03 | 28       | 1          | Project     | -335.49 m   | 311.16 m     | 961.96 m  |
+      | Montney | Hori_03 | 2        | 1          | Well Head   | 2364.47 m   | -1607.47 m   | 969.93 m  |
+      | Montney | Hori_03 | 22       | 1          | Well Head   | 779.40 m    | -389.37 m    | 964.47 m  |
+      | Montney | Vert_01 | 1        | 1          | State Plane | 659044.57 m | 6177836.62 m | 1056.75 m |
+      | Montney | Vert_01 | 2        | 1          | State Plane | 659044.57 m | 6177836.62 m | 1006.75 m |
+      | Montney | Vert_01 | 3        | 1          | Project     | 1842.15 m   | -1133.05 m   | 956.75 m  |
+      | Montney | Vert_01 | 4        | 1          | Well Head   | 0.00 m      | 0.00 m       | 906.75 m  |
+
   Scenario Outline: Calculate the top location for a stage
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project

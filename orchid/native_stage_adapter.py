@@ -208,6 +208,28 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.x, subsurface_point.y
 
+    def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                         cluster_no: int,
+                         xy_reference_frame: origins.WellReferenceFrameXy,
+                         depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
+        """
+        Return the location of the bottom of this stage in the `xy_well_reference_frame` using the
+        `depth_datum` in the specified unit.
+
+        Args:
+            in_length_unit: The unit of length available from the returned value.
+            cluster_no: The number identifying the cluster whose location is sought.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
+        """
+        net_subsurface_point = self._adaptee.GetStageLocationCluster(cluster_no, xy_reference_frame.value,
+                                                                     depth_datum.value)
+        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+        return result
+
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """
         Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
