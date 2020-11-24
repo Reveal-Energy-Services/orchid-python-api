@@ -19,6 +19,7 @@ from enum import IntEnum
 import functools
 from typing import Tuple, Union
 
+import deal
 import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
@@ -208,6 +209,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.x, subsurface_point.y
 
+    @deal.pre(lambda _self, _in_length_unit, cluster_no, _xy_reference_frame, _depth_datum: cluster_no >= 0)
     def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                          cluster_no: int,
                          xy_reference_frame: origins.WellReferenceFrameXy,

@@ -19,7 +19,8 @@ from collections import namedtuple
 from datetime import datetime
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items, instance_of
+import deal
+from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items, instance_of, calling, raises
 import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
@@ -176,6 +177,15 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
+
+    def test_cluster_location_invalid_cluster_no_raises_contract_error(self):
+        stub_net_stage = tsn.create_stub_net_stage()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        assert_that(calling(sut.cluster_location).with_args(units.UsOilfield.LENGTH, -1,
+                                                            origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                                            origins.DepthDatum.GROUND_LEVEL),
+                    raises(deal.PreContractError))
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
