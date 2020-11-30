@@ -215,13 +215,16 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
-def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None,
-                          stage_location_bottom=None, stage_location_center=None, stage_location_top=None,
+def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
+                          stage_location_bottom=None, stage_location_cluster=None,
+                          stage_location_center=None, stage_location_top=None,
                           start_time=None, stop_time=None, treatment_curve_names=None):
+    stub_net_stage_name = 'stub_net_stage'
     try:
-        result = unittest.mock.MagicMock(name=display_stage_no, spec=IStage)
+        result = unittest.mock.MagicMock(name=stub_net_stage_name, spec=IStage)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        result = unittest.mock.MagicMock(name=display_stage_no)
+        result = unittest.mock.MagicMock(name=stub_net_stage_name)
+    result.NumberOfClusters = cluster_count
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit_abbreviation)
@@ -235,6 +238,10 @@ def create_stub_net_stage(display_stage_no=-1, md_top=None, md_bottom=None,
         if callable(stage_location_center):
             result.GetStageLocationCenter = unittest.mock.MagicMock('stub_get_stage_center_location',
                                                                     side_effect=stage_location_center)
+    if stage_location_cluster is not None:
+        if callable(stage_location_cluster):
+            result.GetStageLocationCluster = unittest.mock.MagicMock('stub_get_stage_cluster_location',
+                                                                     side_effect=stage_location_cluster)
     if stage_location_top is not None:
         if callable(stage_location_top):
             result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',

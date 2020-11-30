@@ -19,6 +19,7 @@ from enum import IntEnum
 import functools
 from typing import Tuple, Union
 
+import deal
 import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
@@ -207,6 +208,29 @@ class NativeStageAdapter(dna.DotNetAdapter):
         subsurface_point = self.center_location(length_unit, xy_well_reference_frame,
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.x, subsurface_point.y
+
+    @deal.pre(lambda _self, _in_length_unit, cluster_no, _xy_reference_frame, _depth_datum: cluster_no >= 0)
+    def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                         cluster_no: int,
+                         xy_reference_frame: origins.WellReferenceFrameXy,
+                         depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
+        """
+        Return the location of the bottom of this stage in the `xy_well_reference_frame` using the
+        `depth_datum` in the specified unit.
+
+        Args:
+            in_length_unit: The unit of length available from the returned value.
+            cluster_no: The number identifying the cluster whose location is sought.
+            xy_reference_frame: The reference frame for easting-northing coordinates.
+            depth_datum: The datum from which we measure depths.
+
+        Returns:
+            The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
+        """
+        net_subsurface_point = self._adaptee.GetStageLocationCluster(cluster_no, xy_reference_frame.value,
+                                                                     depth_datum.value)
+        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+        return result
 
     def md_top(self, length_unit_abbreviation: str) -> Measurement:
         """

@@ -19,7 +19,8 @@ from collections import namedtuple
 from datetime import datetime
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items, instance_of
+import deal
+from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items, instance_of, calling, raises
 import toolz.curried as toolz
 
 from orchid.measurement import make_measurement
@@ -125,6 +126,66 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 7e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
+
+    def test_cluster_count(self):
+        expected_cluster_count = 3
+        stub_net_stage = tsn.create_stub_net_stage(cluster_count=expected_cluster_count)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        assert_that(sut.cluster_count, equal_to(expected_cluster_count))
+
+    def test_cluster_location_returns_stage_location_cluster_in_requested_unit(self):
+        @toolz.curry
+        def mock_cluster_subsurface_point_func(expected_location,
+                                               expected_cluster_no, expected_xy_origin, expected_depth_origin,
+                                               actual_cluster_no, actual_xy_origin, actual_depth_origin):
+            result = tsn.create_stub_net_subsurface_point()
+            if expected_cluster_no == actual_cluster_no and expected_xy_origin == actual_xy_origin and \
+                    expected_depth_origin == actual_depth_origin:
+                result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
+                result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
+                result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+            return result
+
+        cluster_numbers = [2, 4, 7]
+        actual_clusters = [AboutLocation(93859.19, 187991.49, 2619.49, units.Metric.LENGTH),
+                           AboutLocation(413364, 684896, 8974.38, units.UsOilfield.LENGTH),
+                           AboutLocation(92837, -17316.01, 9275.89, units.UsOilfield.LENGTH)]
+        expected_clusters = [AboutLocation(307936.98, 616770.00, 8594.13, units.UsOilfield.LENGTH),
+                             AboutLocation(413364, 684896, 8974.38, units.UsOilfield.LENGTH),
+                             AboutLocation(28296.72, -5277.92, 2827.29, units.Metric.LENGTH)]
+        origin_references = [AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                         origins.DepthDatum.SEA_LEVEL),
+                             AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD,
+                                         origins.DepthDatum.KELLY_BUSHING),
+                             AboutOrigin(origins.WellReferenceFrameXy.PROJECT,
+                                         origins.DepthDatum.GROUND_LEVEL)]
+
+        for (cluster_no, actual_cluster, expected_cluster, origin_reference) in \
+                zip(cluster_numbers, actual_clusters, expected_clusters, origin_references):
+            with self.subTest(cluster_no=cluster_no, actual_cluster=actual_cluster, expected_cluster=expected_cluster,
+                              origin_reference=origin_reference):
+                cluster_mock_func = mock_cluster_subsurface_point_func(actual_cluster, cluster_no,
+                                                                       origin_reference.xy, origin_reference.depth)
+                stub_net_stage = tsn.create_stub_net_stage(stage_location_cluster=cluster_mock_func)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual = sut.cluster_location(expected_cluster.unit, cluster_no, origin_reference.xy,
+                                              origin_reference.depth)
+
+                expected = create_expected(expected_cluster)
+                tcm.assert_that_scalar_quantities_close_to(actual.x, expected.x, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.y, expected.y, 6e-2)
+                tcm.assert_that_scalar_quantities_close_to(actual.depth, expected.depth, 6e-2)
+
+    def test_cluster_location_invalid_cluster_no_raises_contract_error(self):
+        stub_net_stage = tsn.create_stub_net_stage()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        assert_that(calling(sut.cluster_location).with_args(units.UsOilfield.LENGTH, -1,
+                                                            origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                                            origins.DepthDatum.GROUND_LEVEL),
+                    raises(deal.PreContractError))
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
