@@ -15,6 +15,9 @@
 # This file is part of Orchid and related technologies.
 #
 
+from collections import namedtuple
+import enum
+
 import pandas as pd
 from toolz.curried import map, partial
 
@@ -25,9 +28,20 @@ import orchid.project_units as opu
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries
 
-PROPPANT_CONCENTRATION = 'Proppant Concentration'
-SLURRY_RATE = 'Slurry Rate'
-TREATING_PRESSURE = 'Pressure'
+
+AboutCurveType = namedtuple('AboutCurveType', ['net_curve_type', 'curve_type'])
+
+
+# TODO: Better repair for these curve types involving the .NET type `TreatmentCurvesPredefinedTypes` if possible
+class CurveTypes(enum.Enum):
+    PROPPANT_CONCENTRATION = AboutCurveType('Surface Proppant Concentration', 'Proppant Concentration')
+    SLURRY_RATE = AboutCurveType('Slurry Rate', 'Slurry Rate')
+    TREATING_PRESSURE = AboutCurveType('Pressure', 'Pressure')
+
+
+PROPPANT_CONCENTRATION = CurveTypes.PROPPANT_CONCENTRATION.value.curve_type
+SLURRY_RATE = CurveTypes.SLURRY_RATE.value.curve_type
+TREATING_PRESSURE = CurveTypes.TREATING_PRESSURE.value.curve_type
 
 
 class NativeTreatmentCurveFacade(dna.DotNetAdapter):

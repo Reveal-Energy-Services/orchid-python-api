@@ -78,8 +78,16 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
-        return {'Pressure': ntc.TREATING_PRESSURE, 'Slurry Rate': ntc.SLURRY_RATE,
-                'Proppant Concentration': ntc.PROPPANT_CONCENTRATION}[sampled_quantity_name]
+        candidates = toolz.pipe(ntc.CurveTypes,
+                                toolz.filter(lambda e: e.value.net_curve_type == sampled_quantity_name),
+                                list)
+        if len(candidates) == 0:
+            raise KeyError(f'Unknown sampled quantity name: "{sampled_quantity_name}"')
+
+        assert len(candidates) == 1, f'Sampled quantity name "{sampled_quantity_name}"' \
+                                     f' selects many curve types: {candidates}'
+
+        return candidates[0].value.curve_type
 
     def _center_location_depth(self, length_unit: Union[units.UsOilfield, units.Metric],
                                depth_datum: origins.DepthDatum) -> Measurement:
