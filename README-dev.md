@@ -204,14 +204,15 @@ To update the project dependencies:
 ## Update API version
 
 - Open the file `orchid/VERSION` for editing
-- Change the version in the file to the updated value. Copying it is safest if at all possible. The log files
-  print the version number as part of the banner which eases the ability to copy that version number. (Beware, 
-  currently a version containing anything but numeric values will cause the Orchid Python API to fail 
-  at run-time. During the beta program, we are manually removing the "-beta" suffix from the version.)
+- Change the version in the file to the updated value. The safest way to update the value is copying the 
+  value if at all possible. The log files print the version number in the banner at the beginning of each
+  execution of Orchid. (Beware, currently a version containing anything but numeric values will cause the
+  Orchid Python API to fail at run-time. During the beta program, we are manually removing the "-beta" suffix
+  from the version.)
 - Open the file `pyproject.toml` for editing.
 - Copy the version number from `orchid/VERSION` to the value of the `version` key of the file. (The automated
   task, `update-ver`, visible when running `invoke --list` performs this task automatically. However, as a 
-  "side-effect", this task *removes* all the comment lines from the `.toml` file. The author does not 
+  "side effect", this task *removes* all the comment lines from the `.toml` file. The author does not 
   believe that we are ready to lose all those reminders yet.)
   
 ## Publish to TestPyPI

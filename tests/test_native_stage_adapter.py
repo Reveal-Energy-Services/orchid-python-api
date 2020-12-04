@@ -284,7 +284,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
     def test_treatment_curves_many_curves(self):
-        expected_sampled_quantity_names = ['Pressure', 'Slurry Rate', 'Proppant Concentration']
+        expected_sampled_quantity_names = ['Pressure', 'Slurry Rate', 'Surface Proppant Concentration']
         stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
