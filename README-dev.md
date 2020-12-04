@@ -299,6 +299,12 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
 
 ## Publish to PyPI
 
+**Before** publishing to PyPI, ensure that:
+
+- All outstanding PR's have been completed.
+- You have merged all changes to the `develop` branch
+- You have changed your current branch to the `develop` branch
+
 You will most likely need to configure the API token for PyPI. 
 
 To generate an API token, complete the steps described at [PyPI help](https://pypi.org/help/#apitoken).
@@ -311,7 +317,7 @@ Once generated, add it to the `poetry` configuration by executing either:
 To publish the distribution to PyPI execute either:
 
 - `invoke poetry.publish pypi` or
-- `poetry publish --repository=pypi`
+- `poetry publish`
 
 If you navigate to `https://pypi.org/` and search for "orchid-python-api" (no quotation marks), you should 
 see the version of the distribution you have created. If not, but no error was reported, you most likely \
