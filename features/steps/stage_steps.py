@@ -22,6 +22,8 @@ use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import toolz.curried as toolz
 
+from common_functions import find_stage_no_in_well, find_well_by_name, find_stage_by_stage_no
+
 import orchid.native_stage_adapter as nsa
 import orchid.physical_quantity as opq
 import orchid.reference_origins as origins
@@ -167,43 +169,12 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
     assert_that(stage_of_interest.stage_type, equal_to(connection_name_to_type(connection)))
 
 
-def find_stage_by_stage_no(context, stage_no, well_of_interest):
-    @toolz.curry
-    def has_stage_no(displayed_stage_no, candidate_stage):
-        return candidate_stage.display_stage_number == displayed_stage_no
-
-    candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
-                            toolz.filter(has_stage_no(stage_no)),
-                            list)
-    assert_that(toolz.count(candidates), equal_to(1))
-    result = toolz.nth(0, candidates)
-    return result
-
-
-def find_well_by_name(context, name):
-    @toolz.curry
-    def has_well_name(well_name, candidate_well):
-        return candidate_well.name == well_name
-
-    candidates = toolz.pipe(context.stages_for_wells,
-                            toolz.keyfilter(has_well_name(name)))
-    assert_that(toolz.count(candidates), equal_to(1))
-    result = toolz.nth(0, candidates)
-    return result
-
-
 def reference_frame_from_frame_name(frame):
     frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                  'Project': origins.WellReferenceFrameXy.PROJECT,
                                  'Well Head': origins.WellReferenceFrameXy.WELL_HEAD}
     reference_frame = frame_reference_frame_map[frame]
     return reference_frame
-
-
-def find_stage_no_in_well(context, stage_no, well):
-    well_of_interest = find_well_by_name(context, well)
-    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
-    return stage_of_interest
 
 
 # noinspection PyBDDParameters
