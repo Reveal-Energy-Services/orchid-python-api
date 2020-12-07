@@ -16,6 +16,9 @@
 #
 
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.RatioTypes import ProppantConcentration, SlurryRate
+
+# noinspection PyUnresolvedReferences
 import UnitsNet
 
 
@@ -32,20 +35,13 @@ def pressure_unit(net_project):
 
 
 def slurry_rate_unit(net_project):
-    volume_abbreviation = UnitsNet.Volume.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item1)
-    duration_abbreviation = \
-        ('min'
-         if (net_project.ProjectUnits.SlurryRateUnit.Item2 == UnitsNet.Units.DurationUnit.Minute)
-         else UnitsNet.Duration.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item2))
-    return f'{volume_abbreviation}/{duration_abbreviation}'
+    return SlurryRate.GetAbbreviation(net_project.ProjectUnits.SlurryRateUnit.Item1,
+                                      net_project.ProjectUnits.SlurryRateUnit.Item2)
 
 
 def proppant_concentration_unit(net_project):
-    mass_abbreviation = UnitsNet.Mass.GetAbbreviation(
-        net_project.ProjectUnits.ProppantConcentrationUnit.Item1)
-    volume_abbreviation = UnitsNet.Volume.GetAbbreviation(
-        net_project.ProjectUnits.ProppantConcentrationUnit.Item2)
-    return f'{mass_abbreviation}/{volume_abbreviation}'
+    return ProppantConcentration.GetAbbreviation(net_project.ProjectUnits.ProppantConcentrationUnit.Item1,
+                                                 net_project.ProjectUnits.ProppantConcentrationUnit.Item2)
 
 
 def temperature_unit(net_project):
