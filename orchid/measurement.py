@@ -19,6 +19,7 @@
 
 import collections
 import numbers
+from typing import Union
 
 import deal
 
@@ -54,22 +55,30 @@ def get_conversion_factor(source_unit, target_unit):
 
 @deal.pre(lambda magnitude, _: isinstance(magnitude, numbers.Real))
 @deal.pre(lambda _, unit: argument_neither_none_empty_nor_all_whitespace(unit))
-def make_measurement(magnitude, unit):
+def make_measurement(magnitude: Union[int, float], unit_text: str) -> Measurement:
     """
     Construct a measurement.
-    :param magnitude: The magnitude of the measurement.
-    :param unit: The abbreviation of the unit of measurement.
-    :return: The constructed (Python) measurement.
+
+    Args:
+        magnitude: The magnitude of the measurement.
+        unit_text: An abbreviation for the unit of this measurement.
+
+    Returns:
+        The measurement consisting of a magnitude and a unit.
     """
-    return Measurement(magnitude, unit)
+    return Measurement(magnitude, unit_text)
 
 
 @deal.pre(lambda slurry_rate_unit: argument_neither_none_empty_nor_all_whitespace(slurry_rate_unit))
-def slurry_rate_volume_unit(slurry_rate_unit):
+def slurry_rate_volume_unit(slurry_rate_unit: str) -> str:
     """
     Extract the volume unit from the compound `slurry_rate_unit`.
-    :param slurry_rate_unit:  The abbreviation for the compound slurry rate unit.
-    :return: The abbreviation for the volume unit of the slurry rate unit.
+
+    Args:
+        slurry_rate_unit: The abbreviation for the compound slurry rate unit.
+
+    Returns:
+        The abbreviation for the volume unit of the slurry rate unit.
     """
     if slurry_rate_unit == 'bbl/min':
         return 'bbl'
@@ -83,7 +92,7 @@ def slurry_rate_volume_unit(slurry_rate_unit):
 
 @deal.pre(lambda proppant_concentration_unit: argument_neither_none_empty_nor_all_whitespace(
     proppant_concentration_unit))
-def proppant_concentration_mass_unit(proppant_concentration_unit):
+def proppant_concentration_mass_unit(proppant_concentration_unit: str) -> str:
     """
     Extract the mass unit from the compound `proppant_concentration_unit`.
 
