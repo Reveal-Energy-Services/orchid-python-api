@@ -20,6 +20,7 @@ from behave import *
 use_step_matcher("parse")
 
 from collections import namedtuple
+import decimal
 import math
 
 from hamcrest import assert_that, equal_to, close_to
@@ -94,30 +95,33 @@ def step_impl(context, well, index, stage_no, volume, proppant, median):
 
     assert_expected_measurement(aggregates_for_stage.pumped_volume.measurement.magnitude,
                                 aggregates_for_stage.pumped_volume.measurement.unit,
-                                float(volume.split()[0]),
+                                volume.split()[0],
                                 volume.split()[1],
                                 assert_message_quantity_name('pumped volume'))
 
     assert_expected_measurement(aggregates_for_stage.proppant_mass.measurement.magnitude,
                                 aggregates_for_stage.proppant_mass.measurement.unit,
-                                float(proppant.split()[0]),
+                                proppant.split()[0],
                                 proppant.split()[1],
                                 assert_message_quantity_name('proppant_mass'))
 
     assert_expected_measurement(aggregates_for_stage.median_treating_pressure.measurement.magnitude,
                                 aggregates_for_stage.median_treating_pressure.measurement.unit,
-                                float(median.split()[0]),
+                                median.split()[0],
                                 median.split()[1],
                                 assert_message_quantity_name('median treating pressure'))
 
 
-def assert_expected_measurement(actual_volume_magnitude, actual_volume_unit,
-                                expected_volume_magnitude, expected_volume_unit,
-                                pumped_volume_message):
-    if not math.isnan(expected_volume_magnitude):
-        assert_that(actual_volume_magnitude, close_to(expected_volume_magnitude, 6e-3), pumped_volume_message)
+def assert_expected_measurement(actual_magnitude, actual_unit,
+                                expected_magnitude, expected_unit,
+                                message):
+    actual_magnitude_to_test = decimal.Decimal(actual_magnitude)
+    expected_magnitude_to_test = decimal.Decimal(expected_magnitude)
+    if not math.isnan(expected_magnitude_to_test):
+        delta = decimal.Decimal((0, (1,), expected_magnitude_to_test.as_tuple()[2]))
+        assert_that(actual_magnitude_to_test, close_to(expected_magnitude_to_test, delta), message)
     else:
-        assert_that(math.isnan(actual_volume_magnitude), equal_to(True))
-    assert_that(actual_volume_unit, equal_to(expected_volume_unit), pumped_volume_message)
+        assert_that(math.isnan(actual_magnitude_to_test), equal_to(True))
+    assert_that(actual_unit, equal_to(expected_unit), message)
 
 
