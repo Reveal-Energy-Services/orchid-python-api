@@ -29,7 +29,6 @@ Feature: Low-level DOM API (stage)
       | field  | well    | stage count |
       | Bakken | Demo_1H | 50          |
       | Bakken | Demo_2H | 50          |
-      | Bakken | Demo_3H | 1           |
       | Bakken | Demo_4H | 35          |
 
     Examples: Permian
@@ -37,7 +36,6 @@ Feature: Low-level DOM API (stage)
       | Permian | C1   | 25          |
       | Permian | C2   | 29          |
       | Permian | C3   | 31          |
-      | Permian | P1   | 1           |
 
     Examples: Montney
       | field   | well    | stage count |

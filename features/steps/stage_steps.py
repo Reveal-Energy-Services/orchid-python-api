@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2020 Reveal Energy Services, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -46,9 +46,12 @@ def step_impl(context, stage_count, well):
 
     candidates = list(toolz.pipe(toolz.map(actual_test_details, context.actual_wells),
                                  toolz.filter(lambda d: d[0] == well)))
-    assert_that(len(candidates), equal_to(1))  # expect exactly one match
+    # Expect exactly one match
+    assert_that(len(candidates), equal_to(1),
+                f'Expected 1 stage for well {well} in field {context.field}. Found {len(candidates)}.')
 
-    assert_that(candidates[0], equal_to(expected_test_details()))
+    assert_that(candidates[0], equal_to(expected_test_details()),
+                f'Candidate well and stage failed for field {context.field}.')
 
 
 def get_stages(well_stages_pair):
