@@ -18,7 +18,7 @@
 """This module contains functions for converting between instances of the (Python) `Measurement` class and
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
-from datetime import datetime
+import datetime
 from typing import Union
 
 import toolz.curried as toolz
@@ -42,17 +42,30 @@ ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Unit
                              units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
 
 
-def as_datetime(net_time_point: DateTime):
-    return datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                    net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                    net_time_point.Millisecond * 1000)
-
-
-def as_measurement(net_quantity):
+def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     """
-    Convert a .NET UnitsNet.Quantity to a Python Measurement.
-    :param net_quantity: The Python Measurement to convert.
-    :return: The Python Measurement corresponding to net_quantity.
+    Convert a .NET `DateTime` instance to a `datetime.datetime` instance.
+
+    Args:
+        net_time_point: A point in time of type .NET `DateTime`.
+
+    Returns:
+        The `datetime.datetime` equivalent to the `net_time_point`.
+    """
+    return datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                             net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                             net_time_point.Millisecond * 1000)
+
+
+def as_measurement(net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
+
+    Args:
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `Measurement` instance.
     """
     net_quantity_text = str(net_quantity)
     _, raw_net_unit_abbreviation = net_quantity_text.split(maxsplit=1)
@@ -61,21 +74,29 @@ def as_measurement(net_quantity):
     return result
 
 
-def as_net_date_time(time_point):
+def as_net_date_time(time_point: datetime.datetime) -> DateTime:
     """
-    Convert a Python `datetime.datetime` instance to a .NET `DateTime` instance.
-    :param time_point: The Python `datetime.datetime` to convert.
-    :return: The corresponding .NET `DateTime`
+    Convert a `datetime.datetime` instance to a .NET `DateTime` instance.
+
+    Args:
+        time_point: The `datetime.datetime` instance to covert.
+
+    Returns:
+        The equivalent .NET `DateTime` instance.
     """
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
                     time_point.second, round(time_point.microsecond / 1e3))
 
 
-def as_net_quantity(measurement: om.Measurement):
+def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
     """
-    Convert a Measurement to a .NET UnitsNet.Quantity in the same unit as the Measurement.
-    :param measurement: The Python Measurement to convert.
-    :return: The .NET UnitsNet.Quantity corresponding to measurement.
+    Convert a `Measurement` instance to a .NET `UnitsNet.IQuantity` instance.
+
+    Args:
+        measurement: The `Measurement` instance to convert.
+
+    Returns:
+        The equivalent `UnitsNet.IQuantity` instance.
     """
     if measurement.unit == 'ft' or measurement.unit == 'm':
         return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
@@ -91,34 +112,45 @@ def as_net_quantity(measurement: om.Measurement):
                                     ABBREVIATION_NET_UNIT_MAP[measurement.unit])
 
 
-def as_net_quantity_in_different_unit(measurement, in_unit):
+def as_net_quantity_in_different_unit(measurement: om.Measurement,
+                                      target_unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.IQuantity:
     """
-    Convert a Measurement to a .NET UnitsNet measurement in a specific unit.
-    :param measurement: The Python Measurement to convert.
-    :param in_unit: An unit abbreviation that can be converted to a .NET UnitsNet.Unit
-    :return:
+    Convert a `Measurement` into a .NET `UnitsNet.IQuantity` instance but in a different unit, `in_unit`.
+    Args:
+        measurement: The `Measurement` instance to convert.
+        target_unit: The target unit of the converted `Measurement`.
+
+    Returns:
+        The  `NetUnits.IQuantity` instance equivalent to `measurement`.
     """
     net_to_convert = as_net_quantity(measurement)
-    return net_to_convert.ToUnit(ABBREVIATION_NET_UNIT_MAP[in_unit])
+    return net_to_convert.ToUnit(ABBREVIATION_NET_UNIT_MAP[target_unit])
 
 
 @toolz.curry
-def convert_net_quantity_to_different_unit(net_quantity, to_unit):
+def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
+                                           target_unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.IQuantity:
     """
-    Convert one .NET UnitsNet.Quantity to a .NET UnitsNet.Quantity in a specific unit.
-    :param net_quantity: The .NET UnitsNet.Quantity to convert.
-    :param to_unit: An unit abbreviation that can be converted to a .NET UnitsNet.Unit
-    :return: The corresponding .NET UnitsNet.Quantity in the specified unit.
-    """
+    Convert a .NET `UnitsNet.IQuantity` instance to a different unit, `target_unit`
+    Args:
+        net_quantity: The `UnitsNet.IQuantity` instance to convert.
+        target_unit: The unit to which to convert `net_quantity`.
 
-    result = net_quantity.ToUnit(unit_to_net_unit(to_unit))
+    Returns:
+        The .NET `UnitsNet.IQuantity` converted to `target_unit`.
+    """
+    result = net_quantity.ToUnit(unit_to_net_unit(target_unit))
     return result
 
 
-def unit_to_net_unit(unit: Union[units.UsOilfield, units.Metric]):
+def unit_to_net_unit(unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.Units:
     """
-    Convert a unit abbreviation to a .NET UnitsNet.Unit
-    :param unit: The abbreviation identifying the target .NET UnitsNet.Unit.
-    :return: The corresponding .NET UnitsNet.Unit
+    Convert a unit system unit to a .NET `UnitsNet.Units` instance
+
+    Args:
+        unit: The member identifying the unit system unit to convert.
+
+    Returns:
+        The .NET `UnitsNet.Units` equivalent to `unit`.
     """
     return ABBREVIATION_NET_UNIT_MAP[unit]
