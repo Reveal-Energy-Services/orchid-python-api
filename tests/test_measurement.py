@@ -21,6 +21,7 @@ import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
 
 import orchid.measurement as om
+import orchid.unit_system as units
 
 
 class TestMeasurement(unittest.TestCase):
@@ -28,24 +29,27 @@ class TestMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_has_magnitude_set_in_ctor(self):
-        sut = om.make_measurement(74.168, 'm')
-        assert_that(74.168, sut.magnitude)
+    def test_magnitude_is_supplied_magnitude_to_make_measurement(self):
+        for magnitude, unit in [(877.26, units.Metric.PRESSURE),
+                                (3, units.UsOilfield.VOLUME)  # Testing an integral magnitude against contract
+                                ]:
+            with self.subTest(magnitude=magnitude, unit=unit):
+                sut = om.make_measurement(magnitude, unit)
 
-    def test_has_unit_set_in_ctor(self):
-        sut = om.make_measurement(74.168, 'm')
-        assert_that('m', sut.unit)
+                assert_that(sut.magnitude, equal_to(magnitude))
 
-    def test_ctor_raises_error_if_invalid_magnitude(self):
-        for invalid_magnitude in [None, [], 7 - 3j]:
-            with self.subTest(invalid_magnitude=invalid_magnitude):
-                assert_that(calling(om.make_measurement).with_args(invalid_magnitude, 'psi'),
-                            raises(deal.PreContractError))
+    def test_unit_is_supplied_unit_to_make_measurement(self):
+        sut = om.make_measurement(138.44, units.UsOilfield.LENGTH)
 
-    def test_ctor_raises_error_if_invalid_unit(self):
-        for invalid_unit in [None, '', '\v']:
-            with self.subTest(invalid_unit=invalid_unit):
-                assert_that(calling(om.make_measurement).with_args(1, invalid_unit), raises(deal.PreContractError))
+        assert_that(sut.unit, equal_to(units.UsOilfield.LENGTH))
+
+    def test_make_measurement_raises_exception_if_invalid_magnitude(self):
+        assert_that(calling(om.make_measurement).with_args(complex(3.14, 2.72), units.UsOilfield.VOLUME),
+                    raises(deal.PreContractError))
+
+    def test_make_measurement_raises_exception_if_invalid_unit(self):
+        assert_that(calling(om.make_measurement).with_args(1.717, 'm^3'),
+                    raises(deal.PreContractError))
 
     def test_correct_slurry_rate_volume_unit_from_known_unit(self):
         units_to_test = ['bbl/min', 'm^3/min', 'm\u00b3/min']

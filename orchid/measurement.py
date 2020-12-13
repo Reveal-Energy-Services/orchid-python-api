@@ -41,6 +41,8 @@ def get_conversion_factor(source_unit: Union[units.UsOilfield, units.Metric],
     pass
 
 
+@deal.pre(lambda magnitude, _unit: isinstance(magnitude, numbers.Real))
+@deal.pre(lambda _magnitude, unit: isinstance(unit, units.UsOilfield) or isinstance(unit, units.Metric))
 def make_measurement(magnitude: numbers.Real, unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
     """
     Construct a measurement.
@@ -52,7 +54,7 @@ def make_measurement(magnitude: numbers.Real, unit: Union[units.UsOilfield, unit
     Returns:
         The Measurement consisting of the supplied `magnitude` and `unit`.
     """
-    pass
+    return Measurement(magnitude, unit)
 
 
 def slurry_rate_volume_unit(
