@@ -99,18 +99,29 @@ class TestNetMeasurement(unittest.TestCase):
                 assert_that(actual.Millisecond, equal_to(expected.Millisecond))
 
     def test_as_net_quantity(self):
-        for measurement, expected_net_quantity in \
-                [(make_measurement(113.76, units.UsOilfield.LENGTH.abbreviation), make_net_quantity(113.76, 'ft')),
-                 (make_measurement(72.98, units.Metric.LENGTH.abbreviation), make_net_quantity(72.98, 'm')),
-                 (make_measurement(7922.36, units.UsOilfield.MASS.abbreviation), make_net_quantity(7922.36, 'lb')),
-                 (make_measurement(133965.71, units.Metric.MASS.abbreviation), make_net_quantity(133965.71, 'kg')),
-                 (make_measurement(6888.89, units.UsOilfield.PRESSURE.abbreviation), make_net_quantity(6888.89, 'psi')),
-                 (make_measurement(59849.82, units.Metric.PRESSURE.abbreviation), make_net_quantity(59849.82, 'kPa')),
-                 (make_measurement(42.92, 'MPa'), make_net_quantity(42.92, 'MPa')),
-                 (make_measurement(7216.94, 'bbl'), make_net_quantity(7216.94, 'bbl')),
-                 (make_measurement(1017.09, 'm^3'), make_net_quantity(1017.09, 'm\u00b3'))]:
-            with self.subTest(actual=measurement, expected=expected_net_quantity):
-                actual = as_net_quantity(measurement)
+        for to_convert_measurement, expected_net_quantity in \
+                [(make_measurement(113.76, units.UsOilfield.LENGTH),
+                  make_net_quantity(113.76, units.UsOilfield.LENGTH)),
+                 # (make_measurement(72.98, units.Metric.LENGTH),
+                 #  make_net_quantity(72.98, units.Metric.LENGTH)),
+                 # (make_measurement(7922.36, units.UsOilfield.MASS),
+                 #  make_net_quantity(7922.36, units.UsOilfield.MASS)),
+                 # (make_measurement(133965.71, units.Metric.MASS),
+                 #  make_net_quantity(133965.71, units.Metric.MASS)),
+                 # (make_measurement(6888.89, units.UsOilfield.PRESSURE),
+                 #  make_net_quantity(6888.89, units.UsOilfield.PRESSURE)),
+                 # (make_measurement(59849.82, units.Metric.PRESSURE),
+                 #  make_net_quantity(59849.82, units.Metric.PRESSURE)),
+                 # (make_measurement(7216.94, units.UsOilfield.VOLUME),
+                 #  make_net_quantity(7216.94, units.UsOilfield.VOLUME)),
+                 # (make_measurement(1017.09, units.Metric.VOLUME),
+                 #  make_net_quantity(1017.09, units.Metric.VOLUME)),
+                 ]:
+            with self.subTest(to_convert=to_convert_measurement, expected=expected_net_quantity):
+                print(f'{to_convert_measurement=}')
+                actual = as_net_quantity(to_convert_measurement)
+                print(f'actual={str(actual)}')
+                print(f'expected_net_quantity={str(expected_net_quantity)}')
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_length_quantity_in_original_unit(self):

@@ -31,6 +31,18 @@ from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
+
+UNIT_CREATE_NET_UNIT_MAP = {
+    units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
+    units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
+    units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
+    units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.UsOilfield.PRESSURE: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
+    units.Metric.PRESSURE: lambda q: UnitsNet.Pressure.FromKilopascals(q),
+    units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
+    units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
+}
+
 ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Foot,
                              units.Metric.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Meter,
                              units.UsOilfield.MASS.abbreviation: UnitsNet.Units.MassUnit.Pound,
@@ -108,18 +120,8 @@ def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
     Returns:
         The equivalent `UnitsNet.IQuantity` instance.
     """
-    if measurement.unit == 'ft' or measurement.unit == 'm':
-        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                    ABBREVIATION_NET_UNIT_MAP[measurement.unit])
-    elif measurement.unit == 'lb' or measurement.unit == 'kg':
-        return UnitsNet.Mass.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                  ABBREVIATION_NET_UNIT_MAP[measurement.unit])
-    elif measurement.unit == 'psi' or measurement.unit == 'kPa' or measurement.unit == 'MPa':
-        return UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                      ABBREVIATION_NET_UNIT_MAP[measurement.unit])
-    elif measurement.unit == 'bbl' or measurement.unit == 'm^3':
-        return UnitsNet.Volume.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                    ABBREVIATION_NET_UNIT_MAP[measurement.unit])
+    quantity = UnitsNet.QuantityValue.op_Implicit(measurement.magnitude)
+    return UNIT_CREATE_NET_UNIT_MAP[measurement.unit](quantity)
 
 
 def as_net_quantity_in_different_unit(measurement: om.Measurement,

@@ -37,6 +37,12 @@ def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None):
 
 def assert_that_net_quantities_close_to(actual, expected, tolerance):
     def get_net_unit(net_quantity):
-        raise NotImplementedError
+        return net_quantity.Unit
+
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
-    assert_that(actual.Value, close_to(expected.Value, tolerance))
+
+    to_test_actual_value = decimal.Decimal(actual.Value)
+    to_test_expected_value = decimal.Decimal(expected.Value)
+    to_test_tolerance = decimal.Decimal((0, (1,), to_test_expected_value.as_tuple()[-1] - 1)) if tolerance is None \
+        else decimal.Decimal(tolerance)
+    assert_that(to_test_actual_value, close_to(to_test_expected_value, to_test_tolerance))
