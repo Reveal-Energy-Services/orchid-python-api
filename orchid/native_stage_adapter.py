@@ -150,7 +150,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         specified unit.
 
         Args:
-            in_length_unit: An abbreviation of the unit of length for the returned Measurement.
+            in_length_unit: An unit of the unit of length for the returned Measurement.
             xy_well_reference_frame: The reference frame defining the origin.
 
         Returns:
@@ -248,7 +248,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         in the specified unit.
 
         Args:
-            in_length_unit: An abbreviation of the requested resultant length unit.
+            in_length_unit: An unit of the requested resultant length unit.
 
         Returns;
          The measured depth of the stage top in the specified unit.
@@ -264,7 +264,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         in the specified unit.
 
         Args:
-            in_length_unit: An abbreviation of the unit of length for the returned Measurement.
+            in_length_unit: An unit of the unit of length for the returned Measurement.
 
         Returns:
              The measured depth of the stage bottom in the specified unit.
@@ -279,7 +279,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Return the stage length in the specified unit.
 
         Args:
-            in_length_unit: An abbreviation of the unit of length for the returned Measurement.
+            in_length_unit: An unit of the unit of length for the returned Measurement.
 
         Returns:
             The Measurement of the length of this stage.

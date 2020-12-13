@@ -65,7 +65,7 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
     def sampled_quantity_unit(self) -> str:
         """
         Return the measurement unit of the samples in this treatment curve.
-        :return: A string containing an abbreviation for the unit  of each sample in this treatment curve.
+        :return: A string containing an unit for the unit  of each sample in this treatment curve.
         """
         result = self._sample_unit_func(self._quantity_name_physical_quantity_map[self.sampled_quantity_name])
         return result
