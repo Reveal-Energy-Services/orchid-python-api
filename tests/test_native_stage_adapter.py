@@ -38,8 +38,8 @@ AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
 StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 
-def make_subsurface_coordinate(coord, unit):
-    return as_net_quantity(make_measurement(coord, unit.abbreviation))
+def _make_subsurface_coordinate(coord, unit):
+    return as_net_quantity(make_measurement(coord, unit))
 
 
 @toolz.curry
@@ -48,15 +48,15 @@ def mock_subsurface_point_func(expected_location,
                                actual_xy_origin, actual_depth_origin):
     result = tsn.create_stub_net_subsurface_point()
     if expected_xy_origin == actual_xy_origin and expected_depth_origin == actual_depth_origin:
-        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
-        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
-        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+        result.X = _make_subsurface_coordinate(expected_location.x, expected_location.unit)
+        result.Y = _make_subsurface_coordinate(expected_location.y, expected_location.unit)
+        result.Depth = _make_subsurface_coordinate(expected_location.depth, expected_location.unit)
     return result
 
 
 def create_expected(expected_location):
     expected = toolz.pipe(expected_location[:-1],
-                          toolz.map(toolz.flip(make_measurement, expected_location[-1].abbreviation)),
+                          toolz.map(toolz.flip(make_measurement, expected_location[-1])),
                           lambda coords: tcm.SubsurfaceLocation(*coords))
     return expected
 
@@ -87,8 +87,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
                                                               origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
-                sut1 = nsa.NativeStageAdapter(stub_net_stage)
-                sut = sut1
+                sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual = sut.bottom_location(expected_bottom.unit, origin_reference.xy, origin_reference.depth)
 
@@ -142,9 +141,9 @@ class TestNativeStageAdapter(unittest.TestCase):
             result = tsn.create_stub_net_subsurface_point()
             if expected_cluster_no == actual_cluster_no and expected_xy_origin == actual_xy_origin and \
                     expected_depth_origin == actual_depth_origin:
-                result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
-                result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
-                result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+                result.X = _make_subsurface_coordinate(expected_location.x, expected_location.unit)
+                result.Y = _make_subsurface_coordinate(expected_location.y, expected_location.unit)
+                result.Depth = _make_subsurface_coordinate(expected_location.depth, expected_location.unit)
             return result
 
         cluster_numbers = [2, 4, 7]
