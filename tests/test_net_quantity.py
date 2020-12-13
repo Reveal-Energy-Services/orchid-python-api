@@ -15,7 +15,8 @@
 # This file is part of Orchid and related technologies.
 #
 
-from datetime import datetime
+import datetime
+import decimal
 import unittest
 
 from hamcrest import assert_that, equal_to, close_to
@@ -58,35 +59,40 @@ class TestNetMeasurement(unittest.TestCase):
         net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726)
         actual = as_datetime(net_time_point)
 
-        assert_that(actual, equal_to(datetime(2020, 8, 5, 6, 59, 41, 726000)))
+        assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000)))
 
     def test_as_measurement(self):
-        for value, unit in [(44.49, units.UsOilfield.LENGTH), (13.56, units.Metric.LENGTH),
-                            (30.94, units.UsOilfield.MASS), (68.21, units.Metric.MASS),
-                            (49.70, units.UsOilfield.PRESSURE), (342.67, units.Metric.PRESSURE),
-                            (83.48, units.UsOilfield.VOLUME), (13.27, units.Metric.VOLUME)
-                            ]:
-            with self.subTest(value=value, unit=unit):
-                net_quantity = make_net_quantity(value, unit)
-                actual = as_measurement(net_quantity)
+        for value, unit, to_convert_net_quantity in [
+            (44.49, units.UsOilfield.LENGTH, UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(44.49))),
+            (13.56, units.Metric.LENGTH, UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(13.56))),
+            (30.94, units.UsOilfield.MASS, UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(30.94))),
+            (68.21, units.Metric.MASS, UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(68.21))),
+            (49.70, units.UsOilfield.PRESSURE,
+             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(49.70))),
+            (342.67, units.Metric.PRESSURE, UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(342.67))),
+            (83.48, units.UsOilfield.VOLUME, UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(83.48))),
+            (13.27, units.Metric.VOLUME, UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27))),
+        ]:
+            with self.subTest(value=value, unit=unit, to_convert_net_quantity=to_convert_net_quantity):
+                actual = as_measurement(to_convert_net_quantity)
                 expected = make_measurement(value, unit)
                 tcm.assert_that_scalar_quantities_close_to(actual, expected, 6e-3)
 
     def test_as_net_date_time(self):
         for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23),
-                                      datetime(2017, 3, 22, 3, 0, 37, 23124)),
+                                      datetime.datetime(2017, 3, 22, 3, 0, 37, 23124)),
                                      (DateTime(2020, 9, 20, 22, 11, 51, 655),
-                                      datetime(2020, 9, 20, 22, 11, 51, 654859)),
+                                      datetime.datetime(2020, 9, 20, 22, 11, 51, 654859)),
                                      # The Python `round` function employs "half-even" rounding; however, the
                                      # following test rounds to an *odd* value instead. See the "Note" in the
                                      # Python documentation of `round` for an explanation of this (unexpected)
                                      # behavior.
                                      (DateTime(2022, 2, 2, 23, 35, 39, 979),
-                                      datetime(2022, 2, 2, 23, 35, 39, 978531)),
+                                      datetime.datetime(2022, 2, 2, 23, 35, 39, 978531)),
                                      (DateTime(2019, 2, 7, 10, 18, 17, 488),
-                                      datetime(2019, 2, 7, 10, 18, 17, 487500)),
+                                      datetime.datetime(2019, 2, 7, 10, 18, 17, 487500)),
                                      (DateTime(2022, 1, 14, 20, 29, 18, 852),
-                                      datetime(2022, 1, 14, 20, 29, 18, 852500))
+                                      datetime.datetime(2022, 1, 14, 20, 29, 18, 852500))
                                      ]:
             with self.subTest(expected=expected, time_point=time_point):
                 actual = as_net_date_time(time_point)
