@@ -24,7 +24,6 @@ import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
 from orchid.native_monitor_curve_facade import NativeMonitorCurveFacade
 from orchid.project_loader import ProjectLoader
-import orchid.project_units as project_units
 import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences
@@ -82,14 +81,6 @@ class Project(dna.DotNetAdapter):
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []
-
-    def unit_abbreviation(self, physical_quantity):
-        """
-        Return the abbreviation for the specified `physical_quantity` of this project.
-        :param physical_quantity: The name of the physical quantity.
-        :return: The abbreviation of the specified physical quantity.
-        """
-        return project_units.unit_abbreviation(self._project_loader.native_project(), physical_quantity)
 
     def wells_by_name(self, name) -> Iterable[IWell]:
         """

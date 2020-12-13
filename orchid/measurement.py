@@ -23,39 +23,17 @@ from typing import Union
 
 import deal
 
+import orchid.unit_system as units
+
 
 Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], module=__name__)
 
 
-# TODO: Wrap UnitsNet and custom (ratio) types
-# This solution, although initially usefully, is not very extensible. I believe, after a discussion with
-# Scott, that a better solution would wrap .NET code: both the `UnitsNet` package and the custom types we
-# wrote for slurry rate and proppant concentration. Because of the imminent, initial release, I have chosen
-# not to make that change at this time. As part of this change, I will introduce symbolic constants so that
-# user can use "Intellisense" if available.
-CONVERSION_FACTORS = {('bbl/min', 'bbl/s'): 1.0 / 60.0,
-                      ('m\u00b3/min', 'm^3/s'): 1.0 / 60.0,
-                      ('m\u00b3/min', 'm\u00b3/s'): 1.0 / 60.0,
-                      ('bbl/min', 'gal/s'): 42.0 / 60,
-                      ('bbl/s', 'gal/s'): 42,
-                      ('m\u00b3', 'bbl'): 6.28981,
-                      ('kg', 'lb'): 2.20462,
-                      ('kPa', 'psi'): 0.145038}
-
-
-def argument_neither_none_empty_nor_all_whitespace(arg):
-    return (arg is not None) and (len(arg.strip()) > 0)
-
-
-@deal.pre(lambda source_unit, _target_unit: argument_neither_none_empty_nor_all_whitespace(source_unit))
-@deal.pre(lambda _source_unit, target_unit: argument_neither_none_empty_nor_all_whitespace(target_unit))
 def get_conversion_factor(source_unit, target_unit):
-    return CONVERSION_FACTORS[(source_unit, target_unit)]
+    pass
 
 
-@deal.pre(lambda magnitude, _: isinstance(magnitude, numbers.Real))
-@deal.pre(lambda _, unit: argument_neither_none_empty_nor_all_whitespace(unit))
-def make_measurement(magnitude: Union[int, float], unit_text: str) -> Measurement:
+def make_measurement(magnitude: Union[int, float], unit_text: Union[units.UsOilfield, units.Metric]) -> Measurement:
     """
     Construct a measurement.
 
@@ -66,32 +44,22 @@ def make_measurement(magnitude: Union[int, float], unit_text: str) -> Measuremen
     Returns:
         The measurement consisting of a magnitude and a unit.
     """
-    return Measurement(magnitude, unit_text)
+    pass
 
 
-@deal.pre(lambda slurry_rate_unit: argument_neither_none_empty_nor_all_whitespace(slurry_rate_unit))
 def slurry_rate_volume_unit(slurry_rate_unit: str) -> str:
     """
     Extract the volume unit from the compound `slurry_rate_unit`.
 
     Args:
         slurry_rate_unit: The abbreviation for the compound slurry rate unit.
-
+Q
     Returns:
         The abbreviation for the volume unit of the slurry rate unit.
     """
-    if slurry_rate_unit == 'bbl/min':
-        return 'bbl'
-    elif slurry_rate_unit == 'm^3/min':
-        return 'm^3'
-    elif slurry_rate_unit == 'm\u00b3/min':
-        return 'm\u00b3'
-    else:
-        raise ValueError(f'Unit, "{slurry_rate_unit}", unrecognized.')
+    pass
 
 
-@deal.pre(lambda proppant_concentration_unit: argument_neither_none_empty_nor_all_whitespace(
-    proppant_concentration_unit))
 def proppant_concentration_mass_unit(proppant_concentration_unit: str) -> str:
     """
     Extract the mass unit from the compound `proppant_concentration_unit`.
@@ -102,9 +70,4 @@ def proppant_concentration_mass_unit(proppant_concentration_unit: str) -> str:
     Returns:
         The abbreviation for the mass unit of the proppant concentration unit.
     """
-    if proppant_concentration_unit == 'lb/gal (U.S.)':
-        return 'lb'
-    elif proppant_concentration_unit == 'kg/m^3' or proppant_concentration_unit == 'kg/m\u00b3':
-        return 'kg'
-    else:
-        raise ValueError(f'Unit, "{proppant_concentration_unit}", unrecognized.')
+    pass

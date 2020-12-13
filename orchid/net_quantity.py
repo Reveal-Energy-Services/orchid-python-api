@@ -19,10 +19,11 @@
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 from datetime import datetime
+from typing import Union
 
 import toolz.curried as toolz
 
-from orchid.measurement import make_measurement
+import orchid.measurement as om
 import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -37,12 +38,11 @@ ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Unit
                              units.UsOilfield.PRESSURE.abbreviation:
                                  UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
                              units.Metric.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.Kilopascal,
-                             'MPa': UnitsNet.Units.PressureUnit.Megapascal,
                              units.UsOilfield.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.OilBarrel,
                              units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
 
 
-def as_datetime(net_time_point):
+def as_datetime(net_time_point: DateTime):
     return datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                     net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
                     net_time_point.Millisecond * 1000)
@@ -57,7 +57,7 @@ def as_measurement(net_quantity):
     net_quantity_text = str(net_quantity)
     _, raw_net_unit_abbreviation = net_quantity_text.split(maxsplit=1)
     net_unit_abbreviation = raw_net_unit_abbreviation if raw_net_unit_abbreviation != 'm\u00b3' else 'm^3'
-    result = make_measurement(net_quantity.Value, net_unit_abbreviation)
+    result = om.make_measurement(net_quantity.Value, net_unit_abbreviation)
     return result
 
 
@@ -71,7 +71,7 @@ def as_net_date_time(time_point):
                     time_point.second, round(time_point.microsecond / 1e3))
 
 
-def as_net_quantity(measurement):
+def as_net_quantity(measurement: om.Measurement):
     """
     Convert a Measurement to a .NET UnitsNet.Quantity in the same unit as the Measurement.
     :param measurement: The Python Measurement to convert.
@@ -111,14 +111,14 @@ def convert_net_quantity_to_different_unit(net_quantity, to_unit):
     :return: The corresponding .NET UnitsNet.Quantity in the specified unit.
     """
 
-    result = net_quantity.ToUnit(unit_abbreviation_to_unit(to_unit))
+    result = net_quantity.ToUnit(unit_to_net_unit(to_unit))
     return result
 
 
-def unit_abbreviation_to_unit(unit_abbreviation: str):
+def unit_to_net_unit(unit: Union[units.UsOilfield, units.Metric]):
     """
     Convert a unit abbreviation to a .NET UnitsNet.Unit
-    :param unit_abbreviation: The abbreviation identifying the target .NET UnitsNet.Unit.
+    :param unit: The abbreviation identifying the target .NET UnitsNet.Unit.
     :return: The corresponding .NET UnitsNet.Unit
     """
-    return ABBREVIATION_NET_UNIT_MAP[unit_abbreviation]
+    return ABBREVIATION_NET_UNIT_MAP[unit]

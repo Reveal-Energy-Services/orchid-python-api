@@ -16,6 +16,7 @@
 from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
+from typing import Union
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -79,21 +80,3 @@ class Metric(UnitSystem):
 
     def system_name(self):
         return 'Metric'
-
-
-def abbreviation_to_unit(unit_abbreviation: str) -> UnitSystem:
-    """
-    Determines the `UnitSystem` member corresponding to `unit_abbreviation`.
-
-    Args:
-        unit_abbreviation: The abbreviation to convert.
-
-    Returns:
-        The corresponding `UnitSystem` member.
-    """
-    if unit_abbreviation == 'ft':
-        return UsOilfield.LENGTH
-    elif unit_abbreviation == 'm':
-        return Metric.LENGTH
-    else:
-        raise ValueError(f'Unrecognized unit abbreviation, "{unit_abbreviation}".')

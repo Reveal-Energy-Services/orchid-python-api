@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+
 from enum import IntEnum
 import functools
 from typing import Tuple, Union
@@ -23,10 +24,10 @@ import deal
 import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
-from orchid.measurement import Measurement
+import orchid.measurement as om
 import orchid.native_subsurface_point as nsp
 import orchid.native_treatment_curve_facade as ntc
-from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit, make_measurement
+from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
 import orchid.reference_origins as origins
 import orchid.unit_system as units
 
@@ -89,16 +90,16 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
         return candidates[0].value.curve_type
 
-    def _center_location_depth(self, length_unit: Union[units.UsOilfield, units.Metric],
-                               depth_datum: origins.DepthDatum) -> Measurement:
+    def _center_location_depth(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                               depth_datum: origins.DepthDatum) -> om.Measurement:
         """
         Return the depth of the stage center relative to the specified `depth_datum.`
 
         Args:
-            length_unit: The unit of length for the returned Measurement.
+            in_length_unit: The unit of length for the returned Measurement.
             depth_datum: The reference datum for the depth.
         """
-        subsurface_point = self.center_location(length_unit, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+        subsurface_point = self.center_location(in_length_unit, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                                 depth_datum)
         return subsurface_point.depth
 
@@ -142,78 +143,79 @@ class NativeStageAdapter(dna.DotNetAdapter):
         result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
         return result
 
-    def center_location_easting(self, length_unit: Union[units.UsOilfield, units.Metric],
-                                xy_well_reference_frame: origins.WellReferenceFrameXy) -> Measurement:
+    def center_location_easting(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                                xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
         """
         Return the easting location of the stage center relative to the specified reference frame in the
         specified unit.
 
         Args:
-            length_unit: An abbreviation of the unit of length for the returned Measurement.
+            in_length_unit: An abbreviation of the unit of length for the returned Measurement.
             xy_well_reference_frame: The reference frame defining the origin.
 
         Returns:
             A measurement.
         """
-        result = self.center_location(length_unit, xy_well_reference_frame, origins.DepthDatum.KELLY_BUSHING).x
+        result = self.center_location(in_length_unit, xy_well_reference_frame, origins.DepthDatum.KELLY_BUSHING).x
         return result
 
-    def center_location_northing(self, length_unit: Union[units.UsOilfield, units.Metric],
-                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> Measurement:
+    def center_location_northing(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
         """
         Return the northing location of the stage center in the `xy_well_reference_frame` in the specified unit.
 
         Args:
-            length_unit: The requested resultant length unit.
+            in_length_unit: The requested resultant length unit.
             xy_well_reference_frame: The reference frame defining the origin.
 
         Returns:
             A measurement.
         """
-        subsurface_point = self.center_location(length_unit, xy_well_reference_frame,
+        subsurface_point = self.center_location(in_length_unit, xy_well_reference_frame,
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.y
 
-    def center_location_md(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
+    def center_location_md(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
         Return the measured depth of the stage center in project units.
 
         Args:
-            length_unit: The unit of length for the returned Measurement.
+            in_length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit, origins.DepthDatum.KELLY_BUSHING)
+        return self._center_location_depth(in_length_unit, origins.DepthDatum.KELLY_BUSHING)
 
-    def center_location_tvdgl(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
+    def center_location_tvdgl(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
         Returns the total vertical depth from ground level of the stage center in project units.
 
         Args:
-            length_unit: The unit of length for the returned Measurement.
+            in_length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit, origins.DepthDatum.GROUND_LEVEL)
+        return self._center_location_depth(in_length_unit, origins.DepthDatum.GROUND_LEVEL)
 
-    def center_location_tvdss(self, length_unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
+    def center_location_tvdss(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
         Returns the total vertical depth from sea level of the stage center in project units.
 
         Args:
-            length_unit: The unit of length for the returned Measurement.
+            in_length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(length_unit, origins.DepthDatum.SEA_LEVEL)
+        return self._center_location_depth(in_length_unit, origins.DepthDatum.SEA_LEVEL)
 
-    def center_location_xy(self, length_unit: Union[units.UsOilfield, units.Metric],
-                           xy_well_reference_frame: origins.WellReferenceFrameXy) -> Tuple[Measurement, Measurement]:
+    def center_location_xy(self, in_length_unit: Union[units.UsOilfield, units.Metric],
+                           xy_well_reference_frame: origins.WellReferenceFrameXy) -> Tuple[om.Measurement,
+                                                                                           om.Measurement]:
         """
         Return the easting-northing location of the stage center in the `xy_well_reference_frame` in project units.
 
         Args:
-            length_unit: The unit of length for the returned Measurement.
+            in_length_unit: The unit of length for the returned Measurement.
             xy_well_reference_frame: The reference frame defining the origin.
 
         Returns:
             A tuple
         """
-        subsurface_point = self.center_location(length_unit, xy_well_reference_frame,
+        subsurface_point = self.center_location(in_length_unit, xy_well_reference_frame,
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.x, subsurface_point.y
 
@@ -240,51 +242,51 @@ class NativeStageAdapter(dna.DotNetAdapter):
         result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
         return result
 
-    def md_top(self, length_unit_abbreviation: str) -> Measurement:
+    def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
         Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
         in the specified unit.
 
         Args:
-            length_unit_abbreviation: An abbreviation of the requested resultant length unit.
+            in_length_unit: An abbreviation of the requested resultant length unit.
 
         Returns;
          The measured depth of the stage top in the specified unit.
         """
         original = self._adaptee.MdTop
-        md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
+        md_top_quantity = convert_net_quantity_to_different_unit(original, in_length_unit)
         result = as_measurement(md_top_quantity)
         return result
 
-    def md_bottom(self, length_unit_abbreviation):
+    def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
         Return the measured depth of the bottom of this stage (farthest from the well head / closest to the toe)
         in the specified unit.
 
         Args:
-            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+            in_length_unit: An abbreviation of the unit of length for the returned Measurement.
 
         Returns:
              The measured depth of the stage bottom in the specified unit.
         """
         original = self._adaptee.MdBottom
-        md_top_quantity = convert_net_quantity_to_different_unit(original, length_unit_abbreviation)
+        md_top_quantity = convert_net_quantity_to_different_unit(original, in_length_unit)
         result = as_measurement(md_top_quantity)
         return result
 
-    def stage_length(self, length_unit_abbreviation: str) -> Measurement:
+    def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
         Return the stage length in the specified unit.
 
         Args:
-            length_unit_abbreviation: An abbreviation of the unit of length for the returned Measurement.
+            in_length_unit: An abbreviation of the unit of length for the returned Measurement.
 
         Returns:
             The Measurement of the length of this stage.
         """
         length_magnitude = \
-            self.md_bottom(length_unit_abbreviation).magnitude - self.md_top(length_unit_abbreviation).magnitude
-        result = make_measurement(length_magnitude, length_unit_abbreviation)
+            self.md_bottom(in_length_unit).magnitude - self.md_top(in_length_unit).magnitude
+        result = om.make_measurement(length_magnitude, in_length_unit)
         return result
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],

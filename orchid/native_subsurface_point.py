@@ -64,7 +64,7 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
     def __init__(self, adaptee, in_length_unit):
         super().__init__(adaptee)
         self._length_converter_func = toolz.flip(onq.convert_net_quantity_to_different_unit,
-                                                 in_length_unit.abbreviation)
+                                                 in_length_unit)
 
     @property
     def x(self):

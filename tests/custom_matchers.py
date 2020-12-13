@@ -32,7 +32,6 @@ def assert_that_scalar_quantities_close_to(actual, expected, tolerance):
 
 def assert_that_net_quantities_close_to(actual, expected, tolerance):
     def get_net_unit(net_quantity):
-        _, net_unit_abbreviation = str(net_quantity).split()
-        return net_unit_abbreviation
+        raise NotImplementedError
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
     assert_that(actual.Value, close_to(expected.Value, tolerance))

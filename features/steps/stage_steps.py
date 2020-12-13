@@ -92,12 +92,8 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage_no))
-    assert_measurement_equal(
-        stage_of_interest.md_top(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
-        md_top)
-    assert_measurement_equal(
-        stage_of_interest.md_bottom(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
-        md_bottom)
+    assert_measurement_equal(stage_of_interest.md_top(context.project.units.LENGTH), md_top)
+    assert_measurement_equal(stage_of_interest.md_bottom(context.project.units.LENGTH), md_bottom)
     assert_that(stage_of_interest.cluster_count, equal_to(cluster_count))
 
 

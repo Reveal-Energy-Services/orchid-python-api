@@ -23,7 +23,6 @@ from toolz.curried import map, partial
 
 import orchid.dot_net_dom_access as dna
 from orchid.net_quantity import as_datetime
-import orchid.project_units as opu
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries
@@ -55,7 +54,7 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
                                                      SLURRY_RATE: 'slurry rate',
                                                      PROPPANT_CONCENTRATION: 'proppant concentration'}
         # noinspection PyArgumentList
-        self._sample_unit_func = partial(opu.unit_abbreviation, net_treatment_curve.Stage.Well.Project)
+        self._sample_unit_func = lambda: None
 
     display_name = dna.dom_property('display_name', 'Return the display name for this treatment curve.')
     name = dna.dom_property('name', 'Return the name for this treatment curve.')
