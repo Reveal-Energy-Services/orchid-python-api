@@ -38,7 +38,7 @@ class TestUnitSystem(unittest.TestCase):
 
     def test_abbreviation_to_unit_raises_exception_if_unknown_abbreviation(self):
         assert_that(calling(units.abbreviation_to_unit).with_args('fr'),
-                    raises(ValueError, pattern=r'Unrecognized unit abbreviation, "fr"'))
+                    raises(ValueError, pattern=r'Unrecognized unit unit, "fr"'))
 
 
 if __name__ == '__main__':
