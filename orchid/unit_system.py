@@ -22,7 +22,7 @@ from typing import Union
 import UnitsNet
 
 
-About = namedtuple('About', ['abbreviation', 'net_unit'])
+About = namedtuple('About', ['unit', 'net_unit'])
 
 
 class UnitSystem(Enum):
@@ -34,7 +34,7 @@ class UnitSystem(Enum):
     abbreviation = property(lambda self: str(self))
 
     def __str__(self):
-        return self.value.abbreviation
+        return self.value.unit
 
     @abstractmethod
     def system_name(self):

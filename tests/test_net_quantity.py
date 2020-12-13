@@ -33,28 +33,21 @@ from System import DateTime
 import UnitsNet
 
 
-def make_net_quantity(magnitude, abbreviation):
+UNIT_CREATE_NET_UNIT_MAP = {
+    units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
+    units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
+    units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
+    units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.UsOilfield.PRESSURE: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
+    units.Metric.PRESSURE: lambda q: UnitsNet.Pressure.FromKilopascals(q),
+    units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
+    units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
+}
+
+
+def make_net_quantity(magnitude, unit):
     quantity = UnitsNet.QuantityValue.op_Implicit(magnitude)
-    if abbreviation == 'ft':
-        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Foot)
-    elif abbreviation == 'm':
-        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
-    elif abbreviation == 'lb':
-        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Pound)
-    elif abbreviation == 'kg':
-        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
-    elif abbreviation == 'psi':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
-    elif abbreviation == 'kPa':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Kilopascal)
-    elif abbreviation == 'MPa':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Megapascal)
-    elif abbreviation == 'bbl':
-        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.OilBarrel)
-    elif abbreviation == 'm^3' or abbreviation == 'm\u00b3':
-        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.CubicMeter)
-    else:
-        raise ValueError(f'Unhandled abbreviation {abbreviation}')
+    return UNIT_CREATE_NET_UNIT_MAP[unit](quantity)
 
 
 class TestNetMeasurement(unittest.TestCase):
@@ -68,10 +61,10 @@ class TestNetMeasurement(unittest.TestCase):
         assert_that(actual, equal_to(datetime(2020, 8, 5, 6, 59, 41, 726000)))
 
     def test_as_measurement(self):
-        for value, unit in [(44.49, 'ft'), (13.56, 'm'),  # length
-                            (30.94, 'lb'), (68.21, 'kg'),  # mass
-                            (49.70, 'psi'), (342.67, 'kPa'), (0.6071, 'MPa'),  # pressure
-                            (83.48, 'bbl'), (13.27, 'm^3')  # volume
+        for value, unit in [(44.49, units.UsOilfield.LENGTH), (13.56, units.Metric.LENGTH),
+                            (30.94, units.UsOilfield.MASS), (68.21, units.Metric.MASS),
+                            (49.70, units.UsOilfield.PRESSURE), (342.67, units.Metric.PRESSURE),
+                            (83.48, units.UsOilfield.VOLUME), (13.27, units.Metric.VOLUME)
                             ]:
             with self.subTest(value=value, unit=unit):
                 net_quantity = make_net_quantity(value, unit)

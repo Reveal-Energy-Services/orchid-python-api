@@ -13,6 +13,7 @@
 #
 
 from collections import namedtuple
+import decimal
 
 from hamcrest import assert_that, equal_to, close_to
 
@@ -25,9 +26,13 @@ ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 
-def assert_that_scalar_quantities_close_to(actual, expected, tolerance):
+def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None):
     assert_that(actual.unit, equal_to(expected.unit))
-    assert_that(actual.magnitude, close_to(expected.magnitude, tolerance))
+    to_test_actual_magnitude = decimal.Decimal(actual.magnitude)
+    to_test_expected_magnitude = decimal.Decimal(expected.magnitude)
+    to_test_tolerance = decimal.Decimal((0, (1,), to_test_expected_magnitude.as_tuple()[-1] - 1)) if tolerance is None \
+        else decimal.Decimal(tolerance)
+    assert_that(to_test_actual_magnitude, close_to(to_test_expected_magnitude, to_test_tolerance))
 
 
 def assert_that_net_quantities_close_to(actual, expected, tolerance):

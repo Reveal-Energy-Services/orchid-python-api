@@ -67,11 +67,21 @@ def as_measurement(net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     Returns:
         The equivalent `Measurement` instance.
     """
-    net_quantity_text = str(net_quantity)
-    _, raw_net_unit_abbreviation = net_quantity_text.split(maxsplit=1)
-    net_unit_abbreviation = raw_net_unit_abbreviation if raw_net_unit_abbreviation != 'm\u00b3' else 'm^3'
-    result = om.make_measurement(net_quantity.Value, net_unit_abbreviation)
-    return result
+    net_unit_abbreviation = str(net_quantity).split(maxsplit=1)[1]
+    us_oilfield_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.UsOilfield)
+    metric_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.Metric)
+    candidates = list(toolz.concatv(us_oilfield_candidates, metric_candidates))
+    if len(candidates) == 1:
+        return om.make_measurement(net_quantity.Value, candidates[0])
+    elif toolz.count(candidates) > 1:
+        raise ValueError(f'Expected at most 1 matching candidate for "{net_unit_abbreviation}". Found '
+                         f'{[str(c) for c in candidates]}.')
+    else:
+        # No matching candidates so test Unicode units
+        if net_unit_abbreviation == 'm\u00b3':
+            return om.make_measurement(net_quantity.Value, units.Metric.VOLUME)
+        else:
+            raise ValueError(f'No matching candidates for "{net_unit_abbreviation}".')
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
