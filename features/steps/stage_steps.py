@@ -73,7 +73,7 @@ def assert_measurement_equal(actual, expected):
     expected_magnitude_text, expected_unit = expected.split()
     expected_magnitude = float(expected_magnitude_text)
     assert_that(actual.magnitude, close_to(expected_magnitude, 6e-2))
-    assert_that(actual.unit, equal_to(expected_unit))
+    assert_that(actual.unit.abbreviation, equal_to(expected_unit))
 
 
 # noinspection PyBDDParameters
@@ -92,8 +92,8 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage_no))
-    assert_measurement_equal(stage_of_interest.md_top(context.project.units.LENGTH), md_top)
-    assert_measurement_equal(stage_of_interest.md_bottom(context.project.units.LENGTH), md_bottom)
+    assert_measurement_equal(stage_of_interest.md_top(context.project.project_units.LENGTH), md_top)
+    assert_measurement_equal(stage_of_interest.md_bottom(context.project.project_units.LENGTH), md_bottom)
     assert_that(stage_of_interest.cluster_count, equal_to(cluster_count))
 
 
@@ -124,19 +124,14 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     in_length_unit = context.project.project_units.LENGTH
-    in_length_unit_abbreviation = in_length_unit.value.abbreviation
-    assert_measurement_equal(
-        stage_of_interest.center_location_easting(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
-        easting)
-    assert_measurement_equal(
-        stage_of_interest.center_location_northing(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
-        northing)
-    assert_measurement_equal(
-        stage_of_interest.center_location_tvdss(in_length_unit),
-        tvdss)
-    assert_measurement_equal(
-        stage_of_interest.stage_length(in_length_unit_abbreviation),
-        length)
+    assert_measurement_equal(stage_of_interest.center_location_easting(in_length_unit,
+                                                                       origins.WellReferenceFrameXy.PROJECT),
+                             easting)
+    assert_measurement_equal(stage_of_interest.center_location_northing(in_length_unit,
+                                                                        origins.WellReferenceFrameXy.PROJECT),
+                             northing)
+    assert_measurement_equal(stage_of_interest.center_location_tvdss(in_length_unit), tvdss)
+    assert_measurement_equal(stage_of_interest.stage_length(in_length_unit), length)
 
 
 # noinspection PyBDDParameters

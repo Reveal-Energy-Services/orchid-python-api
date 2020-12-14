@@ -123,6 +123,6 @@ def assert_expected_measurement(actual_magnitude, actual_unit,
         assert_that(actual_magnitude_to_test, close_to(expected_magnitude_to_test, delta), message)
     else:
         assert_that(math.isnan(actual_magnitude_to_test), equal_to(True))
-    assert_that(actual_unit, equal_to(expected_unit), message)
+    assert_that(actual_unit.abbreviation, equal_to(expected_unit), message)
 
 
