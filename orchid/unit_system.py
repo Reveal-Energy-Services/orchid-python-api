@@ -62,6 +62,9 @@ class UsOilfield(UnitSystem):
     MASS = About('lb', UnitsNet.Units.MassUnit.Pound)
     PRESSURE = About('psi', UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
     VOLUME = About('bbl', UnitsNet.Units.VolumeUnit.OilBarrel)
+    PROPPANT_CONCENTRATION = About('lbs./gal. (U. S.)',
+                                   (UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.OilBarrel))
+    SLURRY_RATE = About('bbl/min', (UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute))
 
     def system_name(self):
         return 'USOilfield'
@@ -74,6 +77,9 @@ class Metric(UnitSystem):
     MASS = About('kg', UnitsNet.Units.MassUnit.Kilogram)
     PRESSURE = About('kPa', UnitsNet.Units.PressureUnit.Kilopascal)
     VOLUME = About('m^3', UnitsNet.Units.VolumeUnit.CubicMeter)
+    PROPPANT_CONCENTRATION = About('kg/m^3',
+                                   (UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter))
+    SLURRY_RATE = About('m^3/min', (UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute))
 
     def system_name(self):
         return 'Metric'

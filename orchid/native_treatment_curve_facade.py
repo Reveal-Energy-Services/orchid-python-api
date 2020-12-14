@@ -17,15 +17,20 @@
 
 from collections import namedtuple
 import enum
+from typing import Union
 
 import pandas as pd
-from toolz.curried import map, partial
+import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
-from orchid.net_quantity import as_datetime
+import orchid.net_quantity as onq
+import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries
+from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries, UnitSystem
+
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 AboutCurveType = namedtuple('AboutCurveType', ['net_curve_type', 'curve_type'])
@@ -62,13 +67,25 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
                                              'Return the sampled quantity name for this treatment curve.')
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
-    def sampled_quantity_unit(self) -> str:
+    def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
         Return the measurement unit of the samples in this treatment curve.
         :return: A string containing an unit for the unit  of each sample in this treatment curve.
         """
-        result = self._sample_unit_func(self._quantity_name_physical_quantity_map[self.sampled_quantity_name])
-        return result
+        net_project_units = self._adaptee.Stage.Well.Project.ProjectUnits
+        if net_project_units == UnitSystem.USOilfield():
+            project_units = units.UsOilfield
+        elif net_project_units == UnitSystem.Metric():
+            project_units = units.Metric
+        else:
+            raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
+
+        sampled_quantity_name_unit_map = {
+            CurveTypes.TREATING_PRESSURE.value.curve_type: project_units.PRESSURE,
+            CurveTypes.PROPPANT_CONCENTRATION.value.curve_type: project_units.PROPPANT_CONCENTRATION,
+            CurveTypes.SLURRY_RATE.value.curve_type: project_units.SLURRY_RATE,
+        }
+        return sampled_quantity_name_unit_map[self.sampled_quantity_name]
 
     def time_series(self) -> pd.Series:
         """
@@ -76,7 +93,8 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
         :return: The time_series of this treatment curve.
         """
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
-        samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
-        result = pd.Series(data=map(lambda s: s[1], samples), index=map(as_datetime, map(lambda s: s[0], samples)),
+        samples = list(toolz.map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
+        result = pd.Series(data=toolz.map(lambda s: s[1], samples),
+                           index=toolz.map(onq.as_datetime, toolz.map(lambda s: s[0], samples)),
                            name=self.name)
         return result
