@@ -194,10 +194,14 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
 
     def test_md_top(self):
-        for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft')),
-                                         (make_measurement(3702.48, 'm'), make_measurement(3702.48, 'm')),
-                                         (make_measurement(13467.8, 'ft'), make_measurement(4104.98, 'm')),
-                                         (make_measurement(3702.48, 'm'), make_measurement(12147.2, 'ft'))]:
+        for actual_top, expected_top in [(make_measurement(13467.8, units.UsOilfield.LENGTH),
+                                          make_measurement(13467.8, units.UsOilfield.LENGTH)),
+                                         (make_measurement(3702.48, units.Metric.LENGTH),
+                                          make_measurement(3702.48, units.Metric.LENGTH)),
+                                         (make_measurement(13467.8, units.UsOilfield.LENGTH),
+                                          make_measurement(4104.98, units.Metric.LENGTH)),
+                                         (make_measurement(3702.48, units.Metric.LENGTH),
+                                          make_measurement(12147.2, units.UsOilfield.LENGTH))]:
             with self.subTest(expected_top=actual_top):
                 stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
@@ -207,10 +211,14 @@ class TestNativeStageAdapter(unittest.TestCase):
                 assert_that(actual_top.unit, equal_to(expected_top.unit))
 
     def test_md_bottom(self):
-        for actual_bottom, expected_bottom in [(make_measurement(13806.7, 'ft'), make_measurement(13806.7, 'ft')),
-                                               (make_measurement(4608.73, 'm'), make_measurement(4608.73, 'm')),
-                                               (make_measurement(12147.2, 'ft'), make_measurement(3702.47, 'm')),
-                                               (make_measurement(4608.73, 'm'), make_measurement(15120.5, 'ft'))]:
+        for actual_bottom, expected_bottom in [(make_measurement(13806.7, units.UsOilfield.LENGTH),
+                                                make_measurement(13806.7, units.UsOilfield.LENGTH)),
+                                               (make_measurement(4608.73, units.Metric.LENGTH),
+                                                make_measurement(4608.73, units.Metric.LENGTH)),
+                                               (make_measurement(12147.2, units.UsOilfield.LENGTH),
+                                                make_measurement(3702.47, units.Metric.LENGTH)),
+                                               (make_measurement(4608.73, units.Metric.LENGTH),
+                                                make_measurement(15120.5, units.UsOilfield.LENGTH))]:
             with self.subTest(expected_bottom=actual_bottom):
                 stub_net_stage = tsn.create_stub_net_stage(
                     md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
