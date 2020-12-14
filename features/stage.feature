@@ -58,7 +58,6 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_2H | 50       | Stage-50          | 49    | 136             | PlugAndPerf |
       | Bakken | Demo_2H | 35       | Stage-35          | 34    | 97              | PlugAndPerf |
       | Bakken | Demo_2H | 13       | Stage-13          | 12    | 28              | PlugAndPerf |
-      | Bakken | Demo_3H | 1        | Stage-1           | 0     | 1               | PlugAndPerf |
       | Bakken | Demo_4H | 1        | Stage-1           | 0     | 3               | PlugAndPerf |
       | Bakken | Demo_4H | 35       | Stage-35          | 34    | 129             | PlugAndPerf |
       | Bakken | Demo_4H | 29       | Stage-29          | 28    | 114             | PlugAndPerf |
@@ -98,7 +97,6 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_2H | 50       | Well Head   | -347.42 ft    | 669.77 ft      | 10766.31 ft |
       | Bakken | Demo_2H | 3        | State Plane | 1979856.09 ft | 17497253.64 ft | 10713.03 ft |
       | Bakken | Demo_2H | 40       | Well Head   | -2320.70 ft   | 668.26 ft      | 10756.22 ft |
-      | Bakken | Demo_3H | 1        | Well Head   | -10759.63 ft  | 732.67 ft      | 10728.87 ft |
       | Bakken | Demo_4H | 1        | Project     | -22974.17 ft  | 34634.35 ft    | 10717.00 ft |
       | Bakken | Demo_4H | 35       | Well Head   | -524.98 ft    | -787.59 ft     | 10767.07 ft |
       | Bakken | Demo_4H | 9        | State Plane | 1981243.43 ft | 17495771.46 ft | 10728.06 ft |
@@ -138,7 +136,6 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_2H | 50       | 4             |
       | Bakken | Demo_2H | 42       | 4             |
       | Bakken | Demo_2H | 14       | 4             |
-      | Bakken | Demo_3H | 1        | 4             |
       | Bakken | Demo_4H | 1        | 8             |
       | Bakken | Demo_4H | 35       | 6             |
       | Bakken | Demo_4H | 3        | 4             |
@@ -178,7 +175,6 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_2H | 50       | 1          | State Plane | 1989056.74 ft | 17497314.42 ft | 10766.31 ft |
       | Bakken | Demo_2H | 21       | 4          | Project     | -18938.26 ft  | 36108.94 ft    | 10731.79 ft |
       | Bakken | Demo_2H | 30       | 3          | Well Head   | -4195.14 ft   | 640.79 ft      | 10742.82 ft |
-      | Bakken | Demo_3H | 1        | 4          | Project     | -12573.22 ft  | 35109.44 ft    | 10767.89 ft |
       | Bakken | Demo_4H | 1        | 1          | State Plane | 1979447.09 ft | 17495795.77 ft | 10717.00 ft |
       | Bakken | Demo_4H | 35       | 3          | Project     | -13479.38 ft  | 34601.46 ft    | 10766.00 ft |
       | Bakken | Demo_4H | 26       | 6          | State Plane | 1986477.61 ft | 17495761.50 ft | 10756.97 ft |
@@ -218,7 +214,6 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_2H | 50       | State Plane | 1989203.51 ft | 17497324.76 ft | 10768.23 ft |
       | Bakken | Demo_2H | 38       | Well Head   | -2567.44 ft   | 667.26 ft      | 10754.86 ft |
       | Bakken | Demo_2H | 19       | State Plane | 1983088.30 ft | 17497264.42 ft | 10727.03 ft |
-      | Bakken | Demo_3H | 1        | State Plane | 1989848.04 ft | 17496270.86 ft | 10767.89 ft |
       | Bakken | Demo_4H | 1        | Well Head   | -9863.91 ft   | -759.13 ft     | 10717.53 ft |
       | Bakken | Demo_4H | 35       | Project     | -13344.88 ft  | 34590.82 ft    | 10762.90 ft |
       | Bakken | Demo_4H | 8        | State Plane | 1981194.48 ft | 17495772.14 ft | 10729.40 ft |

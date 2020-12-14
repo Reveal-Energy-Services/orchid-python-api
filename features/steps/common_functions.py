@@ -24,7 +24,7 @@ def find_well_by_name(context, name):
 
     candidates = toolz.pipe(context.stages_for_wells,
                             toolz.keyfilter(has_well_name(name)))
-    assert_that(toolz.count(candidates), equal_to(1))
+    assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
     result = toolz.nth(0, candidates)
     return result
 
@@ -37,7 +37,8 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
     candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
                             toolz.filter(has_stage_no(stage_no)),
                             list)
-    assert_that(toolz.count(candidates), equal_to(1))
+    assert_that(toolz.count(candidates), equal_to(1),
+                f'Failure for field "{context.field}", well "{well_of_interest.name}", and stage_no {stage_no}.')
     result = toolz.nth(0, candidates)
     return result
 

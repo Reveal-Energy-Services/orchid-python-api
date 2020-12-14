@@ -106,7 +106,8 @@ def find_stage_with_name(context, name_with_well):
                                     toolz.concat,
                                     toolz.filter(lambda s: s.display_name_with_well == name_with_well),
                                     list)
-    assert len(stages_of_interest) == 1
+    assert len(stages_of_interest) == 1, \
+        f'Expected 1 stage with name with well: {name_with_well}. Found {len(stages_of_interest)}.'
     stage_of_interest = toolz.nth(0, stages_of_interest)
     return stage_of_interest
 
@@ -158,9 +159,11 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
     well_of_interest = find_well_by_name(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
 
-    assert_that(stage_of_interest.display_name_without_well, equal_to(name_without_well))
-    assert_that(stage_of_interest.order_of_completion_on_well, equal_to(order))
-    assert_that(stage_of_interest.global_stage_sequence_number, equal_to(global_stage_no))
+    message = f'Failure for field {context.field}, well {well}, and stage_no {stage_no}.'
+
+    assert_that(stage_of_interest.display_name_without_well, equal_to(name_without_well), message)
+    assert_that(stage_of_interest.order_of_completion_on_well, equal_to(order), message)
+    assert_that(stage_of_interest.global_stage_sequence_number, equal_to(global_stage_no), message)
 
     def connection_name_to_type(connection_name):
         name_to_type_map = {'PlugAndPerf': nsa.ConnectionType.PLUG_AND_PERF,

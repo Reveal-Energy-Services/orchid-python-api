@@ -81,11 +81,12 @@ def step_impl(context, well, index, stage_no, volume, proppant, median):
         return stage_aggregate.stage.display_stage_number == number
 
     aggregates_for_well = toolz.keyfilter(has_well_name(well), context.aggregates_for_stages_for_wells)
-    assert(len(aggregates_for_well) == 1)
+    assert len(aggregates_for_well) == 1, f'Expected 1 aggregate for well {well} for field {context.field}.'
 
-    aggregates_for_stage = toolz.pipe(aggregates_for_well.values(),
-                                      toolz.first,
-                                      toolz.nth(index))
+    aggregates_for_stages = toolz.pipe(aggregates_for_well.values(),
+                                       toolz.first)
+    assert len(aggregates_for_stages) > 0, 'Expected at least 1 aggregate for well. Found 0.'
+    aggregates_for_stage = toolz.nth(index, aggregates_for_stages)
 
     assert_that(aggregates_for_stage.stage.display_stage_number, equal_to(stage_no))
 

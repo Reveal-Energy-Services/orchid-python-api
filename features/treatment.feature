@@ -36,7 +36,6 @@ Feature: Low-level stages API (DOM)
       | Bakken | Demo_2H | 49    | 50       | 5329.46 bbl | 99195.4 lb   | 6496.81 psi |
       | Bakken | Demo_2H | 44    | 45       | 5371.62 bbl | 98148.74 lb  | 6722.27 psi |
       | Bakken | Demo_2H | 12    | 13       | 8415.64 bbl | 171597.71 lb | 8235.68 psi |
-      | Bakken | Demo_3H | 0     | 1        | NaN bbl     | NaN lb       | NaN psi     |
       | Bakken | Demo_4H | 0     | 1        | 3870.54 bbl | 139758.48 lb | 6322.39 psi |
       | Bakken | Demo_4H | 34    | 35       | 8294.68 bbl | 132610.71 lb | 6442.86 psi |
       | Bakken | Demo_4H | 18    | 19       | 9380.16 bbl | 246036.99 lb | 7927.32 psi |
@@ -76,7 +75,6 @@ Feature: Low-level stages API (DOM)
       | Bakken | 50       | Demo_2H-Stage-50 | 11169.53 ft | 11316.68 ft | 4             |
       | Bakken | 21       | Demo_2H-Stage-21 | 16893.08 ft | 17041.13 ft | 4             |
       | Bakken | 8        | Demo_2H-Stage-8  | 19459.28 ft | 19607.33 ft | 4             |
-      | Bakken | 1        | Demo_3H-Stage-1  | 11200 ft    | 21500 ft    | 4             |
       | Bakken | 1        | Demo_4H-Stage-1  | 20835 ft    | 20900.93 ft | 8             |
       | Bakken | 35       | Demo_4H-Stage-35 | 11260 ft    | 11485 ft    | 6             |
       | Bakken | 7        | Demo_4H-Stage-7  | 19446.5 ft  | 19691.5 ft  | 6             |
@@ -116,7 +114,6 @@ Feature: Low-level stages API (DOM)
       | Bakken | 50       | Demo_2H-Stage-50 | -13291.11 ft | 36157.69 ft | 10767.44 ft | 147.15 ft   |
       | Bakken | 21       | Demo_2H-Stage-21 | -19012.26 ft | 36106.84 ft | 10731.78 ft | 148.05 ft   |
       | Bakken | 8        | Demo_2H-Stage-8  | -21577.64 ft | 36083.34 ft | 10727.67 ft | 148.05 ft   |
-      | Bakken | 1        | Demo_3H-Stage-1  | -17651.57 ft | 35498.61 ft | 10756.04 ft | 10300.00 ft |
       | Bakken | 1        | Demo_4H-Stage-1  | -22941.22 ft | 34633.37 ft | 10717.32 ft | 65.93 ft    |
       | Bakken | 35       | Demo_4H-Stage-35 | -13456.91 ft | 34600.45 ft | 10765.60 ft | 225.00 ft   |
       | Bakken | 7        | Demo_4H-Stage-7  | -21643.18 ft | 34607.90 ft | 10722.36 ft | 245.00 ft   |
@@ -139,4 +136,4 @@ Feature: Low-level stages API (DOM)
       | Montney | 1        | Vert_01-Stage-1  | 1842.15 m | -1133.05 m | 1784.75 m | 35.5 m  |
       | Montney | 2        | Vert_01-Stage-2  | 1842.15 m | -1133.05 m | 1734.75 m | 35.5 m  |
       | Montney | 3        | Vert_01-Stage-3  | 1842.15 m | -1133.05 m | 1684.75 m | 35.5 m  |
-       | Montney | 4        | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m  |
+      | Montney | 4        | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m  |
