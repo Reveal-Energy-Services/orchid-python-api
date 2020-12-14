@@ -16,7 +16,6 @@
 from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
-from typing import Union
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -54,8 +53,6 @@ class UnitSystem(Enum):
 # - ProppantConcentration
 # - SlurryRate
 # - Energy
-
-# TODO: Replace usage of unit abbreviations (strings) with UnitSystem concrete child classes.
 
 
 class UsOilfield(UnitSystem):
