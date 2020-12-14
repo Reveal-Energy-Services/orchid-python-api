@@ -42,21 +42,21 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         scalar_x = tcm.ScalarQuantity(-2725.83, units.Metric.LENGTH)
         sut = create_sut(x=scalar_x)
 
-        expected_x = om.make_measurement(scalar_x.magnitude, scalar_x.unit.abbreviation)
+        expected_x = om.make_measurement(scalar_x.magnitude, scalar_x.unit)
         tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
         scalar_y = tcm.ScalarQuantity(1656448.10, units.Metric.LENGTH)
         sut = create_sut(y=scalar_y)
 
-        expected_y = om.make_measurement(scalar_y.magnitude, scalar_y.unit.abbreviation)
+        expected_y = om.make_measurement(scalar_y.magnitude, scalar_y.unit)
         tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
 
     def test_depth(self):
         scalar_depth = tcm.ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(depth=scalar_depth)
 
-        expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit.abbreviation)
+        expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit)
         tcm.assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
 
     def test_xy_origin(self):
@@ -92,7 +92,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
 
-                expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit.abbreviation),
+                expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit),
                                                   as_length_magnitudes))
                 tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.x,
                                                            expected_lengths[0], 6e-2)
