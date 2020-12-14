@@ -43,16 +43,6 @@ UNIT_CREATE_NET_UNIT_MAP = {
     units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
 }
 
-ABBREVIATION_NET_UNIT_MAP = {units.UsOilfield.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Foot,
-                             units.Metric.LENGTH.abbreviation: UnitsNet.Units.LengthUnit.Meter,
-                             units.UsOilfield.MASS.abbreviation: UnitsNet.Units.MassUnit.Pound,
-                             units.Metric.MASS.abbreviation: UnitsNet.Units.MassUnit.Kilogram,
-                             units.UsOilfield.PRESSURE.abbreviation:
-                                 UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
-                             units.Metric.PRESSURE.abbreviation: UnitsNet.Units.PressureUnit.Kilopascal,
-                             units.UsOilfield.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.OilBarrel,
-                             units.Metric.VOLUME.abbreviation: UnitsNet.Units.VolumeUnit.CubicMeter}
-
 
 def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     """
@@ -136,14 +126,14 @@ def as_net_quantity_in_different_unit(measurement: om.Measurement,
         The  `NetUnits.IQuantity` instance equivalent to `measurement`.
     """
     net_to_convert = as_net_quantity(measurement)
-    return net_to_convert.ToUnit(ABBREVIATION_NET_UNIT_MAP[target_unit])
+    return net_to_convert.ToUnit(target_unit.value.net_unit)
 
 
 @toolz.curry
 def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
                                            target_unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.IQuantity:
     """
-    Convert a .NET `UnitsNet.IQuantity` instance to a different unit, `target_unit`
+    Convert one .NET `UnitsNet.IQuantity` to another .NET `UnitsNet.IQuantity` in a different unit `target_unit`
     Args:
         net_quantity: The `UnitsNet.IQuantity` instance to convert.
         target_unit: The unit to which to convert `net_quantity`.
@@ -151,18 +141,5 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
     Returns:
         The .NET `UnitsNet.IQuantity` converted to `target_unit`.
     """
-    result = net_quantity.ToUnit(unit_to_net_unit(target_unit))
+    result = net_quantity.ToUnit(target_unit.value.net_unit)
     return result
-
-
-def unit_to_net_unit(unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.Units:
-    """
-    Convert a unit system unit to a .NET `UnitsNet.Units` instance
-
-    Args:
-        unit: The member identifying the unit system unit to convert.
-
-    Returns:
-        The .NET `UnitsNet.Units` equivalent to `unit`.
-    """
-    return ABBREVIATION_NET_UNIT_MAP[unit]
