@@ -251,21 +251,20 @@ def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
-def create_stub_net_well_trajectory(project_length_unit=None, easting_magnitudes=None, northing_magnitudes=None):
+def create_stub_net_well_trajectory(project_units=None, easting_magnitudes=None, northing_magnitudes=None):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
-    if project_length_unit is not None:
-        stub_trajectory.Well.Project = create_stub_net_project(
-            project_length_unit=project_length_unit)
-    if easting_magnitudes is not None and project_length_unit is not None:
+    if project_units is not None:
+        stub_trajectory.Well.Project = create_stub_net_project(project_units=project_units)
+    if easting_magnitudes is not None and project_units is not None:
         stub_eastings = create_stub_net_trajectory_array(easting_magnitudes,
-                                                         project_length_unit.net_unit)
+                                                         project_units.LENGTH.value.net_unit)
         stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
-    if northing_magnitudes is not None and project_length_unit is not None:
+    if northing_magnitudes is not None and project_units is not None:
         stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
-                                                          project_length_unit.net_unit)
+                                                          project_units.LENGTH.value.net_unit)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
     return stub_trajectory
