@@ -49,10 +49,11 @@ SLURRY_RATE = CurveTypes.SLURRY_RATE.value.curve_type
 TREATING_PRESSURE = CurveTypes.TREATING_PRESSURE.value.curve_type
 
 
-class NativeTreatmentCurveFacade(dna.DotNetAdapter):
+class NativeTreatmentCurveAdapter(dna.DotNetAdapter):
     def __init__(self, adaptee: IStageSampledQuantityTimeSeries):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
+
         Args:
             adaptee: The .NET stage time series to be adapted.
         """

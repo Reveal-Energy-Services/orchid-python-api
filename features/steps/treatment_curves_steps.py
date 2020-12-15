@@ -22,7 +22,7 @@ import decimal
 
 from hamcrest import assert_that, equal_to, close_to
 
-import orchid.native_treatment_curve_facade as ntc
+import orchid.native_treatment_curve_adapter as ntc
 
 from common_functions import find_stage_no_in_well
 

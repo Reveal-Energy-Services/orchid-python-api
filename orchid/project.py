@@ -22,7 +22,7 @@ import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
-from orchid.native_monitor_curve_facade import NativeMonitorCurveFacade
+from orchid.native_monitor_curve_adapter import NativeMonitorCurveAdapter
 from orchid.project_loader import ProjectLoader
 import orchid.unit_system as units
 
@@ -69,7 +69,7 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def monitor_curves(self) -> Iterable[NativeMonitorCurveFacade]:
+    def monitor_curves(self) -> Iterable[NativeMonitorCurveAdapter]:
         """
             Return a sequence of well time series for this project.
         Returns:
@@ -77,7 +77,7 @@ class Project(dna.DotNetAdapter):
         """
         native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
         if len(native_time_series_list_items) > 0:
-            return toolz.map(NativeMonitorCurveFacade,
+            return toolz.map(NativeMonitorCurveAdapter,
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []

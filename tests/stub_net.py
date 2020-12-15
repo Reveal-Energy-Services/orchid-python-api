@@ -29,7 +29,7 @@ from typing import Sequence
 
 import toolz.curried as toolz
 
-import orchid.native_treatment_curve_facade as ontc
+import orchid.native_treatment_curve_adapter as ontc
 import orchid.net_quantity as onq
 import orchid.unit_system as units
 

@@ -26,7 +26,7 @@ import toolz.curried as toolz
 from orchid.measurement import make_measurement
 from orchid.net_quantity import as_net_quantity
 import orchid.native_stage_adapter as nsa
-import orchid.native_treatment_curve_facade as ntc
+import orchid.native_treatment_curve_adapter as ntc
 import orchid.reference_origins as origins
 import orchid.unit_system as units
 
@@ -301,7 +301,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
 
 def assert_is_native_treatment_curve_facade(curve):
-    assert_that(curve, instance_of(ntc.NativeTreatmentCurveFacade))
+    assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
 
 
 if __name__ == '__main__':

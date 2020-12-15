@@ -24,13 +24,13 @@ import pandas as pd
 import pandas.testing as pdt
 from hamcrest import assert_that, equal_to
 
-import orchid.native_treatment_curve_facade as ntc
+import orchid.native_treatment_curve_adapter as ntc
 import orchid.unit_system as units
 
 import tests.stub_net as tsn
 
 
-class TestTreatmentCurveFacade(unittest.TestCase):
+class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -108,7 +108,7 @@ def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', va
     stub_net_treatment_curve = tsn.create_stub_net_sampled_quantity_time_series(
         name, display_name, sampled_quantity_name, suffix, values_starting_at=values_starting_at, project=project)
 
-    sut = ntc.NativeTreatmentCurveFacade(stub_net_treatment_curve)
+    sut = ntc.NativeTreatmentCurveAdapter(stub_net_treatment_curve)
     return sut
 
 

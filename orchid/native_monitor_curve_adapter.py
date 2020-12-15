@@ -23,9 +23,15 @@ from orchid.net_quantity import as_datetime
 import orchid.physical_quantity as pq
 
 
-class NativeMonitorCurveFacade(dna.DotNetAdapter):
-    def __init__(self, native_well_time_series):
-        super().__init__(native_well_time_series)
+class NativeMonitorCurveAdapter(dna.DotNetAdapter):
+    def __init__(self, adaptee):
+        """
+        Construct an instance that adapts a .NET `IWellSampledQuantityTimeSeries` instance.
+
+        Args:
+            adaptee: The .NET stage time series to be adapted.
+        """
+        super().__init__(adaptee)
 
     display_name = dna.dom_property('display_name', 'The display name of the .NET well time series.')
     sampled_quantity_name = dna.dom_property('sampled_quantity_name',
@@ -37,10 +43,10 @@ class NativeMonitorCurveFacade(dna.DotNetAdapter):
 
     def time_series(self) -> pd.Series:
         """
-        Return the time series for this treatment curve.
+        Return the time series for this well curve.
 
         Returns
-            The time series of this treatment curve.
+            The time series of this well curve.
         """
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))

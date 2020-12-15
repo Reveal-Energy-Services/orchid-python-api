@@ -24,12 +24,12 @@ import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 
-import orchid.native_monitor_curve_facade as nmcf
+import orchid.native_monitor_curve_adapter as nmcf
 from orchid.physical_quantity import PhysicalQuantity
 from tests.stub_net import create_stub_net_time_series, create_30_second_time_points
 
 
-class TestNativeMonitorCurveFacade(unittest.TestCase):
+class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -93,7 +93,7 @@ def create_sut(display_name='', sampled_quantity_name='', sampled_quantity_type=
     stub_native_well_time_series.GetOrderedTimeSeriesHistory = mock.MagicMock(name='stub_time_series',
                                                                               return_value=samples)
 
-    sut = nmcf.NativeMonitorCurveFacade(stub_native_well_time_series)
+    sut = nmcf.NativeMonitorCurveAdapter(stub_native_well_time_series)
     return sut
 
 

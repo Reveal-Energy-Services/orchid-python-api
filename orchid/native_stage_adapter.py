@@ -26,7 +26,7 @@ import toolz.curried as toolz
 import orchid.dot_net_dom_access as dna
 import orchid.measurement as om
 import orchid.native_subsurface_point as nsp
-import orchid.native_treatment_curve_facade as ntc
+import orchid.native_treatment_curve_adapter as ntc
 from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
 import orchid.reference_origins as origins
 import orchid.unit_system as units
@@ -330,7 +330,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
             return toolz.merge(treatment_curve_map, so_far)
 
         result = toolz.pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
-                            toolz.map(ntc.NativeTreatmentCurveFacade),  # wrap them in a facade
+                            toolz.map(ntc.NativeTreatmentCurveAdapter),  # wrap them in a facade
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
