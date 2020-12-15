@@ -81,9 +81,9 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
             raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
 
         sampled_quantity_name_unit_map = {
-            CurveTypes.TREATING_PRESSURE.value.curve_type: project_units.PRESSURE,
-            CurveTypes.PROPPANT_CONCENTRATION.value.curve_type: project_units.PROPPANT_CONCENTRATION,
-            CurveTypes.SLURRY_RATE.value.curve_type: project_units.SLURRY_RATE,
+            CurveTypes.TREATING_PRESSURE.value.net_curve_type: project_units.PRESSURE,
+            CurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type: project_units.PROPPANT_CONCENTRATION,
+            CurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE,
         }
         return sampled_quantity_name_unit_map[self.sampled_quantity_name]
 

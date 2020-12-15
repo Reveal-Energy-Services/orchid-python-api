@@ -62,7 +62,7 @@ class UsOilfield(UnitSystem):
     MASS = About('lb', UnitsNet.Units.MassUnit.Pound)
     PRESSURE = About('psi', UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
     VOLUME = About('bbl', UnitsNet.Units.VolumeUnit.OilBarrel)
-    PROPPANT_CONCENTRATION = About('lbs./gal. (U. S.)',
+    PROPPANT_CONCENTRATION = About('lbs/gal (US)',
                                    (UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.OilBarrel))
     SLURRY_RATE = About('bbl/min', (UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute))
 
