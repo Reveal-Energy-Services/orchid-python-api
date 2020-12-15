@@ -24,7 +24,7 @@ import pandas as pd
 import pandas.testing as pdt
 from hamcrest import assert_that, equal_to
 
-import orchid.native_treatment_curve_facade as ontc
+import orchid.native_treatment_curve_facade as ntc
 import orchid.unit_system as units
 
 import tests.stub_net as tsn
@@ -51,10 +51,11 @@ class TestTreatmentCurveFacade(unittest.TestCase):
 
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
         all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
-        self.assert_correct_sampled_quantity_unit(all_pressure_units, ontc.TREATING_PRESSURE)
+        self.assert_correct_sampled_quantity_unit(all_pressure_units,
+                                                  ntc.CurveTypes.TREATING_PRESSURE.value.net_curve_type)
 
-    def assert_correct_sampled_quantity_unit(self, all_pressure_units, sampled_quantity_name):
-        for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_pressure_units):
+    def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
+        for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
             stub_project = tsn.create_stub_net_project(project_units=project_units)
             sut = create_sut(sampled_quantity_name=sampled_quantity_name, project=stub_project)
             with self.subTest(expected_curve_unit=expected_curve_unit):
@@ -62,12 +63,14 @@ class TestTreatmentCurveFacade(unittest.TestCase):
 
     def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
         all_slurry_rate_units = (units.UsOilfield.SLURRY_RATE, units.Metric.SLURRY_RATE)
-        self.assert_correct_sampled_quantity_unit(all_slurry_rate_units, ontc.SLURRY_RATE)
+        self.assert_correct_sampled_quantity_unit(all_slurry_rate_units,
+                                                  ntc.CurveTypes.SLURRY_RATE.value.net_curve_type)
 
     def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
         all_proppant_concentration_units = (units.UsOilfield.PROPPANT_CONCENTRATION,
                                             units.Metric.PROPPANT_CONCENTRATION)
-        self.assert_correct_sampled_quantity_unit(all_proppant_concentration_units, ontc.PROPPANT_CONCENTRATION)
+        self.assert_correct_sampled_quantity_unit(all_proppant_concentration_units,
+                                                  ntc.CurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
 
     def test_suffix_from_treatment_curve(self):
         sut = create_sut(suffix='hominibus')
@@ -105,7 +108,7 @@ def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', va
     stub_net_treatment_curve = tsn.create_stub_net_sampled_quantity_time_series(
         name, display_name, sampled_quantity_name, suffix, values_starting_at=values_starting_at, project=project)
 
-    sut = ontc.NativeTreatmentCurveFacade(stub_net_treatment_curve)
+    sut = ntc.NativeTreatmentCurveFacade(stub_net_treatment_curve)
     return sut
 
 

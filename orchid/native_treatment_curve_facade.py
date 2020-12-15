@@ -33,12 +33,12 @@ from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries, UnitSyst
 import UnitsNet
 
 
-AboutCurveType = namedtuple('AboutCurveType', ['net_curve_type', 'curve_type'])
+AboutCurveType = namedtuple('AboutCurveType', ['curve_type', 'net_curve_type'])
 
 
 # TODO: Better repair for these curve types involving the .NET type `TreatmentCurvesPredefinedTypes` if possible
 class CurveTypes(enum.Enum):
-    PROPPANT_CONCENTRATION = AboutCurveType('Surface Proppant Concentration', 'Proppant Concentration')
+    PROPPANT_CONCENTRATION = AboutCurveType('Proppant Concentration', 'Surface Proppant Concentration')
     SLURRY_RATE = AboutCurveType('Slurry Rate', 'Slurry Rate')
     TREATING_PRESSURE = AboutCurveType('Pressure', 'Pressure')
 
