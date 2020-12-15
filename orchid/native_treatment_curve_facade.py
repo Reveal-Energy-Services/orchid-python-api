@@ -43,23 +43,20 @@ class CurveTypes(enum.Enum):
     TREATING_PRESSURE = AboutCurveType('Pressure', 'Pressure')
 
 
+# Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
 PROPPANT_CONCENTRATION = CurveTypes.PROPPANT_CONCENTRATION.value.curve_type
 SLURRY_RATE = CurveTypes.SLURRY_RATE.value.curve_type
 TREATING_PRESSURE = CurveTypes.TREATING_PRESSURE.value.curve_type
 
 
 class NativeTreatmentCurveFacade(dna.DotNetAdapter):
-    def __init__(self, net_treatment_curve: IStageSampledQuantityTimeSeries):
+    def __init__(self, adaptee: IStageSampledQuantityTimeSeries):
         """
-        Constructs an instance adapting a .NET IStageSampledQuantityTimeSeries.
-        :param net_treatment_curve: The .NET stage time series to be adapted.
+        Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
+        Args:
+            adaptee: The .NET stage time series to be adapted.
         """
-        super().__init__(net_treatment_curve)
-        self._quantity_name_physical_quantity_map = {TREATING_PRESSURE: 'pressure',
-                                                     SLURRY_RATE: 'slurry rate',
-                                                     PROPPANT_CONCENTRATION: 'proppant concentration'}
-        # noinspection PyArgumentList
-        self._sample_unit_func = lambda: None
+        super().__init__(adaptee)
 
     display_name = dna.dom_property('display_name', 'Return the display name for this treatment curve.')
     name = dna.dom_property('name', 'Return the name for this treatment curve.')
@@ -70,7 +67,9 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
         Return the measurement unit of the samples in this treatment curve.
-        :return: A string containing an unit for the unit  of each sample in this treatment curve.
+
+        Returns:
+            A `UnitSystem` member containing the unit for the sample in this treatment curve.
         """
         net_project_units = self._adaptee.Stage.Well.Project.ProjectUnits
         if net_project_units == UnitSystem.USOilfield():
@@ -89,8 +88,10 @@ class NativeTreatmentCurveFacade(dna.DotNetAdapter):
 
     def time_series(self) -> pd.Series:
         """
-        Return the time_series for this treatment curve.
-        :return: The time_series of this treatment curve.
+        Return the time series for this treatment curve.
+
+        Returns:
+            A pandas `TimeSeries` containing the samples for the adapted treatment curve.
         """
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(toolz.map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
