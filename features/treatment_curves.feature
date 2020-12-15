@@ -317,8 +317,8 @@ Feature: Treatment curves API
 #      | Bakken | Demo_4H | 26       | slurry     | 188   | 6/25/2018 8:38:23 AM  | 0.27 bbl/min        |
 #      | Bakken | Demo_4H | 26       | slurry     | 2942  | 6/25/2018 9:24:17 AM  | 70.52 bbl/min       |
 
-#    Examples: Montney
-#      | field   | well    | stage_no | curve_type | index | timestamp             | value         |
+    Examples: Montney
+      | field   | well    | stage_no | curve_type | index | timestamp             | value         |
       | Montney | Hori_01 | 1        | pressure   | 3604  | 4/6/2018 6:09:43 PM   | 63.94 kPa     |
       | Montney | Hori_01 | 1        | pressure   | 8423  | 4/6/2018 7:30:08 PM   | 74.15 kPa     |
       | Montney | Hori_01 | 1        | pressure   | 14699 | 4/6/2018 9:14:46 PM   | 27.84 kPa     |

@@ -51,7 +51,7 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
     same_actual_value = actual_treatment_curve.time_series()[index]
     assert_that(actual_value, equal_to(same_actual_value))
     expected_value_text, expected_unit = value.split(maxsplit=1)
-    assert_that(actual_treatment_curve.sampled_quantity_unit(), equal_to(expected_unit))
+    assert_that(actual_treatment_curve.sampled_quantity_unit().abbreviation, equal_to(expected_unit))
     expected_value = decimal.Decimal(expected_value_text)
     _, _, expected_exponent = expected_value.as_tuple()
     calculated_max_error = decimal.Decimal((0, (1,), expected_exponent))
