@@ -296,7 +296,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
-        assert_that(actual_curves.keys(), has_items(ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.TREATING_PRESSURE))
+        assert_that(actual_curves.keys(), has_items(ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.PROPPANT_CONCENTRATION))
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
 
