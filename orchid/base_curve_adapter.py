@@ -15,14 +15,16 @@
 
 from abc import ABCMeta, abstractmethod
 
-from orchid import dot_net_dom_access as dna
-from orchid.dot_net_dom_access import DotNetAdapter
+import pandas as pd
+
+from orchid import (dot_net_dom_access as dna,
+                    net_quantity as onq)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IQuantityTimeSeries, UnitSystem
 
 
-class BaseCurveAdapter(DotNetAdapter, metaclass=ABCMeta):
+class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
     name = dna.dom_property('name', 'Return the name for this treatment curve.')
     display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
     sampled_quantity_name = dna.dom_property('sampled_quantity_name',
@@ -46,3 +48,16 @@ class BaseCurveAdapter(DotNetAdapter, metaclass=ABCMeta):
             A `UnitSystem` member containing the unit for the sample in this treatment curve.
         """
         pass
+
+    def time_series(self) -> pd.Series:
+        """
+        Return the time series for this well curve.
+
+        Returns
+            The time series of this well curve.
+        """
+        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
+        samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
+        result = pd.Series(data=map(lambda s: s[1], samples), index=map(onq.as_datetime, map(lambda s: s[0], samples)),
+                           name=self.name)
+        return result

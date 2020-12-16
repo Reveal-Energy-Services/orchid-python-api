@@ -16,18 +16,15 @@
 #
 
 
-import pandas as pd
-
-import orchid.base_curve_adapter as bca
-import orchid.dot_net_dom_access as dna
-from orchid.net_quantity import as_datetime
-import orchid.physical_quantity as pq
+from orchid import (base_curve_adapter as bca,
+                    dot_net_dom_access as dna,
+                    physical_quantity as opq)
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
     sampled_quantity_type = dna.transformed_dom_property('sampled_quantity_type',
                                                          'The physical quantity of each sample.',
-                                                         pq.to_physical_quantity)
+                                                         opq.to_physical_quantity)
 
     def sampled_quantity_unit(self):
         """
@@ -37,16 +34,3 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
             A `UnitSystem` member containing the unit for the sample in this monitor curve.
         """
         pass
-
-    def time_series(self) -> pd.Series:
-        """
-        Return the time series for this well curve.
-
-        Returns
-            The time series of this well curve.
-        """
-        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
-        samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
-        result = pd.Series(data=map(lambda s: s[1], samples), index=map(as_datetime, map(lambda s: s[0], samples)),
-                           name=self.name)
-        return result

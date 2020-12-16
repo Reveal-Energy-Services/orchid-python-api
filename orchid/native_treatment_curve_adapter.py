@@ -18,20 +18,15 @@ from collections import namedtuple
 import enum
 from typing import Union
 
-import pandas as pd
-from toolz import curried as toolz
-
-from orchid import net_quantity as onq
-import orchid.unit_system as units
+from orchid import (base_curve_adapter as bca,
+                    dot_net_dom_access as dna,
+                    unit_system as units)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries, UnitSystem
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
-
-from orchid import dot_net_dom_access as dna
-import orchid.base_curve_adapter as bca
 
 AboutCurveType = namedtuple('AboutCurveType', ['curve_type', 'net_curve_type'])
 
@@ -73,17 +68,3 @@ class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
             CurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE,
         }
         return sampled_quantity_name_unit_map[self.sampled_quantity_name]
-
-    def time_series(self) -> pd.Series:
-        """
-        Return the time series for this treatment curve.
-
-        Returns:
-            A pandas `TimeSeries` containing the samples for the adapted treatment curve.
-        """
-        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
-        samples = list(toolz.map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
-        result = pd.Series(data=toolz.map(lambda s: s[1], samples),
-                           index=toolz.map(onq.as_datetime, toolz.map(lambda s: s[0], samples)),
-                           name=self.name)
-        return result
