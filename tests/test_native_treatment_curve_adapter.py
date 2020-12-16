@@ -52,7 +52,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
         all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
         self.assert_correct_sampled_quantity_unit(all_pressure_units,
-                                                  ntc.CurveTypes.TREATING_PRESSURE.value.net_curve_type)
+                                                  ntc.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type)
 
     def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
         for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
@@ -64,13 +64,13 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
         all_slurry_rate_units = (units.UsOilfield.SLURRY_RATE, units.Metric.SLURRY_RATE)
         self.assert_correct_sampled_quantity_unit(all_slurry_rate_units,
-                                                  ntc.CurveTypes.SLURRY_RATE.value.net_curve_type)
+                                                  ntc.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type)
 
     def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
         all_proppant_concentration_units = (units.UsOilfield.PROPPANT_CONCENTRATION,
                                             units.Metric.PROPPANT_CONCENTRATION)
         self.assert_correct_sampled_quantity_unit(all_proppant_concentration_units,
-                                                  ntc.CurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
+                                                  ntc.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
 
     def test_suffix_from_treatment_curve(self):
         sut = create_sut(suffix='hominibus')
@@ -105,7 +105,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
 
 def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', values_starting_at=None, project=None):
-    stub_net_treatment_curve = tsn.create_stub_net_sampled_quantity_time_series(
+    stub_net_treatment_curve = tsn.create_stub_net_treatment_curve(
         name, display_name, sampled_quantity_name, suffix, values_starting_at=values_starting_at, project=project)
 
     sut = ntc.NativeTreatmentCurveAdapter(stub_net_treatment_curve)

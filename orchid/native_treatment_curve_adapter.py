@@ -14,6 +14,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
+
 from collections import namedtuple
 import enum
 from typing import Union
@@ -23,25 +24,22 @@ from orchid import (base_curve_adapter as bca,
                     unit_system as units)
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries, UnitSystem
+from Orchid.FractureDiagnostics import UnitSystem
 
-# noinspection PyUnresolvedReferences
-import UnitsNet
-
-AboutCurveType = namedtuple('AboutCurveType', ['curve_type', 'net_curve_type'])
+AboutTreatmentCurveType = namedtuple('AboutTreatmentCurveType', ['curve_type', 'net_curve_type'])
 
 
 # TODO: Better repair for these curve types involving the .NET type `TreatmentCurvesPredefinedTypes` if possible
-class CurveTypes(enum.Enum):
-    PROPPANT_CONCENTRATION = AboutCurveType('Proppant Concentration', 'Surface Proppant Concentration')
-    SLURRY_RATE = AboutCurveType('Slurry Rate', 'Slurry Rate')
-    TREATING_PRESSURE = AboutCurveType('Pressure', 'Pressure')
+class TreatmentCurveTypes(enum.Enum):
+    PROPPANT_CONCENTRATION = AboutTreatmentCurveType('Proppant Concentration', 'Surface Proppant Concentration')
+    SLURRY_RATE = AboutTreatmentCurveType('Slurry Rate', 'Slurry Rate')
+    TREATING_PRESSURE = AboutTreatmentCurveType('Pressure', 'Pressure')
 
 
 # Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
-PROPPANT_CONCENTRATION = CurveTypes.PROPPANT_CONCENTRATION.value.curve_type
-SLURRY_RATE = CurveTypes.SLURRY_RATE.value.curve_type
-TREATING_PRESSURE = CurveTypes.TREATING_PRESSURE.value.curve_type
+PROPPANT_CONCENTRATION = TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.curve_type
+SLURRY_RATE = TreatmentCurveTypes.SLURRY_RATE.value.curve_type
+TREATING_PRESSURE = TreatmentCurveTypes.TREATING_PRESSURE.value.curve_type
 
 
 class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
@@ -63,8 +61,8 @@ class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
             raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
 
         sampled_quantity_name_unit_map = {
-            CurveTypes.TREATING_PRESSURE.value.net_curve_type: project_units.PRESSURE,
-            CurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type: project_units.PROPPANT_CONCENTRATION,
-            CurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE,
+            TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type: project_units.PRESSURE,
+            TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type: project_units.PROPPANT_CONCENTRATION,
+            TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE,
         }
         return sampled_quantity_name_unit_map[self.sampled_quantity_name]

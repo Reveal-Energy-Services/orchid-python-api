@@ -24,9 +24,11 @@ import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 
-import orchid.native_monitor_curve_adapter as nmcf
-from orchid.physical_quantity import PhysicalQuantity
-from tests.stub_net import create_stub_net_time_series, create_30_second_time_points
+from orchid import (native_monitor_curve_adapter as mca,
+                    physical_quantity as opq,
+                    unit_system as units)
+
+import tests.stub_net as tsn
 
 
 class TestNativeMonitorCurveAdapter(unittest.TestCase):
@@ -45,9 +47,26 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
         assert_that(sut.sampled_quantity_name, equal_to(expected_quantity_name))
 
+    def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
+        all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
+        self.assert_correct_sampled_quantity_unit(all_pressure_units,
+                                                  mca.MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type)
+
+    def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
+        for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
+            stub_project = tsn.create_stub_net_project(project_units=project_units)
+            sut = create_sut(sampled_quantity_name=sampled_quantity_name, project=stub_project)
+            with self.subTest(expected_curve_unit=expected_curve_unit):
+                assert_that(sut.sampled_quantity_unit(), equal_to(expected_curve_unit))
+
+    def test_sampled_quantity_unit_returns_temperature_if_temperature_samples(self):
+        all_temperature_units = (units.UsOilfield.TEMPERATURE, units.Metric.TEMPERATURE)
+        self.assert_correct_sampled_quantity_unit(all_temperature_units,
+                                                  mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type)
+
     def test_sampled_quantity_type(self):
         native_quantity_types = [68, 83]  # hard-coded UnitsNet.QuantityType.Pressure and Temperature
-        physical_quantities = [PhysicalQuantity.PRESSURE, PhysicalQuantity.TEMPERATURE]
+        physical_quantities = [opq.PhysicalQuantity.PRESSURE, opq.PhysicalQuantity.TEMPERATURE]
         for native_quantity_type, physical_quantity in zip(native_quantity_types, physical_quantities):
             with self.subTest(native_quantity_type=native_quantity_type, physical_quantity=physical_quantity):
                 sut = create_sut(sampled_quantity_type=native_quantity_type)
@@ -57,7 +76,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         name = 'trucem'
         values = []
         start_time_point = datetime.datetime(2021, 4, 2, 15, 17, 57)
-        samples = create_stub_net_time_series(start_time_point, values)
+        samples = tsn.create_stub_net_time_series(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
 
         expected = pd.Series(data=[], index=[], name=name, dtype=np.float64)
@@ -71,9 +90,9 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
     @staticmethod
     def assert_equal_time_series(name, start_time_point, values):
-        samples = create_stub_net_time_series(start_time_point, values)
+        samples = tsn.create_stub_net_time_series(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
-        expected_time_points = create_30_second_time_points(start_time_point, len(values))
+        expected_time_points = tsn.create_30_second_time_points(start_time_point, len(values))
         expected = pd.Series(data=values, index=expected_time_points, name=name)
         pdt.assert_series_equal(sut.time_series(), expected)
 
@@ -85,16 +104,14 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         self.assert_equal_time_series(name, start_time_point, values)
 
 
-def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None):
-    stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
-    stub_native_well_time_series.Name = name
-    stub_native_well_time_series.DisplayName = display_name
-    stub_native_well_time_series.SampledQuantityName = sampled_quantity_name
-    stub_native_well_time_series.SampledQuantityType = sampled_quantity_type
-    stub_native_well_time_series.GetOrderedTimeSeriesHistory = mock.MagicMock(name='stub_time_series',
-                                                                              return_value=samples)
+def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None,
+               project=None):
+    stub_native_well_time_series = tsn.create_stub_net_monitor_curve(
+        name=name, display_name=display_name, sampled_quantity_name=sampled_quantity_name,
+        sampled_quantity_type=sampled_quantity_type, samples=samples, project=project
+    )
 
-    sut = nmcf.NativeMonitorCurveAdapter(stub_native_well_time_series)
+    sut = mca.NativeMonitorCurveAdapter(stub_native_well_time_series)
     return sut
 
 

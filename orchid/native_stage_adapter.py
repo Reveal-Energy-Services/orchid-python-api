@@ -79,7 +79,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
-        candidates = toolz.pipe(ntc.CurveTypes,
+        candidates = toolz.pipe(ntc.TreatmentCurveTypes,
                                 toolz.filter(lambda e: e.value.net_curve_type == sampled_quantity_name),
                                 list)
         if len(candidates) == 0:

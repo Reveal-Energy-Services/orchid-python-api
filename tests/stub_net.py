@@ -191,7 +191,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
 
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
-            lambda sampled_quantity_name: create_stub_net_sampled_quantity_time_series(
+            lambda sampled_quantity_name: create_stub_net_treatment_curve(
                 sampled_quantity_name=sampled_quantity_name), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
@@ -223,9 +223,9 @@ def create_stub_net_trajectory_array(magnitudes, net_unit):
     return result
 
 
-def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
-                                                 sampled_quantity_name=None, suffix=None,
-                                                 values_starting_at=None, project=None):
+def create_stub_net_treatment_curve(name=None, display_name=None,
+                                    sampled_quantity_name=None, suffix=None,
+                                    values_starting_at=None, project=None):
     try:
         stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
                                                            spec=IStageSampledQuantityTimeSeries)
@@ -249,6 +249,25 @@ def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
         stub_net_treatment_curve.Stage.Well.Project = project
 
     return stub_net_treatment_curve
+
+
+def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sampled_quantity_type,
+                                  samples, project):
+    try:
+        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                               spec=IWellSampledQuantityTimeSeries)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve')
+    stub_net_monitor_curve.Name = name
+    stub_net_monitor_curve.DisplayName = display_name
+    stub_net_monitor_curve.SampledQuantityName = sampled_quantity_name
+    stub_net_monitor_curve.SampledQuantityType = sampled_quantity_type
+    stub_net_monitor_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
+                                                                                       return_value=samples)
+    if project is not None:
+        stub_net_monitor_curve.Well.Project = project
+
+    return stub_net_monitor_curve
 
 
 def create_stub_net_well_trajectory(project_units=None, easting_magnitudes=None, northing_magnitudes=None):
