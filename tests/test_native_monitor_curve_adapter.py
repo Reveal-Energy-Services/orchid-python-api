@@ -64,14 +64,6 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         self.assert_correct_sampled_quantity_unit(all_temperature_units,
                                                   mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type)
 
-    def test_sampled_quantity_type(self):
-        native_quantity_types = [68, 83]  # hard-coded UnitsNet.QuantityType.Pressure and Temperature
-        physical_quantities = [opq.PhysicalQuantity.PRESSURE, opq.PhysicalQuantity.TEMPERATURE]
-        for native_quantity_type, physical_quantity in zip(native_quantity_types, physical_quantities):
-            with self.subTest(native_quantity_type=native_quantity_type, physical_quantity=physical_quantity):
-                sut = create_sut(sampled_quantity_type=native_quantity_type)
-                assert_that(sut.sampled_quantity_type, equal_to(physical_quantity))
-
     def test_empty_time_series_if_no_samples(self):
         name = 'trucem'
         values = []

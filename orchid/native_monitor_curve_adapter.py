@@ -36,10 +36,6 @@ class MonitorCurveTypes(enum.Enum):
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
-    sampled_quantity_type = dna.transformed_dom_property('sampled_quantity_type',
-                                                         'The physical quantity of each sample.',
-                                                         opq.to_physical_quantity)
-
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
         Return the measurement unit of the samples in this treatment curve.
