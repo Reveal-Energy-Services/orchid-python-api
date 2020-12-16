@@ -14,16 +14,14 @@
 #
 # This file is part of Orchid and related technologies.
 #
-
 from collections import namedtuple
 import enum
 from typing import Union
 
 import pandas as pd
-import toolz.curried as toolz
+from toolz import curried as toolz
 
-import orchid.dot_net_dom_access as dna
-import orchid.net_quantity as onq
+from orchid import net_quantity as onq
 import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences
@@ -32,6 +30,8 @@ from Orchid.FractureDiagnostics import IStageSampledQuantityTimeSeries, UnitSyst
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
+from orchid import dot_net_dom_access as dna
+import orchid.base_curve_adapter as bca
 
 AboutCurveType = namedtuple('AboutCurveType', ['curve_type', 'net_curve_type'])
 
@@ -49,20 +49,7 @@ SLURRY_RATE = CurveTypes.SLURRY_RATE.value.curve_type
 TREATING_PRESSURE = CurveTypes.TREATING_PRESSURE.value.curve_type
 
 
-class NativeTreatmentCurveAdapter(dna.DotNetAdapter):
-    def __init__(self, adaptee: IStageSampledQuantityTimeSeries):
-        """
-        Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
-
-        Args:
-            adaptee: The .NET stage time series to be adapted.
-        """
-        super().__init__(adaptee)
-
-    display_name = dna.dom_property('display_name', 'Return the display name for this treatment curve.')
-    name = dna.dom_property('name', 'Return the name for this treatment curve.')
-    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
-                                             'Return the sampled quantity name for this treatment curve.')
+class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:

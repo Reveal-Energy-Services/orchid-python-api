@@ -18,28 +18,25 @@
 
 import pandas as pd
 
+import orchid.base_curve_adapter as bca
 import orchid.dot_net_dom_access as dna
 from orchid.net_quantity import as_datetime
 import orchid.physical_quantity as pq
 
 
-class NativeMonitorCurveAdapter(dna.DotNetAdapter):
-    def __init__(self, adaptee):
-        """
-        Construct an instance that adapts a .NET `IWellSampledQuantityTimeSeries` instance.
-
-        Args:
-            adaptee: The .NET stage time series to be adapted.
-        """
-        super().__init__(adaptee)
-
-    display_name = dna.dom_property('display_name', 'The display name of the .NET well time series.')
-    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
-                                             'The name describing the physical quantity of each sample of the .NET '
-                                             'well time series.')
+class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
     sampled_quantity_type = dna.transformed_dom_property('sampled_quantity_type',
                                                          'The physical quantity of each sample.',
                                                          pq.to_physical_quantity)
+
+    def sampled_quantity_unit(self):
+        """
+        Return the measurement unit of the samples in this monitor curve.
+
+        Returns:
+            A `UnitSystem` member containing the unit for the sample in this monitor curve.
+        """
+        pass
 
     def time_series(self) -> pd.Series:
         """
