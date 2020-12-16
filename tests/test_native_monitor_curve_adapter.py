@@ -54,39 +54,40 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
                 assert_that(sut.sampled_quantity_type, equal_to(physical_quantity))
 
     def test_empty_time_series_if_no_samples(self):
-        display_name = 'trucem'
+        name = 'trucem'
         values = []
         start_time_point = datetime.datetime(2021, 4, 2, 15, 17, 57)
         samples = create_stub_net_time_series(start_time_point, values)
-        sut = create_sut(display_name=display_name, samples=samples)
+        sut = create_sut(name=name, samples=samples)
 
-        expected = pd.Series(data=[], index=[], name=display_name, dtype=np.float64)
+        expected = pd.Series(data=[], index=[], name=name, dtype=np.float64)
         pdt.assert_series_equal(sut.time_series(), expected)
 
     def test_single_sample_time_series_if_single_sample(self):
-        display_name = 'aquilinum'
+        name = 'aquilinum'
         values = [26.3945]
         start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39)
-        self.assert_equal_time_series(display_name, start_time_point, values)
+        self.assert_equal_time_series(name, start_time_point, values)
 
     @staticmethod
-    def assert_equal_time_series(display_name, start_time_point, values):
+    def assert_equal_time_series(name, start_time_point, values):
         samples = create_stub_net_time_series(start_time_point, values)
-        sut = create_sut(display_name=display_name, samples=samples)
+        sut = create_sut(name=name, samples=samples)
         expected_time_points = create_30_second_time_points(start_time_point, len(values))
-        expected = pd.Series(data=values, index=expected_time_points, name=display_name)
+        expected = pd.Series(data=values, index=expected_time_points, name=name)
         pdt.assert_series_equal(sut.time_series(), expected)
 
     def test_many_sample_time_series_if_many_sample(self):
-        display_name = 'vulnerabatis'
+        name = 'vulnerabatis'
         values = [75.75, 62.36, 62.69]
         start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15)
 
-        self.assert_equal_time_series(display_name, start_time_point, values)
+        self.assert_equal_time_series(name, start_time_point, values)
 
 
-def create_sut(display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None):
+def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None):
     stub_native_well_time_series = mock.MagicMock(name='stub_native_well_time_series')
+    stub_native_well_time_series.Name = name
     stub_native_well_time_series.DisplayName = display_name
     stub_native_well_time_series.SampledQuantityName = sampled_quantity_name
     stub_native_well_time_series.SampledQuantityType = sampled_quantity_type

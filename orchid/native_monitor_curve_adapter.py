@@ -48,5 +48,5 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
         result = pd.Series(data=map(lambda s: s[1], samples), index=map(as_datetime, map(lambda s: s[0], samples)),
-                           name=self.display_name)
+                           name=self.name)
         return result
