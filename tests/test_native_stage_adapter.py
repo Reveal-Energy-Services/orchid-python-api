@@ -202,7 +202,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                           make_measurement(4104.98, units.Metric.LENGTH)),
                                          (make_measurement(3702.48, units.Metric.LENGTH),
                                           make_measurement(12147.2, units.UsOilfield.LENGTH))]:
-            with self.subTest(expected_top=actual_top):
+            with self.subTest(actual_top=actual_top, expected_top=expected_top):
                 stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -219,7 +219,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                 make_measurement(3702.47, units.Metric.LENGTH)),
                                                (make_measurement(4608.73, units.Metric.LENGTH),
                                                 make_measurement(15120.5, units.UsOilfield.LENGTH))]:
-            with self.subTest(expected_bottom=actual_bottom):
+            with self.subTest(actual_bottom=actual_bottom, expected_bottom=expected_bottom):
                 stub_net_stage = tsn.create_stub_net_stage(
                     md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
