@@ -35,6 +35,11 @@ class MonitorCurveTypes(enum.Enum):
     MONITOR_TEMPERATURE = AboutMonitorCurveType('Temperature', 'Temperature')
 
 
+# Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
+MONITOR_PRESSURE = MonitorCurveTypes.MONITOR_PRESSURE.value.curve_type
+MONITOR_TEMPERATURE = MonitorCurveTypes.MONITOR_TEMPERATURE.value.curve_type
+
+
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
