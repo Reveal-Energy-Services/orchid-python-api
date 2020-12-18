@@ -47,45 +47,51 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_result(self):
         for expected_magnitude, unit in [(7396.93, units.UsOilfield.PRESSURE), (74.19, units.Metric.PRESSURE)]:
-            expected_measurement = om.make_measurement(expected_magnitude, unit)
             warnings = []
-            net_pressure_calc_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), warnings)
-            stub_get_treatment_pressure = unittest.mock.MagicMock(name='get_treatment_pressure',
-                                                                  return_value=net_pressure_calc_result)
-            stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
-                                                                  spec=ITreatmentCalculations)
-            stub_treatment_calculations.GetMedianTreatmentPressure = stub_get_treatment_pressure
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(expected_measurement=expected_measurement):
-                    assert_expected_result(ntc.median_treating_pressure,
-                                           datetime.datetime(2023, 7, 2, 3, 57, 19),
-                                           datetime.datetime(2023, 7, 2, 5, 30, 2),
-                                           expected_measurement=expected_measurement)
+            expected_measurement = om.make_measurement(expected_magnitude, unit)
+
+            sut = ntc.median_treating_pressure
+            start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
+            stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
+
+            stub_calculation_result = create_stub_calculation_result(expected_measurement, warnings)
+            stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
+            self.assert_expected_calculation_result(sut, stub_treatment_calculations, start_time, stop_time,
+                                                    expected_measurement=expected_measurement)
+
+    def assert_expected_calculation_result(self, sut, stub_treatment_calculations, start_time, stop_time,
+                                           expected_measurement=None, expected_warnings=None):
+        with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
+                                 spec=loader.native_treatment_calculations,
+                                 return_value=stub_treatment_calculations):
+            with self.subTest(expected_measurement=expected_measurement):
+                actual_result = sut(create_stub_stage_adapter(), start_time, stop_time)
+                if expected_measurement is not None:
+                    tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
+                                                               tolerance=6e-3)
+                if expected_warnings is not None:
+                    assert_that(expected_warnings, equal_to(actual_result.warnings))
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
-            net_pressure_calculation_result = NetCalculationResult(
-                onq.as_net_quantity(om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE,
-                                                        units.UsOilfield.PRESSURE)), expected_warnings)
-            stub_get_treatment_pressure = unittest.mock.MagicMock(name='get_pumped_volume',
-                                                                  return_value=net_pressure_calculation_result)
-            stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
-                                                                  spec=ITreatmentCalculations)
-            stub_treatment_calculations.GetMedianTreatmentPressure = stub_get_treatment_pressure
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(expected_warnings=expected_warnings):
-                    assert_expected_result(ntc.median_treating_pressure,
-                                           datetime.datetime(2023, 7, 2, 3, 57, 19),
-                                           datetime.datetime(2023, 7, 2, 5, 30, 2),
-                                           expected_warnings=expected_warnings)
+            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.PRESSURE)
+
+            sut = ntc.median_treating_pressure
+            start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
+            stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
+
+            stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
+            stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
+            self.assert_expected_calculation_result(sut, stub_treatment_calculations, start_time, stop_time,
+                                                    expected_warnings=expected_warnings)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
         for volume_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
             expected_measurement = om.make_measurement(volume_magnitude, unit)
+            sut = ntc.pumped_fluid_volume
+            start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
+            stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
+
             net_volume_calculation_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), [])
             stub_get_pumped_volume = unittest.mock.MagicMock(name='get_pumped_volume',
                                                              return_value=net_volume_calculation_result)
@@ -96,9 +102,9 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_measurement=expected_measurement):
-                    assert_expected_result(ntc.pumped_fluid_volume,
-                                           datetime.datetime(2023, 8, 6, 3, 52, 4),
-                                           datetime.datetime(2023, 8, 6, 5, 8, 20),
+                    assert_expected_result(sut,
+                                           start_time,
+                                           stop_time,
                                            expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
@@ -164,10 +170,16 @@ def create_stub_stage_adapter():
     return result
 
 
-def create_stub_calculation(expected_measurement, warnings):
-    net_calculation_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), warnings)
-    stub_calculation = unittest.mock.MagicMock(name='stub_calculation', return_value=net_calculation_result)
-    return stub_calculation
+def create_stub_calculation_result(expected_measurement, warnings):
+    calculation_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), warnings)
+    result = unittest.mock.MagicMock(name='calculation_result', return_value=calculation_result)
+    return result
+
+
+def create_stub_treatment_pressure_calculation(stub_calculation_result):
+    result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+    result.GetMedianTreatmentPressure = stub_calculation_result
+    return result
 
 
 def assert_expected_result(sut, start_time, stop_time, expected_measurement=None, expected_warnings=None):
