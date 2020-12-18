@@ -86,83 +86,59 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     expected_warnings=expected_warnings)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
-        for volume_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
-            expected_measurement = om.make_measurement(volume_magnitude, unit)
+        for expected_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
+            warnings = []
+            expected_measurement = om.make_measurement(expected_magnitude, unit)
+
             sut = ntc.pumped_fluid_volume
             start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
             stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
 
-            net_volume_calculation_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), [])
-            stub_get_pumped_volume = unittest.mock.MagicMock(name='get_pumped_volume',
-                                                             return_value=net_volume_calculation_result)
-            stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
-                                                                  spec=ITreatmentCalculations)
-            stub_treatment_calculations.GetPumpedVolume = stub_get_pumped_volume
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(expected_measurement=expected_measurement):
-                    assert_expected_result(sut,
-                                           start_time,
-                                           stop_time,
-                                           expected_measurement=expected_measurement)
+            stub_calculation_result = create_stub_calculation_result(expected_measurement, warnings)
+            stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
+            self.assert_expected_calculation_result(sut, stub_treatment_calculations, start_time, stop_time,
+                                                    expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
-            net_volume_calculation_result = NetCalculationResult(
-                onq.as_net_quantity(om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE,
-                                                        units.UsOilfield.VOLUME)), expected_warnings)
-            stub_get_pumped_volume = unittest.mock.MagicMock(name='get_pumped_volume',
-                                                             return_value=net_volume_calculation_result)
-            stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
-                                                                  spec=ITreatmentCalculations)
-            stub_treatment_calculations.GetPumpedVolume = stub_get_pumped_volume
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(expected_warnings=expected_warnings):
-                    assert_expected_result(ntc.pumped_fluid_volume,
-                                           datetime.datetime(2023, 8, 6, 3, 52, 4),
-                                           datetime.datetime(2023, 8, 6, 5, 8, 20),
-                                           expected_warnings=expected_warnings)
+            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.VOLUME)
+
+            sut = ntc.pumped_fluid_volume
+            start_time = datetime.datetime(2023, 8, 6, 3, 52, 4)
+            stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
+
+            stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
+            stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
+            self.assert_expected_calculation_result(sut, stub_treatment_calculations, start_time, stop_time,
+                                                    expected_warnings=expected_warnings)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
-        for mass_magnitude, unit in [(5414.58, units.UsOilfield.MASS), (138262.86, units.Metric.MASS)]:
-            expected_measurement = om.make_measurement(mass_magnitude, unit)
-            net_mass_calculation_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), [])
-            stub_get_proppant_mass = unittest.mock.MagicMock(name='get_proppant_mass',
-                                                             return_value=net_mass_calculation_result)
-            stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
-                                                                  spec=ITreatmentCalculations)
-            stub_treatment_calculations.GetTotalProppantMass = stub_get_proppant_mass
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(expected_measurement=expected_measurement):
-                    assert_expected_result(ntc.total_proppant_mass,
-                                           datetime.datetime(2020, 1, 29, 7, 35, 2),
-                                           datetime.datetime(2020, 1, 29, 9, 13, 30),
-                                           expected_measurement=expected_measurement)
+        for expected_magnitude, unit in [(5414.58, units.UsOilfield.MASS), (138262.86, units.Metric.MASS)]:
+            warnings = []
+            expected_measurement = om.make_measurement(expected_magnitude, unit)
+
+            sut = ntc.total_proppant_mass
+            start_time = datetime.datetime(2020, 1, 29, 7, 35, 2)
+            stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
+
+            stub_calculation_result = create_stub_calculation_result(expected_measurement, warnings)
+            stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
+            self.assert_expected_calculation_result(sut, stub_treatment_calculations, start_time, stop_time,
+                                                    expected_measurement=expected_measurement)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
-            net_mass_calculation_result = NetCalculationResult(
-                onq.as_net_quantity(om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE,
-                                                        units.UsOilfield.MASS)), expected_warnings)
-            stub_get_proppant_mass = unittest.mock.MagicMock(name='get_proppant_mass',
-                                                             return_value=net_mass_calculation_result)
-            stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
-                                                                  spec=ITreatmentCalculations)
-            stub_treatment_calculations.GetTotalProppantMass = stub_get_proppant_mass
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(expected_warnings=expected_warnings):
-                    assert_expected_result(ntc.total_proppant_mass,
-                                           datetime.datetime(2020, 1, 29, 7, 35, 2),
-                                           datetime.datetime(2020, 1, 29, 9, 13, 30),
-                                           expected_warnings=expected_warnings)
+            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.VOLUME)
 
+            sut = ntc.total_proppant_mass
+            start_time = datetime.datetime(2020, 1, 29, 7, 35, 2)
+            stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
+
+            stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
+            stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
+            self.assert_expected_calculation_result(sut, stub_treatment_calculations, start_time, stop_time,
+                                                    expected_warnings=expected_warnings)
+            
 
 def create_stub_stage_adapter():
     result = unittest.mock.Mock('stub_stage_adapter', autospec=nsa.NativeStageAdapter)
@@ -179,6 +155,18 @@ def create_stub_calculation_result(expected_measurement, warnings):
 def create_stub_treatment_pressure_calculation(stub_calculation_result):
     result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
     result.GetMedianTreatmentPressure = stub_calculation_result
+    return result
+
+
+def create_stub_pumped_volume_calculation(stub_calculation_result):
+    result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+    result.GetPumpedVolume = stub_calculation_result
+    return result
+
+
+def create_stub_proppant_mass_calculation(stub_calculation_result):
+    result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+    result.GetTotalProppantMass = stub_calculation_result
     return result
 
 
