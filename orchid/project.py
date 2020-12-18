@@ -82,6 +82,22 @@ class Project(dna.DotNetAdapter):
         else:
             return []
 
+    def proppant_concentration_mass_unit(self):
+        if self.project_units == units.UsOilfield:
+            return units.UsOilfield.MASS
+        elif self.project_units == units.Metric:
+            return units.Metric.MASS
+        else:
+            raise ValueError(f'Unknown unit system: {self.project_units}')
+
+    def slurry_rate_volume_unit(self):
+        if self.project_units == units.UsOilfield:
+            return units.UsOilfield.VOLUME
+        elif self.project_units == units.Metric:
+            return units.Metric.VOLUME
+        else:
+            raise ValueError(f'Unknown unit system: {self.project_units}')
+
     def wells_by_name(self, name) -> Iterable[IWell]:
         """
         Return all the wells in this project with the specified name.

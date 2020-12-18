@@ -79,6 +79,12 @@ class TestProject(unittest.TestCase):
         # noinspection PyTypeChecker
         assert_that(calling(phony_function), raises(ValueError, pattern='^Unrecognized unit system'))
 
+    def test_proppant_concentration_mass_unit(self):
+        self.assertTrue(False)
+
+    def test_slurry_rate_volume_unit(self):
+        self.assertTrue(False)
+
     def test_wells_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
