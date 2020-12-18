@@ -48,7 +48,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
     def test_median_treating_pressure_returns_get_median_treating_pressure_result(self):
         for expected_magnitude, unit in [(7396.93, units.UsOilfield.PRESSURE), (74.19, units.Metric.PRESSURE)]:
             expected_measurement = om.make_measurement(expected_magnitude, unit)
-            net_pressure_calc_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), [])
+            warnings = []
+            net_pressure_calc_result = NetCalculationResult(onq.as_net_quantity(expected_measurement), warnings)
             stub_get_treatment_pressure = unittest.mock.MagicMock(name='get_treatment_pressure',
                                                                   return_value=net_pressure_calc_result)
             stub_treatment_calculations = unittest.mock.MagicMock(name='treatment_calculations',
@@ -58,11 +59,10 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_measurement=expected_measurement):
-                    start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
-                    stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
-                    actual_result = ntc.median_treating_pressure(create_stub_stage_adapter(), start_time, stop_time)
-                    tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
-                                                               tolerance=6e-3)
+                    assert_expected_result(ntc.median_treating_pressure,
+                                           datetime.datetime(2023, 7, 2, 3, 57, 19),
+                                           datetime.datetime(2023, 7, 2, 5, 30, 2),
+                                           expected_measurement=expected_measurement)
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
@@ -78,10 +78,10 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_warnings=expected_warnings):
-                    start_time = datetime.datetime(2023, 7, 2, 3, 57, 19)
-                    stop_time = datetime.datetime(2023, 7, 2, 5, 30, 2)
-                    actual_result = ntc.median_treating_pressure(create_stub_stage_adapter(), start_time, stop_time)
-                    assert_that(expected_warnings, equal_to(actual_result.warnings))
+                    assert_expected_result(ntc.median_treating_pressure,
+                                           datetime.datetime(2023, 7, 2, 3, 57, 19),
+                                           datetime.datetime(2023, 7, 2, 5, 30, 2),
+                                           expected_warnings=expected_warnings)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
         for volume_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
@@ -96,11 +96,10 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_measurement=expected_measurement):
-                    time = datetime.datetime(2023, 8, 6, 3, 52, 4)
-                    stop_time = datetime.datetime(2023, 8, 6, 5, 8, 20)
-                    actual_result = ntc.pumped_fluid_volume(create_stub_stage_adapter(), time, stop_time)
-                    tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
-                                                               tolerance=6e-3)
+                    assert_expected_result(ntc.pumped_fluid_volume,
+                                           datetime.datetime(2023, 8, 6, 3, 52, 4),
+                                           datetime.datetime(2023, 8, 6, 5, 8, 20),
+                                           expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
@@ -116,10 +115,10 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_warnings=expected_warnings):
-                    actual_result = ntc.pumped_fluid_volume(create_stub_stage_adapter(),
-                                                            datetime.datetime(2023, 8, 6, 3, 52, 4),
-                                                            datetime.datetime(2023, 8, 6, 5, 8, 20))
-                    assert_that(expected_warnings, equal_to(actual_result.warnings))
+                    assert_expected_result(ntc.pumped_fluid_volume,
+                                           datetime.datetime(2023, 8, 6, 3, 52, 4),
+                                           datetime.datetime(2023, 8, 6, 5, 8, 20),
+                                           expected_warnings=expected_warnings)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
         for mass_magnitude, unit in [(5414.58, units.UsOilfield.MASS), (138262.86, units.Metric.MASS)]:
@@ -134,11 +133,10 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_measurement=expected_measurement):
-                    time = datetime.datetime(2020, 1, 29, 7, 35, 2)
-                    stop_time = datetime.datetime(2020, 1, 29, 9, 13, 30)
-                    actual_result = ntc.total_proppant_mass(create_stub_stage_adapter(), time, stop_time)
-                    tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
-                                                               tolerance=6e-3)
+                    assert_expected_result(ntc.total_proppant_mass,
+                                           datetime.datetime(2020, 1, 29, 7, 35, 2),
+                                           datetime.datetime(2020, 1, 29, 9, 13, 30),
+                                           expected_measurement=expected_measurement)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
@@ -154,10 +152,10 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                      spec=loader.native_treatment_calculations,
                                      return_value=stub_treatment_calculations):
                 with self.subTest(expected_warnings=expected_warnings):
-                    actual_result = ntc.total_proppant_mass(create_stub_stage_adapter(),
-                                                            datetime.datetime(2020, 1, 29, 7, 35, 2),
-                                                            datetime.datetime(2020, 1, 29, 9, 13, 30))
-                    assert_that(expected_warnings, equal_to(actual_result.warnings))
+                    assert_expected_result(ntc.total_proppant_mass,
+                                           datetime.datetime(2020, 1, 29, 7, 35, 2),
+                                           datetime.datetime(2020, 1, 29, 9, 13, 30),
+                                           expected_warnings=expected_warnings)
 
 
 def create_stub_stage_adapter():
