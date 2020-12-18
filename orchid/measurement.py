@@ -23,22 +23,22 @@ from typing import Union
 
 import deal
 
-import orchid.unit_system as units
+from orchid import unit_system as units
 
 
 Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], module=__name__)
 
 
-def as_unit(source_measurement: Measurement, target_unit: Union[units.UsOilfield, units.Metric]):
-    """
-    Convert a `Measurement` instance to the same measurement in `target_unit`.
+def _is_known_unit(_magnitude, unit):
+    if isinstance(unit, units.UsOilfield):
+        return True
+    elif isinstance(unit, units.Metric):
+        return True
+    elif unit is units.DURATION:
+        return True
 
-    Args:
-        source_measurement: The Measurement instance to convert.
-        target_unit: The units to which I convert `source_measurement`.
-    """
-    if source_measurement.unit == target_unit:
-        return source_measurement
+    return False
+
 
 def get_conversion_factor(source_unit: Union[units.UsOilfield, units.Metric],
                           target_unit: Union[units.UsOilfield, units.Metric]) -> float:
@@ -53,7 +53,7 @@ def get_conversion_factor(source_unit: Union[units.UsOilfield, units.Metric],
 
 
 @deal.pre(lambda magnitude, _unit: isinstance(magnitude, numbers.Real))
-@deal.pre(lambda _magnitude, unit: isinstance(unit, units.UsOilfield) or isinstance(unit, units.Metric))
+@deal.pre(_is_known_unit)
 def make_measurement(magnitude: numbers.Real, unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
     """
     Construct a measurement.

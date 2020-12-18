@@ -24,6 +24,39 @@ import UnitsNet
 About = namedtuple('About', ['unit', 'net_unit'])
 
 
+# DURATION is a special unit because it is the same between US oilfield and metric unit systems.
+class _Duration:
+    """
+    _Duration is a class modeling the special unit, `DURATION`. `DURATION` is special because is its contained
+    in both (or neither) unit system; that is, it is in both (or neither) US oilfield and metric units.
+
+    It has the same members defined in the `UnitSystem` class, but because `UnitSystem` derives from `Enum`,
+    it cannot inherit from that class.
+
+    Additionally, I **do not** consumers to construct instances of this class. The only instance of this
+    class that should exist is referenced by the `DURATION` module attribute.
+    """
+    def __init__(self):
+        self.value = About('min', UnitsNet.Units.DurationUnit.Minute)
+
+    net_unit = property(lambda self: self.value.net_unit)
+
+    def __repr__(self):
+        return f'<{self.system_name}: {str(self.value)}>'
+
+    abbreviation = property(lambda self: str(self))
+
+    def __str__(self):
+        return self.value.unit
+
+    @property
+    def system_name(self):
+        return 'Duration'
+
+
+DURATION = _Duration()
+
+
 class UnitSystem(Enum):
     net_unit = property(lambda self: self.value.net_unit)
 

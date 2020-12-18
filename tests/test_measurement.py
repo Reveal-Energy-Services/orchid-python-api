@@ -18,8 +18,7 @@
 import unittest
 
 import deal
-from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, same_instance
-import toolz.curried as toolz
+from hamcrest import assert_that, equal_to, calling, raises, close_to
 
 import orchid.measurement as om
 import orchid.unit_system as units
@@ -54,15 +53,6 @@ class TestMeasurement(unittest.TestCase):
     def test_make_measurement_raises_exception_if_invalid_unit(self):
         assert_that(calling(om.make_measurement).with_args(1.717, 'm^3'),
                     raises(deal.PreContractError))
-
-    def test_as_unit_correctly_performs_no_op_conversion(self):
-        for source_unit in toolz.concatv(units.UsOilfield, units.Metric):
-            target_unit = source_unit
-
-            source_measurement = om.make_measurement(DONT_CARE_MAGNITUDE, source_unit)
-            target_measurement = source_measurement
-
-            assert_that(om.as_unit(source_measurement, target_unit), is_(same_instance(target_measurement)))
 
     def test_convert_single_item_values_returns_converted_single_item_values(self):
         # The 6's in the following tolerances are caused by the round half-even that we use in expected values

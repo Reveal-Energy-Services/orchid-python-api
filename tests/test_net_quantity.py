@@ -28,8 +28,10 @@ import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import DateTime
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
+# noinspection PyUnresolvedReferences
+from System import (DateTime, Double)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -46,6 +48,8 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_as_measurement(self):
         for to_convert_net_quantity, expected_value, expected_unit in [
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(3.14)), 3.14, units.DURATION),
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414)), 1.414, units.DURATION),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(44.49)), 44.49, units.UsOilfield.LENGTH),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(13.56)), 13.56, units.Metric.LENGTH),
             (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(30.94)), 30.94, units.UsOilfield.MASS),
@@ -103,6 +107,15 @@ class TestNetMeasurement(unittest.TestCase):
                   UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6888.89))),
                  (make_measurement(59849.82, units.Metric.PRESSURE),
                   UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(59849.82))),
+                 (make_measurement(3.55, units.UsOilfield.PROPPANT_CONCENTRATION),
+                  ProppantConcentration(3.55, units.UsOilfield.MASS.value.net_unit,
+                                        units.UsOilfield.VOLUME.value.net_unit)),
+                 (make_measurement(425.03, units.Metric.PROPPANT_CONCENTRATION),
+                  ProppantConcentration(425.03, units.Metric.MASS.value.net_unit, units.Metric.VOLUME.value.net_unit)),
+                 (make_measurement(96.06, units.UsOilfield.SLURRY_RATE),
+                  SlurryRate(96.06, units.UsOilfield.VOLUME.value.net_unit, units.DURATION.value.net_unit)),
+                 (make_measurement(0.80, units.Metric.SLURRY_RATE),
+                  SlurryRate(0.80, units.Metric.VOLUME.value.net_unit, units.DURATION.value.net_unit)),
                  (make_measurement(7216.94, units.UsOilfield.VOLUME),
                   UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(7216.94))),
                  (make_measurement(1017.09, units.Metric.VOLUME),
@@ -114,6 +127,8 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_as_net_quantity_in_same_unit(self):
         for to_convert_measurement, expected_net_quantity in [
+            (make_measurement(27.18, units.DURATION),
+             UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(27.18))),
             (make_measurement(44.49, units.UsOilfield.LENGTH),
              UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(44.49))),
             (make_measurement(25.93, units.Metric.LENGTH),
@@ -162,6 +177,7 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_convert_net_quantity_to_same_unit(self):
         for net_unit, target_unit in [
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(0.1717)), units.DURATION),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(154.67)), units.UsOilfield.LENGTH),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(40.24)), units.Metric.LENGTH),
             (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(3007.29)), units.UsOilfield.MASS),

@@ -39,9 +39,17 @@ def _assert_magnitudes_close_to(actual, expected, tolerance):
     assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
 
 
+def assert_that_measurements_close_to(actual, expected, tolerance=None):
+    assert_that(actual.unit, equal_to(expected.unit))
+    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
+
+
 def assert_that_net_quantities_close_to(actual, expected, tolerance=None):
     def get_net_unit(net_quantity):
-        return net_quantity.Unit
+        try:
+            return net_quantity.Unit
+        except AttributeError:
+            return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
 
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
     _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance)

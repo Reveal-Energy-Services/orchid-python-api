@@ -26,13 +26,16 @@ import toolz.curried as toolz
 import orchid.measurement as om
 import orchid.unit_system as units
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
+# noinspection PyUnresolvedReferences
 from System import DateTime
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 
 UNIT_CREATE_NET_UNIT_MAP = {
+    units.DURATION: lambda q: UnitsNet.Duration.FromMinutes(q),
     units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
     units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
     units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
@@ -42,6 +45,21 @@ UNIT_CREATE_NET_UNIT_MAP = {
     units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
     units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
 }
+
+
+def _is_minute_unit(net_to_test):
+    """
+    Determine if the .NET IQuantity instance is a `DurationUnit` of `Minutes'
+    Args:
+        net_to_test: The .NET IQuantity instance to test.
+
+    Returns:
+
+    """
+    if net_to_test.Unit == UnitsNet.Units.DurationUnit.Minute:
+        return True
+
+    return False
 
 
 def as_datetime(net_time_point: DateTime) -> datetime.datetime:
@@ -69,21 +87,26 @@ def as_measurement(net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     Returns:
         The equivalent `Measurement` instance.
     """
-    net_unit_abbreviation = str(net_quantity).split(maxsplit=1)[1]
-    us_oilfield_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.UsOilfield)
-    metric_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.Metric)
-    candidates = list(toolz.concatv(us_oilfield_candidates, metric_candidates))
-    if len(candidates) == 1:
-        return om.make_measurement(net_quantity.Value, candidates[0])
-    elif toolz.count(candidates) > 1:
-        raise ValueError(f'Expected at most 1 matching candidate for "{net_unit_abbreviation}". Found '
-                         f'{[str(c) for c in candidates]}.')
-    else:
-        # No matching candidates so test Unicode units
-        if net_unit_abbreviation == 'm\u00b3':
-            return om.make_measurement(net_quantity.Value, units.Metric.VOLUME)
+    # UnitsNet has chosen to use 'm' for both minutes and meters...
+    if not _is_minute_unit(net_quantity):
+        # Python.NET converts .NET Enum types to Python `int`s so I search by (assumed unique) abbreviation.
+        net_unit_abbreviation = str(net_quantity).split(maxsplit=1)[1]
+        us_oilfield_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.UsOilfield)
+        metric_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.Metric)
+        candidates = list(toolz.concatv(us_oilfield_candidates, metric_candidates))
+        if len(candidates) == 1:
+            return om.make_measurement(net_quantity.Value, candidates[0])
+        elif toolz.count(candidates) > 1:
+            raise ValueError(f'Expected at most 1 matching candidate for "{net_unit_abbreviation}". Found '
+                             f'{[str(c) for c in candidates]}.')
         else:
-            raise ValueError(f'No matching candidates for "{net_unit_abbreviation}".')
+            # No matching candidates so test Unicode units
+            if net_unit_abbreviation == 'm\u00b3':
+                return om.make_measurement(net_quantity.Value, units.Metric.VOLUME)
+            else:
+                raise ValueError(f'No matching candidates for "{net_unit_abbreviation}".')
+    else:
+        return om.make_measurement(net_quantity.Value, units.DURATION)
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
@@ -111,7 +134,19 @@ def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
         The equivalent `UnitsNet.IQuantity` instance.
     """
     quantity = UnitsNet.QuantityValue.op_Implicit(measurement.magnitude)
-    return UNIT_CREATE_NET_UNIT_MAP[measurement.unit](quantity)
+    try:
+        return UNIT_CREATE_NET_UNIT_MAP[measurement.unit](quantity)
+    except KeyError:
+        if measurement.unit == units.UsOilfield.PROPPANT_CONCENTRATION or \
+                measurement.unit == units.Metric.PROPPANT_CONCENTRATION:
+            return ProppantConcentration(measurement.magnitude, measurement.unit.value.net_unit[0],
+                                         measurement.unit.value.net_unit[1])
+        elif measurement.unit == units.UsOilfield.SLURRY_RATE or measurement.unit == units.Metric.SLURRY_RATE:
+            return SlurryRate(measurement.magnitude, measurement.unit.value.net_unit[0],
+                              measurement.unit.value.net_unit[1])
+            pass
+        else:
+            raise ValueError(f'Unrecognized unit: "{measurement.unit}".')
 
 
 def as_net_quantity_in_different_unit(measurement: om.Measurement,
