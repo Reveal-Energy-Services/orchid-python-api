@@ -14,7 +14,7 @@
 
 
 from collections import namedtuple
-from typing import Callable, Optional
+from typing import Callable
 
 from orchid import (project_loader as loader,
                     net_quantity as onq)
