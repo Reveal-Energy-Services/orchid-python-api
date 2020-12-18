@@ -23,9 +23,7 @@ import deal
 from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
 import toolz.curried as toolz
 
-from orchid.project import Project
-from orchid.project_loader import ProjectLoader
-import orchid.unit_system as units
+from orchid import (project as onp, project_loader as loader, unit_system as units)
 from tests.stub_net import create_stub_net_project
 
 
@@ -51,7 +49,7 @@ class TestProject(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_ctor_no_loader_raises_exception(self):
-        assert_that(calling(Project).with_args(None), raises(deal.PreContractError))
+        assert_that(calling(onp.Project).with_args(None), raises(deal.PreContractError))
 
     def test_name(self):
         stub_native_project = create_stub_net_project(name='commodorum')
@@ -80,10 +78,32 @@ class TestProject(unittest.TestCase):
         assert_that(calling(phony_function), raises(ValueError, pattern='^Unrecognized unit system'))
 
     def test_proppant_concentration_mass_unit(self):
-        self.assertTrue(False)
+        for expected_unit_system in [units.UsOilfield, units.Metric]:
+            with self.subTest(expected_unit_system=expected_unit_system):
+                stub_native_project = create_stub_net_project(project_units=expected_unit_system)
+                sut = create_sut(stub_native_project)
+
+                assert_that(sut.proppant_concentration_mass_unit(), equal_to(expected_unit_system.MASS))
+
+    def test_proppant_concentration_mass_unit_raises_error_if_unit_system_unknown(self):
+        stub_native_project = create_stub_net_project()
+        sut = create_sut(stub_native_project)
+
+        assert_that(calling(onp.Project.proppant_concentration_mass_unit).with_args(sut), raises(ValueError))
 
     def test_slurry_rate_volume_unit(self):
-        self.assertTrue(False)
+        for expected_unit_system in [units.UsOilfield, units.Metric]:
+            with self.subTest(expected_unit_system=expected_unit_system):
+                stub_native_project = create_stub_net_project(project_units=expected_unit_system)
+                sut = create_sut(stub_native_project)
+
+                assert_that(sut.slurry_rate_volume_unit(), equal_to(expected_unit_system.VOLUME))
+
+    def test_slurry_rate_volume_unit_raises_error_if_unit_system_unknown(self):
+        stub_native_project = create_stub_net_project()
+        sut = create_sut(stub_native_project)
+
+        assert_that(calling(onp.Project.slurry_rate_volume_unit).with_args(sut), raises(ValueError))
 
     def test_wells_if_no_wells(self):
         stub_native_project = create_stub_net_project(name='exsistet')
@@ -192,10 +212,10 @@ class TestProject(unittest.TestCase):
 
 
 def create_sut(stub_net_project):
-    patched_loader = ProjectLoader('dont_care')
+    patched_loader = loader.ProjectLoader('dont_care')
     patched_loader.native_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
 
-    sut = Project(patched_loader)
+    sut = onp.Project(patched_loader)
     return sut
 
 
