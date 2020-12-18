@@ -29,6 +29,17 @@ import orchid.unit_system as units
 Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], module=__name__)
 
 
+def as_unit(source_measurement: Measurement, target_unit: Union[units.UsOilfield, units.Metric]):
+    """
+    Convert a `Measurement` instance to the same measurement in `target_unit`.
+
+    Args:
+        source_measurement: The Measurement instance to convert.
+        target_unit: The units to which I convert `source_measurement`.
+    """
+    if source_measurement.unit == target_unit:
+        return source_measurement
+
 def get_conversion_factor(source_unit: Union[units.UsOilfield, units.Metric],
                           target_unit: Union[units.UsOilfield, units.Metric]) -> float:
     """
@@ -55,31 +66,3 @@ def make_measurement(magnitude: numbers.Real, unit: Union[units.UsOilfield, unit
         The Measurement consisting of the supplied `magnitude` and `unit`.
     """
     return Measurement(magnitude, unit)
-
-
-def slurry_rate_volume_unit(
-        slurry_rate_unit: Union[units.UsOilfield, units.Metric]) -> Union[units.UsOilfield, units.Metric]:
-    """
-    Extract the volume unit from the `slurry_rate_unit`.
-
-    Args:
-        slurry_rate_unit: The slurry rate unit.
-
-    Returns:
-        The volume unit of the slurry rate unit.
-    """
-    pass
-
-
-def proppant_concentration_mass_unit(
-        proppant_concentration_unit: Union[units.UsOilfield, units.Metric]) -> Union[units.UsOilfield, units.Metric]:
-    """
-    Extract the mass unit from the `proppant_concentration_unit`.
-
-    Args:
-        proppant_concentration_unit: The proppant concentration unit.
-
-    Returns:
-        The mass unit of the proppant concentration unit.
-    """
-    pass

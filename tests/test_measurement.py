@@ -18,10 +18,14 @@
 import unittest
 
 import deal
-from hamcrest import assert_that, equal_to, calling, raises, close_to
+from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, same_instance
+import toolz.curried as toolz
 
 import orchid.measurement as om
 import orchid.unit_system as units
+
+
+DONT_CARE_MAGNITUDE = float('NaN')
 
 
 class TestMeasurement(unittest.TestCase):
@@ -51,52 +55,14 @@ class TestMeasurement(unittest.TestCase):
         assert_that(calling(om.make_measurement).with_args(1.717, 'm^3'),
                     raises(deal.PreContractError))
 
-    def test_correct_slurry_rate_volume_unit_from_known_unit(self):
-        units_to_test = ['bbl/min', 'm^3/min', 'm\u00b3/min']
-        volume_units = ['bbl', 'm^3', 'm\u00b3']
-        for unit, expected in zip(units_to_test, volume_units):
-            with self.subTest(unit=unit, expected=expected):
-                assert_that(om.slurry_rate_volume_unit(unit), equal_to(expected))
+    def test_as_unit_correctly_performs_no_op_conversion(self):
+        for source_unit in toolz.concatv(units.UsOilfield, units.Metric):
+            target_unit = source_unit
 
-    def test_raises_error_if_unknown_slurry_rate_unit(self):
-        unknown_units = ['bbl/m', 'm^3/min\f', '\tbbl/min']
-        message_units = ['bbl/m', r'm\^3/min\f', '\tbbl/min']
-        for unknown_unit, message_unit in zip(unknown_units, message_units):
-            with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
-                # noinspection SpellCheckingInspection
-                assert_that(calling(om.slurry_rate_volume_unit).with_args(unknown_unit),
-                            raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
+            source_measurement = om.make_measurement(DONT_CARE_MAGNITUDE, source_unit)
+            target_measurement = source_measurement
 
-    def test_raises_error_if_invalid_slurry_rate_unit(self):
-        invalid_units = [None, '', '\r']
-        for invalid_unit in invalid_units:
-            with self.subTest(invalid_unit=invalid_unit):
-                # noinspection SpellCheckingInspection
-                assert_that(calling(om.slurry_rate_volume_unit).with_args(invalid_unit), raises(deal.PreContractError))
-
-    def test_correct_proppant_concentration_mass_unit_from_known_unit(self):
-        units_to_test = ['lb/gal (U.S.)', 'kg/m^3', 'kg/m\u00b3']
-        mass_units = ['lb', 'kg', 'kg']
-        for unit, expected in zip(units_to_test, mass_units):
-            with self.subTest(unit=unit, expected=expected):
-                assert_that(om.proppant_concentration_mass_unit(unit), equal_to(expected))
-
-    def test_raises_error_if_unknown_proppant_concentration_unit(self):
-        unknown_units = ['lb/gal', 'kg/m^3\f', '  lb/gal (U.S.)']
-        message_units = ['lb/gal', r'kg/m\^3\f', r'  lb/gal \(U.S.\)']
-        for unknown_unit, message_unit in zip(unknown_units, message_units):
-            with self.subTest(unknown_unit=unknown_unit, message_unit=message_unit):
-                # noinspection SpellCheckingInspection
-                assert_that(calling(om.proppant_concentration_mass_unit).with_args(unknown_unit),
-                            raises(ValueError, pattern=f'"{message_unit}".*[uU]nrecognized'))
-
-    def test_raises_error_if_invalid_proppant_concentration_unit(self):
-        invalid_units = [None, '', '\r']
-        for invalid_unit in invalid_units:
-            with self.subTest(invalid_unit=invalid_unit):
-                # noinspection SpellCheckingInspection
-                assert_that(calling(om.proppant_concentration_mass_unit).with_args(invalid_unit),
-                            raises(deal.PreContractError))
+            assert_that(om.as_unit(source_measurement, target_unit), is_(same_instance(target_measurement)))
 
     def test_convert_single_item_values_returns_converted_single_item_values(self):
         # The 6's in the following tolerances are caused by the round half-even that we use in expected values

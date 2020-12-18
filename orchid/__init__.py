@@ -26,7 +26,7 @@ from .native_monitor_curve_adapter import (MONITOR_PRESSURE, MONITOR_TEMPERATURE
 from .native_treatment_curve_adapter import (PROPPANT_CONCENTRATION, SLURRY_RATE, TREATING_PRESSURE)
 
 # Helpful functions
-from .measurement import (get_conversion_factor, slurry_rate_volume_unit, proppant_concentration_mass_unit)
+from .measurement import (get_conversion_factor)
 from .native_treatment_calculations import (median_treating_pressure, pumped_fluid_volume, total_proppant_mass)
 from .physical_quantity import to_physical_quantity
 from .reference_origins import WellReferenceFrameXy
