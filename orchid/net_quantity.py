@@ -47,21 +47,6 @@ UNIT_CREATE_NET_UNIT_MAP = {
 }
 
 
-def _is_minute_unit(net_to_test):
-    """
-    Determine if the .NET IQuantity instance is a `DurationUnit` of `Minutes'
-    Args:
-        net_to_test: The .NET IQuantity instance to test.
-
-    Returns:
-
-    """
-    if net_to_test.Unit == UnitsNet.Units.DurationUnit.Minute:
-        return True
-
-    return False
-
-
 def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     """
     Convert a .NET `DateTime` instance to a `datetime.datetime` instance.
@@ -88,7 +73,22 @@ def as_measurement(net_quantity: UnitsNet.IQuantity) -> om.Measurement:
         The equivalent `Measurement` instance.
     """
     # UnitsNet has chosen to use 'm' for both minutes and meters...
-    if not _is_minute_unit(net_quantity):
+    if is_minute_unit(net_quantity):
+        return om.make_measurement(net_quantity.Value, units.DURATION)
+    elif is_ratio_unit(net_quantity):
+        numerator_unit, denominator_unit = ratio_units(net_quantity)
+        if numerator_unit == UnitsNet.Units.MassUnit.Pound and denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon:
+            return om.make_measurement(net_quantity.Value, units.UsOilfield.PROPPANT_CONCENTRATION)
+        elif numerator_unit == UnitsNet.Units.MassUnit.Kilogram and \
+                denominator_unit == UnitsNet.Units.VolumeUnit.CubicMeter:
+            return om.make_measurement(net_quantity.Value, units.Metric.PROPPANT_CONCENTRATION)
+        elif numerator_unit == UnitsNet.Units.VolumeUnit.OilBarrel and\
+                denominator_unit == UnitsNet.Units.DurationUnit.Minute:
+            return om.make_measurement(net_quantity.Value, units.UsOilfield.SLURRY_RATE)
+        elif numerator_unit == UnitsNet.Units.VolumeUnit.CubicMeter and \
+                denominator_unit == UnitsNet.Units.DurationUnit.Minute:
+            return om.make_measurement(net_quantity.Value, units.Metric.SLURRY_RATE)
+    else:
         # Python.NET converts .NET Enum types to Python `int`s so I search by (assumed unique) abbreviation.
         net_unit_abbreviation = str(net_quantity).split(maxsplit=1)[1]
         us_oilfield_candidates = toolz.filter(lambda u: u.value.unit == net_unit_abbreviation, units.UsOilfield)
@@ -105,8 +105,6 @@ def as_measurement(net_quantity: UnitsNet.IQuantity) -> om.Measurement:
                 return om.make_measurement(net_quantity.Value, units.Metric.VOLUME)
             else:
                 raise ValueError(f'No matching candidates for "{net_unit_abbreviation}".')
-    else:
-        return om.make_measurement(net_quantity.Value, units.DURATION)
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
@@ -178,3 +176,45 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
     """
     result = net_quantity.ToUnit(target_unit.value.net_unit)
     return result
+
+
+def is_minute_unit(net_quantity_to_test):
+    """
+    Determine if the .NET IQuantity instance is a `DurationUnit` of `Minutes'.
+    Args:
+        net_quantity_to_test: The .NET IQuantity instance to test.
+
+    Returns:
+        True if the `Unit` attribute is a `Minute` duration; otherwise, false.
+    """
+    try:
+        if net_quantity_to_test.Unit == UnitsNet.Units.DurationUnit.Minute:
+            return True
+    except AttributeError:
+        # Both ProppantConcentration and SlurryRate have **no** `Unit` attribute, but are not a minute duration
+        return False
+    else:
+        # Anything else must be some other unit.
+        return False
+
+
+def is_ratio_unit(net_quantity_to_test):
+    """
+    Determine if the .NET IQuantity instance is either `ProppantConcentration` or `SlurryRate`.
+    Args:
+        net_quantity_to_test: The .NET IQuantity instance to test.
+
+    Returns:
+        True if the quantity to test has a numerator and a denominator unit; otherwise, false.
+    """
+    if ratio_units(net_quantity_to_test):
+        return True
+    else:
+        return False
+
+
+def ratio_units(net_quantity):
+    try:
+        return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
+    except AttributeError:
+        return tuple()

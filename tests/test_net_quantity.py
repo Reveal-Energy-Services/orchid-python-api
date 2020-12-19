@@ -22,8 +22,7 @@ import unittest
 from hamcrest import assert_that, equal_to
 
 from orchid.measurement import make_measurement
-from orchid.net_quantity import (as_datetime, as_measurement, as_net_date_time, as_net_quantity,
-                                 as_net_quantity_in_different_unit, convert_net_quantity_to_different_unit)
+import orchid.net_quantity as onq
 import orchid.unit_system as units
 
 import tests.custom_matchers as tcm
@@ -42,7 +41,7 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_as_datetime(self):
         net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726)
-        actual = as_datetime(net_time_point)
+        actual = onq.as_datetime(net_time_point)
 
         assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000)))
 
@@ -58,12 +57,20 @@ class TestNetMeasurement(unittest.TestCase):
              49.70, units.UsOilfield.PRESSURE),
             (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(342.67)),
              342.67, units.Metric.PRESSURE),
+            (ProppantConcentration(3.82, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon),
+             3.82, units.UsOilfield.PROPPANT_CONCENTRATION),
+            (ProppantConcentration(457.35, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter),
+             457.35, units.Metric.PROPPANT_CONCENTRATION),
+            (SlurryRate(114.59, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
+             114.59, units.UsOilfield.SLURRY_RATE),
+            (SlurryRate(18.22, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
+             18.22, units.Metric.SLURRY_RATE),
             (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(83.48)), 83.48, units.UsOilfield.VOLUME),
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)), 13.27, units.Metric.VOLUME),
         ]:
             with self.subTest(expected_value=expected_value, expected_unit=expected_unit,
                               to_convert_net_quantity=to_convert_net_quantity):
-                actual = as_measurement(to_convert_net_quantity)
+                actual = onq.as_measurement(to_convert_net_quantity)
                 expected = make_measurement(expected_value, expected_unit)
                 tcm.assert_that_scalar_quantities_close_to(actual, expected, 6e-3)
 
@@ -84,7 +91,7 @@ class TestNetMeasurement(unittest.TestCase):
                                       datetime.datetime(2022, 1, 14, 20, 29, 18, 852500))
                                      ]:
             with self.subTest(expected=expected, time_point=time_point):
-                actual = as_net_date_time(time_point)
+                actual = onq.as_net_date_time(time_point)
                 assert_that(actual.Year, equal_to(expected.Year))
                 assert_that(actual.Month, equal_to(expected.Month))
                 assert_that(actual.Day, equal_to(expected.Day))
@@ -122,7 +129,7 @@ class TestNetMeasurement(unittest.TestCase):
                   UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1017.09))),
                  ]:
             with self.subTest(to_convert=to_convert_measurement, expected=expected_net_quantity):
-                actual = as_net_quantity(to_convert_measurement)
+                actual = onq.as_net_quantity(to_convert_measurement)
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_quantity_in_same_unit(self):
@@ -148,7 +155,7 @@ class TestNetMeasurement(unittest.TestCase):
         ]:
             with self.subTest(to_convert_measurement=to_convert_measurement,
                               expected_net_quantity=expected_net_quantity):
-                actual = as_net_quantity_in_different_unit(to_convert_measurement, to_convert_measurement.unit)
+                actual = onq.as_net_quantity_in_different_unit(to_convert_measurement, to_convert_measurement.unit)
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_quantity_in_different_unit(self):
@@ -172,7 +179,7 @@ class TestNetMeasurement(unittest.TestCase):
         ]:
             with self.subTest(to_convert_measurement=to_convert_measurement,
                               target_unit=target_unit, expected_net_quantity=expected_net_quantity):
-                actual = as_net_quantity_in_different_unit(to_convert_measurement, target_unit)
+                actual = onq.as_net_quantity_in_different_unit(to_convert_measurement, target_unit)
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, decimal.Decimal('0.01'))
 
     def test_convert_net_quantity_to_same_unit(self):
@@ -189,7 +196,7 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1164.91)), units.Metric.VOLUME),
         ]:
             with self.subTest(net_unit=net_unit, target_unit=target_unit):
-                actual = convert_net_quantity_to_different_unit(net_unit, target_unit)
+                actual = onq.convert_net_quantity_to_different_unit(net_unit, target_unit)
                 tcm.assert_that_net_quantities_close_to(actual, net_unit)
 
     def test_convert_net_quantity_to_different_unit(self):
@@ -213,8 +220,46 @@ class TestNetMeasurement(unittest.TestCase):
              UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)))
         ]:
             with self.subTest(source_net_unit=source_net_unit, target_unit=target_unit):
-                actual = convert_net_quantity_to_different_unit(source_net_unit, target_unit)
+                actual = onq.convert_net_quantity_to_different_unit(source_net_unit, target_unit)
                 tcm.assert_that_net_quantities_close_to(actual, target_net_unit, decimal.Decimal('0.02'))
+
+    def test_is_minute(self):
+        for to_test, expected_is_minute in [
+            (UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(107498.21)), False),
+            (ProppantConcentration(5.68, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon), False),
+            (SlurryRate(12.23, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute), False),
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(31.41)), True),
+        ]:
+            with self.subTest(to_test=to_test, expected_is_ratio=expected_is_minute):
+                actual_is_minute = onq.is_minute_unit(to_test)
+
+                assert_that(actual_is_minute, equal_to(expected_is_minute), f'Is minute for "{str(to_test)}".')
+
+    def test_is_ratio(self):
+        for to_test, expected_is_ratio in [
+            (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(170.43)), False),
+            (ProppantConcentration(5.68, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon), True),
+            (SlurryRate(12.23, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute), True),
+        ]:
+            with self.subTest(to_test=to_test, expected_is_ratio=expected_is_ratio):
+                actual_is_ratio = onq.is_ratio_unit(to_test)
+
+                assert_that(actual_is_ratio, equal_to(expected_is_ratio), f'Is ratio for "{str(to_test)}".')
+
+    def test_ratio_units(self):
+        for to_test, expected_ratio_units in [
+            (UnitsNet.Pressure.FromPoundsForcePerSquareInch(
+                UnitsNet.QuantityValue.op_Implicit(7735.08)), ()),
+            (ProppantConcentration(5.68, UnitsNet.Units.MassUnit.Pound,
+                                   UnitsNet.Units.VolumeUnit.UsGallon),
+             (UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon)),
+            (SlurryRate(12.32, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
+             (UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute)),
+        ]:
+            with self.subTest(to_test=to_test, expected_ratio_units=expected_ratio_units):
+                actual_ratio_units = onq.ratio_units(to_test)
+
+                assert_that(actual_ratio_units, equal_to(expected_ratio_units))
 
 
 if __name__ == '__main__':
