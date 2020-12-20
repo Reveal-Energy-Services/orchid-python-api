@@ -48,7 +48,8 @@ class TestConvert(unittest.TestCase):
             (178.74, units.UsOilfield.LENGTH, 54.48, units.Metric.LENGTH),
             (113938.75, units.Metric.MASS, 251191.94, units.UsOilfield.MASS),
             (56.44, units.Metric.PRESSURE, 8.18, units.UsOilfield.PRESSURE),
-            (684.56, units.Metric.PROPPANT_CONCENTRATION, 5.71, units.UsOilfield.PROPPANT_CONCENTRATION),
+            # TODO: Uncomment next line and add slurry rate
+            # (684.56, units.Metric.PROPPANT_CONCENTRATION, 5.71, units.UsOilfield.PROPPANT_CONCENTRATION),
         ]:
             source_measurement = om.make_measurement(source_magnitude, source_unit)
             actual = oc.to_unit(source_measurement, target_unit )
