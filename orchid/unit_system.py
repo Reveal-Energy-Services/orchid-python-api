@@ -17,8 +17,16 @@ from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
 
+from pint import UnitRegistry
+
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+# This is the single location to find the `pint.UnitRegistry`. The `pint` package considers units returned
+# from different instances of `UnitRegistry` to be different. See the documentation at
+# https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-in-your-projects for details.
+registry = UnitRegistry()
 
 
 About = namedtuple('About', ['unit', 'net_unit'])
