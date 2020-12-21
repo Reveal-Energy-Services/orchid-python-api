@@ -1,15 +1,15 @@
-# Volume
-cu_ft
+# Metric volume
+cubic_meter = m ** 3 = cu_m
 
 # Ratio units
 
 # Density
 lb_per_cu_ft = lb / cu_ft
-kg_per_cu_m = kg / (m ** 3)
+kg_per_cu_m = kg / cu_m
 
 # Proppant concentration
 lb_per_gal = lb / gal
 
 # Slurry rate
 oil_bbl_per_min = oil_bbl / min
-cu_m_per_min = (m ** 3) / min
+cu_m_per_min = cu_m / min

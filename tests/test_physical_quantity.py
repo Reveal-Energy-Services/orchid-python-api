@@ -19,8 +19,8 @@ from hamcrest import assert_that, equal_to, contains_exactly
 from orchid.physical_quantity import (PhysicalQuantity,
                                       to_physical_quantity,
                                       to_units_net_quantity_type,
-                                      PROPPANT_CONCENTRATION_NAME,
-                                      SLURRY_RATE_NAME)
+                                      PROPPANT_CONCENTRATION,
+                                      SLURRY_RATE)
 
 
 class TestPhysicalQuantity(unittest.TestCase):
@@ -52,9 +52,9 @@ class TestPhysicalQuantity(unittest.TestCase):
         quantity_type_physical_quantity_map = {(47,): PhysicalQuantity.LENGTH,
                                                (55,): PhysicalQuantity.MASS,
                                                (68,): PhysicalQuantity.PRESSURE,
-                                               (70, PROPPANT_CONCENTRATION_NAME):
+                                               (70, PROPPANT_CONCENTRATION):
                                                    PhysicalQuantity.PROPPANT_CONCENTRATION,
-                                               (70, SLURRY_RATE_NAME): PhysicalQuantity.SLURRY_RATE,
+                                               (70, SLURRY_RATE): PhysicalQuantity.SLURRY_RATE,
                                                (83,): PhysicalQuantity.TEMPERATURE}
         for quantity_type, physical_quantity in quantity_type_physical_quantity_map.items():
             with self.subTest(quantity_type=quantity_type, physical_quantity=physical_quantity):

@@ -19,12 +19,12 @@
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 import datetime
-from typing import Union
 
 import toolz.curried as toolz
 
-import orchid.measurement as om
-import orchid.unit_system as units
+from orchid import (measurement as om,
+                    physical_quantity as opq,
+                    unit_system as units)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
@@ -35,15 +35,15 @@ import UnitsNet
 
 
 UNIT_CREATE_NET_UNIT_MAP = {
-    units.min: lambda q: UnitsNet.Duration.FromMinutes(q),
-    units.ft: lambda q: UnitsNet.Length.FromFeet(q),
-    units.m: lambda q: UnitsNet.Length.FromMeters(q),
-    units.lb: lambda q: UnitsNet.Mass.FromPounds(q),
-    units.kg: lambda q: UnitsNet.Mass.FromKilograms(q),
-    units.psi: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
-    units.kPa: lambda q: UnitsNet.Pressure.FromKilopascals(q),
-    units.oil_bbl: lambda q: UnitsNet.Volume.FromOilBarrels(q),
-    units.cu_m: lambda q: UnitsNet.Volume.FromCubicMeters(q),
+    units.common[opq.DURATION]: lambda q: UnitsNet.Duration.FromMinutes(q),
+    units.us_oilfield[opq.LENGTH]: lambda q: UnitsNet.Length.FromFeet(q),
+    units.metric[opq.LENGTH]: lambda q: UnitsNet.Length.FromMeters(q),
+    units.us_oilfield[opq.MASS]: lambda q: UnitsNet.Mass.FromPounds(q),
+    units.metric[opq.MASS]: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.us_oilfield[opq.PRESSURE]: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
+    units.metric[opq.PRESSURE]: lambda q: UnitsNet.Pressure.FromKilopascals(q),
+    units.us_oilfield[opq.VOLUME]: lambda q: UnitsNet.Volume.FromOilBarrels(q),
+    units.metric[opq.VOLUME]: lambda q: UnitsNet.Volume.FromCubicMeters(q),
 }
 
 
@@ -74,7 +74,7 @@ def as_measurement(net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     # UnitsNet has chosen to use 'm' for both minutes and meters...
     if is_minute_unit(net_quantity):
-        return om.make_measurement(net_quantity.Value, units.DURATION)
+        return om.make_measurement(net_quantity.Value, units.common[opq.DURATION])
     elif is_ratio_unit(net_quantity):
         numerator_unit, denominator_unit = ratio_units(net_quantity)
         if numerator_unit == UnitsNet.Units.MassUnit.Pound and denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon:

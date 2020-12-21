@@ -33,8 +33,9 @@ class TestMeasurement(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_magnitude_is_supplied_magnitude_to_make_measurement(self):
-        for magnitude, unit in [(877.26, units.Metric.PRESSURE),
-                                (3, units.UsOilfield.VOLUME)  # Testing an integral magnitude against contract
+        for magnitude, unit in [(877.26, units.m),
+                                (3, units.oil_bbl)  # Testing an integral magnitude against
+                                # contract
                                 ]:
             with self.subTest(magnitude=magnitude, unit=unit):
                 sut = om.make_measurement(magnitude, unit)

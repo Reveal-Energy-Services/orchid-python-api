@@ -20,9 +20,19 @@ from typing import Union
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-
-PROPPANT_CONCENTRATION_NAME = 'proppant concentration'
-SLURRY_RATE_NAME = 'slurry rate'
+ANGLE = 'angle'
+DENSITY = 'density'
+DURATION = 'duration'
+ENERGY = 'energy'
+FORCE = 'force'
+LENGTH = 'length'
+MASS = 'mass'
+POWER = 'power'
+PRESSURE = 'pressure'
+PROPPANT_CONCENTRATION = 'proppant concentration'
+SLURRY_RATE = 'slurry rate'
+TEMPERATURE = 'temperature'
+VOLUME = 'volume'
 
 
 About = namedtuple('About', ['name', 'quantity_type'])
@@ -31,18 +41,19 @@ About = namedtuple('About', ['name', 'quantity_type'])
 class PhysicalQuantity(Enum):
     """The enumeration of physical quantities available via the Orchid Python API."""
 
-    LENGTH = About('length', UnitsNet.QuantityType.Length)
-    MASS = About('mass', UnitsNet.QuantityType.Mass)
-    PRESSURE = About('pressure', UnitsNet.QuantityType.Pressure)
-    PROPPANT_CONCENTRATION = About('proppant concentration', UnitsNet.QuantityType.Ratio)
-    SLURRY_RATE = About('slurry rate', UnitsNet.QuantityType.Ratio)
-    TEMPERATURE = About('temperature', UnitsNet.QuantityType.Temperature)
-
-    def __repr__(self):
-        return f'<PhysicalQuantity: {str(self.value)}>'
-
-    def __str__(self):
-        return self.value.name
+    ANGLE = 'angle'
+    DENSITY = 'density'
+    DURATION = 'duration'
+    ENERGY = 'energy'
+    FORCE = 'force'
+    LENGTH = 'length'
+    MASS = 'mass'
+    POWER = 'power'
+    PRESSURE = 'pressure'
+    PROPPANT_CONCENTRATION = 'proppant concentration'
+    SLURRY_RATE = 'slurry rate'
+    TEMPERATURE = 'temperature'
+    VOLUME = 'volume'
 
 
 def to_units_net_quantity_type(physical_quantity: PhysicalQuantity) -> UnitsNet.QuantityType:

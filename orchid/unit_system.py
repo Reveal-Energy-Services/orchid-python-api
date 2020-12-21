@@ -14,11 +14,13 @@
 
 
 from abc import abstractmethod
-from collections import namedtuple
 from enum import Enum
 import pathlib
 
 from pint import UnitRegistry
+
+from orchid import physical_quantity as opq
+
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -28,49 +30,51 @@ import UnitsNet
 # from different instances of `UnitRegistry` to be different. See the documentation at
 # https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-in-your-projects for details.
 _registry = UnitRegistry()
-_registry.load_definitions(str(pathlib.Path(__file__).parent.joinpath('orchid_units.txt')))
+_registry.load_definitions(str(pathlib.Path(__file__).parent.resolve().joinpath('orchid_units.txt')))
 
 # Expose general types for use by type annotations
 Quantity = _registry.Quantity
 Unit = _registry.Unit
 
+# Aliases for Pint units. These aliases allow consuming code to use expressions like
+# `2.718 * units.us_oilfield[opq.SLURRY_RATE]` to express, for example, a slurry rate.
+
+# Expose units common to both US oilfield and metric unit systems.
+
+common = {
+    opq.ANGLE: _registry.deg,
+    opq.DURATION: _registry.min,
+}
+
 # Expose basic units for US oilfield and metric units
 
-# Aliases for Pint units. These aliases allow consuming code to use expressions like
-# `2.718 * units.oil_bbl_per_min` to express, for example, a slurry rate.
+us_oilfield = {
+    opq.DENSITY: _registry.lb_per_cu_ft,
+    opq.ENERGY: _registry.ft_lb,
+    opq.FORCE: _registry.lbf,
+    opq.LENGTH: _registry.ft,
+    opq.MASS: _registry.lb,
+    opq.POWER: _registry.hp,
+    opq.PRESSURE: _registry.psi,
+    opq.PROPPANT_CONCENTRATION: _registry.lb_per_gal,
+    opq.TEMPERATURE: _registry.degF,
+    opq.SLURRY_RATE: _registry.oil_bbl_per_min,
+    opq.VOLUME: _registry.oil_bbl,
+}
 
-# Both US oilfield and metric
-
-deg = _registry.deg  # angle
-# noinspection PyShadowingBuiltins
-min = _registry.min  # duration (time span)
-
-# US Oilfield
-
-lb_per_cu_ft = _registry.lb_per_cu_ft  # density
-ft_lb = _registry.ft_lb  # energy
-lbf = _registry.lbf  # force
-ft = _registry.ft  # length
-lb = _registry.lb  # mass
-hp = _registry.hp  # power
-psi = _registry.psi  # pressure
-lb_per_gal = _registry.lb_per_gal  # proppant concentration
-degF = _registry.degF  # temperature
-oil_bbl_per_min = _registry.oil_bbl_per_min  # slurry rate
-oil_bbl = _registry.oil_bbl  # volume
-
-# Metric
-
-kg_per_cu_m = _registry.kg_per_cu_m  # density (and proppant concentration)
-J = _registry.J  # energy
-N = _registry.N  # force
-m = _registry.m  # length
-kg = _registry.kg  # mass
-W = _registry.W  # power
-kPa = _registry.kPa  # pressure
-cu_m_per_min = ((_registry.m ** 3) / _registry.min)  # slurry rate
-degC = _registry.degC  # temperature
-cu_m = (_registry.m ** 3)  # volume
+metric = {
+    opq.DENSITY: _registry.kg_per_cu_m,
+    opq.ENERGY: _registry.J,
+    opq.FORCE: _registry.N,
+    opq.LENGTH: _registry.m,
+    opq.MASS: _registry.kg,
+    opq.POWER: _registry.W,
+    opq.PRESSURE: _registry.kPa,
+    opq.PROPPANT_CONCENTRATION: _registry.kg_per_cu_m,
+    opq.SLURRY_RATE: _registry.cu_m_per_min,
+    opq.TEMPERATURE: _registry.degC,
+    opq.VOLUME: _registry.cu_m
+}
 
 
 # TODO: remove
@@ -95,8 +99,8 @@ class UsOilfield(UnitSystem):
     LENGTH = _registry.ft
     MASS = _registry.lb
     PRESSURE = _registry.psi
-    PROPPANT_CONCENTRATION = lb_per_gal
-    SLURRY_RATE = oil_bbl_per_min
+    PROPPANT_CONCENTRATION = _registry.lb_per_gal
+    SLURRY_RATE = _registry.oil_bbl_per_min
     TEMPERATURE = _registry.degF
     VOLUME = _registry.oil_bbl
 
@@ -111,8 +115,8 @@ class Metric(UnitSystem):
     LENGTH = _registry.m
     MASS = _registry.kg
     PRESSURE = _registry.kPa
-    PROPPANT_CONCENTRATION = kg_per_cu_m
-    SLURRY_RATE = cu_m_per_min
+    PROPPANT_CONCENTRATION = _registry.kg_per_cu_m
+    SLURRY_RATE = _registry.cu_m_per_min
     TEMPERATURE = _registry.degC
     VOLUME = (_registry.m ** 3)
 
