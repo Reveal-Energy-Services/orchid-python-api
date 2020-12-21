@@ -29,19 +29,7 @@ from orchid import unit_system as units
 Measurement = collections.namedtuple('measurement', ['magnitude', 'unit'], module=__name__)
 
 
-def _is_known_unit(_magnitude, unit):
-    if isinstance(unit, units.UsOilfield):
-        return True
-    elif isinstance(unit, units.Metric):
-        return True
-    elif unit is units.DURATION:
-        return True
-
-    return False
-
-
-def get_conversion_factor(source_unit: Union[units.UsOilfield, units.Metric],
-                          target_unit: Union[units.UsOilfield, units.Metric]) -> float:
+def get_conversion_factor(source_unit: units.Unit, target_unit: units.Unit) -> float:
     """
     Returns the conversion factor from `source_unit` to `target_unit`.
 
@@ -53,8 +41,8 @@ def get_conversion_factor(source_unit: Union[units.UsOilfield, units.Metric],
 
 
 @deal.pre(lambda magnitude, _unit: isinstance(magnitude, numbers.Real))
-@deal.pre(_is_known_unit)
-def make_measurement(magnitude: numbers.Real, unit: Union[units.UsOilfield, units.Metric]) -> Measurement:
+@deal.pre(lambda _magnitude, unit: isinstance(unit, units.Unit))
+def make_measurement(magnitude: numbers.Real, unit: units.Unit) -> units.Quantity:
     """
     Construct a measurement.
 
@@ -63,6 +51,6 @@ def make_measurement(magnitude: numbers.Real, unit: Union[units.UsOilfield, unit
         unit: The unit of this measurement.
 
     Returns:
-        The Measurement consisting of the supplied `magnitude` and `unit`.
+        The Pint `Quantity` consisting of the supplied `magnitude` and `unit`.
     """
-    return Measurement(magnitude, unit)
+    return magnitude * unit

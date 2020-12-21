@@ -35,15 +35,15 @@ import UnitsNet
 
 
 UNIT_CREATE_NET_UNIT_MAP = {
-    units.DURATION: lambda q: UnitsNet.Duration.FromMinutes(q),
-    units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
-    units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
-    units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
-    units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
-    units.UsOilfield.PRESSURE: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
-    units.Metric.PRESSURE: lambda q: UnitsNet.Pressure.FromKilopascals(q),
-    units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
-    units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
+    units.min: lambda q: UnitsNet.Duration.FromMinutes(q),
+    units.ft: lambda q: UnitsNet.Length.FromFeet(q),
+    units.m: lambda q: UnitsNet.Length.FromMeters(q),
+    units.lb: lambda q: UnitsNet.Mass.FromPounds(q),
+    units.kg: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.psi: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
+    units.kPa: lambda q: UnitsNet.Pressure.FromKilopascals(q),
+    units.oil_bbl: lambda q: UnitsNet.Volume.FromOilBarrels(q),
+    units.cu_m: lambda q: UnitsNet.Volume.FromCubicMeters(q),
 }
 
 
@@ -147,8 +147,7 @@ def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
             raise ValueError(f'Unrecognized unit: "{measurement.unit}".')
 
 
-def as_net_quantity_in_different_unit(measurement: om.Measurement,
-                                      target_unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.IQuantity:
+def as_net_quantity_in_different_unit(measurement: om.Measurement, target_unit: units.Unit) -> UnitsNet.IQuantity:
     """
     Convert a `Measurement` into a .NET `UnitsNet.IQuantity` instance but in a different unit, `in_unit`.
     Args:
@@ -164,7 +163,7 @@ def as_net_quantity_in_different_unit(measurement: om.Measurement,
 
 @toolz.curry
 def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
-                                           target_unit: Union[units.UsOilfield, units.Metric]) -> UnitsNet.IQuantity:
+                                           target_unit: units.Unit) -> UnitsNet.IQuantity:
     """
     Convert one .NET `UnitsNet.IQuantity` to another .NET `UnitsNet.IQuantity` in a different unit `target_unit`
     Args:

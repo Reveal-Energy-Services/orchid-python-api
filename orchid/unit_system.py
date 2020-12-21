@@ -16,6 +16,7 @@
 from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
+import pathlib
 
 from pint import UnitRegistry
 
@@ -27,56 +28,52 @@ import UnitsNet
 # from different instances of `UnitRegistry` to be different. See the documentation at
 # https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-in-your-projects for details.
 _registry = UnitRegistry()
+_registry.load_definitions(str(pathlib.Path(__file__).parent.joinpath('orchid_units.txt')))
 
 # Expose general types for use by type annotations
 Quantity = _registry.Quantity
 Unit = _registry.Unit
 
-# Aliases for "ratio" units (proppant concentration and slurry rate). Although a consuming class can use an
-# expression like `2.718 * units.oil_bbl_per_min` (or even, `2.718 * (units.oil_bbl / units.min); the preferred
-# method is to use the expression, `2.718 * units.UsOilfield.PROPPANT_CONCENTRATION`.
-lb_per_gal = (_registry.lb / _registry.gal)
-kg_per_cu_m = (_registry.kg / (_registry.m ** 3))
-oil_bbl_per_min = (_registry.oil_bbl / _registry.min)
-cu_m_per_min = ((_registry.m ** 3) / _registry.min)
+# Expose basic units for US oilfield and metric units
+
+# Aliases for Pint units. These aliases allow consuming code to use expressions like
+# `2.718 * units.oil_bbl_per_min` to express, for example, a slurry rate.
+
+# Both US oilfield and metric
+
+deg = _registry.deg  # angle
+# noinspection PyShadowingBuiltins
+min = _registry.min  # duration (time span)
+
+# US Oilfield
+
+lb_per_cu_ft = _registry.lb_per_cu_ft  # density
+ft_lb = _registry.ft_lb  # energy
+lbf = _registry.lbf  # force
+ft = _registry.ft  # length
+lb = _registry.lb  # mass
+hp = _registry.hp  # power
+psi = _registry.psi  # pressure
+lb_per_gal = _registry.lb_per_gal  # proppant concentration
+degF = _registry.degF  # temperature
+oil_bbl_per_min = _registry.oil_bbl_per_min  # slurry rate
+oil_bbl = _registry.oil_bbl  # volume
+
+# Metric
+
+kg_per_cu_m = _registry.kg_per_cu_m  # density (and proppant concentration)
+J = _registry.J  # energy
+N = _registry.N  # force
+m = _registry.m  # length
+kg = _registry.kg  # mass
+W = _registry.W  # power
+kPa = _registry.kPa  # pressure
+cu_m_per_min = ((_registry.m ** 3) / _registry.min)  # slurry rate
+degC = _registry.degC  # temperature
+cu_m = (_registry.m ** 3)  # volume
 
 
-About = namedtuple('About', ['unit', 'net_unit'])
-
-
-# DURATION is a special unit because it is the same between US oilfield and metric unit systems.
-class _Duration:
-    """
-    _Duration is a class modeling the special unit, `DURATION`. `DURATION` is special because is its contained
-    in both (or neither) unit system; that is, it is in both (or neither) US oilfield and metric units.
-
-    It has the same members defined in the `UnitSystem` class, but because `UnitSystem` derives from `Enum`,
-    it cannot inherit from that class.
-
-    Additionally, I **do not** consumers to construct instances of this class. The only instance of this
-    class that should exist is referenced by the `DURATION` module attribute.
-    """
-    def __init__(self):
-        self.value = About('min', UnitsNet.Units.DurationUnit.Minute)
-
-    net_unit = property(lambda self: self.value.net_unit)
-
-    def __repr__(self):
-        return f'<{self.system_name}: {str(self.value)}>'
-
-    abbreviation = property(lambda self: str(self))
-
-    def __str__(self):
-        return self.value.unit
-
-    @property
-    def system_name(self):
-        return 'Duration'
-
-
-DURATION = _Duration()
-
-
+# TODO: remove
 class UnitSystem(Enum):
     def __repr__(self):
         return f'<{self.system_name()}: {str(self.value)}>'
@@ -84,28 +81,14 @@ class UnitSystem(Enum):
     abbreviation = property(lambda self: str(self))
 
     def __str__(self):
-        return self.value.unit
+        return str(self.value)
 
     @abstractmethod
     def system_name(self):
         raise NotImplementedError()
 
 
-# TODO: expand both unit systems to all units in the .NET `UnitSystem` class:
-# - Length
-# - Angle
-# - Pressure
-# - Force
-# - Volume
-# - Mass
-# - Power
-# - Density
-# - Temperature
-# - ProppantConcentration
-# - SlurryRate
-# - Energy
-
-
+# TODO: remove
 class UsOilfield(UnitSystem):
     """The enumeration of U. S. oilfield units available via the Orchid Python API."""
 
@@ -121,6 +104,7 @@ class UsOilfield(UnitSystem):
         return 'USOilfield'
 
 
+# TODO remove
 class Metric(UnitSystem):
     """The enumeration of metric units available via the Orchid Python API."""
 
