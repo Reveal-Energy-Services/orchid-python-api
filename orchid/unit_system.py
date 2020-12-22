@@ -18,6 +18,7 @@ from enum import Enum
 import pathlib
 
 from pint import UnitRegistry
+import toolz.curried as toolz
 
 from orchid import physical_quantity as opq
 
@@ -73,8 +74,51 @@ metric = {
     opq.PROPPANT_CONCENTRATION: _registry.kg_per_cu_m,
     opq.SLURRY_RATE: _registry.cu_m_per_min,
     opq.TEMPERATURE: _registry.degC,
-    opq.VOLUME: _registry.cu_m
+    opq.VOLUME: (_registry.m ** 3)
 }
+
+
+# All units in a dictionary keyed to physical quantity. Designed to only be used **internally**.
+_all_units = toolz.merge(common, us_oilfield, metric)
+
+
+def abbreviation(unit: Unit) -> str:
+    """
+    Return the abbreviation for a `Unit`.
+
+    Args:
+        unit: The unit whose abbreviation is sought.
+
+    Returns:
+        The abbreviation of `unit` as a `str`.
+    """
+    return f'{unit:~P}'
+
+
+def find_by_abbreviation(abbreviation_to_find: str) -> Unit:
+    """
+    Find the `Unit` with the specified abbreviation.
+
+    Args:
+        abbreviation_to_find: The abbreviation sought.
+
+    Returns:
+        The Unit having the specified abbreviation.
+    """
+    quantity_abbreviation_map = toolz.valmap(abbreviation, _all_units)
+    quantity_candidates_map = toolz.valfilter(lambda a: a == abbreviation_to_find, quantity_abbreviation_map)
+    if len(quantity_candidates_map) == 2:
+        candidate_quantities = set(quantity_candidates_map.keys())
+        candidate_units = set(quantity_candidates_map.values())
+        if len(candidate_units) == 1:
+            # Even though I have two keys in `quantity_candidates_map`, I only have a single (unit) value so
+            # it is safe to return either.
+            selected_physical_quantity = list(candidate_quantities)[0]
+            return _all_units[selected_physical_quantity]
+    elif len(quantity_candidates_map) != 1:
+        raise ValueError(f'Expected one unit with abbreviation, "{abbreviation_to_find}". Found {quantity_candidates_map}.')
+
+    return _all_units[toolz.first(quantity_candidates_map.keys())]
 
 
 # TODO: remove
