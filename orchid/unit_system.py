@@ -16,10 +16,8 @@
 from abc import abstractmethod
 from enum import Enum
 import pathlib
-import pprint
 
 from pint import UnitRegistry
-import toolz.curried as toolz
 
 from orchid import physical_quantity as opq
 
@@ -123,7 +121,7 @@ class UsOilfield(UnitSystem):
         return 'USOilfield'
 
 
-# TODO remove
+# TODO: remove
 class Metric(UnitSystem):
     """The enumeration of metric units available via the Orchid Python API."""
 
