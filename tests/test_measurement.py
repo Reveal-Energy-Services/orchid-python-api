@@ -19,7 +19,6 @@ import unittest
 
 import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
-import toolz.curried as toolz
 
 from orchid import (measurement as om,
                     physical_quantity as opq,
