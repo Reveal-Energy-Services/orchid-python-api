@@ -181,66 +181,6 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
     return result
 
 
-def _is_minute_unit(net_quantity):
-    try:
-        if net_quantity.Unit == UnitsNet.Units.DurationUnit.Minute:
-            return True
-    except AttributeError:
-        # Both ProppantConcentration and SlurryRate have **no** `Unit` attribute, but are not a minute duration
-        return False
-    else:
-        # Anything else must be some other unit.
-        return False
-
-
-def _is_ratio_unit(net_quantity_to_test):
-    """
-    Determine if the .NET IQuantity instance is either `ProppantConcentration` or `SlurryRate`.
-    Args:
-        net_quantity_to_test: The .NET IQuantity instance to test.
-
-    Returns:
-        True if the quantity to test has a numerator and a denominator unit; otherwise, false.
-    """
-    if _ratio_units(net_quantity_to_test):
-        return True
-    else:
-        return False
-
-
-def _ratio_units(net_quantity):
-    try:
-        return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
-    except AttributeError:
-        return tuple()
-
-
-# Skip proppant concentration and slurry rate. The function, `_unit_from_net_quantity`, handles these physical
-# quantities manually.
-_NET_ABBREVIATION_UNIT_MAP = {
-    'deg': units.common[opq.ANGLE],
-    'min': units.common[opq.DURATION],
-    'ft': units.us_oilfield[opq.LENGTH],
-    'psi': units.us_oilfield[opq.PRESSURE],
-    'lbf': units.us_oilfield[opq.FORCE],
-    'bbl': units.us_oilfield[opq.VOLUME],
-    'lb': units.us_oilfield[opq.MASS],
-    'hp(I)': units.us_oilfield[opq.POWER],
-    'lb/ft³': units.us_oilfield[opq.DENSITY],
-    '°F': units.us_oilfield[opq.TEMPERATURE],
-    'ft·lb': units.us_oilfield[opq.ENERGY],
-    'm': units.metric[opq.LENGTH],
-    'kPa': units.metric[opq.PRESSURE],
-    'N': units.metric[opq.FORCE],
-    'm³': units.metric[opq.VOLUME],
-    'kg': units.metric[opq.MASS],
-    'W': units.metric[opq.POWER],
-    'kg/m³': units.metric[opq.DENSITY],
-    '°C': units.metric[opq.TEMPERATURE],
-    'J': units.metric[opq.ENERGY],
-}
-
-
 _NET_UNIT_UNIT_MAP = {
     (UnitsNet.Units.AngleUnit.Degree, opq.PhysicalQuantity.ANGLE): units.common[opq.ANGLE],
     (UnitsNet.Units.DurationUnit.Minute, opq.PhysicalQuantity.DURATION): units.common[opq.DURATION],
@@ -263,41 +203,36 @@ _NET_UNIT_UNIT_MAP = {
 
 
 def _unit_from_net_quantity(net_quantity, physical_quantity):
-    if physical_quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION or \
-            physical_quantity == opq.PhysicalQuantity.SLURRY_RATE:
-        numerator_unit, denominator_unit = _ratio_units(net_quantity)
-        if numerator_unit == UnitsNet.Units.MassUnit.Pound and denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon:
+    def is_proppant_concentration(quantity):
+        return quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION
+
+    def is_slurry_rate(quantity):
+        return quantity == opq.PhysicalQuantity.SLURRY_RATE
+
+    def ratio_units(quantity):
+        return quantity.NumeratorUnit, quantity.DenominatorUnit
+
+    def is_us_oilfield_proppant_concentration(numerator, denominator):
+        return numerator == UnitsNet.Units.MassUnit.Pound and denominator == UnitsNet.Units.VolumeUnit.UsGallon
+
+    def is_metric_proppant_concentration(numerator, denominator):
+        return numerator == UnitsNet.Units.MassUnit.Kilogram and denominator == UnitsNet.Units.VolumeUnit.CubicMeter
+
+    def is_us_oilfield_slurry_rate(numerator, denominator):
+        return numerator == UnitsNet.Units.VolumeUnit.OilBarrel and denominator == UnitsNet.Units.DurationUnit.Minute
+
+    def is_metric_slurry_rate(numerator, denominator):
+        return numerator == UnitsNet.Units.VolumeUnit.CubicMeter and denominator == UnitsNet.Units.DurationUnit.Minute
+
+    if is_proppant_concentration(physical_quantity) or is_slurry_rate(physical_quantity):
+        numerator_unit, denominator_unit = ratio_units(net_quantity)
+        if is_us_oilfield_proppant_concentration(numerator_unit, denominator_unit):
             return units.us_oilfield[opq.PROPPANT_CONCENTRATION]
-        elif numerator_unit == UnitsNet.Units.MassUnit.Kilogram and \
-                denominator_unit == UnitsNet.Units.VolumeUnit.CubicMeter:
+        elif is_metric_proppant_concentration(numerator_unit, denominator_unit):
             return units.metric[opq.PROPPANT_CONCENTRATION]
-        elif numerator_unit == UnitsNet.Units.VolumeUnit.OilBarrel and\
-                denominator_unit == UnitsNet.Units.DurationUnit.Minute:
+        elif is_us_oilfield_slurry_rate(numerator_unit, denominator_unit):
             return units.us_oilfield[opq.SLURRY_RATE]
-        elif numerator_unit == UnitsNet.Units.VolumeUnit.CubicMeter and \
-                denominator_unit == UnitsNet.Units.DurationUnit.Minute:
+        elif is_metric_slurry_rate(numerator_unit, denominator_unit):
             return units.metric[opq.SLURRY_RATE]
 
     return _NET_UNIT_UNIT_MAP[(net_quantity.Unit, physical_quantity)]
-    # if _is_minute_unit(net_quantity):
-    #     return units.common[opq.DURATION]
-    # elif _is_ratio_unit(net_quantity):
-    #     numerator_unit, denominator_unit = _ratio_units(net_quantity)
-    #     if numerator_unit == UnitsNet.Units.MassUnit.Pound and denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon:
-    #         return units.us_oilfield[opq.PROPPANT_CONCENTRATION]
-    #     elif numerator_unit == UnitsNet.Units.MassUnit.Kilogram and \
-    #             denominator_unit == UnitsNet.Units.VolumeUnit.CubicMeter:
-    #         return units.metric[opq.PROPPANT_CONCENTRATION]
-    #     elif numerator_unit == UnitsNet.Units.VolumeUnit.OilBarrel and\
-    #             denominator_unit == UnitsNet.Units.DurationUnit.Minute:
-    #         return units.us_oilfield[opq.SLURRY_RATE]
-    #     elif numerator_unit == UnitsNet.Units.VolumeUnit.CubicMeter and \
-    #             denominator_unit == UnitsNet.Units.DurationUnit.Minute:
-    #         return units.metric[opq.SLURRY_RATE]
-    # else:
-    #     # Because UnitsNet uses an enumeration for each unit within a physical quantity (length, mass, and so
-    #     # on) because Python.Net converts all .NET enumerations into Python `int`s, I cannot simply "dispatch'
-    #     # on the UnitsNet Unit. Consequently, I "dispatch" on the UnitsNet unit abbreviation.
-    #     net_unit_abbreviation = str(net_quantity).split(maxsplit=1)[1]
-    #     result = _NET_ABBREVIATION_UNIT_MAP[net_unit_abbreviation]
-    #     return result
