@@ -256,12 +256,29 @@ _NET_UNIT_UNIT_MAP = {
     (UnitsNet.Units.MassUnit.Kilogram, opq.PhysicalQuantity.MASS): units.metric[opq.MASS],
     (UnitsNet.Units.PowerUnit.MechanicalHorsepower, opq.PhysicalQuantity.POWER): units.us_oilfield[opq.POWER],
     (UnitsNet.Units.PowerUnit.Watt, opq.PhysicalQuantity.POWER): units.metric[opq.POWER],
+    (UnitsNet.Units.PressureUnit.PoundForcePerSquareInch, opq.PhysicalQuantity.PRESSURE):
+        units.us_oilfield[opq.PRESSURE],
+    (UnitsNet.Units.PressureUnit.Kilopascal, opq.PhysicalQuantity.PRESSURE): units.metric[opq.PRESSURE],
 }
 
 
 def _unit_from_net_quantity(net_quantity, physical_quantity):
-    result = _NET_UNIT_UNIT_MAP[(net_quantity.Unit, physical_quantity)]
-    return result
+    if physical_quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION or \
+            physical_quantity == opq.PhysicalQuantity.SLURRY_RATE:
+        numerator_unit, denominator_unit = _ratio_units(net_quantity)
+        if numerator_unit == UnitsNet.Units.MassUnit.Pound and denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon:
+            return units.us_oilfield[opq.PROPPANT_CONCENTRATION]
+        elif numerator_unit == UnitsNet.Units.MassUnit.Kilogram and \
+                denominator_unit == UnitsNet.Units.VolumeUnit.CubicMeter:
+            return units.metric[opq.PROPPANT_CONCENTRATION]
+        elif numerator_unit == UnitsNet.Units.VolumeUnit.OilBarrel and\
+                denominator_unit == UnitsNet.Units.DurationUnit.Minute:
+            return units.us_oilfield[opq.SLURRY_RATE]
+        elif numerator_unit == UnitsNet.Units.VolumeUnit.CubicMeter and \
+                denominator_unit == UnitsNet.Units.DurationUnit.Minute:
+            return units.metric[opq.SLURRY_RATE]
+
+    return _NET_UNIT_UNIT_MAP[(net_quantity.Unit, physical_quantity)]
     # if _is_minute_unit(net_quantity):
     #     return units.common[opq.DURATION]
     # elif _is_ratio_unit(net_quantity):
