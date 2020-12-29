@@ -28,7 +28,7 @@ from orchid import (physical_quantity as opq,
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
 # noinspection PyUnresolvedReferences
-from System import DateTime
+from System import DateTime, Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -90,7 +90,15 @@ def as_measurement(net_quantity: UnitsNet.IQuantity,
     Returns:
         The equivalent `Measurement` instance.
     """
-    result = net_quantity.Value * _unit_from_net_quantity(net_quantity, physical_quantity)
+    unit = _unit_from_net_quantity(net_quantity, physical_quantity)
+    # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
+    # other units (`Information` and `BitRate` appear to be handled in the same way). Specifically, the
+    # `Value` property **does not** return a value of type `double` but of type `Decimal`. Python.NET
+    # expectedly converts the value returned by `Value` to a Python `decimal.Decimal`. Then, additionally,
+    # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
+    # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
+    result = (net_quantity.Value * unit if physical_quantity != opq.PhysicalQuantity.POWER
+              else Decimal.ToDouble(net_quantity.Value) * unit)
     return result
 
 
@@ -241,10 +249,13 @@ _NET_UNIT_UNIT_MAP = {
     (UnitsNet.Units.EnergyUnit.FootPound, opq.PhysicalQuantity.ENERGY): units.us_oilfield[opq.ENERGY],
     (UnitsNet.Units.EnergyUnit.Joule, opq.PhysicalQuantity.ENERGY): units.metric[opq.ENERGY],
     (UnitsNet.Units.ForceUnit.PoundForce, opq.PhysicalQuantity.FORCE): units.us_oilfield[opq.FORCE],
-    # (UnitsNet.Units.ForceUnit.Newton, opq.PhysicalQuantity.FORCE): units.metric[opq.FORCE],
-    (UnitsNet.Units.ForceUnit.Newton, opq.PhysicalQuantity.FORCE): units.us_oilfield[opq.FORCE],
+    (UnitsNet.Units.ForceUnit.Newton, opq.PhysicalQuantity.FORCE): units.metric[opq.FORCE],
     (UnitsNet.Units.LengthUnit.Foot, opq.PhysicalQuantity.LENGTH): units.us_oilfield[opq.LENGTH],
     (UnitsNet.Units.LengthUnit.Meter, opq.PhysicalQuantity.LENGTH): units.metric[opq.LENGTH],
+    (UnitsNet.Units.MassUnit.Pound, opq.PhysicalQuantity.MASS): units.us_oilfield[opq.MASS],
+    (UnitsNet.Units.MassUnit.Kilogram, opq.PhysicalQuantity.MASS): units.metric[opq.MASS],
+    (UnitsNet.Units.PowerUnit.MechanicalHorsepower, opq.PhysicalQuantity.POWER): units.us_oilfield[opq.POWER],
+    (UnitsNet.Units.PowerUnit.Watt, opq.PhysicalQuantity.POWER): units.metric[opq.POWER],
 }
 
 
