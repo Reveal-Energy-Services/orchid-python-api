@@ -19,8 +19,6 @@ import pathlib
 
 from pint import UnitRegistry
 
-from orchid import physical_quantity as opq
-
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -35,46 +33,6 @@ _registry.load_definitions(str(pathlib.Path(__file__).parent.resolve().joinpath(
 # Expose general types for use by type annotations
 Quantity = _registry.Quantity
 Unit = _registry.Unit
-
-# Aliases for Pint units. These aliases allow consuming code to use expressions like
-# `2.718 * units.us_oilfield[opq.SLURRY_RATE]` to express, for example, a slurry rate.
-
-# Expose units common to both US oilfield and metric unit systems.
-
-common = {
-    opq.ANGLE: _registry.deg,
-    opq.DURATION: _registry.min,
-}
-
-# Expose basic units for US oilfield and metric units
-
-us_oilfield = {
-    opq.DENSITY: _registry.lb_per_cu_ft,
-    opq.ENERGY: _registry.ft_lb,
-    opq.FORCE: _registry.lbf,
-    opq.LENGTH: _registry.ft,
-    opq.MASS: _registry.lb,
-    opq.POWER: _registry.hp,
-    opq.PRESSURE: _registry.psi,
-    opq.PROPPANT_CONCENTRATION: _registry.lb_per_gal,
-    opq.TEMPERATURE: _registry.degF,
-    opq.SLURRY_RATE: _registry.oil_bbl_per_min,
-    opq.VOLUME: _registry.oil_bbl,
-}
-
-metric = {
-    opq.DENSITY: _registry.kg_per_cu_m,
-    opq.ENERGY: _registry.J,
-    opq.FORCE: _registry.N,
-    opq.LENGTH: _registry.m,
-    opq.MASS: _registry.kg,
-    opq.POWER: _registry.W,
-    opq.PRESSURE: _registry.kPa,
-    opq.PROPPANT_CONCENTRATION: _registry.kg_per_cu_m,
-    opq.SLURRY_RATE: _registry.cu_m_per_min,
-    opq.TEMPERATURE: _registry.degC,
-    opq.VOLUME: (_registry.m ** 3)
-}
 
 
 def abbreviation(unit: Unit) -> str:
@@ -119,13 +77,17 @@ class Common(UnitSystem):
 class UsOilfield(UnitSystem):
     """The enumeration of U. S. oilfield units available via the Orchid Python API."""
 
-    LENGTH = _registry.ft
-    MASS = _registry.lb
-    PRESSURE = _registry.psi
-    PROPPANT_CONCENTRATION = _registry.lb_per_gal
-    SLURRY_RATE = _registry.oil_bbl_per_min
-    TEMPERATURE = _registry.degF
-    VOLUME = _registry.oil_bbl
+    DENSITY = _registry.pound_per_cubic_foot
+    ENERGY = _registry.foot_pound
+    FORCE = _registry.pound_force
+    LENGTH = _registry.foot
+    MASS = _registry.pound
+    POWER = _registry.horsepower
+    PRESSURE = _registry.pound_force_per_square_inch
+    PROPPANT_CONCENTRATION = _registry.oil_barrel_per_minute
+    SLURRY_RATE = _registry.oil_barrel_per_minute
+    TEMPERATURE = _registry.degree_Fahrenheit
+    VOLUME = _registry.oil_barrel
 
     def system_name(self):
         return 'USOilfield'
@@ -135,12 +97,16 @@ class UsOilfield(UnitSystem):
 class Metric(UnitSystem):
     """The enumeration of metric units available via the Orchid Python API."""
 
-    LENGTH = _registry.m
-    MASS = _registry.kg
-    PRESSURE = _registry.kPa
-    PROPPANT_CONCENTRATION = _registry.kg_per_cu_m
-    SLURRY_RATE = _registry.cu_m_per_min
-    TEMPERATURE = _registry.degC
+    DENSITY = _registry.kilogram_per_cubic_meter
+    ENERGY = _registry.joule
+    FORCE = _registry.newton
+    LENGTH = _registry.meter
+    MASS = _registry.kilogram
+    POWER = _registry.watt
+    PRESSURE = _registry.kilopascal
+    PROPPANT_CONCENTRATION = _registry.kilogram_per_cubic_meter
+    SLURRY_RATE = _registry.cubic_meter_per_minute
+    TEMPERATURE = _registry.degree_Celsius
     VOLUME = (_registry.m ** 3)
 
     def system_name(self):

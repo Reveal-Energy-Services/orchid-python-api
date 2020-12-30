@@ -13,14 +13,10 @@
 #
 
 
-from collections import namedtuple
 from enum import Enum
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
-
-
-About = namedtuple('About', ['name', 'quantity_type'])
 
 
 class PhysicalQuantity(Enum):
@@ -39,19 +35,3 @@ class PhysicalQuantity(Enum):
     SLURRY_RATE = 'slurry rate'
     TEMPERATURE = 'temperature'
     VOLUME = 'volume'
-
-
-# Expose symbols at top-level for convenience
-ANGLE = PhysicalQuantity.ANGLE.value
-DENSITY = PhysicalQuantity.DENSITY.value
-DURATION = PhysicalQuantity.DURATION.value
-ENERGY = PhysicalQuantity.ENERGY.value
-FORCE = PhysicalQuantity.FORCE.value
-LENGTH = PhysicalQuantity.LENGTH.value
-MASS = PhysicalQuantity.MASS.value
-POWER = PhysicalQuantity.POWER.value
-PRESSURE = PhysicalQuantity.PRESSURE.value
-PROPPANT_CONCENTRATION = PhysicalQuantity.PROPPANT_CONCENTRATION.value
-SLURRY_RATE = PhysicalQuantity.SLURRY_RATE.value
-TEMPERATURE = PhysicalQuantity.TEMPERATURE.value
-VOLUME = PhysicalQuantity.VOLUME.value

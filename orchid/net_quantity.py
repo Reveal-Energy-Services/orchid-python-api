@@ -34,29 +34,29 @@ import UnitsNet
 
 
 _UNIT_CREATE_NET_UNIT_MAP = {
-    units.common[opq.ANGLE]: lambda q: UnitsNet.Angle.FromDegrees(q),
-    units.common[opq.DURATION]: lambda q: UnitsNet.Duration.FromMinutes(q),
-    units.us_oilfield[opq.DENSITY]: lambda q: UnitsNet.Density.FromPoundsPerCubicFoot(q),
-    units.us_oilfield[opq.LENGTH]: lambda q: UnitsNet.Length.FromFeet(q),
-    units.metric[opq.LENGTH]: lambda q: UnitsNet.Length.FromMeters(q),
-    units.us_oilfield[opq.MASS]: lambda q: UnitsNet.Mass.FromPounds(q),
-    units.metric[opq.MASS]: lambda q: UnitsNet.Mass.FromKilograms(q),
-    units.us_oilfield[opq.PRESSURE]: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
-    units.metric[opq.PRESSURE]: lambda q: UnitsNet.Pressure.FromKilopascals(q),
-    units.us_oilfield[opq.VOLUME]: lambda q: UnitsNet.Volume.FromOilBarrels(q),
-    units.metric[opq.VOLUME]: lambda q: UnitsNet.Volume.FromCubicMeters(q),
+    units.Common.ANGLE: lambda q: UnitsNet.Angle.FromDegrees(q),
+    units.Common.DURATION: lambda q: UnitsNet.Duration.FromMinutes(q),
+    units.UsOilfield.DENSITY: lambda q: UnitsNet.Density.FromPoundsPerCubicFoot(q),
+    units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
+    units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
+    units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
+    units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.UsOilfield.PRESSURE: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
+    units.Metric.PRESSURE: lambda q: UnitsNet.Pressure.FromKilopascals(q),
+    units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
+    units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
 }
 
 _UNIT_NET_UNIT_MAP = {
-    units.common[opq.DURATION]: UnitsNet.Units.DurationUnit.Minute,
-    units.us_oilfield[opq.LENGTH]: UnitsNet.Units.LengthUnit.Foot,
-    units.metric[opq.LENGTH]: UnitsNet.Units.LengthUnit.Meter,
-    units.us_oilfield[opq.MASS]: UnitsNet.Units.MassUnit.Pound,
-    units.metric[opq.MASS]: UnitsNet.Units.MassUnit.Kilogram,
-    units.us_oilfield[opq.PRESSURE]: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
-    units.metric[opq.PRESSURE]: UnitsNet.Units.PressureUnit.Kilopascal,
-    units.us_oilfield[opq.VOLUME]: UnitsNet.Units.VolumeUnit.OilBarrel,
-    units.metric[opq.VOLUME]: UnitsNet.Units.VolumeUnit.CubicMeter,
+    units.Common.DURATION: UnitsNet.Units.DurationUnit.Minute,
+    units.UsOilfield.LENGTH: UnitsNet.Units.LengthUnit.Foot,
+    units.Metric.LENGTH: UnitsNet.Units.LengthUnit.Meter,
+    units.UsOilfield.MASS: UnitsNet.Units.MassUnit.Pound,
+    units.Metric.MASS: UnitsNet.Units.MassUnit.Kilogram,
+    units.UsOilfield.PRESSURE: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
+    units.Metric.PRESSURE: UnitsNet.Units.PressureUnit.Kilopascal,
+    units.UsOilfield.VOLUME: UnitsNet.Units.VolumeUnit.OilBarrel,
+    units.Metric.VOLUME: UnitsNet.Units.VolumeUnit.CubicMeter,
 }
 
 
@@ -75,8 +75,7 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
                              net_time_point.Millisecond * 1000)
 
 
-def as_measurement(net_quantity: UnitsNet.IQuantity,
-                   physical_quantity: opq.PhysicalQuantity) -> units.Quantity:
+def as_measurement(net_quantity: UnitsNet.IQuantity, physical_quantity: opq.PhysicalQuantity) -> units.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
 
@@ -133,19 +132,19 @@ def as_net_quantity(measurement: units.Quantity) -> UnitsNet.IQuantity:
     try:
         return _UNIT_CREATE_NET_UNIT_MAP[measurement.units](quantity)
     except KeyError:
-        if measurement.units == units.us_oilfield[opq.PROPPANT_CONCENTRATION]:
+        if measurement.units == units.UsOilfield[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]:
             return ProppantConcentration(measurement.magnitude,
                                          UnitsNet.Units.MassUnit.Pound,
                                          UnitsNet.Units.VolumeUnit.UsGallon)
-        elif measurement.units == units.metric[opq.PROPPANT_CONCENTRATION]:
+        elif measurement.units == units.Metric[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]:
             return ProppantConcentration(measurement.magnitude,
                                          UnitsNet.Units.MassUnit.Kilogram,
                                          UnitsNet.Units.VolumeUnit.CubicMeter)
-        elif measurement.units == units.us_oilfield[opq.SLURRY_RATE]:
+        elif measurement.units == units.UsOilfield[opq.PhysicalQuantity.SLURRY_RATE]:
             return SlurryRate(measurement.magnitude,
                               UnitsNet.Units.VolumeUnit.OilBarrel,
                               UnitsNet.Units.DurationUnit.Minute)
-        elif measurement.units == units.metric[opq.SLURRY_RATE]:
+        elif measurement.units == units.Metric[opq.PhysicalQuantity.SLURRY_RATE]:
             return SlurryRate(measurement.magnitude,
                               UnitsNet.Units.VolumeUnit.CubicMeter,
                               UnitsNet.Units.DurationUnit.Minute)
@@ -185,28 +184,26 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
 
 
 _NET_UNIT_UNIT_MAP = {
-    (UnitsNet.Units.AngleUnit.Degree, opq.PhysicalQuantity.ANGLE): units.common[opq.ANGLE],
-    (UnitsNet.Units.DurationUnit.Minute, opq.PhysicalQuantity.DURATION): units.common[opq.DURATION],
-    (UnitsNet.Units.DensityUnit.PoundPerCubicFoot, opq.PhysicalQuantity.DENSITY): units.us_oilfield[opq.DENSITY],
-    (UnitsNet.Units.DensityUnit.KilogramPerCubicMeter, opq.PhysicalQuantity.DENSITY): units.metric[opq.DENSITY],
-    (UnitsNet.Units.EnergyUnit.FootPound, opq.PhysicalQuantity.ENERGY): units.us_oilfield[opq.ENERGY],
-    (UnitsNet.Units.EnergyUnit.Joule, opq.PhysicalQuantity.ENERGY): units.metric[opq.ENERGY],
-    (UnitsNet.Units.ForceUnit.PoundForce, opq.PhysicalQuantity.FORCE): units.us_oilfield[opq.FORCE],
-    (UnitsNet.Units.ForceUnit.Newton, opq.PhysicalQuantity.FORCE): units.metric[opq.FORCE],
-    (UnitsNet.Units.LengthUnit.Foot, opq.PhysicalQuantity.LENGTH): units.us_oilfield[opq.LENGTH],
-    (UnitsNet.Units.LengthUnit.Meter, opq.PhysicalQuantity.LENGTH): units.metric[opq.LENGTH],
-    (UnitsNet.Units.MassUnit.Pound, opq.PhysicalQuantity.MASS): units.us_oilfield[opq.MASS],
-    (UnitsNet.Units.MassUnit.Kilogram, opq.PhysicalQuantity.MASS): units.metric[opq.MASS],
-    (UnitsNet.Units.PowerUnit.MechanicalHorsepower, opq.PhysicalQuantity.POWER): units.us_oilfield[opq.POWER],
-    (UnitsNet.Units.PowerUnit.Watt, opq.PhysicalQuantity.POWER): units.metric[opq.POWER],
-    (UnitsNet.Units.PressureUnit.PoundForcePerSquareInch, opq.PhysicalQuantity.PRESSURE):
-        units.us_oilfield[opq.PRESSURE],
-    (UnitsNet.Units.PressureUnit.Kilopascal, opq.PhysicalQuantity.PRESSURE): units.metric[opq.PRESSURE],
-    (UnitsNet.Units.TemperatureUnit.DegreeFahrenheit, opq.PhysicalQuantity.TEMPERATURE):
-        units.us_oilfield[opq.TEMPERATURE],
-    (UnitsNet.Units.TemperatureUnit.DegreeCelsius, opq.PhysicalQuantity.TEMPERATURE): units.metric[opq.TEMPERATURE],
-    (UnitsNet.Units.VolumeUnit.OilBarrel, opq.PhysicalQuantity.VOLUME): units.us_oilfield[opq.VOLUME],
-    (UnitsNet.Units.VolumeUnit.CubicMeter, opq.PhysicalQuantity.VOLUME): units.metric[opq.VOLUME],
+    (UnitsNet.Units.AngleUnit.Degree, opq.PhysicalQuantity.ANGLE): units.Common.ANGLE,
+    (UnitsNet.Units.DurationUnit.Minute, opq.PhysicalQuantity.DURATION): units.Common.DURATION,
+    (UnitsNet.Units.DensityUnit.PoundPerCubicFoot, opq.PhysicalQuantity.DENSITY): units.UsOilfield.DENSITY,
+    (UnitsNet.Units.DensityUnit.KilogramPerCubicMeter, opq.PhysicalQuantity.DENSITY): units.Metric.DENSITY,
+    (UnitsNet.Units.EnergyUnit.FootPound, opq.PhysicalQuantity.ENERGY): units.UsOilfield.ENERGY,
+    (UnitsNet.Units.EnergyUnit.Joule, opq.PhysicalQuantity.ENERGY): units.Metric.ENERGY,
+    (UnitsNet.Units.ForceUnit.PoundForce, opq.PhysicalQuantity.FORCE): units.UsOilfield.FORCE,
+    (UnitsNet.Units.ForceUnit.Newton, opq.PhysicalQuantity.FORCE): units.Metric.FORCE,
+    (UnitsNet.Units.LengthUnit.Foot, opq.PhysicalQuantity.LENGTH): units.UsOilfield.LENGTH,
+    (UnitsNet.Units.LengthUnit.Meter, opq.PhysicalQuantity.LENGTH): units.Metric.LENGTH,
+    (UnitsNet.Units.MassUnit.Pound, opq.PhysicalQuantity.MASS): units.UsOilfield.MASS,
+    (UnitsNet.Units.MassUnit.Kilogram, opq.PhysicalQuantity.MASS): units.Metric.MASS,
+    (UnitsNet.Units.PowerUnit.MechanicalHorsepower, opq.PhysicalQuantity.POWER): units.UsOilfield.POWER,
+    (UnitsNet.Units.PowerUnit.Watt, opq.PhysicalQuantity.POWER): units.Metric.POWER,
+    (UnitsNet.Units.PressureUnit.PoundForcePerSquareInch, opq.PhysicalQuantity.PRESSURE): units.UsOilfield.PRESSURE,
+    (UnitsNet.Units.PressureUnit.Kilopascal, opq.PhysicalQuantity.PRESSURE):units.Metric.PRESSURE,
+    (UnitsNet.Units.TemperatureUnit.DegreeFahrenheit, opq.PhysicalQuantity.TEMPERATURE): units.UsOilfield.TEMPERATURE,
+    (UnitsNet.Units.TemperatureUnit.DegreeCelsius, opq.PhysicalQuantity.TEMPERATURE): units.Metric.TEMPERATURE,
+    (UnitsNet.Units.VolumeUnit.OilBarrel, opq.PhysicalQuantity.VOLUME): units.UsOilfield.VOLUME,
+    (UnitsNet.Units.VolumeUnit.CubicMeter, opq.PhysicalQuantity.VOLUME): units.Metric.VOLUME,
 }
 
 
@@ -235,12 +232,12 @@ def _unit_from_net_quantity(net_quantity, physical_quantity):
     if is_proppant_concentration(physical_quantity) or is_slurry_rate(physical_quantity):
         numerator_unit, denominator_unit = ratio_units(net_quantity)
         if is_us_oilfield_proppant_concentration(numerator_unit, denominator_unit):
-            return units.us_oilfield[opq.PROPPANT_CONCENTRATION]
+            return units.UsOilfield[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]
         elif is_metric_proppant_concentration(numerator_unit, denominator_unit):
-            return units.metric[opq.PROPPANT_CONCENTRATION]
+            return units.Metric[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]
         elif is_us_oilfield_slurry_rate(numerator_unit, denominator_unit):
-            return units.us_oilfield[opq.SLURRY_RATE]
+            return units.UsOilfield[opq.PhysicalQuantity.SLURRY_RATE]
         elif is_metric_slurry_rate(numerator_unit, denominator_unit):
-            return units.metric[opq.SLURRY_RATE]
+            return units.Metric[opq.PhysicalQuantity.SLURRY_RATE]
 
     return _NET_UNIT_UNIT_MAP[(net_quantity.Unit, physical_quantity)]

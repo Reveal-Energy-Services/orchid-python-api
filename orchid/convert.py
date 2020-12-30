@@ -16,12 +16,11 @@ from typing import Union
 
 import toolz.curried as toolz
 
-from orchid import (measurement as om,
-                    net_quantity as onq,
+from orchid import (net_quantity as onq,
                     unit_system as units)
 
 
-def to_unit(source_measurement: om.Measurement, target_unit: Union[units.UsOilfield, units.Metric]):
+def to_unit(source_measurement: units.Quantity, target_unit: Union[units.UsOilfield, units.Metric]):
     """
     Convert a `Measurement` instance to the same measurement in `target_unit`.
 

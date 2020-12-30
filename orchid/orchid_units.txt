@@ -1,14 +1,17 @@
 # Ratio units
 
 # Density
-pounds_per_cubic_foot = lb / cu_ft = lb_per_cu_ft
-kilograms_per_cubic_meter = kg / (m ** 3) = kg_per_cu_m
+pound_per_cubic_foot = lb / cu_ft = lb_per_cu_ft
+kilogram_per_cubic_meter = kg / (m ** 3) = kg_per_cu_m
 
 # Proppant concentration
 [proppant_concentration] = [mass] / [volume]
-pounds_per_gal = lb / gal = lb_per_gal
+pound_per_gal = lb / gal = lb_per_gal
 
 # Slurry rate
 [slurry_rate] = [mass] / [time]
-oil_barrels_per_minute = oil_bbl / min = oil_bbl_per_min
+oil_barrel_per_minute = oil_bbl / min = oil_bbl_per_min
 cubic_meter_per_minute = (m ** 3) / min = cu_m_per_min
+
+# Volume
+cubic_meter = (m ** 3) = cu_m
