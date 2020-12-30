@@ -44,7 +44,7 @@ class TestMeasurement(unittest.TestCase):
     def test_unit_is_supplied_unit_to_make_measurement(self):
         sut = om.make_measurement(138.44, units.UsOilfield.LENGTH)
 
-        assert_that(sut.units, equal_to(units.UsOilfield.LENGTH.value))
+        assert_that(sut.unit, equal_to(units.UsOilfield.LENGTH))
 
     def test_make_measurement_raises_exception_if_invalid_magnitude(self):
         assert_that(calling(om.make_measurement).with_args(complex(3.14, 2.72), units.UsOilfield.VOLUME),

@@ -17,11 +17,15 @@
 
 """This module contains functions and classes supporting the (Python) Measurement 'class.'"""
 
+from collections import namedtuple
 import numbers
 
 import deal
 
 from orchid import unit_system as units
+
+
+Measurement = namedtuple('Measurement', ['magnitude', 'unit'])
 
 
 def get_conversion_factor(source_unit: units.Unit, target_unit: units.Unit) -> float:
@@ -37,7 +41,7 @@ def get_conversion_factor(source_unit: units.Unit, target_unit: units.Unit) -> f
 
 @deal.pre(lambda magnitude, _unit: isinstance(magnitude, numbers.Real))
 @deal.pre(lambda _magnitude, unit: isinstance(unit, units.UnitSystem))
-def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> units.Quantity:
+def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> Measurement:
     """
     Construct a measurement.
 
@@ -48,4 +52,4 @@ def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> units.Q
     Returns:
         The Pint `Quantity` consisting of the supplied `magnitude` and `unit`.
     """
-    return magnitude * unit.value
+    return Measurement(magnitude, unit)
