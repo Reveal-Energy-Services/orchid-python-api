@@ -20,6 +20,9 @@ from enum import Enum
 import UnitsNet
 
 
+About = namedtuple('About', ['name', 'quantity_type'])
+
+
 class PhysicalQuantity(Enum):
     """The enumeration of physical quantities available via the Orchid Python API."""
 

@@ -97,9 +97,12 @@ def as_measurement(net_quantity: UnitsNet.IQuantity,
     # expectedly converts the value returned by `Value` to a Python `decimal.Decimal`. Then, additionally,
     # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
     # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
-    result = (net_quantity.Value * unit if physical_quantity != opq.PhysicalQuantity.POWER
-              else Decimal.ToDouble(net_quantity.Value) * unit)
-    return result
+    if physical_quantity == opq.PhysicalQuantity.POWER:
+        return Decimal.ToDouble(net_quantity.Value) * unit
+    elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
+        return units.Quantity(net_quantity.Value, unit)
+    else:
+        return net_quantity.Value * unit
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
@@ -199,6 +202,11 @@ _NET_UNIT_UNIT_MAP = {
     (UnitsNet.Units.PressureUnit.PoundForcePerSquareInch, opq.PhysicalQuantity.PRESSURE):
         units.us_oilfield[opq.PRESSURE],
     (UnitsNet.Units.PressureUnit.Kilopascal, opq.PhysicalQuantity.PRESSURE): units.metric[opq.PRESSURE],
+    (UnitsNet.Units.TemperatureUnit.DegreeFahrenheit, opq.PhysicalQuantity.TEMPERATURE):
+        units.us_oilfield[opq.TEMPERATURE],
+    (UnitsNet.Units.TemperatureUnit.DegreeCelsius, opq.PhysicalQuantity.TEMPERATURE): units.metric[opq.TEMPERATURE],
+    (UnitsNet.Units.VolumeUnit.OilBarrel, opq.PhysicalQuantity.VOLUME): units.us_oilfield[opq.VOLUME],
+    (UnitsNet.Units.VolumeUnit.CubicMeter, opq.PhysicalQuantity.VOLUME): units.metric[opq.VOLUME],
 }
 
 

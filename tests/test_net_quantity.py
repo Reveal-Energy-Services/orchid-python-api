@@ -95,14 +95,20 @@ class TestNetMeasurement(unittest.TestCase):
              opq.PhysicalQuantity.SLURRY_RATE, 114.59, units.us_oilfield[opq.SLURRY_RATE], decimal.Decimal('0.01')),
             (SlurryRate(18.22, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
              opq.PhysicalQuantity.SLURRY_RATE, 18.22, units.metric[opq.SLURRY_RATE], decimal.Decimal('0.01')),
-            # (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(83.48)),
-            #  83.48, units.us_oilfield[opq.VOLUME]),
-            # (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)),
-            #  13.27, units.metric[opq.VOLUME]),
+            (UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(153.6)),
+             opq.PhysicalQuantity.TEMPERATURE, 153.6, units.us_oilfield[opq.TEMPERATURE], decimal.Decimal('0.1')),
+            (UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(4.618)),
+             opq.PhysicalQuantity.TEMPERATURE, 4.618, units.metric[opq.TEMPERATURE], decimal.Decimal('0.001')),
+            (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(83.48)),
+             opq.PhysicalQuantity.VOLUME, 83.48, units.us_oilfield[opq.VOLUME], decimal.Decimal('0.01')),
+            (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)),
+             opq.PhysicalQuantity.VOLUME, 13.27, units.metric[opq.VOLUME], decimal.Decimal('0.01')),
         ]:
             with self.subTest():
                 actual = onq.as_measurement(to_convert_net_quantity, to_convert_physical_quantity)
-                expected = expected_value * expected_unit
+                expected = (
+                    expected_value * expected_unit if to_convert_physical_quantity != opq.PhysicalQuantity.TEMPERATURE else units.Quantity(
+                        expected_value, expected_unit))
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_net_date_time(self):

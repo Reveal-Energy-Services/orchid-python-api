@@ -105,6 +105,16 @@ class UnitSystem(Enum):
         raise NotImplementedError()
 
 
+class Common(UnitSystem):
+    """The enumeration of units common to both U. S. oilfield and metric unit systems."""
+
+    ANGLE = _registry.deg
+    DURATION = _registry.min
+
+    def system_name(self):
+        return 'Common'
+
+
 # TODO: remove
 class UsOilfield(UnitSystem):
     """The enumeration of U. S. oilfield units available via the Orchid Python API."""
