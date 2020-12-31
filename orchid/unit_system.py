@@ -14,10 +14,13 @@
 
 
 from abc import abstractmethod
+from collections import namedtuple
 from enum import Enum
 import pathlib
 
 from pint import UnitRegistry
+
+from orchid import (physical_quantity as opq)
 
 
 # noinspection PyUnresolvedReferences
@@ -35,7 +38,11 @@ Quantity = _registry.Quantity
 Unit = _registry.Unit
 
 
-# TODO: remove
+# I use this private class to distinguish units that measure **different** physical quantities but use the
+# same measurement unit. Currently, this applies to DENSITY and PRESSURE.
+_AboutUnit = namedtuple('AboutUnit', ['unit', 'physical_quantity'])
+
+
 class UnitSystem(Enum):
 
     def __str__(self):
@@ -48,22 +55,22 @@ class UnitSystem(Enum):
         Returns:
             The string representing the enumeration member.
         """
-        to_format = f'{self.system_name()}.{self.name} ({{}})'
-        return to_format.format(self.unit_str())
+        return f'{self.system_name()}.{self.name} (unit={self.unit_str()},' \
+               f' physical_quantity={self.value.physical_quantity.value})'
 
     @abstractmethod
     def system_name(self):
         raise NotImplementedError()
 
     def unit_str(self):
-        return f'{str(self.value)}'
+        return f'{str(self.value.unit)}'
 
 
 class Common(UnitSystem):
     """The enumeration of units common to both U. S. oilfield and metric unit systems."""
 
-    ANGLE = _registry.deg
-    DURATION = _registry.min
+    ANGLE = _AboutUnit(_registry.deg, opq.PhysicalQuantity.ANGLE)
+    DURATION = _AboutUnit(_registry.min, opq.PhysicalQuantity.DURATION)
 
     def system_name(self):
         return 'Common'
@@ -81,17 +88,17 @@ class UsOilfield(UnitSystem):
     BEWARE!
     """
 
-    DENSITY = _registry.pound_per_cubic_foot
-    ENERGY = _registry.foot_pound
-    FORCE = _registry.pound_force
-    LENGTH = _registry.foot
-    MASS = _registry.pound
-    POWER = _registry.horsepower
-    PRESSURE = _registry.pound_force_per_square_inch
-    PROPPANT_CONCENTRATION = _registry.pound_per_cubic_foot
-    SLURRY_RATE = _registry.oil_barrel_per_minute
-    TEMPERATURE = _registry.degree_Fahrenheit
-    VOLUME = _registry.oil_barrel
+    DENSITY = _AboutUnit(_registry.pound_per_cubic_foot, opq.PhysicalQuantity.DENSITY)
+    ENERGY = _AboutUnit(_registry.foot_pound, opq.PhysicalQuantity.ENERGY)
+    FORCE = _AboutUnit(_registry.pound_force, opq.PhysicalQuantity.FORCE)
+    LENGTH = _AboutUnit(_registry.foot, opq.PhysicalQuantity.LENGTH)
+    MASS = _AboutUnit(_registry.pound, opq.PhysicalQuantity.MASS)
+    POWER = _AboutUnit(_registry.horsepower, opq.PhysicalQuantity.POWER)
+    PRESSURE = _AboutUnit(_registry.pound_force_per_square_inch, opq.PhysicalQuantity.PRESSURE)
+    PROPPANT_CONCENTRATION = _AboutUnit(_registry.pound_per_cubic_foot, opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
+    SLURRY_RATE = _AboutUnit(_registry.oil_barrel_per_minute, opq.PhysicalQuantity.SLURRY_RATE)
+    TEMPERATURE = _AboutUnit(_registry.degree_Fahrenheit, opq.PhysicalQuantity.TEMPERATURE)
+    VOLUME = _AboutUnit(_registry.oil_barrel, opq.PhysicalQuantity.VOLUME)
 
     def system_name(self):
         return 'USOilfield'
@@ -134,17 +141,17 @@ class Metric(UnitSystem):
     BEWARE!
     """
 
-    DENSITY = _registry.kilogram_per_cubic_meter
-    ENERGY = _registry.joule
-    FORCE = _registry.newton
-    LENGTH = _registry.meter
-    MASS = _registry.kilogram
-    POWER = _registry.watt
-    PRESSURE = _registry.kilopascal
-    PROPPANT_CONCENTRATION = _registry.kilogram_per_cubic_meter
-    SLURRY_RATE = _registry.cubic_meter_per_minute
-    TEMPERATURE = _registry.degree_Celsius
-    VOLUME = (_registry.m ** 3)
+    DENSITY = _AboutUnit(_registry.kilogram_per_cubic_meter, opq.PhysicalQuantity.DENSITY)
+    ENERGY = _AboutUnit(_registry.joule, opq.PhysicalQuantity.ENERGY)
+    FORCE = _AboutUnit(_registry.newton, opq.PhysicalQuantity.FORCE )
+    LENGTH = _AboutUnit(_registry.meter, opq.PhysicalQuantity.LENGTH)
+    MASS = _AboutUnit(_registry.kilogram, opq.PhysicalQuantity.MASS)
+    POWER = _AboutUnit(_registry.watt, opq.PhysicalQuantity.POWER)
+    PRESSURE = _AboutUnit(_registry.kilopascal, opq.PhysicalQuantity.PRESSURE)
+    PROPPANT_CONCENTRATION = _AboutUnit(_registry.kilogram_per_cubic_meter, opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
+    SLURRY_RATE = _AboutUnit(_registry.cubic_meter_per_minute, opq.PhysicalQuantity.SLURRY_RATE)
+    TEMPERATURE = _AboutUnit(_registry.degree_Celsius, opq.PhysicalQuantity.TEMPERATURE)
+    VOLUME = _AboutUnit((_registry.m ** 3), opq.PhysicalQuantity.VOLUME)
 
     def system_name(self):
         return 'Metric'
@@ -195,4 +202,4 @@ def abbreviation(unit: UnitSystem) -> str:
     if unit == UsOilfield.VOLUME:
         return 'bbl'
 
-    return f'{unit.value:~P}'
+    return f'{unit.value.unit:~P}'
