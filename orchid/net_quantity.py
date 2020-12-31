@@ -22,7 +22,8 @@ import datetime
 
 import toolz.curried as toolz
 
-from orchid import (physical_quantity as opq,
+from orchid import (measurement as om,
+                    physical_quantity as opq,
                     unit_system as units)
 
 # noinspection PyUnresolvedReferences
@@ -31,21 +32,6 @@ from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, Slurry
 from System import DateTime, Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
-
-
-_UNIT_CREATE_NET_UNIT_MAP = {
-    units.Common.ANGLE: lambda q: UnitsNet.Angle.FromDegrees(q),
-    units.Common.DURATION: lambda q: UnitsNet.Duration.FromMinutes(q),
-    units.UsOilfield.DENSITY: lambda q: UnitsNet.Density.FromPoundsPerCubicFoot(q),
-    units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
-    units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
-    units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
-    units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
-    units.UsOilfield.PRESSURE: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
-    units.Metric.PRESSURE: lambda q: UnitsNet.Pressure.FromKilopascals(q),
-    units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
-    units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
-}
 
 _UNIT_NET_UNIT_MAP = {
     units.Common.DURATION: UnitsNet.Units.DurationUnit.Minute,
@@ -97,11 +83,11 @@ def as_measurement(net_quantity: UnitsNet.IQuantity, physical_quantity: opq.Phys
     # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
     # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
     if physical_quantity == opq.PhysicalQuantity.POWER:
-        return Decimal.ToDouble(net_quantity.Value) * unit
+        return om.make_measurement(Decimal.ToDouble(net_quantity.Value), unit)
     elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
-        return units.Quantity(net_quantity.Value, unit)
+        return om.make_measurement(net_quantity.Value, unit)
     else:
-        return net_quantity.Value * unit
+        return om.make_measurement(net_quantity.Value, unit)
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
@@ -118,6 +104,28 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
                     time_point.second, round(time_point.microsecond / 1e3))
 
 
+_UNIT_CREATE_NET_UNIT_MAP = {
+    units.Common.ANGLE: lambda q: UnitsNet.Angle.FromDegrees(q),
+    units.Common.DURATION: lambda q: UnitsNet.Duration.FromMinutes(q),
+    units.UsOilfield.DENSITY: lambda q: UnitsNet.Density.FromPoundsPerCubicFoot(q),
+    units.Metric.DENSITY: lambda q: UnitsNet.Density.FromKilogramsPerCubicMeter(q),
+    units.UsOilfield.ENERGY: lambda q: UnitsNet.Energy.FromFootPounds(q),
+    units.Metric.ENERGY: lambda q: UnitsNet.Energy.FromJoules(q),
+    units.UsOilfield.FORCE: lambda q: UnitsNet.Force.FromPoundsForce(q),
+    units.Metric.FORCE: lambda q: UnitsNet.Force.FromNewtons(q),
+    units.UsOilfield.PRESSURE: lambda q: UnitsNet.Pressure.FromPoundsForcePerSquareInch(q),
+    units.Metric.PRESSURE: lambda q: UnitsNet.Pressure.FromKilopascals(q),
+    units.UsOilfield.LENGTH: lambda q: UnitsNet.Length.FromFeet(q),
+    units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
+    units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
+    units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.UsOilfield.TEMPERATURE: lambda q: UnitsNet.Temperature.FromDegreesFahrenheit(q),
+    units.Metric.TEMPERATURE: lambda q: UnitsNet.Temperature.FromDegreesCelsius(q),
+    units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
+    units.Metric.VOLUME: lambda q: UnitsNet.Volume.FromCubicMeters(q),
+}
+
+
 def as_net_quantity(measurement: units.Quantity) -> UnitsNet.IQuantity:
     """
     Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance.
@@ -130,21 +138,21 @@ def as_net_quantity(measurement: units.Quantity) -> UnitsNet.IQuantity:
     """
     quantity = UnitsNet.QuantityValue.op_Implicit(measurement.magnitude)
     try:
-        return _UNIT_CREATE_NET_UNIT_MAP[measurement.units](quantity)
+        return _UNIT_CREATE_NET_UNIT_MAP[measurement.unit](quantity)
     except KeyError:
-        if measurement.units == units.UsOilfield[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]:
+        if measurement.unit == units.UsOilfield.PROPPANT_CONCENTRATION:
             return ProppantConcentration(measurement.magnitude,
                                          UnitsNet.Units.MassUnit.Pound,
                                          UnitsNet.Units.VolumeUnit.UsGallon)
-        elif measurement.units == units.Metric[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]:
+        elif measurement.unit == units.Metric.PROPPANT_CONCENTRATION:
             return ProppantConcentration(measurement.magnitude,
                                          UnitsNet.Units.MassUnit.Kilogram,
                                          UnitsNet.Units.VolumeUnit.CubicMeter)
-        elif measurement.units == units.UsOilfield[opq.PhysicalQuantity.SLURRY_RATE]:
+        elif measurement.unit == units.UsOilfield.SLURRY_RATE:
             return SlurryRate(measurement.magnitude,
                               UnitsNet.Units.VolumeUnit.OilBarrel,
                               UnitsNet.Units.DurationUnit.Minute)
-        elif measurement.units == units.Metric[opq.PhysicalQuantity.SLURRY_RATE]:
+        elif measurement.unit == units.Metric.SLURRY_RATE:
             return SlurryRate(measurement.magnitude,
                               UnitsNet.Units.VolumeUnit.CubicMeter,
                               UnitsNet.Units.DurationUnit.Minute)
@@ -199,7 +207,7 @@ _NET_UNIT_UNIT_MAP = {
     (UnitsNet.Units.PowerUnit.MechanicalHorsepower, opq.PhysicalQuantity.POWER): units.UsOilfield.POWER,
     (UnitsNet.Units.PowerUnit.Watt, opq.PhysicalQuantity.POWER): units.Metric.POWER,
     (UnitsNet.Units.PressureUnit.PoundForcePerSquareInch, opq.PhysicalQuantity.PRESSURE): units.UsOilfield.PRESSURE,
-    (UnitsNet.Units.PressureUnit.Kilopascal, opq.PhysicalQuantity.PRESSURE):units.Metric.PRESSURE,
+    (UnitsNet.Units.PressureUnit.Kilopascal, opq.PhysicalQuantity.PRESSURE): units.Metric.PRESSURE,
     (UnitsNet.Units.TemperatureUnit.DegreeFahrenheit, opq.PhysicalQuantity.TEMPERATURE): units.UsOilfield.TEMPERATURE,
     (UnitsNet.Units.TemperatureUnit.DegreeCelsius, opq.PhysicalQuantity.TEMPERATURE): units.Metric.TEMPERATURE,
     (UnitsNet.Units.VolumeUnit.OilBarrel, opq.PhysicalQuantity.VOLUME): units.UsOilfield.VOLUME,
@@ -232,12 +240,12 @@ def _unit_from_net_quantity(net_quantity, physical_quantity):
     if is_proppant_concentration(physical_quantity) or is_slurry_rate(physical_quantity):
         numerator_unit, denominator_unit = ratio_units(net_quantity)
         if is_us_oilfield_proppant_concentration(numerator_unit, denominator_unit):
-            return units.UsOilfield[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]
+            return units.UsOilfield.PROPPANT_CONCENTRATION
         elif is_metric_proppant_concentration(numerator_unit, denominator_unit):
-            return units.Metric[opq.PhysicalQuantity.PROPPANT_CONCENTRATION]
+            return units.Metric.PROPPANT_CONCENTRATION
         elif is_us_oilfield_slurry_rate(numerator_unit, denominator_unit):
-            return units.UsOilfield[opq.PhysicalQuantity.SLURRY_RATE]
+            return units.UsOilfield.SLURRY_RATE
         elif is_metric_slurry_rate(numerator_unit, denominator_unit):
-            return units.Metric[opq.PhysicalQuantity.SLURRY_RATE]
+            return units.Metric.SLURRY_RATE
 
     return _NET_UNIT_UNIT_MAP[(net_quantity.Unit, physical_quantity)]

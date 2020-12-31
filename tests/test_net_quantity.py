@@ -106,9 +106,7 @@ class TestNetMeasurement(unittest.TestCase):
         ]:
             with self.subTest():
                 actual = onq.as_measurement(to_convert_net_quantity, to_convert_physical_quantity)
-                expected = (
-                    expected_value * expected_unit if to_convert_physical_quantity != opq.PhysicalQuantity.TEMPERATURE else units.Quantity(
-                        expected_value, expected_unit))
+                expected = om.make_measurement(expected_value, expected_unit)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_net_date_time(self):
@@ -139,37 +137,49 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_as_net_quantity(self):
         for to_convert_measurement, expected_net_quantity in [
-            (67.07 * units.Common.ANGLE,
+            (om.make_measurement(67.07, units.Common.ANGLE),
              UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(67.07))),
-            (1.414 * units.Common.DURATION,
+            (om.make_measurement(1.414, units.Common.DURATION),
              UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414))),
-            (17.17 * units.UsOilfield.DENSITY,
+            (om.make_measurement(17.17, units.UsOilfield.DENSITY),
              UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(17.17))),
-            (2.72 * units.Metric.DENSITY,
+            (om.make_measurement(2.72, units.Metric.DENSITY),
              UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(2.72))),
-            (113.76 * units.UsOilfield.LENGTH,
+            (om.make_measurement(36.26e9, units.UsOilfield.ENERGY),
+             UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(36.26e9))),
+            (om.make_measurement(17650, units.Metric.ENERGY),
+             UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(17650))),
+            (om.make_measurement(147900, units.UsOilfield.FORCE),
+             UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(147900))),
+            (om.make_measurement(363900, units.Metric.FORCE),
+             UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(363900))),
+            (om.make_measurement(113.76, units.UsOilfield.LENGTH),
              UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(113.76))),
-            (72.98 * units.Metric.LENGTH,
+            (om.make_measurement(72.98, units.Metric.LENGTH),
              UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(72.98))),
-            (7922.36 * units.UsOilfield.MASS,
+            (om.make_measurement(7922.36, units.UsOilfield.MASS),
              UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(7922.36))),
-            (133965.71 * units.Metric.MASS,
+            (om.make_measurement(133965.71, units.Metric.MASS),
              UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(133965.71))),
-            (6888.89 * units.UsOilfield.PRESSURE,
+            (om.make_measurement(6888.89, units.UsOilfield.PRESSURE),
              UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6888.89))),
-            (59849.82 * units.Metric.PRESSURE,
+            (om.make_measurement(59849.82, units.Metric.PRESSURE),
              UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(59849.82))),
-            (3.55 * units.UsOilfield.PROPPANT_CONCENTRATION,
+            (om.make_measurement(3.55, units.UsOilfield.PROPPANT_CONCENTRATION),
              ProppantConcentration(3.55, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon)),
-            (425.03 * units.Metric.PROPPANT_CONCENTRATION,
+            (om.make_measurement(425.03, units.Metric.PROPPANT_CONCENTRATION),
              ProppantConcentration(425.03, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter)),
-            (96.06 * units.UsOilfield.SLURRY_RATE,
+            (om.make_measurement(96.06, units.UsOilfield.SLURRY_RATE),
              SlurryRate(96.06, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute)),
-            (0.80 * units.Metric.SLURRY_RATE,
+            (om.make_measurement(0.80, units.Metric.SLURRY_RATE),
              SlurryRate(0.80, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute)),
-            (7216.94 * units.UsOilfield.VOLUME,
+            (om.make_measurement(157.9, units.UsOilfield.TEMPERATURE),
+             UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(157.9))),
+            (om.make_measurement(68.99, units.Metric.TEMPERATURE),
+             UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(68.99))),
+            (om.make_measurement(7216.94, units.UsOilfield.VOLUME),
              UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(7216.94))),
-            (1017.09 * units.Metric.VOLUME,
+            (om.make_measurement(1017.09, units.Metric.VOLUME),
              UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1017.09))),
         ]:
             with self.subTest(to_convert=to_convert_measurement, expected=expected_net_quantity):
