@@ -143,7 +143,7 @@ class Metric(UnitSystem):
 
     DENSITY = _AboutUnit(_registry.kilogram_per_cubic_meter, opq.PhysicalQuantity.DENSITY)
     ENERGY = _AboutUnit(_registry.joule, opq.PhysicalQuantity.ENERGY)
-    FORCE = _AboutUnit(_registry.newton, opq.PhysicalQuantity.FORCE )
+    FORCE = _AboutUnit(_registry.newton, opq.PhysicalQuantity.FORCE)
     LENGTH = _AboutUnit(_registry.meter, opq.PhysicalQuantity.LENGTH)
     MASS = _AboutUnit(_registry.kilogram, opq.PhysicalQuantity.MASS)
     POWER = _AboutUnit(_registry.watt, opq.PhysicalQuantity.POWER)
