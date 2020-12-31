@@ -40,7 +40,7 @@ def _assert_magnitudes_close_to(actual, expected, tolerance):
 
 
 def assert_that_measurements_close_to(actual, expected, tolerance=None):
-    assert_that(actual.units, equal_to(expected.units))
+    assert_that(actual.unit, equal_to(expected.unit))
     _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
 
 
