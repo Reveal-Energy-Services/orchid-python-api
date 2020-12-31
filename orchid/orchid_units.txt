@@ -10,7 +10,7 @@ pound_per_gal = lb / gal = lb_per_gal
 
 # Slurry rate
 [slurry_rate] = [mass] / [time]
-oil_barrel_per_minute = oil_bbl / min = oil_bbl_per_min
+oil_barrel_per_minute = oil_bbl / min = bpm
 cubic_meter_per_minute = (m ** 3) / min = cu_m_per_min
 
 # Volume
