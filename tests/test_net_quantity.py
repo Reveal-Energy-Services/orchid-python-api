@@ -324,28 +324,29 @@ class TestNetMeasurement(unittest.TestCase):
                 tcm.assert_that_net_quantities_close_to(actual, net_unit)
 
     def test_convert_net_quantity_to_different_unit(self):
-        for source_net_unit, target_unit, target_net_unit in [
+        for source_net_quantity, target_unit, target_net_quantity, tolerance in [
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(155.15)), units.Metric.LENGTH,
-             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(47.29))),
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(47.29)), None),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(47.29)), units.UsOilfield.LENGTH,
-             UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(155.15))),
+             UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(155.15)), None),
             (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(2614.88)), units.Metric.MASS,
-             UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1186.09))),
+             UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1186.09)), None),
             (UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1186.09)), units.UsOilfield.MASS,
-             UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(2614.88))),
+             UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(2614.88)), None),
             (UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52)),
              units.Metric.PRESSURE,
-             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19))),
+             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19)), None),
             (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19)), units.UsOilfield.PRESSURE,
-             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52))),
+             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52)), None),
             (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), units.Metric.VOLUME,
-             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17))),
+             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), None),
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
-             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)))
+             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), None)
         ]:
-            with self.subTest(source_net_unit=source_net_unit, target_unit=target_unit):
-                actual = onq.convert_net_quantity_to_different_unit(source_net_unit, target_unit)
-                tcm.assert_that_net_quantities_close_to(actual, target_net_unit, decimal.Decimal('0.02'))
+            with self.subTest(f'Converting .NET Quantity, {source_net_quantity}, to "{target_unit}"'):
+                actual = onq.convert_net_quantity_to_different_unit(source_net_quantity, target_unit)
+                to_test_tolerance = tolerance if tolerance else decimal.Decimal('0.02')
+                tcm.assert_that_net_quantities_close_to(actual, target_net_quantity, to_test_tolerance)
 
 
 if __name__ == '__main__':
