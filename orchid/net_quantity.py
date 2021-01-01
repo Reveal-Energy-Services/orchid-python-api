@@ -29,18 +29,29 @@ from orchid import (measurement as om,
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
 # noinspection PyUnresolvedReferences
-from System import DateTime, Decimal
+from System import DateTime, Decimal, Tuple
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 _UNIT_NET_UNIT_MAP = {
+    units.Common.ANGLE: UnitsNet.Units.AngleUnit.Degree,
     units.Common.DURATION: UnitsNet.Units.DurationUnit.Minute,
+    units.UsOilfield.DENSITY: UnitsNet.Units.DensityUnit.PoundPerCubicFoot,
+    units.Metric.DENSITY: UnitsNet.Units.DensityUnit.KilogramPerCubicMeter,
+    units.UsOilfield.ENERGY: UnitsNet.Units.EnergyUnit.FootPound,
+    units.Metric.ENERGY: UnitsNet.Units.EnergyUnit.Joule,
+    units.UsOilfield.FORCE: UnitsNet.Units.ForceUnit.PoundForce,
+    units.Metric.FORCE: UnitsNet.Units.ForceUnit.Newton,
     units.UsOilfield.LENGTH: UnitsNet.Units.LengthUnit.Foot,
     units.Metric.LENGTH: UnitsNet.Units.LengthUnit.Meter,
     units.UsOilfield.MASS: UnitsNet.Units.MassUnit.Pound,
     units.Metric.MASS: UnitsNet.Units.MassUnit.Kilogram,
+    units.UsOilfield.POWER: UnitsNet.Units.PowerUnit.MechanicalHorsepower,
+    units.Metric.POWER: UnitsNet.Units.PowerUnit.Watt,
     units.UsOilfield.PRESSURE: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
     units.Metric.PRESSURE: UnitsNet.Units.PressureUnit.Kilopascal,
+    units.UsOilfield.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeFahrenheit,
+    units.Metric.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeCelsius,
     units.UsOilfield.VOLUME: UnitsNet.Units.VolumeUnit.OilBarrel,
     units.Metric.VOLUME: UnitsNet.Units.VolumeUnit.CubicMeter,
 }
@@ -83,7 +94,7 @@ def as_measurement(net_quantity: UnitsNet.IQuantity, physical_quantity: opq.Phys
     # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
     # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
     if physical_quantity == opq.PhysicalQuantity.POWER:
-        return om.make_measurement(Decimal.ToDouble(net_quantity.Value), unit)
+        return om.make_measurement(net_decimal_to_float(net_quantity.Value), unit)
     elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
         return om.make_measurement(net_quantity.Value, unit)
     else:
@@ -119,6 +130,8 @@ _UNIT_CREATE_NET_UNIT_MAP = {
     units.Metric.LENGTH: lambda q: UnitsNet.Length.FromMeters(q),
     units.UsOilfield.MASS: lambda q: UnitsNet.Mass.FromPounds(q),
     units.Metric.MASS: lambda q: UnitsNet.Mass.FromKilograms(q),
+    units.UsOilfield.POWER: lambda q: UnitsNet.Power.FromMechanicalHorsepower(q),
+    units.Metric.POWER: lambda q: UnitsNet.Power.FromWatts(q),
     units.UsOilfield.TEMPERATURE: lambda q: UnitsNet.Temperature.FromDegreesFahrenheit(q),
     units.Metric.TEMPERATURE: lambda q: UnitsNet.Temperature.FromDegreesCelsius(q),
     units.UsOilfield.VOLUME: lambda q: UnitsNet.Volume.FromOilBarrels(q),
@@ -172,6 +185,38 @@ def as_net_quantity_in_different_unit(measurement: units.Quantity, target_unit: 
         The  `NetUnits.IQuantity` instance equivalent to `measurement`.
     """
     net_to_convert = as_net_quantity(measurement)
+
+    def is_proppant_concentration_to_test(to_test):
+        return (to_test.unit == units.UsOilfield.PROPPANT_CONCENTRATION
+                or to_test.unit == units.Metric.PROPPANT_CONCENTRATION)
+
+    if is_proppant_concentration_to_test(measurement):
+        if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
+            mass_unit = UnitsNet.Units.MassUnit.Pound
+            volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
+        elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
+            mass_unit = UnitsNet.Units.MassUnit.Kilogram
+            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+
+        # noinspection PyUnboundLocalVariable
+        converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
+        return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
+
+    def is_slurry_rate_to_test(to_test):
+        return (to_test.unit == units.UsOilfield.SLURRY_RATE
+                or to_test.unit == units.Metric.SLURRY_RATE)
+
+    if is_slurry_rate_to_test(measurement):
+        if target_unit == units.UsOilfield.SLURRY_RATE:
+            volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
+        elif target_unit == units.Metric.SLURRY_RATE:
+            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+        duration_unit = UnitsNet.Units.DurationUnit.Minute
+
+        # noinspection PyUnboundLocalVariable
+        converted_magnitude = net_to_convert.As(volume_unit, duration_unit)
+        return SlurryRate(converted_magnitude, volume_unit, duration_unit)
+
     return net_to_convert.ToUnit(_UNIT_NET_UNIT_MAP[target_unit])
 
 
@@ -187,7 +232,7 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
     Returns:
         The .NET `UnitsNet.IQuantity` converted to `target_unit`.
     """
-    result = net_quantity.ToUnit(target_unit.value.net_unit)
+    result = net_quantity.ToUnit(_UNIT_NET_UNIT_MAP[target_unit])
     return result
 
 
@@ -215,8 +260,28 @@ _NET_UNIT_UNIT_MAP = {
 }
 
 
+def net_decimal_to_float(net_decimal: Decimal) -> float:
+    """
+    Convert a .NET Decimal value to a Python float.
+
+    Python.NET currently leaves .NET values of type `Decimal` unconverted. For example, UnitsNet models units
+    of the physical quantity, power, as values of type .NET 'QuantityValue` whose `Value` property returns a
+    value of .NET `Decimal` type. This function assists in converting those values to Python values of type
+    `float`.
+
+    Args:
+        net_decimal: The .NET `Decimal` value to convert.
+
+    Returns:
+        A value of type `float` that is "equivalent" to the .NET `Decimal` value. Note that this conversion is
+        "lossy" because .NET `Decimal` values are exact, but `float` values are not.
+    """
+    return Decimal.ToDouble(net_decimal)
+
+
 def _unit_from_net_quantity(net_quantity, physical_quantity):
     def is_proppant_concentration(quantity):
+
         return quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION
 
     def is_slurry_rate(quantity):

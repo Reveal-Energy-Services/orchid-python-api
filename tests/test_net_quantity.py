@@ -19,7 +19,7 @@ import datetime
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, close_to
 
 
 from orchid import (measurement as om,
@@ -32,9 +32,21 @@ import tests.custom_matchers as tcm
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
 # noinspection PyUnresolvedReferences
-from System import (DateTime, Double)
+from System import (DateTime, Decimal)
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+def assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance=6e-3):
+    assert_that(tcm.get_net_unit(actual), equal_to(tcm.get_net_unit(expected_net_quantity)))
+    to_test_actual = decimal.Decimal(onq.net_decimal_to_float(actual.Value))
+    to_test_expected = decimal.Decimal(onq.net_decimal_to_float(expected_net_quantity.Value))
+    to_test_tolerance = decimal.Decimal(tolerance)
+    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
+
+
+def is_power_measurement(measurement):
+    return measurement.unit == units.UsOilfield.POWER or measurement.unit == units.Metric.POWER
 
 
 class TestNetMeasurement(unittest.TestCase):
@@ -161,6 +173,10 @@ class TestNetMeasurement(unittest.TestCase):
              UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(7922.36))),
             (om.make_measurement(133965.71, units.Metric.MASS),
              UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(133965.71))),
+            (om.make_measurement(18.87, units.UsOilfield.POWER),
+             UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(18.87))),
+            (om.make_measurement(14017, units.Metric.POWER),
+             UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(14017))),
             (om.make_measurement(6888.89, units.UsOilfield.PRESSURE),
              UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6888.89))),
             (om.make_measurement(59849.82, units.Metric.PRESSURE),
@@ -182,9 +198,16 @@ class TestNetMeasurement(unittest.TestCase):
             (om.make_measurement(1017.09, units.Metric.VOLUME),
              UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1017.09))),
         ]:
-            with self.subTest(to_convert=to_convert_measurement, expected=expected_net_quantity):
+            with self.subTest(f'Converting measurement to UnitsNet Quantity'):
                 actual = onq.as_net_quantity(to_convert_measurement)
-                tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
+
+                # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
+                # .NET Decimal type which Python.NET **does not** to a Python type (like float) and so must be
+                # handled separately.
+                if is_power_measurement(to_convert_measurement):
+                    assert_that_net_power_quantities_close_to(actual, expected_net_quantity)
+                else:
+                    tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_quantity_in_same_unit(self):
         for to_convert_measurement, expected_net_quantity in [
@@ -213,32 +236,79 @@ class TestNetMeasurement(unittest.TestCase):
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
     def test_as_net_quantity_in_different_unit(self):
-        for to_convert_measurement, target_unit, expected_net_quantity in [
-            ((141.51 * units.UsOilfield.LENGTH), units.Metric.LENGTH,
-             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(43.13))),
-            (43.13 * units.Metric.LENGTH, units.UsOilfield.LENGTH,
-             UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(141.51))),
-            (4107.64 * units.UsOilfield.MASS, units.Metric.MASS,
-             UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1863.19))),
-            (1863.19 * units.Metric.MASS, units.UsOilfield.MASS,
-             UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(4107.64))),
-            (6984.02 * units.UsOilfield.PRESSURE, units.Metric.PRESSURE,
-             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(48153.12))),
-            (48153.12 * units.Metric.PRESSURE, units.UsOilfield.PRESSURE,
-             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6984.02))),
-            (8722.45 * units.UsOilfield.VOLUME, units.Metric.VOLUME,
-             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1386.76))),
-            (1386.76 * units.Metric.VOLUME, units.UsOilfield.VOLUME,
-             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8722.45))),
+        for to_convert_measurement, target_unit, expected_net_quantity, tolerance in [
+            (om.make_measurement(2638, units.Metric.DENSITY), units.UsOilfield.DENSITY,
+             UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(164.7)),
+             decimal.Decimal('0.06')),  # same relative error assuming an exact conversion
+            (om.make_measurement(164.7, units.UsOilfield.DENSITY), units.Metric.DENSITY,
+             UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(2638)),
+             decimal.Decimal('2')),
+            (om.make_measurement(53.58e9, units.UsOilfield.ENERGY), units.Metric.ENERGY,
+             UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(72.65e9)),
+             decimal.Decimal('0.01e9')),
+            (om.make_measurement(72.65e9, units.Metric.ENERGY), units.UsOilfield.ENERGY,
+             UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(53.58e9)),
+             decimal.Decimal('0.01e9')),
+            (om.make_measurement(507366, units.Metric.FORCE), units.UsOilfield.FORCE,
+             UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(114060)),
+             decimal.Decimal('1')),
+            (om.make_measurement(114060, units.UsOilfield.FORCE), units.Metric.FORCE,
+             UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(507366)),
+             decimal.Decimal('4')),
+            (om.make_measurement(43.13, units.Metric.LENGTH), units.UsOilfield.LENGTH,
+             UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(141.51)), decimal.Decimal('0.03')),
+            (om.make_measurement(141.51, units.UsOilfield.LENGTH), units.Metric.LENGTH,
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(43.13)), decimal.Decimal('0.01')),
+            (om.make_measurement(4107.64, units.UsOilfield.MASS), units.Metric.MASS,
+             UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1863.19)), decimal.Decimal('0.01')),
+            (om.make_measurement(1863.19, units.Metric.MASS), units.UsOilfield.MASS,
+             UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(4107.64)), decimal.Decimal('0.01')),
+            (om.make_measurement(13.66, units.UsOilfield.POWER), units.Metric.POWER,
+             UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(10180)), decimal.Decimal('8')),
+            (om.make_measurement(10180, units.Metric.POWER), units.UsOilfield.POWER,
+             UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(13.66)),
+             decimal.Decimal('0.02')),
+            (om.make_measurement(6984.02, units.UsOilfield.PRESSURE), units.Metric.PRESSURE,
+             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(48153.12)), decimal.Decimal('7')),
+            (om.make_measurement(48153.12, units.Metric.PRESSURE), units.UsOilfield.PRESSURE,
+             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6984.02)),
+             decimal.Decimal('2')),
+            (om.make_measurement(486.4, units.Metric.PROPPANT_CONCENTRATION), units.UsOilfield.PROPPANT_CONCENTRATION,
+             ProppantConcentration(4.060, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon),
+             decimal.Decimal('0.001')),
+            (om.make_measurement(4.060, units.UsOilfield.PROPPANT_CONCENTRATION), units.Metric.PROPPANT_CONCENTRATION,
+             ProppantConcentration(486.4, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter),
+             decimal.Decimal('0.2')),
+            (om.make_measurement(11.14, units.Metric.SLURRY_RATE), units.UsOilfield.SLURRY_RATE,
+             SlurryRate(70.08, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
+             decimal.Decimal('0.06')),
+            (om.make_measurement(70.08, units.UsOilfield.SLURRY_RATE), units.Metric.SLURRY_RATE,
+             SlurryRate(11.14, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
+             decimal.Decimal('0.01')),
+            (om.make_measurement(35.61, units.UsOilfield.TEMPERATURE), units.Metric.TEMPERATURE,
+             UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(2.004)),
+             decimal.Decimal('0.006')),
+            (om.make_measurement(2.004, units.Metric.TEMPERATURE), units.UsOilfield.TEMPERATURE,
+             UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(35.61)),
+             decimal.Decimal('0.02')),
+            (om.make_measurement(8722.45, units.UsOilfield.VOLUME), units.Metric.VOLUME,
+             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1386.76)), decimal.Decimal('0.01')),
+            (om.make_measurement(1386.76, units.Metric.VOLUME), units.UsOilfield.VOLUME,
+             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8722.45)), decimal.Decimal('0.01')),
         ]:
-            with self.subTest(to_convert_measurement=to_convert_measurement,
-                              target_unit=target_unit, expected_net_quantity=expected_net_quantity):
+            with self.subTest(f'Converting .NET quantity, {to_convert_measurement}, to {target_unit}'):
                 actual = onq.as_net_quantity_in_different_unit(to_convert_measurement, target_unit)
-                tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, decimal.Decimal('0.01'))
+                # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
+                # .NET Decimal type which Python.NET **does not** to a Python type (like float) and so must be
+                # handled separately.
+                if is_power_measurement(to_convert_measurement):
+                    assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance)
+                else:
+                    tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, tolerance)
 
     def test_convert_net_quantity_to_same_unit(self):
         for net_unit, target_unit in [
-            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(0.1717)), units.DURATION),
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(0.1717)), units.Common.DURATION),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(154.67)), units.UsOilfield.LENGTH),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(40.24)), units.Metric.LENGTH),
             (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(3007.29)), units.UsOilfield.MASS),
