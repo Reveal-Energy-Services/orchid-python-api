@@ -325,6 +325,14 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_convert_net_quantity_to_different_unit(self):
         for source_net_quantity, target_unit, target_net_quantity, tolerance in [
+            (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(1.953e-2)),
+             units.Metric.DENSITY,
+             UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(0.3128)),
+             decimal.Decimal('0.0002')),
+            (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(0.3128)),
+             units.UsOilfield.DENSITY,
+             UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(1.953e-2)),
+             decimal.Decimal('0.001e-2')),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(155.15)), units.Metric.LENGTH,
              UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(47.29)), None),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(47.29)), units.UsOilfield.LENGTH,
