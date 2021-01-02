@@ -29,9 +29,11 @@ from typing import Sequence
 
 import toolz.curried as toolz
 
-import orchid.native_treatment_curve_adapter as ontc
-import orchid.net_quantity as onq
-import orchid.unit_system as units
+from orchid import (
+    native_treatment_curve_adapter as ontc,
+    net_quantity as onq,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
@@ -99,8 +101,14 @@ class StubNetTreatmentCurve:
 
 
 def make_length_unit(scalar_quantity):
-    return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
-                                scalar_quantity.unit.net_unit)
+    if scalar_quantity.unit == units.UsOilfield.LENGTH:
+        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
+                                    UnitsNet.Units.LengthUnit.Foot)
+    elif scalar_quantity.unit == units.Metric.LENGTH:
+        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
+                                    UnitsNet.Units.LengthUnit.Meter)
+
+    raise ValueError(f'Unknown (length) unit: {scalar_quantity.unit.unit}')
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):

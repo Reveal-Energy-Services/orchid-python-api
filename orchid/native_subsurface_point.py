@@ -84,15 +84,16 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
     @property
     def depth(self):
         """The depth of this point."""
-        return onq.as_length_measurement(self._length_converter_func(self._adaptee.Depth))
+        result = onq.as_length_measurement(self._length_converter_func(self._adaptee.Depth))
+        return result
 
 
 class SubsurfacePoint(BaseSubsurfacePoint):
     """Adapts a .NET ISubsurfacePoint to be more Pythonic."""
 
-    x = dna.transformed_dom_property('x', 'The x-coordinate of this point.', onq.as_measurement)
-    y = dna.transformed_dom_property('y', 'The y-coordinate of this point.', onq.as_measurement)
-    depth = dna.transformed_dom_property('depth', 'The z-coordinate (depth) of this point.', onq.as_measurement)
+    x = dna.transformed_dom_property('x', 'The x-coordinate of this point.', onq.as_length_measurement)
+    y = dna.transformed_dom_property('y', 'The y-coordinate of this point.', onq.as_length_measurement)
+    depth = dna.transformed_dom_property('depth', 'The z-coordinate (depth) of this point.', onq.as_length_measurement)
 
     def as_length_unit(self, as_length_unit: Union[units.UsOilfield, units.Metric]) -> SubsurfacePointUsingLengthUnit:
         """

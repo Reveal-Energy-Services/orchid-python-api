@@ -80,14 +80,14 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         def make_scalar_quantity(magnitude, unit):
             return tcm.ScalarQuantity(magnitude=magnitude, unit=unit)
 
-        all_test_data = [((126834.6, 321614.0, 1836.6, 3136.3), units.Metric.LENGTH,
-                          (416124, 1055164, 6025.56, 10289.7), units.UsOilfield.LENGTH),
-                         ((444401, 9009999, 7799.91, 6722.57), units.UsOilfield.LENGTH,
-                          (135453.42, 2746247.70, 2377.41, 2049.04), units.Metric.LENGTH)]
+        all_test_data = [
+            ((126834.6, 321614.0, 1836.6, 3136.3), units.Metric.LENGTH,
+             (416124, 1055164, 6025.56, 10289.7), units.UsOilfield.LENGTH),
+            ((444401, 9009999, 7799.91, 6722.57), units.UsOilfield.LENGTH,
+             (135453.42, 2746247.70, 2377.41, 2049.04), units.Metric.LENGTH),
+        ]
         for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit in all_test_data:
-            with self.subTest(length_magnitudes=length_magnitudes, length_unit=length_unit,
-                              as_length_magnitudes=as_length_magnitudes,
-                              as_length_unit=as_length_unit):
+            with self.subTest():
                 from_lengths = list(toolz.map(toolz.flip(tcm.ScalarQuantity, length_unit), length_magnitudes))
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
