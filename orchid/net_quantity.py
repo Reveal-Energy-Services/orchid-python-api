@@ -190,15 +190,7 @@ def as_net_quantity_in_different_unit(measurement: units.Quantity, target_unit: 
         return _create_proppant_concentration(net_to_convert, target_unit)
 
     if _is_slurry_rate(target_unit):
-        if target_unit == units.UsOilfield.SLURRY_RATE:
-            volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
-        elif target_unit == units.Metric.SLURRY_RATE:
-            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-        duration_unit = UnitsNet.Units.DurationUnit.Minute
-
-        # noinspection PyUnboundLocalVariable
-        converted_magnitude = net_to_convert.As(volume_unit, duration_unit)
-        return SlurryRate(converted_magnitude, volume_unit, duration_unit)
+        return _create_slurry_rate(net_to_convert, target_unit)
 
     return net_to_convert.ToUnit(_UNIT_NET_UNIT_MAP[target_unit])
 
@@ -220,15 +212,7 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
         return _create_proppant_concentration(net_quantity, target_unit)
 
     if _is_slurry_rate(target_unit):
-        if target_unit == units.UsOilfield.SLURRY_RATE:
-            volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
-        elif target_unit == units.Metric.SLURRY_RATE:
-            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-        duration_unit = UnitsNet.Units.DurationUnit.Minute
-
-        # noinspection PyUnboundLocalVariable
-        converted_magnitude = net_quantity.As(volume_unit, duration_unit)
-        return SlurryRate(converted_magnitude, volume_unit, duration_unit)
+        return _create_slurry_rate(net_quantity, target_unit)
 
     result = net_quantity.ToUnit(_UNIT_NET_UNIT_MAP[target_unit])
     return result
@@ -324,6 +308,17 @@ def _create_proppant_concentration(net_to_convert, target_unit):
     # noinspection PyUnboundLocalVariable
     converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
     return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
+
+
+def _create_slurry_rate(net_to_convert, target_unit):
+    if target_unit == units.UsOilfield.SLURRY_RATE:
+        volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
+    elif target_unit == units.Metric.SLURRY_RATE:
+        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+    duration_unit = UnitsNet.Units.DurationUnit.Minute
+    # noinspection PyUnboundLocalVariable
+    converted_magnitude = net_to_convert.As(volume_unit, duration_unit)
+    return SlurryRate(converted_magnitude, volume_unit, duration_unit)
 
 
 def _is_proppant_concentration(to_test):
