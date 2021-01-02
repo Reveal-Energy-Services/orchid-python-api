@@ -12,15 +12,9 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from collections import namedtuple
 import decimal
 
 from hamcrest import assert_that, equal_to, close_to
-
-
-# The following functions are not custom matchers as defined by the `pyhamcrest` package; however, they
-# provide similar functionality by implementing common test code.
-SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 
 def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None):
@@ -51,4 +45,3 @@ def get_net_unit(net_quantity):
         return net_quantity.Unit
     except AttributeError:
         return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
-

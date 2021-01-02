@@ -52,6 +52,7 @@ from orchid.net_quantity import as_net_date_time
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
+SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 
 class StubNetSample:
@@ -264,7 +265,7 @@ def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sam
                                   samples, project):
     try:
         stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                               spec=IWellSampledQuantityTimeSeries)
+                                                         spec=IWellSampledQuantityTimeSeries)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve')
     stub_net_monitor_curve.Name = name
@@ -272,7 +273,7 @@ def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sam
     stub_net_monitor_curve.SampledQuantityName = sampled_quantity_name
     stub_net_monitor_curve.SampledQuantityType = sampled_quantity_type
     stub_net_monitor_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
-                                                                                       return_value=samples)
+                                                                                 return_value=samples)
     if project is not None:
         stub_net_monitor_curve.Well.Project = project
 
