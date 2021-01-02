@@ -48,9 +48,9 @@ from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFra
 import UnitsNet
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
-ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
+StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
-SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
+StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 
 
 class StubNetSample:

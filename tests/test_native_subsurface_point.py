@@ -41,21 +41,21 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_x(self):
-        scalar_x = tsn.ScalarQuantity(-2725.83, units.Metric.LENGTH)
+        scalar_x = tsn.StubMeasurement(-2725.83, units.Metric.LENGTH)
         sut = create_sut(x=scalar_x)
 
         expected_x = om.make_measurement(scalar_x.magnitude, scalar_x.unit)
         tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
-        scalar_y = tsn.ScalarQuantity(1656448.10, units.Metric.LENGTH)
+        scalar_y = tsn.StubMeasurement(1656448.10, units.Metric.LENGTH)
         sut = create_sut(y=scalar_y)
 
         expected_y = om.make_measurement(scalar_y.magnitude, scalar_y.unit)
         tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
 
     def test_depth(self):
-        scalar_depth = tsn.ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
+        scalar_depth = tsn.StubMeasurement(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(depth=scalar_depth)
 
         expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit)
@@ -80,7 +80,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
     def test_as_length_unit(self):
         @toolz.curry
         def make_scalar_quantity(magnitude, unit):
-            return tsn.ScalarQuantity(magnitude=magnitude, unit=unit)
+            return tsn.StubMeasurement(magnitude=magnitude, unit=unit)
 
         all_test_data = [
             ((126834.6, 321614.0, 1836.6, 3136.3), units.Metric.LENGTH,
@@ -90,7 +90,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         ]
         for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit in all_test_data:
             with self.subTest():
-                from_lengths = list(toolz.map(toolz.flip(tsn.ScalarQuantity, length_unit), length_magnitudes))
+                from_lengths = list(toolz.map(toolz.flip(tsn.StubMeasurement, length_unit), length_magnitudes))
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
 

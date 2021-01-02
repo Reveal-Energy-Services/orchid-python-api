@@ -61,7 +61,7 @@ def mock_subsurface_point_func(expected_location,
 def create_expected(expected_location):
     expected = toolz.pipe(expected_location[:-1],
                           toolz.map(toolz.flip(om.make_measurement, expected_location[-1])),
-                          lambda coords: tsn.SubsurfaceLocation(*coords))
+                          lambda coords: tsn.StubSubsurfaceLocation(*coords))
     return expected
 
 
