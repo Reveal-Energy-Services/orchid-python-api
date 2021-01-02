@@ -46,7 +46,11 @@ def assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tol
 
 
 def is_power_measurement(measurement):
-    return measurement.unit == units.UsOilfield.POWER or measurement.unit == units.Metric.POWER
+    return is_power_unit(measurement.unit)
+
+
+def is_power_unit(unit):
+    return unit == units.UsOilfield.POWER or unit == units.Metric.POWER
 
 
 class TestNetMeasurement(unittest.TestCase):
@@ -345,20 +349,32 @@ class TestNetMeasurement(unittest.TestCase):
              UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1186.09)), None),
             (UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(1186.09)), units.UsOilfield.MASS,
              UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(2614.88)), None),
-            (UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52)),
-             units.Metric.PRESSURE,
-             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19)), None),
-            (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19)), units.UsOilfield.PRESSURE,
-             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52)), None),
-            (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), units.Metric.VOLUME,
-             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), None),
-            (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
-             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), None)
+            (UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(15.60)), units.Metric.POWER,
+             UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(11640)), decimal.Decimal('8')),
+            (UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(11640)), units.UsOilfield.POWER,
+             UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(15.60)),
+             decimal.Decimal('0.01')),
+            # (UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52)),
+            #  units.Metric.PRESSURE,
+            #  UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19)), None),
+            # (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(44316.19)), units.UsOilfield.PRESSURE,
+            #  UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6427.52)), None),
+            # (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), units.Metric.VOLUME,
+            #  UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), None),
+            # (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
+            #  UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), None)
         ]:
             with self.subTest(f'Converting .NET Quantity, {source_net_quantity}, to "{target_unit}"'):
                 actual = onq.convert_net_quantity_to_different_unit(source_net_quantity, target_unit)
-                to_test_tolerance = tolerance if tolerance else decimal.Decimal('0.02')
-                tcm.assert_that_net_quantities_close_to(actual, target_net_quantity, to_test_tolerance)
+                to_test_tolerance = tolerance if tolerance else decimal.Decimal('0.01')
+
+                # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
+                # .NET Decimal type which Python.NET **does not** to a Python type (like float) and so must be
+                # handled separately.
+                if is_power_unit(target_unit):
+                    assert_that_net_power_quantities_close_to(actual, target_net_quantity, to_test_tolerance)
+                else:
+                    tcm.assert_that_net_quantities_close_to(actual, target_net_quantity, to_test_tolerance)
 
 
 if __name__ == '__main__':
