@@ -186,7 +186,7 @@ def as_net_quantity_in_different_unit(measurement: units.Quantity, target_unit: 
     """
     net_to_convert = as_net_quantity(measurement)
 
-    if _is_proppant_concentration(measurement.unit):
+    if _is_proppant_concentration(target_unit):
         if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
             mass_unit = UnitsNet.Units.MassUnit.Pound
             volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
@@ -198,7 +198,7 @@ def as_net_quantity_in_different_unit(measurement: units.Quantity, target_unit: 
         converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
         return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
 
-    if _is_slurry_rate(measurement.unit):
+    if _is_slurry_rate(target_unit):
         if target_unit == units.UsOilfield.SLURRY_RATE:
             volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
         elif target_unit == units.Metric.SLURRY_RATE:
