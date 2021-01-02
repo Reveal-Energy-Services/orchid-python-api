@@ -232,6 +232,23 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
     Returns:
         The .NET `UnitsNet.IQuantity` converted to `target_unit`.
     """
+
+    def is_proppant_concentration_to_test(to_test):
+        return (to_test == units.UsOilfield.PROPPANT_CONCENTRATION
+                or to_test == units.Metric.PROPPANT_CONCENTRATION)
+
+    if is_proppant_concentration_to_test(target_unit):
+        if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
+            mass_unit = UnitsNet.Units.MassUnit.Pound
+            volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
+        elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
+            mass_unit = UnitsNet.Units.MassUnit.Kilogram
+            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+
+        # noinspection PyUnboundLocalVariable
+        converted_magnitude = net_quantity.As(mass_unit, volume_unit)
+        return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
+
     result = net_quantity.ToUnit(_UNIT_NET_UNIT_MAP[target_unit])
     return result
 
