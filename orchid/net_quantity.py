@@ -187,16 +187,7 @@ def as_net_quantity_in_different_unit(measurement: units.Quantity, target_unit: 
     net_to_convert = as_net_quantity(measurement)
 
     if _is_proppant_concentration(target_unit):
-        if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
-            mass_unit = UnitsNet.Units.MassUnit.Pound
-            volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
-        elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
-            mass_unit = UnitsNet.Units.MassUnit.Kilogram
-            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-
-        # noinspection PyUnboundLocalVariable
-        converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
-        return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
+        return _create_proppant_concentration(net_to_convert, target_unit)
 
     if _is_slurry_rate(target_unit):
         if target_unit == units.UsOilfield.SLURRY_RATE:
@@ -226,16 +217,7 @@ def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
     """
 
     if _is_proppant_concentration(target_unit):
-        if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
-            mass_unit = UnitsNet.Units.MassUnit.Pound
-            volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
-        elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
-            mass_unit = UnitsNet.Units.MassUnit.Kilogram
-            volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-
-        # noinspection PyUnboundLocalVariable
-        converted_magnitude = net_quantity.As(mass_unit, volume_unit)
-        return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
+        return _create_proppant_concentration(net_quantity, target_unit)
 
     if _is_slurry_rate(target_unit):
         if target_unit == units.UsOilfield.SLURRY_RATE:
@@ -330,6 +312,18 @@ def _unit_from_net_quantity(net_quantity, physical_quantity):
             return units.Metric.SLURRY_RATE
 
     return _NET_UNIT_UNIT_MAP[(net_quantity.Unit, physical_quantity)]
+
+
+def _create_proppant_concentration(net_to_convert, target_unit):
+    if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
+        mass_unit = UnitsNet.Units.MassUnit.Pound
+        volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
+    elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
+        mass_unit = UnitsNet.Units.MassUnit.Kilogram
+        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+    # noinspection PyUnboundLocalVariable
+    converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
+    return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
 
 
 def _is_proppant_concentration(to_test):
