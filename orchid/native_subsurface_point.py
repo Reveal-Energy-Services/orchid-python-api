@@ -17,9 +17,10 @@ import abc
 from typing import Union
 
 
-import orchid.dot_net_dom_access as dna
-import orchid.net_quantity as onq
-import orchid.unit_system as units
+from orchid import (dot_net_dom_access as dna,
+                    net_quantity as onq,
+                    physical_quantity as opq,
+                    unit_system as units)
 
 import toolz.curried as toolz
 
@@ -68,21 +69,22 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
         super().__init__(adaptee)
         self._length_converter_func = toolz.flip(onq.convert_net_quantity_to_different_unit,
                                                  target_length_unit)
+        self._as_length_measurement_func = toolz.flip(onq.as_measurement, opq.PhysicalQuantity.LENGTH)
 
     @property
     def x(self):
         """The x-coordinate of this point."""
-        return onq.as_measurement(self._length_converter_func(self._adaptee.X))
+        return self._as_length_measurement_func(self._length_converter_func(self._adaptee.X))
 
     @property
     def y(self):
         """The y-coordinate of this point."""
-        return onq.as_measurement(self._length_converter_func(self._adaptee.Y))
+        return self._as_length_measurement_func(self._length_converter_func(self._adaptee.Y))
 
     @property
     def depth(self):
         """The depth of this point."""
-        return onq.as_measurement(self._length_converter_func(self._adaptee.Depth))
+        return self._as_length_measurement_func(self._length_converter_func(self._adaptee.Depth))
 
 
 class SubsurfacePoint(BaseSubsurfacePoint):
