@@ -20,9 +20,6 @@ from hamcrest import assert_that, equal_to, close_to
 
 # The following functions are not custom matchers as defined by the `pyhamcrest` package; however, they
 # provide similar functionality by implementing common test code.
-
-
-ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
 
 

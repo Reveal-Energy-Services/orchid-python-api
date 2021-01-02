@@ -50,6 +50,7 @@ import UnitsNet
 from orchid.net_quantity import as_net_date_time
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
+ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 
 

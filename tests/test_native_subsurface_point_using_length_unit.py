@@ -16,17 +16,21 @@ import unittest.mock
 
 from hamcrest import assert_that, equal_to
 
-import orchid.measurement as om
-import orchid.native_subsurface_point as nsp
-import orchid.reference_origins as origins
-import orchid.unit_system as units
+from orchid import (
+    measurement as om,
+    native_subsurface_point as nsp,
+    reference_origins as origins,
+    unit_system as units,
+)
 
-import tests.custom_matchers as tcm
-import tests.stub_net as stub_net
+from tests import (
+    custom_matchers as tcm,
+    stub_net as tsn,
+)
 
 
 def create_sut(length_unit, x=None, y=None, depth=None, xy_origin=None, depth_origin=None):
-    stub_subsurface_point = stub_net.create_stub_net_subsurface_point(x, y, depth, xy_origin, depth_origin)
+    stub_subsurface_point = tsn.create_stub_net_subsurface_point(x, y, depth, xy_origin, depth_origin)
 
     sut = nsp.SubsurfacePointUsingLengthUnit(stub_subsurface_point, length_unit)
     return sut
@@ -40,21 +44,21 @@ class TestNativeSubsurfacePointUsingLength(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_x(self):
-        scalar_x = tcm.ScalarQuantity(-2725.83, units.Metric.LENGTH)
+        scalar_x = tsn.ScalarQuantity(-2725.83, units.Metric.LENGTH)
         sut = create_sut(units.UsOilfield.LENGTH, x=scalar_x)
 
         expected_x = om.make_measurement(-8943.01, units.UsOilfield.LENGTH)
         tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
-        scalar_y = tcm.ScalarQuantity(1656448.10, units.Metric.LENGTH)
+        scalar_y = tsn.ScalarQuantity(1656448.10, units.Metric.LENGTH)
         sut = create_sut(units.UsOilfield.LENGTH, y=scalar_y)
 
         expected_y = om.make_measurement(5434541.01, units.UsOilfield.LENGTH)
         tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 9e-2)
 
     def test_depth(self):
-        scalar_depth = tcm.ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
+        scalar_depth = tsn.ScalarQuantity(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(units.Metric.LENGTH, depth=scalar_depth)
 
         expected_depth = om.make_measurement(2726.62, units.Metric.LENGTH)
