@@ -47,8 +47,6 @@ from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFra
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid.net_quantity import as_net_date_time
-
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
@@ -252,7 +250,7 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     if values_starting_at is not None:
         values, start_time_point = values_starting_at
         time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        samples = [StubSample(t, v) for (t, v) in zip(map(as_net_date_time, time_points), values)]
+        samples = [StubSample(t, v) for (t, v) in zip(map(onq.as_net_date_time, time_points), values)]
         stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
                                                                                        return_value=samples)
     if project is not None:
