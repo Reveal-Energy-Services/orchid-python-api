@@ -202,31 +202,31 @@ class TestNativeStageAdapter(unittest.TestCase):
                                           make_measurement(4104.98, units.Metric.LENGTH)),
                                          (make_measurement(3702.48, units.Metric.LENGTH),
                                           make_measurement(12147.2, units.UsOilfield.LENGTH))]:
-            with self.subTest(actual_top=actual_top, expected_top=expected_top):
+            with self.subTest():
                 stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top.unit)
-                assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
-                assert_that(actual_top.unit, equal_to(expected_top.unit))
+                tcm.assert_that_measurements_close_to(actual_top, expected_top, 0.05)
 
     def test_md_bottom(self):
-        for actual_bottom, expected_bottom in [(make_measurement(13806.7, units.UsOilfield.LENGTH),
-                                                make_measurement(13806.7, units.UsOilfield.LENGTH)),
-                                               (make_measurement(4608.73, units.Metric.LENGTH),
-                                                make_measurement(4608.73, units.Metric.LENGTH)),
-                                               (make_measurement(12147.2, units.UsOilfield.LENGTH),
-                                                make_measurement(3702.47, units.Metric.LENGTH)),
-                                               (make_measurement(4608.73, units.Metric.LENGTH),
-                                                make_measurement(15120.5, units.UsOilfield.LENGTH))]:
-            with self.subTest(actual_bottom=actual_bottom, expected_bottom=expected_bottom):
+        for actual_bottom, expected_bottom in [
+            (make_measurement(13806.7, units.UsOilfield.LENGTH),
+             make_measurement(13806.7, units.UsOilfield.LENGTH)),
+            (make_measurement(4608.73, units.Metric.LENGTH),
+             make_measurement(4608.73, units.Metric.LENGTH)),
+            (make_measurement(12147.2, units.UsOilfield.LENGTH),
+             make_measurement(3702.47, units.Metric.LENGTH)),
+            (make_measurement(4608.73, units.Metric.LENGTH),
+             make_measurement(15120.5, units.UsOilfield.LENGTH)),
+        ]:
+            with self.subTest():
                 stub_net_stage = tsn.create_stub_net_stage(
                     md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_bottom = sut.md_bottom(expected_bottom.unit)
-                assert_that(actual_bottom.magnitude, close_to(expected_bottom.magnitude, 0.05))
-                assert_that(actual_bottom.unit, equal_to(expected_bottom.unit))
+                tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 0.05)
 
     def test_start_time(self):
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)

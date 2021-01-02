@@ -74,17 +74,17 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
     @property
     def x(self):
         """The x-coordinate of this point."""
-        return self._as_length_measurement_func(self._length_converter_func(self._adaptee.X))
+        return onq.as_length_measurement(self._length_converter_func(self._adaptee.X))
 
     @property
     def y(self):
         """The y-coordinate of this point."""
-        return self._as_length_measurement_func(self._length_converter_func(self._adaptee.Y))
+        return onq.as_length_measurement(self._length_converter_func(self._adaptee.Y))
 
     @property
     def depth(self):
         """The depth of this point."""
-        return self._as_length_measurement_func(self._length_converter_func(self._adaptee.Depth))
+        return onq.as_length_measurement(self._length_converter_func(self._adaptee.Depth))
 
 
 class SubsurfacePoint(BaseSubsurfacePoint):

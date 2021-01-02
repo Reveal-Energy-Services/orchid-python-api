@@ -23,13 +23,15 @@ from typing import Tuple, Union
 import deal
 import toolz.curried as toolz
 
-import orchid.dot_net_dom_access as dna
-import orchid.measurement as om
-import orchid.native_subsurface_point as nsp
-import orchid.native_treatment_curve_adapter as ntc
-from orchid.net_quantity import as_datetime, as_measurement, convert_net_quantity_to_different_unit
-import orchid.reference_origins as origins
-import orchid.unit_system as units
+from orchid import (
+    dot_net_dom_access as dna,
+    measurement as om,
+    native_subsurface_point as nsp,
+    native_treatment_curve_adapter as ntc,
+    net_quantity as onq,
+    reference_origins as origins,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import FormationConnectionType
@@ -74,8 +76,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                    'The order in which this stage was completed on its well')
     stage_type = dna.transformed_dom_property('stage_type', 'The formation connection type of this stage',
                                               as_connection_type)
-    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', as_datetime)
-    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', as_datetime)
+    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', onq.as_datetime)
+    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
@@ -254,8 +256,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
          The measured depth of the stage top in the specified unit.
         """
         original = self._adaptee.MdTop
-        md_top_quantity = convert_net_quantity_to_different_unit(original, in_length_unit)
-        result = as_measurement(md_top_quantity)
+        md_top_quantity = onq.convert_net_quantity_to_different_unit(original, in_length_unit)
+        result = onq.as_length_measurement(md_top_quantity)
         return result
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
@@ -270,8 +272,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
              The measured depth of the stage bottom in the specified unit.
         """
         original = self._adaptee.MdBottom
-        md_top_quantity = convert_net_quantity_to_different_unit(original, in_length_unit)
-        result = as_measurement(md_top_quantity)
+        md_top_quantity = onq.convert_net_quantity_to_different_unit(original, in_length_unit)
+        result = onq.as_length_measurement(md_top_quantity)
         return result
 
     def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> units.Quantity:
