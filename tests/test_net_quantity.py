@@ -383,11 +383,11 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(68.02)),
              units.UsOilfield.TEMPERATURE,
              UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(154.4)),
-             decimal.Decimal('0.04'))
-            # (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), units.Metric.VOLUME,
-            #  UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), None),
-            # (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
-            #  UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), None)
+             decimal.Decimal('0.04')),
+            (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), units.Metric.VOLUME,
+             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), decimal.Decimal('0.003')),
+            (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
+             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), decimal.Decimal('0.07')),
         ]:
             with self.subTest(f'Converting .NET Quantity, {source_net_quantity}, to "{target_unit}"'):
                 actual = onq.convert_net_quantity_to_different_unit(source_net_quantity, target_unit)
