@@ -62,7 +62,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
                                  spec=loader.native_treatment_calculations,
                                  return_value=stub_treatment_calculations):
-            with self.subTest(expected_measurement=expected_measurement):
+            with self.subTest():
                 actual_result = sut(create_stub_stage_adapter(), start_time, stop_time)
                 if expected_measurement is not None:
                     tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
@@ -120,7 +120,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
-            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.VOLUME)
+            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.MASS)
 
             stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)

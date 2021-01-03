@@ -16,8 +16,11 @@
 from collections import namedtuple
 from typing import Callable
 
-from orchid import (project_loader as loader,
-                    net_quantity as onq)
+from orchid import (
+    project_loader as loader,
+    net_quantity as onq,
+    physical_quantity as opq,
+)
 
 #
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -34,7 +37,7 @@ CalculationResult = namedtuple('CalculationResult', ['measurement', 'warnings'])
 
 def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculations, IStage, DateTime, DateTime],
                                                           ICalculationResult],
-                        stage: IStage, start: DateTime, stop: DateTime):
+                        stage: IStage, start: DateTime, stop: DateTime, physical_quantity: opq.PhysicalQuantity):
     """
     Perform the specific native calculation function for stage from start through (and including) stop.
 
@@ -43,13 +46,14 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
         stage: The stage on which the calculation is being made.
         start: The (inclusive) start time of the calculation.
         stop: The (inclusive) stop time of the calculation.
+        physical_quantity: The physical quantity of the measurement to be returned as the result.
 
     Returns:
         The calculation result (measurement and warnings) for the calculation.
     """
     native_treatment_calculations = loader.native_treatment_calculations()
     native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
-    calculation_measurement = onq.as_measurement(native_calculation_result.Result)
+    calculation_measurement = onq.as_measurement(native_calculation_result.Result, physical_quantity)
     warnings = native_calculation_result.Warnings
     return CalculationResult(calculation_measurement, warnings)
 
@@ -72,7 +76,8 @@ def median_treating_pressure(stage: IStage, start: DateTime, stop: DateTime):
                                                                      onq.as_net_date_time(stop_time))
         return calculation_result
 
-    result = perform_calculation(median_treatment_pressure_calculation, stage, start, stop)
+    result = perform_calculation(median_treatment_pressure_calculation,
+                                 stage, start, stop, opq.PhysicalQuantity.PRESSURE)
     return result
 
 
@@ -94,7 +99,7 @@ def pumped_fluid_volume(stage: IStage, start: DateTime, stop: DateTime):
                                                           onq.as_net_date_time(stop_time))
         return calculation_result
 
-    result = perform_calculation(pumped_fluid_volume_calculation, stage, start, stop)
+    result = perform_calculation(pumped_fluid_volume_calculation, stage, start, stop, opq.PhysicalQuantity.VOLUME)
     return result
 
 
@@ -116,5 +121,5 @@ def total_proppant_mass(stage: IStage, start: DateTime, stop: DateTime):
                                                                onq.as_net_date_time(stop_time))
         return calculation_result
 
-    result = perform_calculation(total_proppant_mass_calculation, stage, start, stop)
+    result = perform_calculation(total_proppant_mass_calculation, stage, start, stop, opq.PhysicalQuantity.MASS)
     return result
