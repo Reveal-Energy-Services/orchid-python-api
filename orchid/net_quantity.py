@@ -268,7 +268,6 @@ def net_decimal_to_float(net_decimal: Decimal) -> float:
 
 def _unit_from_net_quantity(net_quantity, physical_quantity):
     def is_proppant_concentration(quantity):
-
         return quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION
 
     def is_slurry_rate(quantity):
