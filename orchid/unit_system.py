@@ -196,10 +196,16 @@ def abbreviation(unit: UnitSystem) -> str:
     Returns:
         The abbreviation of 'unit'.
     """
-    if unit == UsOilfield.ENERGY:
-        return 'ft-lb'
+    unit_abbreviation_map = {
+        Common.ANGLE: '\u00b0',
+        UsOilfield.DENSITY: 'lb/ft\u00b3',
+        UsOilfield.ENERGY: 'ft-lb',
+        UsOilfield.VOLUME: 'bbl',
+        UsOilfield.PROPPANT_CONCENTRATION: 'lb/ft\u00b3',
+        Metric.DENSITY: 'kg/m\u00b3',
+        Metric.PROPPANT_CONCENTRATION: 'kg/m\u00b3',
+        Metric.SLURRY_RATE: 'm\u00b3/min',
+    }
 
-    if unit == UsOilfield.VOLUME:
-        return 'bbl'
-
-    return f'{unit.value.unit:~P}'
+    # noinspection PyTypeChecker
+    return unit_abbreviation_map.get(unit, f'{unit.value.unit:~P}')
