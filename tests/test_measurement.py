@@ -54,53 +54,6 @@ class TestMeasurement(unittest.TestCase):
         assert_that(calling(om.make_measurement).with_args(1.717, 'm^3'),
                     raises(deal.PreContractError))
 
-    def test_convert_single_item_values_returns_converted_single_item_values(self):
-        # The 6's in the following tolerances are caused by the round half-even that we use in expected values
-        for (source_value, source_unit, target_value, target_unit, tolerance) in \
-                [(81.4196, 'bbl/min', 1.35699, 'bbl/s', 6e-5),
-                 (18.1424, 'm\u00b3/min', 0.302373, 'm^3/s', 6e-7),
-                 (18.1424, 'm\u00b3/min', 0.302373, 'm\u00b3/s', 6e-7),
-                 (98.4873, 'bbl/min', 68.9411, 'gal/s', 6e-5),
-                 (1.04125, 'bbl/s', 43.7325, 'gal/s', 6e-5),
-                 (13.5354, 'm\u00b3', 85.1351, 'bbl', 6e-5),
-                 (445.683, 'kg', 982.562, 'lb', 6e-4),
-                 (165.501, 'kPa', 24.0039, 'psi', 6e-5)]:
-            with self.subTest(source_source_unit=source_unit, target_unit=target_unit):
-                assert_that(source_value * om.get_conversion_factor(source_unit, target_unit),
-                            close_to(target_value, tolerance))
-
-    def test_convert_raises_error_if_source_unit_unknown(self):
-        for ((unknown_source, known_target), (source_pattern, target_pattern)) in \
-                [(('m^3/m', 'm^3/min'), ('m\\^3/m', 'm\\^3/min')),
-                 (('bbl/sec', 'gal/s'), ('bbl/sec', 'gal/s'))]:
-            with self.subTest(unknown_source=unknown_source, known_target=known_target,
-                              source_pattern=source_pattern, target_pattern=target_pattern):
-                # noinspection SpellCheckingInspection
-                assert_that(calling(om.get_conversion_factor).with_args(unknown_source, known_target),
-                            raises(KeyError, pattern=f"('{source_pattern}', '{target_pattern}')"))
-
-    def test_convert_raises_error_if_target_unit_unknown(self):
-        for ((known_source, unknown_target), (source_pattern, target_pattern)) in \
-                [(('m^3/min', 'm^3/m'), ('m\\^3/min', 'm\\^3/m')),
-                 (('bbl/min', 'gao/s'), ('bbl/min', 'gao/s'))]:
-            with self.subTest(known_source=known_source, unknown_target=unknown_target,
-                              source_pattern=source_pattern, target_pattern=target_pattern):
-                # noinspection SpellCheckingInspection
-                assert_that(calling(om.get_conversion_factor).with_args(known_source, unknown_target),
-                            raises(KeyError, pattern=f"('{source_pattern}', '{target_pattern}')"))
-
-    def test_convert_raises_error_if_source_unit_invalid(self):
-        for invalid_source_unit in [None, '', '\n']:
-            with self.subTest(invalid_source_unit=invalid_source_unit):
-                assert_that(calling(om.get_conversion_factor).with_args(invalid_source_unit, 'bbl/min'),
-                            raises(deal.PreContractError))
-
-    def test_convert_raises_error_if_target_unit_invalid(self):
-        for invalid_target_unit in [None, '', '\n']:
-            with self.subTest(invalid_target_unit=invalid_target_unit):
-                assert_that(calling(om.get_conversion_factor).with_args('m^3/min', invalid_target_unit),
-                            raises(deal.PreContractError))
-
 
 if __name__ == '__main__':
     unittest.main()

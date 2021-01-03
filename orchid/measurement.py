@@ -28,17 +28,6 @@ from orchid import unit_system as units
 Measurement = namedtuple('Measurement', ['magnitude', 'unit'])
 
 
-def get_conversion_factor(source_unit: units.Unit, target_unit: units.Unit) -> float:
-    """
-    Returns the conversion factor from `source_unit` to `target_unit`.
-
-    Args:
-        source_unit: The source unit for the conversion.
-        target_unit: The target unit for the conversion.
-    """
-    pass
-
-
 @deal.pre(lambda magnitude, _unit: isinstance(magnitude, numbers.Real))
 @deal.pre(lambda _magnitude, unit: isinstance(unit, units.UnitSystem))
 def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> Measurement:
