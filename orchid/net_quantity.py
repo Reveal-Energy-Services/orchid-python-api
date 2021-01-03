@@ -73,7 +73,7 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
 
 
 @toolz.curry
-def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsNet.IQuantity) -> units.Quantity:
+def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
 
@@ -144,7 +144,7 @@ _UNIT_CREATE_NET_UNIT_MAP = {
 }
 
 
-def as_net_quantity(measurement: units.Quantity) -> UnitsNet.IQuantity:
+def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
     """
     Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance.
 
@@ -178,7 +178,7 @@ def as_net_quantity(measurement: units.Quantity) -> UnitsNet.IQuantity:
             raise ValueError(f'Unrecognized unit: "{measurement.unit}".')
 
 
-def as_net_quantity_in_different_unit(measurement: units.Quantity, target_unit: units.Unit) -> UnitsNet.IQuantity:
+def as_net_quantity_in_different_unit(measurement: om.Measurement, target_unit: units.Unit) -> UnitsNet.IQuantity:
     """
     Convert a `Quantity` into a .NET `UnitsNet.IQuantity` instance but in a different unit, `in_unit`.
 
