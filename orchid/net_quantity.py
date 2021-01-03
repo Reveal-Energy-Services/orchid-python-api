@@ -73,7 +73,7 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
 
 
 @toolz.curry
-def as_measurement(net_quantity: UnitsNet.IQuantity, physical_quantity: opq.PhysicalQuantity) -> units.Quantity:
+def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsNet.IQuantity) -> units.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
 
@@ -103,7 +103,7 @@ def as_measurement(net_quantity: UnitsNet.IQuantity, physical_quantity: opq.Phys
 
 
 # It is common to convert UnitsNet Quantities in LengthUnit's to Python length measurements
-as_length_measurement = toolz.flip(as_measurement, opq.PhysicalQuantity.LENGTH)
+as_length_measurement = as_measurement(opq.PhysicalQuantity.LENGTH)
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:

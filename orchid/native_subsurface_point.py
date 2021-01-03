@@ -69,7 +69,7 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
         super().__init__(adaptee)
         self._length_converter_func = toolz.flip(onq.convert_net_quantity_to_different_unit,
                                                  target_length_unit)
-        self._as_length_measurement_func = toolz.flip(onq.as_measurement, opq.PhysicalQuantity.LENGTH)
+        self._as_length_measurement_func = onq.as_measurement(opq.PhysicalQuantity.LENGTH)
 
     @property
     def x(self):

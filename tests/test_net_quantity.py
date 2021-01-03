@@ -117,7 +117,7 @@ class TestNetMeasurement(unittest.TestCase):
              opq.PhysicalQuantity.VOLUME, 13.27, units.Metric.VOLUME, decimal.Decimal('0.01')),
         ]:
             with self.subTest():
-                actual = onq.as_measurement(to_convert_net_quantity, to_convert_physical_quantity)
+                actual = onq.as_measurement(to_convert_physical_quantity, to_convert_net_quantity)
                 expected = om.make_measurement(expected_value, expected_unit)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
