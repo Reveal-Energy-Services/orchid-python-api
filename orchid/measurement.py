@@ -17,7 +17,6 @@
 
 """This module contains functions and classes supporting the (Python) Measurement 'class.'"""
 
-from collections import namedtuple
 import numbers
 
 import deal
@@ -25,11 +24,24 @@ import deal
 from orchid import unit_system as units
 
 
-Measurement = namedtuple('Measurement', ['magnitude', 'unit'])
+class Measurement:
+    """Models a physical measurement: a magnitude and a unit of measure."""
+
+    @deal.pre(lambda _self, magnitude, _unit: isinstance(magnitude, numbers.Real))
+    @deal.pre(lambda _self, _magnitude, unit: isinstance(unit, units.UnitSystem))
+    def __init__(self, magnitude: numbers.Real, unit: units.UnitSystem):
+        self._magnitude = magnitude
+        self._unit = unit
+
+    @property
+    def magnitude(self) -> numbers.Real:
+        return self._magnitude
+
+    @property
+    def unit(self):
+        return self._unit
 
 
-@deal.pre(lambda magnitude, _unit: isinstance(magnitude, numbers.Real))
-@deal.pre(lambda _magnitude, unit: isinstance(unit, units.UnitSystem))
 def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> Measurement:
     """
     Construct a measurement.
@@ -39,6 +51,6 @@ def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> Measure
         unit: The unit of this measurement.
 
     Returns:
-        The Pint `Quantity` consisting of the supplied `magnitude` and `unit`.
+        The created `Measurement` instance.
     """
     return Measurement(magnitude, unit)
