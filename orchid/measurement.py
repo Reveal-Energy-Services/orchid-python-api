@@ -42,6 +42,12 @@ class Measurement:
     def unit(self):
         return self._unit
 
+    def __repr__(self):
+        return f'Measurement({self.magnitude}, {repr(self.unit)})'
+
+    def __str__(self):
+        return f'{self.magnitude} {units.abbreviation(self.unit)}'
+
 
 @toolz.curry
 def make_measurement(unit: units.UnitSystem, magnitude: numbers.Real) -> Measurement:
