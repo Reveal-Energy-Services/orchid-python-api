@@ -41,7 +41,7 @@ class TestConvert(unittest.TestCase):
     def test_to_unit_correctly_performs_no_op_conversion(self):
         for source_unit in toolz.concatv(units.UsOilfield, units.Metric):
 
-            source_measurement = om.make_measurement(DONT_CARE_MAGNITUDE, source_unit)
+            source_measurement = om.make_measurement(source_unit, DONT_CARE_MAGNITUDE)
 
             assert_that(oc.to_unit(source_measurement, source_unit), equal_to(source_measurement))
 
@@ -59,10 +59,10 @@ class TestConvert(unittest.TestCase):
             (13.66, units.Metric.SLURRY_RATE, 85.91, units.UsOilfield.SLURRY_RATE, decimal.Decimal('0.07')),
         ]:
             with self.subTest(f'Converting {source_unit} to {target_unit}'):
-                source_measurement = om.make_measurement(source_magnitude, source_unit)
+                source_measurement = om.make_measurement(source_unit, source_magnitude)
                 actual = oc.to_unit(source_measurement, target_unit)
 
-                expected = om.make_measurement(target_magnitude, target_unit)
+                expected = om.make_measurement(target_unit, target_magnitude)
                 assert_that_measurements_close_to(actual, expected, tolerance)
 
 

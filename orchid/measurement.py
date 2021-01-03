@@ -20,6 +20,7 @@
 import numbers
 
 import deal
+import toolz.curried as toolz
 
 from orchid import unit_system as units
 
@@ -42,13 +43,22 @@ class Measurement:
         return self._unit
 
 
-def make_measurement(magnitude: numbers.Real, unit: units.UnitSystem) -> Measurement:
+@toolz.curry
+def make_measurement(unit: units.UnitSystem, magnitude: numbers.Real) -> Measurement:
     """
     Construct a measurement.
 
+    This function provides a "more functional" mechanism to create Measurement instances. It is more common to
+    create a sequence of Measurements from a sequence of numbers and a **single** unit. By putting the `unit`
+    argument first in the function arguments, it allows callers to write code similar to the following:
+
+    > make_length_measurement = make_measurement(units.UsOilfield.LENGTH)
+    > length_measurements = [make_length_measurement(l) for l in lengths]
+    > # or toolz.map(make_length_measurement, lengths)
+
     Args:
-        magnitude: The magnitude of the measurement.
         unit: The unit of this measurement.
+        magnitude: The magnitude of the measurement.
 
     Returns:
         The created `Measurement` instance.

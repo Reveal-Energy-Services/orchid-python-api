@@ -37,12 +37,12 @@ class TestMeasurement(unittest.TestCase):
                                 (3, units.UsOilfield.VOLUME)  # Testing an integral magnitude against contract
                                 ]:
             with self.subTest(magnitude=magnitude, unit=unit):
-                sut = om.make_measurement(magnitude, unit)
+                sut = om.make_measurement(unit, magnitude)
 
                 assert_that(sut.magnitude, equal_to(magnitude))
 
     def test_unit_is_supplied_unit_to_make_measurement(self):
-        sut = om.make_measurement(138.44, units.UsOilfield.LENGTH)
+        sut = om.make_measurement(units.UsOilfield.LENGTH, 138.44)
 
         assert_that(sut.unit, equal_to(units.UsOilfield.LENGTH))
 

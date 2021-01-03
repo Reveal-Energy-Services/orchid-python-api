@@ -47,7 +47,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_result(self):
         for expected_magnitude, unit in [(7396.93, units.UsOilfield.PRESSURE), (74.19, units.Metric.PRESSURE)]:
-            expected_measurement = om.make_measurement(expected_magnitude, unit)
+            expected_measurement = om.make_measurement(unit, expected_magnitude)
 
             stub_calculation_result = create_stub_calculation_result(expected_measurement, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
@@ -72,7 +72,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
-            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.PRESSURE)
+            dont_care_measurement = om.make_measurement(units.UsOilfield.PRESSURE, DONT_CARE_MEASUREMENT_MAGNITUDE)
 
             stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
@@ -84,7 +84,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
         for expected_magnitude, unit in [(6269.20, units.UsOilfield.VOLUME), (707.82, units.Metric.VOLUME)]:
-            expected_measurement = om.make_measurement(expected_magnitude, unit)
+            expected_measurement = om.make_measurement(unit, expected_magnitude)
 
             stub_calculation_result = create_stub_calculation_result(expected_measurement, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
@@ -96,7 +96,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
-            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.VOLUME)
+            dont_care_measurement = om.make_measurement(units.UsOilfield.VOLUME, DONT_CARE_MEASUREMENT_MAGNITUDE)
 
             stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
             stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
@@ -108,7 +108,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
         for expected_magnitude, unit in [(5414.58, units.UsOilfield.MASS), (138262.86, units.Metric.MASS)]:
-            expected_measurement = om.make_measurement(expected_magnitude, unit)
+            expected_measurement = om.make_measurement(unit, expected_magnitude)
 
             stub_calculation_result = create_stub_calculation_result(expected_measurement, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
@@ -120,7 +120,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
-            dont_care_measurement = om.make_measurement(DONT_CARE_MEASUREMENT_MAGNITUDE, units.UsOilfield.MASS)
+            dont_care_measurement = om.make_measurement(units.UsOilfield.MASS, DONT_CARE_MEASUREMENT_MAGNITUDE)
 
             stub_calculation_result = create_stub_calculation_result(dont_care_measurement, expected_warnings)
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)

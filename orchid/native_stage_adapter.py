@@ -288,7 +288,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
         length_magnitude = \
             self.md_bottom(in_length_unit).magnitude - self.md_top(in_length_unit).magnitude
-        result = om.make_measurement(length_magnitude, in_length_unit)
+        result = om.make_measurement(in_length_unit, length_magnitude)
         return result
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],

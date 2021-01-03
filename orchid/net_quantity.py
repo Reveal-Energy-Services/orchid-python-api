@@ -95,11 +95,11 @@ def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsN
     # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
     # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
     if physical_quantity == opq.PhysicalQuantity.POWER:
-        return om.make_measurement(net_decimal_to_float(net_quantity.Value), unit)
+        return om.make_measurement(unit, net_decimal_to_float(net_quantity.Value))
     elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
-        return om.make_measurement(net_quantity.Value, unit)
+        return om.make_measurement(unit, net_quantity.Value)
     else:
-        return om.make_measurement(net_quantity.Value, unit)
+        return om.make_measurement(unit, net_quantity.Value)
 
 
 # It is common to convert UnitsNet Quantities in LengthUnit's to Python length measurements

@@ -44,21 +44,21 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         scalar_x = tsn.StubMeasurement(-2725.83, units.Metric.LENGTH)
         sut = create_sut(x=scalar_x)
 
-        expected_x = om.make_measurement(scalar_x.magnitude, scalar_x.unit)
+        expected_x = om.make_measurement(scalar_x.unit, scalar_x.magnitude)
         tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
         scalar_y = tsn.StubMeasurement(1656448.10, units.Metric.LENGTH)
         sut = create_sut(y=scalar_y)
 
-        expected_y = om.make_measurement(scalar_y.magnitude, scalar_y.unit)
+        expected_y = om.make_measurement(scalar_y.unit, scalar_y.magnitude)
         tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
 
     def test_depth(self):
         scalar_depth = tsn.StubMeasurement(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(depth=scalar_depth)
 
-        expected_depth = om.make_measurement(scalar_depth.magnitude, scalar_depth.unit)
+        expected_depth = om.make_measurement(scalar_depth.unit, scalar_depth.magnitude)
         tcm.assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
 
     def test_xy_origin(self):
@@ -94,8 +94,8 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
 
-                expected_lengths = list(toolz.map(toolz.flip(om.make_measurement, as_length_unit),
-                                                  as_length_magnitudes))
+                make_length_measurement = om.make_measurement(as_length_unit)
+                expected_lengths = list(toolz.map(make_length_measurement, as_length_magnitudes))
                 tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.x,
                                                            expected_lengths[0], 6e-2)
                 tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.y,
