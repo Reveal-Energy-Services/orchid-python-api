@@ -6,7 +6,7 @@ kilogram_per_cubic_meter = kg / (m ** 3) = kg_per_cu_m
 
 # Proppant concentration
 [proppant_concentration] = [mass] / [volume]
-pound_per_gal = lb / gal = lb_per_gal
+pound_per_gallon = lb / gal = lb_per_gal
 
 # Slurry rate
 [slurry_rate] = [mass] / [time]
