@@ -22,7 +22,8 @@ import decimal
 
 from hamcrest import assert_that, equal_to, close_to
 
-import orchid.native_treatment_curve_adapter as ntc
+from orchid import (native_treatment_curve_adapter as ntc,
+                    unit_system as units)
 
 from common_functions import find_stage_no_in_well
 
@@ -50,8 +51,10 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
     actual_value = actual_treatment_curve.time_series()[timestamp]
     same_actual_value = actual_treatment_curve.time_series()[index]
     assert_that(actual_value, equal_to(same_actual_value))
-    expected_value_text, expected_unit = value.split(maxsplit=1)
-    assert_that(actual_treatment_curve.sampled_quantity_unit().abbreviation, equal_to(expected_unit))
+    expected_value_text, raw_expected_unit = value.split(maxsplit=1)
+    # Encoding for unicode superscript 3
+    expected_unit = raw_expected_unit.replace('^3', '\u00b3')
+    assert_that(units.abbreviation(actual_treatment_curve.sampled_quantity_unit()), equal_to(expected_unit))
     expected_value = decimal.Decimal(expected_value_text)
     _, _, expected_exponent = expected_value.as_tuple()
     calculated_max_error = decimal.Decimal((0, (1,), expected_exponent))

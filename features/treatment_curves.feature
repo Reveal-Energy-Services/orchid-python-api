@@ -27,296 +27,299 @@ Feature: Treatment curves API
     Then I see correct curve samples for <well>, <stage_no>, <curve_type>, <index>, <timestamp>, and <value>
 
     Examples: Bakken
-      | field  | well    | stage_no | curve_type | index | timestamp             | value               |
-      | Bakken | Demo_1H | 1        | pressure   | 3960  | 6/6/2018 2:35:00 PM   | -7.42 psi           |
-      | Bakken | Demo_1H | 1        | pressure   | 4637  | 6/6/2018 2:46:17 PM   | -3.76 psi           |
-      | Bakken | Demo_1H | 1        | pressure   | 6992  | 6/6/2018 3:25:32 PM   | 6848.79 psi         |
-      | Bakken | Demo_1H | 1        | pressure   | 4747  | 6/6/2018 2:48:07 PM   | -0.79 psi           |
-      | Bakken | Demo_1H | 1        | pressure   | 9557  | 6/6/2018 4:08:17 PM   | 6254.41 psi         |
-      | Bakken | Demo_1H | 1        | pressure   | 7680  | 6/6/2018 3:37:00 PM   | 7214.85 psi         |
-      | Bakken | Demo_1H | 1        | pressure   | 7836  | 6/6/2018 3:39:36 PM   | 6855.80 psi         |
-      | Bakken | Demo_1H | 1        | pressure   | 3979  | 6/6/2018 2:35:19 PM   | -7.50 psi           |
-      | Bakken | Demo_1H | 1        | proppant   | 10607 | 6/6/2018 4:25:47 PM   | 2.15 lbs/gal (US)   |
-      | Bakken | Demo_1H | 1        | proppant   | 910   | 6/6/2018 1:44:10 PM   | -0.15 lbs/gal (US)  |
-      | Bakken | Demo_1H | 1        | proppant   | 1745  | 6/6/2018 1:58:05 PM   | 0.51 lbs/gal (US)   |
-      | Bakken | Demo_1H | 1        | proppant   | 5037  | 6/6/2018 2:52:57 PM   | -0.45 lbs/gal (US)  |
-      | Bakken | Demo_1H | 1        | proppant   | 22    | 6/6/2018 1:29:22 PM   | -0.26 lbs/gal (US)  |
-      | Bakken | Demo_1H | 1        | proppant   | 832   | 6/6/2018 1:42:52 PM   | -0.16 lbs/gal (US)  |
-      | Bakken | Demo_1H | 1        | proppant   | 11375 | 6/6/2018 4:38:35 PM   | -0.07 lbs/gal (US)  |
-      | Bakken | Demo_1H | 1        | proppant   | 3160  | 6/6/2018 2:21:40 PM   | -0.08 lbs/gal (US)  |
-      | Bakken | Demo_1H | 1        | slurry     | 8557  | 6/6/2018 3:51:37 PM   | 35.08 bbl/min       |
-      | Bakken | Demo_1H | 1        | slurry     | 5415  | 6/6/2018 2:59:15 PM   | 0.14 bbl/min        |
-      | Bakken | Demo_1H | 1        | slurry     | 8125  | 6/6/2018 3:44:25 PM   | 35.49 bbl/min       |
-      | Bakken | Demo_1H | 1        | slurry     | 156   | 6/6/2018 1:31:36 PM   | 0.00 bbl/min        |
-      | Bakken | Demo_1H | 1        | slurry     | 4115  | 6/6/2018 2:37:35 PM   | 0.14 bbl/min        |
-      | Bakken | Demo_1H | 1        | slurry     | 10808 | 6/6/2018 4:29:08 PM   | 35.16 bbl/min       |
-      | Bakken | Demo_1H | 1        | slurry     | 6091  | 6/6/2018 3:10:31 PM   | 0.23 bbl/min        |
-      | Bakken | Demo_1H | 1        | slurry     | 4386  | 6/6/2018 2:42:06 PM   | 1.04 bbl/min        |
-      | Bakken | Demo_1H | 50       | pressure   | 2971  | 6/28/2018 1:29:31 PM  | 6880.38 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 118   | 6/28/2018 12:41:58 PM | 7853.94 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 3929  | 6/28/2018 1:45:29 PM  | 7008.58 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 2817  | 6/28/2018 1:26:57 PM  | 6882.67 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 2497  | 6/28/2018 1:21:37 PM  | 7109.52 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 1897  | 6/28/2018 1:11:37 PM  | 6828.63 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 260   | 6/28/2018 12:44:20 PM | 7954.80 psi         |
-      | Bakken | Demo_1H | 50       | pressure   | 1913  | 6/28/2018 1:11:53 PM  | 6828.10 psi         |
-      | Bakken | Demo_1H | 50       | proppant   | 604   | 6/28/2018 12:50:04 PM | 0.79 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 2509  | 6/28/2018 1:21:49 PM  | 0.48 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 3233  | 6/28/2018 1:33:53 PM  | 0.86 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 1133  | 6/28/2018 12:58:53 PM | 0.84 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 2116  | 6/28/2018 1:15:16 PM  | 1.05 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 1835  | 6/28/2018 1:10:35 PM  | 1.06 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 2481  | 6/28/2018 1:21:21 PM  | 0.41 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | proppant   | 2782  | 6/28/2018 1:26:22 PM  | 0.50 lbs/gal (US)   |
-      | Bakken | Demo_1H | 50       | slurry     | 3067  | 6/28/2018 1:31:07 PM  | 71.73 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 3872  | 6/28/2018 1:44:32 PM  | 71.73 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 1877  | 6/28/2018 1:11:17 PM  | 71.86 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 1167  | 6/28/2018 12:59:27 PM | 71.98 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 24    | 6/28/2018 12:40:24 PM | 32.65 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 2941  | 6/28/2018 1:29:01 PM  | 71.76 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 1328  | 6/28/2018 1:02:08 PM  | 71.85 bbl/min       |
-      | Bakken | Demo_1H | 50       | slurry     | 2169  | 6/28/2018 1:16:09 PM  | 71.77 bbl/min       |
-      | Bakken | Demo_1H | 41       | pressure   | 2427  | 6/26/2018 2:22:29 PM  | 7471.63 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 3272  | 6/26/2018 2:36:34 PM  | 7512.44 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 4045  | 6/26/2018 2:49:27 PM  | 7284.56 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 1752  | 6/26/2018 2:11:14 PM  | 7623.87 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 1969  | 6/26/2018 2:14:51 PM  | 7520.98 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 143   | 6/26/2018 1:44:25 PM  | 7007.66 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 4318  | 6/26/2018 2:54:00 PM  | 7141.08 psi         |
-      | Bakken | Demo_1H | 41       | pressure   | 1653  | 6/26/2018 2:09:35 PM  | 7672.33 psi         |
-      | Bakken | Demo_1H | 41       | proppant   | 1833  | 6/26/2018 2:12:35 PM  | 1.06 lbs/gal (US)    |
-      | Bakken | Demo_1H | 41       | proppant   | 2188  | 6/26/2018 2:18:30 PM  | 1.40 lbs/gal (US)   |
-      | Bakken | Demo_1H | 41       | proppant   | 3406  | 6/26/2018 2:38:48 PM  | 0.55 lbs/gal (US)   |
-      | Bakken | Demo_1H | 41       | proppant   | 514   | 6/26/2018 1:50:36 PM  | -0.11 lbs/gal (US)  |
-      | Bakken | Demo_1H | 41       | proppant   | 1498  | 6/26/2018 2:07:00 PM  | 1.15 lbs/gal (US)   |
-      | Bakken | Demo_1H | 41       | proppant   | 1586  | 6/26/2018 2:08:28 PM  | 1.12 lbs/gal (US)   |
-      | Bakken | Demo_1H | 41       | proppant   | 4683  | 6/26/2018 3:00:05 PM  | -0.04 lbs/gal (US)  |
-      | Bakken | Demo_1H | 41       | proppant   | 1427  | 6/26/2018 2:05:49 PM  | 0.97 lbs/gal (US)   |
-      | Bakken | Demo_1H | 41       | slurry     | 1976  | 6/26/2018 2:14:58 PM  | 71.88 bbl/min       |
-      | Bakken | Demo_1H | 41       | slurry     | 3273  | 6/26/2018 2:36:35 PM  | 71.87 bbl/min       |
-      | Bakken | Demo_1H | 41       | slurry     | 4813  | 6/26/2018 3:02:15 PM  | 0.38 bbl/min        |
-      | Bakken | Demo_1H | 41       | slurry     | 3542  | 6/26/2018 2:41:04 PM  | 71.80 bbl/min       |
-      | Bakken | Demo_1H | 41       | slurry     | 3701  | 6/26/2018 2:43:43 PM  | 71.79 bbl/min       |
-      | Bakken | Demo_1H | 41       | slurry     | 1927  | 6/26/2018 2:14:09 PM  | 71.91 bbl/min       |
-      | Bakken | Demo_1H | 41       | slurry     | 1409  | 6/26/2018 2:05:31 PM  | 71.90 bbl/min       |
-      | Bakken | Demo_1H | 41       | slurry     | 4135  | 6/26/2018 2:50:57 PM  | 71.46 bbl/min       |
-      | Bakken | Demo_1H | 20       | pressure   | 2089  | 6/15/2018 10:01:23 PM | 6354.26 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 6055  | 6/15/2018 11:07:29 PM | 8237.45 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 1562  | 6/15/2018 9:52:36 PM  | 3427.11 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 3195  | 6/15/2018 10:19:49 PM | 6034.64 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 3887  | 6/15/2018 10:31:21 PM | 7358.01 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 6797  | 6/15/2018 11:19:51 PM | 8055.14 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 7593  | 6/15/2018 11:33:07 PM | 8123.00 psi         |
-      | Bakken | Demo_1H | 20       | pressure   | 6810  | 6/15/2018 11:20:04 PM | 8053.74 psi         |
-      | Bakken | Demo_1H | 20       | proppant   | 7036  | 6/15/2018 11:23:50 PM | 1.06 lbs/gal (US)   |
-      | Bakken | Demo_1H | 20       | proppant   | 1361  | 6/15/2018 9:49:15 PM  | 0.08 lbs/gal (US)   |
-      | Bakken | Demo_1H | 20       | proppant   | 7562  | 6/15/2018 11:32:36 PM | 0.20 lbs/gal (US)   |
-      | Bakken | Demo_1H | 20       | proppant   | 1908  | 6/15/2018 9:58:22 PM  | 0.60 lbs/gal (US)   |
-      | Bakken | Demo_1H | 20       | proppant   | 7295  | 6/15/2018 11:28:09 PM | 1.46 lbs/gal (US)   |
-      | Bakken | Demo_1H | 20       | proppant   | 400   | 6/15/2018 9:33:14 PM  | -0.30 lbs/gal (US)  |
-      | Bakken | Demo_1H | 20       | proppant   | 2045  | 6/15/2018 10:00:39 PM | -0.02 lbs/gal (US)  |
-      | Bakken | Demo_1H | 20       | proppant   | 187   | 6/15/2018 9:29:41 PM  | -0.20 lbs/gal (US)  |
-      | Bakken | Demo_1H | 20       | slurry     | 2500  | 6/15/2018 10:08:14 PM | 29.32 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 4767  | 6/15/2018 10:46:01 PM | 70.08 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 4340  | 6/15/2018 10:38:54 PM | 68.13 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 6728  | 6/15/2018 11:18:42 PM | 70.15 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 4255  | 6/15/2018 10:37:29 PM | 66.65 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 2384  | 6/15/2018 10:06:18 PM | 29.40 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 8183  | 6/15/2018 11:42:57 PM | 70.13 bbl/min       |
-      | Bakken | Demo_1H | 20       | slurry     | 5946  | 6/15/2018 11:05:40 PM | 70.05 bbl/min       |
-      | Bakken | Demo_2H | 1        | pressure   | 6948  | 6/6/2018 6:54:21 AM   | 3208.19 psi         |
-      | Bakken | Demo_2H | 1        | pressure   | 7430  | 6/6/2018 7:02:23 AM   | 6785.23 psi         |
-      | Bakken | Demo_2H | 1        | pressure   | 2240  | 6/6/2018 5:35:53 AM   | 0.00 psi            |
-      | Bakken | Demo_2H | 1        | pressure   | 4517  | 6/6/2018 6:13:50 AM   | 592.60 psi          |
-      | Bakken | Demo_2H | 1        | pressure   | 3724  | 6/6/2018 6:00:37 AM   | 4059.63 psi         |
-      | Bakken | Demo_2H | 1        | pressure   | 11631 | 6/6/2018 8:12:24 AM   | 6345.52 psi         |
-      | Bakken | Demo_2H | 1        | pressure   | 3358  | 6/6/2018 5:54:31 AM   | 9.23 psi            |
-      | Bakken | Demo_2H | 1        | pressure   | 6133  | 6/6/2018 6:40:46 AM   | 7324.85 psi         |
-      | Bakken | Demo_2H | 1        | proppant   | 9032  | 6/6/2018 7:29:05 AM   | -0.04 lbs/gal (US)  |
-      | Bakken | Demo_2H | 1        | proppant   | 12912 | 6/6/2018 8:33:45 AM   | 2.12 lbs/gal (US)   |
-      | Bakken | Demo_2H | 1        | proppant   | 1838  | 6/6/2018 5:29:11 AM   | 1.41 lbs/gal (US)   |
-      | Bakken | Demo_2H | 1        | proppant   | 4199  | 6/6/2018 6:08:32 AM   | 1.41 lbs/gal (US)   |
-      | Bakken | Demo_2H | 1        | proppant   | 7351  | 6/6/2018 7:01:04 AM   | -0.01 lbs/gal (US)  |
-      | Bakken | Demo_2H | 1        | proppant   | 12643 | 6/6/2018 8:29:16 AM   | 2.14 lbs/gal (US)   |
-      | Bakken | Demo_2H | 1        | proppant   | 2828  | 6/6/2018 5:45:41 AM   | 1.36 lbs/gal (US)   |
-      | Bakken | Demo_2H | 1        | proppant   | 598   | 6/6/2018 5:08:31 AM   | 1.41 lbs/gal (US)   |
-      | Bakken | Demo_2H | 1        | slurry     | 11349 | 6/6/2018 8:07:42 AM   | 35.69 bbl/min       |
-      | Bakken | Demo_2H | 1        | slurry     | 7792  | 6/6/2018 7:08:25 AM   | 2.78 bbl/min        |
-      | Bakken | Demo_2H | 1        | slurry     | 14101 | 6/6/2018 8:53:34 AM   | 35.56 bbl/min       |
-      | Bakken | Demo_2H | 1        | slurry     | 14561 | 6/6/2018 9:01:14 AM   | 35.45 bbl/min       |
-      | Bakken | Demo_2H | 1        | slurry     | 12676 | 6/6/2018 8:29:49 AM   | 35.45 bbl/min       |
-      | Bakken | Demo_2H | 1        | slurry     | 1402  | 6/6/2018 5:21:55 AM   | 0.01 bbl/min        |
-      | Bakken | Demo_2H | 1        | slurry     | 7197  | 6/6/2018 6:58:30 AM   | 16.64 bbl/min       |
-      | Bakken | Demo_2H | 1        | slurry     | 2535  | 6/6/2018 5:40:48 AM   | 0.0 bbl/min         |
-      | Bakken | Demo_2H | 50       | pressure   | 5047  | 6/30/2018 12:54:07 AM | 6498.32 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 6222  | 6/30/2018 1:13:42 AM  | 5440.37 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 2486  | 6/30/2018 12:11:26 AM | 6707.05 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 141   | 6/29/2018 11:32:21 PM | 7655.24 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 5611  | 6/30/2018 1:03:31 AM  | 6322.34 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 1584  | 6/29/2018 11:56:24 PM | 5333.86 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 7102  | 6/30/2018 1:28:22 AM  | 4536.73 psi         |
-      | Bakken | Demo_2H | 50       | pressure   | 5507  | 6/30/2018 1:01:47 AM  | 6340.79 psi         |
-      | Bakken | Demo_2H | 50       | proppant   | 5128  | 6/30/2018 12:55:28 AM | 0.73 lbs/gal (US)   |
-      | Bakken | Demo_2H | 50       | proppant   | 1980  | 6/30/2018 12:03:00 AM | -0.00 lbs/gal (US)  |
-      | Bakken | Demo_2H | 50       | proppant   | 1538  | 6/29/2018 11:55:38 PM | -0.06 lbs/gal (US)  |
-      | Bakken | Demo_2H | 50       | proppant   | 292   | 6/29/2018 11:34:52 PM | -0.10 lbs/gal (US)  |
-      | Bakken | Demo_2H | 50       | proppant   | 2433  | 6/30/2018 12:10:33 AM | 0.44 lbs/gal (US)   |
-      | Bakken | Demo_2H | 50       | proppant   | 6840  | 6/30/2018 1:24:00 AM  | -0.10 lbs/gal (US)  |
-      | Bakken | Demo_2H | 50       | proppant   | 1766  | 6/29/2018 11:59:26 PM | -0.05 lbs/gal (US)  |
-      | Bakken | Demo_2H | 50       | proppant   | 5595  | 6/30/2018 1:03:15 AM  | 0.96 lbs/gal (US)   |
-      | Bakken | Demo_2H | 50       | slurry     | 1124  | 6/29/2018 11:48:44 PM | 29.78 bbl/min       |
-      | Bakken | Demo_2H | 50       | slurry     | 74    | 6/29/2018 11:31:14 PM | 0.16 bbl/min        |
-      | Bakken | Demo_2H | 50       | slurry     | 6992  | 6/30/2018 1:26:32 AM  | 0.26 bbl/min        |
-      | Bakken | Demo_2H | 50       | slurry     | 5641  | 6/30/2018 1:04:01 AM  | 71.26 bbl/min       |
-      | Bakken | Demo_2H | 50       | slurry     | 672   | 6/29/2018 11:41:12 PM | 4.68 bbl/min        |
-      | Bakken | Demo_2H | 50       | slurry     | 3647  | 6/30/2018 12:30:47 AM | 72.00 bbl/min       |
-      | Bakken | Demo_2H | 50       | slurry     | 1716  | 6/29/2018 11:58:36 PM | 15.51 bbl/min       |
-      | Bakken | Demo_2H | 50       | slurry     | 2415  | 6/30/2018 12:10:15 AM | 72.02 bbl/min       |
-      | Bakken | Demo_2H | 21       | pressure   | 7486  | 6/17/2018 3:12:49 PM  | 8003.40 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 7488  | 6/17/2018 3:12:51 PM  | 8008.10 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 3343  | 6/17/2018 2:03:46 PM  | 8199.19 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 4394  | 6/17/2018 2:21:17 PM  | 8180.12 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 6486  | 6/17/2018 2:56:09 PM  | 8157.84 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 804   | 6/17/2018 1:21:27 PM  | 8366.81 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 5497  | 6/17/2018 2:39:40 PM  | 8409.77 psi         |
-      | Bakken | Demo_2H | 21       | pressure   | 3410  | 6/17/2018 2:04:53 PM  | 8177.02 psi         |
-      | Bakken | Demo_2H | 21       | proppant   | 2361  | 6/17/2018 1:47:24 PM  | 0.44 lbs/gal (US)   |
-      | Bakken | Demo_2H | 21       | proppant   | 6234  | 6/17/2018 2:51:57 PM  | 0.32 lbs/gal (US)   |
-      | Bakken | Demo_2H | 21       | proppant   | 3781  | 6/17/2018 2:11:04 PM  | 0.03 lbs/gal (US)   |
-      | Bakken | Demo_2H | 21       | proppant   | 2521  | 6/17/2018 1:50:04 PM  | 0.42 lbs/gal (US)   |
-      | Bakken | Demo_2H | 21       | proppant   | 999   | 6/17/2018 1:24:42 PM  | -0.02 lbs/gal (US)  |
-      | Bakken | Demo_2H | 21       | proppant   | 3898  | 6/17/2018 2:13:01 PM  | -0.03 lbs/gal (US)  |
-      | Bakken | Demo_2H | 21       | proppant   | 4382  | 6/17/2018 2:21:05 PM  | 0.63 lbs/gal (US)   |
-      | Bakken | Demo_2H | 21       | proppant   | 7186  | 6/17/2018 3:07:49 PM  | 1.22 lbs/gal (US)   |
-      | Bakken | Demo_2H | 21       | slurry     | 6831  | 6/17/2018 3:01:54 PM  | 69.49 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 1143  | 6/17/2018 1:27:06 PM  | 28.21 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 736   | 6/17/2018 1:20:19 PM  | 29.98 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 5273  | 6/17/2018 2:35:56 PM  | 69.44 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 1464  | 6/17/2018 1:32:27 PM  | 11.26 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 3910  | 6/17/2018 2:13:13 PM  | 68.26 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 4461  | 6/17/2018 2:22:24 PM  | 69.42 bbl/min       |
-      | Bakken | Demo_2H | 21       | slurry     | 2705  | 6/17/2018 1:53:08 PM  | 68.23 bbl/min       |
-      | Bakken | Demo_2H | 44       | pressure   | 4064  | 6/29/2018 1:10:05 AM  | 6925.45 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 1785  | 6/29/2018 12:32:06 AM | 5741.40 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 4598  | 6/29/2018 1:18:59 AM  | 6787.36 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 2757  | 6/29/2018 12:48:18 AM | 6878.46 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 1637  | 6/29/2018 12:29:38 AM | 5977.23 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 1030  | 6/29/2018 12:19:31 AM | 6601.06 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 876   | 6/29/2018 12:16:57 AM | 6742.40 psi         |
-      | Bakken | Demo_2H | 44       | pressure   | 6129  | 6/29/2018 1:44:30 AM  | 5378.83 psi         |
-      | Bakken | Demo_2H | 44       | proppant   | 4726  | 6/29/2018 1:21:07 AM  | 0.31 lbs/gal (US)   |
-      | Bakken | Demo_2H | 44       | proppant   | 4039  | 6/29/2018 1:09:40 AM  | -0.04 lbs/gal (US)  |
-      | Bakken | Demo_2H | 44       | proppant   | 6155  | 6/29/2018 1:44:56 AM  | -0.07 lbs/gal (US)  |
-      | Bakken | Demo_2H | 44       | proppant   | 386   | 6/29/2018 12:08:47 AM | -0.16 lbs/gal (US)  |
-      | Bakken | Demo_2H | 44       | proppant   | 2034  | 6/29/2018 12:36:15 AM | 0.19 lbs/gal (US)   |
-      | Bakken | Demo_2H | 44       | proppant   | 5716  | 6/29/2018 1:37:37 AM  | 0.03 lbs/gal (US)   |
-      | Bakken | Demo_2H | 44       | proppant   | 4265  | 6/29/2018 1:13:26 AM  | 0.23 lbs/gal (US)   |
-      | Bakken | Demo_2H | 44       | proppant   | 1162  | 6/29/2018 12:21:43 AM | -0.06 lbs/gal (US)  |
-      | Bakken | Demo_2H | 44       | slurry     | 3023  | 6/29/2018 12:52:44 AM | 71.66 bbl/min       |
-      | Bakken | Demo_2H | 44       | slurry     | 2102  | 6/29/2018 12:37:23 AM | 71.41 bbl/min       |
-      | Bakken | Demo_2H | 44       | slurry     | 5629  | 6/29/2018 1:36:10 AM  | 71.66 bbl/min       |
-      | Bakken | Demo_2H | 44       | slurry     | 4423  | 6/29/2018 1:16:04 AM  | 71.49 bbl/min       |
-      | Bakken | Demo_2H | 44       | slurry     | 255   | 6/29/2018 12:06:36 AM | 0.24 bbl/min        |
-      | Bakken | Demo_2H | 44       | slurry     | 242   | 6/29/2018 12:06:23 AM | 0.20 bbl/min        |
-      | Bakken | Demo_2H | 44       | slurry     | 1947  | 6/29/2018 12:34:48 AM | 66.37 bbl/min       |
-      | Bakken | Demo_2H | 44       | slurry     | 5358  | 6/29/2018 1:31:39 AM  | 71.64 bbl/min       |
-      | Bakken | Demo_4H | 1        | pressure   | 4219  | 6/6/2018 10:50:19 AM  | 6161.22 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 489   | 6/6/2018 9:48:09 AM   | 6997.94 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 5266  | 6/6/2018 11:07:46 AM  | 6410.75 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 743   | 6/6/2018 9:52:23 AM   | 4581.68 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 3961  | 6/6/2018 10:46:01 AM  | 6175.78 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 5317  | 6/6/2018 11:08:37 AM  | 6398.76 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 5490  | 6/6/2018 11:11:30 AM  | 6350.48 psi         |
-      | Bakken | Demo_4H | 1        | pressure   | 6704  | 6/6/2018 11:31:44 AM  | 6207.48 psi         |
-      | Bakken | Demo_4H | 1        | proppant   | 5873  | 6/6/2018 11:17:53 AM  | 2.24 lbs/gal (US)   |
-      | Bakken | Demo_4H | 1        | proppant   | 6490  | 6/6/2018 11:28:10 AM  | 2.29 lbs/gal (US)   |
-      | Bakken | Demo_4H | 1        | proppant   | 2994  | 6/6/2018 10:29:54 AM  | 0.04 lbs/gal (US)   |
-      | Bakken | Demo_4H | 1        | proppant   | 2449  | 6/6/2018 10:20:49 AM  | -0.08 lbs/gal (US)  |
-      | Bakken | Demo_4H | 1        | proppant   | 6059  | 6/6/2018 11:20:59 AM  | 2.22 lbs/gal (US)   |
-      | Bakken | Demo_4H | 1        | proppant   | 4607  | 6/6/2018 10:56:47 AM  | 1.31 lbs/gal (US)   |
-      | Bakken | Demo_4H | 1        | proppant   | 3458  | 6/6/2018 10:37:38 AM  | 0.59 lbs/gal (US)   |
-      | Bakken | Demo_4H | 1        | proppant   | 7425  | 6/6/2018 11:43:45 AM  | -0.04 lbs/gal (US)  |
-      | Bakken | Demo_4H | 1        | slurry     | 5568  | 6/6/2018 11:12:48 AM  | 35.32 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 2419  | 6/6/2018 10:20:19 AM  | 23.57 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 3821  | 6/6/2018 10:43:41 AM  | 35.40 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 1454  | 6/6/2018 10:04:14 AM  | 24.03 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 7746  | 6/6/2018 11:49:06 AM  | 35.00 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 2666  | 6/6/2018 10:24:26 AM  | 31.60 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 6664  | 6/6/2018 11:31:04 AM  | 34.77 bbl/min       |
-      | Bakken | Demo_4H | 1        | slurry     | 1798  | 6/6/2018 10:09:58 AM  | 24.09 bbl/min       |
-      | Bakken | Demo_4H | 35       | pressure   | 2686  | 6/28/2018 7:11:26 PM  | 6417.34 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 5521  | 6/28/2018 7:58:41 PM  | 6456.36 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 6193  | 6/28/2018 8:09:53 PM  | 6288.27 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 4780  | 6/28/2018 7:46:20 PM  | 6467.84 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 7432  | 6/28/2018 8:30:32 PM  | 5022.38 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 7028  | 6/28/2018 8:23:48 PM  | 6388.34 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 4967  | 6/28/2018 7:49:27 PM  | 6641.41 psi         |
-      | Bakken | Demo_4H | 35       | pressure   | 7784  | 6/28/2018 8:36:24 PM  | -7.50 psi           |
-      | Bakken | Demo_4H | 35       | proppant   | 5280  | 6/28/2018 7:54:40 PM  | 0.23 lbs/gal (US)   |
-      | Bakken | Demo_4H | 35       | proppant   | 5404  | 6/28/2018 7:56:44 PM  | 0.25 lbs/gal (US)   |
-      | Bakken | Demo_4H | 35       | proppant   | 7722  | 6/28/2018 8:35:22 PM  | -0.20 lbs/gal (US)  |
-      | Bakken | Demo_4H | 35       | proppant   | 2996  | 6/28/2018 7:16:36 PM  | -0.05 lbs/gal (US)  |
-      | Bakken | Demo_4H | 35       | proppant   | 3586  | 6/28/2018 7:26:26 PM  | 0.43 lbs/gal (US)   |
-      | Bakken | Demo_4H | 35       | proppant   | 5831  | 6/28/2018 8:03:51 PM  | 0.38 lbs/gal (US)   |
-      | Bakken | Demo_4H | 35       | proppant   | 1722  | 6/28/2018 6:55:22 PM  | 0.39 lbs/gal (US)   |
-      | Bakken | Demo_4H | 35       | proppant   | 4705  | 6/28/2018 7:45:05 PM  | -0.02 lbs/gal (US)  |
-      | Bakken | Demo_4H | 35       | slurry     | 1503  | 6/28/2018 6:51:43 PM  | 71.97 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 4876  | 6/28/2018 7:47:56 PM  | 71.75 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 7327  | 6/28/2018 8:28:47 PM  | 71.64 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 2285  | 6/28/2018 7:04:45 PM  | 71.89 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 4176  | 6/28/2018 7:36:16 PM  | 71.88 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 3284  | 6/28/2018 7:21:24 PM  | 71.79 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 682   | 6/28/2018 6:38:02 PM  | 52.93 bbl/min       |
-      | Bakken | Demo_4H | 35       | slurry     | 1116  | 6/28/2018 6:45:16 PM  | 71.90 bbl/min       |
-      | Bakken | Demo_4H | 10       | pressure   | 9322  | 6/14/2018 5:42:45 AM  | 8119.43 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 10516 | 6/14/2018 6:02:39 AM  | 8068.89 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 12234 | 6/14/2018 6:31:17 AM  | 4742.12 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 8051  | 6/14/2018 5:21:34 AM  | 8478.58 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 4464  | 6/14/2018 4:21:47 AM  | 8302.14 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 5918  | 6/14/2018 4:46:01 AM  | 8504.18 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 561   | 6/14/2018 3:16:44 AM  | 9329.33 psi         |
-      | Bakken | Demo_4H | 10       | pressure   | 6671  | 6/14/2018 4:58:34 AM  | 8248.34 psi         |
-      | Bakken | Demo_4H | 10       | proppant   | 8503  | 6/14/2018 5:29:06 AM  | 0.45 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | proppant   | 3646  | 6/14/2018 4:08:09 AM  | 0.45 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | proppant   | 11436 | 6/14/2018 6:17:59 AM  | 0.05 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | proppant   | 8685  | 6/14/2018 5:32:08 AM  | 0.49 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | proppant   | 3521  | 6/14/2018 4:06:04 AM  | 0.59 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | proppant   | 5069  | 6/14/2018 4:31:52 AM  | 0.98 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | proppant   | 12148 | 6/14/2018 6:29:51 AM  | -0.11 lbs/gal (US)  |
-      | Bakken | Demo_4H | 10       | proppant   | 5902  | 6/14/2018 4:45:45 AM  | 0.49 lbs/gal (US)   |
-      | Bakken | Demo_4H | 10       | slurry     | 8227  | 6/14/2018 5:24:30 AM  | 71.91 bbl/min       |
-      | Bakken | Demo_4H | 10       | slurry     | 5533  | 6/14/2018 4:39:36 AM  | 71.80 bbl/min       |
-      | Bakken | Demo_4H | 10       | slurry     | 46    | 6/14/2018 3:08:09 AM  | 0.00 bbl/min        |
-      | Bakken | Demo_4H | 10       | slurry     | 8626  | 6/14/2018 5:31:09 AM  | 71.88 bbl/min       |
-      | Bakken | Demo_4H | 10       | slurry     | 3191  | 6/14/2018 4:00:34 AM  | 69.93158627 bbl/min |
-      | Bakken | Demo_4H | 10       | slurry     | 11885 | 6/14/2018 6:25:28 AM  | 0.00 bbl/min        |
-      | Bakken | Demo_4H | 10       | slurry     | 5106  | 6/14/2018 4:32:29 AM  | 71.94 bbl/min       |
-      | Bakken | Demo_4H | 10       | slurry     | 5191  | 6/14/2018 4:33:54 AM  | 71.87 bbl/min       |
-      | Bakken | Demo_4H | 26       | pressure   | 7740  | 6/25/2018 10:44:15 AM | 6880.42 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 4525  | 6/25/2018 9:50:40 AM  | 7137.98 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 3497  | 6/25/2018 9:33:32 AM  | 7305.99 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 1620  | 6/25/2018 9:02:15 AM  | 5770.82 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 8410  | 6/25/2018 10:55:25 AM | 6635.30 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 39    | 6/25/2018 8:35:54 AM  | 4848.66 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 7250  | 6/25/2018 10:36:05 AM | 6995.44 psi         |
-      | Bakken | Demo_4H | 26       | pressure   | 8631  | 6/25/2018 10:59:06 AM | 7184.69 psi         |
-      | Bakken | Demo_4H | 26       | proppant   | 1983  | 6/25/2018 9:08:18 AM  | -0.01 lbs/gal (US)  |
-      | Bakken | Demo_4H | 26       | proppant   | 4960  | 6/25/2018 9:57:55 AM  | 0.83 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | proppant   | 6044  | 6/25/2018 10:15:59 AM | 1.78 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | proppant   | 3278  | 6/25/2018 9:29:53 AM  | 0.75 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | proppant   | 4418  | 6/25/2018 9:48:53 AM  | 1.20 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | proppant   | 4296  | 6/25/2018 9:46:51 AM  | 1.15 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | proppant   | 3732  | 6/25/2018 9:37:27 AM  | 0.97 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | proppant   | 8876  | 6/25/2018 11:03:11 AM | 0.07 lbs/gal (US)   |
-      | Bakken | Demo_4H | 26       | slurry     | 8610  | 6/25/2018 10:58:45 AM | 71.49 bbl/min       |
-      | Bakken | Demo_4H | 26       | slurry     | 7551  | 6/25/2018 10:41:06 AM | 71.91 bbl/min       |
-      | Bakken | Demo_4H | 26       | slurry     | 2603  | 6/25/2018 9:18:38 AM  | 64.80 bbl/min       |
-      | Bakken | Demo_4H | 26       | slurry     | 418   | 6/25/2018 8:42:13 AM  | 0.28 bbl/min        |
-      | Bakken | Demo_4H | 26       | slurry     | 1117  | 6/25/2018 8:53:52 AM  | 25.17 bbl/min       |
-      | Bakken | Demo_4H | 26       | slurry     | 2263  | 6/25/2018 9:12:58 AM  | 66.84 bbl/min       |
-      | Bakken | Demo_4H | 26       | slurry     | 188   | 6/25/2018 8:38:23 AM  | 0.27 bbl/min        |
-      | Bakken | Demo_4H | 26       | slurry     | 2942  | 6/25/2018 9:24:17 AM  | 70.52 bbl/min       |
+      | field  | well    | stage_no | curve_type | index | timestamp             | value           |
+      | Bakken | Demo_1H | 1        | pressure   | 3960  | 6/6/2018 2:35:00 PM   | -7.42 psi       |
+      | Bakken | Demo_1H | 1        | pressure   | 4637  | 6/6/2018 2:46:17 PM   | -3.76 psi       |
+      | Bakken | Demo_1H | 1        | pressure   | 6992  | 6/6/2018 3:25:32 PM   | 6848.79 psi     |
+      | Bakken | Demo_1H | 1        | pressure   | 4747  | 6/6/2018 2:48:07 PM   | -0.79 psi       |
+      | Bakken | Demo_1H | 1        | pressure   | 9557  | 6/6/2018 4:08:17 PM   | 6254.41 psi     |
+      | Bakken | Demo_1H | 1        | pressure   | 7680  | 6/6/2018 3:37:00 PM   | 7214.85 psi     |
+      | Bakken | Demo_1H | 1        | pressure   | 7836  | 6/6/2018 3:39:36 PM   | 6855.80 psi     |
+      | Bakken | Demo_1H | 1        | pressure   | 3979  | 6/6/2018 2:35:19 PM   | -7.50 psi       |
+      | Bakken | Demo_1H | 1        | proppant   | 10607 | 6/6/2018 4:25:47 PM   | 2.15 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 910   | 6/6/2018 1:44:10 PM   | -0.15 lb/gal    |
+      | Bakken | Demo_1H | 1        | proppant   | 1745  | 6/6/2018 1:58:05 PM   | 0.51 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 5037  | 6/6/2018 2:52:57 PM   | -0.45 lb/gal    |
+      | Bakken | Demo_1H | 1        | proppant   | 22    | 6/6/2018 1:29:22 PM   | -0.26 lb/gal    |
+      | Bakken | Demo_1H | 1        | proppant   | 832   | 6/6/2018 1:42:52 PM   | -0.16 lb/gal    |
+      | Bakken | Demo_1H | 1        | proppant   | 11375 | 6/6/2018 4:38:35 PM   | -0.07 lb/gal    |
+      | Bakken | Demo_1H | 1        | proppant   | 3160  | 6/6/2018 2:21:40 PM   | -0.08 lb/gal    |
+      | Bakken | Demo_1H | 1        | slurry     | 8557  | 6/6/2018 3:51:37 PM   | 35.08 bpm       |
+      | Bakken | Demo_1H | 1        | slurry     | 5415  | 6/6/2018 2:59:15 PM   | 0.14 bpm        |
+      | Bakken | Demo_1H | 1        | slurry     | 8125  | 6/6/2018 3:44:25 PM   | 35.49 bpm       |
+      | Bakken | Demo_1H | 1        | slurry     | 156   | 6/6/2018 1:31:36 PM   | 0.00 bpm        |
+      | Bakken | Demo_1H | 1        | slurry     | 4115  | 6/6/2018 2:37:35 PM   | 0.14 bpm        |
+      | Bakken | Demo_1H | 1        | slurry     | 10808 | 6/6/2018 4:29:08 PM   | 35.16 bpm       |
+      | Bakken | Demo_1H | 1        | slurry     | 6091  | 6/6/2018 3:10:31 PM   | 0.23 bpm        |
+      | Bakken | Demo_1H | 1        | slurry     | 4386  | 6/6/2018 2:42:06 PM   | 1.04 bpm        |
+      | Bakken | Demo_1H | 50       | pressure   | 2971  | 6/28/2018 1:29:31 PM  | 6880.38 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 118   | 6/28/2018 12:41:58 PM | 7853.94 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 3929  | 6/28/2018 1:45:29 PM  | 7008.58 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 2817  | 6/28/2018 1:26:57 PM  | 6882.67 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 2497  | 6/28/2018 1:21:37 PM  | 7109.52 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 1897  | 6/28/2018 1:11:37 PM  | 6828.63 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 260   | 6/28/2018 12:44:20 PM | 7954.80 psi     |
+      | Bakken | Demo_1H | 50       | pressure   | 1913  | 6/28/2018 1:11:53 PM  | 6828.10 psi     |
+      | Bakken | Demo_1H | 50       | proppant   | 604   | 6/28/2018 12:50:04 PM | 0.79 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 2509  | 6/28/2018 1:21:49 PM  | 0.48 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 3233  | 6/28/2018 1:33:53 PM  | 0.86 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 1133  | 6/28/2018 12:58:53 PM | 0.84 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 2116  | 6/28/2018 1:15:16 PM  | 1.05 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 1835  | 6/28/2018 1:10:35 PM  | 1.06 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 2481  | 6/28/2018 1:21:21 PM  | 0.41 lb/gal     |
+      | Bakken | Demo_1H | 50       | proppant   | 2782  | 6/28/2018 1:26:22 PM  | 0.50 lb/gal     |
+      | Bakken | Demo_1H | 50       | slurry     | 3067  | 6/28/2018 1:31:07 PM  | 71.73 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 3872  | 6/28/2018 1:44:32 PM  | 71.73 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 1877  | 6/28/2018 1:11:17 PM  | 71.86 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 1167  | 6/28/2018 12:59:27 PM | 71.98 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 24    | 6/28/2018 12:40:24 PM | 32.65 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 2941  | 6/28/2018 1:29:01 PM  | 71.76 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 1328  | 6/28/2018 1:02:08 PM  | 71.85 bpm       |
+      | Bakken | Demo_1H | 50       | slurry     | 2169  | 6/28/2018 1:16:09 PM  | 71.77 bpm       |
+      | Bakken | Demo_1H | 41       | pressure   | 2427  | 6/26/2018 2:22:29 PM  | 7471.63 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 3272  | 6/26/2018 2:36:34 PM  | 7512.44 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 4045  | 6/26/2018 2:49:27 PM  | 7284.56 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 1752  | 6/26/2018 2:11:14 PM  | 7623.87 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 1969  | 6/26/2018 2:14:51 PM  | 7520.98 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 143   | 6/26/2018 1:44:25 PM  | 7007.66 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 4318  | 6/26/2018 2:54:00 PM  | 7141.08 psi     |
+      | Bakken | Demo_1H | 41       | pressure   | 1653  | 6/26/2018 2:09:35 PM  | 7672.33 psi     |
+      | Bakken | Demo_1H | 41       | proppant   | 1833  | 6/26/2018 2:12:35 PM  | 1.06 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 2188  | 6/26/2018 2:18:30 PM  | 1.40 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 3406  | 6/26/2018 2:38:48 PM  | 0.55 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 514   | 6/26/2018 1:50:36 PM  | -0.11 lb/gal    |
+      | Bakken | Demo_1H | 41       | proppant   | 1498  | 6/26/2018 2:07:00 PM  | 1.15 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 1586  | 6/26/2018 2:08:28 PM  | 1.12 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 4683  | 6/26/2018 3:00:05 PM  | -0.04 lb/gal    |
+      | Bakken | Demo_1H | 41       | proppant   | 1427  | 6/26/2018 2:05:49 PM  | 0.97 lb/gal     |
+      | Bakken | Demo_1H | 41       | slurry     | 1976  | 6/26/2018 2:14:58 PM  | 71.88 bpm       |
+      | Bakken | Demo_1H | 41       | slurry     | 3273  | 6/26/2018 2:36:35 PM  | 71.87 bpm       |
+      | Bakken | Demo_1H | 41       | slurry     | 4813  | 6/26/2018 3:02:15 PM  | 0.38 bpm        |
+      | Bakken | Demo_1H | 41       | slurry     | 3542  | 6/26/2018 2:41:04 PM  | 71.80 bpm       |
+      | Bakken | Demo_1H | 41       | slurry     | 3701  | 6/26/2018 2:43:43 PM  | 71.79 bpm       |
+      | Bakken | Demo_1H | 41       | slurry     | 1927  | 6/26/2018 2:14:09 PM  | 71.91 bpm       |
+      | Bakken | Demo_1H | 41       | slurry     | 1409  | 6/26/2018 2:05:31 PM  | 71.90 bpm       |
+      | Bakken | Demo_1H | 41       | slurry     | 4135  | 6/26/2018 2:50:57 PM  | 71.46 bpm       |
+      | Bakken | Demo_1H | 20       | pressure   | 2089  | 6/15/2018 10:01:23 PM | 6354.26 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 6055  | 6/15/2018 11:07:29 PM | 8237.45 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 1562  | 6/15/2018 9:52:36 PM  | 3427.11 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 3195  | 6/15/2018 10:19:49 PM | 6034.64 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 3887  | 6/15/2018 10:31:21 PM | 7358.01 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 6797  | 6/15/2018 11:19:51 PM | 8055.14 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 7593  | 6/15/2018 11:33:07 PM | 8123.00 psi     |
+      | Bakken | Demo_1H | 20       | pressure   | 6810  | 6/15/2018 11:20:04 PM | 8053.74 psi     |
+      | Bakken | Demo_1H | 20       | proppant   | 7036  | 6/15/2018 11:23:50 PM | 1.06 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 1361  | 6/15/2018 9:49:15 PM  | 0.08 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 7562  | 6/15/2018 11:32:36 PM | 0.20 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 1908  | 6/15/2018 9:58:22 PM  | 0.60 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 7295  | 6/15/2018 11:28:09 PM | 1.46 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 400   | 6/15/2018 9:33:14 PM  | -0.30 lb/gal    |
+      | Bakken | Demo_1H | 20       | proppant   | 2045  | 6/15/2018 10:00:39 PM | -0.02 lb/gal    |
+      | Bakken | Demo_1H | 20       | proppant   | 187   | 6/15/2018 9:29:41 PM  | -0.20 lb/gal    |
+      | Bakken | Demo_1H | 20       | slurry     | 2500  | 6/15/2018 10:08:14 PM | 29.32 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 4767  | 6/15/2018 10:46:01 PM | 70.08 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 4340  | 6/15/2018 10:38:54 PM | 68.13 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 6728  | 6/15/2018 11:18:42 PM | 70.15 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 4255  | 6/15/2018 10:37:29 PM | 66.65 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 2384  | 6/15/2018 10:06:18 PM | 29.40 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 8183  | 6/15/2018 11:42:57 PM | 70.13 bpm       |
+      | Bakken | Demo_1H | 20       | slurry     | 5946  | 6/15/2018 11:05:40 PM | 70.05 bpm       |
+      | Bakken | Demo_2H | 1        | pressure   | 6948  | 6/6/2018 6:54:21 AM   | 3208.19 psi     |
+      | Bakken | Demo_2H | 1        | pressure   | 7430  | 6/6/2018 7:02:23 AM   | 6785.23 psi     |
+      | Bakken | Demo_2H | 1        | pressure   | 2240  | 6/6/2018 5:35:53 AM   | 0.00 psi        |
+      | Bakken | Demo_2H | 1        | pressure   | 4517  | 6/6/2018 6:13:50 AM   | 592.60 psi      |
+      | Bakken | Demo_2H | 1        | pressure   | 3724  | 6/6/2018 6:00:37 AM   | 4059.63 psi     |
+      | Bakken | Demo_2H | 1        | pressure   | 11631 | 6/6/2018 8:12:24 AM   | 6345.52 psi     |
+      | Bakken | Demo_2H | 1        | pressure   | 3358  | 6/6/2018 5:54:31 AM   | 9.23 psi        |
+      | Bakken | Demo_2H | 1        | pressure   | 6133  | 6/6/2018 6:40:46 AM   | 7324.85 psi     |
+      | Bakken | Demo_2H | 1        | proppant   | 9032  | 6/6/2018 7:29:05 AM   | -0.04 lb/gal    |
+      | Bakken | Demo_2H | 1        | proppant   | 12912 | 6/6/2018 8:33:45 AM   | 2.12 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 1838  | 6/6/2018 5:29:11 AM   | 1.41 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 4199  | 6/6/2018 6:08:32 AM   | 1.41 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 7351  | 6/6/2018 7:01:04 AM   | -0.01 lb/gal    |
+      | Bakken | Demo_2H | 1        | proppant   | 12643 | 6/6/2018 8:29:16 AM   | 2.14 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 2828  | 6/6/2018 5:45:41 AM   | 1.36 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 598   | 6/6/2018 5:08:31 AM   | 1.41 lb/gal     |
+      | Bakken | Demo_2H | 1        | slurry     | 11349 | 6/6/2018 8:07:42 AM   | 35.69 bpm       |
+      | Bakken | Demo_2H | 1        | slurry     | 7792  | 6/6/2018 7:08:25 AM   | 2.78 bpm        |
+      | Bakken | Demo_2H | 1        | slurry     | 14101 | 6/6/2018 8:53:34 AM   | 35.56 bpm       |
+      | Bakken | Demo_2H | 1        | slurry     | 14561 | 6/6/2018 9:01:14 AM   | 35.45 bpm       |
+      | Bakken | Demo_2H | 1        | slurry     | 12676 | 6/6/2018 8:29:49 AM   | 35.45 bpm       |
+      | Bakken | Demo_2H | 1        | slurry     | 1402  | 6/6/2018 5:21:55 AM   | 0.01 bpm        |
+      | Bakken | Demo_2H | 1        | slurry     | 7197  | 6/6/2018 6:58:30 AM   | 16.64 bpm       |
+      | Bakken | Demo_2H | 1        | slurry     | 2535  | 6/6/2018 5:40:48 AM   | 0.0 bpm         |
+      | Bakken | Demo_2H | 50       | pressure   | 5047  | 6/30/2018 12:54:07 AM | 6498.32 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 6222  | 6/30/2018 1:13:42 AM  | 5440.37 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 2486  | 6/30/2018 12:11:26 AM | 6707.05 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 141   | 6/29/2018 11:32:21 PM | 7655.24 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 5611  | 6/30/2018 1:03:31 AM  | 6322.34 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 1584  | 6/29/2018 11:56:24 PM | 5333.86 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 7102  | 6/30/2018 1:28:22 AM  | 4536.73 psi     |
+      | Bakken | Demo_2H | 50       | pressure   | 5507  | 6/30/2018 1:01:47 AM  | 6340.79 psi     |
+      | Bakken | Demo_2H | 50       | proppant   | 5128  | 6/30/2018 12:55:28 AM | 0.73 lb/gal     |
+      | Bakken | Demo_2H | 50       | proppant   | 1980  | 6/30/2018 12:03:00 AM | -0.00 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 1538  | 6/29/2018 11:55:38 PM | -0.06 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 292   | 6/29/2018 11:34:52 PM | -0.10 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 2433  | 6/30/2018 12:10:33 AM | 0.44 lb/gal     |
+      | Bakken | Demo_2H | 50       | proppant   | 6840  | 6/30/2018 1:24:00 AM  | -0.10 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 1766  | 6/29/2018 11:59:26 PM | -0.05 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 5595  | 6/30/2018 1:03:15 AM  | 0.96 lb/gal     |
+      | Bakken | Demo_2H | 50       | slurry     | 1124  | 6/29/2018 11:48:44 PM | 29.78 bpm       |
+      | Bakken | Demo_2H | 50       | slurry     | 74    | 6/29/2018 11:31:14 PM | 0.16 bpm        |
+      | Bakken | Demo_2H | 50       | slurry     | 6992  | 6/30/2018 1:26:32 AM  | 0.26 bpm        |
+      | Bakken | Demo_2H | 50       | slurry     | 5641  | 6/30/2018 1:04:01 AM  | 71.26 bpm       |
+      | Bakken | Demo_2H | 50       | slurry     | 672   | 6/29/2018 11:41:12 PM | 4.68 bpm        |
+      | Bakken | Demo_2H | 50       | slurry     | 3647  | 6/30/2018 12:30:47 AM | 72.00 bpm       |
+      | Bakken | Demo_2H | 50       | slurry     | 1716  | 6/29/2018 11:58:36 PM | 15.51 bpm       |
+      | Bakken | Demo_2H | 50       | slurry     | 2415  | 6/30/2018 12:10:15 AM | 72.02 bpm       |
+      | Bakken | Demo_2H | 21       | pressure   | 7486  | 6/17/2018 3:12:49 PM  | 8003.40 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 7488  | 6/17/2018 3:12:51 PM  | 8008.10 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 3343  | 6/17/2018 2:03:46 PM  | 8199.19 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 4394  | 6/17/2018 2:21:17 PM  | 8180.12 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 6486  | 6/17/2018 2:56:09 PM  | 8157.84 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 804   | 6/17/2018 1:21:27 PM  | 8366.81 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 5497  | 6/17/2018 2:39:40 PM  | 8409.77 psi     |
+      | Bakken | Demo_2H | 21       | pressure   | 3410  | 6/17/2018 2:04:53 PM  | 8177.02 psi     |
+      | Bakken | Demo_2H | 21       | proppant   | 2361  | 6/17/2018 1:47:24 PM  | 0.44 lb/gal     |
+      | Bakken | Demo_2H | 21       | proppant   | 6234  | 6/17/2018 2:51:57 PM  | 0.32 lb/gal     |
+      | Bakken | Demo_2H | 21       | proppant   | 3781  | 6/17/2018 2:11:04 PM  | 0.03 lb/gal     |
+      | Bakken | Demo_2H | 21       | proppant   | 2521  | 6/17/2018 1:50:04 PM  | 0.42 lb/gal     |
+      | Bakken | Demo_2H | 21       | proppant   | 999   | 6/17/2018 1:24:42 PM  | -0.02 lb/gal    |
+      | Bakken | Demo_2H | 21       | proppant   | 3898  | 6/17/2018 2:13:01 PM  | -0.03 lb/gal    |
+      | Bakken | Demo_2H | 21       | proppant   | 4382  | 6/17/2018 2:21:05 PM  | 0.63 lb/gal     |
+      | Bakken | Demo_2H | 21       | proppant   | 7186  | 6/17/2018 3:07:49 PM  | 1.22 lb/gal     |
+      | Bakken | Demo_2H | 21       | slurry     | 6831  | 6/17/2018 3:01:54 PM  | 69.49 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 1143  | 6/17/2018 1:27:06 PM  | 28.21 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 736   | 6/17/2018 1:20:19 PM  | 29.98 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 5273  | 6/17/2018 2:35:56 PM  | 69.44 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 1464  | 6/17/2018 1:32:27 PM  | 11.26 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 3910  | 6/17/2018 2:13:13 PM  | 68.26 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 4461  | 6/17/2018 2:22:24 PM  | 69.42 bpm       |
+      | Bakken | Demo_2H | 21       | slurry     | 2705  | 6/17/2018 1:53:08 PM  | 68.23 bpm       |
+      | Bakken | Demo_2H | 44       | pressure   | 4064  | 6/29/2018 1:10:05 AM  | 6925.45 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 1785  | 6/29/2018 12:32:06 AM | 5741.40 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 4598  | 6/29/2018 1:18:59 AM  | 6787.36 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 2757  | 6/29/2018 12:48:18 AM | 6878.46 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 1637  | 6/29/2018 12:29:38 AM | 5977.23 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 1030  | 6/29/2018 12:19:31 AM | 6601.06 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 876   | 6/29/2018 12:16:57 AM | 6742.40 psi     |
+      | Bakken | Demo_2H | 44       | pressure   | 6129  | 6/29/2018 1:44:30 AM  | 5378.83 psi     |
+      | Bakken | Demo_2H | 44       | proppant   | 4726  | 6/29/2018 1:21:07 AM  | 0.31 lb/gal     |
+      | Bakken | Demo_2H | 44       | proppant   | 4039  | 6/29/2018 1:09:40 AM  | -0.04 lb/gal    |
+      | Bakken | Demo_2H | 44       | proppant   | 6155  | 6/29/2018 1:44:56 AM  | -0.07 lb/gal    |
+      | Bakken | Demo_2H | 44       | proppant   | 386   | 6/29/2018 12:08:47 AM | -0.16 lb/gal    |
+      | Bakken | Demo_2H | 44       | proppant   | 2034  | 6/29/2018 12:36:15 AM | 0.19 lb/gal     |
+      | Bakken | Demo_2H | 44       | proppant   | 5716  | 6/29/2018 1:37:37 AM  | 0.03 lb/gal     |
+      | Bakken | Demo_2H | 44       | proppant   | 4265  | 6/29/2018 1:13:26 AM  | 0.23 lb/gal     |
+      | Bakken | Demo_2H | 44       | proppant   | 1162  | 6/29/2018 12:21:43 AM | -0.06 lb/gal    |
+      | Bakken | Demo_2H | 44       | slurry     | 3023  | 6/29/2018 12:52:44 AM | 71.66 bpm       |
+      | Bakken | Demo_2H | 44       | slurry     | 2102  | 6/29/2018 12:37:23 AM | 71.41 bpm       |
+      | Bakken | Demo_2H | 44       | slurry     | 5629  | 6/29/2018 1:36:10 AM  | 71.66 bpm       |
+      | Bakken | Demo_2H | 44       | slurry     | 4423  | 6/29/2018 1:16:04 AM  | 71.49 bpm       |
+      | Bakken | Demo_2H | 44       | slurry     | 255   | 6/29/2018 12:06:36 AM | 0.24 bpm        |
+      | Bakken | Demo_2H | 44       | slurry     | 242   | 6/29/2018 12:06:23 AM | 0.20 bpm        |
+      | Bakken | Demo_2H | 44       | slurry     | 1947  | 6/29/2018 12:34:48 AM | 66.37 bpm       |
+      | Bakken | Demo_2H | 44       | slurry     | 5358  | 6/29/2018 1:31:39 AM  | 71.64 bpm       |
+      | Bakken | Demo_4H | 1        | pressure   | 4219  | 6/6/2018 10:50:19 AM  | 6161.22 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 489   | 6/6/2018 9:48:09 AM   | 6997.94 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 5266  | 6/6/2018 11:07:46 AM  | 6410.75 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 743   | 6/6/2018 9:52:23 AM   | 4581.68 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 3961  | 6/6/2018 10:46:01 AM  | 6175.78 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 5317  | 6/6/2018 11:08:37 AM  | 6398.76 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 5490  | 6/6/2018 11:11:30 AM  | 6350.48 psi     |
+      | Bakken | Demo_4H | 1        | pressure   | 6704  | 6/6/2018 11:31:44 AM  | 6207.48 psi     |
+      | Bakken | Demo_4H | 1        | proppant   | 5873  | 6/6/2018 11:17:53 AM  | 2.24 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 6490  | 6/6/2018 11:28:10 AM  | 2.29 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 2994  | 6/6/2018 10:29:54 AM  | 0.04 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 2449  | 6/6/2018 10:20:49 AM  | -0.08 lb/gal    |
+      | Bakken | Demo_4H | 1        | proppant   | 6059  | 6/6/2018 11:20:59 AM  | 2.22 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 4607  | 6/6/2018 10:56:47 AM  | 1.31 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 3458  | 6/6/2018 10:37:38 AM  | 0.59 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 7425  | 6/6/2018 11:43:45 AM  | -0.04 lb/gal    |
+      | Bakken | Demo_4H | 1        | slurry     | 5568  | 6/6/2018 11:12:48 AM  | 35.32 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 2419  | 6/6/2018 10:20:19 AM  | 23.57 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 3821  | 6/6/2018 10:43:41 AM  | 35.40 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 1454  | 6/6/2018 10:04:14 AM  | 24.03 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 7746  | 6/6/2018 11:49:06 AM  | 35.00 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 2666  | 6/6/2018 10:24:26 AM  | 31.60 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 6664  | 6/6/2018 11:31:04 AM  | 34.77 bpm       |
+      | Bakken | Demo_4H | 1        | slurry     | 1798  | 6/6/2018 10:09:58 AM  | 24.09 bpm       |
+      | Bakken | Demo_4H | 35       | pressure   | 2686  | 6/28/2018 7:11:26 PM  | 6417.34 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 5521  | 6/28/2018 7:58:41 PM  | 6456.36 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 6193  | 6/28/2018 8:09:53 PM  | 6288.27 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 4780  | 6/28/2018 7:46:20 PM  | 6467.84 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 7432  | 6/28/2018 8:30:32 PM  | 5022.38 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 7028  | 6/28/2018 8:23:48 PM  | 6388.34 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 4967  | 6/28/2018 7:49:27 PM  | 6641.41 psi     |
+      | Bakken | Demo_4H | 35       | pressure   | 7784  | 6/28/2018 8:36:24 PM  | -7.50 psi       |
+      | Bakken | Demo_4H | 35       | proppant   | 5280  | 6/28/2018 7:54:40 PM  | 0.23 lb/gal     |
+      | Bakken | Demo_4H | 35       | proppant   | 5404  | 6/28/2018 7:56:44 PM  | 0.25 lb/gal     |
+      | Bakken | Demo_4H | 35       | proppant   | 7722  | 6/28/2018 8:35:22 PM  | -0.20 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 2996  | 6/28/2018 7:16:36 PM  | -0.05 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 3586  | 6/28/2018 7:26:26 PM  | 0.43 lb/gal     |
+      | Bakken | Demo_4H | 35       | proppant   | 5831  | 6/28/2018 8:03:51 PM  | 0.38 lb/gal     |
+      | Bakken | Demo_4H | 35       | proppant   | 1722  | 6/28/2018 6:55:22 PM  | 0.39 lb/gal     |
+      | Bakken | Demo_4H | 35       | proppant   | 4705  | 6/28/2018 7:45:05 PM  | -0.02 lb/gal    |
+      | Bakken | Demo_4H | 35       | slurry     | 1503  | 6/28/2018 6:51:43 PM  | 71.97 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 4876  | 6/28/2018 7:47:56 PM  | 71.75 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 7327  | 6/28/2018 8:28:47 PM  | 71.64 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 2285  | 6/28/2018 7:04:45 PM  | 71.89 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 4176  | 6/28/2018 7:36:16 PM  | 71.88 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 3284  | 6/28/2018 7:21:24 PM  | 71.79 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 682   | 6/28/2018 6:38:02 PM  | 52.93 bpm       |
+      | Bakken | Demo_4H | 35       | slurry     | 1116  | 6/28/2018 6:45:16 PM  | 71.90 bpm       |
+      | Bakken | Demo_4H | 10       | pressure   | 9322  | 6/14/2018 5:42:45 AM  | 8119.43 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 10516 | 6/14/2018 6:02:39 AM  | 8068.89 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 12234 | 6/14/2018 6:31:17 AM  | 4742.12 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 8051  | 6/14/2018 5:21:34 AM  | 8478.58 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 4464  | 6/14/2018 4:21:47 AM  | 8302.14 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 5918  | 6/14/2018 4:46:01 AM  | 8504.18 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 561   | 6/14/2018 3:16:44 AM  | 9329.33 psi     |
+      | Bakken | Demo_4H | 10       | pressure   | 6671  | 6/14/2018 4:58:34 AM  | 8248.34 psi     |
+      | Bakken | Demo_4H | 10       | proppant   | 8503  | 6/14/2018 5:29:06 AM  | 0.45 lb/gal     |
+      | Bakken | Demo_4H | 10       | proppant   | 3646  | 6/14/2018 4:08:09 AM  | 0.45 lb/gal     |
+      | Bakken | Demo_4H | 10       | proppant   | 11436 | 6/14/2018 6:17:59 AM  | 0.05 lb/gal     |
+      | Bakken | Demo_4H | 10       | proppant   | 8685  | 6/14/2018 5:32:08 AM  | 0.49 lb/gal     |
+      | Bakken | Demo_4H | 10       | proppant   | 3521  | 6/14/2018 4:06:04 AM  | 0.59 lb/gal     |
+      | Bakken | Demo_4H | 10       | proppant   | 5069  | 6/14/2018 4:31:52 AM  | 0.98 lb/gal     |
+      | Bakken | Demo_4H | 10       | proppant   | 12148 | 6/14/2018 6:29:51 AM  | -0.11 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 5902  | 6/14/2018 4:45:45 AM  | 0.49 lb/gal     |
+      | Bakken | Demo_4H | 10       | slurry     | 8227  | 6/14/2018 5:24:30 AM  | 71.91 bpm       |
+      | Bakken | Demo_4H | 10       | slurry     | 5533  | 6/14/2018 4:39:36 AM  | 71.80 bpm       |
+      | Bakken | Demo_4H | 10       | slurry     | 46    | 6/14/2018 3:08:09 AM  | 0.00 bpm        |
+      | Bakken | Demo_4H | 10       | slurry     | 8626  | 6/14/2018 5:31:09 AM  | 71.88 bpm       |
+      | Bakken | Demo_4H | 10       | slurry     | 3191  | 6/14/2018 4:00:34 AM  | 69.93158627 bpm |
+      | Bakken | Demo_4H | 10       | slurry     | 11885 | 6/14/2018 6:25:28 AM  | 0.00 bpm        |
+      | Bakken | Demo_4H | 10       | slurry     | 5106  | 6/14/2018 4:32:29 AM  | 71.94 bpm       |
+      | Bakken | Demo_4H | 10       | slurry     | 5191  | 6/14/2018 4:33:54 AM  | 71.87 bpm       |
+      | Bakken | Demo_4H | 26       | pressure   | 7740  | 6/25/2018 10:44:15 AM | 6880.42 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 4525  | 6/25/2018 9:50:40 AM  | 7137.98 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 3497  | 6/25/2018 9:33:32 AM  | 7305.99 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 1620  | 6/25/2018 9:02:15 AM  | 5770.82 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 8410  | 6/25/2018 10:55:25 AM | 6635.30 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 39    | 6/25/2018 8:35:54 AM  | 4848.66 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 7250  | 6/25/2018 10:36:05 AM | 6995.44 psi     |
+      | Bakken | Demo_4H | 26       | pressure   | 8631  | 6/25/2018 10:59:06 AM | 7184.69 psi     |
+      | Bakken | Demo_4H | 26       | proppant   | 1983  | 6/25/2018 9:08:18 AM  | -0.01 lb/gal    |
+      | Bakken | Demo_4H | 26       | proppant   | 4960  | 6/25/2018 9:57:55 AM  | 0.83 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 6044  | 6/25/2018 10:15:59 AM | 1.78 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 3278  | 6/25/2018 9:29:53 AM  | 0.75 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 4418  | 6/25/2018 9:48:53 AM  | 1.20 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 4296  | 6/25/2018 9:46:51 AM  | 1.15 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 3732  | 6/25/2018 9:37:27 AM  | 0.97 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 8876  | 6/25/2018 11:03:11 AM | 0.07 lb/gal     |
+      | Bakken | Demo_4H | 26       | slurry     | 8610  | 6/25/2018 10:58:45 AM | 71.49 bpm       |
+      | Bakken | Demo_4H | 26       | slurry     | 7551  | 6/25/2018 10:41:06 AM | 71.91 bpm       |
+      | Bakken | Demo_4H | 26       | slurry     | 2603  | 6/25/2018 9:18:38 AM  | 64.80 bpm       |
+      | Bakken | Demo_4H | 26       | slurry     | 418   | 6/25/2018 8:42:13 AM  | 0.28 bpm        |
+      | Bakken | Demo_4H | 26       | slurry     | 1117  | 6/25/2018 8:53:52 AM  | 25.17 bpm       |
+      | Bakken | Demo_4H | 26       | slurry     | 2263  | 6/25/2018 9:12:58 AM  | 66.84 bpm       |
+      | Bakken | Demo_4H | 26       | slurry     | 188   | 6/25/2018 8:38:23 AM  | 0.27 bpm        |
+      | Bakken | Demo_4H | 26       | slurry     | 2942  | 6/25/2018 9:24:17 AM  | 70.52 bpm       |
 
+    # With my current setup, `behave` will not read text, 'm\u00b3', as the character m with the unicode
+    # superscript 3 character. To work around this, I "encode" this value as 'm^3'. The step will then convert
+    # the text, 'm^3', to its unicode equivalent before testing.
     Examples: Montney
       | field   | well    | stage_no | curve_type | index | timestamp             | value         |
       | Montney | Hori_01 | 1        | pressure   | 3604  | 4/6/2018 6:09:43 PM   | 63.94 kPa     |

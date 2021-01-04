@@ -95,7 +95,7 @@ class UsOilfield(UnitSystem):
     MASS = _AboutUnit(_registry.pound, opq.PhysicalQuantity.MASS)
     POWER = _AboutUnit(_registry.horsepower, opq.PhysicalQuantity.POWER)
     PRESSURE = _AboutUnit(_registry.pound_force_per_square_inch, opq.PhysicalQuantity.PRESSURE)
-    PROPPANT_CONCENTRATION = _AboutUnit(_registry.pound_per_cubic_foot, opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
+    PROPPANT_CONCENTRATION = _AboutUnit(_registry.pound_per_gallon, opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
     SLURRY_RATE = _AboutUnit(_registry.oil_barrel_per_minute, opq.PhysicalQuantity.SLURRY_RATE)
     TEMPERATURE = _AboutUnit(_registry.degree_Fahrenheit, opq.PhysicalQuantity.TEMPERATURE)
     VOLUME = _AboutUnit(_registry.oil_barrel, opq.PhysicalQuantity.VOLUME)
@@ -201,7 +201,7 @@ def abbreviation(unit: UnitSystem) -> str:
         UsOilfield.DENSITY: 'lb/ft\u00b3',
         UsOilfield.ENERGY: 'ft-lb',
         UsOilfield.VOLUME: 'bbl',
-        UsOilfield.PROPPANT_CONCENTRATION: 'lb/ft\u00b3',
+        UsOilfield.PROPPANT_CONCENTRATION: 'lb/gal',
         Metric.DENSITY: 'kg/m\u00b3',
         Metric.PROPPANT_CONCENTRATION: 'kg/m\u00b3',
         Metric.SLURRY_RATE: 'm\u00b3/min',

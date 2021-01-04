@@ -65,7 +65,7 @@ class TestMeasurement(unittest.TestCase):
             (268500, units.UsOilfield.MASS, '268500 lb'),
             (19.27, units.UsOilfield.POWER, '19.27 hp'),
             (14370, units.Metric.POWER, '14370 W'),
-            (4.664, units.UsOilfield.PROPPANT_CONCENTRATION, '4.664 lb/ft\u00b3'),
+            (4.664, units.UsOilfield.PROPPANT_CONCENTRATION, '4.664 lb/gal'),
             (558.9, units.Metric.PROPPANT_CONCENTRATION, '558.9 kg/m\u00b3'),
             (74.29, units.UsOilfield.SLURRY_RATE, '74.29 bpm'),
             (11.81, units.Metric.SLURRY_RATE, '11.81 m\u00b3/min'),
