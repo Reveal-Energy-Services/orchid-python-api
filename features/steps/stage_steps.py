@@ -24,9 +24,11 @@ import toolz.curried as toolz
 
 from common_functions import find_stage_no_in_well, find_well_by_name, find_stage_by_stage_no
 
-import orchid.native_stage_adapter as nsa
-import orchid.physical_quantity as opq
-import orchid.reference_origins as origins
+from orchid import (
+    native_stage_adapter as nsa,
+    reference_origins as origins,
+    unit_system as units,
+)
 
 
 # noinspection PyBDDParameters
@@ -73,7 +75,7 @@ def assert_measurement_equal(actual, expected):
     expected_magnitude_text, expected_unit = expected.split()
     expected_magnitude = float(expected_magnitude_text)
     assert_that(actual.magnitude, close_to(expected_magnitude, 6e-2))
-    assert_that(actual.unit.abbreviation, equal_to(expected_unit))
+    assert_that(units.abbreviation(actual.unit), equal_to(expected_unit))
 
 
 # noinspection PyBDDParameters
