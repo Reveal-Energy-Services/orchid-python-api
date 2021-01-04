@@ -57,6 +57,8 @@ class TestConvert(unittest.TestCase):
             (5.987, units.UsOilfield.PROPPANT_CONCENTRATION,
              717.4, units.Metric.PROPPANT_CONCENTRATION, decimal.Decimal('0.12')),
             (13.66, units.Metric.SLURRY_RATE, 85.91, units.UsOilfield.SLURRY_RATE, decimal.Decimal('0.07')),
+            (156.6, units.UsOilfield.TEMPERATURE, 69.24, units.Metric.TEMPERATURE, decimal.Decimal('0.04')),
+            (634.1, units.Metric.VOLUME, 3989, units.UsOilfield.VOLUME, decimal.Decimal('0.7')),
         ]:
             with self.subTest(f'Converting {source_unit} to {target_unit}'):
                 source_measurement = om.make_measurement(source_unit, source_magnitude)
