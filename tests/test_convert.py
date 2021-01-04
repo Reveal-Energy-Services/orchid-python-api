@@ -43,7 +43,7 @@ class TestConvert(unittest.TestCase):
 
             source_measurement = om.make_measurement(source_unit, DONT_CARE_MAGNITUDE)
 
-            assert_that(oc.to_unit(source_measurement, source_unit), equal_to(source_measurement))
+            assert_that(oc.to_unit(source_unit, source_measurement), equal_to(source_measurement))
 
     def test_to_unit_correctly_converts_to_same_physical_quantity_units(self):
         for source_magnitude, source_unit, target_magnitude, target_unit, tolerance in [
@@ -62,7 +62,7 @@ class TestConvert(unittest.TestCase):
         ]:
             with self.subTest(f'Converting {source_unit} to {target_unit}'):
                 source_measurement = om.make_measurement(source_unit, source_magnitude)
-                actual = oc.to_unit(source_measurement, target_unit)
+                actual = oc.to_unit(target_unit, source_measurement)
 
                 expected = om.make_measurement(target_unit, target_magnitude)
                 assert_that_measurements_close_to(actual, expected, tolerance)

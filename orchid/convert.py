@@ -23,9 +23,20 @@ from orchid import (
 )
 
 
-def to_unit(source_measurement: om.Measurement, target_unit: Union[units.UsOilfield, units.Metric]):
+@toolz.curry
+def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measurement: om.Measurement):
     """
     Convert a `Measurement` instance to the same measurement in `target_unit`.
+
+    The order of arguments allows easier conversion of a sequence of `Measurement` instances (with the same
+    unit) to another unit. For example, if client code wished to convert a sequence of force measurements from
+    US oilfield units to metric units (that is, pound-force to Newtons). Code to perform this conversion might
+    be similar to the following:
+
+    > make_metric_force = to_unit(units.Metric.FORCE)
+    > metric_force_measurements = [make_metric_force(f) for f in us_oilfield_force_measurements]
+    > # alternatively,
+    > # metric_force_measurements = toolz.map(make_metric_force, us_oilfield_force_measurements)
 
     Args:
         source_measurement: The Measurement instance to convert.
