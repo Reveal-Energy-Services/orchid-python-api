@@ -41,6 +41,9 @@ Feature: Low-level stages API (DOM)
       | Bakken | Demo_4H | 18    | 19       | 9380.16 bbl | 246036.99 lb | 7927.32 psi |
       | Bakken | Demo_4H | 13    | 14       | 10775.5 bbl | 303855.12 lb | 7973.23 psi |
 
+    # With my current setup, `behave` will not read text, 'm\u00b3', as the character m with the unicode
+    # superscript 3 character. To work around this, I "encode" this value as 'm^3'. The step will then convert
+    # the text, 'm^3', to its unicode equivalent before testing.
     Examples: Montney
       | field   | well    | index | stage_no | volume      | proppant     | median    |
       | Montney | Hori_01 | 0     | 1        | 1651 m^3    | 241729.14 kg | 70.01 kPa |

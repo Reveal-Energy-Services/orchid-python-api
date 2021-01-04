@@ -26,7 +26,10 @@ import math
 from hamcrest import assert_that, equal_to, close_to
 import toolz.curried as toolz
 
-import orchid.native_treatment_calculations as calcs
+from orchid import (
+    native_treatment_calculations as calcs,
+    unit_system as units,
+)
 
 StageAggregates = namedtuple('StageAggregates', ['stage', 'pumped_volume', 'proppant_mass', 'median_treating_pressure'])
 
@@ -114,7 +117,7 @@ def step_impl(context, well, index, stage_no, volume, proppant, median):
 
 
 def assert_expected_measurement(actual_magnitude, actual_unit,
-                                expected_magnitude, expected_unit,
+                                expected_magnitude, encoded_expected_unit,
                                 message):
     actual_magnitude_to_test = decimal.Decimal(actual_magnitude)
     expected_magnitude_to_test = decimal.Decimal(expected_magnitude)
@@ -123,6 +126,8 @@ def assert_expected_measurement(actual_magnitude, actual_unit,
         assert_that(actual_magnitude_to_test, close_to(expected_magnitude_to_test, delta), message)
     else:
         assert_that(math.isnan(actual_magnitude_to_test), equal_to(True))
-    assert_that(actual_unit.abbreviation, equal_to(expected_unit), message)
+    # Encoding for unicode superscript 3
+    expected_unit = encoded_expected_unit.replace('^3', '\u00b3')
+    assert_that(units.abbreviation(actual_unit), equal_to(expected_unit), message)
 
 
