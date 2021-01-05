@@ -50,6 +50,7 @@ def step_impl(context, field):
     :type context: behave.runner.Context
     :param field: The name of the field of the project.
     """
+    context.field = field
     project_pathname = FIELD_NAME_PATHNAME_MAP[field]
     if project_pathname not in context.loaded_projects:
         context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)

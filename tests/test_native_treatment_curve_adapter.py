@@ -24,12 +24,13 @@ import pandas as pd
 import pandas.testing as pdt
 from hamcrest import assert_that, equal_to
 
-import orchid.native_treatment_curve_facade as ontc
+import orchid.native_treatment_curve_adapter as ntc
+import orchid.unit_system as units
 
 import tests.stub_net as tsn
 
 
-class TestTreatmentCurveFacade(unittest.TestCase):
+class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -49,25 +50,27 @@ class TestTreatmentCurveFacade(unittest.TestCase):
         assert_that(sut.sampled_quantity_name, equal_to('proponeam'))
 
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
-        for (unit, expected) in zip(('psi', 'kPa', 'MPa'), ('psi', 'kPa', 'MPa')):
-            stub_project = tsn.create_stub_net_project(project_pressure_unit_abbreviation=unit)
-            sut = create_sut(sampled_quantity_name=ontc.TREATING_PRESSURE, project=stub_project)
-            with self.subTest(expected=expected):
-                assert_that(sut.sampled_quantity_unit(), equal_to(expected))
+        all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
+        self.assert_correct_sampled_quantity_unit(all_pressure_units,
+                                                  ntc.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type)
+
+    def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
+        for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
+            stub_project = tsn.create_stub_net_project(project_units=project_units)
+            sut = create_sut(sampled_quantity_name=sampled_quantity_name, project=stub_project)
+            with self.subTest(expected_curve_unit=expected_curve_unit):
+                assert_that(sut.sampled_quantity_unit(), equal_to(expected_curve_unit))
 
     def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
-        for (unit, expected) in zip(('bbl/min', 'm^3/min'), ('bbl/min', 'm\u00b3/min')):
-            stub_project = tsn.create_stub_net_project(slurry_rate_unit_abbreviation=unit)
-            sut = create_sut(sampled_quantity_name=ontc.SLURRY_RATE, project=stub_project)
-            with self.subTest(expected=expected):
-                assert_that(sut.sampled_quantity_unit(), equal_to(expected))
+        all_slurry_rate_units = (units.UsOilfield.SLURRY_RATE, units.Metric.SLURRY_RATE)
+        self.assert_correct_sampled_quantity_unit(all_slurry_rate_units,
+                                                  ntc.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type)
 
     def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
-        for (unit, expected) in zip(('lb/gal (U.S.)', 'kg/m^3'), ('lb/gal (U.S.)', 'kg/m\u00b3')):
-            stub_project = tsn.create_stub_net_project(slurry_rate_unit_abbreviation=unit)
-            sut = create_sut(sampled_quantity_name=ontc.PROPPANT_CONCENTRATION, project=stub_project)
-            with self.subTest(expected=expected):
-                assert_that(sut.sampled_quantity_unit(), equal_to(expected))
+        all_proppant_concentration_units = (units.UsOilfield.PROPPANT_CONCENTRATION,
+                                            units.Metric.PROPPANT_CONCENTRATION)
+        self.assert_correct_sampled_quantity_unit(all_proppant_concentration_units,
+                                                  ntc.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
 
     def test_suffix_from_treatment_curve(self):
         sut = create_sut(suffix='hominibus')
@@ -102,10 +105,10 @@ class TestTreatmentCurveFacade(unittest.TestCase):
 
 
 def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', values_starting_at=None, project=None):
-    stub_net_treatment_curve = tsn.create_stub_net_sampled_quantity_time_series(
+    stub_net_treatment_curve = tsn.create_stub_net_treatment_curve(
         name, display_name, sampled_quantity_name, suffix, values_starting_at=values_starting_at, project=project)
 
-    sut = ontc.NativeTreatmentCurveFacade(stub_net_treatment_curve)
+    sut = ntc.NativeTreatmentCurveAdapter(stub_net_treatment_curve)
     return sut
 
 

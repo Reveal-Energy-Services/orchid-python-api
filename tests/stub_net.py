@@ -29,9 +29,11 @@ from typing import Sequence
 
 import toolz.curried as toolz
 
-import orchid.native_treatment_curve_facade as ontc
-import orchid.net_quantity as onq
-import orchid.unit_system as units
+from orchid import (
+    native_treatment_curve_adapter as ontc,
+    net_quantity as onq,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import DateTime
@@ -45,10 +47,10 @@ from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFra
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid.net_quantity import as_net_date_time
-
-MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit_abbreviation'])
+MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
+StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
+StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 
 
 class StubNetSample:
@@ -98,9 +100,15 @@ class StubNetTreatmentCurve:
         return self._time_series
 
 
-def make_length_unit(scalar_quantity):
-    return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(scalar_quantity.magnitude),
-                                scalar_quantity.unit.net_unit)
+def make_net_length_unit(measurement):
+    if measurement.unit == units.UsOilfield.LENGTH:
+        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                    UnitsNet.Units.LengthUnit.Foot)
+    elif measurement.unit == units.Metric.LENGTH:
+        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
+                                    UnitsNet.Units.LengthUnit.Meter)
+
+    raise ValueError(f'Unknown (length) unit: {measurement.unit.unit}')
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
@@ -114,68 +122,6 @@ def create_net_treatment(start_time_point, treating_pressure_values, rate_values
                                                 concentration_time_series)
 
     return [treating_pressure_curve, rate_curve, concentration_curve]
-
-
-def set_project_unit(stub_net_project, abbreviation):
-    def set_length_foot_unit():
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Foot
-
-    def set_length_meter_unit():
-        stub_net_project.ProjectUnits.LengthUnit = UnitsNet.Units.LengthUnit.Meter
-
-    def set_mass_lb_unit():
-        stub_net_project.ProjectUnits.MassUnit = UnitsNet.Units.MassUnit.Pound
-
-    def set_mass_kg_unit():
-        stub_net_project.ProjectUnits.MassUnit = UnitsNet.Units.MassUnit.Kilogram
-
-    def set_pressure_psi_unit():
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.PoundForcePerSquareInch
-
-    def set_pressure_kpa_unit():
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Kilopascal
-
-    def set_pressure_mpa_unit():
-        stub_net_project.ProjectUnits.PressureUnit = UnitsNet.Units.PressureUnit.Megapascal
-
-    def set_slurry_rate_bpm_unit():
-        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.OilBarrel
-        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
-
-    def set_slurry_rate_m3_per_min_unit():
-        stub_net_project.ProjectUnits.SlurryRateUnit.Item1 = UnitsNet.Units.VolumeUnit.CubicMeter
-        stub_net_project.ProjectUnits.SlurryRateUnit.Item2 = UnitsNet.Units.DurationUnit.Minute
-
-    def set_proppant_concentration_lb_gal_unit():
-        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Pound
-        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.UsGallon
-
-    def set_proppant_concentration_kg_per_m3_unit():
-        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item1 = UnitsNet.Units.MassUnit.Kilogram
-        stub_net_project.ProjectUnits.ProppantConcentrationUnit.Item2 = UnitsNet.Units.VolumeUnit.CubicMeter
-
-    def set_temperature_f_unit():
-        stub_net_project.ProjectUnits.TemperatureUnit = UnitsNet.Units.TemperatureUnit.DegreeFahrenheit
-
-    def set_temperature_c_unit():
-        stub_net_project.ProjectUnits.TemperatureUnit = UnitsNet.Units.TemperatureUnit.DegreeCelsius
-
-    abbreviation_unit_map = {'ft': set_length_foot_unit,
-                             'm': set_length_meter_unit,
-                             'lb': set_mass_lb_unit,
-                             'kg': set_mass_kg_unit,
-                             'psi': set_pressure_psi_unit,
-                             'kPa': set_pressure_kpa_unit,
-                             'MPa': set_pressure_mpa_unit,
-                             'bbl/min': set_slurry_rate_bpm_unit,
-                             'm^3/min': set_slurry_rate_m3_per_min_unit,
-                             'lb/gal (U.S.)': set_proppant_concentration_lb_gal_unit,
-                             'kg/m^3': set_proppant_concentration_kg_per_m3_unit,
-                             'F': set_temperature_f_unit,
-                             'C': set_temperature_c_unit}
-
-    if abbreviation in abbreviation_unit_map.keys():
-        abbreviation_unit_map[abbreviation]()
 
 
 def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
@@ -227,9 +173,9 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     result.NumberOfClusters = cluster_count
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
-        result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit_abbreviation)
+        result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit)
     if md_bottom is not None:
-        result.MdBottom = onq.as_net_quantity_in_different_unit(md_bottom.measurement, md_bottom.as_unit_abbreviation)
+        result.MdBottom = onq.as_net_quantity_in_different_unit(md_bottom.measurement, md_bottom.as_unit)
     if stage_location_bottom is not None:
         if callable(stage_location_bottom):
             result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
@@ -253,7 +199,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
 
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
-            lambda sampled_quantity_name: create_stub_net_sampled_quantity_time_series(
+            lambda sampled_quantity_name: create_stub_net_treatment_curve(
                 sampled_quantity_name=sampled_quantity_name), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
@@ -267,11 +213,11 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point')
     if x is not None:
-        stub_subsurface_point.X = make_length_unit(x)
+        stub_subsurface_point.X = make_net_length_unit(x)
     if y is not None:
-        stub_subsurface_point.Y = make_length_unit(y)
+        stub_subsurface_point.Y = make_net_length_unit(y)
     if depth is not None:
-        stub_subsurface_point.Depth = make_length_unit(depth)
+        stub_subsurface_point.Depth = make_net_length_unit(depth)
     if xy_origin is not None:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
     if depth_origin is not None:
@@ -279,15 +225,19 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
     return stub_subsurface_point
 
 
-def create_stub_net_trajectory_array(magnitudes, net_unit):
-    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(magnitude), net_unit)
-              for magnitude in magnitudes] if magnitudes else []
+def create_stub_net_trajectory_array(magnitudes, unit):
+    def make_stub_measurement_with_unit(measurement_unit):
+        return toolz.flip(StubMeasurement, measurement_unit)
+
+    result = toolz.pipe(magnitudes,
+                        toolz.map(make_stub_measurement_with_unit(unit)),
+                        toolz.map(make_net_length_unit))
     return result
 
 
-def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
-                                                 sampled_quantity_name=None, suffix=None,
-                                                 values_starting_at=None, project=None):
+def create_stub_net_treatment_curve(name=None, display_name=None,
+                                    sampled_quantity_name=None, suffix=None,
+                                    values_starting_at=None, project=None):
     try:
         stub_net_treatment_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
                                                            spec=IStageSampledQuantityTimeSeries)
@@ -304,7 +254,7 @@ def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
     if values_starting_at is not None:
         values, start_time_point = values_starting_at
         time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        samples = [StubSample(t, v) for (t, v) in zip(map(as_net_date_time, time_points), values)]
+        samples = [StubSample(t, v) for (t, v) in zip(map(onq.as_net_date_time, time_points), values)]
         stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
                                                                                        return_value=samples)
     if project is not None:
@@ -313,21 +263,38 @@ def create_stub_net_sampled_quantity_time_series(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
-def create_stub_net_well_trajectory(project_length_unit=None, easting_magnitudes=None, northing_magnitudes=None):
+def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sampled_quantity_type,
+                                  samples, project):
+    try:
+        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
+                                                         spec=IWellSampledQuantityTimeSeries)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve')
+    stub_net_monitor_curve.Name = name
+    stub_net_monitor_curve.DisplayName = display_name
+    stub_net_monitor_curve.SampledQuantityName = sampled_quantity_name
+    stub_net_monitor_curve.SampledQuantityType = sampled_quantity_type
+    stub_net_monitor_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
+                                                                                 return_value=samples)
+    if project is not None:
+        stub_net_monitor_curve.Well.Project = project
+
+    return stub_net_monitor_curve
+
+
+def create_stub_net_well_trajectory(project_units=None, easting_magnitudes=None, northing_magnitudes=None):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
-    if project_length_unit is not None:
-        stub_trajectory.Well.Project = create_stub_net_project(
-            project_length_unit_abbreviation=project_length_unit.abbreviation)
-    if easting_magnitudes is not None and project_length_unit is not None:
-        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes,
-                                                         project_length_unit.net_unit)
+    if project_units is not None:
+        stub_trajectory.Well.Project = create_stub_net_project(project_units=project_units)
+    if easting_magnitudes is not None and project_units is not None:
+        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project_units.LENGTH)
         stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
-    if northing_magnitudes is not None and project_length_unit is not None:
+    if northing_magnitudes is not None and project_units is not None:
         stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
-                                                          project_length_unit.net_unit)
+                                                          project_units.LENGTH)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
     return stub_trajectory
@@ -348,12 +315,6 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
 
 
 def create_stub_net_project(name='', default_well_colors=None,
-                            project_length_unit_abbreviation='',
-                            project_mass_unit_abbreviation='',
-                            project_pressure_unit_abbreviation='',
-                            slurry_rate_unit_abbreviation='',
-                            proppant_concentration_unit_abbreviation='',
-                            project_temperature_unit_abbreviation='',
                             project_units=None,
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
@@ -383,12 +344,6 @@ def create_stub_net_project(name='', default_well_colors=None,
     plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
-    set_project_unit(stub_net_project, project_length_unit_abbreviation)
-    set_project_unit(stub_net_project, project_mass_unit_abbreviation)
-    set_project_unit(stub_net_project, project_pressure_unit_abbreviation)
-    set_project_unit(stub_net_project, slurry_rate_unit_abbreviation)
-    set_project_unit(stub_net_project, proppant_concentration_unit_abbreviation)
-    set_project_unit(stub_net_project, project_temperature_unit_abbreviation)
 
     if project_units == units.UsOilfield:
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()

@@ -22,6 +22,8 @@ import numpy as np
 
 from hamcrest import assert_that, has_length, close_to
 
+import orchid.reference_origins as origins
+
 
 @when('I query the trajectory for well "{well}"')
 def step_impl(context, well):
@@ -43,8 +45,8 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.easting_array = context.trajectory.get_easting_array('project')
-    context.northing_array = context.trajectory.get_northing_array('project')
+    context.easting_array = context.trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
+    context.northing_array = context.trajectory.get_northing_array(origins.WellReferenceFrameXy.PROJECT)
 
 
 @then('I see {count:d} values in each array')

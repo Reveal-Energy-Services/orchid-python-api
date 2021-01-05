@@ -12,27 +12,36 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from collections import namedtuple
+import decimal
 
 from hamcrest import assert_that, equal_to, close_to
 
 
-# The following functions are not custom matchers as defined by the `pyhamcrest` package; however, they
-# provide similar functionality by implementing common test code.
-
-
-ScalarQuantity = namedtuple('ScalarQuantity', ['magnitude', 'unit'])
-SubsurfaceLocation = namedtuple('SubsurfaceLocation', ['x', 'y', 'depth'])
-
-
-def assert_that_scalar_quantities_close_to(actual, expected, tolerance):
+def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None):
     assert_that(actual.unit, equal_to(expected.unit))
-    assert_that(actual.magnitude, close_to(expected.magnitude, tolerance))
+    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
 
 
-def assert_that_net_quantities_close_to(actual, expected, tolerance):
-    def get_net_unit(net_quantity):
-        _, net_unit_abbreviation = str(net_quantity).split()
-        return net_unit_abbreviation
+def _assert_magnitudes_close_to(actual, expected, tolerance):
+    to_test_actual = decimal.Decimal(actual)
+    to_test_expected = decimal.Decimal(expected)
+    to_test_tolerance = decimal.Decimal((0, (1,), to_test_expected.as_tuple()[-1] - 1)) if tolerance is None \
+        else decimal.Decimal(tolerance)
+    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
+
+
+def assert_that_measurements_close_to(actual, expected, tolerance=None):
+    assert_that(actual.unit, equal_to(expected.unit))
+    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
+
+
+def assert_that_net_quantities_close_to(actual, expected, tolerance=None):
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
-    assert_that(actual.Value, close_to(expected.Value, tolerance))
+    _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance)
+
+
+def get_net_unit(net_quantity):
+    try:
+        return net_quantity.Unit
+    except AttributeError:
+        return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit

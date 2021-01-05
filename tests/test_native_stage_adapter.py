@@ -20,26 +20,30 @@ from datetime import datetime
 import unittest.mock
 
 import deal
-from hamcrest import assert_that, equal_to, close_to, empty, contains_exactly, has_items, instance_of, calling, raises
+from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, instance_of, calling, raises
 import toolz.curried as toolz
 
-from orchid.measurement import make_measurement
-from orchid.net_quantity import as_net_quantity
-import orchid.native_stage_adapter as nsa
-import orchid.native_treatment_curve_facade as ntc
-import orchid.reference_origins as origins
-import orchid.unit_system as units
+from orchid import (
+    measurement as om,
+    net_quantity as onq,
+    native_stage_adapter as nsa,
+    native_treatment_curve_adapter as ntc,
+    reference_origins as origins,
+    unit_system as units,
+)
 
-import tests.custom_matchers as tcm
-from tests import stub_net as tsn
+from tests import (
+    custom_matchers as tcm,
+    stub_net as tsn,
+)
 
 AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
 StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 
-def make_subsurface_coordinate(coord, unit):
-    return as_net_quantity(make_measurement(coord, unit.abbreviation))
+def _make_subsurface_coordinate(coord, unit):
+    return onq.as_net_quantity(om.make_measurement(unit, coord))
 
 
 @toolz.curry
@@ -48,16 +52,17 @@ def mock_subsurface_point_func(expected_location,
                                actual_xy_origin, actual_depth_origin):
     result = tsn.create_stub_net_subsurface_point()
     if expected_xy_origin == actual_xy_origin and expected_depth_origin == actual_depth_origin:
-        result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
-        result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
-        result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+        result.X = _make_subsurface_coordinate(expected_location.x, expected_location.unit)
+        result.Y = _make_subsurface_coordinate(expected_location.y, expected_location.unit)
+        result.Depth = _make_subsurface_coordinate(expected_location.depth, expected_location.unit)
     return result
 
 
 def create_expected(expected_location):
+    make_measurement_with_unit = om.make_measurement(expected_location[-1])
     expected = toolz.pipe(expected_location[:-1],
-                          toolz.map(toolz.flip(make_measurement, expected_location[-1].abbreviation)),
-                          lambda coords: tcm.SubsurfaceLocation(*coords))
+                          toolz.map(make_measurement_with_unit),
+                          lambda coords: tsn.StubSubsurfaceLocation(*coords))
     return expected
 
 
@@ -87,8 +92,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
                                                               origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
-                sut1 = nsa.NativeStageAdapter(stub_net_stage)
-                sut = sut1
+                sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual = sut.bottom_location(expected_bottom.unit, origin_reference.xy, origin_reference.depth)
 
@@ -142,9 +146,9 @@ class TestNativeStageAdapter(unittest.TestCase):
             result = tsn.create_stub_net_subsurface_point()
             if expected_cluster_no == actual_cluster_no and expected_xy_origin == actual_xy_origin and \
                     expected_depth_origin == actual_depth_origin:
-                result.X = make_subsurface_coordinate(expected_location.x, expected_location.unit)
-                result.Y = make_subsurface_coordinate(expected_location.y, expected_location.unit)
-                result.Depth = make_subsurface_coordinate(expected_location.depth, expected_location.unit)
+                result.X = _make_subsurface_coordinate(expected_location.x, expected_location.unit)
+                result.Y = _make_subsurface_coordinate(expected_location.y, expected_location.unit)
+                result.Depth = _make_subsurface_coordinate(expected_location.depth, expected_location.unit)
             return result
 
         cluster_numbers = [2, 4, 7]
@@ -195,31 +199,39 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
 
     def test_md_top(self):
-        for actual_top, expected_top in [(make_measurement(13467.8, 'ft'), make_measurement(13467.8, 'ft')),
-                                         (make_measurement(3702.48, 'm'), make_measurement(3702.48, 'm')),
-                                         (make_measurement(13467.8, 'ft'), make_measurement(4104.98, 'm')),
-                                         (make_measurement(3702.48, 'm'), make_measurement(12147.2, 'ft'))]:
-            with self.subTest(expected_top=actual_top):
+        for actual_top, expected_top in [(om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
+                                          om.make_measurement(units.UsOilfield.LENGTH, 13467.8)),
+                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
+                                          om.make_measurement(units.Metric.LENGTH, 3702.48)),
+                                         (om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
+                                          om.make_measurement(units.Metric.LENGTH, 4104.98)),
+                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
+                                          om.make_measurement(units.UsOilfield.LENGTH, 12147.2))]:
+            with self.subTest():
                 stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top.unit)
-                assert_that(actual_top.magnitude, close_to(expected_top.magnitude, 0.05))
-                assert_that(actual_top.unit, equal_to(expected_top.unit))
+                tcm.assert_that_measurements_close_to(actual_top, expected_top, 0.05)
 
     def test_md_bottom(self):
-        for actual_bottom, expected_bottom in [(make_measurement(13806.7, 'ft'), make_measurement(13806.7, 'ft')),
-                                               (make_measurement(4608.73, 'm'), make_measurement(4608.73, 'm')),
-                                               (make_measurement(12147.2, 'ft'), make_measurement(3702.47, 'm')),
-                                               (make_measurement(4608.73, 'm'), make_measurement(15120.5, 'ft'))]:
-            with self.subTest(expected_bottom=actual_bottom):
+        for actual_bottom, expected_bottom in [
+            (om.make_measurement(units.UsOilfield.LENGTH, 13806.7),
+             om.make_measurement(units.UsOilfield.LENGTH, 13806.7)),
+            (om.make_measurement(units.Metric.LENGTH, 4608.73),
+             om.make_measurement(units.Metric.LENGTH, 4608.73)),
+            (om.make_measurement(units.UsOilfield.LENGTH, 12147.2),
+             om.make_measurement(units.Metric.LENGTH, 3702.47)),
+            (om.make_measurement(units.Metric.LENGTH, 4608.73),
+             om.make_measurement(units.UsOilfield.LENGTH, 15120.5)),
+        ]:
+            with self.subTest():
                 stub_net_stage = tsn.create_stub_net_stage(
                     md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_bottom = sut.md_bottom(expected_bottom.unit)
-                assert_that(actual_bottom.magnitude, close_to(expected_bottom.magnitude, 0.05))
-                assert_that(actual_bottom.unit, equal_to(expected_bottom.unit))
+                tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 0.05)
 
     def test_start_time(self):
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
@@ -289,12 +301,12 @@ class TestNativeStageAdapter(unittest.TestCase):
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
-        assert_that(actual_curves.keys(), has_items(ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.TREATING_PRESSURE))
+        assert_that(actual_curves.keys(), has_items(ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.PROPPANT_CONCENTRATION))
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
 
 def assert_is_native_treatment_curve_facade(curve):
-    assert_that(curve, instance_of(ntc.NativeTreatmentCurveFacade))
+    assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
 
 
 if __name__ == '__main__':

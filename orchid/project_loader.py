@@ -33,6 +33,18 @@ class OrchidError(Exception):
     pass
 
 
+def native_treatment_calculations():
+    """
+    Returns a .NET ITreatmentCalculations instance to be adapted.
+
+    Returns:
+            An `ITreatmentCalculations` implementation.
+    """
+    with ScriptAdapterContext():
+        result = ScriptAdapter.CreateTreatmentCalculations()
+    return result
+
+
 class ProjectLoader:
     """Provides an .NET IProject to be adapted."""
 
@@ -42,7 +54,8 @@ class ProjectLoader:
         """
         Construct an instance that loads project data from project_pathname
 
-        :param project_pathname: Identifies the data file for the project of interest.
+        Args:
+            project_pathname: Identifies the data file for the project of interest.
         """
         self._project_pathname = project_pathname
         self._project = None
@@ -52,7 +65,8 @@ class ProjectLoader:
         """
         Return the native (.NET) Orchid project.
 
-        :return: The loaded `IProject`.
+        Returns:
+            The loaded `IProject`.
         """
         if not self._project:
             with ScriptAdapterContext():

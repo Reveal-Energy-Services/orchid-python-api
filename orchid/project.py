@@ -22,9 +22,8 @@ import toolz.curried as toolz
 
 import orchid.dot_net_dom_access as dna
 from orchid.native_well_adapter import NativeWellAdapter
-from orchid.native_monitor_curve_facade import NativeMonitorCurveFacade
+from orchid.native_monitor_curve_adapter import NativeMonitorCurveAdapter
 from orchid.project_loader import ProjectLoader
-import orchid.project_units as project_units
 import orchid.unit_system as units
 
 # noinspection PyUnresolvedReferences
@@ -70,7 +69,7 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def monitor_curves(self) -> Iterable[NativeMonitorCurveFacade]:
+    def monitor_curves(self) -> Iterable[NativeMonitorCurveAdapter]:
         """
             Return a sequence of well time series for this project.
         Returns:
@@ -78,18 +77,26 @@ class Project(dna.DotNetAdapter):
         """
         native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
         if len(native_time_series_list_items) > 0:
-            return toolz.map(NativeMonitorCurveFacade,
+            return toolz.map(NativeMonitorCurveAdapter,
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []
 
-    def unit_abbreviation(self, physical_quantity):
-        """
-        Return the abbreviation for the specified `physical_quantity` of this project.
-        :param physical_quantity: The name of the physical quantity.
-        :return: The abbreviation of the specified physical quantity.
-        """
-        return project_units.unit_abbreviation(self._project_loader.native_project(), physical_quantity)
+    def proppant_concentration_mass_unit(self):
+        if self.project_units == units.UsOilfield:
+            return units.UsOilfield.MASS
+        elif self.project_units == units.Metric:
+            return units.Metric.MASS
+        else:
+            raise ValueError(f'Unknown unit system: {self.project_units}')
+
+    def slurry_rate_volume_unit(self):
+        if self.project_units == units.UsOilfield:
+            return units.UsOilfield.VOLUME
+        elif self.project_units == units.Metric:
+            return units.Metric.VOLUME
+        else:
+            raise ValueError(f'Unknown unit system: {self.project_units}')
 
     def wells_by_name(self, name) -> Iterable[IWell]:
         """

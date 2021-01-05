@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2020 Reveal Energy Services, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -22,9 +22,13 @@ use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import toolz.curried as toolz
 
-import orchid.native_stage_adapter as nsa
-import orchid.physical_quantity as opq
-import orchid.reference_origins as origins
+from common_functions import find_stage_no_in_well, find_well_by_name, find_stage_by_stage_no
+
+from orchid import (
+    native_stage_adapter as nsa,
+    reference_origins as origins,
+    unit_system as units,
+)
 
 
 # noinspection PyBDDParameters
@@ -44,9 +48,12 @@ def step_impl(context, stage_count, well):
 
     candidates = list(toolz.pipe(toolz.map(actual_test_details, context.actual_wells),
                                  toolz.filter(lambda d: d[0] == well)))
-    assert_that(len(candidates), equal_to(1))  # expect exactly one match
+    # Expect exactly one match
+    assert_that(len(candidates), equal_to(1),
+                f'Expected 1 stage for well {well} in field {context.field}. Found {len(candidates)}.')
 
-    assert_that(candidates[0], equal_to(expected_test_details()))
+    assert_that(candidates[0], equal_to(expected_test_details()),
+                f'Candidate well and stage failed for field {context.field}.')
 
 
 def get_stages(well_stages_pair):
@@ -68,7 +75,7 @@ def assert_measurement_equal(actual, expected):
     expected_magnitude_text, expected_unit = expected.split()
     expected_magnitude = float(expected_magnitude_text)
     assert_that(actual.magnitude, close_to(expected_magnitude, 6e-2))
-    assert_that(actual.unit, equal_to(expected_unit))
+    assert_that(units.abbreviation(actual.unit), equal_to(expected_unit))
 
 
 # noinspection PyBDDParameters
@@ -87,12 +94,8 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage_no))
-    assert_measurement_equal(
-        stage_of_interest.md_top(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
-        md_top)
-    assert_measurement_equal(
-        stage_of_interest.md_bottom(context.project.unit_abbreviation(str(opq.PhysicalQuantity.LENGTH))),
-        md_bottom)
+    assert_measurement_equal(stage_of_interest.md_top(context.project.project_units.LENGTH), md_top)
+    assert_measurement_equal(stage_of_interest.md_bottom(context.project.project_units.LENGTH), md_bottom)
     assert_that(stage_of_interest.cluster_count, equal_to(cluster_count))
 
 
@@ -101,7 +104,8 @@ def find_stage_with_name(context, name_with_well):
                                     toolz.concat,
                                     toolz.filter(lambda s: s.display_name_with_well == name_with_well),
                                     list)
-    assert len(stages_of_interest) == 1
+    assert len(stages_of_interest) == 1, \
+        f'Expected 1 stage with name with well: {name_with_well}. Found {len(stages_of_interest)}.'
     stage_of_interest = toolz.nth(0, stages_of_interest)
     return stage_of_interest
 
@@ -122,19 +126,14 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     in_length_unit = context.project.project_units.LENGTH
-    in_length_unit_abbreviation = in_length_unit.value.abbreviation
-    assert_measurement_equal(
-        stage_of_interest.center_location_easting(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
-        easting)
-    assert_measurement_equal(
-        stage_of_interest.center_location_northing(in_length_unit, origins.WellReferenceFrameXy.PROJECT),
-        northing)
-    assert_measurement_equal(
-        stage_of_interest.center_location_tvdss(in_length_unit),
-        tvdss)
-    assert_measurement_equal(
-        stage_of_interest.stage_length(in_length_unit_abbreviation),
-        length)
+    assert_measurement_equal(stage_of_interest.center_location_easting(in_length_unit,
+                                                                       origins.WellReferenceFrameXy.PROJECT),
+                             easting)
+    assert_measurement_equal(stage_of_interest.center_location_northing(in_length_unit,
+                                                                        origins.WellReferenceFrameXy.PROJECT),
+                             northing)
+    assert_measurement_equal(stage_of_interest.center_location_tvdss(in_length_unit), tvdss)
+    assert_measurement_equal(stage_of_interest.stage_length(in_length_unit), length)
 
 
 # noinspection PyBDDParameters
@@ -153,9 +152,11 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
     well_of_interest = find_well_by_name(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
 
-    assert_that(stage_of_interest.display_name_without_well, equal_to(name_without_well))
-    assert_that(stage_of_interest.order_of_completion_on_well, equal_to(order))
-    assert_that(stage_of_interest.global_stage_sequence_number, equal_to(global_stage_no))
+    message = f'Failure for field {context.field}, well {well}, and stage_no {stage_no}.'
+
+    assert_that(stage_of_interest.display_name_without_well, equal_to(name_without_well), message)
+    assert_that(stage_of_interest.order_of_completion_on_well, equal_to(order), message)
+    assert_that(stage_of_interest.global_stage_sequence_number, equal_to(global_stage_no), message)
 
     def connection_name_to_type(connection_name):
         name_to_type_map = {'PlugAndPerf': nsa.ConnectionType.PLUG_AND_PERF,
@@ -167,43 +168,12 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
     assert_that(stage_of_interest.stage_type, equal_to(connection_name_to_type(connection)))
 
 
-def find_stage_by_stage_no(context, stage_no, well_of_interest):
-    @toolz.curry
-    def has_stage_no(displayed_stage_no, candidate_stage):
-        return candidate_stage.display_stage_number == displayed_stage_no
-
-    candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
-                            toolz.filter(has_stage_no(stage_no)),
-                            list)
-    assert_that(toolz.count(candidates), equal_to(1))
-    result = toolz.nth(0, candidates)
-    return result
-
-
-def find_well_by_name(context, name):
-    @toolz.curry
-    def has_well_name(well_name, candidate_well):
-        return candidate_well.name == well_name
-
-    candidates = toolz.pipe(context.stages_for_wells,
-                            toolz.keyfilter(has_well_name(name)))
-    assert_that(toolz.count(candidates), equal_to(1))
-    result = toolz.nth(0, candidates)
-    return result
-
-
 def reference_frame_from_frame_name(frame):
     frame_reference_frame_map = {'State Plane': origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                  'Project': origins.WellReferenceFrameXy.PROJECT,
                                  'Well Head': origins.WellReferenceFrameXy.WELL_HEAD}
     reference_frame = frame_reference_frame_map[frame]
     return reference_frame
-
-
-def find_stage_no_in_well(context, stage_no, well):
-    well_of_interest = find_well_by_name(context, well)
-    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
-    return stage_of_interest
 
 
 # noinspection PyBDDParameters
