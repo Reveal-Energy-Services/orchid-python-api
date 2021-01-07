@@ -296,12 +296,16 @@ class TestNativeStageAdapter(unittest.TestCase):
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
     def test_treatment_curves_many_curves(self):
-        expected_sampled_quantity_names = ['Pressure', 'Slurry Rate', 'Surface Proppant Concentration']
+        expected_sampled_quantity_names = [ntc.TreatmentCurveTypes.TREATING_PRESSURE.value,
+                                           ntc.TreatmentCurveTypes.SLURRY_RATE.value,
+                                           ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value]
         stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
-        assert_that(actual_curves.keys(), has_items(ntc.TREATING_PRESSURE, ntc.SLURRY_RATE, ntc.PROPPANT_CONCENTRATION))
+        assert_that(actual_curves.keys(), has_items(ntc.TreatmentCurveTypes.TREATING_PRESSURE.value,
+                                                    ntc.TreatmentCurveTypes.SLURRY_RATE.value,
+                                                    ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value))
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
 
