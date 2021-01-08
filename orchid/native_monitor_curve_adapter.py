@@ -27,17 +27,11 @@ from orchid import (base_curve_adapter as bca,
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
 
-AboutMonitorCurveType = namedtuple('AboutCurveType', ['curve_type', 'net_curve_type'])
-
 
 class MonitorCurveTypes(enum.Enum):
-    MONITOR_PRESSURE = AboutMonitorCurveType('Pressure', 'Pressure')
-    MONITOR_TEMPERATURE = AboutMonitorCurveType('Temperature', 'Temperature')
+    MONITOR_PRESSURE = 'Pressure'
+    MONITOR_TEMPERATURE = 'Temperature'
 
-
-# Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
-MONITOR_PRESSURE = MonitorCurveTypes.MONITOR_PRESSURE.value.curve_type
-MONITOR_TEMPERATURE = MonitorCurveTypes.MONITOR_TEMPERATURE.value.curve_type
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
@@ -57,7 +51,7 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
             raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
 
         sampled_quantity_name_unit_map = {
-            MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type: project_units.PRESSURE,
-            MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type: project_units.TEMPERATURE,
+            MonitorCurveTypes.MONITOR_PRESSURE: project_units.PRESSURE,
+            MonitorCurveTypes.MONITOR_TEMPERATURE: project_units.TEMPERATURE,
         }
         return sampled_quantity_name_unit_map[self.sampled_quantity_name]
