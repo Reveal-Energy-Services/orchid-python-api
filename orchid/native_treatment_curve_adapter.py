@@ -26,20 +26,11 @@ from orchid import (base_curve_adapter as bca,
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
 
-AboutTreatmentCurveType = namedtuple('AboutTreatmentCurveType', ['curve_type', 'net_curve_type'])
 
-
-# TODO: Better repair for these curve types involving the .NET type `TreatmentCurvesPredefinedTypes` if possible
 class TreatmentCurveTypes(enum.Enum):
-    SURFACE_PROPPANT_CONCENTRATION = 'Surface Proppant Concentration'  # AboutTreatmentCurveType('Proppant Concentration', 'Surface Proppant Concentration')
-    SLURRY_RATE = 'Slurry Rate'  # AboutTreatmentCurveType('Slurry Rate', 'Slurry Rate')
-    TREATING_PRESSURE = 'Pressure'  # AboutTreatmentCurveType('Pressure', 'Pressure')
-
-
-# Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
-# PROPPANT_CONCENTRATION = TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.curve_type
-# SLURRY_RATE = TreatmentCurveTypes.SLURRY_RATE.value.curve_type
-# TREATING_PRESSURE = TreatmentCurveTypes.TREATING_PRESSURE.value.curve_type
+    SURFACE_PROPPANT_CONCENTRATION = 'Surface Proppant Concentration'
+    SLURRY_RATE = 'Slurry Rate'
+    TREATING_PRESSURE = 'Pressure'
 
 
 class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
