@@ -30,6 +30,7 @@ from orchid import (
     unit_system as units,
 )
 
+import datetime
 
 # noinspection PyBDDParameters
 @then("I see {stage_count:d} stages for well {well}")
@@ -261,3 +262,34 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
                                                          origins.DepthDatum.KELLY_BUSHING)
 
     assert_equal_location_measurements(subsurface_location, x, y, depth)
+
+
+def assert_datetimes_equal(actual_datetime: datetime.datetime, expected_datetime: str):
+    expected_datetime_object = datetime.datetime.strptime(expected_datetime, '%m/%d/%Y %I:%M:%S %p')
+    assert_that(actual_datetime.replace(microsecond=0), equal_to(expected_datetime_object))
+
+
+@step("I see additional treatment data for samples {well}, {stage_no:d}, {shmin}, {isip}, {start_time}, "
+      "{stop_time}, and {pnet}")
+def step_impl(context, well, stage_no, shmin, isip, start_time, stop_time, pnet):
+    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    actual_shmin = stage_of_interest.shmin
+    actual_isip = stage_of_interest.isip
+    actual_pnet = stage_of_interest.pnet
+    actual_start_time = stage_of_interest.start_time
+    actual_stop_time = stage_of_interest.stop_time
+
+    assert_measurement_equal(actual_shmin, shmin)
+    assert_measurement_equal(actual_isip, isip)
+    assert_measurement_equal(actual_pnet, pnet)
+
+    if context.field == 'Bakken':
+        hr_change = 5
+    elif context.field == 'Montney':
+        hr_change = 6
+    else:
+        hr_change = 0
+
+    time_change = datetime.timedelta(hours=hr_change)
+    assert_datetimes_equal(actual_start_time - time_change, start_time)
+    assert_datetimes_equal(actual_stop_time - time_change, stop_time)

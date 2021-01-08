@@ -31,6 +31,7 @@ from orchid import (
     net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
+    physical_quantity as opq
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -78,6 +79,18 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                               as_connection_type)
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', onq.as_datetime)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
+
+    as_pressure_measurement = onq.as_measurement(opq.PhysicalQuantity.PRESSURE)
+    shmin = dna.transformed_dom_property('shmin',
+                                         'The minimum stress in the rock',
+                                         as_pressure_measurement)
+    pnet = dna.transformed_dom_property('pnet',
+                                        'The net pressure of the treatment stage',
+                                        as_pressure_measurement)
+    isip = dna.transformed_dom_property('isip',
+                                        'The initial shut-in pressure after treatment completion',
+                                        as_pressure_measurement)
+
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):

@@ -320,7 +320,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         expected_isip = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
         stub_net_stage = tsn.create_stub_net_stage(isip=expected_isip)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.shmin, expected_isip, 6e-2)
+        tcm.assert_that_measurements_close_to(sut.isip, expected_isip, 6e-2)
 
 
 def assert_is_native_treatment_curve_facade(curve):

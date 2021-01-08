@@ -237,3 +237,20 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 2        | State Plane | 659044.57 m | 6177836.62 m | 989.00 m  |
       | Montney | Vert_01 | 3        | Well Head   | 0.00 m      | 0.00 m       | 939.00 m  |
       | Montney | Vert_01 | 4        | Project     | 1842.15 m   | -1133.05 m   | 889.00 m  |
+
+  Scenario Outline: Calculate additional stage treatment data
+    Given I have loaded the project for the field, '<field>'
+    When I query the stages for each well in the project
+    And I see additional treatment data for samples <well>, <stage_no>, <shmin>, <isip>, <start_time>, <stop_time>, and <pnet>
+
+    Examples: Bakken
+      | field  | well    | stage_no  | shmin       | isip        | start_time           | stop_time              | pnet        |
+      | Bakken | Demo_1H | 1         | 8137.56 psi | 4748.92 psi | 6/6/2018 8:37:13 AM  | 6/6/2018 11:55:21 AM   | 1310.69 psi |
+      | Bakken | Demo_1H | 9         | 8146.73 psi | 5085.00 psi | 6/12/2018 7:40:58 AM | 6/12/2018 10:12:32 AM  | 1642.89 psi |
+      | Bakken | Demo_1H | 13        | 8145.78 psi | 5253.69 psi | 6/13/2018 7:24:06 PM | 6/13/2018 9:47:44 PM   | 1811.98 psi |
+      | Bakken | Demo_2H | 2         | 8142.03 psi | 4951.80 psi | 6/8/2018 1:41:57 PM  | 6/8/2018 3:54:15 PM    | 1511.68 psi |
+      | Bakken | Demo_2H | 21        | 8156.15 psi | 5150.00 psi | 6/17/2018 8:16:00 AM | 6/17/2018 10:22:46 AM  | 1703.91 psi |
+      | Bakken | Demo_2H | 30        | 8164.82 psi | 5100.00 psi | 6/22/2018 1:31:17 PM | 6/22/2018 2:58:13 PM   | 1650.25 psi |
+      | Bakken | Demo_4H | 4         | 8145.41 psi | 4919.07 psi | 6/7/2018 1:45:10 AM  | 6/7/2018 4:01:14 AM    | 1477.51 psi |
+      | Bakken | Demo_4H | 6         | 8146.03 psi | 4883.45 psi | 6/8/2018 5:01:14 AM  | 6/8/2018 8:09:23 AM    | 1441.63 psi |
+      | Bakken | Demo_4H | 35        | 8181.86 psi | 5178.00 psi | 6/28/2018 1:30:42 PM | 6/28/2018 3:32:57 PM   | 1721.05 psi |
