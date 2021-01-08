@@ -164,7 +164,8 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
 def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
                           stage_location_bottom=None, stage_location_cluster=None,
                           stage_location_center=None, stage_location_top=None,
-                          start_time=None, stop_time=None, treatment_curve_names=None):
+                          start_time=None, stop_time=None, treatment_curve_names=None,
+                          shmin=None, pnet=None, isip=None):
     stub_net_stage_name = 'stub_net_stage'
     try:
         result = unittest.mock.MagicMock(name=stub_net_stage_name, spec=IStage)
@@ -203,6 +204,15 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
                 sampled_quantity_name=sampled_quantity_name), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
+        
+    if shmin is not None:
+        result.Shmin = onq.as_net_quantity(shmin)
+        
+    if pnet is not None:
+        result.Pnet = onq.as_net_quantity(pnet)
+        
+    if isip is not None:
+        result.Isip = onq.as_net_quantity(isip)
 
     return result
 
