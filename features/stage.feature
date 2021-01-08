@@ -170,7 +170,7 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_1H | 1        | 2          | Well Head   | -9899.14 ft   | 1327.94 ft     | 10707.58 ft |
       | Bakken | Demo_1H | 50       | 3          | State Plane | 1989082.45 ft | 17498030.50 ft | 10770.00 ft |
       | Bakken | Demo_1H | 30       | 2          | Well Head   | -4318.54 ft   | 1334.93 ft     | 10735.44 ft |
-      | Bakken | Demo_1H | 15       | 3          | Project     | -20216.80 ft  | 36852.34 ft    | 10714.62 ft |
+      | Bakken | Demo_1H | 15       | 3          | Project     | -20206.80 ft  | 36852.34 ft    | 10714.62 ft |
       | Bakken | Demo_2H | 1        | 4          | State Plane | 1979495.65 ft | 17497263.97 ft | 10711.95 ft |
       | Bakken | Demo_2H | 50       | 1          | State Plane | 1989056.74 ft | 17497314.42 ft | 10766.31 ft |
       | Bakken | Demo_2H | 21       | 4          | Project     | -18938.26 ft  | 36108.94 ft    | 10731.79 ft |
