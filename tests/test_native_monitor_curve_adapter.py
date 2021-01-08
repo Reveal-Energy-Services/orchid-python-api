@@ -50,7 +50,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
         all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
         self.assert_correct_sampled_quantity_unit(all_pressure_units,
-                                                  mca.MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type)
+                                                  mca.MonitorCurveTypes.MONITOR_PRESSURE)
 
     def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
         for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
@@ -62,7 +62,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_sampled_quantity_unit_returns_temperature_if_temperature_samples(self):
         all_temperature_units = (units.UsOilfield.TEMPERATURE, units.Metric.TEMPERATURE)
         self.assert_correct_sampled_quantity_unit(all_temperature_units,
-                                                  mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type)
+                                                  mca.MonitorCurveTypes.MONITOR_TEMPERATURE)
 
     def test_empty_time_series_if_no_samples(self):
         name = 'trucem'
