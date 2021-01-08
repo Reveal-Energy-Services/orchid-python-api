@@ -90,7 +90,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         assert len(candidates) == 1, f'Sampled quantity name "{sampled_quantity_name}"' \
                                      f' selects many curve types: {candidates}'
 
-        return candidates[0].value
+        return candidates[0]
 
     def _center_location_depth(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                                depth_datum: origins.DepthDatum) -> om.Measurement:

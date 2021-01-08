@@ -44,9 +44,9 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
     # TODO: Uncomment the slurry rate and proppant concentration integration tests.
     stage_of_interest = find_stage_no_in_well(context, stage_no, well)
     treatment_curves = stage_of_interest.treatment_curves()
-    curve_name = {'pressure': ntc.TreatmentCurveTypes.TREATING_PRESSURE.value,
-                  'proppant': ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value,
-                  'slurry': ntc.TreatmentCurveTypes.SLURRY_RATE.value}
+    curve_name = {'pressure': ntc.TreatmentCurveTypes.TREATING_PRESSURE,
+                  'proppant': ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION,
+                  'slurry': ntc.TreatmentCurveTypes.SLURRY_RATE}
     actual_treatment_curve = treatment_curves[curve_name[curve_type]]
     actual_value = actual_treatment_curve.time_series()[timestamp]
     same_actual_value = actual_treatment_curve.time_series()[index]

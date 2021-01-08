@@ -200,7 +200,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
             lambda sampled_quantity_name: create_stub_net_treatment_curve(
-                sampled_quantity_name=sampled_quantity_name), treatment_curve_names))
+                sampled_quantity_name=sampled_quantity_name.value), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
 
