@@ -26,7 +26,7 @@ from orchid import (base_curve_adapter as bca,
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
-
+import toolz.curried as toolz
 
 class MonitorCurveTypes(enum.Enum):
     MONITOR_PRESSURE = 'Pressure'
@@ -35,6 +35,20 @@ class MonitorCurveTypes(enum.Enum):
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
+
+    @staticmethod
+    def _sampled_quantity_name_curve_map(sampled_quantity_name):
+        candidates = toolz.pipe(MonitorCurveTypes,
+                                toolz.filter(lambda e: e.value == sampled_quantity_name),
+                                list)
+        if len(candidates) == 0:
+            raise KeyError(f'Unknown sampled quantity name: "{sampled_quantity_name}"')
+
+        assert len(candidates) == 1, f'Sampled quantity name "{sampled_quantity_name}" ' \
+                                     f'selects many curve types: {candidates}'
+
+        return candidates[0]
+
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
         Return the measurement unit of the samples in this treatment curve.
@@ -54,4 +68,4 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
             MonitorCurveTypes.MONITOR_PRESSURE: project_units.PRESSURE,
             MonitorCurveTypes.MONITOR_TEMPERATURE: project_units.TEMPERATURE,
         }
-        return sampled_quantity_name_unit_map[self.sampled_quantity_name]
+        return sampled_quantity_name_unit_map[self._sampled_quantity_name_curve_map(self.sampled_quantity_name)]

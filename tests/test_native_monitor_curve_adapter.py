@@ -55,7 +55,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
         for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
             stub_project = tsn.create_stub_net_project(project_units=project_units)
-            sut = create_sut(sampled_quantity_name=sampled_quantity_name, project=stub_project)
+            sut = create_sut(sampled_quantity_name=sampled_quantity_name.value, project=stub_project)
             with self.subTest(expected_curve_unit=expected_curve_unit):
                 assert_that(sut.sampled_quantity_unit(), equal_to(expected_curve_unit))
 
