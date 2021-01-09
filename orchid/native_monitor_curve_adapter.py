@@ -28,10 +28,10 @@ from orchid import (base_curve_adapter as bca,
 from Orchid.FractureDiagnostics import UnitSystem
 import toolz.curried as toolz
 
+
 class MonitorCurveTypes(enum.Enum):
     MONITOR_PRESSURE = 'Pressure'
     MONITOR_TEMPERATURE = 'Temperature'
-
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
