@@ -19,7 +19,7 @@ import datetime
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to, calling, raises, has_property
+from hamcrest import assert_that, equal_to, close_to, calling, raises
 import dateutil.tz
 
 
@@ -69,13 +69,13 @@ class TestNetMeasurement(unittest.TestCase):
         net_time_point = DateTime(2024, 11, 24, 18, 56, 35, 45, DateTimeKind.Local)
         expected_error_message = f'{net_time_point.ToString("O")}.'
         assert_that(calling(onq.as_datetime).with_args(net_time_point),
-                    raises(onq.NetQuantityLocalTimeZoneValueError, pattern=expected_error_message))
+                    raises(onq.NetQuantityLocalDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
         net_time_point = tsn.StubDateTime(2023, 7, 31, 1, 11, 26, 216, tsn.StubDateTimeKind.UNSPECIFIED)
         expected_error_message = f'{net_time_point.ToString("O")}'
         assert_that(calling(onq.as_datetime).with_args(net_time_point),
-                    raises(onq.NetQuantityUnspecifiedTimeZoneValueError, pattern=expected_error_message))
+                    raises(onq.NetQuantityUnspecifiedDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unknown_throws_exception(self):
         net_time_point = tsn.StubDateTime(2019, 2, 10, 9, 36, 36, 914, tsn.StubDateTimeKind.INVALID)
@@ -143,19 +143,19 @@ class TestNetMeasurement(unittest.TestCase):
 
     def test_as_net_date_time(self):
         for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23),
-                                      datetime.datetime(2017, 3, 22, 3, 0, 37, 23124)),
+                                      datetime.datetime(2017, 3, 22, 3, 0, 37, 23124, dateutil.tz.UTC)),
                                      (DateTime(2020, 9, 20, 22, 11, 51, 655),
-                                      datetime.datetime(2020, 9, 20, 22, 11, 51, 654859)),
+                                      datetime.datetime(2020, 9, 20, 22, 11, 51, 654859, dateutil.tz.UTC)),
                                      # The Python `round` function employs "half-even" rounding; however, the
                                      # following test rounds to an *odd* value instead. See the "Note" in the
                                      # Python documentation of `round` for an explanation of this (unexpected)
                                      # behavior.
                                      (DateTime(2022, 2, 2, 23, 35, 39, 979),
-                                      datetime.datetime(2022, 2, 2, 23, 35, 39, 978531)),
+                                      datetime.datetime(2022, 2, 2, 23, 35, 39, 978531, dateutil.tz.UTC)),
                                      (DateTime(2019, 2, 7, 10, 18, 17, 488),
-                                      datetime.datetime(2019, 2, 7, 10, 18, 17, 487500)),
+                                      datetime.datetime(2019, 2, 7, 10, 18, 17, 487500, dateutil.tz.UTC)),
                                      (DateTime(2022, 1, 14, 20, 29, 18, 852),
-                                      datetime.datetime(2022, 1, 14, 20, 29, 18, 852500))
+                                      datetime.datetime(2022, 1, 14, 20, 29, 18, 852500, dateutil.tz.UTC))
                                      ]:
             with self.subTest(expected=expected, time_point=time_point):
                 actual = onq.as_net_date_time(time_point)
@@ -166,6 +166,11 @@ class TestNetMeasurement(unittest.TestCase):
                 assert_that(actual.Minute, equal_to(expected.Minute))
                 assert_that(actual.Second, equal_to(expected.Second))
                 assert_that(actual.Millisecond, equal_to(expected.Millisecond))
+
+    def test_as_net_date_time_raises_error_if_not_utc(self):
+        to_test_datetime = datetime.datetime(2025, 12, 21, 9, 15, 7, 896671)
+        assert_that(calling(onq.as_net_date_time).with_args(to_test_datetime),
+                    raises(onq.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
     def test_as_net_quantity(self):
         for to_convert_measurement, expected_net_quantity in [

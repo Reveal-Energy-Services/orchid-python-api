@@ -25,10 +25,11 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 import enum
 import itertools
+import math
 import unittest.mock
 from typing import Sequence
-import sys
 
+import dateutil.tz
 import toolz.curried as toolz
 
 from orchid import (
@@ -37,8 +38,6 @@ from orchid import (
     unit_system as units,
 )
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import DateTime
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
                                         IStageSampledQuantityTimeSeries, ISubsurfacePoint,
@@ -114,8 +113,13 @@ class StubDateTimeKind(enum.IntEnum):
 class StubNetSample:
     def __init__(self, time_point: datetime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                  time_point.minute, time_point.second)
+        if time_point.tzinfo != dateutil.tz.UTC:
+            raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
+
+        self.Timestamp = StubDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
+                                      time_point.minute, time_point.second,
+                                      onq.microseconds_to_integral_milliseconds(time_point.microsecond),
+                                      StubDateTimeKind.UTC)
         self.Value = value
 
 

@@ -58,12 +58,22 @@ _UNIT_NET_UNIT_MAP = {
 }
 
 
-class NetQuantityLocalTimeZoneValueError(ValueError):
+class NetQuantityTimeZoneError(ValueError):
+    pass
+
+
+class NetQuantityLocalDateTimeKindError(NetQuantityTimeZoneError):
     def __init__(self, net_time_point):
+        """
+        Construct an instance from a .NET DateTime point in time.
+
+        Args:
+            net_time_point: A .NET DateTime representing a specific point in time.
+        """
         super().__init__(self, '.NET DateTime.Kind cannot be Local.', net_time_point.ToString("O"))
 
 
-class NetQuantityUnspecifiedTimeZoneValueError(ValueError):
+class NetQuantityUnspecifiedDateTimeKindError(NetQuantityTimeZoneError):
 
     ERROR_PREFACE = '.NET DateTime.Kind is unexpectedly Unspecified.'
 
@@ -76,8 +86,25 @@ class NetQuantityUnspecifiedTimeZoneValueError(ValueError):
     """
 
     def __init__(self, net_time_point):
-        super().__init__(self, NetQuantityUnspecifiedTimeZoneValueError.ERROR_PREFACE,
-                         net_time_point.ToString("O"), NetQuantityUnspecifiedTimeZoneValueError.ERROR_SUFFIX)
+        """
+        Construct an instance from a .NET DateTime point in time.
+
+        Args:
+            net_time_point: A .NET DateTime representing a specific point in time.
+        """
+        super().__init__(self, NetQuantityUnspecifiedDateTimeKindError.ERROR_PREFACE,
+                         net_time_point.ToString("O"), NetQuantityUnspecifiedDateTimeKindError.ERROR_SUFFIX)
+
+
+class NetQuantityNoTzInfoError(NetQuantityTimeZoneError):
+    def __init__(self, time_point):
+        """
+        Construct an instance from a Python point in time.
+
+        Args:
+            time_point: A Python `datetime.datetime` representing a specific point in time.
+        """
+        super().__init__(self, f'The Python time point must specify the time zone.', time_point.isoformat())
 
 
 def as_datetime(net_time_point: DateTime) -> datetime.datetime:
@@ -96,10 +123,10 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
                                  net_time_point.Millisecond * 1000, dateutil.tz.UTC)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
-        raise NetQuantityUnspecifiedTimeZoneValueError(net_time_point)
+        raise NetQuantityUnspecifiedDateTimeKindError(net_time_point)
 
     if net_time_point.Kind == DateTimeKind.Local:
-        raise NetQuantityLocalTimeZoneValueError(net_time_point)
+        raise NetQuantityLocalDateTimeKindError(net_time_point)
 
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
@@ -148,8 +175,11 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
     Returns:
         The equivalent .NET `DateTime` instance.
     """
+    if time_point.tzinfo != dateutil.tz.UTC:
+        raise NetQuantityNoTzInfoError(time_point)
+
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                    time_point.second, round(time_point.microsecond / 1e3))
+                    time_point.second, round(time_point.microsecond / 1000))
 
 
 _UNIT_CREATE_NET_UNIT_MAP = {
@@ -296,6 +326,20 @@ def net_decimal_to_float(net_decimal: Decimal) -> float:
         "lossy" because .NET `Decimal` values are exact, but `float` values are not.
     """
     return Decimal.ToDouble(net_decimal)
+
+
+def microseconds_to_integral_milliseconds(to_convert):
+    """
+    Convert microseconds to an integral number of milliseconds.
+
+    Args:
+        to_convert: The milliseconds to convert.
+
+    Returns:
+        An integral number of milliseconds equaivalent to `to_convert` microseconds.
+
+    """
+    return round(to_convert / 1000)
 
 
 def _unit_from_net_quantity(net_quantity, physical_quantity):
