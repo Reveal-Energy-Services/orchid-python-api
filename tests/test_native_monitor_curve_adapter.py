@@ -17,8 +17,8 @@
 
 import datetime
 import unittest
-import unittest.mock as mock
 
+import dateutil.tz
 from hamcrest import assert_that, equal_to
 import numpy as np
 import pandas as pd
@@ -77,7 +77,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
         values = [26.3945]
-        start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39)
+        start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39, tzinfo=dateutil.tz.UTC)
         self.assert_equal_time_series(name, start_time_point, values)
 
     @staticmethod
@@ -91,7 +91,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
         values = [75.75, 62.36, 62.69]
-        start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15)
+        start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15, tzinfo=dateutil.tz.UTC)
 
         self.assert_equal_time_series(name, start_time_point, values)
 

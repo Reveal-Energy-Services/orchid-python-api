@@ -16,6 +16,7 @@ import datetime
 import unittest.mock
 import uuid
 
+import dateutil.tz
 import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
 
@@ -23,7 +24,7 @@ import orchid.dot_net_dom_access as dna
 import orchid.net_quantity as onq
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, Guid
+from System import DateTime, DateTimeKind, Guid
 
 
 def increment(n):
@@ -79,8 +80,8 @@ class DomPropertyTest(unittest.TestCase):
 
     @staticmethod
     def test_transformed_dom_property_returns_datetime():
-        expected = datetime.datetime(2016, 10, 16, 1, 44, 56, 305000)
-        actual = DateTime(2016, 10, 16, 1, 44, 56, 305)
+        expected = datetime.datetime(2016, 10, 16, 1, 44, 56, 305000, tzinfo=dateutil.tz.UTC)
+        actual = DateTime(2016, 10, 16, 1, 44, 56, 305, DateTimeKind.Utc)
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         stub_adaptee.StubDateTime = actual
         sut = StubDomObject(stub_adaptee)
