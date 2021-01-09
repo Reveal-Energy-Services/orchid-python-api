@@ -19,7 +19,8 @@ import datetime
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to, close_to, calling, raises, has_property
+import dateutil.tz
 
 
 from orchid import (measurement as om,
@@ -27,12 +28,13 @@ from orchid import (measurement as om,
                     physical_quantity as opq,
                     unit_system as units)
 
-import tests.custom_matchers as tcm
+from tests import (custom_matchers as tcm,
+                   stub_net as tsn)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
 # noinspection PyUnresolvedReferences
-from System import (DateTime, Decimal)
+from System import (DateTime, DateTimeKind, Decimal)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -57,11 +59,29 @@ class TestNetMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_as_datetime(self):
-        net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726)
+    def test_as_datetime_net_time_point_kind_utc(self):
+        net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726, DateTimeKind.Utc)
         actual = onq.as_datetime(net_time_point)
 
-        assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000)))
+        assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000, tzinfo=dateutil.tz.UTC)))
+
+    def test_as_datetime_net_time_point_kind_local(self):
+        net_time_point = DateTime(2024, 11, 24, 18, 56, 35, 45, DateTimeKind.Local)
+        expected_error_message = f'{net_time_point.ToString("O")}.'
+        assert_that(calling(onq.as_datetime).with_args(net_time_point),
+                    raises(onq.NetQuantityLocalTimeZoneValueError, pattern=expected_error_message))
+
+    def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
+        net_time_point = tsn.StubDateTime(2023, 7, 31, 1, 11, 26, 216, tsn.StubDateTimeKind.UNSPECIFIED)
+        expected_error_message = f'{net_time_point.ToString("O")}'
+        assert_that(calling(onq.as_datetime).with_args(net_time_point),
+                    raises(onq.NetQuantityUnspecifiedTimeZoneValueError, pattern=expected_error_message))
+
+    def test_as_datetime_net_time_point_kind_unknown_throws_exception(self):
+        net_time_point = tsn.StubDateTime(2019, 2, 10, 9, 36, 36, 914, tsn.StubDateTimeKind.INVALID)
+        expected_error_pattern = f'Unknown .NET DateTime.Kind, {tsn.StubDateTimeKind.INVALID}.'
+        assert_that(calling(onq.as_datetime).with_args(net_time_point), raises(ValueError,
+                                                                               pattern=expected_error_pattern))
 
     def test_as_measurement(self):
         for to_convert_net_quantity, to_convert_physical_quantity, expected_value, expected_unit, tolerance in [

@@ -20,6 +20,7 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 import datetime
 
+import dateutil.tz
 import toolz.curried as toolz
 
 from orchid import (measurement as om,
@@ -29,7 +30,7 @@ from orchid import (measurement as om,
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
 # noinspection PyUnresolvedReferences
-from System import DateTime, Decimal, Tuple
+from System import DateTime, DateTimeKind, Decimal, Tuple
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -57,6 +58,28 @@ _UNIT_NET_UNIT_MAP = {
 }
 
 
+class NetQuantityLocalTimeZoneValueError(ValueError):
+    def __init__(self, net_time_point):
+        super().__init__(self, '.NET DateTime.Kind cannot be Local.', net_time_point.ToString("O"))
+
+
+class NetQuantityUnspecifiedTimeZoneValueError(ValueError):
+
+    ERROR_PREFACE = '.NET DateTime.Kind is unexpectedly Unspecified.'
+
+    ERROR_SUFFIX = """
+    Although .NET DateTime.Kind should not be Unspecified, it may be
+    safe to ignore this error by catching the exception.
+    
+    However, because it unexpected, **please** report the issue to
+    Reveal Energy Services. 
+    """
+
+    def __init__(self, net_time_point):
+        super().__init__(self, NetQuantityUnspecifiedTimeZoneValueError.ERROR_PREFACE,
+                         net_time_point.ToString("O"), NetQuantityUnspecifiedTimeZoneValueError.ERROR_SUFFIX)
+
+
 def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     """
     Convert a .NET `DateTime` instance to a `datetime.datetime` instance.
@@ -67,9 +90,18 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     Returns:
         The `datetime.datetime` equivalent to the `net_time_point`.
     """
-    return datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                             net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                             net_time_point.Millisecond * 1000)
+    if net_time_point.Kind == DateTimeKind.Utc:
+        return datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                                 net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                                 net_time_point.Millisecond * 1000, dateutil.tz.UTC)
+
+    if net_time_point.Kind == DateTimeKind.Unspecified:
+        raise NetQuantityUnspecifiedTimeZoneValueError(net_time_point)
+
+    if net_time_point.Kind == DateTimeKind.Local:
+        raise NetQuantityLocalTimeZoneValueError(net_time_point)
+
+    raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
 
 @toolz.curry
