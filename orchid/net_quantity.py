@@ -20,7 +20,7 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 import datetime
 
-import dateutil.tz
+import dateutil.tz as duz
 import toolz.curried as toolz
 
 from orchid import (measurement as om,
@@ -120,7 +120,7 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     if net_time_point.Kind == DateTimeKind.Utc:
         return datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                                  net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                                 net_time_point.Millisecond * 1000, dateutil.tz.UTC)
+                                 net_time_point.Millisecond * 1000, duz.UTC)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
         raise NetQuantityUnspecifiedDateTimeKindError(net_time_point)
@@ -165,6 +165,20 @@ def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsN
 as_length_measurement = as_measurement(opq.PhysicalQuantity.LENGTH)
 
 
+def microseconds_to_integral_milliseconds(to_convert: int) -> int:
+    """
+    Convert microseconds to an integral number of milliseconds.
+
+    Args:
+        to_convert: The milliseconds to convert.
+
+    Returns:
+        An integral number of milliseconds equivalent to `to_convert` microseconds.
+
+    """
+    return int(round(to_convert / 1000))
+
+
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
     """
     Convert a `datetime.datetime` instance to a .NET `DateTime` instance.
@@ -175,11 +189,12 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
     Returns:
         The equivalent .NET `DateTime` instance.
     """
-    if time_point.tzinfo != dateutil.tz.UTC:
+    if time_point.tzinfo != duz.UTC:
         raise NetQuantityNoTzInfoError(time_point)
 
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                    time_point.second, round(time_point.microsecond / 1000))
+                    time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
+                    DateTimeKind.Utc)
 
 
 _UNIT_CREATE_NET_UNIT_MAP = {
@@ -326,20 +341,6 @@ def net_decimal_to_float(net_decimal: Decimal) -> float:
         "lossy" because .NET `Decimal` values are exact, but `float` values are not.
     """
     return Decimal.ToDouble(net_decimal)
-
-
-def microseconds_to_integral_milliseconds(to_convert):
-    """
-    Convert microseconds to an integral number of milliseconds.
-
-    Args:
-        to_convert: The milliseconds to convert.
-
-    Returns:
-        An integral number of milliseconds equaivalent to `to_convert` microseconds.
-
-    """
-    return round(to_convert / 1000)
 
 
 def _unit_from_net_quantity(net_quantity, physical_quantity):
