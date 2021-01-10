@@ -411,6 +411,8 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()
     elif project_units == units.Metric:
         stub_net_project.ProjectUnits = UnitSystem.Metric()
+    elif project_units is not None:
+        stub_net_project.ProjectUnits = project_units
 
     try:
         stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]

@@ -16,10 +16,10 @@
 #
 
 import datetime
-import unittest
+import unittest.mock
 
 import dateutil.tz
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_entries
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
@@ -34,11 +34,29 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_get_net_project_units_returns_well_project_units(self):
+        expected = unittest.mock.MagicMock('expected_project_units')
+        stub_project = tsn.create_stub_net_project(project_units=expected)
+        sut = create_sut(project=stub_project)
+
+        assert_that(sut.get_net_project_units(), equal_to(expected))
+
     def test_name(self):
         expected_display_name = 'excoriaverunt'
         sut = create_sut(display_name=expected_display_name)
 
         assert_that(sut.display_name, equal_to(expected_display_name))
+
+    def test_quantity_unit_map(self):
+        for project_units in (units.UsOilfield, units.Metric):
+            with self.subTest(f'Quantity unit map for {project_units}'):
+                stub_project = tsn.create_stub_net_project(project_units=project_units)
+                sut = create_sut(project=stub_project)
+
+                actual = sut.quantity_name_unit_map(project_units)
+                assert_that(actual, has_entries({
+                    mca.MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type: project_units.PRESSURE,
+                    mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type: project_units.TEMPERATURE}))
 
     def test_sampled_quantity_name(self):
         expected_quantity_name = 'perspici'

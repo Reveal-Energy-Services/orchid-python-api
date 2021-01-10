@@ -23,9 +23,9 @@ import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 import dateutil.tz as duz
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_entries
 
-import orchid.native_treatment_curve_adapter as ntc
+import orchid.native_treatment_curve_adapter as tca
 import orchid.unit_system as units
 
 import tests.stub_net as tsn
@@ -40,10 +40,30 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
         assert_that(sut.display_name, equal_to('boni'))
 
+    def test_get_net_project_units_returns_well_project_units(self):
+        expected = unittest.mock.MagicMock('expected_project_units')
+        stub_project = tsn.create_stub_net_project(project_units=expected)
+        sut = create_sut(project=stub_project)
+
+        assert_that(sut.get_net_project_units(), equal_to(expected))
+
     def test_name_from_treatment_curve(self):
         sut = create_sut(name='magnitudina')
 
         assert_that(sut.name, equal_to('magnitudina'))
+
+    def test_quantity_unit_map(self):
+        for project_units in (units.UsOilfield, units.Metric):
+            with self.subTest(f'Quantity unit map for {project_units}'):
+                stub_project = tsn.create_stub_net_project(project_units=project_units)
+                sut = create_sut(project=stub_project)
+
+                actual = sut.quantity_name_unit_map(project_units)
+                assert_that(actual, has_entries({
+                    tca.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type: project_units.PRESSURE,
+                    tca.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type:
+                    project_units.PROPPANT_CONCENTRATION,
+                    tca.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE}))
 
     def test_sampled_quantity_name_from_treatment_curve(self):
         sut = create_sut(sampled_quantity_name='proponeam')
@@ -53,7 +73,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
         all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
         self.assert_correct_sampled_quantity_unit(all_pressure_units,
-                                                  ntc.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type)
+                                                  tca.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type)
 
     def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
         for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
@@ -65,13 +85,13 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
         all_slurry_rate_units = (units.UsOilfield.SLURRY_RATE, units.Metric.SLURRY_RATE)
         self.assert_correct_sampled_quantity_unit(all_slurry_rate_units,
-                                                  ntc.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type)
+                                                  tca.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type)
 
     def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
         all_proppant_concentration_units = (units.UsOilfield.PROPPANT_CONCENTRATION,
                                             units.Metric.PROPPANT_CONCENTRATION)
         self.assert_correct_sampled_quantity_unit(all_proppant_concentration_units,
-                                                  ntc.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
+                                                  tca.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
 
     def test_suffix_from_treatment_curve(self):
         sut = create_sut(suffix='hominibus')
@@ -109,7 +129,7 @@ def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', va
     stub_net_treatment_curve = tsn.create_stub_net_treatment_curve(
         name, display_name, sampled_quantity_name, suffix, values_starting_at=values_starting_at, project=project)
 
-    sut = ntc.NativeTreatmentCurveAdapter(stub_net_treatment_curve)
+    sut = tca.NativeTreatmentCurveAdapter(stub_net_treatment_curve)
     return sut
 
 
