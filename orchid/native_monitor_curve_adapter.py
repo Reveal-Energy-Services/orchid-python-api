@@ -17,12 +17,8 @@
 
 from collections import namedtuple
 import enum
-from typing import Union
 
-from orchid import (base_curve_adapter as bca,
-                    dot_net_dom_access as dna,
-                    physical_quantity as opq,
-                    unit_system as units)
+from orchid import (base_curve_adapter as bca)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
@@ -41,23 +37,31 @@ MONITOR_TEMPERATURE = MonitorCurveTypes.MONITOR_TEMPERATURE.value.curve_type
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
-    def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
-        """
-        Return the measurement unit of the samples in this treatment curve.
 
-        Returns:
-            A `UnitSystem` member containing the unit for the sample in this treatment curve.
+    def get_net_project_units(self):
         """
-        net_project_units = self._adaptee.Well.Project.ProjectUnits
-        if net_project_units == UnitSystem.USOilfield():
-            project_units = units.UsOilfield
-        elif net_project_units == UnitSystem.Metric():
-            project_units = units.Metric
-        else:
-            raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
+        Returns the .NET project units (a `UnitSystem`) for this instance.
 
-        sampled_quantity_name_unit_map = {
+        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
+        classes through invocation of "Primitive Operations".
+        """
+        result = self._adaptee.Well.Project.ProjectUnits
+        return result
+
+    def quantity_name_unit_map(self, project_units):
+        """
+        Return a map (dictionary) between quantity names and units (from `unit_system`) of the samples.
+
+        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
+        classes through invocation of "Primitive Operations".
+
+        Args:
+            project_units: The unit system of the project.
+        """
+        result = {
             MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type: project_units.PRESSURE,
             MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type: project_units.TEMPERATURE,
         }
-        return sampled_quantity_name_unit_map[self.sampled_quantity_name]
+        return result
