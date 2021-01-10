@@ -84,7 +84,7 @@ class TestMeasurement(unittest.TestCase):
         for magnitude, unit in [(877.26, units.Metric.LENGTH),
                                 (3, units.UsOilfield.VOLUME)  # Testing an integral magnitude against contract
                                 ]:
-            with self.subTest(magnitude=magnitude, unit=unit):
+            with self.subTest(f'Test returns magnitude, {magnitude}, supplied to make_measurement.'):
                 sut = om.make_measurement(unit, magnitude)
 
                 assert_that(sut.magnitude, equal_to(magnitude))
