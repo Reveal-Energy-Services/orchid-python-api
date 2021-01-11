@@ -136,7 +136,7 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)),
              opq.PhysicalQuantity.VOLUME, 13.27, units.Metric.VOLUME, decimal.Decimal('0.01')),
         ]:
-            with self.subTest():
+            with self.subTest(f'Test as_measurement for {expected_value} {expected_unit.value.unit:~P}'):
                 actual = onq.as_measurement(to_convert_physical_quantity, to_convert_net_quantity)
                 expected = om.make_measurement(expected_unit, expected_value)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
@@ -157,7 +157,7 @@ class TestNetMeasurement(unittest.TestCase):
                                      (DateTime(2022, 1, 14, 20, 29, 18, 852, DateTimeKind.Utc),
                                       datetime.datetime(2022, 1, 14, 20, 29, 18, 852500, duz.UTC))
                                      ]:
-            with self.subTest():
+            with self.subTest(f'Test as_net_date_time for {expected}'):
                 actual = onq.as_net_date_time(time_point)
                 assert_that(actual, tcm.equal_to_net_date_time(expected))
 
@@ -217,7 +217,7 @@ class TestNetMeasurement(unittest.TestCase):
             (om.make_measurement(units.Metric.VOLUME, 1017.09),
              UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1017.09))),
         ]:
-            with self.subTest(f'Converting measurement to UnitsNet Quantity'):
+            with self.subTest(f'Test converting measurement, {to_convert_measurement} to a UnitsNet IQuantity'):
                 actual = onq.as_net_quantity(to_convert_measurement)
 
                 # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
@@ -249,8 +249,7 @@ class TestNetMeasurement(unittest.TestCase):
             (om.make_measurement(units.Metric.VOLUME, 880.86),
              UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(880.86))),
         ]:
-            with self.subTest(to_convert_measurement=to_convert_measurement,
-                              expected_net_quantity=expected_net_quantity):
+            with self.subTest(f'Test measurement, {to_convert_measurement}, as_net_quantity, but in the same units.'):
                 actual = onq.as_net_quantity_in_different_unit(to_convert_measurement, to_convert_measurement.unit)
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
@@ -326,7 +325,7 @@ class TestNetMeasurement(unittest.TestCase):
                     tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, tolerance)
 
     def test_convert_net_quantity_to_same_unit(self):
-        for net_unit, target_unit in [
+        for net_quantity, target_unit in [
             (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(0.1717)), units.Common.DURATION),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(154.67)), units.UsOilfield.LENGTH),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(40.24)), units.Metric.LENGTH),
@@ -338,9 +337,9 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8952.96)), units.UsOilfield.VOLUME),
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1164.91)), units.Metric.VOLUME),
         ]:
-            with self.subTest(net_unit=net_unit, target_unit=target_unit):
-                actual = onq.convert_net_quantity_to_different_unit(net_unit, target_unit)
-                tcm.assert_that_net_quantities_close_to(actual, net_unit)
+            with self.subTest(f'Test convert .NET quantity, {net_quantity.ToString()}, to same unit, {target_unit}'):
+                actual = onq.convert_net_quantity_to_different_unit(net_quantity, target_unit)
+                tcm.assert_that_net_quantities_close_to(actual, net_quantity)
 
     def test_convert_net_quantity_to_different_unit(self):
         for source_net_quantity, target_unit, target_net_quantity, tolerance in [
@@ -408,7 +407,8 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
              UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), decimal.Decimal('0.07')),
         ]:
-            with self.subTest(f'Converting .NET Quantity, {source_net_quantity}, to "{target_unit}"'):
+            with self.subTest(f'Converting .NET Quantity, {source_net_quantity},'
+                              f' to different unit, "{target_unit.value.unit:~P}"'):
                 actual = onq.convert_net_quantity_to_different_unit(source_net_quantity, target_unit)
                 to_test_tolerance = tolerance if tolerance else decimal.Decimal('0.01')
 
