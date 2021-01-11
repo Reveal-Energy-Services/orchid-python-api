@@ -117,7 +117,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
             (origins.WellReferenceFrameXy.PROJECT, WellReferenceFrameXy.Project),
             (origins.WellReferenceFrameXy.WELL_HEAD, WellReferenceFrameXy.WellHead),
         ]:
-            with self.subTest(reference_frame=reference_frame, net_reference_frame=net_reference_frame):
+            with self.subTest(f'Test send correct reference frame {reference_frame.name} to get_easting_array'):
                 mock_get_easting_array = unittest.mock.MagicMock(name='stub_eastings', return_value=[])
                 stub_trajectory.GetEastingArray = mock_get_easting_array
                 sut.get_easting_array(reference_frame)
@@ -132,7 +132,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
             (origins.WellReferenceFrameXy.PROJECT, WellReferenceFrameXy.Project),
             (origins.WellReferenceFrameXy.WELL_HEAD, WellReferenceFrameXy.WellHead),
         ]:
-            with self.subTest(reference_frame=reference_frame, net_reference_frame=net_reference_frame):
+            with self.subTest(f'Test send correct reference frame {reference_frame.name} to get_northing_array'):
                 mock_get_northing_array = unittest.mock.MagicMock(name='stub_northings', return_value=[])
                 stub_trajectory.GetNorthingArray = mock_get_northing_array
                 sut.get_northing_array(reference_frame)

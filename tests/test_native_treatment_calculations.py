@@ -63,11 +63,13 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
                                  spec=loader.native_treatment_calculations,
                                  return_value=stub_treatment_calculations):
-            with self.subTest():
+            with self.subTest(f'Test calculation result {expected_measurement if expected_measurement else ""}'
+                              f'{"with warnings," if expected_warnings is not None else ""}'
+                              f' {expected_warnings if expected_warnings is not None else ""}'):
                 actual_result = sut(create_stub_stage_adapter(), start_time, stop_time)
                 if expected_measurement is not None:
                     tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
-                                                               tolerance=6e-3)
+                                                               tolerance=6e-2)
                 if expected_warnings is not None:
                     assert_that(expected_warnings, equal_to(actual_result.warnings))
 

@@ -89,7 +89,7 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
              (135453.42, 2746247.70, 2377.41, 2049.04), units.Metric.LENGTH),
         ]
         for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit in all_test_data:
-            with self.subTest():
+            with self.subTest(f'Test as_length_unit {length_magnitudes[0]} {length_unit.value.unit:~P}'):
                 from_lengths = list(toolz.map(toolz.flip(tsn.StubMeasurement, length_unit), length_magnitudes))
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
