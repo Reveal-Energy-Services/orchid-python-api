@@ -80,16 +80,16 @@ class NativeStageAdapter(dna.DotNetAdapter):
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', onq.as_datetime)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
 
-    as_pressure_measurement = onq.as_measurement(opq.PhysicalQuantity.PRESSURE)
-    shmin = dna.transformed_dom_property('shmin',
-                                         'The minimum stress in the rock',
-                                         as_pressure_measurement)
-    pnet = dna.transformed_dom_property('pnet',
-                                        'The net pressure of the treatment stage',
-                                        as_pressure_measurement)
-    isip = dna.transformed_dom_property('isip',
-                                        'The initial shut-in pressure after treatment completion',
-                                        as_pressure_measurement)
+    # as_pressure_measurement = onq.as_measurement(opq.PhysicalQuantity.PRESSURE)
+    # shmin = dna.transformed_dom_property('shmin',
+    #                                      'The minimum stress in the rock',
+    #                                      as_pressure_measurement)
+    # pnet = dna.transformed_dom_property('pnet',
+    #                                     'The net pressure of the treatment stage',
+    #                                     as_pressure_measurement)
+    # isip = dna.transformed_dom_property('isip',
+    #                                     'The initial shut-in pressure after treatment completion',
+    #                                     as_pressure_measurement)
 
 
     @staticmethod
@@ -349,3 +349,21 @@ class NativeStageAdapter(dna.DotNetAdapter):
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
+
+    def isip(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+        # TODO add an assert that the target unit is value
+        net_isip = self._adaptee.Isip
+        net_isip_correct_units = onq.convert_net_quantity_to_different_unit(net_isip, target_unit)
+        return onq.as_pressure_measurement(net_isip_correct_units)
+
+    def pnet(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+        # TODO add an assert that the target unit is value
+        net_pnet = self._adaptee.Pnet
+        net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(net_pnet, target_unit)
+        return onq.as_pressure_measurement(net_pnet_correct_units)
+
+    def shmin(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+        # TODO add an assert that the target unit is value
+        net_shmin = self._adaptee.Shmin
+        net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(net_shmin, target_unit)
+        return onq.as_pressure_measurement(net_shmin_correct_units)

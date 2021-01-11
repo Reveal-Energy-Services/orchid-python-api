@@ -254,3 +254,15 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_4H | 4         | 8145.41 psi | 4919.07 psi | 6/7/2018 1:45:10 AM  | 6/7/2018 4:01:14 AM    | 1477.51 psi |
       | Bakken | Demo_4H | 6         | 8146.03 psi | 4883.45 psi | 6/8/2018 5:01:14 AM  | 6/8/2018 8:09:23 AM    | 1441.63 psi |
       | Bakken | Demo_4H | 35        | 8181.86 psi | 5178.00 psi | 6/28/2018 1:30:42 PM | 6/28/2018 3:32:57 PM   | 1721.05 psi |
+
+    Examples: Montney
+      | field   | well    | stage_no | shmin   | isip      | start_time            | stop_time             | pnet         |
+      | Montney | Hori_01 | 1        | 100 kPa | 69.22 kPa | 4/6/2018 6:09:28 PM   | 4/6/2018 9:14:58 PM   | 9873.50 kPa  |
+      | Montney | Hori_01 | 8        | 100 kPa | 31.00 kPa | 4/10/2018 9:09:38 PM  | 4/10/2018 11:47:37 PM | 9730.30 kPa  |
+      | Montney | Hori_02 | 2        | 100 kPa | 30.50 kPa | 4/9/2018 10:06:00 PM  | 4/10/2018 12:22:00 AM | 10861.70 kPa |
+      | Montney | Hori_02 | 10       | 100 kPa | 32.20 kPa | 4/14/2018 12:42:00 AM | 4/14/2018 2:09:00 AM  | 10840.20 kPa |
+      | Montney | Hori_03 | 3        | 100 kPa | 28.20 kPa | 4/8/2018 12:57:13 AM  | 4/8/2018 2:56:08 AM   | 9662.69 kPa  |
+      | Montney | Hori_03 | 21       | 100 kPa | 31.50 kPa | 4/17/2018 8:44:39 PM  | 4/17/2018 10:14:24 PM | 9609.65 kPa  |
+      | Montney | Vert_01 | 1        | 100 kPa | 33.50 kPa | 4/6/2018 1:59:00 PM   | 4/6/2018 4:44:00 PM   | 10524.12 kPa |
+      | Montney | Vert_01 | 3        | 100 kPa | 32.10 kPa | 4/10/2018 12:37:14 PM | 4/10/2018 3:24:41 PM  | 9529.93 kPa  |
+

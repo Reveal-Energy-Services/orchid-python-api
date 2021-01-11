@@ -308,19 +308,19 @@ class TestNativeStageAdapter(unittest.TestCase):
         expected_shmin = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
         stub_net_stage = tsn.create_stub_net_stage(shmin=expected_shmin)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.shmin, expected_shmin, 6e-2)
+        tcm.assert_that_measurements_close_to(sut.shmin(units.UsOilfield.PRESSURE), expected_shmin, 6e-2)
 
     def test_pnet(self):
         expected_pnet = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
         stub_net_stage = tsn.create_stub_net_stage(pnet=expected_pnet)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.pnet, expected_pnet, 6e-2)
+        tcm.assert_that_measurements_close_to(sut.pnet(units.UsOilfield.PRESSURE), expected_pnet, 6e-2)
 
     def test_isip(self):
         expected_isip = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
         stub_net_stage = tsn.create_stub_net_stage(isip=expected_isip)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.isip, expected_isip, 6e-2)
+        tcm.assert_that_measurements_close_to(sut.isip(units.UsOilfield.PRESSURE), expected_isip, 6e-2)
 
 
 def assert_is_native_treatment_curve_facade(curve):

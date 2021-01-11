@@ -41,6 +41,7 @@ def step_impl(context, stage_count, well):
         stage_count (int): The number of stages for the well of interest.
         well (str): The name of the well of interest.
     """
+
     def actual_test_details(well_adapter):
         return well_adapter.name, toolz.count(well_adapter.stages)
 
@@ -273,9 +274,19 @@ def assert_datetimes_equal(actual_datetime: datetime.datetime, expected_datetime
       "{stop_time}, and {pnet}")
 def step_impl(context, well, stage_no, shmin, isip, start_time, stop_time, pnet):
     stage_of_interest = find_stage_no_in_well(context, stage_no, well)
-    actual_shmin = stage_of_interest.shmin
-    actual_isip = stage_of_interest.isip
-    actual_pnet = stage_of_interest.pnet
+    if context.field == 'Bakken':
+        hr_change = 5
+        pressure_units = units.UsOilfield.PRESSURE
+    elif context.field == 'Montney':
+        # TODO: Update tests when timezone is included!!!!!
+        hr_change = 0
+        pressure_units = units.Metric.PRESSURE
+    else:
+        hr_change = 0
+
+    actual_shmin = stage_of_interest.shmin(pressure_units)
+    actual_isip = stage_of_interest.isip(pressure_units)
+    actual_pnet = stage_of_interest.pnet(pressure_units)
     actual_start_time = stage_of_interest.start_time
     actual_stop_time = stage_of_interest.stop_time
 
@@ -283,12 +294,7 @@ def step_impl(context, well, stage_no, shmin, isip, start_time, stop_time, pnet)
     assert_measurement_equal(actual_isip, isip)
     assert_measurement_equal(actual_pnet, pnet)
 
-    if context.field == 'Bakken':
-        hr_change = 5
-    elif context.field == 'Montney':
-        hr_change = 6
-    else:
-        hr_change = 0
+
 
     time_change = datetime.timedelta(hours=hr_change)
     assert_datetimes_equal(actual_start_time - time_change, start_time)
