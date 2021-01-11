@@ -256,7 +256,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
          The measured depth of the stage top in the specified unit.
         """
         original = self._adaptee.MdTop
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(original, in_length_unit)
+        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
 
@@ -272,7 +272,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
              The measured depth of the stage bottom in the specified unit.
         """
         original = self._adaptee.MdBottom
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(original, in_length_unit)
+        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
 
