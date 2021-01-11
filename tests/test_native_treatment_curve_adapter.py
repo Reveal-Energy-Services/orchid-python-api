@@ -70,29 +70,6 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
         assert_that(sut.sampled_quantity_name, equal_to('proponeam'))
 
-    def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
-        all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
-        self.assert_correct_sampled_quantity_unit(all_pressure_units,
-                                                  tca.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type)
-
-    def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
-        for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
-            stub_project = tsn.create_stub_net_project(project_units=project_units)
-            sut = create_sut(sampled_quantity_name=sampled_quantity_name, project=stub_project)
-            with self.subTest(expected_curve_unit=expected_curve_unit):
-                assert_that(sut.sampled_quantity_unit(), equal_to(expected_curve_unit))
-
-    def test_sampled_quantity_unit_returns_slurry_rate_if_slurry_rate_samples(self):
-        all_slurry_rate_units = (units.UsOilfield.SLURRY_RATE, units.Metric.SLURRY_RATE)
-        self.assert_correct_sampled_quantity_unit(all_slurry_rate_units,
-                                                  tca.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type)
-
-    def test_sampled_quantity_unit_returns_proppant_concentration_if_proppant_concentration_samples(self):
-        all_proppant_concentration_units = (units.UsOilfield.PROPPANT_CONCENTRATION,
-                                            units.Metric.PROPPANT_CONCENTRATION)
-        self.assert_correct_sampled_quantity_unit(all_proppant_concentration_units,
-                                                  tca.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type)
-
     def test_suffix_from_treatment_curve(self):
         sut = create_sut(suffix='hominibus')
 
