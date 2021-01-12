@@ -23,7 +23,7 @@ import decimal
 from hamcrest import assert_that, equal_to, close_to
 import dateutil.parser
 
-from orchid import (native_treatment_curve_adapter as ntc,
+from orchid import (native_treatment_curve_adapter as tca,
                     unit_system as units)
 
 from common_functions import find_stage_no_in_well
@@ -44,9 +44,9 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
     """
     stage_of_interest = find_stage_no_in_well(context, stage_no, well)
     treatment_curves = stage_of_interest.treatment_curves()
-    curve_name = {'pressure': ntc.TREATING_PRESSURE,
-                  'proppant': ntc.PROPPANT_CONCENTRATION,
-                  'slurry': ntc.SLURRY_RATE}[curve_type]
+    curve_name = {'pressure': tca.TreatmentCurveTypes.TREATING_PRESSURE,
+                  'proppant': tca.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION,
+                  'slurry': tca.TreatmentCurveTypes.SLURRY_RATE}[curve_type]
     actual_treatment_curve = treatment_curves[curve_name]
     actual_time_stamp = actual_treatment_curve.time_series().index[index].to_pydatetime()
     expected_time_stamp = dateutil.parser.parse(timestamp)

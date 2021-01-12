@@ -1,4 +1,4 @@
-#  Copyright 2017-2021 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -15,7 +15,6 @@
 # This file is part of Orchid and related technologies.
 #
 
-from collections import namedtuple
 import enum
 
 from orchid import (base_curve_adapter as bca)
@@ -23,17 +22,10 @@ from orchid import (base_curve_adapter as bca)
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
 
-AboutMonitorCurveType = namedtuple('AboutCurveType', ['curve_type', 'net_curve_type'])
-
 
 class MonitorCurveTypes(enum.Enum):
-    MONITOR_PRESSURE = AboutMonitorCurveType('Pressure', 'Pressure')
-    MONITOR_TEMPERATURE = AboutMonitorCurveType('Temperature', 'Temperature')
-
-
-# Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
-MONITOR_PRESSURE = MonitorCurveTypes.MONITOR_PRESSURE.value.curve_type
-MONITOR_TEMPERATURE = MonitorCurveTypes.MONITOR_TEMPERATURE.value.curve_type
+    MONITOR_PRESSURE = 'Pressure'
+    MONITOR_TEMPERATURE = 'Temperature'
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
@@ -61,7 +53,7 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
             project_units: The unit system of the project.
         """
         result = {
-            MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type: project_units.PRESSURE,
-            MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type: project_units.TEMPERATURE,
+            MonitorCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+            MonitorCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE,
         }
         return result

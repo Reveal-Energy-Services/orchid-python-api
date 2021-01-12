@@ -60,10 +60,10 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
                 actual = sut.quantity_name_unit_map(project_units)
                 assert_that(actual, has_entries({
-                    tca.TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type: project_units.PRESSURE,
-                    tca.TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type:
+                    tca.TreatmentCurveTypes.TREATING_PRESSURE.value: project_units.PRESSURE,
+                    tca.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value:
                     project_units.PROPPANT_CONCENTRATION,
-                    tca.TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE}))
+                    tca.TreatmentCurveTypes.SLURRY_RATE.value: project_units.SLURRY_RATE}))
 
     def test_sampled_quantity_name_from_treatment_curve(self):
         sut = create_sut(sampled_quantity_name='proponeam')
