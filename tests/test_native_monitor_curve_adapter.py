@@ -55,8 +55,8 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
                 actual = sut.quantity_name_unit_map(project_units)
                 assert_that(actual, has_entries({
-                    mca.MonitorCurveTypes.MONITOR_PRESSURE.value.net_curve_type: project_units.PRESSURE,
-                    mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value.net_curve_type: project_units.TEMPERATURE}))
+                    mca.MonitorCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+                    mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE}))
 
     def test_sampled_quantity_name(self):
         expected_quantity_name = 'perspici'
