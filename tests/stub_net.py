@@ -25,7 +25,6 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 import enum
 import itertools
-import math
 import unittest.mock
 from typing import Sequence
 
@@ -175,12 +174,12 @@ def make_net_length_unit(measurement):
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
     treating_pressure_time_series = create_stub_net_time_series(start_time_point, treating_pressure_values)
-    treating_pressure_curve = StubNetTreatmentCurve(ontc.TREATING_PRESSURE, 'pressure',
+    treating_pressure_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.TREATING_PRESSURE, 'pressure',
                                                     treating_pressure_time_series)
     rate_time_series = create_stub_net_time_series(start_time_point, rate_values)
-    rate_curve = StubNetTreatmentCurve(ontc.SLURRY_RATE, 'ratio', rate_time_series)
+    rate_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SLURRY_RATE, 'ratio', rate_time_series)
     concentration_time_series = create_stub_net_time_series(start_time_point, concentration_values)
-    concentration_curve = StubNetTreatmentCurve(ontc.PROPPANT_CONCENTRATION, 'ratio',
+    concentration_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION, 'ratio',
                                                 concentration_time_series)
 
     return [treating_pressure_curve, rate_curve, concentration_curve]
@@ -262,7 +261,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
             lambda sampled_quantity_name: create_stub_net_treatment_curve(
-                sampled_quantity_name=sampled_quantity_name), treatment_curve_names))
+                sampled_quantity_name=sampled_quantity_name.value), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
 
