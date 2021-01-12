@@ -22,9 +22,8 @@ prepare_imports()
 from .core import load_project
 
 # Helpful constants
-from .native_monitor_curve_adapter import (MONITOR_PRESSURE, MONITOR_TEMPERATURE)
 from .native_treatment_curve_adapter import TreatmentCurveTypes
-# from .native_treatment_curve_adapter import (PROPPANT_CONCENTRATION, SLURRY_RATE, TREATING_PRESSURE)
+from .native_monitor_curve_adapter import MonitorCurveTypes
 
 # Helpful functions
 from .convert import to_unit
