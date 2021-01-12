@@ -26,20 +26,11 @@ from orchid import (base_curve_adapter as bca,
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
 
-AboutTreatmentCurveType = namedtuple('AboutTreatmentCurveType', ['curve_type', 'net_curve_type'])
 
-
-# TODO: Better repair for these curve types involving the .NET type `TreatmentCurvesPredefinedTypes` if possible
 class TreatmentCurveTypes(enum.Enum):
-    PROPPANT_CONCENTRATION = AboutTreatmentCurveType('Proppant Concentration', 'Surface Proppant Concentration')
-    SLURRY_RATE = AboutTreatmentCurveType('Slurry Rate', 'Slurry Rate')
-    TREATING_PRESSURE = AboutTreatmentCurveType('Pressure', 'Pressure')
-
-
-# Convenience constants, perhaps temporary, so that users need not navigate the object tree to access needed value
-PROPPANT_CONCENTRATION = TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.curve_type
-SLURRY_RATE = TreatmentCurveTypes.SLURRY_RATE.value.curve_type
-TREATING_PRESSURE = TreatmentCurveTypes.TREATING_PRESSURE.value.curve_type
+    SURFACE_PROPPANT_CONCENTRATION = 'Surface Proppant Concentration'
+    SLURRY_RATE = 'Slurry Rate'
+    TREATING_PRESSURE = 'Pressure'
 
 
 class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
@@ -61,8 +52,8 @@ class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
             raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
 
         sampled_quantity_name_unit_map = {
-            TreatmentCurveTypes.TREATING_PRESSURE.value.net_curve_type: project_units.PRESSURE,
-            TreatmentCurveTypes.PROPPANT_CONCENTRATION.value.net_curve_type: project_units.PROPPANT_CONCENTRATION,
-            TreatmentCurveTypes.SLURRY_RATE.value.net_curve_type: project_units.SLURRY_RATE,
+            TreatmentCurveTypes.TREATING_PRESSURE.value: project_units.PRESSURE,
+            TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value: project_units.PROPPANT_CONCENTRATION,
+            TreatmentCurveTypes.SLURRY_RATE.value: project_units.SLURRY_RATE,
         }
         return sampled_quantity_name_unit_map[self.sampled_quantity_name]
