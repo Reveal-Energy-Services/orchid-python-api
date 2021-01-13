@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -19,7 +19,8 @@ import datetime
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to, close_to, calling, raises
+import dateutil.tz as duz
 
 
 from orchid import (measurement as om,
@@ -27,12 +28,13 @@ from orchid import (measurement as om,
                     physical_quantity as opq,
                     unit_system as units)
 
-import tests.custom_matchers as tcm
+from tests import (custom_matchers as tcm,
+                   stub_net as tsn)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
 # noinspection PyUnresolvedReferences
-from System import (DateTime, Decimal)
+from System import (DateTime, DateTimeKind, Decimal)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -57,11 +59,29 @@ class TestNetMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_as_datetime(self):
-        net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726)
+    def test_as_datetime_net_time_point_kind_utc(self):
+        net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726, DateTimeKind.Utc)
         actual = onq.as_datetime(net_time_point)
 
-        assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000)))
+        assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000, tzinfo=duz.UTC)))
+
+    def test_as_datetime_net_time_point_kind_local(self):
+        net_time_point = DateTime(2024, 11, 24, 18, 56, 35, 45, DateTimeKind.Local)
+        expected_error_message = f'{net_time_point.ToString("O")}.'
+        assert_that(calling(onq.as_datetime).with_args(net_time_point),
+                    raises(onq.NetQuantityLocalDateTimeKindError, pattern=expected_error_message))
+
+    def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
+        net_time_point = tsn.StubDateTime(2023, 7, 31, 1, 11, 26, 216, tsn.StubDateTimeKind.UNSPECIFIED)
+        expected_error_message = f'{net_time_point.ToString("O")}'
+        assert_that(calling(onq.as_datetime).with_args(net_time_point),
+                    raises(onq.NetQuantityUnspecifiedDateTimeKindError, pattern=expected_error_message))
+
+    def test_as_datetime_net_time_point_kind_unknown_throws_exception(self):
+        net_time_point = tsn.StubDateTime(2019, 2, 10, 9, 36, 36, 914, tsn.StubDateTimeKind.INVALID)
+        expected_error_pattern = f'Unknown .NET DateTime.Kind, {tsn.StubDateTimeKind.INVALID}.'
+        assert_that(calling(onq.as_datetime).with_args(net_time_point), raises(ValueError,
+                                                                               pattern=expected_error_pattern))
 
     def test_as_measurement(self):
         for to_convert_net_quantity, to_convert_physical_quantity, expected_value, expected_unit, tolerance in [
@@ -116,36 +136,35 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)),
              opq.PhysicalQuantity.VOLUME, 13.27, units.Metric.VOLUME, decimal.Decimal('0.01')),
         ]:
-            with self.subTest():
+            with self.subTest(f'Test as_measurement for {expected_value} {expected_unit.value.unit:~P}'):
                 actual = onq.as_measurement(to_convert_physical_quantity, to_convert_net_quantity)
                 expected = om.make_measurement(expected_unit, expected_value)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_net_date_time(self):
-        for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23),
-                                      datetime.datetime(2017, 3, 22, 3, 0, 37, 23124)),
-                                     (DateTime(2020, 9, 20, 22, 11, 51, 655),
-                                      datetime.datetime(2020, 9, 20, 22, 11, 51, 654859)),
+        for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23, DateTimeKind.Utc),
+                                      datetime.datetime(2017, 3, 22, 3, 0, 37, 23124, duz.UTC)),
+                                     (DateTime(2020, 9, 20, 22, 11, 51, 655, DateTimeKind.Utc),
+                                      datetime.datetime(2020, 9, 20, 22, 11, 51, 654859, duz.UTC)),
                                      # The Python `round` function employs "half-even" rounding; however, the
                                      # following test rounds to an *odd* value instead. See the "Note" in the
                                      # Python documentation of `round` for an explanation of this (unexpected)
                                      # behavior.
-                                     (DateTime(2022, 2, 2, 23, 35, 39, 979),
-                                      datetime.datetime(2022, 2, 2, 23, 35, 39, 978531)),
-                                     (DateTime(2019, 2, 7, 10, 18, 17, 488),
-                                      datetime.datetime(2019, 2, 7, 10, 18, 17, 487500)),
-                                     (DateTime(2022, 1, 14, 20, 29, 18, 852),
-                                      datetime.datetime(2022, 1, 14, 20, 29, 18, 852500))
+                                     (DateTime(2022, 2, 2, 23, 35, 39, 979, DateTimeKind.Utc),
+                                      datetime.datetime(2022, 2, 2, 23, 35, 39, 978531, duz.UTC)),
+                                     (DateTime(2019, 2, 7, 10, 18, 17, 488, DateTimeKind.Utc),
+                                      datetime.datetime(2019, 2, 7, 10, 18, 17, 487500, duz.UTC)),
+                                     (DateTime(2022, 1, 14, 20, 29, 18, 852, DateTimeKind.Utc),
+                                      datetime.datetime(2022, 1, 14, 20, 29, 18, 852500, duz.UTC))
                                      ]:
-            with self.subTest(expected=expected, time_point=time_point):
+            with self.subTest(f'Test as_net_date_time for {expected}'):
                 actual = onq.as_net_date_time(time_point)
-                assert_that(actual.Year, equal_to(expected.Year))
-                assert_that(actual.Month, equal_to(expected.Month))
-                assert_that(actual.Day, equal_to(expected.Day))
-                assert_that(actual.Hour, equal_to(expected.Hour))
-                assert_that(actual.Minute, equal_to(expected.Minute))
-                assert_that(actual.Second, equal_to(expected.Second))
-                assert_that(actual.Millisecond, equal_to(expected.Millisecond))
+                assert_that(actual, tcm.equal_to_net_date_time(expected))
+
+    def test_as_net_date_time_raises_error_if_not_utc(self):
+        to_test_datetime = datetime.datetime(2025, 12, 21, 9, 15, 7, 896671)
+        assert_that(calling(onq.as_net_date_time).with_args(to_test_datetime),
+                    raises(onq.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
     def test_as_net_quantity(self):
         for to_convert_measurement, expected_net_quantity in [
@@ -198,7 +217,7 @@ class TestNetMeasurement(unittest.TestCase):
             (om.make_measurement(units.Metric.VOLUME, 1017.09),
              UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1017.09))),
         ]:
-            with self.subTest(f'Converting measurement to UnitsNet Quantity'):
+            with self.subTest(f'Test converting measurement, {to_convert_measurement} to a UnitsNet IQuantity'):
                 actual = onq.as_net_quantity(to_convert_measurement)
 
                 # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
@@ -230,8 +249,7 @@ class TestNetMeasurement(unittest.TestCase):
             (om.make_measurement(units.Metric.VOLUME, 880.86),
              UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(880.86))),
         ]:
-            with self.subTest(to_convert_measurement=to_convert_measurement,
-                              expected_net_quantity=expected_net_quantity):
+            with self.subTest(f'Test measurement, {to_convert_measurement}, as_net_quantity, but in the same units.'):
                 actual = onq.as_net_quantity_in_different_unit(to_convert_measurement, to_convert_measurement.unit)
                 tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, 6e-3)
 
@@ -307,7 +325,7 @@ class TestNetMeasurement(unittest.TestCase):
                     tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, tolerance)
 
     def test_convert_net_quantity_to_same_unit(self):
-        for net_unit, target_unit in [
+        for net_quantity, target_unit in [
             (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(0.1717)), units.Common.DURATION),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(154.67)), units.UsOilfield.LENGTH),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(40.24)), units.Metric.LENGTH),
@@ -319,9 +337,9 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8952.96)), units.UsOilfield.VOLUME),
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1164.91)), units.Metric.VOLUME),
         ]:
-            with self.subTest(net_unit=net_unit, target_unit=target_unit):
-                actual = onq.convert_net_quantity_to_different_unit(net_unit, target_unit)
-                tcm.assert_that_net_quantities_close_to(actual, net_unit)
+            with self.subTest(f'Test convert .NET quantity, {net_quantity.ToString()}, to same unit, {target_unit}'):
+                actual = onq.convert_net_quantity_to_different_unit(net_quantity, target_unit)
+                tcm.assert_that_net_quantities_close_to(actual, net_quantity)
 
     def test_convert_net_quantity_to_different_unit(self):
         for source_net_quantity, target_unit, target_net_quantity, tolerance in [
@@ -389,7 +407,8 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1398.17)), units.UsOilfield.VOLUME,
              UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8794.21)), decimal.Decimal('0.07')),
         ]:
-            with self.subTest(f'Converting .NET Quantity, {source_net_quantity}, to "{target_unit}"'):
+            with self.subTest(f'Converting .NET Quantity, {source_net_quantity},'
+                              f' to different unit, "{target_unit.value.unit:~P}"'):
                 actual = onq.convert_net_quantity_to_different_unit(source_net_quantity, target_unit)
                 to_test_tolerance = tolerance if tolerance else decimal.Decimal('0.01')
 

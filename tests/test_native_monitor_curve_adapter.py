@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -16,16 +16,15 @@
 #
 
 import datetime
-import unittest
-import unittest.mock as mock
+import unittest.mock
 
-from hamcrest import assert_that, equal_to
+import dateutil.tz
+from hamcrest import assert_that, equal_to, has_entries
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 
 from orchid import (native_monitor_curve_adapter as mca,
-                    physical_quantity as opq,
                     unit_system as units)
 
 import tests.stub_net as tsn
@@ -35,34 +34,35 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_get_net_project_units_returns_well_project_units(self):
+        expected = unittest.mock.MagicMock('expected_project_units')
+        stub_project = tsn.create_stub_net_project(project_units=expected)
+        sut = create_sut(project=stub_project)
+
+        assert_that(sut.get_net_project_units(), equal_to(expected))
+
     def test_name(self):
         expected_display_name = 'excoriaverunt'
         sut = create_sut(display_name=expected_display_name)
 
         assert_that(sut.display_name, equal_to(expected_display_name))
 
+    def test_quantity_unit_map(self):
+        for project_units in (units.UsOilfield, units.Metric):
+            with self.subTest(f'Quantity unit map for {project_units}'):
+                stub_project = tsn.create_stub_net_project(project_units=project_units)
+                sut = create_sut(project=stub_project)
+
+                actual = sut.quantity_name_unit_map(project_units)
+                assert_that(actual, has_entries({
+                    mca.MonitorCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+                    mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE}))
+
     def test_sampled_quantity_name(self):
         expected_quantity_name = 'perspici'
         sut = create_sut(sampled_quantity_name=expected_quantity_name)
 
         assert_that(sut.sampled_quantity_name, equal_to(expected_quantity_name))
-
-    def test_sampled_quantity_unit_returns_pressure_if_pressure_samples(self):
-        all_pressure_units = (units.UsOilfield.PRESSURE, units.Metric.PRESSURE)
-        self.assert_correct_sampled_quantity_unit(all_pressure_units,
-                                                  mca.MonitorCurveTypes.MONITOR_PRESSURE)
-
-    def assert_correct_sampled_quantity_unit(self, all_expected_units, sampled_quantity_name):
-        for (project_units, expected_curve_unit) in zip((units.UsOilfield, units.Metric), all_expected_units):
-            stub_project = tsn.create_stub_net_project(project_units=project_units)
-            sut = create_sut(sampled_quantity_name=sampled_quantity_name.value, project=stub_project)
-            with self.subTest(expected_curve_unit=expected_curve_unit):
-                assert_that(sut.sampled_quantity_unit(), equal_to(expected_curve_unit))
-
-    def test_sampled_quantity_unit_returns_temperature_if_temperature_samples(self):
-        all_temperature_units = (units.UsOilfield.TEMPERATURE, units.Metric.TEMPERATURE)
-        self.assert_correct_sampled_quantity_unit(all_temperature_units,
-                                                  mca.MonitorCurveTypes.MONITOR_TEMPERATURE)
 
     def test_empty_time_series_if_no_samples(self):
         name = 'trucem'
@@ -77,7 +77,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
         values = [26.3945]
-        start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39)
+        start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39, tzinfo=dateutil.tz.UTC)
         self.assert_equal_time_series(name, start_time_point, values)
 
     @staticmethod
@@ -91,7 +91,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
         values = [75.75, 62.36, 62.69]
-        start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15)
+        start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15, tzinfo=dateutil.tz.UTC)
 
         self.assert_equal_time_series(name, start_time_point, values)
 

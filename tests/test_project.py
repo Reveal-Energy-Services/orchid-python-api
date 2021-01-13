@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -58,7 +58,7 @@ class TestProject(unittest.TestCase):
 
     def test_project_units_if_known(self):
         for expected_project_units in [units.Metric, units.UsOilfield]:
-            with self.subTest(expected_project_units=expected_project_units):
+            with self.subTest(f'Testing if project has known units, "{expected_project_units}"'):
                 stub_native_project = create_stub_net_project(project_units=expected_project_units)
                 sut = create_sut(stub_native_project)
 
@@ -79,7 +79,7 @@ class TestProject(unittest.TestCase):
 
     def test_proppant_concentration_mass_unit(self):
         for expected_unit_system in [units.UsOilfield, units.Metric]:
-            with self.subTest(expected_unit_system=expected_unit_system):
+            with self.subTest(f'Test proppant concentration mass unit: {expected_unit_system.MASS}'):
                 stub_native_project = create_stub_net_project(project_units=expected_unit_system)
                 sut = create_sut(stub_native_project)
 
@@ -93,7 +93,7 @@ class TestProject(unittest.TestCase):
 
     def test_slurry_rate_volume_unit(self):
         for expected_unit_system in [units.UsOilfield, units.Metric]:
-            with self.subTest(expected_unit_system=expected_unit_system):
+            with self.subTest(f'Test slurry rate volume unit: {expected_unit_system.VOLUME}'):
                 stub_native_project = create_stub_net_project(project_units=expected_unit_system)
                 sut = create_sut(stub_native_project)
 

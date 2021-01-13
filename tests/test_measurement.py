@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -84,7 +84,7 @@ class TestMeasurement(unittest.TestCase):
         for magnitude, unit in [(877.26, units.Metric.LENGTH),
                                 (3, units.UsOilfield.VOLUME)  # Testing an integral magnitude against contract
                                 ]:
-            with self.subTest(magnitude=magnitude, unit=unit):
+            with self.subTest(f'Test returns magnitude, {magnitude}, supplied to make_measurement.'):
                 sut = om.make_measurement(unit, magnitude)
 
                 assert_that(sut.magnitude, equal_to(magnitude))

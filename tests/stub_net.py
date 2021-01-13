@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -23,10 +23,12 @@ properties required during testing but do not actually implement the .NET class 
 
 from collections import namedtuple
 from datetime import datetime, timedelta
+import enum
 import itertools
 import unittest.mock
 from typing import Sequence
 
+import dateutil.tz
 import toolz.curried as toolz
 
 from orchid import (
@@ -35,8 +37,6 @@ from orchid import (
     unit_system as units,
 )
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import DateTime
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
                                         IStageSampledQuantityTimeSeries, ISubsurfacePoint,
@@ -53,11 +53,72 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 
 
+# noinspection PyPep8Naming
+class StubDateTime:
+    def __init__(self, year, month, day, hour, minute, second, millisecond, kind):
+        self._year = year
+        self._month = month
+        self._day = day
+        self._hour = hour
+        self._minute = minute
+        self._second = second
+        self._millisecond = millisecond
+        self._kind = kind
+
+    @property
+    def Year(self):
+        return self._year
+
+    @property
+    def Month(self):
+        return self._month
+
+    @property
+    def Day(self):
+        return self._day
+
+    @property
+    def Hour(self):
+        return self._hour
+
+    @property
+    def Minute(self):
+        return self._minute
+
+    @property
+    def Second(self):
+        return self._second
+
+    @property
+    def Millisecond(self):
+        return self._millisecond
+
+    @property
+    def Kind(self):
+        return self._kind
+
+    def ToString(self, _format):
+        return f'{self.Year}-{self.Month:02}-{self.Day:02}T{self.Hour:02}:{self.Minute:02}:{self.Second:02}' \
+               f'.000{self.Millisecond}K{self.Kind}'
+
+
+class StubDateTimeKind(enum.IntEnum):
+    UNSPECIFIED = 0,
+    UTC = 1,
+    LOCAL = 2,
+    INVALID = -999999999,  # most likely not a match to any DateTimeKind member.
+
+
 class StubNetSample:
     def __init__(self, time_point: datetime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                  time_point.minute, time_point.second)
+        if time_point.tzinfo != dateutil.tz.UTC:
+            raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
+
+        self.Timestamp = StubDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
+                                      time_point.minute, time_point.second,
+                                      onq.microseconds_to_integral_milliseconds(time_point.microsecond),
+                                      StubDateTimeKind.UTC)
         self.Value = value
 
 
@@ -365,6 +426,8 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()
     elif project_units == units.Metric:
         stub_net_project.ProjectUnits = UnitSystem.Metric()
+    elif project_units is not None:
+        stub_net_project.ProjectUnits = project_units
 
     try:
         stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
