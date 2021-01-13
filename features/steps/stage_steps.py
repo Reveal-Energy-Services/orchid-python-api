@@ -265,37 +265,20 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
     assert_equal_location_measurements(subsurface_location, x, y, depth)
 
 
-def assert_datetimes_equal(actual_datetime: datetime.datetime, expected_datetime: str):
-    expected_datetime_object = datetime.datetime.strptime(expected_datetime, '%m/%d/%Y %I:%M:%S %p')
-    assert_that(actual_datetime.replace(microsecond=0), equal_to(expected_datetime_object))
-
-
-@step("I see additional treatment data for samples {well}, {stage_no:d}, {shmin}, {isip}, {start_time}, "
-      "{stop_time}, and {pnet}")
-def step_impl(context, well, stage_no, shmin, isip, start_time, stop_time, pnet):
+@step("I see additional treatment data for samples {well}, {stage_no:d}, {shmin}, {isip}, and {pnet}")
+def step_impl(context, well, stage_no, shmin, isip, pnet):
     stage_of_interest = find_stage_no_in_well(context, stage_no, well)
     if context.field == 'Bakken':
-        hr_change = 5
         pressure_units = units.UsOilfield.PRESSURE
     elif context.field == 'Montney':
-        # TODO: Update tests when timezone is included!!!!!
-        hr_change = 0
         pressure_units = units.Metric.PRESSURE
     else:
-        hr_change = 0
+        raise ValueError(f'Field Name: {context.field} not recognized')
 
     actual_shmin = stage_of_interest.shmin(pressure_units)
     actual_isip = stage_of_interest.isip(pressure_units)
     actual_pnet = stage_of_interest.pnet(pressure_units)
-    actual_start_time = stage_of_interest.start_time
-    actual_stop_time = stage_of_interest.stop_time
 
     assert_measurement_equal(actual_shmin, shmin)
     assert_measurement_equal(actual_isip, isip)
     assert_measurement_equal(actual_pnet, pnet)
-
-
-
-    time_change = datetime.timedelta(hours=hr_change)
-    assert_datetimes_equal(actual_start_time - time_change, start_time)
-    assert_datetimes_equal(actual_stop_time - time_change, stop_time)
