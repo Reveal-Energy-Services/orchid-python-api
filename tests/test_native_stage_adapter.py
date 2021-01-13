@@ -16,6 +16,7 @@
 #
 
 from collections import namedtuple
+import decimal
 from datetime import datetime
 import unittest.mock
 
@@ -40,6 +41,7 @@ from tests import (
 
 AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
+AboutTolerance = namedtuple('AboutTolerance', ['x', 'y', 'depth'])
 StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 
@@ -234,6 +236,45 @@ class TestNativeStageAdapter(unittest.TestCase):
 
                 actual_bottom = sut.md_bottom(expected_bottom.unit)
                 tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
+
+    def test_subsurface_point_in_length_units(self):
+        net_points = [
+            AboutLocation(1.214e5, 6.226e5, 2336, units.Metric.LENGTH),
+            AboutLocation(1.840e5, 8.994e6, 8281, units.UsOilfield.LENGTH),
+            AboutLocation(5.094e5, 1.489e6, 1833, units.Metric.LENGTH),
+            AboutLocation(3.126e5, 6.812e6, 9453, units.UsOilfield.LENGTH),
+        ]
+        expected_points = [
+            AboutLocation(3.984e5, 2.042e6, 7666, units.UsOilfield.LENGTH),
+            AboutLocation(5.608e4, 2.741e6, 2524, units.Metric.LENGTH),
+            AboutLocation(5.094e5, 1.489e6, 1833, units.Metric.LENGTH),
+            AboutLocation(3.126e5, 6.812e6, 9453, units.UsOilfield.LENGTH),
+        ]
+        origin_references = [
+            AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD, origins.DepthDatum.GROUND_LEVEL),
+            AboutOrigin(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, origins.DepthDatum.SEA_LEVEL),
+            AboutOrigin(origins.WellReferenceFrameXy.PROJECT, origins.DepthDatum.KELLY_BUSHING),
+            AboutOrigin(origins.WellReferenceFrameXy.WELL_HEAD, origins.DepthDatum.KELLY_BUSHING),
+        ]
+        tolerances = [
+            AboutTolerance(decimal.Decimal('300'), decimal.Decimal('3000'), decimal.Decimal('3')),
+            AboutTolerance(decimal.Decimal('30'), decimal.Decimal('3000'), decimal.Decimal('0.3')),
+            AboutTolerance(decimal.Decimal('100'), decimal.Decimal('1000'), decimal.Decimal('1')),
+            AboutTolerance(decimal.Decimal('100'), decimal.Decimal('1000'), decimal.Decimal('1')),
+        ]
+        for net_point, expected_point, origin_reference, tolerance in zip(net_points, expected_points,
+                                                                          origin_references, tolerances):
+            with self.subTest(f'Test subsurface point ({net_point[0]} {net_point[-1].value.unit:~P},...)'
+                              f' in length unit {expected_point[-1].value.unit:~P}.'):
+                subsurface_point_mock_func = mock_subsurface_point_func(net_point, origin_reference.xy,
+                                                                        origin_reference.depth)
+                actual = nsa.subsurface_point_in_length_units(origin_reference.depth, origin_reference.xy,
+                                                              expected_point[-1], subsurface_point_mock_func)
+
+                expected = create_expected(expected_point)
+                tcm.assert_that_measurements_close_to(actual.x, expected.x, tolerance.x)
+                tcm.assert_that_measurements_close_to(actual.y, expected.y, tolerance.y)
+                tcm.assert_that_measurements_close_to(actual.depth, expected.depth, tolerance.depth)
 
     def test_start_time(self):
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)

@@ -56,6 +56,31 @@ def as_connection_type(type_value):
                       toolz.nth(0))
 
 
+def subsurface_point_in_length_units(depth_datum: origins.DepthDatum,
+                                     xy_reference_frame: origins.WellReferenceFrameXy,
+                                     in_length_unit: Union[units.UsOilfield, units.Metric],
+                                     net_subsurface_point_func) -> nsp.BaseSubsurfacePoint:
+    """
+    Calculate the subsurface point `in_length_unit` whose value is calculated by the
+    callable, `net_subsurface_point_func`.
+
+    Although this method is public, the author intends it to be "private." The author has made it public
+    **only** to support unit testing. No other usage is supported.
+
+    Args:
+        depth_datum: The datum from which we measure depths.
+        xy_reference_frame: The reference frame for easting-northing coordinates.
+        in_length_unit: The unit of length available from the returned value.
+        net_subsurface_point_func: The callable to calculate the subsurface point in .NET.
+
+    Returns:
+        The subsurface point in the requested unit of length.
+    """
+    net_subsurface_point = net_subsurface_point_func(xy_reference_frame.value, depth_datum.value)
+    result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+    return result
+
+
 class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
 
@@ -120,9 +145,9 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage bottom.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationBottom(xy_reference_frame.value, depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+
+        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
+                                                self._adaptee.GetStageLocationBottom)
 
     @functools.lru_cache()
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
@@ -140,10 +165,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage center.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationCenter(xy_reference_frame.value,
-                                                                    depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
+                                                self._adaptee.GetStageLocationCenter)
 
     def center_location_easting(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
@@ -239,10 +262,9 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationCluster(cluster_no, xy_reference_frame.value,
-                                                                     depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+        stage_location_cluster_func = toolz.curry(self._adaptee.GetStageLocationCluster, cluster_no)
+        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
+                                                stage_location_cluster_func)
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
@@ -306,9 +328,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage top.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationTop(xy_reference_frame.value, depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
+                                                self._adaptee.GetStageLocationTop)
 
     def treatment_curves(self):
         """
