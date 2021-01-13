@@ -341,9 +341,9 @@ class TestNativeStageAdapter(unittest.TestCase):
             (om.make_measurement(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
         ]
         expected_metric = [
-            om.make_measurement(units.Metric.PRESSURE, 9749),
-            om.make_measurement(units.Metric.PRESSURE, 3.142),
-            om.make_measurement(units.Metric.PRESSURE, 15.06),
+            (om.make_measurement(units.Metric.PRESSURE, 9749), decimal.Decimal('1')),
+            (om.make_measurement(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
+            (om.make_measurement(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
         for net_shmin, expected_us in zip(net_shmins, expected_us_oilfield):
             expected, tolerance = expected_us
@@ -351,6 +351,14 @@ class TestNativeStageAdapter(unittest.TestCase):
                 stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 tcm.assert_that_measurements_close_to(sut.shmin(units.UsOilfield.PRESSURE),
+                                                      expected, tolerance)
+
+        for net_shmin, expected_met in zip(net_shmins, expected_metric):
+            expected, tolerance = expected_met
+            with self.subTest(f'Test .NET shmin{net_shmin} in Metric units, "{expected.unit.value.unit:~P}"'):
+                stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+                tcm.assert_that_measurements_close_to(sut.shmin(units.Metric.PRESSURE),
                                                       expected, tolerance)
 
     def test_pnet(self):
