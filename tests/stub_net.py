@@ -206,7 +206,13 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         result.TreatmentCurves.Items = []
         
     if shmin is not None:
-        result.Shmin = onq.as_net_quantity(shmin)
+        if hasattr(shmin, 'unit'):
+            result.Shmin = onq.as_net_quantity(shmin)
+        elif hasattr(shmin, 'Unit'):
+            result.Shmin = shmin
+        else:
+            raise ValueError(f'Unrecognized shmin={shmin}. The value, `shmin`, must be a Python `unit` or'
+                             f' a UnitsNet `Unit`.')
         
     if pnet is not None:
         result.Pnet = onq.as_net_quantity(pnet)
