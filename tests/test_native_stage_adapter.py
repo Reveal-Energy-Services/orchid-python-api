@@ -314,52 +314,28 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                     ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION))
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
-    # TODO: Remove when matrix complete
-    def test_shmin(self):
-        expected_shmin = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
-        stub_net_stage = tsn.create_stub_net_stage(shmin=expected_shmin)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.shmin(units.UsOilfield.PRESSURE), expected_shmin, 6e-2)
-
-    # TODO: Remove when Neo is "The One"
-    def test_shmin_from_bar(self):
-        stub_net_stage = tsn.create_stub_net_stage(
-            shmin=UnitsNet.Pressure.FromBars(UnitsNet.QuantityValue.op_Implicit(0.1506)))
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.shmin(units.Metric.PRESSURE), om.make_measurement(
-            units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01'))
-
     def test_shmin_all(self):
         net_shmins = [
             om.make_measurement(units.UsOilfield.PRESSURE, 1414),
             om.make_measurement(units.Metric.PRESSURE, 3.142),
             UnitsNet.Pressure.FromBars(UnitsNet.QuantityValue.op_Implicit(0.1506)),
         ]
-        expected_us_oilfield = [
+
+        # (output_measure, tolerance)
+        expected_matrix = [
             (om.make_measurement(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),
             (om.make_measurement(units.UsOilfield.PRESSURE, 0.4557), decimal.Decimal('0.0001')),
             (om.make_measurement(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
-        ]
-        expected_metric = [
             (om.make_measurement(units.Metric.PRESSURE, 9749), decimal.Decimal('1')),
             (om.make_measurement(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
             (om.make_measurement(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
-        for net_shmin, expected_us in zip(net_shmins, expected_us_oilfield):
+        for net_shmin, expected_us in zip(net_shmins*2, expected_matrix):
             expected, tolerance = expected_us
             with self.subTest(f'Test .NET shmin {net_shmin} in US oilfield units, "{expected.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.shmin(units.UsOilfield.PRESSURE),
-                                                      expected, tolerance)
-
-        for net_shmin, expected_met in zip(net_shmins, expected_metric):
-            expected, tolerance = expected_met
-            with self.subTest(f'Test .NET shmin{net_shmin} in Metric units, "{expected.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
-                sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.shmin(units.Metric.PRESSURE),
-                                                      expected, tolerance)
+                tcm.assert_that_measurements_close_to(sut.shmin(expected.unit), expected, tolerance)
 
     def test_pnet(self):
         expected_pnet = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
