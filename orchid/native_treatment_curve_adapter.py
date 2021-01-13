@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -15,13 +15,10 @@
 # This file is part of Orchid and related technologies.
 #
 
-from collections import namedtuple
 import enum
-from typing import Union
 
 from orchid import (base_curve_adapter as bca,
-                    dot_net_dom_access as dna,
-                    unit_system as units)
+                    dot_net_dom_access as dna)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
@@ -36,24 +33,31 @@ class TreatmentCurveTypes(enum.Enum):
 class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
-    def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
+    def get_net_project_units(self):
         """
-        Return the measurement unit of the samples in this treatment curve.
+        Returns the .NET project units (a `UnitSystem`) for this instance.
 
-        Returns:
-            A `UnitSystem` member containing the unit for the sample in this treatment curve.
+        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
+        classes through invocation of "Primitive Operations".
         """
-        net_project_units = self._adaptee.Stage.Well.Project.ProjectUnits
-        if net_project_units == UnitSystem.USOilfield():
-            project_units = units.UsOilfield
-        elif net_project_units == UnitSystem.Metric():
-            project_units = units.Metric
-        else:
-            raise ValueError(f'Unrecognised unit system for {self._adaptee.Stage.Well.Project.Name}')
+        result = self._adaptee.Stage.Well.Project.ProjectUnits
+        return result
 
-        sampled_quantity_name_unit_map = {
+    def quantity_name_unit_map(self, project_units):
+        """
+        Return a map (dictionary) between quantity names and units (from `unit_system`) of the samples.
+
+        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
+        classes through invocation of "Primitive Operations".
+
+        Args:
+            project_units: The unit system of the project.
+        """
+        result = {
             TreatmentCurveTypes.TREATING_PRESSURE.value: project_units.PRESSURE,
             TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value: project_units.PROPPANT_CONCENTRATION,
             TreatmentCurveTypes.SLURRY_RATE.value: project_units.SLURRY_RATE,
         }
-        return sampled_quantity_name_unit_map[self.sampled_quantity_name]
+        return result

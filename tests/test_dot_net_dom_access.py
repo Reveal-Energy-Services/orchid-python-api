@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
+# Copyright (c) 2017-2021 Reveal Energy Services.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -16,6 +16,7 @@ import datetime
 import unittest.mock
 import uuid
 
+import dateutil.tz
 import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
 
@@ -23,7 +24,7 @@ import orchid.dot_net_dom_access as dna
 import orchid.net_quantity as onq
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, Guid
+from System import DateTime, DateTimeKind, Guid
 
 
 def increment(n):
@@ -70,7 +71,7 @@ class DomPropertyTest(unittest.TestCase):
     def test_dom_property_returns_int(self):
         expected_values = [-31459, 2.718, 'distractus multum']
         for expected in expected_values:
-            with self.subTest(expected=expected):
+            with self.subTest(f'Test dom_property() returns {expected}'):
                 stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
                 stub_adaptee.StubProperty = expected
                 sut = StubDomObject(stub_adaptee)
@@ -79,8 +80,8 @@ class DomPropertyTest(unittest.TestCase):
 
     @staticmethod
     def test_transformed_dom_property_returns_datetime():
-        expected = datetime.datetime(2016, 10, 16, 1, 44, 56, 305000)
-        actual = DateTime(2016, 10, 16, 1, 44, 56, 305)
+        expected = datetime.datetime(2016, 10, 16, 1, 44, 56, 305000, tzinfo=dateutil.tz.UTC)
+        actual = DateTime(2016, 10, 16, 1, 44, 56, 305, DateTimeKind.Utc)
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         stub_adaptee.StubDateTime = actual
         sut = StubDomObject(stub_adaptee)
@@ -91,7 +92,7 @@ class DomPropertyTest(unittest.TestCase):
         all_original_values = [[], [-34159], [2.718, -1.414, 1.717]]
         all_expected_values = [[], [-34158], [3.718, -0.414, 2.717]]
         for original_values, expected_values in zip(all_original_values, all_expected_values):
-            with self.subTest(original_values=original_values, expected_values=expected_values):
+            with self.subTest(f'Test transformed_dom_property returns values, {original_values}, incremented by one.'):
                 stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
                 stub_adaptee.StubTransformedIterator.Items = original_values
                 sut = StubDomObject(stub_adaptee)

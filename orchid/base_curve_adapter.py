@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
+# Copyright (c) 2017-2021 Reveal Energy Services.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -14,11 +14,13 @@
 
 
 from abc import ABCMeta, abstractmethod
+from typing import Union
 
 import pandas as pd
 
 from orchid import (dot_net_dom_access as dna,
-                    net_quantity as onq)
+                    net_quantity as onq,
+                    unit_system as units)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IQuantityTimeSeries, UnitSystem
@@ -40,14 +42,55 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         super().__init__(adaptee)
 
     @abstractmethod
-    def sampled_quantity_unit(self):
+    def get_net_project_units(self):
         """
-        Return the measurement unit of the samples in this treatment curve.
+        Returns the .NET project units (a `UnitSystem`) for this instance.
 
-        Returns:
-            A `UnitSystem` member containing the unit for the sample in this treatment curve.
+        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
+        classes through invocation of "Primitive Operations".
         """
         pass
+
+    # noinspection PyMethodMayBeStatic
+    def net_unit_system_unit_system_map(self):
+        result = {
+            UnitSystem.USOilfield(): units.UsOilfield,
+            UnitSystem.Metric(): units.Metric,
+        }
+        return result
+
+    @abstractmethod
+    def quantity_name_unit_map(self, project_units):
+        """
+        Return a map (dictionary) between quantity names and units (from `unit_system`) of the samples.
+
+        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
+        classes through invocation of "Primitive Operations".
+
+        Args:
+            project_units: The unit system of the project.
+        """
+        pass
+
+    def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
+        """
+        Return the measurement unit of the samples in this curve.
+
+        This method plays the role of "Template Method" in the _Template Method_ design pattern. In this role
+        it specifies an algorithm to calculate the units of the sampled quantity of the curve delegating some
+        algorithm steps to derived classes by invoking the "Primitive Operation-", `quantity_name_unit_map()`
+        and `get_net_project_units()`.
+
+        Returns:
+            A `UnitSystem` member containing the unit for the sample in this curve.
+        """
+        # net_project_units = self._adaptee.Stage.Well.Project.ProjectUnits
+        project_units = self.net_unit_system_unit_system_map()[self.get_net_project_units()]
+
+        quantity_name_unit_map = self.quantity_name_unit_map(project_units)
+        return quantity_name_unit_map[self.sampled_quantity_name]
 
     def time_series(self) -> pd.Series:
         """

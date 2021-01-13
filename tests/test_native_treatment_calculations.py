@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
+# Copyright (c) 2017-2021 Reveal Energy Services.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -16,6 +16,7 @@ from collections import namedtuple
 import datetime
 import unittest.mock
 
+import dateutil.tz as duz
 from hamcrest import assert_that, equal_to
 
 from orchid import (measurement as om,
@@ -53,8 +54,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.median_treating_pressure,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 7, 2, 3, 57, 19),
-                                                    datetime.datetime(2023, 7, 2, 5, 30, 2),
+                                                    datetime.datetime(2023, 7, 2, 3, 57, 19, tzinfo=duz.UTC),
+                                                    datetime.datetime(2023, 7, 2, 5, 30, 2, tzinfo=duz.UTC),
                                                     expected_measurement=expected_measurement)
 
     def assert_expected_calculation_result(self, sut, stub_treatment_calculations, start_time, stop_time,
@@ -62,11 +63,13 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
                                  spec=loader.native_treatment_calculations,
                                  return_value=stub_treatment_calculations):
-            with self.subTest():
+            with self.subTest(f'Test calculation result {expected_measurement if expected_measurement else ""}'
+                              f'{"with warnings," if expected_warnings is not None else ""}'
+                              f' {expected_warnings if expected_warnings is not None else ""}'):
                 actual_result = sut(create_stub_stage_adapter(), start_time, stop_time)
                 if expected_measurement is not None:
                     tcm.assert_that_scalar_quantities_close_to(actual_result.measurement, expected_measurement,
-                                                               tolerance=6e-3)
+                                                               tolerance=6e-2)
                 if expected_warnings is not None:
                     assert_that(expected_warnings, equal_to(actual_result.warnings))
 
@@ -78,8 +81,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.median_treating_pressure,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 7, 2, 3, 57, 19),
-                                                    datetime.datetime(2023, 7, 2, 5, 30, 2),
+                                                    datetime.datetime(2023, 7, 2, 3, 57, 19, tzinfo=duz.UTC),
+                                                    datetime.datetime(2023, 7, 2, 5, 30, 2, tzinfo=duz.UTC),
                                                     expected_warnings=expected_warnings)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
@@ -90,8 +93,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.pumped_fluid_volume,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 8, 6, 3, 52, 4),
-                                                    datetime.datetime(2023, 8, 6, 5, 8, 20),
+                                                    datetime.datetime(2023, 8, 6, 3, 52, 4, tzinfo=duz.UTC),
+                                                    datetime.datetime(2023, 8, 6, 5, 8, 20, tzinfo=duz.UTC),
                                                     expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
@@ -102,8 +105,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.pumped_fluid_volume,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 8, 6, 3, 52, 4),
-                                                    datetime.datetime(2023, 8, 6, 5, 8, 20),
+                                                    datetime.datetime(2023, 8, 6, 3, 52, 4, tzinfo=duz.UTC),
+                                                    datetime.datetime(2023, 8, 6, 5, 8, 20, tzinfo=duz.UTC),
                                                     expected_warnings=expected_warnings)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
@@ -114,8 +117,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.total_proppant_mass,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2020, 1, 29, 7, 35, 2),
-                                                    datetime.datetime(2020, 1, 29, 9, 13, 30),
+                                                    datetime.datetime(2020, 1, 29, 7, 35, 2, tzinfo=duz.UTC),
+                                                    datetime.datetime(2020, 1, 29, 9, 13, 30, tzinfo=duz.UTC),
                                                     expected_measurement=expected_measurement)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
@@ -126,8 +129,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.total_proppant_mass,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2020, 1, 29, 7, 35, 2),
-                                                    datetime.datetime(2020, 1, 29, 9, 13, 30),
+                                                    datetime.datetime(2020, 1, 29, 7, 35, 2, tzinfo=duz.UTC),
+                                                    datetime.datetime(2020, 1, 29, 9, 13, 30, tzinfo=duz.UTC),
                                                     expected_warnings=expected_warnings)
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 

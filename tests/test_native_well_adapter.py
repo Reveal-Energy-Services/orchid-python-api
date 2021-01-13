@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -18,10 +18,15 @@
 import unittest.mock
 
 from hamcrest import assert_that, equal_to, instance_of
+import toolz.curried as toolz
 
-import orchid.native_stage_adapter as nsa
-import orchid.native_trajectory_adapter as nta
-import orchid.native_well_adapter as nwa
+from orchid import (
+    native_stage_adapter as nsa,
+    native_trajectory_adapter as nta,
+    native_well_adapter as nwa,
+)
+
+from tests import stub_net as tsn
 
 
 class TestNativeWellAdapter(unittest.TestCase):
@@ -44,25 +49,28 @@ class TestNativeWellAdapter(unittest.TestCase):
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
 
-    def test_stages_length_if_different_net_stages_length(self):
-        for expected_stages in [[], ['one'], ['one', 'two', 'three']]:
-            with self.subTest(expected_stages=expected_stages):
-                stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-                expected_stages = []
-                sut = nwa.NativeWellAdapter(stub_native_well)
+    def test_stages_count_equals_net_stages_count(self):
+        for stub_net_stages in [[], [tsn.create_stub_net_stage()], [tsn.create_stub_net_stage(),
+                                                                    tsn.create_stub_net_stage(),
+                                                                    tsn.create_stub_net_stage()]]:
+            with self.subTest(f'Test length of stages for each of {len(stub_net_stages)} .NET stage(s)'):
+                stub_net_well = unittest.mock.MagicMock(name='stub_net_well')
+                stub_net_well.Stages.Items = stub_net_stages
+                sut = nwa.NativeWellAdapter(stub_net_well)
 
-                assert_that(len(list(sut.stages)), equal_to(len(expected_stages)))
+                assert_that(toolz.count(sut.stages), equal_to(len(stub_net_stages)))
 
-    def test_stages_returns_correct_wrapper(self):
-        for expected_stages in [['one'], ['one', 'two', 'three']]:
-            with self.subTest(expected_stages=expected_stages):
-                stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-                expected_stages = []
-                stub_native_well.Stages.Items = expected_stages
-                sut = nwa.NativeWellAdapter(stub_native_well)
+    def test_stages_wrap_all_net_stages(self):
+        for stub_net_stages in [[], [tsn.create_stub_net_stage()], [tsn.create_stub_net_stage(),
+                                                                    tsn.create_stub_net_stage(),
+                                                                    tsn.create_stub_net_stage()]]:
+            with self.subTest(f'Test stage adapter for each of {len(stub_net_stages)} .NET stage(s)'):
+                stub_net_well = unittest.mock.MagicMock(name='stub_net_well')
+                stub_net_well.Stages.Items = stub_net_stages
+                sut = nwa.NativeWellAdapter(stub_net_well)
 
-                for actual in list(sut.stages):
-                    assert_that(actual, instance_of(nsa.NativeStageAdapter))
+                for actual_stage in sut.stages:
+                    assert_that(actual_stage, instance_of(nsa.NativeStageAdapter))
 
     def test_trajectory(self):
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')

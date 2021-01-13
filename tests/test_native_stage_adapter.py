@@ -1,4 +1,4 @@
-#  Copyright 2017-2020 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -19,6 +19,7 @@ from collections import namedtuple
 from datetime import datetime
 import unittest.mock
 
+import dateutil.tz as duz
 import deal
 from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, instance_of, calling, raises
 import toolz.curried as toolz
@@ -71,7 +72,7 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_bottom_location_returns_stage_location_center_in_requested_unit(self):
+    def test_bottom_location_returns_stage_location_bottom_in_requested_unit(self):
         actual_bottoms = [AboutLocation(396924, -3247781, 6423.56, units.UsOilfield.LENGTH),
                           AboutLocation(791628, 3859627, 7773.03, units.UsOilfield.LENGTH),
                           AboutLocation(251799.84, 186541.56, 2263.19, units.Metric.LENGTH)]
@@ -87,8 +88,8 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         for (actual_bottom, expected_bottom, origin_reference) in \
                 zip(actual_bottoms, expected_bottoms, origin_references):
-            with self.subTest(actual_bottom=actual_bottom, expected_bottom=expected_bottom,
-                              origin_reference=origin_reference):
+            with self.subTest(f'Test bottom location {expected_bottom[0]} {expected_bottom[-1].value.unit:~P}'
+                              f' with origins {origin_reference}'):
                 bottom_mock_func = mock_subsurface_point_func(actual_bottom, origin_reference.xy,
                                                               origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
@@ -117,8 +118,8 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         for (actual_center, expected_center, origin_reference) in\
                 zip(actual_centers, expected_centers, origin_references):
-            with self.subTest(actual_center=actual_center, expected_center=expected_center,
-                              origin_reference=origin_reference):
+            with self.subTest(f'Test center location {expected_center[0]} {expected_center[-1].value.unit:~P}'
+                              f' with origins {origin_reference}'):
                 center_mock_func = mock_subsurface_point_func(actual_center, origin_reference.xy,
                                                               origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
@@ -167,8 +168,9 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         for (cluster_no, actual_cluster, expected_cluster, origin_reference) in \
                 zip(cluster_numbers, actual_clusters, expected_clusters, origin_references):
-            with self.subTest(cluster_no=cluster_no, actual_cluster=actual_cluster, expected_cluster=expected_cluster,
-                              origin_reference=origin_reference):
+            with self.subTest(f'Test cluster location of cluster {cluster_no}'
+                              f' at {expected_cluster[0]} {expected_cluster[-1].value.unit:~P}'
+                              f' with origins {origin_reference}'):
                 cluster_mock_func = mock_cluster_subsurface_point_func(actual_cluster, cluster_no,
                                                                        origin_reference.xy, origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_cluster=cluster_mock_func)
@@ -207,12 +209,12 @@ class TestNativeStageAdapter(unittest.TestCase):
                                           om.make_measurement(units.Metric.LENGTH, 4104.98)),
                                          (om.make_measurement(units.Metric.LENGTH, 3702.48),
                                           om.make_measurement(units.UsOilfield.LENGTH, 12147.2))]:
-            with self.subTest():
+            with self.subTest(f'Test MD top {expected_top}'):
                 stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top.unit)
-                tcm.assert_that_measurements_close_to(actual_top, expected_top, 0.05)
+                tcm.assert_that_measurements_close_to(actual_top, expected_top, 5e-2)
 
     def test_md_bottom(self):
         for actual_bottom, expected_bottom in [
@@ -225,16 +227,16 @@ class TestNativeStageAdapter(unittest.TestCase):
             (om.make_measurement(units.Metric.LENGTH, 4608.73),
              om.make_measurement(units.UsOilfield.LENGTH, 15120.5)),
         ]:
-            with self.subTest():
+            with self.subTest(f'Test MD bottom {expected_bottom}'):
                 stub_net_stage = tsn.create_stub_net_stage(
                     md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_bottom = sut.md_bottom(expected_bottom.unit)
-                tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 0.05)
+                tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
 
     def test_start_time(self):
-        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000)
+        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)
         stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -242,7 +244,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(actual_start_time, equal_to(expected_start_time))
 
     def test_stop_time(self):
-        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000)
+        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, duz.UTC)
         stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -265,8 +267,8 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         for (actual_top, expected_top, origin_reference) in \
                 zip(actual_tops, expected_tops, origin_references):
-            with self.subTest(actual_top=actual_top, expected_top=expected_top,
-                              origin_reference=origin_reference):
+            with self.subTest(f'Test top location {expected_top[0]} {expected_top[-1].value.unit:~P}'
+                              f' with origins {origin_reference}'):
                 top_mock_func = mock_subsurface_point_func(actual_top, origin_reference.xy,
                                                            origin_reference.depth)
                 stub_net_stage = tsn.create_stub_net_stage(stage_location_top=top_mock_func)
