@@ -16,6 +16,9 @@
 #
 
 """This module contains common functions used to validate arguments."""
+from orchid import (
+    unit_system as units
+)
 
 
 # TODO: Any better functional support?
@@ -45,3 +48,7 @@ def arg_neither_empty_nor_all_whitespace(_, arg: str) -> bool:
     :return: True if arg is neither an empty string nor a string consisting only of whitespace.
     """
     return len(arg.strip()) > 0
+
+
+def arg_is_acceptable_pressure_unit(_, target_unit):
+    return (target_unit == units.UsOilfield.PRESSURE) or (target_unit == units.Metric.PRESSURE)
