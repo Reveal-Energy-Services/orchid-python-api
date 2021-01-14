@@ -314,15 +314,14 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                     ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION))
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
-    def test_shmin_all(self):
-        net_shmins = [
+    @staticmethod
+    def _make_pressure_test_pairs():
+        net_pressures = [
             om.make_measurement(units.UsOilfield.PRESSURE, 1414),
             om.make_measurement(units.Metric.PRESSURE, 3.142),
             UnitsNet.Pressure.FromBars(UnitsNet.QuantityValue.op_Implicit(0.1506)),
         ]
-
-        # (output_measure, tolerance)
-        expected_matrix = [
+        expected_measurements = [
             (om.make_measurement(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),
             (om.make_measurement(units.UsOilfield.PRESSURE, 0.4557), decimal.Decimal('0.0001')),
             (om.make_measurement(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
@@ -330,25 +329,41 @@ class TestNativeStageAdapter(unittest.TestCase):
             (om.make_measurement(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
             (om.make_measurement(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
-        for net_shmin, expected_us in zip(net_shmins*2, expected_matrix):
-            expected, tolerance = expected_us
+        return net_pressures * 2, expected_measurements
+
+    def test_shmin_all(self):
+        net_shmins, expected_matrix = self._make_pressure_test_pairs()
+        for net_shmin, expected_pair in zip(net_shmins, expected_matrix):
+            expected, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_shmin} in US oilfield units, "{expected.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.shmin(expected.unit), expected, tolerance)
+                tcm.assert_that_measurements_close_to(sut.shmin_in_pressure_unit(expected.unit), expected, tolerance)
 
-    def test_pnet(self):
-        expected_pnet = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
-        stub_net_stage = tsn.create_stub_net_stage(pnet=expected_pnet)
+    def test_pnet_all(self):
+        net_pnets, expected_matrix = self._make_pressure_test_pairs()
+        for net_pnet, expected_pair in zip(net_pnets, expected_matrix):
+            expected, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+                stub_net_stage = tsn.create_stub_net_stage(pnet=net_pnet)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+                tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected.unit), expected, tolerance)
+
+    def test_isip_all(self):
+        net_isips, expected_matrix = self._make_pressure_test_pairs()
+        for net_isip, expected_pair in zip(net_isips, expected_matrix):
+            expected, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+                stub_net_stage = tsn.create_stub_net_stage(isip=net_isip)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+                tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected.unit), expected, tolerance)
+
+    def test_pressures_non_unit_errors(self):
+        expected_pressure = om.make_measurement(units.UsOilfield.PRESSURE, 1414)
+        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.pnet(units.UsOilfield.PRESSURE), expected_pnet, 6e-2)
-
-    def test_isip(self):
-        expected_isip = om.make_measurement(units.UsOilfield.PRESSURE, 1000)
-        stub_net_stage = tsn.create_stub_net_stage(isip=expected_isip)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-        tcm.assert_that_measurements_close_to(sut.isip(units.UsOilfield.PRESSURE), expected_isip, 6e-2)
-
+        with self.assertRaises(deal._exceptions.PreContractError):
+            _ = sut.isip_in_pressure_unit(None)
 
 def assert_is_native_treatment_curve_facade(curve):
     assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))

@@ -275,9 +275,9 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
     else:
         raise ValueError(f'Field Name: {context.field} not recognized')
 
-    actual_shmin = stage_of_interest.shmin(pressure_units)
-    actual_isip = stage_of_interest.isip(pressure_units)
-    actual_pnet = stage_of_interest.pnet(pressure_units)
+    actual_shmin = stage_of_interest.shmin_in_pressure_unit(pressure_units)
+    actual_isip = stage_of_interest.isip_in_pressure_unit(pressure_units)
+    actual_pnet = stage_of_interest.pnet_in_pressure_unit(pressure_units)
 
     assert_measurement_equal(actual_shmin, shmin)
     assert_measurement_equal(actual_isip, isip)

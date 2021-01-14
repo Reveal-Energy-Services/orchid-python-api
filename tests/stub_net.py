@@ -276,10 +276,22 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
                              f' a UnitsNet `Unit`.')
         
     if pnet is not None:
-        result.Pnet = onq.as_net_quantity(pnet)
+        if hasattr(pnet, 'unit'):
+            result.Pnet = onq.as_net_quantity(pnet)
+        elif hasattr(pnet, 'Unit'):
+            result.Pnet = pnet
+        else:
+            raise ValueError(f'Unrecognized shmin={pnet}. The value, `shmin`, must be a Python `unit` or'
+                             f' a UnitsNet `Unit`.')
         
     if isip is not None:
-        result.Isip = onq.as_net_quantity(isip)
+        if hasattr(isip, 'unit'):
+            result.Isip = onq.as_net_quantity(isip)
+        elif hasattr(isip, 'Unit'):
+            result.Isip = isip
+        else:
+            raise ValueError(f'Unrecognized shmin={isip}. The value, `isip`, must be a Python `unit` or'
+                             f' a UnitsNet `Unit`.')
 
     return result
 

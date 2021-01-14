@@ -31,7 +31,6 @@ from orchid import (
     net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
-    physical_quantity as opq
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -79,18 +78,6 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                               as_connection_type)
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', onq.as_datetime)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
-
-    # as_pressure_measurement = onq.as_measurement(opq.PhysicalQuantity.PRESSURE)
-    # shmin = dna.transformed_dom_property('shmin',
-    #                                      'The minimum stress in the rock',
-    #                                      as_pressure_measurement)
-    # pnet = dna.transformed_dom_property('pnet',
-    #                                     'The net pressure of the treatment stage',
-    #                                     as_pressure_measurement)
-    # isip = dna.transformed_dom_property('isip',
-    #                                     'The initial shut-in pressure after treatment completion',
-    #                                     as_pressure_measurement)
-
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
@@ -350,20 +337,23 @@ class NativeStageAdapter(dna.DotNetAdapter):
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
 
-    def isip(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        # TODO add an assert that the target unit is value
+    @deal.pre(
+        lambda _self, target_unit: (target_unit == units.UsOilfield.PRESSURE) or (target_unit == units.Metric.PRESSURE))
+    def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         net_isip = self._adaptee.Isip
         net_isip_correct_units = onq.convert_net_quantity_to_different_unit(net_isip, target_unit)
         return onq.as_pressure_measurement(net_isip_correct_units)
 
-    def pnet(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        # TODO add an assert that the target unit is value
+    @deal.pre(
+        lambda _self, target_unit: (target_unit == units.UsOilfield.PRESSURE) or (target_unit == units.Metric.PRESSURE))
+    def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         net_pnet = self._adaptee.Pnet
         net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(net_pnet, target_unit)
         return onq.as_pressure_measurement(net_pnet_correct_units)
 
-    def shmin(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        # TODO add an assert that the target unit is value
+    @deal.pre(
+        lambda _self, target_unit: (target_unit == units.UsOilfield.PRESSURE) or (target_unit == units.Metric.PRESSURE))
+    def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         net_shmin = self._adaptee.Shmin
         net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(net_shmin, target_unit)
         return onq.as_pressure_measurement(net_shmin_correct_units)
