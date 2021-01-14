@@ -45,6 +45,7 @@ AboutTolerance = namedtuple('AboutTolerance', ['x', 'y', 'depth'])
 StubCalculateResult = namedtuple('CalculateResults', ['measurement', 'warnings'])
 
 # Location values needed for tests but not tested in tests
+DONT_CARE_CLUSTER_NO = 3414
 DONT_CARE_METRIC_LOCATION = AboutLocation(314200, 1414000, 1717, units.Metric.LENGTH)
 DONT_CARE_US_OILFIELD_LOCATION = AboutLocation(271800, 3142000, 14140, units.UsOilfield.LENGTH)
 
@@ -91,6 +92,15 @@ class TestNativeStageAdapter(unittest.TestCase):
         stub_net_stage.GetStageLocationBottom.assert_called_with(origins.WellReferenceFrameXy.WELL_HEAD.value,
                                                                  origins.DepthDatum.KELLY_BUSHING.value)
 
+    def test_bottom_location_raises_error_if_not_length_unit(self):
+        stub_net_stage = tsn.create_stub_net_stage()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        invalid_unit = units.Metric.PRESSURE
+        assert_that(calling(sut.bottom_location).with_args(invalid_unit, origins.WellReferenceFrameXy.WELL_HEAD,
+                                                           origins.DepthDatum.GROUND_LEVEL),
+                    raises(deal.PreContractError, pattern=f'must be a unit system length'))
+
     def test_center_location_invokes_get_stage_location_center_correctly(self):
         center_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
                                                       origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
@@ -103,6 +113,15 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         stub_net_stage.GetStageLocationCenter.assert_called_with(
             origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE.value, origins.DepthDatum.GROUND_LEVEL.value)
+
+    def test_center_location_raises_error_if_not_length_unit(self):
+        stub_net_stage = tsn.create_stub_net_stage()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        invalid_unit = units.UsOilfield.POWER
+        assert_that(calling(sut.center_location).with_args(invalid_unit, origins.WellReferenceFrameXy.PROJECT,
+                                                           origins.DepthDatum.SEA_LEVEL),
+                    raises(deal.PreContractError, pattern=f'must be a unit system length'))
 
     def test_cluster_count(self):
         expected_cluster_count = 3
@@ -124,21 +143,20 @@ class TestNativeStageAdapter(unittest.TestCase):
                 result.Depth = _make_subsurface_coordinate(expected_location.depth, expected_location.unit)
             return result
 
-        dont_care_cluster_no = 3
         cluster_mock_func = mock_cluster_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
-                                                               dont_care_cluster_no,
+                                                               DONT_CARE_CLUSTER_NO,
                                                                origins.WellReferenceFrameXy.PROJECT,
                                                                origins.DepthDatum.KELLY_BUSHING)
         stub_net_stage = tsn.create_stub_net_stage(stage_location_cluster=cluster_mock_func)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.cluster_location(units.UsOilfield.LENGTH,
-                             dont_care_cluster_no,
+                             DONT_CARE_CLUSTER_NO,
                              origins.WellReferenceFrameXy.PROJECT,
                              origins.DepthDatum.KELLY_BUSHING)
 
         stub_net_stage.GetStageLocationCluster.assert_called_with(
-            dont_care_cluster_no, origins.WellReferenceFrameXy.PROJECT.value,
+            DONT_CARE_CLUSTER_NO, origins.WellReferenceFrameXy.PROJECT.value,
             origins.DepthDatum.KELLY_BUSHING.value)
 
     def test_cluster_location_invalid_cluster_no_raises_contract_error(self):
@@ -149,6 +167,17 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                             origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                                             origins.DepthDatum.GROUND_LEVEL),
                     raises(deal.PreContractError))
+
+    def test_cluster_location_raises_error_if_not_length_unit(self):
+        stub_net_stage = tsn.create_stub_net_stage()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        invalid_unit = units.Metric.DENSITY
+        assert_that(calling(sut.cluster_location).with_args(invalid_unit,
+                                                            DONT_CARE_CLUSTER_NO,
+                                                            origins.WellReferenceFrameXy.PROJECT,
+                                                            origins.DepthDatum.KELLY_BUSHING),
+                    raises(deal.PreContractError, pattern=f'must be a unit system length'))
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
@@ -259,6 +288,16 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         stub_net_stage.GetStageLocationTop.assert_called_with(
             origins.WellReferenceFrameXy.PROJECT.value, origins.DepthDatum.SEA_LEVEL.value)
+
+    def test_top_location_raises_error_if_not_length_unit(self):
+        stub_net_stage = tsn.create_stub_net_stage()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        invalid_unit = units.UsOilfield.PROPPANT_CONCENTRATION
+        assert_that(calling(sut.top_location).with_args(invalid_unit,
+                                                        origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
+                                                        origins.DepthDatum.KELLY_BUSHING),
+                    raises(deal.PreContractError, pattern=f'must be a unit system length'))
 
     def test_treatment_curves_no_curves(self):
         stub_net_stage = tsn.create_stub_net_stage()

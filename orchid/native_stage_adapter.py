@@ -38,6 +38,8 @@ from Orchid.FractureDiagnostics import FormationConnectionType
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
 
+VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit system length.'
+
 
 class ConnectionType(IntEnum):
     PLUG_AND_PERF = FormationConnectionType.PlugAndPerf,
@@ -79,6 +81,11 @@ def subsurface_point_in_length_units(depth_datum: origins.DepthDatum,
     net_subsurface_point = net_subsurface_point_func(xy_reference_frame.value, depth_datum.value)
     result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
     return result
+
+
+@toolz.curry
+def _is_unit_system_length(_self, unit_to_test, _reference_frame, _depth_datum):
+    return unit_to_test == units.UsOilfield.LENGTH or unit_to_test == units.Metric.LENGTH
 
 
 class NativeStageAdapter(dna.DotNetAdapter):
@@ -130,6 +137,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                 depth_datum)
         return subsurface_point.depth
 
+    @deal.pre(_is_unit_system_length, message=VALID_LENGTH_UNIT_MESSAGE)
     def bottom_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
                         depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
@@ -149,7 +157,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
                                                 self._adaptee.GetStageLocationBottom)
 
-    @functools.lru_cache()
+    @deal.pre(_is_unit_system_length, message=VALID_LENGTH_UNIT_MESSAGE)
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
                         depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
@@ -245,8 +253,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return subsurface_point.x, subsurface_point.y
 
     @deal.pre(lambda _self, _in_length_unit, cluster_no, _xy_reference_frame, _depth_datum: cluster_no >= 0)
-    def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                         cluster_no: int,
+    @deal.pre(lambda self, in_length_unit, _cluster_no, xy_reference_frame, depth_datum:
+              _is_unit_system_length(self, in_length_unit, xy_reference_frame, depth_datum),
+              message=VALID_LENGTH_UNIT_MESSAGE)
+    def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric], cluster_no: int,
                          xy_reference_frame: origins.WellReferenceFrameXy,
                          depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
         """
@@ -313,6 +323,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         result = om.make_measurement(in_length_unit, length_magnitude)
         return result
 
+    @deal.pre(_is_unit_system_length, message=VALID_LENGTH_UNIT_MESSAGE)
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                      xy_reference_frame: origins.WellReferenceFrameXy,
                      depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
