@@ -363,7 +363,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure)
         sut = nsa.NativeStageAdapter(stub_net_stage)
         with self.assertRaises(deal._exceptions.PreContractError):
-            _ = sut.isip_in_pressure_unit(None)
+            _ = sut.isip_in_pressure_unit(units.UsOilfield.LENGTH)
 
 def assert_is_native_treatment_curve_facade(curve):
     assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
