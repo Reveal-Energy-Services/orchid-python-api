@@ -64,7 +64,7 @@ access from the command line, be sure to select the "Add Python 3.x to PATH" opt
 
 ### Ensure Command Line Access To Python
 
-Although you may be able perform development without command line access using, for example, `PyCharm`, many
+Although you may be able to perform development without command line access using, for example, `PyCharm`, many
 instructions, including these instructions, will assume command line access. To verify command line access:
 
 - Open a command prompt
@@ -236,12 +236,12 @@ introduction to the process (but some different steps), review the
     - `invoke poetry.config.test-pypi` or
     - `poetry config repositories.test-pypi https://test.pypi.org/legacy/`
     
-Once configured, you will also need to configure the API token for the TestPyPI web site. Because the API 
+Once configured, you will also need to configure the API token for the TestPyPI website. Because the API 
 token is a security token, the author is unaware of any way to examine if the token has already been 
 configured. However, configuring an already configured token **does not** cause an error. 
 
 To generate an API token, complete the steps described at [PyPI help](https://pypi.org/help/#apitoken) but for
-the TestPyPI web site.
+the TestPyPI website.
 
 Once generated, add it to the `poetry` configuration by executing either:
 
@@ -393,7 +393,7 @@ If using `python invoke`,
     Aborted!
     ```
   
-- If present, delete all leftover files the from virtualenv directory.
+- If present, delete all leftover files from the virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
     - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
@@ -448,7 +448,7 @@ If using `python invoke`,
     Aborted!
     ```
     
-- If present, delete all leftover files the from virtualenv directory.
+- If present, delete all leftover files from the virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
     - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
@@ -545,7 +545,7 @@ the installation, you may need to configure the Orchid Python API to refer to di
 
 ### Using the fallback configuration
 
-If you installed the latest version Orchid using the installation defaults and you installed the 
+If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
 installation. For your information, the default installation location is,
 `%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
@@ -575,7 +575,7 @@ words are separated by the underscore, (_) symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
 which Orchid is installed, `/path/to/orchid-installation`. This will paste the directory name into the 
-"Variable Value" text box. Verify that the directory is copied directly and the click "OK". Verify that you
+"Variable Value" text box. Verify that the directory is copied directly, and the click "OK". Verify that you
 see the name `ORCHID_ROOT` with the correct value in the "User variables for <your.username>" list. Finally,
 click "OK" to dismiss the "Environment Variables" dialog.
 
@@ -584,7 +584,7 @@ could now use that variable. However, the details of "new" is technical and may 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using an configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
 easier to change than an environment variable and does not require a system restart to work best. However, it
@@ -647,7 +647,7 @@ present your with the "Environment Variables" dialog. Under the section named "U
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
- into the "Variable Value" text box. Verify that the directory is correct and the click "OK". Verify that you
+ into the "Variable Value" text box. Verify that the directory is correct, and the click "OK". Verify that you
 see the name `ORCHID_TRAINING_DATA` with the correct value in the "User variables for <your.username>" list. 
 Finally, click "OK" to dismiss the "Environment Variables" dialog.
 
@@ -656,7 +656,7 @@ tools can now use that variable. However, the details of "new" is technical and 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using an configuration file
+### Using n configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
@@ -718,7 +718,7 @@ To contribute to this project, follow our typical development process:
 - Create a branch for you work typically branching from `develop`
 - Make changes on your branch
 - Push your branch to the Azure DevOps repository
-- Create a pull request to have have others review your branch
+- Create a pull request to have others review your branch
 - When approved, complete your pull request to merge you work onto `develop`
 
 Although not enforced automatically, any changes will need to pass all existing unit and integration tests.
