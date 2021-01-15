@@ -35,7 +35,14 @@ classifiers=[
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-include=["LICENSE", "orchid/*.py", "orchid/VERSION", "orchid_python_api/examples/*.ipynb", "copy_orchid_examples.py"]
+include=[
+    "LICENSE",
+    "RELEASE.md",
+    "orchid/*.py",
+    "orchid/VERSION",
+    "orchid_python_api/examples/*.ipynb",
+    "copy_orchid_examples.py",
+]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
