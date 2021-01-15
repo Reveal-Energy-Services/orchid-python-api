@@ -67,10 +67,10 @@ def as_connection_type(type_value):
 @deal.pre(lambda _depth_datum, _reference_frame, in_length_unit, _net_subsurface_point_func:
           validation.is_unit_system_length(in_length_unit),
           message=VALID_LENGTH_UNIT_MESSAGE)
-def subsurface_point_in_length_units(depth_datum: origins.DepthDatum,
-                                     xy_reference_frame: origins.WellReferenceFrameXy,
-                                     in_length_unit: Union[units.UsOilfield, units.Metric],
-                                     net_subsurface_point_func) -> nsp.BaseSubsurfacePoint:
+def subsurface_point_in_length_unit(depth_datum: origins.DepthDatum,
+                                    xy_reference_frame: origins.WellReferenceFrameXy,
+                                    in_length_unit: Union[units.UsOilfield, units.Metric],
+                                    net_subsurface_point_func) -> nsp.BaseSubsurfacePoint:
     """
     Calculate the subsurface point `in_length_unit` whose value is calculated by the
     callable, `net_subsurface_point_func`.
@@ -157,8 +157,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
             The `BaseSubsurfacePoint` of the stage bottom.
         """
 
-        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
-                                                self._adaptee.GetStageLocationBottom)
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               self._adaptee.GetStageLocationBottom)
 
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
@@ -175,8 +175,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage center.
         """
-        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
-                                                self._adaptee.GetStageLocationCenter)
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               self._adaptee.GetStageLocationCenter)
 
     def center_location_easting(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
@@ -272,8 +272,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
             The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
         """
         stage_location_cluster_func = toolz.curry(self._adaptee.GetStageLocationCluster, cluster_no)
-        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
-                                                stage_location_cluster_func)
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               stage_location_cluster_func)
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
@@ -337,8 +337,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage top.
         """
-        return subsurface_point_in_length_units(depth_datum, xy_reference_frame, in_length_unit,
-                                                self._adaptee.GetStageLocationTop)
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               self._adaptee.GetStageLocationTop)
 
     def treatment_curves(self):
         """

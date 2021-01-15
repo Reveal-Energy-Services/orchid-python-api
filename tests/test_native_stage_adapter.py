@@ -224,7 +224,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 actual_bottom = sut.md_bottom(expected_bottom.unit)
                 tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
 
-    def test_subsurface_point_in_length_units(self):
+    def test_subsurface_point_in_length_unit(self):
         net_points = [
             AboutLocation(1.214e5, 6.226e5, 2336, units.Metric.LENGTH),
             AboutLocation(1.840e5, 8.994e6, 8281, units.UsOilfield.LENGTH),
@@ -255,8 +255,8 @@ class TestNativeStageAdapter(unittest.TestCase):
                               f' in length unit {expected_point[-1].value.unit:~P}.'):
                 subsurface_point_mock_func = mock_subsurface_point_func(net_point, origin_reference.xy,
                                                                         origin_reference.depth)
-                actual = nsa.subsurface_point_in_length_units(origin_reference.depth, origin_reference.xy,
-                                                              expected_point[-1], subsurface_point_mock_func)
+                actual = nsa.subsurface_point_in_length_unit(origin_reference.depth, origin_reference.xy,
+                                                             expected_point[-1], subsurface_point_mock_func)
 
                 expected = create_expected(expected_point)
                 tcm.assert_that_measurements_close_to(actual.x, expected.x, tolerance.x)

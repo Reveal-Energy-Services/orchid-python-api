@@ -40,7 +40,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
     @deal.pre(orchid.validation.arg_not_none)
     def get_easting_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:
         """
-        Calculates the eastings of this trajectory in the specified `reference_frame` measured in `length_units`
+        Calculates the eastings of this trajectory in the specified `reference_frame` measured in project length units
         :param reference_frame: The reference from for the easting coordinates. Valid values are 'absolute' (
         absolute state plane), 'project', and 'well_head'.
         """
@@ -51,7 +51,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
     @deal.pre(orchid.validation.arg_not_none)
     def get_northing_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:
         """
-        Calculates the northings of this trajectory in the specified `reference_frame` measured in `length_units`
+        Calculates the northings of this trajectory in the specified `reference_frame` measured in project length units
         :param reference_frame: The reference from for the easting coordinates. Valid values are 'absolute' (
         absolute state plane), 'project', and 'well_head'.
         """
