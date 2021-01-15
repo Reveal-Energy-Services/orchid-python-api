@@ -278,8 +278,8 @@ def as_net_quantity_in_different_unit(measurement: om.Measurement, target_unit: 
 
 
 @toolz.curry
-def convert_net_quantity_to_different_unit(net_quantity: UnitsNet.IQuantity,
-                                           target_unit: units.Unit) -> UnitsNet.IQuantity:
+def convert_net_quantity_to_different_unit(target_unit: units.Unit,
+                                           net_quantity: UnitsNet.IQuantity) -> UnitsNet.IQuantity:
     """
     Convert one .NET `UnitsNet.IQuantity` to another .NET `UnitsNet.IQuantity` in a different unit `target_unit`
     Args:

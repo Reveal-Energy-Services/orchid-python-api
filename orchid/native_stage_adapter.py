@@ -17,7 +17,6 @@
 
 
 from enum import IntEnum
-import functools
 from typing import Tuple, Union
 
 import deal
@@ -39,6 +38,8 @@ from Orchid.FractureDiagnostics import FormationConnectionType
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
 
+VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit system length.'
+
 
 class ConnectionType(IntEnum):
     PLUG_AND_PERF = FormationConnectionType.PlugAndPerf,
@@ -55,6 +56,40 @@ def as_connection_type(type_value):
     return toolz.pipe(iter(ConnectionType),
                       toolz.filter(has_value(type_value)),
                       toolz.nth(0))
+
+
+# This pre-condition applies to the public methods:
+# - bottom_location
+# - center_location
+# - cluster_location
+# - top_location
+# but is implemented here to ensure common behavior among all these public methods.
+@deal.pre(lambda _depth_datum, _reference_frame, in_length_unit, _net_subsurface_point_func:
+          validation.is_unit_system_length(in_length_unit),
+          message=VALID_LENGTH_UNIT_MESSAGE)
+def subsurface_point_in_length_unit(depth_datum: origins.DepthDatum,
+                                    xy_reference_frame: origins.WellReferenceFrameXy,
+                                    in_length_unit: Union[units.UsOilfield, units.Metric],
+                                    net_subsurface_point_func) -> nsp.BaseSubsurfacePoint:
+    """
+    Calculate the subsurface point `in_length_unit` whose value is calculated by the
+    callable, `net_subsurface_point_func`.
+
+    Although this method is public, the author intends it to be "private." The author has made it public
+    **only** to support unit testing. No other usage is supported.
+
+    Args:
+        depth_datum: The datum from which we measure depths.
+        xy_reference_frame: The reference frame for easting-northing coordinates.
+        in_length_unit: The unit of length available from the returned value.
+        net_subsurface_point_func: The callable to calculate the subsurface point in .NET.
+
+    Returns:
+        The subsurface point in the requested unit of length.
+    """
+    net_subsurface_point = net_subsurface_point_func(xy_reference_frame.value, depth_datum.value)
+    result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+    return result
 
 
 class NativeStageAdapter(dna.DotNetAdapter):
@@ -121,11 +156,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage bottom.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationBottom(xy_reference_frame.value, depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
 
-    @functools.lru_cache()
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               self._adaptee.GetStageLocationBottom)
+
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
                         depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
@@ -141,10 +175,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage center.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationCenter(xy_reference_frame.value,
-                                                                    depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               self._adaptee.GetStageLocationCenter)
 
     def center_location_easting(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
@@ -223,8 +255,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return subsurface_point.x, subsurface_point.y
 
     @deal.pre(lambda _self, _in_length_unit, cluster_no, _xy_reference_frame, _depth_datum: cluster_no >= 0)
-    def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                         cluster_no: int,
+    def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric], cluster_no: int,
                          xy_reference_frame: origins.WellReferenceFrameXy,
                          depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
         """
@@ -240,10 +271,9 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationCluster(cluster_no, xy_reference_frame.value,
-                                                                     depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+        stage_location_cluster_func = toolz.curry(self._adaptee.GetStageLocationCluster, cluster_no)
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               stage_location_cluster_func)
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         """
@@ -257,7 +287,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
          The measured depth of the stage top in the specified unit.
         """
         original = self._adaptee.MdTop
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(original, in_length_unit)
+        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
 
@@ -273,7 +303,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
              The measured depth of the stage bottom in the specified unit.
         """
         original = self._adaptee.MdBottom
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(original, in_length_unit)
+        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
 
@@ -307,9 +337,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage top.
         """
-        net_subsurface_point = self._adaptee.GetStageLocationTop(xy_reference_frame.value, depth_datum.value)
-        result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
-        return result
+        return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
+                                               self._adaptee.GetStageLocationTop)
 
     def treatment_curves(self):
         """
@@ -341,17 +370,17 @@ class NativeStageAdapter(dna.DotNetAdapter):
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         net_isip = self._adaptee.Isip
-        net_isip_correct_units = onq.convert_net_quantity_to_different_unit(net_isip, target_unit)
+        net_isip_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_isip)
         return onq.as_pressure_measurement(net_isip_correct_units)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         net_pnet = self._adaptee.Pnet
-        net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(net_pnet, target_unit)
+        net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_pnet)
         return onq.as_pressure_measurement(net_pnet_correct_units)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
         net_shmin = self._adaptee.Shmin
-        net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(net_shmin, target_unit)
+        net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_shmin)
         return onq.as_pressure_measurement(net_shmin_correct_units)

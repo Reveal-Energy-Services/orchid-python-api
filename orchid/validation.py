@@ -16,16 +16,9 @@
 #
 
 """This module contains common functions used to validate arguments."""
-from orchid import (
-    unit_system as units
-)
 
 
-# TODO: Any better functional support?
-# I'd really like to compose these functions but the `functional` library appears dead.
-# Consider the `functionally` package. Although not updated since 2012, contains many
-# higher-level functions familiar from other libraries. Don't think we expose this to
-# consumers, but may be useful internally.
+from orchid import (unit_system as units)
 
 
 def arg_not_none(_, arg) -> bool:
@@ -52,3 +45,8 @@ def arg_neither_empty_nor_all_whitespace(_, arg: str) -> bool:
 
 def arg_is_acceptable_pressure_unit(_, target_unit):
     return (target_unit == units.UsOilfield.PRESSURE) or (target_unit == units.Metric.PRESSURE)
+
+
+def is_unit_system_length(unit_to_test):
+    return unit_to_test == units.UsOilfield.LENGTH or unit_to_test == units.Metric.LENGTH
+

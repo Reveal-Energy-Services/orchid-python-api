@@ -338,7 +338,7 @@ class TestNetMeasurement(unittest.TestCase):
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1164.91)), units.Metric.VOLUME),
         ]:
             with self.subTest(f'Test convert .NET quantity, {net_quantity.ToString()}, to same unit, {target_unit}'):
-                actual = onq.convert_net_quantity_to_different_unit(net_quantity, target_unit)
+                actual = onq.convert_net_quantity_to_different_unit(target_unit, net_quantity)
                 tcm.assert_that_net_quantities_close_to(actual, net_quantity)
 
     def test_convert_net_quantity_to_different_unit(self):
@@ -409,7 +409,7 @@ class TestNetMeasurement(unittest.TestCase):
         ]:
             with self.subTest(f'Converting .NET Quantity, {source_net_quantity},'
                               f' to different unit, "{target_unit.value.unit:~P}"'):
-                actual = onq.convert_net_quantity_to_different_unit(source_net_quantity, target_unit)
+                actual = onq.convert_net_quantity_to_different_unit(target_unit, source_net_quantity)
                 to_test_tolerance = tolerance if tolerance else decimal.Decimal('0.01')
 
                 # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the

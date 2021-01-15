@@ -24,6 +24,8 @@ from orchid import (physical_quantity as opq)
 
 
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import UnitSystem as NetUnitSystem
+# noinspection PyUnresolvedReferences
 import UnitsNet
 
 
@@ -209,3 +211,12 @@ def abbreviation(unit: UnitSystem) -> str:
 
     # noinspection PyTypeChecker
     return unit_abbreviation_map.get(unit, f'{unit.value.unit:~P}')
+
+
+def as_unit_system(net_unit_system: UnitSystem):
+    if net_unit_system == NetUnitSystem.USOilfield():
+        return UsOilfield
+    elif net_unit_system == NetUnitSystem.Metric():
+        return Metric
+    else:
+        raise ValueError(f'Unrecognized unit system: {net_unit_system}')
