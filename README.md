@@ -353,3 +353,15 @@ This output describes four details of the configuration.
 | fallback | The always available configuration |
 | file | The configuration specified in your configuration file |
 | environment | The configuration specified using environment variables | 
+
+# The "numpy fmod" issue
+
+Our release notes contain the known issues for a specific release. We wanted to emphasize one specific known
+issue. Running the Orchid Python API example notebooks on Windows, the `numpy` package has presented an error
+like the following
+
+> RuntimeError: The current Numpy installation ('<filename of installed numpy>') fails to pass a sanity check
+> due to a bug in the windows runtime. See this issue for more information: https://tinyurl.com/y3dm3h86s
+
+Our work-around to this issue is to pin `numpy` to version 1.19.3 as recommended by Steven Wishnousky of
+Microsoft in the thread mentioned in the error. We are continuing to await a fix from Microsoft for this issue.
