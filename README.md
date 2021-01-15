@@ -77,10 +77,10 @@ and yet provides a fairly simple interface. We will assume in this document that
   [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 - Open a console using either `powershell` or the Windows console.
 - Create a directory for the virtual environment. We will symbolically call it `/path/to/orchid-virtualenv`.
-- Change the current working directory to by `chdir /path/to/orchid-virtualenv`.
+- Change the current working directory by executing, `chdir /path/to/orchid-virtualenv`.
 - Create an empty virtual environment by running `pipenv install`.
 - Activate the virtual environment by running `pipenv shell`
-- Install orchid by running `pip install orchid-python-api`.
+- Install Orchid by running `pip install orchid-python-api`.
 - Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
 
 # Step-by-step conda install
@@ -102,14 +102,14 @@ The following instructions assume that you will use the simple (put perhaps not 
 the `conda ` virtual environment with all packages you want to use available in the Anaconda/Miniconda
 ecosystem and, within that virtual environment, use `pip` to install `orchid-python-api`.
 
-- Open an Anaconda (Power)shell console.
+- Open an Anaconda Powershell console.
 - Optionally create a directory for your work.
     - We symbolically call it `/path/to/orchid-virtualenv`.
     - Change to the current working directory by executing `chdir /path/to/orchid-virtualenv`.
 - Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.8`.
 - Activate the virtual environment by running `conda activate <your-virtualenv_name>`
 - Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
-- Install orchid by running `pip install orchid-python-api`.
+- Install Orchid by running `pip install orchid-python-api`.
 
 ## Configure the Orchid Python API
 
@@ -118,7 +118,7 @@ the installation, you may need to configure the Orchid Python API to refer to di
 
 ### Using the fallback configuration
 
-If you installed the latest version Orchid using the installation defaults and you installed the 
+If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
 installation. For your information, the default installation location is,
 `%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
@@ -148,7 +148,7 @@ words are separated by the underscore, (_) symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
 which Orchid is installed, `/path/to/orchid-installation`. This action pastes the directory name into the 
-"Variable Value" text box. Verify that the directory is correct and the click "OK". Verify that you see the 
+"Variable Value" text box. Verify that the directory is correct, and then click "OK". Verify that you see the 
 name `ORCHID_ROOT` with the correct value in the "User variables for <your.username>" list. Finally, click 
 "OK" to dismiss the "Environment Variables" dialog.
 
@@ -158,7 +158,7 @@ what you expect. If you understand these details, you can jump to [Verify Instal
 If you are not confident of these details, restart your system before proceeding to 
 [Verify Installation](#verify-installation).
 
-### Using an configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
 easier to change than an environment variable and does not require a system restart to work best. However, it
@@ -224,7 +224,7 @@ present your with the "Environment Variables" dialog. Under the section named "U
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
- into the "Variable Value" text box. Verify that the directory is correct and the click "OK". Verify that you
+ into the "Variable Value" text box. Verify that the directory is correct, and then click "OK". Verify that you
 see the name `ORCHID_TRAINING_DATA` with the correct value in the "User variables for <your.username>" list. 
 Finally, click "OK" to dismiss the "Environment Variables" dialog.
 
@@ -234,7 +234,7 @@ what you expect. If you understand these details, you can jump to [Verify Instal
 If you are not confident of these details, restart your system before proceeding to 
 [Verify Installation](#verify-installation).
 
-### Using an configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
