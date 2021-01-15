@@ -37,7 +37,7 @@ classifiers=[
 ]
 include=[
     "LICENSE",
-    "RELEASE.md",
+    "ReleaseNotes.md",
     "orchid/*.py",
     "orchid/VERSION",
     "orchid_python_api/examples/*.ipynb",
