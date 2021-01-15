@@ -43,6 +43,10 @@ def arg_neither_empty_nor_all_whitespace(_, arg: str) -> bool:
     return len(arg.strip()) > 0
 
 
+def arg_is_acceptable_pressure_unit(_, target_unit):
+    return (target_unit == units.UsOilfield.PRESSURE) or (target_unit == units.Metric.PRESSURE)
+
+
 def is_unit_system_length(unit_to_test):
     return unit_to_test == units.UsOilfield.LENGTH or unit_to_test == units.Metric.LENGTH
 

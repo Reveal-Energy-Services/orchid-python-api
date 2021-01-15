@@ -163,7 +163,7 @@ def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsN
 
 # It is common to convert UnitsNet Quantities in LengthUnit's to Python length measurements
 as_length_measurement = as_measurement(opq.PhysicalQuantity.LENGTH)
-
+as_pressure_measurement = as_measurement(opq.PhysicalQuantity.PRESSURE)
 
 def microseconds_to_integral_milliseconds(to_convert: int) -> int:
     """

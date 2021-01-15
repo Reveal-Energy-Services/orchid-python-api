@@ -225,7 +225,8 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
 def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
                           stage_location_bottom=None, stage_location_cluster=None,
                           stage_location_center=None, stage_location_top=None,
-                          start_time=None, stop_time=None, treatment_curve_names=None):
+                          start_time=None, stop_time=None, treatment_curve_names=None,
+                          shmin=None, pnet=None, isip=None):
     stub_net_stage_name = 'stub_net_stage'
     try:
         result = unittest.mock.MagicMock(name=stub_net_stage_name, spec=IStage)
@@ -264,6 +265,33 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
                 sampled_quantity_name=sampled_quantity_name.value), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
+        
+    if shmin is not None:
+        if hasattr(shmin, 'unit'):
+            result.Shmin = onq.as_net_quantity(shmin)
+        elif hasattr(shmin, 'Unit'):
+            result.Shmin = shmin
+        else:
+            raise ValueError(f'Unrecognized shmin={shmin}. The value, `shmin`, must be a Python `unit` or'
+                             f' a UnitsNet `Unit`.')
+        
+    if pnet is not None:
+        if hasattr(pnet, 'unit'):
+            result.Pnet = onq.as_net_quantity(pnet)
+        elif hasattr(pnet, 'Unit'):
+            result.Pnet = pnet
+        else:
+            raise ValueError(f'Unrecognized shmin={pnet}. The value, `shmin`, must be a Python `unit` or'
+                             f' a UnitsNet `Unit`.')
+        
+    if isip is not None:
+        if hasattr(isip, 'unit'):
+            result.Isip = onq.as_net_quantity(isip)
+        elif hasattr(isip, 'Unit'):
+            result.Isip = isip
+        else:
+            raise ValueError(f'Unrecognized shmin={isip}. The value, `isip`, must be a Python `unit` or'
+                             f' a UnitsNet `Unit`.')
 
     return result
 

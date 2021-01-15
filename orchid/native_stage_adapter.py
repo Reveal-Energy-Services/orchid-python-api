@@ -30,7 +30,7 @@ from orchid import (
     net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
-    validation,
+    validation
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -90,11 +90,6 @@ def subsurface_point_in_length_units(depth_datum: origins.DepthDatum,
     net_subsurface_point = net_subsurface_point_func(xy_reference_frame.value, depth_datum.value)
     result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
     return result
-
-
-@toolz.curry
-def _is_unit_system_length(_self, unit_to_test, _reference_frame, _depth_datum):
-    return unit_to_test == units.UsOilfield.LENGTH or unit_to_test == units.Metric.LENGTH
 
 
 class NativeStageAdapter(dna.DotNetAdapter):
@@ -371,3 +366,21 @@ class NativeStageAdapter(dna.DotNetAdapter):
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
+
+    @deal.pre(validation.arg_is_acceptable_pressure_unit)
+    def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+        net_isip = self._adaptee.Isip
+        net_isip_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_isip)
+        return onq.as_pressure_measurement(net_isip_correct_units)
+
+    @deal.pre(validation.arg_is_acceptable_pressure_unit)
+    def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+        net_pnet = self._adaptee.Pnet
+        net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_pnet)
+        return onq.as_pressure_measurement(net_pnet_correct_units)
+
+    @deal.pre(validation.arg_is_acceptable_pressure_unit)
+    def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+        net_shmin = self._adaptee.Shmin
+        net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_shmin)
+        return onq.as_pressure_measurement(net_shmin_correct_units)

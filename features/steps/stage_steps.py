@@ -30,6 +30,7 @@ from orchid import (
     unit_system as units,
 )
 
+import datetime
 
 # noinspection PyBDDParameters
 @then("I see {stage_count:d} stages for well {well}")
@@ -40,6 +41,7 @@ def step_impl(context, stage_count, well):
         stage_count (int): The number of stages for the well of interest.
         well (str): The name of the well of interest.
     """
+
     def actual_test_details(well_adapter):
         return well_adapter.name, toolz.count(well_adapter.stages)
 
@@ -261,3 +263,22 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
                                                          origins.DepthDatum.KELLY_BUSHING)
 
     assert_equal_location_measurements(subsurface_location, x, y, depth)
+
+
+@step("I see additional treatment data for samples {well}, {stage_no:d}, {shmin}, {isip}, and {pnet}")
+def step_impl(context, well, stage_no, shmin, isip, pnet):
+    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    if context.field == 'Bakken':
+        pressure_units = units.UsOilfield.PRESSURE
+    elif context.field == 'Montney':
+        pressure_units = units.Metric.PRESSURE
+    else:
+        raise ValueError(f'Field Name: {context.field} not recognized')
+
+    actual_shmin = stage_of_interest.shmin_in_pressure_unit(pressure_units)
+    actual_isip = stage_of_interest.isip_in_pressure_unit(pressure_units)
+    actual_pnet = stage_of_interest.pnet_in_pressure_unit(pressure_units)
+
+    assert_measurement_equal(actual_shmin, shmin)
+    assert_measurement_equal(actual_isip, isip)
+    assert_measurement_equal(actual_pnet, pnet)
