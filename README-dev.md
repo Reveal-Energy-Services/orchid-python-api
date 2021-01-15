@@ -393,7 +393,7 @@ If using the command line,
   
 - Create a new, clean virtual environment by:
     - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the 
-      Python interpreter to use for  the environment (currently Python 3.8.6 for the Orchid Python API).
+      Python interpreter to use for  the environment (currently Python 3.8.7 for the Orchid Python API).
 
 If using `python invoke`,
 
@@ -447,7 +447,7 @@ If using the command line,
     
 - Create a new, clean virtual environment by:
     - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
-    used by the Orchid Python API (currently 3.8.6).    
+    used by the Orchid Python API (currently 3.8.7).    
 
 If using `python invoke`,
 
