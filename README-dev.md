@@ -407,16 +407,17 @@ If using `python invoke`,
     Aborted!
     ```
   
+Delete any leftover files
 - If present, delete all leftover files from the virtualenv directory.
-                                                                                                                                                                                                                    
-- Create a new skeleton virtual environment
-    - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+
+Create a new skeleton virtual environment
+  - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
     
 To test that you were successful,
 
 - Navigate to the virtual environment directory if not there already
 - Activate the virtualenv by executing, `pipenv shell`
-- Execute the command, `pip list --local`. You should see output like the following (but most likely with
+- Execute the command, `pip list --local`. You should see output like the following (but probably with
   different version numbers)
 
   ```
@@ -424,7 +425,6 @@ To test that you were successful,
   ---------- -------
   pip        20.1.1
   setuptools 46.4.0
-  wheel      0.34.2
   ```
 
 ### Create a new, clean virtualenv
