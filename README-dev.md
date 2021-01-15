@@ -134,6 +134,20 @@ Configure the project interpreter:
 - If `/path/to/virtual-env/Scripts/python.exe` is (now) listed in the "Python Interpreters" dialog, select it.
 - Press "OK"
 
+##### Sharing PyCharm configurations
+
+When you configure the Python interpreter for PyCharm, `PyCharm` creates a "name" for this interpreter. By
+default, it uses the name of the Python virtual environment in which it finds that interpreter. This choice 
+works for a single individual, but fails when attempting to share configurations because `poetry` creates a
+virtual environment name that seems to depend on data specific to either the currently logged-in user or to
+the workstation. 
+
+To avoid these conflicting changes to `PythonApi.iml` and `.idea/misc.xml`, we use a technique recommended by
+JetBrains in [this YouTrack issue](https://youtrack.jetbrains.com/issue/PY-20228). We have agreed to name our
+`PyCharm` interpreter configuration using the "well known" name, "orchid-python-api-dev-py3.8". This choice
+replaces the suffix specific to the user or machine with `dev`. It does encode the Python interpreter
+version, but `poetry`, we believe, uses this encoding to support use of different interpreters.
+
 To use Visual Studio, a recommended tool is 
 [Python Tools for Visual Studio](https://visualstudio.microsoft.com/vs/features/python/). The author assumes 
 you are familiar with (or will become familiar with) this tool and its capabilities.
@@ -186,8 +200,8 @@ Publishing a release has a number of general steps. These steps are optional exc
 Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 
 Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
-    - `invoke --help` (for general help on `invoke`)
-    - `invoke --list` (to list the available tasks)
+    - `invoke --help` for general help on `invoke`
+    - `invoke --list` to list the available tasks
     - `invoke poetry.venv.remove --help` (for help on a specific command listed)
 to perform these tasks.
 
