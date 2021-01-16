@@ -65,6 +65,11 @@ Orchid features.
 
 ### Known issues
 
+- [GitHub issue 14](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/14)
+
+  The work-around for this issue is to configure the locations of both Orchid training data and the Orchid
+  binaries.
+
 - [GitHub issue 13](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/13)
 
   We believe that this warning is caused by the `pandas` package interacting with `numpy`, and plan to
