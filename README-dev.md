@@ -173,6 +173,8 @@ and stick to it."
     - The build process builds both 
         - A source distribution (`.tar.gz` file)
         - A binary (wheel) distribution (`.whl` file)
+    - The distribution contains the correct `ReleaseNotes.md` For example one can view the file contents by
+      using the command `vim dist/<package>.tar.gz` or by using an tool like 7-zip.
         
 ## Install local package
 
