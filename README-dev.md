@@ -374,7 +374,7 @@ correct version number in the main window title bar.
 
 If it is not installed, you'll need to:
 
-- Install the appropriate version from the Web portal
+- Install the appropriate version from the [Web portal](https://portal.reveal-energy.com)
 - Perhaps repeat these steps
 
 ### Create a new, clean development virtualenv
