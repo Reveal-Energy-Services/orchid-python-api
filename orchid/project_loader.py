@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+import functools
 import sys
 
 import deal
@@ -33,6 +34,7 @@ class OrchidError(Exception):
     pass
 
 
+@functools.lru_cache()
 def native_treatment_calculations():
     """
     Returns a .NET ITreatmentCalculations instance to be adapted.

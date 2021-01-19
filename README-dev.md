@@ -64,7 +64,7 @@ access from the command line, be sure to select the "Add Python 3.x to PATH" opt
 
 ### Ensure Command Line Access To Python
 
-Although you may be able perform development without command line access using, for example, `PyCharm`, many
+Although you may be able to perform development without command line access using, for example, `PyCharm`, many
 instructions, including these instructions, will assume command line access. To verify command line access:
 
 - Open a command prompt
@@ -134,6 +134,20 @@ Configure the project interpreter:
 - If `/path/to/virtual-env/Scripts/python.exe` is (now) listed in the "Python Interpreters" dialog, select it.
 - Press "OK"
 
+##### Sharing PyCharm configurations
+
+When you configure the Python interpreter for PyCharm, `PyCharm` creates a "name" for this interpreter. By
+default, it uses the name of the Python virtual environment in which it finds that interpreter. This choice 
+works for a single individual, but fails when attempting to share configurations because `poetry` creates a
+virtual environment name that seems to depend on data specific to either the currently logged-in user or to
+the workstation. 
+
+To avoid these conflicting changes to `PythonApi.iml` and `.idea/misc.xml`, we use a technique recommended by
+JetBrains in [this YouTrack issue](https://youtrack.jetbrains.com/issue/PY-20228). We have agreed to name our
+`PyCharm` interpreter configuration using the "well known" name, "orchid-python-api-dev-py3.8". This choice
+replaces the suffix specific to the user or machine with `dev`. It does encode the Python interpreter
+version, but `poetry`, we believe, uses this encoding to support use of different interpreters.
+
 To use Visual Studio, a recommended tool is 
 [Python Tools for Visual Studio](https://visualstudio.microsoft.com/vs/features/python/). The author assumes 
 you are familiar with (or will become familiar with) this tool and its capabilities.
@@ -159,6 +173,8 @@ and stick to it."
     - The build process builds both 
         - A source distribution (`.tar.gz` file)
         - A binary (wheel) distribution (`.whl` file)
+    - The distribution contains the correct `ReleaseNotes.md` For example one can view the file contents by
+      using the command `vim dist/<package>.tar.gz` or by using an tool like 7-zip.
         
 ## Install local package
 
@@ -186,8 +202,8 @@ Publishing a release has a number of general steps. These steps are optional exc
 Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 
 Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
-    - `invoke --help` (for general help on `invoke`)
-    - `invoke --list` (to list the available tasks)
+    - `invoke --help` for general help on `invoke`
+    - `invoke --list` to list the available tasks
     - `invoke poetry.venv.remove --help` (for help on a specific command listed)
 to perform these tasks.
 
@@ -236,12 +252,12 @@ introduction to the process (but some different steps), review the
     - `invoke poetry.config.test-pypi` or
     - `poetry config repositories.test-pypi https://test.pypi.org/legacy/`
     
-Once configured, you will also need to configure the API token for the TestPyPI web site. Because the API 
+Once configured, you will also need to configure the API token for the TestPyPI website. Because the API 
 token is a security token, the author is unaware of any way to examine if the token has already been 
 configured. However, configuring an already configured token **does not** cause an error. 
 
 To generate an API token, complete the steps described at [PyPI help](https://pypi.org/help/#apitoken) but for
-the TestPyPI web site.
+the TestPyPI website.
 
 Once generated, add it to the `poetry` configuration by executing either:
 
@@ -358,7 +374,7 @@ correct version number in the main window title bar.
 
 If it is not installed, you'll need to:
 
-- Install the appropriate version from the Web portal
+- Install the appropriate version from the [Web portal](https://portal.reveal-energy.com)
 - Perhaps repeat these steps
 
 ### Create a new, clean development virtualenv
@@ -379,7 +395,7 @@ If using the command line,
   
 - Create a new, clean virtual environment by:
     - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the 
-      Python interpreter to use for  the environment (currently Python 3.8.6 for the Orchid Python API).
+      Python interpreter to use for  the environment (currently Python 3.8.7 for the Orchid Python API).
 
 If using `python invoke`,
 
@@ -393,16 +409,17 @@ If using `python invoke`,
     Aborted!
     ```
   
-- If present, delete all leftover files the from virtualenv directory.
-                                                                                                                                                                                                                    
-- Create a new skeleton virtual environment
-    - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+Delete any leftover files
+- If present, delete all leftover files from the virtualenv directory.
+
+Create a new skeleton virtual environment
+  - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
     
 To test that you were successful,
 
 - Navigate to the virtual environment directory if not there already
 - Activate the virtualenv by executing, `pipenv shell`
-- Execute the command, `pip list --local`. You should see output like the following (but most likely with
+- Execute the command, `pip list --local`. You should see output like the following (but probably with
   different version numbers)
 
   ```
@@ -410,7 +427,6 @@ To test that you were successful,
   ---------- -------
   pip        20.1.1
   setuptools 46.4.0
-  wheel      0.34.2
   ```
 
 ### Create a new, clean virtualenv
@@ -433,7 +449,7 @@ If using the command line,
     
 - Create a new, clean virtual environment by:
     - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
-    used by the Orchid Python API (currently 3.8.6).    
+    used by the Orchid Python API (currently 3.8.7).    
 
 If using `python invoke`,
 
@@ -448,7 +464,7 @@ If using `python invoke`,
     Aborted!
     ```
     
-- If present, delete all leftover files the from virtualenv directory.
+- If present, delete all leftover files from the virtualenv directory.
                                                                                                                                                                                                                     
 - Create a new skeleton virtual environment
     - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
@@ -545,7 +561,7 @@ the installation, you may need to configure the Orchid Python API to refer to di
 
 ### Using the fallback configuration
 
-If you installed the latest version Orchid using the installation defaults and you installed the 
+If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
 installation. For your information, the default installation location is,
 `%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
@@ -575,7 +591,7 @@ words are separated by the underscore, (_) symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
 which Orchid is installed, `/path/to/orchid-installation`. This will paste the directory name into the 
-"Variable Value" text box. Verify that the directory is copied directly and the click "OK". Verify that you
+"Variable Value" text box. Verify that the directory is copied directly, and the click "OK". Verify that you
 see the name `ORCHID_ROOT` with the correct value in the "User variables for <your.username>" list. Finally,
 click "OK" to dismiss the "Environment Variables" dialog.
 
@@ -584,7 +600,7 @@ could now use that variable. However, the details of "new" is technical and may 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using an configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
 easier to change than an environment variable and does not require a system restart to work best. However, it
@@ -647,7 +663,7 @@ present your with the "Environment Variables" dialog. Under the section named "U
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
- into the "Variable Value" text box. Verify that the directory is correct and the click "OK". Verify that you
+ into the "Variable Value" text box. Verify that the directory is correct, and the click "OK". Verify that you
 see the name `ORCHID_TRAINING_DATA` with the correct value in the "User variables for <your.username>" list. 
 Finally, click "OK" to dismiss the "Environment Variables" dialog.
 
@@ -656,7 +672,7 @@ tools can now use that variable. However, the details of "new" is technical and 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using an configuration file
+### Using n configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
@@ -718,7 +734,7 @@ To contribute to this project, follow our typical development process:
 - Create a branch for you work typically branching from `develop`
 - Make changes on your branch
 - Push your branch to the Azure DevOps repository
-- Create a pull request to have have others review your branch
+- Create a pull request to have others review your branch
 - When approved, complete your pull request to merge you work onto `develop`
 
 Although not enforced automatically, any changes will need to pass all existing unit and integration tests.
