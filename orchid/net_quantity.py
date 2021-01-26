@@ -161,7 +161,8 @@ def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsN
         return om.make_measurement(unit, net_quantity.Value)
 
 
-# It is common to convert UnitsNet Quantities in LengthUnit's to Python length measurements
+as_angle_measurement = as_measurement(opq.PhysicalQuantity.ANGLE)
+as_density_measurement = as_measurement(opq.PhysicalQuantity.DENSITY)
 as_length_measurement = as_measurement(opq.PhysicalQuantity.LENGTH)
 as_pressure_measurement = as_measurement(opq.PhysicalQuantity.PRESSURE)
 
