@@ -403,7 +403,10 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     return result
 
 
-def create_stub_net_project(name='', default_well_colors=None,
+def create_stub_net_project(name='',
+                            azimuth=None,
+                            fluid_density=None,
+                            default_well_colors=None,
                             project_units=None,
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
@@ -425,7 +428,13 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_net_project = unittest.mock.MagicMock(name='stub_net_project')
+
     stub_net_project.Name = name
+    if azimuth is not None:
+        stub_net_project.Azimuth = onq.as_net_quantity(azimuth)
+    if fluid_density is not None:
+        stub_net_project.FluidDensity = onq.as_net_quantity(fluid_density)
+
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1

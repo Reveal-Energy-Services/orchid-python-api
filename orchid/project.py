@@ -58,12 +58,15 @@ class Project(dna.DotNetAdapter):
         self._wells = []
 
     azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
-    fluid_density = dna.transformed_dom_property('fluid_density', 'The fluid density of the project.',
-                                                 onq.as_density_measurement)
     name = dna.dom_property('name', 'The name of this project.')
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', as_unit_system)
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   nwa.NativeWellAdapter)
+
+    @property
+    def fluid_density(self):
+        """The fluid density of the project in project units."""
+        return onq.as_measurement(self.project_units, self._adaptee.FluidDensity)
 
     def center_location(self) -> SurfacePoint:
         """
