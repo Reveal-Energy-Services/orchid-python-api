@@ -26,12 +26,55 @@ import shutil
 from invoke import task, Collection
 # noinspection PyPackageRequirements
 import toml
+import toolz.curried as toolz
 
 
 # Commented out for ease of introducing DEBUG logging.
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
+
+
+@task
+def collect_orchid_assemblies(context, source_root='c:/src/OrchidApp/Orchid', target_dir='./orchid_assemblies'):
+    """
+    Collect the Orchid assemblies needed to run the Python Orchid API for development.
+
+    Args:
+        context: The task context (unused).
+        source_root: The path to the Orchid repository root.
+        target_dir: The target directory for these assemblies. (Default: ./orchid_assemblies)
+    """
+    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
+    log.debug(f'Created target directory, "{target_dir}"')
+
+    # 'c:src\OrchidApp\Orchid\Orchid.FractureDiagnostics.SDKFacade\bin\x64\Debug\netstandard2.0\Orchid
+    # .FractureDiagnostics.SDKFacade.dll'
+    needed_assemblies = {
+        'Orchid.FractureDiagnostics.SDKFacade/bin/x64/Debug/netstandard2.0':
+            ['Orchid.FractureDiagnostics',
+             'Orchid.FractureDiagnostics.Factories',
+             'Orchid.FractureDiagnostics.SDKFacade'],
+        'Orchid.Application/bin/x64/Debug/netcoreapp3.1': ['UnitsNet'],
+    }
+
+    def create_assembly_path(e):
+        parent_name, dll_names = e
+        return [pathlib.Path(source_root).joinpath(parent_name, dll_name) for dll_name in dll_names]
+
+    needed_assembly_paths = toolz.pipe(
+        needed_assemblies,
+        toolz.valmap(toolz.map(lambda n: n + '.dll')),
+        toolz.valmap(list),
+        lambda d: d.items(),
+        toolz.map(create_assembly_path),
+        toolz.concat,
+        toolz.map(str),
+        list
+    )
+    for needed_assembly_path in needed_assembly_paths:
+        shutil.copy2(needed_assembly_path, target_dir)
+        log.debug(f'Copied "{str(needed_assembly_path)}"')
 
 
 @task
@@ -362,6 +405,9 @@ ns = Collection()
 ns.add_task(clean)
 ns.add_task(pipfile_to_poetry)
 
+dev_ns = Collection('dev')
+dev_ns.add_task(collect_orchid_assemblies, name='setup')
+
 examples_ns = Collection('examples')
 examples_ns.add_task(examples_clean_notebooks, name='clean-notebooks')
 examples_ns.add_task(examples_copy_notebooks, name='copy-notebooks')
@@ -410,6 +456,7 @@ poetry_venv_ns.add_task(poetry_create_venv, name='create')
 poetry_venv_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_collection(poetry_venv_ns)
 
+ns.add_collection(dev_ns)
 ns.add_collection(examples_ns)
 ns.add_collection(pipenv_ns)
 ns.add_collection(poetry_ns)
