@@ -72,6 +72,26 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
+    def test_default_well_colors_if_no_default_well_colors(self):
+        stub_native_project = tsn.create_stub_net_project(name='exsistet')
+        sut = create_sut(stub_native_project)
+        assert_that(sut.default_well_colors(), equal_to([tuple([])]))
+
+    def test_default_well_colors_if_one_default_well_color(self):
+        stub_native_project = tsn.create_stub_net_project(name='exsistet', default_well_colors=[[0.142, 0.868, 0.220]])
+        sut = create_sut(stub_native_project)
+        # noinspection PyTypeChecker
+        assert_that(sut.default_well_colors(), contains_exactly((0.142, 0.868, 0.220)))
+
+    def test_default_well_colors_if_many_default_well_colors(self):
+        expected_default_well_colors = [(0.610, 0.779, 0.675), (0.758, 0.982, 0.720), (0.297, 0.763, 0.388)]
+        stub_native_project = tsn.create_stub_net_project(name='exsistet',
+                                                          default_well_colors=[list(t) for t
+                                                                               in expected_default_well_colors])
+        sut = create_sut(stub_native_project)
+        # noinspection PyTypeChecker
+        assert_that(sut.default_well_colors(), contains_exactly(*expected_default_well_colors))
+
     def test_fluid_density_returns_fluid_density_in_project_units(self):
         for actual_density, project_units, expected_density, tolerance in (
                 (om.Measurement(47.02, units.UsOilfield.DENSITY), units.UsOilfield,
@@ -187,26 +207,6 @@ class TestProject(unittest.TestCase):
                                                                 "06-390-40886-62-60"])
         sut = create_sut(stub_native_project)
         assert_that(map(lambda w: w.name, sut.wells_by_name('cordam')), contains_exactly(*(['cordam'] * 3)))
-
-    def test_default_well_colors_if_no_default_well_colors(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet')
-        sut = create_sut(stub_native_project)
-        assert_that(sut.default_well_colors(), equal_to([tuple([])]))
-
-    def test_default_well_colors_if_one_default_well_color(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', default_well_colors=[[0.142, 0.868, 0.220]])
-        sut = create_sut(stub_native_project)
-        # noinspection PyTypeChecker
-        assert_that(sut.default_well_colors(), contains_exactly((0.142, 0.868, 0.220)))
-
-    def test_default_well_colors_if_many_default_well_colors(self):
-        expected_default_well_colors = [(0.610, 0.779, 0.675), (0.758, 0.982, 0.720), (0.297, 0.763, 0.388)]
-        stub_native_project = tsn.create_stub_net_project(name='exsistet',
-                                                          default_well_colors=[list(t) for t
-                                                                               in expected_default_well_colors])
-        sut = create_sut(stub_native_project)
-        # noinspection PyTypeChecker
-        assert_that(sut.default_well_colors(), contains_exactly(*expected_default_well_colors))
 
     def test_well_time_series_returns_empty_if_no_well_time_series(self):
         expected_well_time_series = []
