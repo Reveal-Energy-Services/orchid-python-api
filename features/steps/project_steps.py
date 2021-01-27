@@ -145,8 +145,8 @@ def step_impl(context):
     context.project_measurements = {
         'fluid_density': context.project.fluid_density,
         'azimuth': context.project.azimuth,
-        'center_x': context.project.center_location().x,
-        'center_y': context.project.center_location().y,
+        'center_x': context.project.project_center().x,
+        'center_y': context.project.project_center().y,
     }
 
 

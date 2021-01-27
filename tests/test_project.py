@@ -114,6 +114,20 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
         assert_that(sut.name, equal_to('commodorum'))
 
+    # def test_project_center_relative_to_well_head_in_project_units(self):
+    #     for actual, expected, project_units, tolerances in [
+    #         (tsn.StubMeasurement(-106505, units.UsOilfield.LENGTH),
+    #          tsn.StubMeasurement(-1777697, units.UsOilfield.LENGTH)),
+    #         (tsn.StubMeasurement(-106505, units.UsOilfield.LENGTH),
+    #          tsn.StubMeasurement(-1777697, units.UsOilfield.LENGTH),
+    #         units.UsOilfield, (decimal.Decimal('1'), decimal.Decimal('1'))),
+    #     ]:
+    #         with self.subTest(f'Test project center {expected} in project units {project_units}'):
+    #             stub_native_project = tsn.create_stub_net_project(project_units=project_units,
+    #                                                               project_center=actual)
+    #             sut = create_sut(stub_native_project)
+    #             tcm.assert_that_measurements_close_to(sut.project_center(), expected, tolerance)
+
     def test_project_units_if_known(self):
         for expected_project_units in [units.Metric, units.UsOilfield]:
             with self.subTest(f'Testing if project has known units, "{expected_project_units}"'):

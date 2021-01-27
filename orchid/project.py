@@ -68,12 +68,6 @@ class Project(dna.DotNetAdapter):
         """The fluid density of the project in project units."""
         return onq.as_measurement(self.project_units.DENSITY, self._adaptee.FluidDensity)
 
-    def center_location(self) -> SurfacePoint:
-        """
-        Return the location of the project center on the surface measured in project units.
-        """
-        return SurfacePoint(om.Measurement(0, units.Metric.LENGTH), om.Measurement(0, units.Metric.LENGTH))
-
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
         Calculate the default well colors for this project.
@@ -94,6 +88,12 @@ class Project(dna.DotNetAdapter):
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []
+
+    def project_center(self) -> SurfacePoint:
+        """
+        Return the location of the project center on the surface measured in project units.
+        """
+        return SurfacePoint(om.Measurement(0, units.Metric.LENGTH), om.Measurement(0, units.Metric.LENGTH))
 
     def proppant_concentration_mass_unit(self):
         if self.project_units == units.UsOilfield:
