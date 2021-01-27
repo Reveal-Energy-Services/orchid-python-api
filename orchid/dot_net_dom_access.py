@@ -16,11 +16,15 @@
 #
 
 import uuid
+from typing import Callable, Union
 
 import deal
 import toolz.curried as toolz
 
-import orchid.validation
+from orchid import (
+    unit_system as units,
+    validation,
+)
 
 # noinspection PyUnresolvedReferences
 from System import Guid
@@ -120,19 +124,25 @@ def as_uuid(guid: Guid):
 
 
 class DotNetAdapter:
-    @deal.pre(orchid.validation.arg_not_none)
+    # @deal.pre(lambda _self, adaptee, _net_project_callable=None: adaptee is not None)
+    # def __init__(self, adaptee, net_project_callable: Callable = None):
+    @deal.pre(validation.arg_not_none)
     def __init__(self, adaptee):
         """
-        Construct an instance adapting a .NET IStage.
-        :param adaptee: The .NET DOM object to adapt.
+        Construct an instance adapting `adaptee` with access to the .NET `IProject` provided by `net_project_callable`.
+        Args:
+            adaptee: The .NET DOM object to adapt.
+            net_project_callable: A callable returning the .NET `IProject` instance.
         """
         self._adaptee = adaptee
+        # self._net_project_callable = net_project_callable
 
     object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_uuid)
 
+    @property
     def dom_object(self):
         """
-        (PRIVATE) Determine the DOM object being adapted.
+        (PROTECTED) Determine the DOM object being adapted.
 
         This method is only intended to be used **INSIDE** the orchid package. It is **NOT** intended for
         external use.
@@ -141,3 +151,18 @@ class DotNetAdapter:
             The .NET DOM object being adapted.
         """
         return self._adaptee
+    #
+    # @property
+    # def maybe_project_units(self) -> Union[units.UsOilfield, units.Metric]:
+    #     """
+    #     (PROTECTED) Return the `UnitSystem` appropriate the .NET `IProject` of this instance.
+    #
+    #     Although by naming convention, this property is "public," the author intends it to be "protected";
+    #     that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
+    #
+    #     Returns:
+    #         The unit system, `units.UsOilfield` or `units.Metric`, for this instance. For some derived
+    #         classes, such as `BaseCurveAdapter`, the `IProject` cannot be determined. In those cases, I
+    #         return `None`.
+    #     """
+    #     return units.as_unit_system(self._net_project_callable()) if self._net_project_callable else None

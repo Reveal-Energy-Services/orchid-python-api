@@ -66,7 +66,7 @@ class Project(dna.DotNetAdapter):
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
-        return onq.as_measurement(self.project_units.DENSITY, self._adaptee.FluidDensity)
+        return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -93,7 +93,7 @@ class Project(dna.DotNetAdapter):
         """
         Return the location of the project center on the surface measured in project units.
         """
-        net_center = self._adaptee.GetProjectCenter()
+        net_center = self.dom_object.GetProjectCenter()
         result = toolz.pipe(net_center,
                             toolz.map(onq.as_measurement(self.project_units.LENGTH)),
                             list,

@@ -47,7 +47,7 @@ class DotNetAdapterTest(unittest.TestCase):
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         sut = dna.DotNetAdapter(stub_adaptee)
 
-        assert_that(sut.dom_object(), equal_to(stub_adaptee))
+        assert_that(sut.dom_object, equal_to(stub_adaptee))
 
     @staticmethod
     def test_object_id_returns_adaptee_object_id():

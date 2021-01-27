@@ -158,7 +158,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
 
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
-                                               self._adaptee.GetStageLocationBottom)
+                                               self.dom_object.GetStageLocationBottom)
 
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
@@ -176,7 +176,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
             The `BaseSubsurfacePoint` of the stage center.
         """
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
-                                               self._adaptee.GetStageLocationCenter)
+                                               self.dom_object.GetStageLocationCenter)
 
     def center_location_easting(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
@@ -271,13 +271,13 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
         """
-        stage_location_cluster_func = toolz.curry(self._adaptee.GetStageLocationCluster, cluster_no)
+        stage_location_cluster_func = toolz.curry(self.dom_object.GetStageLocationCluster, cluster_no)
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
                                                stage_location_cluster_func)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        net_isip = self._adaptee.Isip
+        net_isip = self.dom_object.Isip
         net_isip_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_isip)
         return onq.as_pressure_measurement(net_isip_correct_units)
 
@@ -292,7 +292,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns;
          The measured depth of the stage top in the specified unit.
         """
-        original = self._adaptee.MdTop
+        original = self.dom_object.MdTop
         md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
@@ -308,20 +308,20 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
              The measured depth of the stage bottom in the specified unit.
         """
-        original = self._adaptee.MdBottom
+        original = self.dom_object.MdBottom
         md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        net_pnet = self._adaptee.Pnet
+        net_pnet = self.dom_object.Pnet
         net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_pnet)
         return onq.as_pressure_measurement(net_pnet_correct_units)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        net_shmin = self._adaptee.Shmin
+        net_shmin = self.dom_object.Shmin
         net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_shmin)
         return onq.as_pressure_measurement(net_shmin_correct_units)
 
@@ -356,7 +356,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
             The `BaseSubsurfacePoint` of the stage top.
         """
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
-                                               self._adaptee.GetStageLocationTop)
+                                               self.dom_object.GetStageLocationTop)
 
     def treatment_curves(self):
         """
@@ -371,7 +371,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The dictionary containing the available treatment curves.
         """
-        if not self._adaptee.TreatmentCurves.Items:
+        if not self.dom_object.TreatmentCurves.Items:
             return {}
 
         def add_curve(so_far, treatment_curve):
@@ -379,7 +379,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
             treatment_curve_map = {curve_name: treatment_curve}
             return toolz.merge(treatment_curve_map, so_far)
 
-        result = toolz.pipe(self._adaptee.TreatmentCurves.Items,  # start with .NET treatment curves
+        result = toolz.pipe(self.dom_object.TreatmentCurves.Items,  # start with .NET treatment curves
                             toolz.map(ntc.NativeTreatmentCurveAdapter),  # wrap them in a facade
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
