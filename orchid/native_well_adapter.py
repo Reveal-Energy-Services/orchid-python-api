@@ -45,3 +45,7 @@ class NativeWellAdapter(dna.DotNetAdapter):
     trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
                                               nta.NativeTrajectoryAdapter)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
+
+    @property
+    def kelly_bushing_height_above_ground_level(self):
+        return onq.as_measurement(self.project_units.LENGTH, self._adaptee.KellyBushingHeightAboveGroundLevel)

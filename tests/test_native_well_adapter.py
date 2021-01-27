@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+import decimal
 import unittest.mock
 
 from hamcrest import assert_that, equal_to, instance_of
@@ -24,9 +25,13 @@ from orchid import (
     native_stage_adapter as nsa,
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
+    unit_system as units,
 )
 
-from tests import stub_net as tsn
+from tests import (
+    custom_matchers as tcm,
+    stub_net as tsn,
+)
 
 
 class TestNativeWellAdapter(unittest.TestCase):
@@ -40,6 +45,24 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
+
+    def test_kelly_bushing_height_above_ground_level(self):
+        for orchid_actual, expected, project_units, tolerance in [
+            (tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
+             tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
+             units.UsOilfield, decimal.Decimal('0.01'))
+        ]:
+            with self.subTest(f'Test kelly bushing height, {expected}, in units, {project_units.LENGTH}'):
+                stub_native_project = tsn.create_stub_net_project(project_units=project_units)
+                stub_native_well = tsn.create_stub_net_well(
+                    project=stub_native_project,
+                    kelly_bushing_height_above_ground_level=orchid_actual)
+                # stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+                # stub_native_well.Project = stub_native_project
+                # stub_native_well.KellyBushingHeightAboveGroundLevel =
+                sut = nwa.NativeWellAdapter(stub_native_well)
+                tcm.assert_that_measurements_close_to(
+                    sut.kelly_bushing_height_above_ground_level, expected, tolerance)
 
     def test_name(self):
         expected_well_name = 'sapientiarum'

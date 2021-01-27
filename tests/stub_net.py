@@ -399,8 +399,44 @@ def get_mock_northing_array(stub_new_well_trajectory):
 
 
 def quantity_coordinate(raw_coordinates, i, stub_net_project):
+    # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
+    # (https://github.com/pythonnet/pythonnet/issues/253).
+    #
+    # One of the comments identifies a work-around from StackOverflow
+    # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
+    # This post states that "the trick is to realize that the compiler creates a special static method
+    # called `op_Implicit` for your implicit conversion operator."
     result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
               for c in raw_coordinates[i]] if raw_coordinates else []
+    return result
+
+
+def create_stub_net_well(name='',
+                         display_name='',
+                         kelly_bushing_height_above_ground_level=None,
+                         project=None,
+                         uwi=None,
+                         ):
+    try:
+        result = unittest.mock.MagicMock(name=name, spec=IWell)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=name)
+
+    if name:
+        result.Name = name
+
+    if display_name:
+        result.DisplayName = display_name
+
+    if kelly_bushing_height_above_ground_level is not None:
+        result.KellyBushingHeightAboveGroundLevel = onq.as_net_quantity(kelly_bushing_height_above_ground_level)
+
+    if project is not None:
+        result.Project = project
+
+    if uwi:
+        result.Uwi = uwi
+
     return result
 
 
@@ -471,13 +507,6 @@ def create_stub_net_project(name='',
         stub_well.DisplayName = well_display_names[i] if well_display_names else None
         stub_well.Name = well_names[i]
 
-        # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
-        # (https://github.com/pythonnet/pythonnet/issues/253).
-        #
-        # One of the comments identifies a work-around from StackOverflow
-        # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
-        # This post states that "the trick is to realize that the compiler creates a special static method
-        # called `op_Implicit` for your implicit conversion operator."
         stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
