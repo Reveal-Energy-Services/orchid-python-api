@@ -19,6 +19,7 @@
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 import datetime
+from functools import singledispatch
 
 import dateutil.tz as duz
 import toolz.curried as toolz
@@ -131,17 +132,35 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
 
+@singledispatch
 @toolz.curry
-def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
 
+    This function is registered as the type-handler for the `object` type. In our situation, arriving here
+    indicates an error by an implementer and so raises an error.
+
     Args:
+        unknown: A parameter whose type is not expected.
+        _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
+    """
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
+
+
+@as_measurement.register(opq.PhysicalQuantity)
+@toolz.curry
+def as_measurement_using_physical_quantity(physical_quantity,
+                                           net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in the same unit.
+
+    Args:
+        physical_quantity: The `PhysicalQuantity`. Although we try to determine a unique mapping between units
+        in the `unit_system` module and .NET `UnitsNet` units, we cannot perform a unique mapping for density
+        and proppant concentration measured in the metric system (the units of these physical quantities are
+        "kg/m**3"".
         net_quantity: The .NET IQuantity instance to convert.
-        physical_quantity: The optional `PhysicalQuantity`. Although we try to determine a unique mapping
-        between units in the `unit_system` module and .NET `UnitsNet` units, we cannot perform a unique
-        mapping for density and proppant concentration measured in the metric system (the units of these
-        physical quantities are "kg/m**3"".
 
     Returns:
         The equivalent `Measurement` instance.
@@ -161,10 +180,47 @@ def as_measurement(physical_quantity: opq.PhysicalQuantity, net_quantity: UnitsN
         return om.make_measurement(unit, net_quantity.Value)
 
 
-as_angle_measurement = as_measurement(opq.PhysicalQuantity.ANGLE)
-as_density_measurement = as_measurement(opq.PhysicalQuantity.DENSITY)
-as_length_measurement = as_measurement(opq.PhysicalQuantity.LENGTH)
-as_pressure_measurement = as_measurement(opq.PhysicalQuantity.PRESSURE)
+as_angle_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.ANGLE)
+as_density_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.DENSITY)
+as_length_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.LENGTH)
+as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESSURE)
+
+
+@as_measurement.register(units.Common)
+@toolz.curry
+def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in a common unit.
+
+    Args:
+        common_unit: The unit (from the units.Common) for the converted `Measurement` instance.
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `Measurement` instance.
+    """
+    # units.Common support no conversion so simply call another implementation.
+    return as_measurement(common_unit.value.physical_quantity, net_quantity)
+
+
+@as_measurement.register(units.Metric)
+@as_measurement.register(units.UsOilfield)
+@toolz.curry
+def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in a specified, but compatible unit.
+
+    Args:
+        specified_unit: The unit for the converted `Measurement` instance.
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `Measurement` instance in the specified unit.
+    """
+    result = toolz.pipe(net_quantity,
+                        convert_net_quantity_to_different_unit(specified_unit),
+                        as_measurement(specified_unit.value.physical_quantity))
+    return result
 
 
 def microseconds_to_integral_milliseconds(to_convert: int) -> int:
