@@ -168,22 +168,21 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
     assert_that(actual_fluid_density_unit, equal_to(expected_fluid_density_unit))
     expected_fluid_density_magnitude = decimal.Decimal(expected_fluid_density_text)
 
-    fluid_density_tolerance = decimal.Decimal((0, (1,), expected_fluid_density_magnitude.as_tuple()[-1] - 1))
-    assert_that(decimal.Decimal(context.project_measurements['fluid_density'].magnitude),
-                close_to(expected_fluid_density_magnitude, fluid_density_tolerance))
-
-    fluid_density_tolerance = decimal.Decimal((0, (1,), expected_fluid_density_magnitude.as_tuple()[-1] - 1))
+    # Decrease exponent when last significant digit less than 1 so that error is in digit one more than the
+    # last significant (decimal) digit
+    fluid_density_tolerance = decimal.Decimal((0, (6,), expected_fluid_density_magnitude.as_tuple()[-1] - 1))
     assert_that(decimal.Decimal(context.project_measurements['fluid_density'].magnitude),
                 close_to(expected_fluid_density_magnitude, fluid_density_tolerance))
 
     expected_azimuth_text, raw_expected_azimuth_unit = azimuth.split(maxsplit=1)
-    # Encoding for Unicode degree symbol. Both 'deg F' and 'deg C' map to the same unicode symbol
-    deg_f_expected_azimuth_unit = raw_expected_azimuth_unit.replace('deg F', '\u00b0')
-    expected_azimuth_unit = deg_f_expected_azimuth_unit.replace('deg C', '\u00b0')
+    # Encoding for Unicode degree symbol.
+    expected_azimuth_unit = raw_expected_azimuth_unit.replace('deg', '\u00b0')
     actual_azimuth_unit = orchid.unit_system.abbreviation(context.project_measurements['azimuth'].unit)
     assert_that(actual_azimuth_unit, equal_to(expected_azimuth_unit))
     expected_azimuth_magnitude = decimal.Decimal(expected_azimuth_text)
 
+    # Decrease exponent when last significant digit equal to 1 so that error is in digit one more than the
+    # last significant (decimal) digit
     azimuth_tolerance = decimal.Decimal((0, (1,), expected_azimuth_magnitude.as_tuple()[-1] - 1))
     assert_that(decimal.Decimal(context.project_measurements['azimuth'].magnitude),
                 close_to(expected_azimuth_magnitude, azimuth_tolerance))
@@ -193,7 +192,9 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
     assert_that(actual_center_x_unit, equal_to(expected_center_x_unit))
     expected_center_x_magnitude = decimal.Decimal(expected_center_x_text)
 
-    center_x_tolerance = decimal.Decimal((0, (1,), expected_center_x_magnitude.as_tuple()[-1] - 1))
+    # Increase exponent when last significant digit greater than 1 so that error is in digit one more than
+    # the last significant (decimal) digit
+    center_x_tolerance = decimal.Decimal((0, (6,), expected_center_x_magnitude.as_tuple()[-1] + 1))
     assert_that(decimal.Decimal(context.project_measurements['center_x'].magnitude),
                 close_to(expected_center_x_magnitude, center_x_tolerance))
 
@@ -202,6 +203,8 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
     assert_that(actual_center_y_unit, equal_to(expected_center_y_unit))
     expected_center_y_magnitude = decimal.Decimal(expected_center_y_text)
 
-    center_y_tolerance = decimal.Decimal((0, (1,), expected_center_y_magnitude.as_tuple()[-1] - 1))
+    # Increase exponent when last significant digit greater than 1 so that error is in digit one more than
+    # the last significant (decimal) digit
+    center_y_tolerance = decimal.Decimal((0, (6,), expected_center_y_magnitude.as_tuple()[-1] + 1))
     assert_that(decimal.Decimal(context.project_measurements['center_y'].magnitude),
                 close_to(expected_center_y_magnitude, center_y_tolerance))

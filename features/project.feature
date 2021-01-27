@@ -96,9 +96,9 @@ Feature: Low-level DOM API (project)
     # superscript 3 character. to work around this, I "encode" this value as 'ft^3'. the step will then convert
     # the text, 'ft^3', to its unicode equivalent before testing. Similar to the degree symbol.
     Examples: Bakken
-      | field  | fluid_density | azimuth    | center_x  | center_y   |
-      | Bakken | 63.2 lb/ft^3  | 50.0 deg F | 1.990e3 m | 1.750e4 m |
+      | field  | fluid_density | azimuth  | center_x   | center_y   |
+      | Bakken | 63.2 lb/ft^3  | 50.0 deg | 1.990e6 ft | 17.50e6 ft |
 
     Examples: Montney
-      | field   | fluid_density | azimuth    | center_x | center_y  |
-      | Montney | 63.2 lb/ft^3  | 90.0 deg C | 6.572e5 m | 6.179e6 m |
+      | field   | fluid_density | azimuth  | center_x  | center_y  |
+      | Montney | 1012 kg/m^3   | 90.0 deg | 657.2e3 m | 6.170e6 m |
