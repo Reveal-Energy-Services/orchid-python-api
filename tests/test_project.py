@@ -114,19 +114,35 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
         assert_that(sut.name, equal_to('commodorum'))
 
-    # def test_project_center_relative_to_well_head_in_project_units(self):
-    #     for actual, expected, project_units, tolerances in [
-    #         (tsn.StubMeasurement(-106505, units.UsOilfield.LENGTH),
-    #          tsn.StubMeasurement(-1777697, units.UsOilfield.LENGTH)),
-    #         (tsn.StubMeasurement(-106505, units.UsOilfield.LENGTH),
-    #          tsn.StubMeasurement(-1777697, units.UsOilfield.LENGTH),
-    #         units.UsOilfield, (decimal.Decimal('1'), decimal.Decimal('1'))),
-    #     ]:
-    #         with self.subTest(f'Test project center {expected} in project units {project_units}'):
-    #             stub_native_project = tsn.create_stub_net_project(project_units=project_units,
-    #                                                               project_center=actual)
-    #             sut = create_sut(stub_native_project)
-    #             tcm.assert_that_measurements_close_to(sut.project_center(), expected, tolerance)
+    def test_project_center_relative_to_well_head_in_project_units(self):
+        for orchid_actual, expected, project_units, tolerances in [
+            (tsn.StubSurfaceLocation(tsn.StubMeasurement(-106505, units.UsOilfield.LENGTH),
+                                     tsn.StubMeasurement(-1777697, units.UsOilfield.LENGTH)),
+             tsn.StubSurfaceLocation(tsn.StubMeasurement(-106505, units.UsOilfield.LENGTH),
+                                     tsn.StubMeasurement(-1777697, units.UsOilfield.LENGTH)),
+             units.UsOilfield, tsn.StubSurfaceLocation(decimal.Decimal('1'), decimal.Decimal('1'))),
+            (tsn.StubSurfaceLocation(tsn.StubMeasurement(-106.5e3, units.UsOilfield.LENGTH),
+                                     tsn.StubMeasurement(-1.778e6, units.UsOilfield.LENGTH)),
+             tsn.StubSurfaceLocation(tsn.StubMeasurement(-32.46e3, units.Metric.LENGTH),
+                                     tsn.StubMeasurement(-541.9e3, units.Metric.LENGTH)),
+             units.Metric, tsn.StubSurfaceLocation(decimal.Decimal('20'), decimal.Decimal('0.4e3'))),
+            (tsn.StubSurfaceLocation(tsn.StubMeasurement(106.7e3, units.Metric.LENGTH),
+                                     tsn.StubMeasurement(870.0e3, units.Metric.LENGTH)),
+             tsn.StubSurfaceLocation(tsn.StubMeasurement(106.7e3, units.Metric.LENGTH),
+                                     tsn.StubMeasurement(870.0e3, units.Metric.LENGTH)),
+             units.Metric, tsn.StubSurfaceLocation(decimal.Decimal('0.1e3'), decimal.Decimal('0.1e3'))),
+            (tsn.StubSurfaceLocation(tsn.StubMeasurement(106.7e3, units.Metric.LENGTH),
+                                     tsn.StubMeasurement(870.0e3, units.Metric.LENGTH)),
+             tsn.StubSurfaceLocation(tsn.StubMeasurement(350.1e3, units.UsOilfield.LENGTH),
+                                     tsn.StubMeasurement(2.854e6, units.UsOilfield.LENGTH)),
+             units.UsOilfield, tsn.StubSurfaceLocation(decimal.Decimal('0.4e3'), decimal.Decimal('0.4e3'))),
+        ]:
+            with self.subTest(f'Test project center {expected} in project units {project_units}'):
+                stub_native_project = tsn.create_stub_net_project(project_units=project_units,
+                                                                  project_center=orchid_actual)
+                sut = create_sut(stub_native_project)
+                tcm.assert_that_measurements_close_to(sut.project_center().x, expected.x, tolerances.x)
+                tcm.assert_that_measurements_close_to(sut.project_center().y, expected.y, tolerances.y)
 
     def test_project_units_if_known(self):
         for expected_project_units in [units.Metric, units.UsOilfield]:

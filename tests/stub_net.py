@@ -51,6 +51,7 @@ MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
+StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 
 
 # noinspection PyPep8Naming
@@ -407,6 +408,7 @@ def create_stub_net_project(name='',
                             azimuth=None,
                             fluid_density=None,
                             default_well_colors=None,
+                            project_center=None,
                             project_units=None,
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
@@ -442,6 +444,14 @@ def create_stub_net_project(name='',
     plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
+
+    if project_center:
+        net_center = toolz.pipe(project_center,
+                                toolz.map(onq.as_net_quantity),
+                                list,
+                                )
+        stub_net_project.GetProjectCenter = unittest.mock.MagicMock(name='stub_get_project_center',
+                                                                    return_value=net_center)
 
     if project_units == units.UsOilfield:
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()

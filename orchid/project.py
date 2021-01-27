@@ -93,7 +93,12 @@ class Project(dna.DotNetAdapter):
         """
         Return the location of the project center on the surface measured in project units.
         """
-        return SurfacePoint(om.Measurement(0, units.Metric.LENGTH), om.Measurement(0, units.Metric.LENGTH))
+        net_center = self._adaptee.GetProjectCenter()
+        result = toolz.pipe(net_center,
+                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            list,
+                            lambda ls: SurfacePoint(ls[0], ls[1]))
+        return result
 
     def proppant_concentration_mass_unit(self):
         if self.project_units == units.UsOilfield:
