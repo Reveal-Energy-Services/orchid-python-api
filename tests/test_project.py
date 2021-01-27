@@ -78,10 +78,10 @@ class TestProject(unittest.TestCase):
                  om.Measurement(47.02, units.UsOilfield.DENSITY), decimal.Decimal('0.001')),
                 (om.Measurement(1053, units.Metric.DENSITY), units.Metric,
                  om.Measurement(1053, units.Metric.DENSITY), decimal.Decimal('0.1')),
-                (om.Measurement(753.2, units.UsOilfield.DENSITY), units.Metric,
-                 om.Measurement(47.02, units.UsOilfield.DENSITY), decimal.Decimal('0.007')),
+                (om.Measurement(47.02, units.UsOilfield.DENSITY), units.Metric,
+                 om.Measurement(753.2, units.Metric.DENSITY), decimal.Decimal('0.2')),
                 (om.Measurement(1053, units.Metric.DENSITY), units.UsOilfield,
-                 om.Measurement(65.74, units.Metric.DENSITY), decimal.Decimal('0.07')),
+                 om.Measurement(65.74, units.UsOilfield.DENSITY), decimal.Decimal('0.07')),
         ):
             with self.subTest(f'Testing fluid density in same units {expected_density}'):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,

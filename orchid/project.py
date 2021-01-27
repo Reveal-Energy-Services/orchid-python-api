@@ -66,7 +66,7 @@ class Project(dna.DotNetAdapter):
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
-        return onq.as_measurement(self.project_units, self._adaptee.FluidDensity)
+        return onq.as_measurement(self.project_units.DENSITY, self._adaptee.FluidDensity)
 
     def center_location(self) -> SurfacePoint:
         """
