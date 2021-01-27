@@ -33,14 +33,6 @@ class TestNativeWellAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_name(self):
-        expected_well_name = 'sapientiarum'
-        stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-        stub_native_well.Name = expected_well_name
-        sut = nwa.NativeWellAdapter(stub_native_well)
-
-        assert_that(sut.name, equal_to(expected_well_name))
-
     def test_display_name(self):
         expected_well_display_name = 'agiles'
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
@@ -48,6 +40,14 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
+
+    def test_name(self):
+        expected_well_name = 'sapientiarum'
+        stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
+        stub_native_well.Name = expected_well_name
+        sut = nwa.NativeWellAdapter(stub_native_well)
+
+        assert_that(sut.name, equal_to(expected_well_name))
 
     def test_stages_count_equals_net_stages_count(self):
         for stub_net_stages in [[], [tsn.create_stub_net_stage()], [tsn.create_stub_net_stage(),
