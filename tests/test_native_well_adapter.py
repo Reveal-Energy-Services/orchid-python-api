@@ -155,6 +155,68 @@ class TestNativeWellAdapter(unittest.TestCase):
         # noinspection PyTypeChecker
         assert_that(list(actual), is_(empty()))
 
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_single_location_for_mdkb_values_if_single_mdkb_values(self, mock_as_unit_system):
+        for orchid_actual, expected, mdkb, project_units, frame, datum, tolerance in [
+            (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(508.0e3, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(4.633e6, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(6850, units.UsOilfield.LENGTH)),
+             tsn.StubSubsurfaceLocation(tsn.StubMeasurement(508.0e3, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(4.633e6, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(6850, units.UsOilfield.LENGTH)),
+             tsn.StubMeasurement(13.17e3, units.UsOilfield.LENGTH),
+             units.UsOilfield, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, origins.DepthDatum.SEA_LEVEL,
+             tsn.StubSubsurfaceLocation(decimal.Decimal('0.1e3'),
+                                        decimal.Decimal('0.001e6'),
+                                        decimal.Decimal('1'))),
+            (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(154.8e3, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(1.412e6, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(2088, units.Metric.LENGTH)),
+             tsn.StubSubsurfaceLocation(tsn.StubMeasurement(154.8e3, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(1.412e6, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(2088, units.Metric.LENGTH)),
+             tsn.StubMeasurement(4015, units.Metric.LENGTH),
+             units.Metric, origins.WellReferenceFrameXy.WELL_HEAD, origins.DepthDatum.KELLY_BUSHING,
+             tsn.StubSubsurfaceLocation(decimal.Decimal('0.1e3'),
+                                        decimal.Decimal('0.001e6'),
+                                        decimal.Decimal('1'))),
+            (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(508.0e3, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(4.633e6, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(6850, units.UsOilfield.LENGTH)),
+             tsn.StubSubsurfaceLocation(tsn.StubMeasurement(154.8e3, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(1.412e6, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(2088, units.Metric.LENGTH)),
+             tsn.StubMeasurement(13.17e3, units.UsOilfield.LENGTH),
+             units.Metric, origins.WellReferenceFrameXy.WELL_HEAD, origins.DepthDatum.GROUND_LEVEL,
+             tsn.StubSubsurfaceLocation(decimal.Decimal('40'),
+                                        decimal.Decimal('0.04e6'),
+                                        decimal.Decimal('0.4'))),
+            (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(154.8e3, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(1.412e6, units.Metric.LENGTH),
+                                        tsn.StubMeasurement(2088, units.Metric.LENGTH)),
+             tsn.StubSubsurfaceLocation(tsn.StubMeasurement(508.0e3, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(4.633e6, units.UsOilfield.LENGTH),
+                                        tsn.StubMeasurement(6850, units.UsOilfield.LENGTH)),
+             tsn.StubMeasurement(4015, units.Metric.LENGTH),
+             units.UsOilfield, origins.WellReferenceFrameXy.WELL_HEAD, origins.DepthDatum.KELLY_BUSHING,
+             tsn.StubSubsurfaceLocation(decimal.Decimal('0.4e3'),
+                                        decimal.Decimal('0.004e6'),
+                                        decimal.Decimal('4'))),
+        ]:
+            with self.subTest(f'Test single location, {expected}, in project_units {project_units} at MDKB, {mdkb}'):
+                mock_as_unit_system.return_value = project_units
+                stub_native_well = tsn.create_stub_net_well(
+                    locations_for_mdkb_values={((mdkb,), frame, datum): [orchid_actual]})
+                sut = nwa.NativeWellAdapter(stub_native_well)
+
+                # noinspection PyTypeChecker
+                actual = list(sut.locations_for_mdkb_values([mdkb], frame, datum))
+
+                assert_that(len(actual), equal_to(1))
+                tcm.assert_that_measurements_close_to(actual[0].x, expected.x, tolerance.x)
+                tcm.assert_that_measurements_close_to(actual[0].y, expected.y, tolerance.y)
+                tcm.assert_that_measurements_close_to(actual[0].depth, expected.depth, tolerance.depth)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -423,7 +423,16 @@ def create_stub_net_well(name='',
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
 
-    locations_for_mdkb_values = locations_for_mdkb_values if locations_for_mdkb_values is not None else {}
+    if locations_for_mdkb_values is None:
+        locations_for_mdkb_values = {}
+    else:
+        def net_subsurface_point(ssp):
+            return create_stub_net_subsurface_point(ssp.x, ssp.y, ssp.depth)
+
+        def make_net_subsurface_points(points):
+            return list(toolz.map(net_subsurface_point, points))
+
+        locations_for_mdkb_values = toolz.valmap(make_net_subsurface_points, locations_for_mdkb_values)
 
     if name:
         result.Name = name
@@ -440,17 +449,16 @@ def create_stub_net_well(name='',
     if uwi:
         result.Uwi = uwi
 
-    @toolz.curry
-    def location_at(reference_frame, depth_origin, mdkb_value):
-        return locations_for_mdkb_values[(mdkb_value, reference_frame, depth_origin)]
-
-    def locations_at(mdkb_values, reference_frame, depth_origin):
-        locations = toolz.pipe(mdkb_values,
-                               toolz.map(location_at(reference_frame, depth_origin)))
-        return locations
-
     result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_mdkb_values')
-    result.GetLocationsForMdkbValues.side_effect = locations_at
+
+    def get_location_for(mdkbs, frame, origin):
+        # return an empty list if nothing configured
+        if not locations_for_mdkb_values:
+            return []
+
+        return toolz.get((tuple(mdkbs), frame, origin), locations_for_mdkb_values)
+
+    result.GetLocationsForMdkbValues.side_effect = get_location_for
 
     return result
 
