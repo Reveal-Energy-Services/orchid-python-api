@@ -87,6 +87,12 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
         return result
 
 
+@toolz.curry
+def make_subsurface_point_using_length_unit(target_unit: Union[units.UsOilfield, units.Metric],
+                                            net_subsurface_point: ISubsurfacePoint) -> SubsurfacePointUsingLengthUnit:
+    return SubsurfacePointUsingLengthUnit(net_subsurface_point, target_unit)
+
+
 class SubsurfacePoint(BaseSubsurfacePoint):
     """Adapts a .NET ISubsurfacePoint to be more Pythonic."""
 

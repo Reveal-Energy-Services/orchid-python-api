@@ -15,13 +15,18 @@
 # This file is part of Orchid and related technologies.
 #
 
+from typing import Iterable
+
 import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
+    measurement as om,
     native_stage_adapter as nsa,
+    native_subsurface_point as nsp,
     native_trajectory_adapter as nta,
     net_quantity as onq,
+    reference_origins as origins,
 )
 
 # noinspection PyUnresolvedReferences
@@ -52,9 +57,19 @@ class NativeWellAdapter(dna.DotNetAdapter):
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
     @property
-    def ground_level_elevation_above_sea_level(self):
+    def ground_level_elevation_above_sea_level(self) -> om.Measurement:
         return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
 
     @property
-    def kelly_bushing_height_above_ground_level(self):
+    def kelly_bushing_height_above_ground_level(self) -> om.Measurement:
         return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
+
+    def locations_for_mdkb_values(self,
+                                  mdkb_values: Iterable[om.Measurement],
+                                  well_reference_frame_xy: origins.WellReferenceFrameXy,
+                                  depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
+        result = toolz.pipe(
+            self.dom_object.GetLocationsForMdkbValues(mdkb_values, well_reference_frame_xy, depth_origin),
+            toolz.map(nsp.make_subsurface_point_using_length_unit(self.maybe_project_units.LENGTH)),
+        )
+        return result

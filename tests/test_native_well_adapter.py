@@ -18,13 +18,14 @@
 import decimal
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, instance_of
+from hamcrest import assert_that, equal_to, instance_of, is_, empty
 import toolz.curried as toolz
 
 from orchid import (
     native_stage_adapter as nsa,
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
+    reference_origins as origins,
     unit_system as units,
 )
 
@@ -143,6 +144,16 @@ class TestNativeWellAdapter(unittest.TestCase):
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 assert_that(sut.uwi, equal_to(expected_uwi if expected_uwi else 'No UWI'))
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_empty_locations_for_mdkb_values_if_empty_mdkb_values(self, mock_as_unit_system):
+        mock_as_unit_system.return_value = units.Metric
+        stub_native_well = tsn.create_stub_net_well()
+        sut = nwa.NativeWellAdapter(stub_native_well)
+
+        actual = sut.locations_for_mdkb_values([], origins.WellReferenceFrameXy.PROJECT, origins.DepthDatum.SEA_LEVEL)
+        # noinspection PyTypeChecker
+        assert_that(list(actual), is_(empty()))
 
 
 if __name__ == '__main__':

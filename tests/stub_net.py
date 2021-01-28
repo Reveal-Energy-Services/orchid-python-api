@@ -416,11 +416,14 @@ def create_stub_net_well(name='',
                          ground_level_elevation_above_sea_level=None,
                          kelly_bushing_height_above_ground_level=None,
                          uwi=None,
+                         locations_for_mdkb_values=None,
                          ):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
+
+    locations_for_mdkb_values = locations_for_mdkb_values if locations_for_mdkb_values is not None else {}
 
     if name:
         result.Name = name
@@ -436,6 +439,18 @@ def create_stub_net_well(name='',
 
     if uwi:
         result.Uwi = uwi
+
+    @toolz.curry
+    def location_at(reference_frame, depth_origin, mdkb_value):
+        return locations_for_mdkb_values[(mdkb_value, reference_frame, depth_origin)]
+
+    def locations_at(mdkb_values, reference_frame, depth_origin):
+        locations = toolz.pipe(mdkb_values,
+                               toolz.map(location_at(reference_frame, depth_origin)))
+        return locations
+
+    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_mdkb_values')
+    result.GetLocationsForMdkbValues.side_effect = locations_at
 
     return result
 
