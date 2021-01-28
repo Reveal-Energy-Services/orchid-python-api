@@ -203,7 +203,8 @@ class TestNativeWellAdapter(unittest.TestCase):
                                         decimal.Decimal('0.004e6'),
                                         decimal.Decimal('4'))),
         ]:
-            with self.subTest(f'Test single location, {expected}, in project_units {project_units} at MDKB, {mdkb}'):
+            with self.subTest(f'Test single location, {expected}, in project_units {project_units}'
+                              f' at value, {mdkb}'):
                 mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.create_stub_net_well(
                     locations_for_mdkb_values={((mdkb,), frame, datum): [orchid_actual]})
@@ -216,6 +217,83 @@ class TestNativeWellAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual[0].x, expected.x, tolerance.x)
                 tcm.assert_that_measurements_close_to(actual[0].y, expected.y, tolerance.y)
                 tcm.assert_that_measurements_close_to(actual[0].depth, expected.depth, tolerance.depth)
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_many_locations_for_mdkb_values_if_many_mdkb_values(self, mock_as_unit_system):
+        for orchid_actual, expected, mdkb_values, project_units, frame, datum, tolerance in [
+            ((tsn.StubSubsurfaceLocation(tsn.StubMeasurement(374.3e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(1.365e6, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(8288, units.UsOilfield.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(384.1e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(8.740e6, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(7572, units.UsOilfield.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(182.4e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(541.2e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(7783, units.UsOilfield.LENGTH))),
+             (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(374.3e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(1.365e6, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(8288, units.UsOilfield.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(384.1e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(8.740e6, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(7572, units.UsOilfield.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(182.4e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(541.2e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(7783, units.UsOilfield.LENGTH))),
+             (tsn.StubMeasurement(10.89e3, units.UsOilfield.LENGTH),
+              tsn.StubMeasurement(12.55e3, units.UsOilfield.LENGTH),
+              tsn.StubMeasurement(12.16e3, units.UsOilfield.LENGTH)),
+             units.UsOilfield, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, origins.DepthDatum.SEA_LEVEL,
+             (tsn.StubSubsurfaceLocation(decimal.Decimal('0.1e3'), decimal.Decimal('0.001e6'), decimal.Decimal('1')),
+              tsn.StubSubsurfaceLocation(decimal.Decimal('0.1e3'), decimal.Decimal('0.001e6'), decimal.Decimal('1')),
+              tsn.StubSubsurfaceLocation(decimal.Decimal('0.1e3'), decimal.Decimal('0.1e3'), decimal.Decimal('1')))),
+            ((tsn.StubSubsurfaceLocation(tsn.StubMeasurement(374.3e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(1.365e6, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(8288, units.UsOilfield.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(384.1e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(8.740e6, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(7572, units.UsOilfield.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(182.4e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(541.2e3, units.UsOilfield.LENGTH),
+                                         tsn.StubMeasurement(7783, units.UsOilfield.LENGTH))),
+             (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(114.1e3, units.Metric.LENGTH),
+                                         tsn.StubMeasurement(416.2e3, units.Metric.LENGTH),
+                                         tsn.StubMeasurement(2526, units.Metric.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(117.1e3, units.Metric.LENGTH),
+                                         tsn.StubMeasurement(2.664e6, units.Metric.LENGTH),
+                                         tsn.StubMeasurement(2308, units.Metric.LENGTH)),
+              tsn.StubSubsurfaceLocation(tsn.StubMeasurement(55.61e3, units.Metric.LENGTH),
+                                         tsn.StubMeasurement(165.0e3, units.Metric.LENGTH),
+                                         tsn.StubMeasurement(2372, units.Metric.LENGTH))),
+             (tsn.StubMeasurement(10.89e3, units.UsOilfield.LENGTH),
+              tsn.StubMeasurement(12.55e3, units.UsOilfield.LENGTH),
+              tsn.StubMeasurement(12.16e3, units.UsOilfield.LENGTH)),
+             units.Metric, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE, origins.DepthDatum.SEA_LEVEL,
+             (tsn.StubSubsurfaceLocation(decimal.Decimal('0.04e3'),
+                                         decimal.Decimal('0.004e6'),
+                                         decimal.Decimal('0.4')),
+              tsn.StubSubsurfaceLocation(decimal.Decimal('0.04e3'),
+                                         decimal.Decimal('0.001e6'),
+                                         decimal.Decimal('0.4')),
+              tsn.StubSubsurfaceLocation(decimal.Decimal('0.04e3'),
+                                         decimal.Decimal('0.001e6'),
+                                         decimal.Decimal('0.4')))),
+        ]:
+            with self.subTest(f'Test many locations, {expected[0]}..., in project_units {project_units}'
+                              f' at values, {mdkb_values[0]}...'):
+                mock_as_unit_system.return_value = project_units
+                stub_native_well = tsn.create_stub_net_well(
+                    locations_for_mdkb_values={(mdkb_values, frame, datum): orchid_actual})
+                sut = nwa.NativeWellAdapter(stub_native_well)
+
+                # noinspection PyTypeChecker
+                actual = list(sut.locations_for_mdkb_values(mdkb_values, frame, datum))
+
+                assert_that(len(actual), equal_to(len(expected)))
+                for actual_point, expected_point, tolerance_point in zip(actual, expected, tolerance):
+                    tcm.assert_that_measurements_close_to(actual_point.x, expected_point.x, tolerance_point.x)
+                    tcm.assert_that_measurements_close_to(actual_point.y, expected_point.y, tolerance_point.y)
+                    tcm.assert_that_measurements_close_to(actual_point.depth, expected_point.depth,
+                                                          tolerance_point.depth)
 
 
 if __name__ == '__main__':
