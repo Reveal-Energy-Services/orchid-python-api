@@ -55,6 +55,14 @@ def is_power_unit(unit):
     return unit == units.UsOilfield.POWER or unit == units.Metric.POWER
 
 
+# Test ideas
+# - well.frac_gradient (property - appears to return "ratio unit", `FracGradient`)
+#   (Consider not exposing this property because we expect it to change.)
+# - well.shmin (property - returns `Nullable<Pressure?>`)
+#   (Consider not exposing this property because of `Nullable<T>`.)
+# - stage.md_top, md_bottom (adjust existing)
+# - stage.get_stage_location_center and similar (adjust existing)
+# - stage_port.isip (property)
 class TestNetMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
