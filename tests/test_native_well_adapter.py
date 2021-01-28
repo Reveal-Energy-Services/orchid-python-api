@@ -46,20 +46,26 @@ class TestNativeWellAdapter(unittest.TestCase):
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
 
-    def test_kelly_bushing_height_above_ground_level(self):
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_kelly_bushing_height_above_ground_level(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
              tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
-             units.UsOilfield, decimal.Decimal('0.01'))
+             units.UsOilfield, decimal.Decimal('0.01')),
+            (tsn.StubMeasurement(9.406, units.Metric.LENGTH),
+             tsn.StubMeasurement(9.406, units.Metric.LENGTH),
+             units.Metric, decimal.Decimal('0.01')),
+            (tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
+             tsn.StubMeasurement(9.406, units.Metric.LENGTH),
+             units.Metric, decimal.Decimal('0.004')),
+            (tsn.StubMeasurement(9.406, units.Metric.LENGTH),
+             tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
+             units.UsOilfield, decimal.Decimal('0.004')),
         ]:
             with self.subTest(f'Test kelly bushing height, {expected}, in units, {project_units.LENGTH}'):
-                stub_native_project = tsn.create_stub_net_project(project_units=project_units)
+                mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.create_stub_net_well(
-                    project=stub_native_project,
                     kelly_bushing_height_above_ground_level=orchid_actual)
-                # stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-                # stub_native_well.Project = stub_native_project
-                # stub_native_well.KellyBushingHeightAboveGroundLevel =
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.kelly_bushing_height_above_ground_level, expected, tolerance)

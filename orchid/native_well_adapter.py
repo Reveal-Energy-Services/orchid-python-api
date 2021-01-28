@@ -15,11 +15,14 @@
 # This file is part of Orchid and related technologies.
 #
 
-# noinspection PyUnresolvedReferences
-import orchid
-import orchid.dot_net_dom_access as dna
-import orchid.native_stage_adapter as nsa
-import orchid.native_trajectory_adapter as nta
+import toolz.curried as toolz
+
+from orchid import (
+    dot_net_dom_access as dna,
+    native_stage_adapter as nsa,
+    native_trajectory_adapter as nta,
+    net_quantity as onq,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
@@ -34,9 +37,11 @@ class NativeWellAdapter(dna.DotNetAdapter):
     def __init__(self, net_well: IWell):
         """
         Constructs an instance adapting a .NET IWell.
-        :param net_well: The .NET well to be adapted.
+
+        Args:
+            net_well: The .NET well to be adapted.
         """
-        super().__init__(net_well)
+        super().__init__(net_well, toolz.identity(net_well.Project))
 
     name = dna.dom_property('name', 'The name of the adapted .NET well.')
     display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
@@ -48,4 +53,4 @@ class NativeWellAdapter(dna.DotNetAdapter):
 
     @property
     def kelly_bushing_height_above_ground_level(self):
-        return onq.as_measurement(self.project_units.LENGTH, self._adaptee.KellyBushingHeightAboveGroundLevel)
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self._adaptee.KellyBushingHeightAboveGroundLevel)
