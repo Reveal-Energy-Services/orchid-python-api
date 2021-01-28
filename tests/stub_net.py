@@ -413,6 +413,7 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
 
 def create_stub_net_well(name='',
                          display_name='',
+                         ground_level_elevation_above_sea_level=None,
                          kelly_bushing_height_above_ground_level=None,
                          uwi=None,
                          ):
@@ -426,6 +427,9 @@ def create_stub_net_well(name='',
 
     if display_name:
         result.DisplayName = display_name
+
+    if ground_level_elevation_above_sea_level is not None:
+        result.GroundLevelElevationAboveSeaLevel = onq.as_net_quantity(ground_level_elevation_above_sea_level)
 
     if kelly_bushing_height_above_ground_level is not None:
         result.KellyBushingHeightAboveGroundLevel = onq.as_net_quantity(kelly_bushing_height_above_ground_level)

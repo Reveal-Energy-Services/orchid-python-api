@@ -52,5 +52,9 @@ class NativeWellAdapter(dna.DotNetAdapter):
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
     @property
+    def ground_level_elevation_above_sea_level(self):
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
+
+    @property
     def kelly_bushing_height_above_ground_level(self):
-        return onq.as_measurement(self.maybe_project_units.LENGTH, self._adaptee.KellyBushingHeightAboveGroundLevel)
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)

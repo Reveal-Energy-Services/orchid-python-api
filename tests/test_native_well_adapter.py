@@ -47,6 +47,30 @@ class TestNativeWellAdapter(unittest.TestCase):
         assert_that(sut.display_name, equal_to(expected_well_display_name))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_ground_level_elevation_above_sea_level(self, mock_as_unit_system):
+        for orchid_actual, expected, project_units, tolerance in [
+            (tsn.StubMeasurement(4537, units.UsOilfield.LENGTH),
+             tsn.StubMeasurement(4537, units.UsOilfield.LENGTH),
+             units.UsOilfield, decimal.Decimal('1')),
+            (tsn.StubMeasurement(1383, units.Metric.LENGTH),
+             tsn.StubMeasurement(1383, units.Metric.LENGTH),
+             units.Metric, decimal.Decimal('1')),
+            (tsn.StubMeasurement(4537, units.UsOilfield.LENGTH),
+             tsn.StubMeasurement(1383, units.Metric.LENGTH),
+             units.Metric, decimal.Decimal('0.4')),
+            (tsn.StubMeasurement(1383, units.Metric.LENGTH),
+             tsn.StubMeasurement(4537, units.UsOilfield.LENGTH),
+             units.UsOilfield, decimal.Decimal('4')),
+        ]:
+            with self.subTest(f'Test ground level elevation, {expected}, in units, {project_units.LENGTH}'):
+                mock_as_unit_system.return_value = project_units
+                stub_native_well = tsn.create_stub_net_well(
+                    ground_level_elevation_above_sea_level=orchid_actual)
+                sut = nwa.NativeWellAdapter(stub_native_well)
+                tcm.assert_that_measurements_close_to(
+                    sut.ground_level_elevation_above_sea_level, expected, tolerance)
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_kelly_bushing_height_above_ground_level(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
