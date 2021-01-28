@@ -96,7 +96,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
 
     def __init__(self, adaptee, calculations_factory=None):
-        super().__init__(adaptee)
+        super().__init__(adaptee, toolz.identity(adaptee.Well.Project))
         self.calculations_factory = Calculations.FractureDiagnosticsCalculationsFactory() \
             if not calculations_factory else calculations_factory
 
@@ -114,6 +114,30 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                               as_connection_type)
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', onq.as_datetime)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
+
+    @property
+    def isip(self) -> om.Measurement:
+        """
+        Return the instantaneous shut in pressure of this stage in project units.
+        """
+        return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Isip)
+
+    @property
+    def pnet(self) -> om.Measurement:
+        """
+        Return the net pressure of this stage in project units.
+
+        The net pressure of a stage is calculated by the formula:
+            pnet = isip + fluid-density * tvd - shmin (where tvd is the true vertical depth)
+        """
+        return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Pnet)
+
+    @property
+    def shmin(self) -> om.Measurement:
+        """
+        Return the minimum horizontal stress of this stage in project units.
+        """
+        return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Shmin)
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
