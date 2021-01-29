@@ -416,15 +416,15 @@ def create_stub_net_well(name='',
                          ground_level_elevation_above_sea_level=None,
                          kelly_bushing_height_above_ground_level=None,
                          uwi=None,
-                         locations_for_mdkb_values=None,
+                         locations_for_md_kb_values=None,
                          ):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
 
-    if locations_for_mdkb_values is None:
-        locations_for_mdkb_values = {}
+    if locations_for_md_kb_values is None:
+        locations_for_md_kb_values = {}
     else:
         def net_subsurface_point(ssp):
             return create_stub_net_subsurface_point(ssp.x, ssp.y, ssp.depth)
@@ -432,7 +432,7 @@ def create_stub_net_well(name='',
         def make_net_subsurface_points(points):
             return list(toolz.map(net_subsurface_point, points))
 
-        locations_for_mdkb_values = toolz.valmap(make_net_subsurface_points, locations_for_mdkb_values)
+        locations_for_md_kb_values = toolz.valmap(make_net_subsurface_points, locations_for_md_kb_values)
 
     if name:
         result.Name = name
@@ -449,16 +449,16 @@ def create_stub_net_well(name='',
     if uwi:
         result.Uwi = uwi
 
-    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_mdkb_values')
+    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
 
-    def get_location_for(mdkbs, frame, origin):
+    def get_location_for(md_kbs, frame, origin):
         # return an empty list if nothing configured
-        if not locations_for_mdkb_values:
+        if not locations_for_md_kb_values:
             return []
 
-        return toolz.get((tuple(mdkbs), frame, origin), locations_for_mdkb_values)
+        return toolz.get((tuple(md_kbs), frame, origin), locations_for_md_kb_values)
 
-    result.GetLocationsForMdkbValues.side_effect = get_location_for
+    result.GetLocationsForMdKbValues.side_effect = get_location_for
 
     return result
 

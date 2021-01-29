@@ -146,18 +146,18 @@ class TestNativeWellAdapter(unittest.TestCase):
                 assert_that(sut.uwi, equal_to(expected_uwi if expected_uwi else 'No UWI'))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_empty_locations_for_mdkb_values_if_empty_mdkb_values(self, mock_as_unit_system):
+    def test_empty_locations_for_md_kb_values_if_empty_md_kb_values(self, mock_as_unit_system):
         mock_as_unit_system.return_value = units.Metric
         stub_native_well = tsn.create_stub_net_well()
         sut = nwa.NativeWellAdapter(stub_native_well)
 
-        actual = sut.locations_for_mdkb_values([], origins.WellReferenceFrameXy.PROJECT, origins.DepthDatum.SEA_LEVEL)
+        actual = sut.locations_for_md_kb_values([], origins.WellReferenceFrameXy.PROJECT, origins.DepthDatum.SEA_LEVEL)
         # noinspection PyTypeChecker
         assert_that(list(actual), is_(empty()))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_single_location_for_mdkb_values_if_single_mdkb_values(self, mock_as_unit_system):
-        for orchid_actual, expected, mdkb, project_units, frame, datum, tolerance in [
+    def test_single_location_for_md_kb_values_if_single_md_kb_values(self, mock_as_unit_system):
+        for orchid_actual, expected, md_kb, project_units, frame, datum, tolerance in [
             (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(508.0e3, units.UsOilfield.LENGTH),
                                         tsn.StubMeasurement(4.633e6, units.UsOilfield.LENGTH),
                                         tsn.StubMeasurement(6850, units.UsOilfield.LENGTH)),
@@ -204,14 +204,14 @@ class TestNativeWellAdapter(unittest.TestCase):
                                         decimal.Decimal('4'))),
         ]:
             with self.subTest(f'Test single location, {expected}, in project_units {project_units}'
-                              f' at value, {mdkb}'):
+                              f' at value, {md_kb}'):
                 mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.create_stub_net_well(
-                    locations_for_mdkb_values={((mdkb,), frame, datum): [orchid_actual]})
+                    locations_for_md_kb_values={((md_kb,), frame, datum): [orchid_actual]})
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
-                actual = list(sut.locations_for_mdkb_values([mdkb], frame, datum))
+                actual = list(sut.locations_for_md_kb_values([md_kb], frame, datum))
 
                 assert_that(len(actual), equal_to(1))
                 tcm.assert_that_measurements_close_to(actual[0].x, expected.x, tolerance.x)
@@ -219,8 +219,8 @@ class TestNativeWellAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual[0].depth, expected.depth, tolerance.depth)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_many_locations_for_mdkb_values_if_many_mdkb_values(self, mock_as_unit_system):
-        for orchid_actual, expected, mdkb_values, project_units, frame, datum, tolerance in [
+    def test_many_locations_for_md_kb_values_if_many_md_kb_values(self, mock_as_unit_system):
+        for orchid_actual, expected, md_kb_values, project_units, frame, datum, tolerance in [
             ((tsn.StubSubsurfaceLocation(tsn.StubMeasurement(374.3e3, units.UsOilfield.LENGTH),
                                          tsn.StubMeasurement(1.365e6, units.UsOilfield.LENGTH),
                                          tsn.StubMeasurement(8288, units.UsOilfield.LENGTH)),
@@ -279,14 +279,14 @@ class TestNativeWellAdapter(unittest.TestCase):
                                          decimal.Decimal('0.4')))),
         ]:
             with self.subTest(f'Test many locations, {expected[0]}..., in project_units {project_units}'
-                              f' at values, {mdkb_values[0]}...'):
+                              f' at values, {md_kb_values[0]}...'):
                 mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.create_stub_net_well(
-                    locations_for_mdkb_values={(mdkb_values, frame, datum): orchid_actual})
+                    locations_for_md_kb_values={(md_kb_values, frame, datum): orchid_actual})
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
-                actual = list(sut.locations_for_mdkb_values(mdkb_values, frame, datum))
+                actual = list(sut.locations_for_md_kb_values(md_kb_values, frame, datum))
 
                 assert_that(len(actual), equal_to(len(expected)))
                 for actual_point, expected_point, tolerance_point in zip(actual, expected, tolerance):

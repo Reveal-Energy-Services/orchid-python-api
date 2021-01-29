@@ -64,12 +64,12 @@ class NativeWellAdapter(dna.DotNetAdapter):
     def kelly_bushing_height_above_ground_level(self) -> om.Measurement:
         return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
 
-    def locations_for_mdkb_values(self,
-                                  mdkb_values: Iterable[om.Measurement],
-                                  well_reference_frame_xy: origins.WellReferenceFrameXy,
-                                  depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
+    def locations_for_md_kb_values(self,
+                                   md_kb_values: Iterable[om.Measurement],
+                                   well_reference_frame_xy: origins.WellReferenceFrameXy,
+                                   depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
         result = toolz.pipe(
-            self.dom_object.GetLocationsForMdkbValues(mdkb_values, well_reference_frame_xy, depth_origin),
+            self.dom_object.GetLocationsForMdKbValues(md_kb_values, well_reference_frame_xy, depth_origin),
             toolz.map(nsp.make_subsurface_point_using_length_unit(self.maybe_project_units.LENGTH)),
         )
         return result
