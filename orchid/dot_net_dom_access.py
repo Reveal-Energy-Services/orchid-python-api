@@ -28,7 +28,6 @@ from orchid import (
 # noinspection PyUnresolvedReferences
 from System import Guid
 
-
 # These methods in this module are based on the StackOverflow post:
 # https://stackoverflow.com/questions/36580931/python-property-factory-or-descriptor-class-for-wrapping-an-external-library
 #
@@ -36,6 +35,23 @@ from System import Guid
 # in the class definition, PyCharm reported "Property 'xyz' could not be read. I think it might have been
 # than I needed to apply `curry` to the "getter method" I also defined in the class in order to pass he
 # attribute name at definition time (because `self` was only available at run-time).
+
+
+def constantly(x):
+    """
+    Creates a function that always returns the value, `x`.
+    Args:
+        x: The value to return
+
+    Returns:
+        Returns a function takes any arguments yet always returns `x`.
+    """
+
+    # noinspection PyUnusedLocal
+    def make_constantly(*args, **kwargs):
+        return toolz.identity(x)
+
+    return make_constantly
 
 
 def get_dot_net_property_value(attribute_name, dom_object):
@@ -162,4 +178,6 @@ class DotNetAdapter:
             classes, such as `BaseCurveAdapter`, the `IProject` cannot be determined. In those cases, I
             return `None`.
         """
-        return units.as_unit_system(self._net_project_callable()) if self._net_project_callable else None
+        return (units.as_unit_system(self._net_project_callable().ProjectUnits)
+                if self._net_project_callable
+                else None)

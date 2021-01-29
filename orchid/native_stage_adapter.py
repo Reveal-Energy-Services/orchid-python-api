@@ -96,7 +96,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
 
     def __init__(self, adaptee, calculations_factory=None):
-        super().__init__(adaptee, toolz.identity(adaptee.Well.Project))
+        super().__init__(adaptee, dna.constantly(adaptee.Well.Project))
         self.calculations_factory = Calculations.FractureDiagnosticsCalculationsFactory() \
             if not calculations_factory else calculations_factory
 

@@ -46,7 +46,7 @@ class NativeWellAdapter(dna.DotNetAdapter):
         Args:
             net_well: The .NET well to be adapted.
         """
-        super().__init__(net_well, toolz.identity(net_well.Project))
+        super().__init__(net_well, dna.constantly(net_well.Project))
 
     name = dna.dom_property('name', 'The name of the adapted .NET well.')
     display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
