@@ -46,6 +46,8 @@ from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, ISta
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences
 import UnitsNet
+# noinspection PyUnresolvedReferences
+from System import Array
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
@@ -411,6 +413,25 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     return result
 
 
+def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
+    if locations_for_md_kb_values is None:
+        return {}
+
+    def net_subsurface_point(ssp):
+        return create_stub_net_subsurface_point(ssp.x, ssp.y, ssp.depth)
+
+    def make_net_subsurface_points(points):
+        return list(toolz.map(net_subsurface_point, points))
+
+    def measurement_key_to_net_key(source_key):
+        sample_measurements, frame, datum = source_key
+        net_lengths = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, sample_measurements))
+        return net_lengths, frame, datum
+
+    locations_with_net_keys = toolz.keymap(measurement_key_to_net_key, locations_for_md_kb_values)
+    return toolz.valmap(make_net_subsurface_points, locations_with_net_keys)
+
+
 def create_stub_net_well(name='',
                          display_name='',
                          ground_level_elevation_above_sea_level=None,
@@ -423,16 +444,7 @@ def create_stub_net_well(name='',
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
 
-    if locations_for_md_kb_values is None:
-        locations_for_md_kb_values = {}
-    else:
-        def net_subsurface_point(ssp):
-            return create_stub_net_subsurface_point(ssp.x, ssp.y, ssp.depth)
-
-        def make_net_subsurface_points(points):
-            return list(toolz.map(net_subsurface_point, points))
-
-        locations_for_md_kb_values = toolz.valmap(make_net_subsurface_points, locations_for_md_kb_values)
+    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
 
     if name:
         result.Name = name
@@ -451,12 +463,28 @@ def create_stub_net_well(name='',
 
     result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
 
-    def get_location_for(md_kbs, frame, origin):
+    def get_location_for(md_kb_values, frame, datum):
         # return an empty list if nothing configured
-        if not locations_for_md_kb_values:
+        if not locations_for_net_values:
             return []
 
-        return toolz.get((tuple(md_kbs), frame, origin), locations_for_md_kb_values)
+        def is_matching_args(to_test):
+            to_test_samples, to_test_frame, to_test_datum = to_test
+            if to_test_frame != frame:
+                return False
+
+            if to_test_datum != datum:
+                return False
+
+            return list(to_test_samples) == list(md_kb_values)
+
+        candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
+        if len(candidates) == 0:
+            return None
+        elif len(candidates) > 1:
+            raise ValueError(f'Multiple items matching {(md_kb_values, frame, datum)}.')
+
+        return list(candidates.items())[0][1]
 
     result.GetLocationsForMdKbValues.side_effect = get_location_for
 
