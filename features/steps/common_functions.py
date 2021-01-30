@@ -22,14 +22,6 @@ import toolz.curried as toolz
 from orchid import (unit_system as units)
 
 
-def assert_measurement_close_to(actual, expected):
-    expected_magnitude_text, expected_unit = expected.split()
-    expected_magnitude = decimal.Decimal(expected_magnitude_text)
-    magnitude_tolerance = decimal.Decimal((0, (6,), expected_magnitude.as_tuple()[-1] - 1))
-    assert_that(decimal.Decimal(actual.magnitude), close_to(expected_magnitude, magnitude_tolerance))
-    assert_that(units.abbreviation(actual.unit), equal_to(expected_unit))
-
-
 @toolz.curry
 def has_well_name(well_name, candidate_well):
     return candidate_well.name == well_name

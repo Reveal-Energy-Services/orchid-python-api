@@ -31,6 +31,10 @@ from orchid import (
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
+# noinspection PyUnresolvedReferences
+import UnitsNet
+# noinspection PyUnresolvedReferences
+from System import Array
 
 
 def replace_no_uwi_with_text(uwi):
@@ -68,8 +72,10 @@ class NativeWellAdapter(dna.DotNetAdapter):
                                    md_kb_values: Iterable[om.Measurement],
                                    well_reference_frame_xy: origins.WellReferenceFrameXy,
                                    depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
+        sample_at = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, md_kb_values))
         result = toolz.pipe(
-            self.dom_object.GetLocationsForMdKbValues(md_kb_values, well_reference_frame_xy, depth_origin),
+            self.dom_object.GetLocationsForMdKbValues(sample_at, well_reference_frame_xy, depth_origin),
             toolz.map(nsp.make_subsurface_point_using_length_unit(self.maybe_project_units.LENGTH)),
+            list,
         )
         return result
