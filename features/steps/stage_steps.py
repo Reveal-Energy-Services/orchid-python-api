@@ -22,7 +22,11 @@ use_step_matcher("parse")
 from hamcrest import assert_that, equal_to, close_to
 import toolz.curried as toolz
 
-from common_functions import find_stage_no_in_well, find_well_by_name, find_stage_by_stage_no
+from common_functions import (
+    find_stage_no_in_well,
+    find_well_by_name_in_stages_for_wells,
+    find_stage_by_stage_no
+)
 
 from orchid import (
     native_stage_adapter as nsa,
@@ -30,7 +34,6 @@ from orchid import (
     unit_system as units,
 )
 
-import datetime
 
 # noinspection PyBDDParameters
 @then("I see {stage_count:d} stages for well {well}")
@@ -151,7 +154,7 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
         global_stage_no (int): The global stage sequence number.
         connection (str): The name of the formation connection type of this stage.
     """
-    well_of_interest = find_well_by_name(context, well)
+    well_of_interest = find_well_by_name_in_stages_for_wells(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
 
     message = f'Failure for field {context.field}, well {well}, and stage_no {stage_no}.'

@@ -13,15 +13,38 @@
 #
 
 
+import decimal
+
 from hamcrest import assert_that, equal_to, close_to
+
 import toolz.curried as toolz
 
+from orchid import (unit_system as units)
 
-def find_well_by_name(context, name):
-    @toolz.curry
-    def has_well_name(well_name, candidate_well):
-        return candidate_well.name == well_name
 
+def assert_measurement_close_to(actual, expected):
+    expected_magnitude_text, expected_unit = expected.split()
+    expected_magnitude = decimal.Decimal(expected_magnitude_text)
+    magnitude_tolerance = decimal.Decimal((0, (6,), expected_magnitude.as_tuple()[-1] - 1))
+    assert_that(decimal.Decimal(actual.magnitude), close_to(expected_magnitude, magnitude_tolerance))
+    assert_that(units.abbreviation(actual.unit), equal_to(expected_unit))
+
+
+@toolz.curry
+def has_well_name(well_name, candidate_well):
+    return candidate_well.name == well_name
+
+
+def find_well_by_name_in_project(context, name):
+    candidates = toolz.pipe(context.project.wells,
+                            toolz.filter(has_well_name(name)),
+                            list)
+    assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
+    result = toolz.first(candidates)
+    return result
+
+
+def find_well_by_name_in_stages_for_wells(context, name):
     candidates = toolz.pipe(context.stages_for_wells,
                             toolz.keyfilter(has_well_name(name)))
     assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
@@ -44,6 +67,6 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
 
 
 def find_stage_no_in_well(context, stage_no, well):
-    well_of_interest = find_well_by_name(context, well)
+    well_of_interest = find_well_by_name_in_stages_for_wells(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
     return stage_of_interest
