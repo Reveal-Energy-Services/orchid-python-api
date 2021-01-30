@@ -271,6 +271,7 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
 @step("I see additional treatment data for samples {well}, {stage_no:d}, {shmin}, {isip}, and {pnet}")
 def step_impl(context, well, stage_no, shmin, isip, pnet):
     stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    # TODO: Change scenario to specify requested units instead of assuming project units.
     if context.field == 'Bakken':
         pressure_units = units.UsOilfield.PRESSURE
     elif context.field == 'Montney':
@@ -281,6 +282,28 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
     actual_shmin = stage_of_interest.shmin_in_pressure_unit(pressure_units)
     actual_isip = stage_of_interest.isip_in_pressure_unit(pressure_units)
     actual_pnet = stage_of_interest.pnet_in_pressure_unit(pressure_units)
+
+    assert_measurement_equal(actual_shmin, shmin)
+    assert_measurement_equal(actual_isip, isip)
+    assert_measurement_equal(actual_pnet, pnet)
+
+
+# noinspection PyBDDParameters
+@step("I see measurements in project units for samples {well}, {stage_no:d}, {shmin}, {isip}, and {pnet}")
+def step_impl(context, well, stage_no, shmin, isip, pnet):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number of interest.
+        shmin (str): The expected minimum horizontal stress in project units.
+        isip (str): The expected instantaneous shut-in pressure in project units.
+        pnet (str): The net pressure for the stage in project units.
+    """
+    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    actual_shmin = stage_of_interest.shmin
+    actual_isip = stage_of_interest.isip
+    actual_pnet = stage_of_interest.pnet
 
     assert_measurement_equal(actual_shmin, shmin)
     assert_measurement_equal(actual_isip, isip)
