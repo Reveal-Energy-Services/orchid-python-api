@@ -25,7 +25,7 @@ from orchid import (convert as oc,
                     obs_measurement as om,
                     unit_system as units)
 
-from tests.custom_matchers import assert_that_measurements_close_to
+from tests import custom_matchers as tcm
 
 
 DONT_CARE_MAGNITUDE = 3.14159265
@@ -65,7 +65,7 @@ class TestConvert(unittest.TestCase):
                 actual = oc.to_unit(target_unit, source_measurement)
 
                 expected = om.make_measurement(target_unit, target_magnitude)
-                assert_that_measurements_close_to(actual, expected, tolerance)
+                tcm.obs_assert_that_measurements_close_to(actual, expected, tolerance)
 
 
 if __name__ == '__main__':

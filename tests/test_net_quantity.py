@@ -94,6 +94,13 @@ class TestNetMeasurement(unittest.TestCase):
         assert_that(calling(onq.as_datetime).with_args(net_time_point), raises(ValueError,
                                                                                pattern=expected_error_pattern))
 
+    # def test_as_measurement(self):
+    #     to_convert = UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(306.1))
+    #     to_convert_physical_quantity = opq.PhysicalQuantity.ANGLE
+    #     actual = onq.as_measurement(to_convert_physical_quantity, to_convert)
+    #
+    #     tcm.assert_that_measurements_close_to(actual, 306.1 * om.units.deg)
+
     def test_obs_as_measurement(self):
         for to_convert_net_quantity, to_convert_physical_quantity, expected, tolerance in [
             (UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(306.08)), opq.PhysicalQuantity.ANGLE,
@@ -158,7 +165,7 @@ class TestNetMeasurement(unittest.TestCase):
         ]:
             with self.subTest(f'Test obs_as_measurement for {expected.magnitude} {expected.unit.value.unit:~P}'):
                 actual = onq.obs_as_measurement(to_convert_physical_quantity, to_convert_net_quantity)
-                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+                tcm.obs_assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_measurement_in_common_unit(self):
         for to_convert_net_quantity, to_unit, expected, tolerance in [
@@ -170,7 +177,7 @@ class TestNetMeasurement(unittest.TestCase):
             with self.subTest(f'Test obs_as_measurement_in_common_unit for {expected.magnitude}'
                               f' {expected.unit.value.unit:~P}'):
                 actual = onq.obs_as_measurement(to_unit, to_convert_net_quantity)
-                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+                tcm.obs_assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_measurement_in_specified_same_unit(self):
         for to_convert_net_quantity, to_unit, expected, tolerance in [
@@ -232,7 +239,7 @@ class TestNetMeasurement(unittest.TestCase):
             with self.subTest(f'Test as_measurement_in_specified_same_unit for {expected.magnitude}'
                               f' {expected.unit.value.unit:~P}'):
                 actual = onq.obs_as_measurement(to_unit, to_convert_net_quantity)
-                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+                tcm.obs_assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_measurement_in_specified_different_unit(self):
         for to_convert_net_quantity, to_unit, expected, tolerance in [
@@ -292,7 +299,7 @@ class TestNetMeasurement(unittest.TestCase):
             with self.subTest(f'Test as_measurement_in_specified_different_unit for {expected.magnitude}'
                               f' {expected.unit.value.unit:~P}'):
                 actual = onq.obs_as_measurement(to_unit, to_convert_net_quantity)
-                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+                tcm.obs_assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_net_date_time(self):
         for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23, DateTimeKind.Utc),
@@ -444,10 +451,12 @@ class TestNetMeasurement(unittest.TestCase):
             (obs_om.make_measurement(units.Metric.PRESSURE, 48153.12), units.UsOilfield.PRESSURE,
              UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6984.02)),
              decimal.Decimal('2')),
-            (obs_om.make_measurement(units.Metric.PROPPANT_CONCENTRATION, 486.4), units.UsOilfield.PROPPANT_CONCENTRATION,
+            (obs_om.make_measurement(units.Metric.PROPPANT_CONCENTRATION, 486.4),
+             units.UsOilfield.PROPPANT_CONCENTRATION,
              ProppantConcentration(4.060, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon),
              decimal.Decimal('0.001')),
-            (obs_om.make_measurement(units.UsOilfield.PROPPANT_CONCENTRATION, 4.060), units.Metric.PROPPANT_CONCENTRATION,
+            (obs_om.make_measurement(units.UsOilfield.PROPPANT_CONCENTRATION, 4.060),
+             units.Metric.PROPPANT_CONCENTRATION,
              ProppantConcentration(486.4, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter),
              decimal.Decimal('0.2')),
             (obs_om.make_measurement(units.Metric.SLURRY_RATE, 11.14), units.UsOilfield.SLURRY_RATE,

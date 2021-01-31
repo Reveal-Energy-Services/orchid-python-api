@@ -13,6 +13,7 @@
 #
 
 import decimal
+import warnings
 
 from hamcrest import assert_that, equal_to, close_to
 from hamcrest.core.base_matcher import BaseMatcher, T
@@ -32,7 +33,8 @@ def _assert_magnitudes_close_to(actual, expected, tolerance):
     assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
 
 
-def assert_that_measurements_close_to(actual, expected, tolerance=None):
+def obs_assert_that_measurements_close_to(actual, expected, tolerance=None):
+    warnings.warn('Obsolete function expecting Measurement', FutureWarning)
     assert_that(actual.unit, equal_to(expected.unit))
     _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
 

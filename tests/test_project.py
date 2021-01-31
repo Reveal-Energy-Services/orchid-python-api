@@ -70,7 +70,7 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,
                                                                   azimuth=actual_azimuth)
                 sut = create_sut(stub_native_project)
-                tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
+                tcm.obs_assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
     def test_default_well_colors_if_no_default_well_colors(self):
         stub_native_project = tsn.create_stub_net_project(name='exsistet')
@@ -107,7 +107,7 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,
                                                                   fluid_density=actual_density)
                 sut = create_sut(stub_native_project)
-                tcm.assert_that_measurements_close_to(sut.fluid_density, expected_density, tolerance)
+                tcm.obs_assert_that_measurements_close_to(sut.fluid_density, expected_density, tolerance)
 
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')
@@ -141,8 +141,8 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,
                                                                   project_center=orchid_actual)
                 sut = create_sut(stub_native_project)
-                tcm.assert_that_measurements_close_to(sut.project_center().x, expected.x, tolerances.x)
-                tcm.assert_that_measurements_close_to(sut.project_center().y, expected.y, tolerances.y)
+                tcm.obs_assert_that_measurements_close_to(sut.project_center().x, expected.x, tolerances.x)
+                tcm.obs_assert_that_measurements_close_to(sut.project_center().y, expected.y, tolerances.y)
 
     def test_project_units_if_known(self):
         for expected_project_units in [units.Metric, units.UsOilfield]:
