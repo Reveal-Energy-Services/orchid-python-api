@@ -23,7 +23,7 @@ from hamcrest import assert_that, equal_to, close_to, calling, raises
 import dateutil.tz as duz
 
 
-from orchid import (measurement as om,
+from orchid import (obs_measurement as om,
                     net_quantity as onq,
                     physical_quantity as opq,
                     unit_system as units)

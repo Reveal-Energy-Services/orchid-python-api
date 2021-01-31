@@ -21,7 +21,7 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    measurement as om,
+    obs_measurement as om,
     native_stage_adapter as nsa,
     native_subsurface_point as nsp,
     native_trajectory_adapter as nta,

@@ -26,7 +26,7 @@ from hamcrest import assert_that, equal_to, close_to
 import common_functions as cf
 
 from orchid import (
-    measurement as om,
+    obs_measurement as om,
     reference_origins as origins,
     unit_system as units,
 )

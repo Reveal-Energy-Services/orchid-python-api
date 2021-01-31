@@ -25,7 +25,7 @@ from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, callin
 import toolz.curried as toolz
 
 from orchid import (
-    measurement as om,
+    obs_measurement as om,
     project as onp,
     project_loader as loader,
     unit_system as units)

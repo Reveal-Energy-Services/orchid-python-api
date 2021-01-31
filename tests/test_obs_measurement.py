@@ -20,7 +20,7 @@ import unittest
 import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
 
-from orchid import (measurement as om,
+from orchid import (obs_measurement as om,
                     unit_system as units)
 
 

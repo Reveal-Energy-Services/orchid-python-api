@@ -26,7 +26,7 @@ from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, 
 import toolz.curried as toolz
 
 from orchid import (
-    measurement as om,
+    obs_measurement as om,
     net_quantity as onq,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,

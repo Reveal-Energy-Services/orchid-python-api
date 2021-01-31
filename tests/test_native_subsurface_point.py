@@ -17,7 +17,7 @@ import unittest.mock
 from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
-import orchid.measurement as om
+import orchid.obs_measurement as om
 import orchid.native_subsurface_point as nsp
 import orchid.reference_origins as origins
 import orchid.unit_system as units

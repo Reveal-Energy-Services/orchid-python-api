@@ -22,7 +22,7 @@ from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
 from orchid import (convert as oc,
-                    measurement as om,
+                    obs_measurement as om,
                     unit_system as units)
 
 from tests.custom_matchers import assert_that_measurements_close_to

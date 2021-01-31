@@ -24,7 +24,7 @@ from functools import singledispatch
 import dateutil.tz as duz
 import toolz.curried as toolz
 
-from orchid import (measurement as om,
+from orchid import (obs_measurement as om,
                     physical_quantity as opq,
                     unit_system as units)
 
