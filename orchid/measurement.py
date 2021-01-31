@@ -18,26 +18,23 @@ import pathlib
 import pint
 
 
-# This is the single location to find the `pint.UnitRegistry`. The `pint` package considers units returned
-# from different instances of `UnitRegistry` to be different. See the documentation at
-# https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-in-your-projects for details.
-units = pint.UnitRegistry()
+registry = pint.UnitRegistry()
 """
-The registry of all known units. See the Pint tutorial, https://pint.readthedocs.io/en/stable/tutorial.html,
-for general information on the registry. Specifically, see the section,
-https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-in-your-projects, for the "perils" of using 
-multiple registry instances.
+The single registry of all known `pint` units. See the Pint tutorial, 
+https://pint.readthedocs.io/en/stable/tutorial.html, for general information on the registry. Specifically, 
+see the section, https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-in-your-projects, for the 
+"perils" of using multiple registry instances.
 """
 
 # Load additional, orchid-specific unit definitions and aliases.
-units.load_definitions(str(pathlib.Path(__file__).parent.resolve().joinpath('orchid_units.txt')))
+registry.load_definitions(str(pathlib.Path(__file__).parent.resolve().joinpath('orchid_units.txt')))
 
 # Expose general types for use by type annotations
-Quantity = units.Quantity
+Quantity = registry.Quantity
 """The type of a Pint measurement exposed for convenience."""
-Unit = units.Unit
+Unit = registry.Unit
 """The type of Pint units of measure."""
 
 # Register this instance of the registry as the application registry to support picking and unpickling of Pint
 # Quantity and Unit instances.
-pint.set_application_registry(units)
+pint.set_application_registry(registry)

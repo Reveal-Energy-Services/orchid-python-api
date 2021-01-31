@@ -156,7 +156,7 @@ def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
 
 
 _PHYSICAL_QUANTITY_NET_UNIT_TO_UNITS = {
-    opq.PhysicalQuantity.ANGLE: {UnitsNet.Units.AngleUnit.Degree: om.units.deg},
+    opq.PhysicalQuantity.ANGLE: {UnitsNet.Units.AngleUnit.Degree: om.registry.deg},
 }
 
 

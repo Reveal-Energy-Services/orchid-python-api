@@ -50,7 +50,7 @@ class TestMeasurement(unittest.TestCase):
             'degF', 'degC',
         ]:
             with self.subTest(f'Test availability of units, "{unit}"'):
-                assert_that(hasattr(om.units, unit), is_(True))
+                assert_that(hasattr(om.registry, unit), is_(True))
 
     def test_quantity_availability(self):
         assert_that(hasattr(om, 'Quantity'), is_(True))
@@ -59,16 +59,16 @@ class TestMeasurement(unittest.TestCase):
         assert_that(hasattr(om, 'Unit'), is_(True))
 
     def test_is_application_registry(self):
-        assert_that(pint.get_application_registry(), equal_to(om.units))
+        assert_that(pint.get_application_registry(), equal_to(om.registry))
 
     def test_sample_measurements(self):
         for actual, expected_magnitude, expected_unit in [
-            (3.142 * om.units.min, 3.142, 'min'),
+            (3.142 * om.registry.min, 3.142, 'min'),
             (om.Quantity(526.8, 'kg/m**3'), 526.8, 'kg/m\u00b3'),  # proppant concentration
-            (om.units('9.844e3 lbf'), 9.844e3, 'lbf'),
+            (om.registry('9.844e3 lbf'), 9.844e3, 'lbf'),
             (om.Quantity(130.7e3, om.Unit('kg')), 130.7e3, 'kg'),
             (om.Quantity('106.6 oil_bbl/min'), 106.6, 'oil_bbl/min'),
-            (13.60 * om.units('m**3/min'), 13.60, 'm\u00b3/min'),
+            (13.60 * om.registry('m**3/min'), 13.60, 'm\u00b3/min'),
             (om.Quantity('70.10lb/cu_ft'), 70.10, 'lb/cu_ft')
         ]:
             with self.subTest(f'Test sampling unit creation with magnitude, {expected_magnitude},'

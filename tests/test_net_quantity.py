@@ -97,7 +97,7 @@ class TestNetMeasurement(unittest.TestCase):
     def test_as_measurement(self):
         for to_convert_net_quantity, to_convert_physical_quantity, expected, tolerance in [
             (UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(306.1)), opq.PhysicalQuantity.ANGLE,
-             306.1 * om.units.deg, decimal.Decimal('0.1')),
+             306.1 * om.registry.deg, decimal.Decimal('0.1')),
             # (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414)), opq.PhysicalQuantity.DURATION,
             #  tsn.StubMeasurement(1.414, units.Common.DURATION), decimal.Decimal('0.001')),
             # (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(0.05)),
