@@ -18,11 +18,15 @@
 """This module contains functions and classes supporting the (Python) Measurement 'class.'"""
 
 import numbers
+import warnings
 
 import deal
 import toolz.curried as toolz
 
 from orchid import unit_system as units
+
+
+warnings.warn('Replacing Measurement with Pint package', FutureWarning)
 
 
 class Measurement:
