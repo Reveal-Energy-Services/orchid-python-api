@@ -23,7 +23,7 @@ import toolz.curried as toolz
 
 from orchid import (convert as oc,
                     obs_measurement as om,
-                    unit_system as units)
+                    obs_unit_system as units)
 
 from tests import custom_matchers as tcm
 

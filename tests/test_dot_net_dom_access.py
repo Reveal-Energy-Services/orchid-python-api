@@ -23,7 +23,7 @@ from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, none
 from orchid import (
     dot_net_dom_access as dna,
     net_quantity as onq,
-    unit_system as units,
+    obs_unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences
@@ -72,7 +72,7 @@ class DotNetAdapterTest(unittest.TestCase):
 
         assert_that(sut.maybe_project_units, is_(none()))
 
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
     def test_maybe_project_units_returns_none_if_net_project_callable_not_none(self, mock_as_unit_system):
         mock_as_unit_system.return_value = units.Metric
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')

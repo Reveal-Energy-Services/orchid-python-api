@@ -26,7 +26,7 @@ import dateutil.tz as duz
 from hamcrest import assert_that, equal_to, has_entries
 
 import orchid.native_treatment_curve_adapter as tca
-import orchid.unit_system as units
+import orchid.obs_unit_system as units
 
 import tests.stub_net as tsn
 

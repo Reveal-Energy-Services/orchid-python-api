@@ -25,7 +25,7 @@ import pandas as pd
 import pandas.testing as pdt
 
 from orchid import (native_monitor_curve_adapter as mca,
-                    unit_system as units)
+                    obs_unit_system as units)
 
 import tests.stub_net as tsn
 

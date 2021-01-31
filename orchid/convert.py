@@ -19,7 +19,7 @@ import toolz.curried as toolz
 from orchid import (
     obs_measurement as om,
     net_quantity as onq,
-    unit_system as units,
+    obs_unit_system as units,
 )
 
 

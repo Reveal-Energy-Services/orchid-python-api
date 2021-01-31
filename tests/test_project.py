@@ -28,7 +28,7 @@ from orchid import (
     obs_measurement as om,
     project as onp,
     project_loader as loader,
-    unit_system as units)
+    obs_unit_system as units)
 from tests import (
     stub_net as tsn,
     custom_matchers as tcm,

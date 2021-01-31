@@ -29,7 +29,7 @@ from orchid import (
     measurement as om,
     obs_measurement as oom,
     physical_quantity as opq,
-    unit_system as units,
+    obs_unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences

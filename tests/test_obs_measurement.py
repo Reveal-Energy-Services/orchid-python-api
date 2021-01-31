@@ -21,7 +21,7 @@ import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to
 
 from orchid import (obs_measurement as om,
-                    unit_system as units)
+                    obs_unit_system as units)
 
 
 DONT_CARE_MAGNITUDE = float('NaN')

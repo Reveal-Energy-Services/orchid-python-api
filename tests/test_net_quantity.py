@@ -28,7 +28,7 @@ from orchid import (
     obs_measurement as obs_om,
     net_quantity as onq,
     physical_quantity as opq,
-    unit_system as units,
+    obs_unit_system as units,
 )
 
 from tests import (custom_matchers as tcm,

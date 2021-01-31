@@ -31,7 +31,7 @@ from orchid import (
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
     reference_origins as origins,
-    unit_system as units,
+    obs_unit_system as units,
 )
 
 from tests import (
@@ -189,7 +189,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
 
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
     def test_isip(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(4901, units.UsOilfield.PRESSURE),
@@ -269,7 +269,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 actual_bottom = sut.md_bottom(expected_bottom.unit)
                 tcm.obs_assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
 
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
     def test_pnet(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(46.93e3, units.UsOilfield.PRESSURE),
@@ -301,7 +301,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 tcm.obs_assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected.unit), expected, tolerance)
 
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
     def test_shmin(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(2.392, units.UsOilfield.PRESSURE),

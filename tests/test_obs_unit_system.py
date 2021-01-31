@@ -14,7 +14,7 @@
 
 import unittest
 
-from orchid import unit_system as units
+from orchid import obs_unit_system as units
 
 from hamcrest import assert_that, equal_to
 

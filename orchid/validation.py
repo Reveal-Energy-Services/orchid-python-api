@@ -18,7 +18,7 @@
 """This module contains common functions used to validate arguments."""
 
 
-from orchid import (unit_system as units)
+from orchid import (obs_unit_system as units)
 
 
 def arg_not_none(_, arg) -> bool:

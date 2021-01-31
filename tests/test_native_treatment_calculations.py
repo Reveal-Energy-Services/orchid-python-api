@@ -24,7 +24,7 @@ from orchid import (obs_measurement as om,
                     native_stage_adapter as nsa,
                     native_treatment_calculations as ntc,
                     net_quantity as onq,
-                    unit_system as units)
+                    obs_unit_system as units)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations

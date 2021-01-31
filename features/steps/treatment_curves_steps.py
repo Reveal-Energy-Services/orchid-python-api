@@ -24,7 +24,7 @@ from hamcrest import assert_that, equal_to, close_to
 import dateutil.parser
 
 from orchid import (native_treatment_curve_adapter as tca,
-                    unit_system as units)
+                    obs_unit_system as units)
 
 from common_functions import find_stage_no_in_well
 

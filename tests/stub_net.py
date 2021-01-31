@@ -34,7 +34,7 @@ import toolz.curried as toolz
 from orchid import (
     native_treatment_curve_adapter as ontc,
     net_quantity as onq,
-    unit_system as units,
+    obs_unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements

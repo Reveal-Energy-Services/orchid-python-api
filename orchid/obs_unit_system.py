@@ -17,6 +17,7 @@ from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
 import pathlib
+import warnings
 
 from pint import UnitRegistry
 
@@ -27,6 +28,9 @@ from orchid import (physical_quantity as opq)
 from Orchid.FractureDiagnostics import UnitSystem as NetUnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+warnings.warn('Obsolete because of directly including pint.', FutureWarning)
 
 
 # This is the single location to find the `pint.UnitRegistry`. The `pint` package considers units returned

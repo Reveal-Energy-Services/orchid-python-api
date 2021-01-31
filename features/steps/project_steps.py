@@ -164,7 +164,7 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
     expected_fluid_density_text, raw_expected_fluid_density_unit = fluid_density.split(maxsplit=1)
     # Encoding for Unicode superscript 3
     expected_fluid_density_unit = raw_expected_fluid_density_unit.replace('^3', '\u00b3')
-    actual_fluid_density_unit = orchid.unit_system.abbreviation(context.project_measurements['fluid_density'].unit)
+    actual_fluid_density_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['fluid_density'].unit)
     assert_that(actual_fluid_density_unit, equal_to(expected_fluid_density_unit))
     expected_fluid_density_magnitude = decimal.Decimal(expected_fluid_density_text)
 
@@ -177,7 +177,7 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
     expected_azimuth_text, raw_expected_azimuth_unit = azimuth.split(maxsplit=1)
     # Encoding for Unicode degree symbol.
     expected_azimuth_unit = raw_expected_azimuth_unit.replace('deg', '\u00b0')
-    actual_azimuth_unit = orchid.unit_system.abbreviation(context.project_measurements['azimuth'].unit)
+    actual_azimuth_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['azimuth'].unit)
     assert_that(actual_azimuth_unit, equal_to(expected_azimuth_unit))
     expected_azimuth_magnitude = decimal.Decimal(expected_azimuth_text)
 
@@ -188,7 +188,7 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
                 close_to(expected_azimuth_magnitude, azimuth_tolerance))
 
     expected_center_x_text, expected_center_x_unit = center_x.split(maxsplit=1)
-    actual_center_x_unit = orchid.unit_system.abbreviation(context.project_measurements['center_x'].unit)
+    actual_center_x_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['center_x'].unit)
     assert_that(actual_center_x_unit, equal_to(expected_center_x_unit))
     expected_center_x_magnitude = decimal.Decimal(expected_center_x_text)
 
@@ -199,7 +199,7 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
                 close_to(expected_center_x_magnitude, center_x_tolerance))
 
     expected_center_y_text, expected_center_y_unit = center_y.split(maxsplit=1)
-    actual_center_y_unit = orchid.unit_system.abbreviation(context.project_measurements['center_y'].unit)
+    actual_center_y_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['center_y'].unit)
     assert_that(actual_center_y_unit, equal_to(expected_center_y_unit))
     expected_center_y_magnitude = decimal.Decimal(expected_center_y_text)
 

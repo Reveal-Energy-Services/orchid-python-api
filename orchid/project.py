@@ -27,7 +27,7 @@ from orchid import (
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
     net_quantity as onq,
-    unit_system as units,
+    obs_unit_system as units,
 )
 from orchid.project_loader import ProjectLoader
 
@@ -36,7 +36,7 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid.unit_system import as_unit_system
+from orchid.obs_unit_system import as_unit_system
 
 
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
