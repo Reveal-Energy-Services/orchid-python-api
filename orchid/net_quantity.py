@@ -25,9 +25,12 @@ import warnings
 import dateutil.tz as duz
 import toolz.curried as toolz
 
-from orchid import (obs_measurement as om,
-                    physical_quantity as opq,
-                    unit_system as units)
+from orchid import (
+    measurement as om,
+    obs_measurement as oom,
+    physical_quantity as opq,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, SlurryRate)
@@ -138,7 +141,48 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
 
 @singledispatch
 @toolz.curry
-def obs_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
+
+    This function is registered as the type-handler for the `object` type. In our situation, arriving here
+    indicates an error by an implementer and so raises an error.
+
+    Args:
+        unknown: A parameter whose type is not expected.
+        _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
+    """
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
+
+
+_PHYSICAL_QUANTITY_NET_UNIT_TO_UNITS = {
+    opq.PhysicalQuantity.ANGLE: {UnitsNet.Units.AngleUnit.Degree: om.units.deg},
+}
+
+
+@as_measurement.register(opq.PhysicalQuantity)
+@toolz.curry
+def as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in the same unit.
+
+    Args:
+        physical_quantity: The `PhysicalQuantity`. Although we try to determine a unique mapping between units
+        in `pint` and .NET `UnitsNet` units, we cannot perform a unique mapping for density and proppant
+        concentration measured in the metric system (the units of both these physical quantities are
+        "kg/m**3").
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `pint` `Quantity` instance.
+    """
+    unit = toolz.get_in([physical_quantity, net_quantity.Unit], _PHYSICAL_QUANTITY_NET_UNIT_TO_UNITS)
+    return net_quantity.Value * unit
+
+
+@singledispatch
+@toolz.curry
+def obs_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> oom.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
 
@@ -155,7 +199,7 @@ def obs_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Measure
 @obs_as_measurement.register(opq.PhysicalQuantity)
 @toolz.curry
 def obs_as_measurement_using_physical_quantity(physical_quantity,
-                                               net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+                                               net_quantity: UnitsNet.IQuantity) -> oom.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in the same unit.
 
@@ -177,11 +221,11 @@ def obs_as_measurement_using_physical_quantity(physical_quantity,
     # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
     # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
     if physical_quantity == opq.PhysicalQuantity.POWER:
-        return om.make_measurement(unit, net_decimal_to_float(net_quantity.Value))
+        return oom.make_measurement(unit, net_decimal_to_float(net_quantity.Value))
     elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
-        return om.make_measurement(unit, net_quantity.Value)
+        return oom.make_measurement(unit, net_quantity.Value)
     else:
-        return om.make_measurement(unit, net_quantity.Value)
+        return oom.make_measurement(unit, net_quantity.Value)
 
 
 as_angle_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.ANGLE)
@@ -189,10 +233,9 @@ as_density_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.DE
 as_length_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.LENGTH)
 as_pressure_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.PRESSURE)
 
-
 @obs_as_measurement.register(units.Common)
 @toolz.curry
-def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> oom.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in a common unit.
 
@@ -210,7 +253,7 @@ def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuant
 @obs_as_measurement.register(units.Metric)
 @obs_as_measurement.register(units.UsOilfield)
 @toolz.curry
-def obs_as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def obs_as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> oom.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in a specified, but compatible unit.
 
@@ -283,7 +326,7 @@ _UNIT_CREATE_NET_UNIT_MAP = {
 }
 
 
-def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
+def as_net_quantity(measurement: oom.Measurement) -> UnitsNet.IQuantity:
     """
     Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance.
 
@@ -317,7 +360,7 @@ def as_net_quantity(measurement: om.Measurement) -> UnitsNet.IQuantity:
             raise ValueError(f'Unrecognized unit: "{measurement.unit}".')
 
 
-def as_net_quantity_in_different_unit(measurement: om.Measurement, target_unit: units.Unit) -> UnitsNet.IQuantity:
+def as_net_quantity_in_different_unit(measurement: oom.Measurement, target_unit: units.Unit) -> UnitsNet.IQuantity:
     """
     Convert a `Quantity` into a .NET `UnitsNet.IQuantity` instance but in a different unit, `in_unit`.
 
