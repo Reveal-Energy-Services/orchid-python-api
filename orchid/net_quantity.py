@@ -20,6 +20,7 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 import datetime
 from functools import singledispatch
+import warnings
 
 import dateutil.tz as duz
 import toolz.curried as toolz
@@ -34,6 +35,9 @@ from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, Slurry
 from System import DateTime, DateTimeKind, Decimal, Tuple
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+warnings.warn('Updating module to use pint measurements.', FutureWarning)
 
 _UNIT_NET_UNIT_MAP = {
     units.Common.ANGLE: UnitsNet.Units.AngleUnit.Degree,
@@ -134,7 +138,7 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
 
 @singledispatch
 @toolz.curry
-def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def obs_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance.
 
@@ -145,13 +149,13 @@ def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Measurement
         unknown: A parameter whose type is not expected.
         _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
     """
-    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `obs_as_measurement`.')
 
 
-@as_measurement.register(opq.PhysicalQuantity)
+@obs_as_measurement.register(opq.PhysicalQuantity)
 @toolz.curry
-def as_measurement_using_physical_quantity(physical_quantity,
-                                           net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def obs_as_measurement_using_physical_quantity(physical_quantity,
+                                               net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in the same unit.
 
@@ -180,15 +184,15 @@ def as_measurement_using_physical_quantity(physical_quantity,
         return om.make_measurement(unit, net_quantity.Value)
 
 
-as_angle_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.ANGLE)
-as_density_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.DENSITY)
-as_length_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.LENGTH)
-as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESSURE)
+as_angle_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.ANGLE)
+as_density_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.DENSITY)
+as_length_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.LENGTH)
+as_pressure_measurement = toolz.curry(obs_as_measurement, opq.PhysicalQuantity.PRESSURE)
 
 
-@as_measurement.register(units.Common)
+@obs_as_measurement.register(units.Common)
 @toolz.curry
-def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in a common unit.
 
@@ -200,13 +204,13 @@ def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity)
         The equivalent `Measurement` instance.
     """
     # units.Common support no conversion so simply call another implementation.
-    return as_measurement(common_unit.value.physical_quantity, net_quantity)
+    return obs_as_measurement(common_unit.value.physical_quantity, net_quantity)
 
 
-@as_measurement.register(units.Metric)
-@as_measurement.register(units.UsOilfield)
+@obs_as_measurement.register(units.Metric)
+@obs_as_measurement.register(units.UsOilfield)
 @toolz.curry
-def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
+def obs_as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Measurement:
     """
     Convert a .NET UnitsNet.IQuantity to a `Measurement` instance in a specified, but compatible unit.
 
@@ -219,7 +223,7 @@ def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQua
     """
     result = toolz.pipe(net_quantity,
                         convert_net_quantity_to_different_unit(specified_unit),
-                        as_measurement(specified_unit.value.physical_quantity))
+                        obs_as_measurement(specified_unit.value.physical_quantity))
     return result
 
 

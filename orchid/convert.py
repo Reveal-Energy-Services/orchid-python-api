@@ -46,6 +46,6 @@ def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measureme
         return source_measurement
 
     result = toolz.pipe(onq.as_net_quantity_in_different_unit(source_measurement, target_unit),
-                        onq.as_measurement(target_unit.value.physical_quantity) )
+                        onq.obs_as_measurement(target_unit.value.physical_quantity))
 
     return result
