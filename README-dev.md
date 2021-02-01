@@ -182,7 +182,6 @@ and stick to it."
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
 - Install the package distribution by running `pip install </path/to/package-distribution>`
-- Install "jupyter lab" by running `pip install jupyterlab`
 - [Ensure installation of correct Orchid version](#ensure-correct-orchid)
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
 
@@ -294,7 +293,6 @@ The workaround for this issue is to:
 
 - [Install a local distribution](#install-local-package) **but do not**
 
-    - Install the `jupyterlab` package
     - Run the tests
     
     This action will install all the dependent packages available on your workstation.
@@ -308,8 +306,6 @@ The workaround for this issue is to:
     - Executing `pip list --local | select-string "orchid-python-api"` and observing no lines
 
 Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
-
-Install the jupyter-lab package by running `pip install jupyterlab`
 
 Finally, [Run Orchid examples](#run-installed-orchid-examples).
 
@@ -347,8 +343,6 @@ Once published, test the published distribution by:
 - Install the package distribution by running the command, 
   `pip install orchid-python-api`. 
   
-Install the jupyter-lab package by running `pip install jupyterlab`
-
 Finally, [Run Orchid examples](#run-installed-orchid-examples).
   
 ## Common tasks

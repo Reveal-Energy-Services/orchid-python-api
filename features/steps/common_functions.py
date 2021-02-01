@@ -13,15 +13,30 @@
 #
 
 
+import decimal
+
 from hamcrest import assert_that, equal_to, close_to
+
 import toolz.curried as toolz
 
+from orchid import (unit_system as units)
 
-def find_well_by_name(context, name):
-    @toolz.curry
-    def has_well_name(well_name, candidate_well):
-        return candidate_well.name == well_name
 
+@toolz.curry
+def has_well_name(well_name, candidate_well):
+    return candidate_well.name == well_name
+
+
+def find_well_by_name_in_project(context, name):
+    candidates = toolz.pipe(context.project.wells,
+                            toolz.filter(has_well_name(name)),
+                            list)
+    assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
+    result = toolz.first(candidates)
+    return result
+
+
+def find_well_by_name_in_stages_for_wells(context, name):
     candidates = toolz.pipe(context.stages_for_wells,
                             toolz.keyfilter(has_well_name(name)))
     assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
@@ -44,6 +59,6 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
 
 
 def find_stage_no_in_well(context, stage_no, well):
-    well_of_interest = find_well_by_name(context, well)
+    well_of_interest = find_well_by_name_in_stages_for_wells(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
     return stage_of_interest

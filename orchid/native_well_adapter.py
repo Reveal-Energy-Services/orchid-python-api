@@ -15,14 +15,26 @@
 # This file is part of Orchid and related technologies.
 #
 
-# noinspection PyUnresolvedReferences
-import orchid
-import orchid.dot_net_dom_access as dna
-import orchid.native_stage_adapter as nsa
-import orchid.native_trajectory_adapter as nta
+from typing import Iterable
+
+import toolz.curried as toolz
+
+from orchid import (
+    dot_net_dom_access as dna,
+    measurement as om,
+    native_stage_adapter as nsa,
+    native_subsurface_point as nsp,
+    native_trajectory_adapter as nta,
+    net_quantity as onq,
+    reference_origins as origins,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell
+# noinspection PyUnresolvedReferences
+import UnitsNet
+# noinspection PyUnresolvedReferences
+from System import Array
 
 
 def replace_no_uwi_with_text(uwi):
@@ -34,9 +46,11 @@ class NativeWellAdapter(dna.DotNetAdapter):
     def __init__(self, net_well: IWell):
         """
         Constructs an instance adapting a .NET IWell.
-        :param net_well: The .NET well to be adapted.
+
+        Args:
+            net_well: The .NET well to be adapted.
         """
-        super().__init__(net_well)
+        super().__init__(net_well, dna.constantly(net_well.Project))
 
     name = dna.dom_property('name', 'The name of the adapted .NET well.')
     display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
@@ -45,3 +59,23 @@ class NativeWellAdapter(dna.DotNetAdapter):
     trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
                                               nta.NativeTrajectoryAdapter)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
+
+    @property
+    def ground_level_elevation_above_sea_level(self) -> om.Measurement:
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
+
+    @property
+    def kelly_bushing_height_above_ground_level(self) -> om.Measurement:
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
+
+    def locations_for_md_kb_values(self,
+                                   md_kb_values: Iterable[om.Measurement],
+                                   well_reference_frame_xy: origins.WellReferenceFrameXy,
+                                   depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
+        sample_at = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, md_kb_values))
+        result = toolz.pipe(
+            self.dom_object.GetLocationsForMdKbValues(sample_at, well_reference_frame_xy, depth_origin),
+            toolz.map(nsp.make_subsurface_point_using_length_unit(self.maybe_project_units.LENGTH)),
+            list,
+        )
+        return result

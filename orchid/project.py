@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+from collections import namedtuple
 from typing import List, Tuple, Iterable
 
 import deal
@@ -22,8 +23,10 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
+    measurement as om,
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
+    net_quantity as onq,
     unit_system as units,
 )
 from orchid.project_loader import ProjectLoader
@@ -34,6 +37,9 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 import UnitsNet
 
 from orchid.unit_system import as_unit_system
+
+
+SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
 
 
 class Project(dna.DotNetAdapter):
@@ -51,10 +57,16 @@ class Project(dna.DotNetAdapter):
         self._are_well_loaded = False
         self._wells = []
 
+    azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
     name = dna.dom_property('name', 'The name of this project.')
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', as_unit_system)
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   nwa.NativeWellAdapter)
+
+    @property
+    def fluid_density(self):
+        """The fluid density of the project in project units."""
+        return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -76,6 +88,17 @@ class Project(dna.DotNetAdapter):
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []
+
+    def project_center(self) -> SurfacePoint:
+        """
+        Return the location of the project center on the surface measured in project units.
+        """
+        net_center = self.dom_object.GetProjectCenter()
+        result = toolz.pipe(net_center,
+                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            list,
+                            lambda ls: SurfacePoint(ls[0], ls[1]))
+        return result
 
     def proppant_concentration_mass_unit(self):
         if self.project_units == units.UsOilfield:
