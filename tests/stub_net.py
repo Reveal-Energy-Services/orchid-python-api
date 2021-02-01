@@ -46,11 +46,14 @@ from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, ISta
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences
 import UnitsNet
+# noinspection PyUnresolvedReferences
+from System import Array
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
+StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 
 
 # noinspection PyPep8Naming
@@ -398,12 +401,101 @@ def get_mock_northing_array(stub_new_well_trajectory):
 
 
 def quantity_coordinate(raw_coordinates, i, stub_net_project):
+    # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
+    # (https://github.com/pythonnet/pythonnet/issues/253).
+    #
+    # One of the comments identifies a work-around from StackOverflow
+    # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
+    # This post states that "the trick is to realize that the compiler creates a special static method
+    # called `op_Implicit` for your implicit conversion operator."
     result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
               for c in raw_coordinates[i]] if raw_coordinates else []
     return result
 
 
-def create_stub_net_project(name='', default_well_colors=None,
+def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
+    if locations_for_md_kb_values is None:
+        return {}
+
+    def net_subsurface_point(ssp):
+        return create_stub_net_subsurface_point(ssp.x, ssp.y, ssp.depth)
+
+    def make_net_subsurface_points(points):
+        return list(toolz.map(net_subsurface_point, points))
+
+    def measurement_key_to_net_key(source_key):
+        sample_measurements, frame, datum = source_key
+        net_lengths = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, sample_measurements))
+        return net_lengths, frame, datum
+
+    locations_with_net_keys = toolz.keymap(measurement_key_to_net_key, locations_for_md_kb_values)
+    return toolz.valmap(make_net_subsurface_points, locations_with_net_keys)
+
+
+def create_stub_net_well(name='',
+                         display_name='',
+                         ground_level_elevation_above_sea_level=None,
+                         kelly_bushing_height_above_ground_level=None,
+                         uwi=None,
+                         locations_for_md_kb_values=None,
+                         ):
+    try:
+        result = unittest.mock.MagicMock(name=name, spec=IWell)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=name)
+
+    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
+
+    if name:
+        result.Name = name
+
+    if display_name:
+        result.DisplayName = display_name
+
+    if ground_level_elevation_above_sea_level is not None:
+        result.GroundLevelElevationAboveSeaLevel = onq.as_net_quantity(ground_level_elevation_above_sea_level)
+
+    if kelly_bushing_height_above_ground_level is not None:
+        result.KellyBushingHeightAboveGroundLevel = onq.as_net_quantity(kelly_bushing_height_above_ground_level)
+
+    if uwi:
+        result.Uwi = uwi
+
+    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
+
+    def get_location_for(md_kb_values, frame, datum):
+        # return an empty list if nothing configured
+        if not locations_for_net_values:
+            return []
+
+        def is_matching_args(to_test):
+            to_test_samples, to_test_frame, to_test_datum = to_test
+            if to_test_frame != frame:
+                return False
+
+            if to_test_datum != datum:
+                return False
+
+            return list(to_test_samples) == list(md_kb_values)
+
+        candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
+        if len(candidates) == 0:
+            return None
+        elif len(candidates) > 1:
+            raise ValueError(f'Multiple items matching {(md_kb_values, frame, datum)}.')
+
+        return list(candidates.items())[0][1]
+
+    result.GetLocationsForMdKbValues.side_effect = get_location_for
+
+    return result
+
+
+def create_stub_net_project(name='',
+                            azimuth=None,
+                            fluid_density=None,
+                            default_well_colors=None,
+                            project_center=None,
                             project_units=None,
                             well_names=None, well_display_names=None, uwis=None,
                             eastings=None, northings=None, tvds=None,
@@ -425,7 +517,13 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_net_project = unittest.mock.MagicMock(name='stub_net_project', spec=IProject)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_net_project = unittest.mock.MagicMock(name='stub_net_project')
+
     stub_net_project.Name = name
+    if azimuth is not None:
+        stub_net_project.Azimuth = onq.as_net_quantity(azimuth)
+    if fluid_density is not None:
+        stub_net_project.FluidDensity = onq.as_net_quantity(fluid_density)
+
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
@@ -433,6 +531,14 @@ def create_stub_net_project(name='', default_well_colors=None,
     plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
+
+    if project_center:
+        net_center = toolz.pipe(project_center,
+                                toolz.map(onq.as_net_quantity),
+                                list,
+                                )
+        stub_net_project.GetProjectCenter = unittest.mock.MagicMock(name='stub_get_project_center',
+                                                                    return_value=net_center)
 
     if project_units == units.UsOilfield:
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()
@@ -452,13 +558,6 @@ def create_stub_net_project(name='', default_well_colors=None,
         stub_well.DisplayName = well_display_names[i] if well_display_names else None
         stub_well.Name = well_names[i]
 
-        # The Pythonnet package has an open issue that the "Implicit Operator does not work from python"
-        # (https://github.com/pythonnet/pythonnet/issues/253).
-        #
-        # One of the comments identifies a work-around from StackOverflow
-        # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
-        # This post states that "the trick is to realize that the compiler creates a special static method
-        # called `op_Implicit` for your implicit conversion operator."
         stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)

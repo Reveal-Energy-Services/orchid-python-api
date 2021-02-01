@@ -86,7 +86,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         Returns:
             A `UnitSystem` member containing the unit for the sample in this curve.
         """
-        # net_project_units = self._adaptee.Stage.Well.Project.ProjectUnits
+        # net_project_units = self.dom_object.Stage.Well.Project.ProjectUnits
         project_units = self.net_unit_system_unit_system_map()[self.get_net_project_units()]
 
         quantity_name_unit_map = self.quantity_name_unit_map(project_units)
@@ -100,7 +100,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
             The time series of this well curve.
         """
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
-        samples = list(map(lambda s: (s.Timestamp, s.Value), self._adaptee.GetOrderedTimeSeriesHistory()))
+        samples = list(map(lambda s: (s.Timestamp, s.Value), self.dom_object.GetOrderedTimeSeriesHistory()))
         result = pd.Series(data=map(lambda s: s[1], samples), index=map(onq.as_datetime, map(lambda s: s[0], samples)),
                            name=self.name)
         return result

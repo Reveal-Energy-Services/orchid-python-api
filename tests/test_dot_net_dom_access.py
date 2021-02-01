@@ -18,10 +18,13 @@ import uuid
 
 import dateutil.tz
 import deal
-from hamcrest import assert_that, equal_to, calling, raises, close_to
+from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, none, not_none
 
-import orchid.dot_net_dom_access as dna
-import orchid.net_quantity as onq
+from orchid import (
+    dot_net_dom_access as dna,
+    net_quantity as onq,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind, Guid
@@ -47,7 +50,7 @@ class DotNetAdapterTest(unittest.TestCase):
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         sut = dna.DotNetAdapter(stub_adaptee)
 
-        assert_that(sut.dom_object(), equal_to(stub_adaptee))
+        assert_that(sut.dom_object, equal_to(stub_adaptee))
 
     @staticmethod
     def test_object_id_returns_adaptee_object_id():
@@ -61,6 +64,21 @@ class DotNetAdapterTest(unittest.TestCase):
     @staticmethod
     def test_dom_object_no_adapter_raises_error():
         assert_that(calling(dna.DotNetAdapter).with_args(None), raises(deal.PreContractError))
+
+    @staticmethod
+    def test_maybe_project_units_returns_none_if_net_project_callable_none():
+        stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
+        sut = dna.DotNetAdapter(stub_adaptee)
+
+        assert_that(sut.maybe_project_units, is_(none()))
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_maybe_project_units_returns_none_if_net_project_callable_not_none(self, mock_as_unit_system):
+        mock_as_unit_system.return_value = units.Metric
+        stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
+        sut = dna.DotNetAdapter(stub_adaptee, unittest.mock.MagicMock(name='net_project_callable'))
+
+        assert_that(sut.maybe_project_units, is_(not_none()))
 
 
 class DomPropertyTest(unittest.TestCase):

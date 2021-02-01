@@ -71,7 +71,7 @@ def median_treating_pressure(stage: IStage, start: DateTime, stop: DateTime):
         The median treating pressure result (measurement and warnings).
     """
     def median_treatment_pressure_calculation(calculations, for_stage, start_time, stop_time):
-        calculation_result = calculations.GetMedianTreatmentPressure(for_stage.dom_object(),
+        calculation_result = calculations.GetMedianTreatmentPressure(for_stage.dom_object,
                                                                      onq.as_net_date_time(start_time),
                                                                      onq.as_net_date_time(stop_time))
         return calculation_result
@@ -95,7 +95,7 @@ def pumped_fluid_volume(stage: IStage, start: DateTime, stop: DateTime):
     """
 
     def pumped_fluid_volume_calculation(calculations, for_stage, start_time, stop_time):
-        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object(), onq.as_net_date_time(start_time),
+        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object, onq.as_net_date_time(start_time),
                                                           onq.as_net_date_time(stop_time))
         return calculation_result
 
@@ -116,7 +116,7 @@ def total_proppant_mass(stage: IStage, start: DateTime, stop: DateTime):
         The pumped (fluid) volume result (measurement and warnings).
     """
     def total_proppant_mass_calculation(calculations, for_stage, start_time, stop_time):
-        calculation_result = calculations.GetTotalProppantMass(for_stage.dom_object(),
+        calculation_result = calculations.GetTotalProppantMass(for_stage.dom_object,
                                                                onq.as_net_date_time(start_time),
                                                                onq.as_net_date_time(stop_time))
         return calculation_result

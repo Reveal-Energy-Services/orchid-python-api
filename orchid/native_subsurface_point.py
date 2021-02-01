@@ -73,18 +73,24 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
     @property
     def x(self):
         """The x-coordinate of this point."""
-        return onq.as_length_measurement(self._length_converter_func(self._adaptee.X))
+        return onq.as_length_measurement(self._length_converter_func(self.dom_object.X))
 
     @property
     def y(self):
         """The y-coordinate of this point."""
-        return onq.as_length_measurement(self._length_converter_func(self._adaptee.Y))
+        return onq.as_length_measurement(self._length_converter_func(self.dom_object.Y))
 
     @property
     def depth(self):
         """The depth of this point."""
-        result = onq.as_length_measurement(self._length_converter_func(self._adaptee.Depth))
+        result = onq.as_length_measurement(self._length_converter_func(self.dom_object.Depth))
         return result
+
+
+@toolz.curry
+def make_subsurface_point_using_length_unit(target_unit: Union[units.UsOilfield, units.Metric],
+                                            net_subsurface_point: ISubsurfacePoint) -> SubsurfacePointUsingLengthUnit:
+    return SubsurfacePointUsingLengthUnit(net_subsurface_point, target_unit)
 
 
 class SubsurfacePoint(BaseSubsurfacePoint):
@@ -105,4 +111,4 @@ class SubsurfacePoint(BaseSubsurfacePoint):
             A `SubsurfacePoint` that returns all lengths `as_length_unit`.
 
         """
-        return SubsurfacePointUsingLengthUnit(self._adaptee, as_length_unit)
+        return SubsurfacePointUsingLengthUnit(self.dom_object, as_length_unit)

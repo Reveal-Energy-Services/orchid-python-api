@@ -55,6 +55,14 @@ def is_power_unit(unit):
     return unit == units.UsOilfield.POWER or unit == units.Metric.POWER
 
 
+# Test ideas
+# - well.frac_gradient (property - appears to return "ratio unit", `FracGradient`)
+#   (Consider not exposing this property because we expect it to change.)
+# - well.shmin (property - returns `Nullable<Pressure?>`)
+#   (Consider not exposing this property because of `Nullable<T>`.)
+# - stage.md_top, md_bottom (adjust existing)
+# - stage.get_stage_location_center and similar (adjust existing)
+# - stage_port.isip (property)
 class TestNetMeasurement(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -84,61 +92,203 @@ class TestNetMeasurement(unittest.TestCase):
                                                                                pattern=expected_error_pattern))
 
     def test_as_measurement(self):
-        for to_convert_net_quantity, to_convert_physical_quantity, expected_value, expected_unit, tolerance in [
+        for to_convert_net_quantity, to_convert_physical_quantity, expected, tolerance in [
             (UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(306.08)), opq.PhysicalQuantity.ANGLE,
-             306.08, units.Common.ANGLE, decimal.Decimal('0.01')),
+             tsn.StubMeasurement(306.08, units.Common.ANGLE), decimal.Decimal('0.01')),
             (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414)), opq.PhysicalQuantity.DURATION,
-             1.414, units.Common.DURATION, decimal.Decimal('0.001')),
+             tsn.StubMeasurement(1.414, units.Common.DURATION), decimal.Decimal('0.001')),
             (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(0.05)),
-             opq.PhysicalQuantity.DENSITY, 0.05, units.UsOilfield.DENSITY, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.DENSITY, tsn.StubMeasurement(0.05, units.UsOilfield.DENSITY),
+             decimal.Decimal('0.01')),
             (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(3257.82)),
-             opq.PhysicalQuantity.DENSITY, 3257.82, units.Metric.DENSITY, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.DENSITY, tsn.StubMeasurement(3257.82, units.Metric.DENSITY),
+             decimal.Decimal('0.01')),
             (UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(4.312e10)),
-             opq.PhysicalQuantity.ENERGY, 4.312e10, units.UsOilfield.ENERGY, decimal.Decimal('0.001e10')),
+             opq.PhysicalQuantity.ENERGY, tsn.StubMeasurement(4.312e10, units.UsOilfield.ENERGY),
+             decimal.Decimal('0.001e10')),
             (UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(14220)), opq.PhysicalQuantity.ENERGY,
-             14220, units.Metric.ENERGY, decimal.Decimal('10')),
+             tsn.StubMeasurement(14220, units.Metric.ENERGY), decimal.Decimal('10')),
             (UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(100994)),
-             opq.PhysicalQuantity.FORCE, 100994, units.UsOilfield.FORCE, decimal.Decimal('1')),
+             opq.PhysicalQuantity.FORCE, tsn.StubMeasurement(100994, units.UsOilfield.FORCE), decimal.Decimal('1')),
             (UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(441172)),
-             opq.PhysicalQuantity.FORCE, 441172, units.Metric.FORCE, decimal.Decimal('1')),
+             opq.PhysicalQuantity.FORCE, tsn.StubMeasurement(441172, units.Metric.FORCE), decimal.Decimal('1')),
             (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(44.49)), opq.PhysicalQuantity.LENGTH,
-             44.49, units.UsOilfield.LENGTH, decimal.Decimal('0.01')),
+             tsn.StubMeasurement(44.49, units.UsOilfield.LENGTH), decimal.Decimal('0.01')),
             (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(13.56)), opq.PhysicalQuantity.LENGTH,
-             13.56, units.Metric.LENGTH, decimal.Decimal('0.01')),
+             tsn.StubMeasurement(13.56, units.Metric.LENGTH), decimal.Decimal('0.01')),
             (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(30.94)), opq.PhysicalQuantity.MASS,
-             30.94, units.UsOilfield.MASS, decimal.Decimal('0.01')),
+             tsn.StubMeasurement(30.94, units.UsOilfield.MASS), decimal.Decimal('0.01')),
             (UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(68.21)), opq.PhysicalQuantity.MASS,
-             68.21, units.Metric.MASS, decimal.Decimal('0.01')),
+             tsn.StubMeasurement(68.21, units.Metric.MASS), decimal.Decimal('0.01')),
             (UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(23276)),
-             opq.PhysicalQuantity.POWER, 23276, units.UsOilfield.POWER, decimal.Decimal('1')),
+             opq.PhysicalQuantity.POWER, tsn.StubMeasurement(23276, units.UsOilfield.POWER), decimal.Decimal('1')),
             (UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(21.05)), opq.PhysicalQuantity.POWER,
-             21.05, units.Metric.POWER, decimal.Decimal('0.01')),
+             tsn.StubMeasurement(21.05, units.Metric.POWER), decimal.Decimal('0.01')),
             (UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(49.70)),
-             opq.PhysicalQuantity.PRESSURE, 49.70, units.UsOilfield.PRESSURE, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.PRESSURE, tsn.StubMeasurement(49.70, units.UsOilfield.PRESSURE),
+             decimal.Decimal('0.01')),
             (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(342.67)),
-             opq.PhysicalQuantity.PRESSURE, 342.67, units.Metric.PRESSURE, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.PRESSURE, tsn.StubMeasurement(342.67, units.Metric.PRESSURE),
+             decimal.Decimal('0.01')),
             (ProppantConcentration(3.82, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon),
-             opq.PhysicalQuantity.PROPPANT_CONCENTRATION, 3.82, units.UsOilfield.PROPPANT_CONCENTRATION,
-             decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.PROPPANT_CONCENTRATION,
+             tsn.StubMeasurement(3.82, units.UsOilfield.PROPPANT_CONCENTRATION), decimal.Decimal('0.01')),
             (ProppantConcentration(457.35, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter),
-             opq.PhysicalQuantity.PROPPANT_CONCENTRATION, 457.35, units.Metric.PROPPANT_CONCENTRATION,
-             decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.PROPPANT_CONCENTRATION,
+             tsn.StubMeasurement(457.35, units.Metric.PROPPANT_CONCENTRATION), decimal.Decimal('0.01')),
             (SlurryRate(114.59, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
-             opq.PhysicalQuantity.SLURRY_RATE, 114.59, units.UsOilfield.SLURRY_RATE, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.SLURRY_RATE,
+             tsn.StubMeasurement(114.59, units.UsOilfield.SLURRY_RATE), decimal.Decimal('0.01')),
             (SlurryRate(18.22, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
-             opq.PhysicalQuantity.SLURRY_RATE, 18.22, units.Metric.SLURRY_RATE, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.SLURRY_RATE, tsn.StubMeasurement(18.22, units.Metric.SLURRY_RATE),
+             decimal.Decimal('0.01')),
             (UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(153.6)),
-             opq.PhysicalQuantity.TEMPERATURE, 153.6, units.UsOilfield.TEMPERATURE, decimal.Decimal('0.1')),
+             opq.PhysicalQuantity.TEMPERATURE,
+             tsn.StubMeasurement(153.6, units.UsOilfield.TEMPERATURE), decimal.Decimal('0.1')),
             (UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(4.618)),
-             opq.PhysicalQuantity.TEMPERATURE, 4.618, units.Metric.TEMPERATURE, decimal.Decimal('0.001')),
+             opq.PhysicalQuantity.TEMPERATURE,
+             tsn.StubMeasurement(4.618, units.Metric.TEMPERATURE), decimal.Decimal('0.001')),
             (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(83.48)),
-             opq.PhysicalQuantity.VOLUME, 83.48, units.UsOilfield.VOLUME, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.VOLUME, tsn.StubMeasurement(83.48, units.UsOilfield.VOLUME), decimal.Decimal('0.01')),
             (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)),
-             opq.PhysicalQuantity.VOLUME, 13.27, units.Metric.VOLUME, decimal.Decimal('0.01')),
+             opq.PhysicalQuantity.VOLUME, tsn.StubMeasurement(13.27, units.Metric.VOLUME), decimal.Decimal('0.01')),
         ]:
-            with self.subTest(f'Test as_measurement for {expected_value} {expected_unit.value.unit:~P}'):
+            with self.subTest(f'Test as_measurement for {expected.magnitude} {expected.unit.value.unit:~P}'):
                 actual = onq.as_measurement(to_convert_physical_quantity, to_convert_net_quantity)
-                expected = om.make_measurement(expected_unit, expected_value)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    def test_as_measurement_in_common_unit(self):
+        for to_convert_net_quantity, to_unit, expected, tolerance in [
+            (UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(306.08)), units.Common.ANGLE,
+             tsn.StubMeasurement(306.08, units.Common.ANGLE), decimal.Decimal('0.01')),
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414)), units.Common.DURATION,
+             tsn.StubMeasurement(1.414, units.Common.DURATION), decimal.Decimal('0.001')),
+        ]:
+            with self.subTest(f'Test as_measurement_in_common_unit for {expected.magnitude}'
+                              f' {expected.unit.value.unit:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    def test_as_measurement_in_specified_same_unit(self):
+        for to_convert_net_quantity, to_unit, expected, tolerance in [
+            (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(40.79)),
+             units.UsOilfield.DENSITY, tsn.StubMeasurement(40.79, units.UsOilfield.DENSITY),
+             decimal.Decimal('0.001')),
+            (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(921.4)),
+             units.Metric.DENSITY, tsn.StubMeasurement(921.4, units.Metric.DENSITY),
+             decimal.Decimal('0.01')),
+            (UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(43.12e9)),
+             units.UsOilfield.ENERGY, tsn.StubMeasurement(43.12e9, units.UsOilfield.ENERGY),
+             decimal.Decimal('0.001e9')),
+            (UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(14220)), units.Metric.ENERGY,
+             tsn.StubMeasurement(14220, units.Metric.ENERGY), decimal.Decimal('10')),
+            (UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(100994)),
+             units.UsOilfield.FORCE, tsn.StubMeasurement(100994, units.UsOilfield.FORCE), decimal.Decimal('1')),
+            (UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(441172)),
+             units.Metric.FORCE, tsn.StubMeasurement(441172, units.Metric.FORCE), decimal.Decimal('1')),
+            (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(44.49)), units.UsOilfield.LENGTH,
+             tsn.StubMeasurement(44.49, units.UsOilfield.LENGTH), decimal.Decimal('0.01')),
+            (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(13.56)), units.Metric.LENGTH,
+             tsn.StubMeasurement(13.56, units.Metric.LENGTH), decimal.Decimal('0.01')),
+            (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(30.94)), units.UsOilfield.MASS,
+             tsn.StubMeasurement(30.94, units.UsOilfield.MASS), decimal.Decimal('0.01')),
+            (UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(68.21)), units.Metric.MASS,
+             tsn.StubMeasurement(68.21, units.Metric.MASS), decimal.Decimal('0.01')),
+            (UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(23276)),
+             units.UsOilfield.POWER, tsn.StubMeasurement(23276, units.UsOilfield.POWER), decimal.Decimal('1')),
+            (UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(21.05)), units.Metric.POWER,
+             tsn.StubMeasurement(21.05, units.Metric.POWER), decimal.Decimal('0.01')),
+            (UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(49.70)),
+             units.UsOilfield.PRESSURE, tsn.StubMeasurement(49.70, units.UsOilfield.PRESSURE), decimal.Decimal('0.01')),
+            (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(342.67)),
+             units.Metric.PRESSURE, tsn.StubMeasurement(342.67, units.Metric.PRESSURE), decimal.Decimal('0.01')),
+            (ProppantConcentration(3.82, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon),
+             units.UsOilfield.PROPPANT_CONCENTRATION,
+             tsn.StubMeasurement(3.82, units.UsOilfield.PROPPANT_CONCENTRATION), decimal.Decimal('0.01')),
+            (ProppantConcentration(457.35, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter),
+             units.Metric.PROPPANT_CONCENTRATION,
+             tsn.StubMeasurement(457.35, units.Metric.PROPPANT_CONCENTRATION), decimal.Decimal('0.01')),
+            (SlurryRate(114.59, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
+             units.UsOilfield.SLURRY_RATE,
+             tsn.StubMeasurement(114.59, units.UsOilfield.SLURRY_RATE), decimal.Decimal('0.01')),
+            (SlurryRate(18.22, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
+             opq.PhysicalQuantity.SLURRY_RATE, tsn.StubMeasurement(18.22, units.Metric.SLURRY_RATE),
+             decimal.Decimal('0.01')),
+            (UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(153.6)),
+             opq.PhysicalQuantity.TEMPERATURE,
+             tsn.StubMeasurement(153.6, units.UsOilfield.TEMPERATURE), decimal.Decimal('0.1')),
+            (UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(4.618)),
+             opq.PhysicalQuantity.TEMPERATURE,
+             tsn.StubMeasurement(4.618, units.Metric.TEMPERATURE), decimal.Decimal('0.001')),
+            (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(83.48)),
+             opq.PhysicalQuantity.VOLUME, tsn.StubMeasurement(83.48, units.UsOilfield.VOLUME),
+             decimal.Decimal('0.01')),
+            (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(13.27)),
+             opq.PhysicalQuantity.VOLUME, tsn.StubMeasurement(13.27, units.Metric.VOLUME), decimal.Decimal('0.01')),
+        ]:
+            with self.subTest(f'Test as_measurement_in_specified_same_unit for {expected.magnitude}'
+                              f' {expected.unit.value.unit:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    def test_as_measurement_in_specified_different_unit(self):
+        for to_convert_net_quantity, to_unit, expected, tolerance in [
+            (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(62.30)),
+             units.Metric.DENSITY, tsn.StubMeasurement(998.0, units.Metric.DENSITY),
+             decimal.Decimal('0.2')),
+            (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(998.0)),
+             units.UsOilfield.DENSITY, tsn.StubMeasurement(62.30, units.UsOilfield.DENSITY),
+             decimal.Decimal('0.006')),
+            (UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(2.024)),
+             units.Metric.ENERGY, tsn.StubMeasurement(2.744, units.Metric.ENERGY), decimal.Decimal('0.002')),
+            (UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(2.744)), units.UsOilfield.ENERGY,
+             tsn.StubMeasurement(2.024, units.UsOilfield.ENERGY), decimal.Decimal('7e-4')),
+            (UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(107.8e3)),
+             units.Metric.FORCE, tsn.StubMeasurement(479.5e3, units.Metric.FORCE), decimal.Decimal('0.5e3')),
+            (UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(479.5e3)),
+             units.UsOilfield.FORCE, tsn.StubMeasurement(107.8e3, units.UsOilfield.FORCE), decimal.Decimal('0.02e3')),
+            (UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(155.2)),
+             units.Metric.LENGTH, tsn.StubMeasurement(47.30, units.Metric.LENGTH), decimal.Decimal('0.04')),
+            (UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(47.30)),
+             units.UsOilfield.LENGTH, tsn.StubMeasurement(155.2, units.UsOilfield.LENGTH), decimal.Decimal('0.03')),
+            (UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(7987)),
+             units.Metric.MASS, tsn.StubMeasurement(3622, units.Metric.MASS), decimal.Decimal('0.5e3')),
+            (UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(3.622e3)),
+             units.UsOilfield.MASS, tsn.StubMeasurement(7.987e3, units.UsOilfield.MASS), decimal.Decimal('2')),
+            (UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(9.254)),
+             units.Metric.POWER, tsn.StubMeasurement(6901, units.Metric.POWER), decimal.Decimal('0.8')),
+            (UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(6901)),
+             units.UsOilfield.POWER, tsn.StubMeasurement(9.254, units.UsOilfield.POWER), decimal.Decimal('0.002')),
+            (UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6972)),
+             units.Metric.PRESSURE, tsn.StubMeasurement(48.07e3, units.Metric.PRESSURE), decimal.Decimal('7')),
+            (UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(48.07e3)),
+             units.UsOilfield.PRESSURE, tsn.StubMeasurement(6972, units.UsOilfield.PRESSURE), decimal.Decimal('2')),
+            (ProppantConcentration(5.017, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon),
+             units.Metric.PROPPANT_CONCENTRATION,
+             tsn.StubMeasurement(601.2, units.Metric.PROPPANT_CONCENTRATION), decimal.Decimal('0.2')),
+            (ProppantConcentration(601.2, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter),
+             units.UsOilfield.PROPPANT_CONCENTRATION,
+             tsn.StubMeasurement(5.017, units.UsOilfield.PROPPANT_CONCENTRATION), decimal.Decimal('0.0008')),
+            (SlurryRate(100.9, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
+             units.Metric.SLURRY_RATE,
+             tsn.StubMeasurement(16.04, units.Metric.SLURRY_RATE), decimal.Decimal('0.02')),
+            (SlurryRate(16.04, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
+             units.UsOilfield.SLURRY_RATE,
+             tsn.StubMeasurement(100.9, units.UsOilfield.SLURRY_RATE), decimal.Decimal('0.1')),
+            (UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(156.2)),
+             units.Metric.TEMPERATURE,
+             tsn.StubMeasurement(69.00, units.Metric.TEMPERATURE), decimal.Decimal('0.05')),
+            (UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(69.00)),
+             units.UsOilfield.TEMPERATURE,
+             tsn.StubMeasurement(156.2, units.UsOilfield.TEMPERATURE), decimal.Decimal('0.3')),
+            (UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(8951)),
+             units.Metric.VOLUME, tsn.StubMeasurement(1423, units.Metric.VOLUME), decimal.Decimal('0.2')),
+            (UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1423)),
+             units.UsOilfield.VOLUME, tsn.StubMeasurement(8951, units.UsOilfield.VOLUME), decimal.Decimal('7')),
+        ]:
+            with self.subTest(f'Test as_measurement_in_specified_different_unit for {expected.magnitude}'
+                              f' {expected.unit.value.unit:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     def test_as_net_date_time(self):

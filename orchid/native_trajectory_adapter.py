@@ -44,8 +44,8 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         :param reference_frame: The reference from for the easting coordinates. Valid values are 'absolute' (
         absolute state plane), 'project', and 'well_head'.
         """
-        project_length_unit = self._adaptee.Well.Project.ProjectUnits.LengthUnit
-        raw_eastings = self._adaptee.GetEastingArray(reference_frame)
+        project_length_unit = self.dom_object.Well.Project.ProjectUnits.LengthUnit
+        raw_eastings = self.dom_object.GetEastingArray(reference_frame)
         return np.array([e.As(project_length_unit) for e in raw_eastings])
 
     @deal.pre(orchid.validation.arg_not_none)
@@ -55,6 +55,6 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         :param reference_frame: The reference from for the easting coordinates. Valid values are 'absolute' (
         absolute state plane), 'project', and 'well_head'.
         """
-        project_length_unit = self._adaptee.Well.Project.ProjectUnits.LengthUnit
-        raw_northings = self._adaptee.GetNorthingArray(reference_frame)
+        project_length_unit = self.dom_object.Well.Project.ProjectUnits.LengthUnit
+        raw_northings = self.dom_object.GetNorthingArray(reference_frame)
         return np.array([e.As(project_length_unit) for e in raw_northings])

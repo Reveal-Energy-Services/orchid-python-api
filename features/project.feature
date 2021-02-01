@@ -86,3 +86,19 @@ Feature: Low-level DOM API (project)
       | 0.466 | 0.674 | 0.188 |
       | 0.301 | 0.745 | 0.933 |
       | 0.635 | 0.078 | 0.184 |
+
+  Scenario Outline: Get project measurements in project units
+    Given I have loaded the project for the field, '<field>'
+    When I query the project measurements
+    Then I see project measurements <fluid_density>, <azimuth>, <center_x>, and <center_y>
+
+    # With my current setup, `behave` will not read text, 'ft\u00b3', as the character m with the unicode
+    # superscript 3 character. to work around this, I "encode" this value as 'ft^3'. the step will then convert
+    # the text, 'ft^3', to its unicode equivalent before testing. Similar to the degree symbol.
+    Examples: Bakken
+      | field  | fluid_density | azimuth  | center_x   | center_y   |
+      | Bakken | 63.2 lb/ft^3  | 50.0 deg | 1.990e6 ft | 17.50e6 ft |
+
+    Examples: Montney
+      | field   | fluid_density | azimuth  | center_x  | center_y  |
+      | Montney | 1012 kg/m^3   | 90.0 deg | 657.2e3 m | 6.170e6 m |

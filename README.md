@@ -81,7 +81,6 @@ and yet provides a fairly simple interface. We will assume in this document that
 - Create an empty virtual environment by running `pipenv install`.
 - Activate the virtual environment by running `pipenv shell`
 - Install Orchid by running `pip install orchid-python-api`.
-- Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
 
 # Step-by-step conda install
 
@@ -108,7 +107,6 @@ ecosystem and, within that virtual environment, use `pip` to install `orchid-pyt
     - Change to the current working directory by executing `chdir /path/to/orchid-virtualenv`.
 - Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.8`.
 - Activate the virtual environment by running `conda activate <your-virtualenv_name>`
-- Optionally install jupyter lab or jupyter notebook if you wish to use these tools to explore.
 - Install Orchid by running `pip install orchid-python-api`.
 
 ## Configure the Orchid Python API

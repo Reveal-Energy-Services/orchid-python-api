@@ -41,7 +41,7 @@ class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
         role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
         classes through invocation of "Primitive Operations".
         """
-        result = self._adaptee.Stage.Well.Project.ProjectUnits
+        result = self.dom_object.Stage.Well.Project.ProjectUnits
         return result
 
     def quantity_name_unit_map(self, project_units):
