@@ -46,21 +46,23 @@ class UnitSystem(Enum):
         """
         Return a string representation of the member.
 
-        Note that this method plays the role of "Template Method" in the _Template Method_ design pattern. In
-        this role it calls the "Primitive Operation", `unit_str()` to get the string identifying the unit.
-
         Returns:
             The string representing the enumeration member.
         """
-        return f'{self.system_name()}.{self.name} (unit={self.unit_str()},' \
-               f' physical_quantity={self.value.physical_quantity.value})'
+        return f'{self.value.unit}'
+
+    def abbreviation(self):
+        """
+        Return the abbreviation for a unit.
+
+        Returns:
+            The abbreviation of 'unit'.
+        """
+        return f'{self.value.unit:~P}'
 
     @abstractmethod
     def system_name(self):
         raise NotImplementedError()
-
-    def unit_str(self):
-        return f'{str(self.value.unit)}'
 
 
 class Common(UnitSystem):
@@ -73,26 +75,18 @@ class Common(UnitSystem):
         return 'Common'
 
 
-# TODO: remove
 class UsOilfield(UnitSystem):
-    """The enumeration of U. S. oilfield units available via the Orchid Python API.
+    """The enumeration of U. S. oilfield units available via the Orchid Python API."""
 
-    BEWARE!
-
-    Because DENSITY and PROPPANT_CONCENTRATION have the same unit, Python considers PROPPANT_CONCENTRATION
-    to be an alias for DENSITY. When invoking `str` and `repr`, these members appear to be the same.
-
-    BEWARE!
-    """
-
-    DENSITY = _AboutUnit(om.registry.pound_per_cubic_foot, opq.PhysicalQuantity.DENSITY)
+    DENSITY = _AboutUnit(om.registry.pound / om.registry.ft ** 3, opq.PhysicalQuantity.DENSITY)
     ENERGY = _AboutUnit(om.registry.foot_pound, opq.PhysicalQuantity.ENERGY)
     FORCE = _AboutUnit(om.registry.pound_force, opq.PhysicalQuantity.FORCE)
     LENGTH = _AboutUnit(om.registry.foot, opq.PhysicalQuantity.LENGTH)
     MASS = _AboutUnit(om.registry.pound, opq.PhysicalQuantity.MASS)
     POWER = _AboutUnit(om.registry.horsepower, opq.PhysicalQuantity.POWER)
     PRESSURE = _AboutUnit(om.registry.pound_force_per_square_inch, opq.PhysicalQuantity.PRESSURE)
-    PROPPANT_CONCENTRATION = _AboutUnit(om.registry.pound_per_gallon, opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
+    PROPPANT_CONCENTRATION = _AboutUnit(om.registry.pound / om.registry.gallon,
+                                        opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
     SLURRY_RATE = _AboutUnit(om.registry.oil_barrel_per_minute, opq.PhysicalQuantity.SLURRY_RATE)
     TEMPERATURE = _AboutUnit(om.registry.degree_Fahrenheit, opq.PhysicalQuantity.TEMPERATURE)
     VOLUME = _AboutUnit(om.registry.oil_barrel, opq.PhysicalQuantity.VOLUME)
@@ -100,112 +94,25 @@ class UsOilfield(UnitSystem):
     def system_name(self):
         return 'USOilfield'
 
-    def unit_str(self):
-        """
-        Returns a string representing the unit of this enumeration member.
-
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern.
-        This method is called by the "Template Method" to allow customization of the "Template Method"
-        **without** changing the algorithm of the "Template Method."
-
-        Returns:
-            The string representation of the unit.
-        """
-        if self == UsOilfield.FORCE:
-            return 'pound_force'
-
-        if self == UsOilfield.PRESSURE:
-            return 'psi'
-
-        if self == UsOilfield.SLURRY_RATE:
-            return 'bpm'
-
-        if self == UsOilfield.VOLUME:
-            return 'barrel'
-
-        return super().unit_str()
-
 
 class Metric(UnitSystem):
-    """The enumeration of metric units available via the Orchid Python API.
+    """The enumeration of metric units available via the Orchid Python API."""
 
-    BEWARE!
-
-    Because DENSITY and PROPPANT_CONCENTRATION have the same unit, Python considers PROPPANT_CONCENTRATION
-    to be an alias for DENSITY. When invoking `str` and `repr`, these members appear to be the same.
-
-    BEWARE!
-    """
-
-    DENSITY = _AboutUnit(om.registry.kilogram_per_cubic_meter, opq.PhysicalQuantity.DENSITY)
+    DENSITY = _AboutUnit(om.registry.kilogram / om.registry.meter ** 3, opq.PhysicalQuantity.DENSITY)
     ENERGY = _AboutUnit(om.registry.joule, opq.PhysicalQuantity.ENERGY)
     FORCE = _AboutUnit(om.registry.newton, opq.PhysicalQuantity.FORCE)
     LENGTH = _AboutUnit(om.registry.meter, opq.PhysicalQuantity.LENGTH)
     MASS = _AboutUnit(om.registry.kilogram, opq.PhysicalQuantity.MASS)
     POWER = _AboutUnit(om.registry.watt, opq.PhysicalQuantity.POWER)
     PRESSURE = _AboutUnit(om.registry.kilopascal, opq.PhysicalQuantity.PRESSURE)
-    PROPPANT_CONCENTRATION = _AboutUnit(om.registry.kilogram_per_cubic_meter,
+    PROPPANT_CONCENTRATION = _AboutUnit(om.registry.kilogram / om.registry.meter ** 3,
                                         opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
-    SLURRY_RATE = _AboutUnit(om.registry.cubic_meter_per_minute, opq.PhysicalQuantity.SLURRY_RATE)
+    SLURRY_RATE = _AboutUnit(om.registry.meter ** 3 / om.registry.minute, opq.PhysicalQuantity.SLURRY_RATE)
     TEMPERATURE = _AboutUnit(om.registry.degree_Celsius, opq.PhysicalQuantity.TEMPERATURE)
     VOLUME = _AboutUnit((om.registry.m ** 3), opq.PhysicalQuantity.VOLUME)
 
     def system_name(self):
         return 'Metric'
-
-    def unit_str(self):
-        """
-        Returns a string representing the unit of this enumeration member.
-
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern.
-        This method is called by the "Template Method" to allow customization of the "Template Method"
-        **without** changing the algorithm of the "Template Method."
-
-        Generally, this method returns the unit with the correct capitalization.
-
-        Returns:
-            The string representation of the unit.
-        """
-        def use_abbreviation(unit):
-            return (unit == Metric.ENERGY or
-                    unit == Metric.FORCE or
-                    unit == Metric.LENGTH or
-                    unit == Metric.MASS or
-                    unit == Metric.POWER or
-                    unit == Metric.PRESSURE)
-
-        if self == Metric.VOLUME:
-            return 'cubic_meter'
-
-        if use_abbreviation(self):
-            return abbreviation(self)
-
-        return super().unit_str()
-
-
-def abbreviation(unit: UnitSystem) -> str:
-    """
-    Return the abbreviation for a unit.
-
-    Args:
-        unit: The UnitSystem member whose abbreviation is sought.
-
-    Returns:
-        The abbreviation of 'unit'.
-    """
-    unit_abbreviation_map = {
-        Common.ANGLE: '\u00b0',
-        UsOilfield.DENSITY: 'lb/ft\u00b3',
-        UsOilfield.ENERGY: 'ft-lb',
-        UsOilfield.VOLUME: 'bbl',
-        UsOilfield.PROPPANT_CONCENTRATION: 'lb/gal',
-        Metric.DENSITY: 'kg/m\u00b3',
-        Metric.PROPPANT_CONCENTRATION: 'kg/m\u00b3',
-        Metric.SLURRY_RATE: 'm\u00b3/min',
-    }
-
-    # noinspection PyTypeChecker
-    return unit_abbreviation_map.get(unit, f'{unit.value.unit:~P}')
 
 
 def as_unit_system(net_unit_system: UnitSystem):

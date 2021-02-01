@@ -25,10 +25,10 @@ class TestUnitSystem(unittest.TestCase):
 
     def test_abbreviation(self):
         for expected, unit in [
-            ('\u00b0', units.Common.ANGLE),
+            ('deg', units.Common.ANGLE),
             ('min', units.Common.DURATION),
             ('lb/ft\u00b3', units.UsOilfield.DENSITY),
-            ('ft-lb', units.UsOilfield.ENERGY),
+            ('ft_lb', units.UsOilfield.ENERGY),
             ('lbf', units.UsOilfield.FORCE),
             ('ft', units.UsOilfield.LENGTH),
             ('lb', units.UsOilfield.MASS),
@@ -37,7 +37,7 @@ class TestUnitSystem(unittest.TestCase):
             ('lb/gal', units.UsOilfield.PROPPANT_CONCENTRATION),
             ('bpm', units.UsOilfield.SLURRY_RATE),
             ('\u00b0F', units.UsOilfield.TEMPERATURE),
-            ('bbl', units.UsOilfield.VOLUME),
+            ('oil_bbl', units.UsOilfield.VOLUME),
             ('kg/m\u00b3', units.Metric.DENSITY),
             ('J', units.Metric.ENERGY),
             ('N', units.Metric.FORCE),
@@ -50,47 +50,38 @@ class TestUnitSystem(unittest.TestCase):
             ('\u00b0C', units.Metric.TEMPERATURE),
             ('m\u00b3', units.Metric.VOLUME),
         ]:
-            actual = units.abbreviation(unit)
-            # Because DENSITY and PROPPANT_CONCENTRATION have the same unit, Python considers PROPPANT_CONCENTRATION
-            # to be an alias for DENSITY. When invoking `str` and `repr`, these members appear to be the same.
-            with self.subTest(f'Testing {unit.system_name()} {unit.name}.'):
-                assert_that(actual, equal_to(expected))
+            with self.subTest(f'Testing abbreviation for unit {unit!r}'):
+                assert_that(unit.abbreviation(), equal_to(expected))
 
     def test_str(self):
         for expected, unit in [
-            ('Common.ANGLE (unit=degree, physical_quantity=angle)', units.Common.ANGLE),
-            ('Common.DURATION (unit=minute, physical_quantity=duration)', units.Common.DURATION),
-            ('USOilfield.DENSITY (unit=pound_per_cubic_foot, physical_quantity=density)', units.UsOilfield.DENSITY),
-            ('USOilfield.ENERGY (unit=foot_pound, physical_quantity=energy)', units.UsOilfield.ENERGY),
-            ('USOilfield.FORCE (unit=pound_force, physical_quantity=force)', units.UsOilfield.FORCE),
-            ('USOilfield.LENGTH (unit=foot, physical_quantity=length)', units.UsOilfield.LENGTH),
-            ('USOilfield.MASS (unit=pound, physical_quantity=mass)', units.UsOilfield.MASS),
-            ('USOilfield.POWER (unit=horsepower, physical_quantity=power)', units.UsOilfield.POWER),
-            ('USOilfield.PRESSURE (unit=psi, physical_quantity=pressure)', units.UsOilfield.PRESSURE),
-            ('USOilfield.PROPPANT_CONCENTRATION (unit=pound_per_gallon, physical_quantity=proppant concentration)',
-             units.UsOilfield.PROPPANT_CONCENTRATION),
-            ('USOilfield.SLURRY_RATE (unit=bpm, physical_quantity=slurry rate)', units.UsOilfield.SLURRY_RATE),
-            ('USOilfield.TEMPERATURE (unit=degree_Fahrenheit, physical_quantity=temperature)',
-             units.UsOilfield.TEMPERATURE),
-            ('USOilfield.VOLUME (unit=barrel, physical_quantity=volume)', units.UsOilfield.VOLUME),
-            ('Metric.DENSITY (unit=kilogram_per_cubic_meter, physical_quantity=density)', units.Metric.DENSITY),
-            ('Metric.ENERGY (unit=J, physical_quantity=energy)', units.Metric.ENERGY),
-            ('Metric.FORCE (unit=N, physical_quantity=force)', units.Metric.FORCE),
-            ('Metric.LENGTH (unit=m, physical_quantity=length)', units.Metric.LENGTH),
-            ('Metric.MASS (unit=kg, physical_quantity=mass)', units.Metric.MASS),
-            ('Metric.POWER (unit=W, physical_quantity=power)', units.Metric.POWER),
-            ('Metric.PRESSURE (unit=kPa, physical_quantity=pressure)', units.Metric.PRESSURE),
-            ('Metric.PROPPANT_CONCENTRATION (unit=kilogram_per_cubic_meter, physical_quantity=proppant concentration)',
-             units.Metric.PROPPANT_CONCENTRATION),
-            ('Metric.SLURRY_RATE (unit=cubic_meter_per_minute, physical_quantity=slurry rate)',
-             units.Metric.SLURRY_RATE),
-            ('Metric.TEMPERATURE (unit=degree_Celsius, physical_quantity=temperature)', units.Metric.TEMPERATURE),
-            ('Metric.VOLUME (unit=cubic_meter, physical_quantity=volume)', units.Metric.VOLUME),
+            ('degree', units.Common.ANGLE),
+            ('minute', units.Common.DURATION),
+            ('pound / foot ** 3', units.UsOilfield.DENSITY),
+            ('foot_pound', units.UsOilfield.ENERGY),
+            ('force_pound', units.UsOilfield.FORCE),
+            ('foot', units.UsOilfield.LENGTH),
+            ('pound', units.UsOilfield.MASS),
+            ('horsepower', units.UsOilfield.POWER),
+            ('pound_force_per_square_inch', units.UsOilfield.PRESSURE),
+            ('pound / gallon', units.UsOilfield.PROPPANT_CONCENTRATION),
+            ('oil_barrel_per_minute', units.UsOilfield.SLURRY_RATE),
+            ('degree_Fahrenheit', units.UsOilfield.TEMPERATURE),
+            ('oil_barrel', units.UsOilfield.VOLUME),
+            ('kilogram / meter ** 3', units.Metric.DENSITY),
+            ('joule', units.Metric.ENERGY),
+            ('newton', units.Metric.FORCE),
+            ('meter', units.Metric.LENGTH),
+            ('kilogram', units.Metric.MASS),
+            ('watt', units.Metric.POWER),
+            ('kilopascal', units.Metric.PRESSURE),
+            ('kilogram / meter ** 3', units.Metric.PROPPANT_CONCENTRATION),
+            ('meter ** 3 / minute', units.Metric.SLURRY_RATE),
+            ('degree_Celsius', units.Metric.TEMPERATURE),
+            ('meter ** 3', units.Metric.VOLUME),
         ]:
             actual = str(unit)
-            # Because DENSITY and PROPPANT_CONCENTRATION have the same unit, Python considers these values to
-            # be equal. Beware!
-            with self.subTest(f'Testing {unit}.'):
+            with self.subTest(f'Testing string representation of {unit!r}.'):
                 assert_that(actual, equal_to(expected))
 
 
