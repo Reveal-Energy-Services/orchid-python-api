@@ -12,9 +12,15 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import decimal
 import unittest
 
-from orchid import unit_system as units
+from orchid import (
+    measurement as om,
+    unit_system as units,
+)
+
+from tests import (custom_matchers as tcm)
 
 from hamcrest import assert_that, equal_to
 
@@ -52,6 +58,41 @@ class TestUnitSystem(unittest.TestCase):
         ]:
             with self.subTest(f'Testing abbreviation for unit {unit!r}'):
                 assert_that(unit.abbreviation(), equal_to(expected))
+
+    def test_make_measurement_from_unit(self):
+        for expected_magnitude, actual_unit, expected_unit, tolerance in [
+            (94.17, units.Common.ANGLE, om.registry.deg, decimal.Decimal('0.01')),
+            (34.34, units.Common.DURATION, om.registry.min, decimal.Decimal('0.01')),
+            (71.08, units.UsOilfield.DENSITY, om.registry.lb / om.registry.ft ** 3, decimal.Decimal('0.01')),
+            (971.8, units.Metric.DENSITY, om.registry.kg / om.registry.m ** 3, decimal.Decimal('0.1')),
+            (4.679, units.UsOilfield.ENERGY, om.registry.ft_lb, decimal.Decimal('0.001')),
+            (8809, units.Metric.ENERGY, om.registry.J, decimal.Decimal('1')),
+            (99.47e3, units.UsOilfield.FORCE, om.registry.lbf, decimal.Decimal('0.01')),
+            (530.6e3, units.Metric.FORCE, om.registry.N, decimal.Decimal('0.1e3')),
+            (127.0, units.UsOilfield.LENGTH, om.registry.ft, decimal.Decimal('0.1')),
+            (45.12, units.Metric.LENGTH, om.registry.m, decimal.Decimal('0.01')),
+            (7087, units.UsOilfield.MASS, om.registry.lb, decimal.Decimal('1')),
+            (132.8, units.Metric.MASS, om.registry.kg, decimal.Decimal('0.1')),
+            (20.31, units.UsOilfield.POWER, om.registry.hp, decimal.Decimal('0.01')),
+            (13.55, units.Metric.POWER, om.registry.W, decimal.Decimal('0.01')),
+            (7743, units.UsOilfield.PRESSURE, om.registry.psi, decimal.Decimal('1')),
+            (54.54, units.Metric.PRESSURE, om.registry.kPa, decimal.Decimal('0.01')),
+            (3.500, units.UsOilfield.PROPPANT_CONCENTRATION,
+             om.registry.lb / om.registry.gal, decimal.Decimal('0.001')),
+            (679.9, units.Metric.PROPPANT_CONCENTRATION,
+             om.registry.kg / om.registry.m ** 3, decimal.Decimal('0.1')),
+            (90.96, units.UsOilfield.SLURRY_RATE, om.registry.bpm, decimal.Decimal('0.01')),
+            (13.02, units.Metric.SLURRY_RATE, om.registry.m ** 3 / om.registry.min, decimal.Decimal('0.01')),
+            (52.74, units.UsOilfield.TEMPERATURE, om.registry.degF, decimal.Decimal('0.01')),
+            (17.88, units.Metric.TEMPERATURE, om.registry.degC, decimal.Decimal('0.01')),
+            (9318, units.UsOilfield.VOLUME, om.registry.oil_bbl, decimal.Decimal('1')),
+            (766.4, units.Metric.VOLUME, om.registry.m ** 3, decimal.Decimal('0.1')),
+        ]:
+            with self.subTest(f'Test making measurement from unit, {actual_unit!r}'):
+                actual = units.make_measurement(actual_unit, expected_magnitude)
+
+                tcm.assert_that_measurements_close_to(actual, om.Quantity(expected_magnitude, expected_unit),
+                                                      tolerance)
 
     def test_str(self):
         for expected, unit in [

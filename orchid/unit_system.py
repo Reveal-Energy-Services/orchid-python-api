@@ -16,6 +16,9 @@
 from abc import abstractmethod
 from collections import namedtuple
 from enum import Enum
+import numbers
+
+import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
@@ -122,3 +125,26 @@ def as_unit_system(net_unit_system: UnitSystem):
         return Metric
     else:
         raise ValueError(f'Unrecognized unit system: {net_unit_system}')
+
+
+@toolz.curry
+def make_measurement(unit: UnitSystem, magnitude: numbers.Real) -> om.Quantity:
+    """
+    Construct a measurement.
+
+    This function provides a "functional" mechanism to create Measurement instances. It is more common to
+    create a sequence of measurements from a sequence of numbers and a **single** unit. By putting the `unit`
+    argument first in the function arguments, it allows callers to write code similar to the following:
+
+    > make_length_measurement = make_measurement(units.UsOilfield.LENGTH)
+    > length_measurements = [make_length_measurement(l) for l in lengths]
+    > # or toolz.map(make_length_measurement, lengths)
+
+    Args:
+        unit: The unit of this measurement.
+        magnitude: The magnitude of the measurement.
+
+    Returns:
+        The created `pint` `Quantity` instance.
+    """
+    return om.Quantity(magnitude, unit.value.unit)
