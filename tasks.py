@@ -30,7 +30,7 @@ import toolz.curried as toolz
 
 
 # Commented out for ease of introducing DEBUG logging.
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
 
@@ -48,33 +48,41 @@ def collect_orchid_assemblies(context, source_root='c:/src/OrchidApp/Orchid', ta
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     log.debug(f'Created target directory, "{target_dir}"')
 
-    # 'c:src\OrchidApp\Orchid\Orchid.FractureDiagnostics.SDKFacade\bin\x64\Debug\netstandard2.0\Orchid
-    # .FractureDiagnostics.SDKFacade.dll'
-    needed_assemblies = {
-        'Orchid.FractureDiagnostics.SDKFacade/bin/x64/Debug/netstandard2.0':
-            ['Orchid.FractureDiagnostics',
-             'Orchid.FractureDiagnostics.Factories',
-             'Orchid.FractureDiagnostics.SDKFacade'],
-        'Orchid.Application/bin/x64/Debug/netcoreapp3.1': ['UnitsNet'],
-    }
-
-    def create_assembly_path(e):
+    @toolz.curry
+    def create_assembly_path(bridge_path, e):
         parent_name, dll_names = e
-        return [pathlib.Path(source_root).joinpath(parent_name, dll_name) for dll_name in dll_names]
+        return [pathlib.Path(source_root).joinpath(parent_name, bridge_path, dll_name) for
+                dll_name in dll_names]
 
-    needed_assembly_paths = toolz.pipe(
-        needed_assemblies,
+    top_level_assemblies = {
+        'Orchid.FractureDiagnostics.SDKFacade': [
+            'Orchid.FractureDiagnostics',
+            'Orchid.FractureDiagnostics.Factories',
+            'Orchid.FractureDiagnostics.SDKFacade',
+        ],
+    }
+    top_level_assembly_paths = toolz.pipe(
+        top_level_assemblies,
         toolz.valmap(toolz.map(lambda n: n + '.dll')),
         toolz.valmap(list),
         lambda d: d.items(),
-        toolz.map(create_assembly_path),
+        toolz.map(create_assembly_path(pathlib.Path('bin').joinpath('x64', 'Debug', 'netstandard2.0', ))),
         toolz.concat,
         toolz.map(str),
         list
     )
-    for needed_assembly_path in needed_assembly_paths:
-        shutil.copy2(needed_assembly_path, target_dir)
-        log.debug(f'Copied "{str(needed_assembly_path)}"')
+    for top_level_assembly_path in top_level_assembly_paths:
+        shutil.copy2(top_level_assembly_path, target_dir)
+        log.debug(f'Copied "{str(top_level_assembly_path)}"')
+
+    units_net_path = pathlib.Path(source_root).joinpath('Orchid.Application', 'bin', 'x64', 'Debug', 'netcoreapp3.1',
+                                                        'UnitsNet.dll')
+    shutil.copy2(units_net_path, target_dir)
+
+    app_settings_path = pathlib.Path(source_root).joinpath('Orchid.Application', 'bin', 'x64', 'Debug', 'netcoreapp3.1',
+                                                           'appSettings.json')
+    shutil.copy2(app_settings_path, target_dir)
+    log.debug('f Copied ')
 
 
 @task
