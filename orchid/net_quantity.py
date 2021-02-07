@@ -20,12 +20,20 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 
 import datetime
+from functools import singledispatch
 
 import dateutil.tz as duz
+import toolz.curried as toolz
 
+from orchid import (
+    measurement as om,
+    physical_quantity as opq,
+)
 
 # noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 class NetQuantityTimeZoneError(ValueError):
@@ -112,6 +120,41 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
 
+@singledispatch
+@toolz.curry
+def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
+
+    This function is registered as the type-handler for the `object` type. In our situation, arriving here
+    indicates an error by an implementer and so raises an error.
+
+    Args:
+        unknown: A parameter whose type is not expected.
+        _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
+    """
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
+
+
+@as_measurement.register(opq.PhysicalQuantity)
+@toolz.curry
+def as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in the same unit.
+
+    Args:
+        physical_quantity: The `PhysicalQuantity`. Although we try to determine a unique mapping between units
+        in `pint` and .NET `UnitsNet` units, we cannot perform a unique mapping for density and proppant
+        concentration measured in the metric system (the units of both these physical quantities are
+        "kg/m**3").
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `pint` `Quantity` instance.
+    """
+    return net_quantity.Value * _to_pint_unit(physical_quantity, net_quantity.Unit)
+
+
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
     """
     Convert a `datetime.datetime` instance to a .NET `DateTime` instance.
@@ -126,11 +169,11 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
         raise NetQuantityNoTzInfoError(time_point)
 
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                    time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
+                    time_point.second, _microseconds_to_integral_milliseconds(time_point.microsecond),
                     DateTimeKind.Utc)
 
 
-def microseconds_to_integral_milliseconds(to_convert: int) -> int:
+def _microseconds_to_integral_milliseconds(to_convert: int) -> int:
     """
     Convert microseconds to an integral number of milliseconds.
 
@@ -144,14 +187,15 @@ def microseconds_to_integral_milliseconds(to_convert: int) -> int:
     return int(round(to_convert / 1000))
 
 
-__all__ = (
-    # Module exceptions
-    NetQuantityTimeZoneError,
-    NetQuantityLocalDateTimeKindError,
-    NetQuantityNoTzInfoError,
-    NetQuantityUnspecifiedDateTimeKindError,
+def _to_pint_unit(physical_quantity: opq.PhysicalQuantity, net_unit: UnitsNet.Units) -> om.Unit:
+    """
+    Convert `net_unit`, a unit of measure for `physical_quantity`, to a `pint` unit.
 
-    # Module methods
-    as_datetime,
-    as_net_date_time,
-)
+    Args:
+        physical_quantity: The physical quantity measured by `net_unit`.
+        net_unit: The .NET UnitsNet.Unit to be converted.
+
+    Returns:
+        The `pint` Unit corresponding to `net_unit`.
+    """
+    return om.registry.deg
