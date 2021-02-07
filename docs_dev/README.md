@@ -27,3 +27,9 @@ may actually be a simple python function.
 Finally, the following diagram assigns classes to layers.
 
 ![Classes/Functions Assigned to Layers](./layer-classes.png)
+
+## Components
+
+This diagram describes the Orchid assembly dependencies for assemblies used by the Orchid Python API.
+
+![Orchid Assembly Dependencies](./orchid-assy-dependencies.png)

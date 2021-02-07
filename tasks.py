@@ -26,12 +26,63 @@ import shutil
 from invoke import task, Collection
 # noinspection PyPackageRequirements
 import toml
+import toolz.curried as toolz
 
 
 # Commented out for ease of introducing DEBUG logging.
 # logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
+
+
+@task
+def collect_orchid_assemblies(context, source_root='c:/src/OrchidApp/Orchid', target_dir='./orchid_assemblies'):
+    """
+    Collect the Orchid assemblies needed to run the Python Orchid API for development.
+
+    Args:
+        context: The task context (unused).
+        source_root: The path to the Orchid repository root.
+        target_dir: The target directory for these assemblies. (Default: ./orchid_assemblies)
+    """
+    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
+    log.debug(f'Created target directory, "{target_dir}"')
+
+    @toolz.curry
+    def create_assembly_path(bridge_path, e):
+        parent_name, dll_names = e
+        return [pathlib.Path(source_root).joinpath(parent_name, bridge_path, dll_name) for
+                dll_name in dll_names]
+
+    top_level_assemblies = {
+        'Orchid.FractureDiagnostics.SDKFacade': [
+            'Orchid.FractureDiagnostics',
+            'Orchid.FractureDiagnostics.Factories',
+            'Orchid.FractureDiagnostics.SDKFacade',
+        ],
+    }
+    top_level_assembly_paths = toolz.pipe(
+        top_level_assemblies,
+        toolz.valmap(toolz.map(lambda n: n + '.dll')),
+        toolz.valmap(list),
+        lambda d: d.items(),
+        toolz.map(create_assembly_path(pathlib.Path('bin').joinpath('x64', 'Debug', 'netstandard2.0', ))),
+        toolz.concat,
+        toolz.map(str),
+        list
+    )
+    for top_level_assembly_path in top_level_assembly_paths:
+        shutil.copy2(top_level_assembly_path, target_dir)
+        log.debug(f'Copied "{str(top_level_assembly_path)}"')
+
+    units_net_path = pathlib.Path(source_root).joinpath('Orchid.Application', 'bin', 'x64', 'Debug', 'netcoreapp3.1',
+                                                        'UnitsNet.dll')
+    shutil.copy2(units_net_path, target_dir)
+
+    app_settings_path = pathlib.Path(source_root).joinpath('Orchid.Application', 'bin', 'x64', 'Debug', 'netcoreapp3.1',
+                                                           'appSettings.json')
+    shutil.copy2(app_settings_path, target_dir)
+    log.debug('f Copied ')
 
 
 @task
@@ -362,6 +413,9 @@ ns = Collection()
 ns.add_task(clean)
 ns.add_task(pipfile_to_poetry)
 
+dev_ns = Collection('dev')
+dev_ns.add_task(collect_orchid_assemblies, name='setup')
+
 examples_ns = Collection('examples')
 examples_ns.add_task(examples_clean_notebooks, name='clean-notebooks')
 examples_ns.add_task(examples_copy_notebooks, name='copy-notebooks')
@@ -410,6 +464,7 @@ poetry_venv_ns.add_task(poetry_create_venv, name='create')
 poetry_venv_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_collection(poetry_venv_ns)
 
+ns.add_collection(dev_ns)
 ns.add_collection(examples_ns)
 ns.add_collection(pipenv_ns)
 ns.add_collection(poetry_ns)

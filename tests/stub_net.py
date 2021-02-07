@@ -39,11 +39,13 @@ from orchid import (
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
-                                        IStageSampledQuantityTimeSeries, ISubsurfacePoint,
-                                        IWellSampledQuantityTimeSeries, IWellTrajectory,
+                                        ISubsurfacePoint,
+                                        IWellTrajectory,
                                         UnitSystem)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences

@@ -2,6 +2,9 @@
 python_api.yaml
 scratch.ipynb
 
+# Ignore Orchid assemblies copied to better support testing
+orchid_assemblies/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
