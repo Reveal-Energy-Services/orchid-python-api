@@ -26,7 +26,7 @@ from orchid import (
     obs_measurement as om,
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
-    net_quantity as onq,
+    obs_net_quantity as onq,
     obs_unit_system as units,
 )
 from orchid.project_loader import ProjectLoader

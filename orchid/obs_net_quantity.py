@@ -42,6 +42,7 @@ import UnitsNet
 
 warnings.warn('Updating module to use pint measurements.', FutureWarning)
 
+
 _UNIT_NET_UNIT_MAP = {
     units.Common.ANGLE: UnitsNet.Units.AngleUnit.Degree,
     units.Common.DURATION: UnitsNet.Units.DurationUnit.Minute,

@@ -23,7 +23,7 @@ from orchid import (obs_measurement as om,
                     project_loader as loader,
                     native_stage_adapter as nsa,
                     native_treatment_calculations as ntc,
-                    net_quantity as onq,
+                    obs_net_quantity as onq,
                     obs_unit_system as units)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements

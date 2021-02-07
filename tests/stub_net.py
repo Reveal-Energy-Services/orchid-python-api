@@ -33,7 +33,7 @@ import toolz.curried as toolz
 
 from orchid import (
     native_treatment_curve_adapter as ontc,
-    net_quantity as onq,
+    obs_net_quantity as onq,
     obs_unit_system as units,
 )
 

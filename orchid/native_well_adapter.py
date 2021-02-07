@@ -25,7 +25,7 @@ from orchid import (
     native_stage_adapter as nsa,
     native_subsurface_point as nsp,
     native_trajectory_adapter as nta,
-    net_quantity as onq,
+    obs_net_quantity as onq,
     reference_origins as origins,
 )
 

@@ -26,7 +26,7 @@ import dateutil.tz as duz
 from orchid import (
     measurement as om,
     obs_measurement as obs_om,
-    net_quantity as onq,
+    obs_net_quantity as onq,
     physical_quantity as opq,
     obs_unit_system as units,
 )

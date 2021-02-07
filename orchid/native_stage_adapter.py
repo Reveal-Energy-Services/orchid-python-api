@@ -27,7 +27,7 @@ from orchid import (
     obs_measurement as om,
     native_subsurface_point as nsp,
     native_treatment_curve_adapter as ntc,
-    net_quantity as onq,
+    obs_net_quantity as onq,
     reference_origins as origins,
     obs_unit_system as units,
     validation

@@ -27,7 +27,7 @@ import toolz.curried as toolz
 
 from orchid import (
     obs_measurement as om,
-    net_quantity as onq,
+    obs_net_quantity as onq,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
     reference_origins as origins,
