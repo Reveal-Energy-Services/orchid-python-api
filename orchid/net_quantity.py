@@ -187,6 +187,14 @@ def _microseconds_to_integral_milliseconds(to_convert: int) -> int:
     return int(round(to_convert / 1000))
 
 
+_PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
+    opq.PhysicalQuantity.DENSITY: {
+        UnitsNet.Units.DensityUnit.PoundPerCubicFoot: om.registry.lb / om.registry.cu_ft,
+        UnitsNet.Units.DensityUnit.KilogramPerCubicMeter: om.registry.kg / (om.registry.m ** 3),
+    },
+}
+
+
 def _to_pint_unit(physical_quantity: opq.PhysicalQuantity, net_unit: UnitsNet.Units) -> om.Unit:
     """
     Convert `net_unit`, a unit of measure for `physical_quantity`, to a `pint` unit.
@@ -198,4 +206,10 @@ def _to_pint_unit(physical_quantity: opq.PhysicalQuantity, net_unit: UnitsNet.Un
     Returns:
         The `pint` Unit corresponding to `net_unit`.
     """
-    return om.registry.deg
+    result = toolz.get_in([physical_quantity, net_unit], _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS)
+    if result is not None:
+        return result
+    elif physical_quantity == opq.PhysicalQuantity.ANGLE:
+        return om.registry.deg
+    elif physical_quantity == opq.PhysicalQuantity.DURATION:
+        return om.registry.min
