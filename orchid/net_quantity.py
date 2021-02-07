@@ -31,7 +31,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeKind
+from System import DateTime, DateTimeKind, Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -152,7 +152,19 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
     Returns:
         The equivalent `pint` `Quantity` instance.
     """
-    return net_quantity.Value * _to_pint_unit(physical_quantity, net_quantity.Unit)
+    # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
+    # other units (`Information` and `BitRate` appear to be handled in the same way). Specifically, the
+    # `Value` property **does not** return a value of type `double` but of type `Decimal`. Python.NET
+    # expectedly converts the value returned by `Value` to a Python `decimal.Decimal`. Then, additionally,
+    # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
+    # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
+    pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
+    if physical_quantity == opq.PhysicalQuantity.POWER:
+        return _net_decimal_to_float(net_quantity.Value) * pint_unit
+    elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
+        return om.Quantity(net_quantity.Value, pint_unit)
+    else:
+        return net_quantity.Value * pint_unit
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
@@ -187,10 +199,49 @@ def _microseconds_to_integral_milliseconds(to_convert: int) -> int:
     return int(round(to_convert / 1000))
 
 
+def _net_decimal_to_float(net_decimal: Decimal) -> float:
+    """
+    Convert a .NET Decimal value to a Python float.
+
+    Python.NET currently leaves .NET values of type `Decimal` unconverted. For example, UnitsNet models units
+    of the physical quantity, power, as values of type .NET 'QuantityValue` whose `Value` property returns a
+    value of .NET `Decimal` type. This function assists in converting those values to Python values of type
+    `float`.
+
+    Args:
+        net_decimal: The .NET `Decimal` value to convert.
+
+    Returns:
+        A value of type `float` that is "equivalent" to the .NET `Decimal` value. Note that this conversion is
+        "lossy" because .NET `Decimal` values are exact, but `float` values are not.
+    """
+    return Decimal.ToDouble(net_decimal)
+
+
 _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
     opq.PhysicalQuantity.DENSITY: {
         UnitsNet.Units.DensityUnit.PoundPerCubicFoot: om.registry.lb / om.registry.cu_ft,
         UnitsNet.Units.DensityUnit.KilogramPerCubicMeter: om.registry.kg / (om.registry.m ** 3),
+    },
+    opq.PhysicalQuantity.ENERGY: {
+        UnitsNet.Units.EnergyUnit.FootPound: om.registry.ft_lb,
+        UnitsNet.Units.EnergyUnit.Joule: om.registry.J,
+    },
+    opq.PhysicalQuantity.FORCE: {
+        UnitsNet.Units.ForceUnit.PoundForce: om.registry.lbf,
+        UnitsNet.Units.ForceUnit.Newton: om.registry.N,
+    },
+    opq.PhysicalQuantity.LENGTH: {
+        UnitsNet.Units.LengthUnit.Foot: om.registry.ft,
+        UnitsNet.Units.LengthUnit.Meter: om.registry.m,
+    },
+    opq.PhysicalQuantity.MASS: {
+        UnitsNet.Units.MassUnit.Pound: om.registry.lb,
+        UnitsNet.Units.MassUnit.Kilogram: om.registry.kg,
+    },
+    opq.PhysicalQuantity.POWER: {
+        UnitsNet.Units.PowerUnit.MechanicalHorsepower: om.registry.hp,
+        UnitsNet.Units.PowerUnit.Watt: om.registry.W,
     },
 }
 
