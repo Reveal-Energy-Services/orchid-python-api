@@ -152,13 +152,34 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
     Returns:
         The equivalent `pint` `Quantity` instance.
     """
+    if physical_quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION:
+        numerator_unit = net_quantity.NumeratorUnit
+        denominator_unit = net_quantity.DenominatorUnit
+        if (numerator_unit == UnitsNet.Units.MassUnit.Pound and
+                denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon):
+            return net_quantity.Value * om.registry.lb / om.registry.gal
+        elif (numerator_unit == UnitsNet.Units.MassUnit.Kilogram and
+                denominator_unit == UnitsNet.Units.VolumeUnit.CubicMeter):
+            return net_quantity.Value * om.registry.kg / (om.registry.m ** 3)
+
+    if physical_quantity == opq.PhysicalQuantity.SLURRY_RATE:
+        numerator_unit = net_quantity.NumeratorUnit
+        denominator_unit = net_quantity.DenominatorUnit
+        if (numerator_unit == UnitsNet.Units.VolumeUnit.OilBarrel and
+                denominator_unit == UnitsNet.Units.DurationUnit.Minute):
+            return net_quantity.Value * om.registry.oil_bbl / om.registry.min
+        elif (numerator_unit == UnitsNet.Units.VolumeUnit.CubicMeter and
+              denominator_unit == UnitsNet.Units.DurationUnit.Minute):
+            return net_quantity.Value * (om.registry.m ** 3) / om.registry.min
+
+    pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
+
     # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
     # other units (`Information` and `BitRate` appear to be handled in the same way). Specifically, the
     # `Value` property **does not** return a value of type `double` but of type `Decimal`. Python.NET
     # expectedly converts the value returned by `Value` to a Python `decimal.Decimal`. Then, additionally,
     # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
     # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
-    pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
     if physical_quantity == opq.PhysicalQuantity.POWER:
         return _net_decimal_to_float(net_quantity.Value) * pint_unit
     elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
@@ -242,6 +263,10 @@ _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
     opq.PhysicalQuantity.POWER: {
         UnitsNet.Units.PowerUnit.MechanicalHorsepower: om.registry.hp,
         UnitsNet.Units.PowerUnit.Watt: om.registry.W,
+    },
+    opq.PhysicalQuantity.PRESSURE: {
+        UnitsNet.Units.PressureUnit.PoundForcePerSquareInch: om.registry.psi,
+        UnitsNet.Units.PressureUnit.Kilopascal: om.registry.kPa,
     },
 }
 
