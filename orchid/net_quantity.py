@@ -152,24 +152,43 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
     Returns:
         The equivalent `pint` `Quantity` instance.
     """
-    if physical_quantity == opq.PhysicalQuantity.PROPPANT_CONCENTRATION:
-        numerator_unit = net_quantity.NumeratorUnit
-        denominator_unit = net_quantity.DenominatorUnit
-        if (numerator_unit == UnitsNet.Units.MassUnit.Pound and
-                denominator_unit == UnitsNet.Units.VolumeUnit.UsGallon):
+    def is_proppant_concentration(physical_qty):
+        return physical_qty == opq.PhysicalQuantity.PROPPANT_CONCENTRATION
+
+    def is_slurry_rate(physical_qty):
+        return physical_qty == opq.PhysicalQuantity.SLURRY_RATE
+
+    def ratio_units(net_qty):
+        return net_qty.NumeratorUnit, net_qty.DenominatorUnit
+
+    def is_us_oilfield_proppant_concentration(numerator, denominator):
+        return (numerator == UnitsNet.Units.MassUnit.Pound and
+                denominator == UnitsNet.Units.VolumeUnit.UsGallon)
+
+    def is_metric_proppant_concentration(numerator, denominator):
+        return (numerator == UnitsNet.Units.MassUnit.Kilogram and
+                denominator == UnitsNet.Units.VolumeUnit.CubicMeter)
+
+    def is_us_oilfield_slurry_rate(numerator, denominator):
+        return (numerator == UnitsNet.Units.VolumeUnit.OilBarrel and
+                denominator == UnitsNet.Units.DurationUnit.Minute)
+
+    def is_metric_slurry_rate(numerator, denominator):
+        return (numerator == UnitsNet.Units.VolumeUnit.CubicMeter and
+                denominator == UnitsNet.Units.DurationUnit.Minute)
+
+    if is_proppant_concentration(physical_quantity):
+        numerator_unit, denominator_unit = ratio_units(net_quantity)
+        if is_us_oilfield_proppant_concentration(numerator_unit, denominator_unit):
             return net_quantity.Value * om.registry.lb / om.registry.gal
-        elif (numerator_unit == UnitsNet.Units.MassUnit.Kilogram and
-                denominator_unit == UnitsNet.Units.VolumeUnit.CubicMeter):
+        elif is_metric_proppant_concentration(numerator_unit, denominator_unit):
             return net_quantity.Value * om.registry.kg / (om.registry.m ** 3)
 
-    if physical_quantity == opq.PhysicalQuantity.SLURRY_RATE:
-        numerator_unit = net_quantity.NumeratorUnit
-        denominator_unit = net_quantity.DenominatorUnit
-        if (numerator_unit == UnitsNet.Units.VolumeUnit.OilBarrel and
-                denominator_unit == UnitsNet.Units.DurationUnit.Minute):
+    if is_slurry_rate(physical_quantity):
+        numerator_unit, denominator_unit = ratio_units(net_quantity)
+        if is_us_oilfield_slurry_rate(numerator_unit, denominator_unit):
             return net_quantity.Value * om.registry.oil_bbl / om.registry.min
-        elif (numerator_unit == UnitsNet.Units.VolumeUnit.CubicMeter and
-              denominator_unit == UnitsNet.Units.DurationUnit.Minute):
+        elif is_metric_slurry_rate(numerator_unit, denominator_unit):
             return net_quantity.Value * (om.registry.m ** 3) / om.registry.min
 
     pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
