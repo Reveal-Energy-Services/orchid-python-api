@@ -28,6 +28,7 @@ import toolz.curried as toolz
 from orchid import (
     measurement as om,
     physical_quantity as opq,
+    unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences
@@ -205,6 +206,29 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
         return om.Quantity(net_quantity.Value, pint_unit)
     else:
         return net_quantity.Value * pint_unit
+
+# Define convenience functions when physical quantity is known.
+as_angle_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.ANGLE)
+as_density_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.DENSITY)
+as_length_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.LENGTH)
+as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESSURE)
+
+
+@as_measurement.register(units.Common)
+@toolz.curry
+def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a common unit.
+
+    Args:
+        common_unit: The unit (from the units.Common) for the converted `Quantity` instance.
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance.
+    """
+    # units.Common support no conversion so simply call another implementation.
+    return as_measurement(common_unit.value.physical_quantity, net_quantity)
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:

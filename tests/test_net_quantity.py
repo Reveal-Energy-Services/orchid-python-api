@@ -136,6 +136,17 @@ class TestNetQuantity(unittest.TestCase):
                 actual = onq.as_measurement(physical_quantity, net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
+    def test_as_measurement_in_common_unit(self):
+        for to_convert_net_quantity, expected, to_unit, tolerance in [
+            (UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(306.1)),
+             306.1 * om.registry.deg, units.Common.ANGLE, decimal.Decimal('0.1')),
+            (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414)),
+             1.414 * om.registry.min, units.Common.DURATION, decimal.Decimal('0.001')),
+        ]:
+            with self.subTest(f'Test as_measurement_in_common_unit for {expected.magnitude} {expected.units:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
     def test_as_net_date_time(self):
         for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23, DateTimeKind.Utc),
                                       datetime.datetime(2017, 3, 22, 3, 0, 37, 23124, duz.UTC)),
