@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+
+component "Python API" as api
+component "FractureDiagnostics.\nSDKFacade" as sdk_facade
+component "FractureDiagnostics.\nSerialization" as serialization
+component "FractureDiagnostics.\nFactories" as factories
+component "FractureDiagnostics" as fd
+component "Orchid.\nMath" as math
+component "Orchid.\nGeodetic" as geodetic
+component "UnitsNet" as un
+
+interface ns2.1
+interface ns2.0
+
+ns2.0 -- fd
+ns2.0 -- factories
+ns2.0 -- math
+ns2.0 -- un
+
+ns2.1 -- sdk_facade
+ns2.1 -- serialization
+ns2.1 -- geodetic
+
+api -- ns2.0
+
+sdk_facade -- ns2.0
+serialization -- ns2.0
+
+sdk_facade -- serialization
+
+serialization -- geodetic
+
+note bottom of geodetic
+    Depends on .NET
+    Standard 2.1 features
+    - HashCode class
+    - String.Contains
+endnote
+
+@enduml

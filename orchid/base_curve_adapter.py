@@ -23,7 +23,9 @@ from orchid import (dot_net_dom_access as dna,
                     unit_system as units)
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IQuantityTimeSeries, UnitSystem
+from Orchid.FractureDiagnostics import UnitSystem
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
