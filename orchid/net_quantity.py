@@ -268,6 +268,14 @@ _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
         UnitsNet.Units.PressureUnit.PoundForcePerSquareInch: om.registry.psi,
         UnitsNet.Units.PressureUnit.Kilopascal: om.registry.kPa,
     },
+    opq.PhysicalQuantity.TEMPERATURE: {
+        UnitsNet.Units.TemperatureUnit.DegreeFahrenheit: om.registry.degF,
+        UnitsNet.Units.TemperatureUnit.DegreeCelsius: om.registry.degC,
+    },
+    opq.PhysicalQuantity.VOLUME: {
+        UnitsNet.Units.VolumeUnit.OilBarrel: om.registry.oil_bbl,
+        UnitsNet.Units.VolumeUnit.CubicMeter: om.registry.m ** 3,
+    },
 }
 
 
