@@ -32,6 +32,8 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.RatioTypes import ProppantConcentration, SlurryRate
+# noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind, Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -207,6 +209,7 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
     else:
         return net_quantity.Value * pint_unit
 
+
 # Define convenience functions when physical quantity is known.
 as_angle_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.ANGLE)
 as_density_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.DENSITY)
@@ -216,7 +219,7 @@ as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESS
 
 @as_measurement.register(units.Common)
 @toolz.curry
-def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a common unit.
 
@@ -229,6 +232,26 @@ def obs_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuant
     """
     # units.Common support no conversion so simply call another implementation.
     return as_measurement(common_unit.value.physical_quantity, net_quantity)
+
+
+@as_measurement.register(units.Metric)
+@as_measurement.register(units.UsOilfield)
+@toolz.curry
+def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
+
+    Args:
+        specified_unit: The unit for the converted `Quantity` instance.
+        net_quantity: The .NET IQuantity instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance in the specified unit.
+    """
+    result = toolz.pipe(net_quantity,
+                        _convert_net_quantity_to_different_unit(specified_unit),
+                        as_measurement(specified_unit.value.physical_quantity))
+    return result
 
 
 def as_net_date_time(time_point: datetime.datetime) -> DateTime:
@@ -247,6 +270,86 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
                     time_point.second, _microseconds_to_integral_milliseconds(time_point.microsecond),
                     DateTimeKind.Utc)
+
+
+_UNIT_NET_UNITS = {
+    units.Common.ANGLE: UnitsNet.Units.AngleUnit.Degree,
+    units.Common.DURATION: UnitsNet.Units.DurationUnit.Minute,
+    units.UsOilfield.DENSITY: UnitsNet.Units.DensityUnit.PoundPerCubicFoot,
+    units.Metric.DENSITY: UnitsNet.Units.DensityUnit.KilogramPerCubicMeter,
+    units.UsOilfield.ENERGY: UnitsNet.Units.EnergyUnit.FootPound,
+    units.Metric.ENERGY: UnitsNet.Units.EnergyUnit.Joule,
+    units.UsOilfield.FORCE: UnitsNet.Units.ForceUnit.PoundForce,
+    units.Metric.FORCE: UnitsNet.Units.ForceUnit.Newton,
+    units.UsOilfield.LENGTH: UnitsNet.Units.LengthUnit.Foot,
+    units.Metric.LENGTH: UnitsNet.Units.LengthUnit.Meter,
+    units.UsOilfield.MASS: UnitsNet.Units.MassUnit.Pound,
+    units.Metric.MASS: UnitsNet.Units.MassUnit.Kilogram,
+    units.UsOilfield.POWER: UnitsNet.Units.PowerUnit.MechanicalHorsepower,
+    units.Metric.POWER: UnitsNet.Units.PowerUnit.Watt,
+    units.UsOilfield.PRESSURE: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
+    units.Metric.PRESSURE: UnitsNet.Units.PressureUnit.Kilopascal,
+    units.UsOilfield.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeFahrenheit,
+    units.Metric.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeCelsius,
+    units.UsOilfield.VOLUME: UnitsNet.Units.VolumeUnit.OilBarrel,
+    units.Metric.VOLUME: UnitsNet.Units.VolumeUnit.CubicMeter,
+}
+
+
+@toolz.curry
+def _convert_net_quantity_to_different_unit(target_unit: units.UnitSystem,
+                                            net_quantity: UnitsNet.IQuantity) -> UnitsNet.IQuantity:
+    """
+    Convert one .NET `UnitsNet.IQuantity` to another .NET `UnitsNet.IQuantity` in a different unit `target_unit`
+    Args:
+        net_quantity: The `UnitsNet.IQuantity` instance to convert.
+        target_unit: The unit to which to convert `net_quantity`.
+
+    Returns:
+        The .NET `UnitsNet.IQuantity` converted to `target_unit`.
+    """
+
+    if _is_proppant_concentration(target_unit):
+        return _create_proppant_concentration(net_quantity, target_unit)
+
+    if _is_slurry_rate(target_unit):
+        return _create_slurry_rate(net_quantity, target_unit)
+
+    result = net_quantity.ToUnit(_UNIT_NET_UNITS[target_unit])
+    return result
+
+
+def _create_proppant_concentration(net_to_convert, target_unit):
+    if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
+        mass_unit = UnitsNet.Units.MassUnit.Pound
+        volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
+    elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
+        mass_unit = UnitsNet.Units.MassUnit.Kilogram
+        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+    # noinspection PyUnboundLocalVariable
+    converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
+    return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
+
+
+def _create_slurry_rate(net_to_convert, target_unit):
+    if target_unit == units.UsOilfield.SLURRY_RATE:
+        volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
+    elif target_unit == units.Metric.SLURRY_RATE:
+        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
+    duration_unit = UnitsNet.Units.DurationUnit.Minute
+    # noinspection PyUnboundLocalVariable
+    converted_magnitude = net_to_convert.As(volume_unit, duration_unit)
+    return SlurryRate(converted_magnitude, volume_unit, duration_unit)
+
+
+def _is_proppant_concentration(to_test):
+    return (to_test == units.UsOilfield.PROPPANT_CONCENTRATION
+            or to_test == units.Metric.PROPPANT_CONCENTRATION)
+
+
+def _is_slurry_rate(to_test):
+    return (to_test == units.UsOilfield.SLURRY_RATE
+            or to_test == units.Metric.SLURRY_RATE)
 
 
 def _microseconds_to_integral_milliseconds(to_convert: int) -> int:
