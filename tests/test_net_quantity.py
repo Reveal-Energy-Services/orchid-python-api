@@ -19,7 +19,7 @@ import datetime
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to, calling, raises
+from hamcrest import assert_that, equal_to, calling, raises, close_to
 import dateutil.tz as duz
 
 
@@ -39,6 +39,22 @@ from Orchid.FractureDiagnostics.RatioTypes import (ProppantConcentration, Slurry
 from System import (DateTime, DateTimeKind, Decimal)
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+def assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance):
+    assert_that(tcm.get_net_unit(actual), equal_to(tcm.get_net_unit(expected_net_quantity)))
+    to_test_actual = decimal.Decimal(onq.net_decimal_to_float(actual.Value))
+    to_test_expected = decimal.Decimal(onq.net_decimal_to_float(expected_net_quantity.Value))
+    to_test_tolerance = decimal.Decimal(tolerance)
+    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
+
+
+def is_power_measurement(measurement):
+    return is_power_unit(measurement.units)
+
+
+def is_power_unit(unit):
+    return unit == om.registry.hp or unit == om.registry.W
 
 
 # Test ideas
@@ -280,6 +296,68 @@ class TestNetQuantity(unittest.TestCase):
         to_test_datetime = datetime.datetime(2025, 12, 21, 9, 15, 7, 896671)
         assert_that(calling(onq.as_net_date_time).with_args(to_test_datetime),
                     raises(onq.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
+
+    def test_as_net_quantity(self):
+        for to_convert_measurement, tolerance, expected_net_quantity in [
+            (67.07 * om.registry.deg, decimal.Decimal('0.01'),
+             UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(67.07))),
+            (1.414 * om.registry.min, decimal.Decimal('0.001'),
+             UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414))),
+            (17.17 * om.registry.lb / om.registry.cu_ft, decimal.Decimal('0.01'),
+             UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(17.17))),
+            (2.72 * om.registry.kg / (om.registry.m ** 3), decimal.Decimal('0.01'),
+             UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(2.72))),
+            (36.26e9 * om.registry.ft_lb, decimal.Decimal('0.01e3'),
+             UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(36.26e9))),
+            (17.65e3 * om.registry.J, decimal.Decimal('0.01e3'),
+             UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(17.650e3))),
+            (147.9e3 * om.registry.lbf, decimal.Decimal('0.1e3'),
+             UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(147.9e3))),
+            (363.9e3 * om.registry.N, decimal.Decimal('0.1e3'),
+             UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(363.9e3))),
+            (113.8 * om.registry.ft, decimal.Decimal('0.1'),
+             UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(113.8))),
+            (72.98 * om.registry.m, decimal.Decimal('0.01'),
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(72.98))),
+            (7922 * om.registry.lb, decimal.Decimal('1'),
+             UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(7922.36))),
+            (134.0e3 * om.registry.kg, decimal.Decimal('0.1e3'),
+             UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(134.0e3))),
+            (18.87 * om.registry.hp, decimal.Decimal('0.01'),
+             UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(18.87))),
+            (14.02e3 * om.registry.W, decimal.Decimal('0.01'),
+             UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(14.02e3))),
+            (6889 * om.registry.psi, decimal.Decimal('1'),
+             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(6889))),
+            (59.85e3 * om.registry.kPa, decimal.Decimal('0.01e3'),
+             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(59.85e3))),
+            # (obs_om.make_measurement(units.UsOilfield.PROPPANT_CONCENTRATION, 3.55),
+            #  ProppantConcentration(3.55, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon)),
+            # (obs_om.make_measurement(units.Metric.PROPPANT_CONCENTRATION, 425.03),
+            #  ProppantConcentration(425.03, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter)),
+            # (obs_om.make_measurement(units.UsOilfield.SLURRY_RATE, 96.06),
+            #  SlurryRate(96.06, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute)),
+            # (obs_om.make_measurement(units.Metric.SLURRY_RATE, 0.80),
+            #  SlurryRate(0.80, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute)),
+            # (obs_om.make_measurement(units.UsOilfield.TEMPERATURE, 157.9),
+            #  UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(157.9))),
+            # (obs_om.make_measurement(units.Metric.TEMPERATURE, 68.99),
+            #  UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(68.99))),
+            # (obs_om.make_measurement(units.UsOilfield.VOLUME, 7216.94),
+            #  UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(7216.94))),
+            # (obs_om.make_measurement(units.Metric.VOLUME, 1017.09),
+            #  UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(1017.09))),
+        ]:
+            with self.subTest(f'Test converting measurement, {to_convert_measurement} to a UnitsNet IQuantity'):
+                actual = onq.as_net_quantity(to_convert_measurement)
+
+                # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
+                # .NET Decimal type which Python.NET **does not** to a Python type (like float) and so must be
+                # handled separately.
+                if is_power_measurement(to_convert_measurement):
+                    assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance)
+                else:
+                    tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, tolerance)
 
 
 if __name__ == '__main__':

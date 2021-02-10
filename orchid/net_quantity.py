@@ -272,6 +272,83 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
                     DateTimeKind.Utc)
 
 
+_PINT_UNIT_CREATE_NET_UNITS = {
+    om.registry.deg: lambda qv: UnitsNet.Angle.FromDegrees(qv),
+    om.registry.min: lambda qv: UnitsNet.Duration.FromMinutes(qv),
+    om.registry.lb / om.registry.cu_ft: lambda qv: UnitsNet.Density.FromPoundsPerCubicFoot(qv),
+    om.registry.kg / (om.registry.m ** 3): lambda qv: UnitsNet.Density.FromKilogramsPerCubicMeter(qv),
+    om.registry.ft_lb: lambda qv: UnitsNet.Energy.FromFootPounds(qv),
+    om.registry.J: lambda qv: UnitsNet.Energy.FromJoules(qv),
+    om.registry.lbf: lambda qv: UnitsNet.Force.FromPoundsForce(qv),
+    om.registry.N: lambda qv: UnitsNet.Force.FromNewtons(qv),
+    om.registry.ft: lambda qv: UnitsNet.Length.FromFeet(qv),
+    om.registry.m: lambda qv: UnitsNet.Length.FromMeters(qv),
+    om.registry.lb: lambda qv: UnitsNet.Mass.FromPounds(qv),
+    om.registry.kg: lambda qv: UnitsNet.Mass.FromKilograms(qv),
+    om.registry.hp: lambda qv: UnitsNet.Power.FromMechanicalHorsepower(qv),
+    om.registry.W: lambda qv: UnitsNet.Power.FromWatts(qv),
+    om.registry.psi: lambda qv: UnitsNet.Pressure.FromPoundsForcePerSquareInch(qv),
+    om.registry.kPa: lambda qv: UnitsNet.Pressure.FromKilopascals(qv),
+    # units.UsOilfield.TEMPERATURE: lambda qv: UnitsNet.Temperature.FromDegreesFahrenheit(qv),
+    # units.Metric.TEMPERATURE: lambda qv: UnitsNet.Temperature.FromDegreesCelsius(qv),
+    # units.UsOilfield.VOLUME: lambda qv: UnitsNet.Volume.FromOilBarrels(qv),
+    # units.Metric.VOLUME: lambda qv: UnitsNet.Volume.FromCubicMeters(qv),
+}
+
+
+def as_net_quantity(measurement: om.Quantity) -> UnitsNet.IQuantity:
+    """
+    Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance.
+
+    Args:
+        measurement: The `Quantity` instance to convert.
+
+    Returns:
+        The equivalent `UnitsNet.IQuantity` instance.
+    """
+    quantity = UnitsNet.QuantityValue.op_Implicit(measurement.magnitude)
+    try:
+        return _PINT_UNIT_CREATE_NET_UNITS[measurement.units](quantity)
+    except KeyError:
+        if measurement.units == units.UsOilfield.PROPPANT_CONCENTRATION:
+            return ProppantConcentration(measurement.magnitude,
+                                         UnitsNet.Units.MassUnit.Pound,
+                                         UnitsNet.Units.VolumeUnit.UsGallon)
+        elif measurement.units == units.Metric.PROPPANT_CONCENTRATION:
+            return ProppantConcentration(measurement.magnitude,
+                                         UnitsNet.Units.MassUnit.Kilogram,
+                                         UnitsNet.Units.VolumeUnit.CubicMeter)
+        elif measurement.units == units.UsOilfield.SLURRY_RATE:
+            return SlurryRate(measurement.magnitude,
+                              UnitsNet.Units.VolumeUnit.OilBarrel,
+                              UnitsNet.Units.DurationUnit.Minute)
+        elif measurement.units == units.Metric.SLURRY_RATE:
+            return SlurryRate(measurement.magnitude,
+                              UnitsNet.Units.VolumeUnit.CubicMeter,
+                              UnitsNet.Units.DurationUnit.Minute)
+        else:
+            raise ValueError(f'Unrecognized unit: "{measurement.units}".')
+
+
+def net_decimal_to_float(net_decimal: Decimal) -> float:
+    """
+    Convert a .NET Decimal value to a Python float.
+
+    Python.NET currently leaves .NET values of type `Decimal` unconverted. For example, UnitsNet models units
+    of the physical quantity, power, as values of type .NET 'QuantityValue` whose `Value` property returns a
+    value of .NET `Decimal` type. This function assists in converting those values to Python values of type
+    `float`.
+
+    Args:
+        net_decimal: The .NET `Decimal` value to convert.
+
+    Returns:
+        A value of type `float` that is "equivalent" to the .NET `Decimal` value. Note that this conversion is
+        "lossy" because .NET `Decimal` values are exact, but `float` values are not.
+    """
+    return Decimal.ToDouble(net_decimal)
+
+
 _UNIT_NET_UNITS = {
     units.Common.ANGLE: UnitsNet.Units.AngleUnit.Degree,
     units.Common.DURATION: UnitsNet.Units.DurationUnit.Minute,
