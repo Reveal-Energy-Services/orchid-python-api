@@ -310,11 +310,11 @@ def as_net_quantity(measurement: om.Quantity) -> UnitsNet.IQuantity:
     try:
         return _PINT_UNIT_CREATE_NET_UNITS[measurement.units](quantity)
     except KeyError:
-        if measurement.units == units.UsOilfield.PROPPANT_CONCENTRATION:
+        if measurement.units == om.registry.lb / om.registry.gal:
             return ProppantConcentration(measurement.magnitude,
                                          UnitsNet.Units.MassUnit.Pound,
                                          UnitsNet.Units.VolumeUnit.UsGallon)
-        elif measurement.units == units.Metric.PROPPANT_CONCENTRATION:
+        elif measurement.units == om.registry.kg / (om.registry.m ** 3):
             return ProppantConcentration(measurement.magnitude,
                                          UnitsNet.Units.MassUnit.Kilogram,
                                          UnitsNet.Units.VolumeUnit.CubicMeter)
