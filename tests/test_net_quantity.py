@@ -65,8 +65,6 @@ def is_power_unit(unit):
 # - stage.md_top, md_bottom (adjust existing)
 # - stage.get_stage_location_center and similar (adjust existing)
 # - stage_port.isip (property)
-#
-# - Add unit `bpm` where appropriate
 class TestNetQuantity(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -404,8 +402,6 @@ class TestNetQuantity(unittest.TestCase):
             (643.1 * om.registry.kg / (om.registry.m ** 3),
              units.Metric.PROPPANT_CONCENTRATION, decimal.Decimal('0.1'),
              ProppantConcentration(643.1, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter)),
-            (97.92 * om.registry.bpm, units.UsOilfield.SLURRY_RATE, decimal.Decimal('0.01'),
-             SlurryRate(97.92, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute)),
             (15.57 * (om.registry.m ** 3) / om.registry.min, units.Metric.SLURRY_RATE, decimal.Decimal('0.01'),
              SlurryRate(15.57, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute)),
             (om.Quantity(154.3, om.registry.degF), units.UsOilfield.TEMPERATURE, decimal.Decimal('0.1'),

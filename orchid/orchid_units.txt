@@ -12,6 +12,8 @@ pound_per_gallon = lb / gal = lb_per_gal
 
 # Slurry rate
 [slurry_rate] = [mass] / [time]
+# TODO: May be incorrect.
+# `pint` considers the units, `oil_barrel_per_min`, and `oil_bbl / min`, to be **not** equal.
 oil_barrel_per_minute = oil_bbl / min = bpm
 # TODO: Obsolete. Remove when obs_unit_system is removed
 cubic_meter_per_minute = (m ** 3) / min = cu_m_per_min

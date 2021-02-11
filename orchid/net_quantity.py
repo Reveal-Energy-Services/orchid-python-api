@@ -306,8 +306,6 @@ _PINT_UNIT_CREATE_NET_UNITS = {
     om.registry.W: lambda qv: UnitsNet.Power.FromWatts(qv),
     om.registry.psi: lambda qv: UnitsNet.Pressure.FromPoundsForcePerSquareInch(qv),
     om.registry.kPa: lambda qv: UnitsNet.Pressure.FromKilopascals(qv),
-    om.registry.bpm:
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
     om.registry.oil_bbl / om.registry.min:
         lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
     ((om.registry.m ** 3) / om.registry.min):
