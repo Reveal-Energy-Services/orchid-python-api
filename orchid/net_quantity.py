@@ -306,12 +306,12 @@ _PINT_UNIT_CREATE_NET_UNITS = {
     om.registry.W: lambda qv: UnitsNet.Power.FromWatts(qv),
     om.registry.psi: lambda qv: UnitsNet.Pressure.FromPoundsForcePerSquareInch(qv),
     om.registry.kPa: lambda qv: UnitsNet.Pressure.FromKilopascals(qv),
+    om.registry.bpm:
+        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
     om.registry.oil_bbl / om.registry.min:
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel,
-                              UnitsNet.Units.DurationUnit.Minute),
+        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
     ((om.registry.m ** 3) / om.registry.min):
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.CubicMeter,
-                              UnitsNet.Units.DurationUnit.Minute),
+        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
     om.registry.degF: lambda qv: UnitsNet.Temperature.FromDegreesFahrenheit(qv),
     om.registry.degC: lambda qv: UnitsNet.Temperature.FromDegreesCelsius(qv),
     om.registry.oil_bbl: lambda qv: UnitsNet.Volume.FromOilBarrels(qv),
@@ -333,14 +333,6 @@ _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
             lambda qv: ProppantConcentration(float(qv), UnitsNet.Units.MassUnit.Kilogram,
                                              UnitsNet.Units.VolumeUnit.CubicMeter),
     },
-    # opq.PhysicalQuantity.SLURRY_RATE: {
-    #     om.registry.oil_bbl / om.registry.min:
-    #         lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel,
-    #                               UnitsNet.Units.DurationUnit.Minute),
-    #     (om.registry.m ** 3) / om.registry.min:
-    #         lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.CubicMeter,
-    #                               UnitsNet.Units.DurationUnit.Minute),
-    # },
 }
 
 
@@ -372,6 +364,40 @@ def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Q
         return toolz.get(measurement.units, _PINT_UNIT_CREATE_NET_UNITS)(measurement.magnitude)
 
     return toolz.get(measurement.units, _PINT_UNIT_CREATE_NET_UNITS)(quantity)
+
+
+@as_net_quantity.register(units.Common)
+@toolz.curry
+def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
+    """
+    Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance corresponding `to_unit`.
+
+    Args:
+        to_common_unit: The target unit of measurement.
+        measurement: The `Quantity` instance to convert.
+
+    Returns:
+        The equivalent `UnitsNet.IQuantity` instance.
+    """
+    # units.Common support no conversion so simply call another implementation.
+    return as_net_quantity(to_common_unit.value.physical_quantity, measurement)
+
+
+@as_net_quantity.register(units.Metric)
+@as_net_quantity.register(units.UsOilfield)
+@toolz.curry
+def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) -> om.Quantity:
+    """
+    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
+
+    Args:
+        specified_unit: The unit for the converted `Quantity` instance.
+        measurement: The `Quantity` instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance in the specified unit.
+    """
+    return as_net_quantity(specified_unit.value.physical_quantity, measurement)
 
 
 def net_decimal_to_float(net_decimal: Decimal) -> float:

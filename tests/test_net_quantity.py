@@ -65,6 +65,8 @@ def is_power_unit(unit):
 # - stage.md_top, md_bottom (adjust existing)
 # - stage.get_stage_location_center and similar (adjust existing)
 # - stage_port.isip (property)
+#
+# - Add unit `bpm` where appropriate
 class TestNetQuantity(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -353,6 +355,70 @@ class TestNetQuantity(unittest.TestCase):
             with self.subTest(f'Test measurement, {to_convert_measurement},'
                               f' of physical quantity, {physical_quantity}'):
                 actual = onq.as_net_quantity(physical_quantity, to_convert_measurement)
+
+                # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
+                # .NET Decimal type which Python.NET **does not** to a Python type (like float) and so must be
+                # handled separately.
+                if is_power_measurement(to_convert_measurement):
+                    assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance)
+                else:
+                    tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, tolerance)
+
+    def test_as_net_quantity_in_same_unit(self):
+        for to_convert_measurement, to_unit, tolerance, expected_net_quantity in [
+            (14.14 * om.registry.deg, units.Common.ANGLE, decimal.Decimal('0.01'),
+             UnitsNet.Angle.FromDegrees(UnitsNet.QuantityValue.op_Implicit(14.14))),
+            (27.18 * om.registry.min, units.Common.DURATION, decimal.Decimal('0.01'),
+             UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(27.18))),
+            (217.7 * om.registry.lb / om.registry.cu_ft, units.UsOilfield.DENSITY, decimal.Decimal('0.1'),
+             UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(217.7))),
+            (3487 * om.registry.kg / om.registry.m ** 3, units.Metric.DENSITY, decimal.Decimal('1'),
+             UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(3487))),
+            (31.20e9 * om.registry.ft_lb, units.UsOilfield.ENERGY, decimal.Decimal('0.01e9'),
+             UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(31.20e9))),
+            (42.30e9 * om.registry.J, units.Metric.ENERGY, decimal.Decimal('0.01e9'),
+             UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(42.30e9))),
+            (106.8e3 * om.registry.lbf, units.UsOilfield.FORCE, decimal.Decimal('0.1e3'),
+             UnitsNet.Force.FromPoundsForce(UnitsNet.QuantityValue.op_Implicit(106.8e3))),
+            (475.1e3 * om.registry.N, units.Metric.FORCE, decimal.Decimal('0.1e3'),
+             UnitsNet.Force.FromNewtons(UnitsNet.QuantityValue.op_Implicit(475.1e3))),
+            (44.49 * om.registry.ft, units.UsOilfield.LENGTH, decimal.Decimal('0.01'),
+             UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(44.49))),
+            (25.93 * om.registry.m, units.Metric.LENGTH, decimal.Decimal('0.01'),
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(25.93))),
+            (5334 * om.registry.lb, units.UsOilfield.MASS, decimal.Decimal('1'),
+             UnitsNet.Mass.FromPounds(UnitsNet.QuantityValue.op_Implicit(5334))),
+            (145.5e3 * om.registry.kg, units.Metric.MASS, decimal.Decimal('0.1e3'),
+             UnitsNet.Mass.FromKilograms(UnitsNet.QuantityValue.op_Implicit(145.5e3))),
+            (24.18 * om.registry.hp, units.UsOilfield.POWER, decimal.Decimal('0.01'),
+             UnitsNet.Power.FromMechanicalHorsepower(UnitsNet.QuantityValue.op_Implicit(24.18))),
+            (18.03e3 * om.registry.W, units.Metric.POWER, decimal.Decimal('0.01e3'),
+             UnitsNet.Power.FromWatts(UnitsNet.QuantityValue.op_Implicit(18.03e3))),
+            (8303 * om.registry.psi, units.UsOilfield.PRESSURE, decimal.Decimal('1'),
+             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(8303))),
+            (64.32 * om.registry.kPa, units.Metric.PRESSURE, decimal.Decimal('0.01'),
+             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(64.32))),
+            (5.367 * om.registry.lb / om.registry.gal,
+             units.UsOilfield.PROPPANT_CONCENTRATION, decimal.Decimal('0.001'),
+             ProppantConcentration(5.367, UnitsNet.Units.MassUnit.Pound, UnitsNet.Units.VolumeUnit.UsGallon)),
+            (643.1 * om.registry.kg / (om.registry.m ** 3),
+             units.Metric.PROPPANT_CONCENTRATION, decimal.Decimal('0.1'),
+             ProppantConcentration(643.1, UnitsNet.Units.MassUnit.Kilogram, UnitsNet.Units.VolumeUnit.CubicMeter)),
+            (97.92 * om.registry.bpm, units.UsOilfield.SLURRY_RATE, decimal.Decimal('0.01'),
+             SlurryRate(97.92, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute)),
+            (15.57 * (om.registry.m ** 3) / om.registry.min, units.Metric.SLURRY_RATE, decimal.Decimal('0.01'),
+             SlurryRate(15.57, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute)),
+            (om.Quantity(154.3, om.registry.degF), units.UsOilfield.TEMPERATURE, decimal.Decimal('0.1'),
+             UnitsNet.Temperature.FromDegreesFahrenheit(UnitsNet.QuantityValue.op_Implicit(154.3))),
+            (om.Quantity(67.94, om.registry.degC), units.Metric.VOLUME, decimal.Decimal('0.01'),
+             UnitsNet.Temperature.FromDegreesCelsius(UnitsNet.QuantityValue.op_Implicit(67.94))),
+            (6944 * om.registry.oil_bbl, units.UsOilfield.VOLUME, decimal.Decimal('1'),
+             UnitsNet.Volume.FromOilBarrels(UnitsNet.QuantityValue.op_Implicit(6944))),
+            (880.9 * om.registry.m ** 3, units.Metric.VOLUME, decimal.Decimal('0.1'),
+             UnitsNet.Volume.FromCubicMeters(UnitsNet.QuantityValue.op_Implicit(880.9))),
+        ]:
+            with self.subTest(f'Test measurement, {to_convert_measurement}, as_net_quantity, but in the same units.'):
+                actual = onq.as_net_quantity(to_unit, to_convert_measurement)
 
                 # UnitsNet Quantities involving the physical quantity power have magnitudes expressed in the
                 # .NET Decimal type which Python.NET **does not** to a Python type (like float) and so must be
