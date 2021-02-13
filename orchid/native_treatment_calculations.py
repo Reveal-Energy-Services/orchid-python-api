@@ -18,7 +18,7 @@ from typing import Callable
 
 from orchid import (
     project_loader as loader,
-    obs_net_quantity as onq,
+    net_quantity as onq,
     physical_quantity as opq,
 )
 

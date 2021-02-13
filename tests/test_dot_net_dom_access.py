@@ -22,8 +22,8 @@ from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, none
 
 from orchid import (
     dot_net_dom_access as dna,
-    obs_net_quantity as onq,
-    obs_unit_system as units,
+    net_quantity as onq,
+    unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences

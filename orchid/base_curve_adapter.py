@@ -18,9 +18,11 @@ from typing import Union
 
 import pandas as pd
 
-from orchid import (dot_net_dom_access as dna,
-                    obs_net_quantity as onq,
-                    obs_unit_system as units)
+from orchid import (
+    dot_net_dom_access as dna,
+    net_quantity as onq,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem

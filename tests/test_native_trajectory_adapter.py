@@ -23,7 +23,7 @@ from hamcrest import assert_that, equal_to, empty, contains_exactly, calling, ra
 from orchid import (
     native_trajectory_adapter as nta,
     reference_origins as origins,
-    obs_unit_system as units,
+    unit_system as units,
 )
 from tests import (stub_net as tsn)
 

@@ -23,11 +23,10 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    obs_measurement as om,
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
-    obs_net_quantity as onq,
-    obs_unit_system as units,
+    net_quantity as onq,
+    unit_system as units,
 )
 from orchid.project_loader import ProjectLoader
 

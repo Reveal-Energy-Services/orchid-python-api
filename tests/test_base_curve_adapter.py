@@ -17,7 +17,7 @@ import unittest.mock
 from hamcrest import assert_that, equal_to, calling, raises
 
 from orchid import (base_curve_adapter as bca,
-                    obs_unit_system as units)
+                    unit_system as units)
 
 
 class StubBaseCurveAdapter(bca.BaseCurveAdapter):

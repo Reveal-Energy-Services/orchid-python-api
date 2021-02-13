@@ -21,9 +21,11 @@ import unittest
 from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
-from orchid import (convert as oc,
-                    obs_measurement as om,
-                    obs_unit_system as units)
+from orchid import (
+    convert as oc,
+    measurement as om,
+    unit_system as units,
+)
 
 from tests import custom_matchers as tcm
 

@@ -26,7 +26,7 @@ from orchid import (
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
     reference_origins as origins,
-    obs_unit_system as units,
+    unit_system as units,
 )
 
 from tests import (

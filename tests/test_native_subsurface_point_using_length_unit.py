@@ -17,10 +17,10 @@ import unittest.mock
 from hamcrest import assert_that, equal_to
 
 from orchid import (
-    obs_measurement as om,
+    measurement as om,
     native_subsurface_point as nsp,
     reference_origins as origins,
-    obs_unit_system as units,
+    unit_system as units,
 )
 
 from tests import (

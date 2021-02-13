@@ -25,10 +25,10 @@ from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, callin
 import toolz.curried as toolz
 
 from orchid import (
-    obs_measurement as om,
+    measurement as om,
     project as onp,
     project_loader as loader,
-    obs_unit_system as units)
+    unit_system as units)
 from tests import (
     stub_net as tsn,
     custom_matchers as tcm,

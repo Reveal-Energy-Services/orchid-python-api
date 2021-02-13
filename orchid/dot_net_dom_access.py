@@ -22,7 +22,7 @@ import deal
 import toolz.curried as toolz
 
 from orchid import (
-    obs_unit_system as units,
+    unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences

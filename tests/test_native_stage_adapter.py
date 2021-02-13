@@ -26,12 +26,12 @@ from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, 
 import toolz.curried as toolz
 
 from orchid import (
-    obs_measurement as om,
-    obs_net_quantity as onq,
+    measurement as om,
+    net_quantity as onq,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
     reference_origins as origins,
-    obs_unit_system as units,
+    unit_system as units,
 )
 
 from tests import (

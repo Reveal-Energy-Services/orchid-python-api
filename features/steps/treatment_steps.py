@@ -28,7 +28,7 @@ import toolz.curried as toolz
 
 from orchid import (
     native_treatment_calculations as calcs,
-    obs_unit_system as units,
+    unit_system as units,
 )
 
 StageAggregates = namedtuple('StageAggregates', ['stage', 'pumped_volume', 'proppant_mass', 'median_treating_pressure'])

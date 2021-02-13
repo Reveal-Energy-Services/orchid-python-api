@@ -19,12 +19,14 @@ import unittest.mock
 import dateutil.tz as duz
 from hamcrest import assert_that, equal_to
 
-from orchid import (obs_measurement as om,
-                    project_loader as loader,
-                    native_stage_adapter as nsa,
-                    native_treatment_calculations as ntc,
-                    obs_net_quantity as onq,
-                    obs_unit_system as units)
+from orchid import (
+    measurement as om,
+    project_loader as loader,
+    native_stage_adapter as nsa,
+    native_treatment_calculations as ntc,
+    net_quantity as onq,
+    unit_system as units,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations

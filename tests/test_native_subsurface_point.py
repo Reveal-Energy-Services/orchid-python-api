@@ -17,10 +17,12 @@ import unittest.mock
 from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
-import orchid.obs_measurement as om
-import orchid.native_subsurface_point as nsp
-import orchid.reference_origins as origins
-import orchid.obs_unit_system as units
+from orchid import (
+    measurement as om,
+    native_subsurface_point as nsp,
+    reference_origins as origins,
+    unit_system as units,
+)
 
 from tests import (
     custom_matchers as tcm,

@@ -17,9 +17,9 @@ from typing import Union
 import toolz.curried as toolz
 
 from orchid import (
-    obs_measurement as om,
-    obs_net_quantity as onq,
-    obs_unit_system as units,
+    measurement as om,
+    net_quantity as onq,
+    unit_system as units,
 )
 
 

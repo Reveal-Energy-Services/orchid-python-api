@@ -19,7 +19,7 @@ from hamcrest import assert_that, equal_to, close_to
 
 import toolz.curried as toolz
 
-from orchid import (obs_unit_system as units)
+from orchid import (unit_system as units)
 
 
 @toolz.curry

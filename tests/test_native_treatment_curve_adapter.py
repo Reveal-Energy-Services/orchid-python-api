@@ -25,10 +25,10 @@ import pandas.testing as pdt
 import dateutil.tz as duz
 from hamcrest import assert_that, equal_to, has_entries
 
-import orchid.native_treatment_curve_adapter as tca
-import orchid.obs_unit_system as units
-
-import tests.stub_net as tsn
+from orchid import (
+    native_treatment_curve_adapter as tca,
+    unit_system as units,
+)
 
 
 class TestTreatmentCurveAdapter(unittest.TestCase):

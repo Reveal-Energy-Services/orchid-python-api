@@ -17,8 +17,10 @@
 
 import enum
 
-from orchid import (base_curve_adapter as bca,
-                    dot_net_dom_access as dna)
+from orchid import (
+    base_curve_adapter as bca,
+    dot_net_dom_access as dna,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import UnitSystem
