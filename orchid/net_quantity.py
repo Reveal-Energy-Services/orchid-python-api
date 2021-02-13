@@ -316,10 +316,15 @@ _PINT_UNIT_CREATE_NET_UNITS = {
     (om.registry.m ** 3): lambda qv: UnitsNet.Volume.FromCubicMeters(qv),
 }
 
+
+def _us_oilfield_slurry_rate(qv):
+    return UnitsNet.Density.FromPoundsPerCubicFoot(qv);
+
+
 _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
     opq.PhysicalQuantity.DENSITY: {
-        om.registry.lb / om.registry.cu_ft:
-            lambda qv: UnitsNet.Density.FromPoundsPerCubicFoot(qv),
+        om.registry.lb / om.registry.cu_ft: _us_oilfield_slurry_rate,
+        om.registry.lb / om.registry.ft ** 3: _us_oilfield_slurry_rate,
         om.registry.kg / (om.registry.m ** 3):
             lambda qv: UnitsNet.Density.FromKilogramsPerCubicMeter(qv),
     },
@@ -395,7 +400,8 @@ def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) 
     Returns:
         The equivalent `Quantity` instance in the specified unit.
     """
-    return as_net_quantity(specified_unit.value.physical_quantity, measurement)
+    target_measurement = measurement.to(specified_unit.value.unit)
+    return as_net_quantity(specified_unit.value.physical_quantity, target_measurement)
 
 
 def net_decimal_to_float(net_decimal: Decimal) -> float:

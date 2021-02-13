@@ -90,7 +90,7 @@ class UsOilfield(UnitSystem):
     PRESSURE = _AboutUnit(om.registry.pound_force_per_square_inch, opq.PhysicalQuantity.PRESSURE)
     PROPPANT_CONCENTRATION = _AboutUnit(om.registry.pound / om.registry.gallon,
                                         opq.PhysicalQuantity.PROPPANT_CONCENTRATION)
-    SLURRY_RATE = _AboutUnit(om.registry.oil_barrel_per_minute, opq.PhysicalQuantity.SLURRY_RATE)
+    SLURRY_RATE = _AboutUnit(om.registry.oil_barrel/ om.registry.minute, opq.PhysicalQuantity.SLURRY_RATE)
     TEMPERATURE = _AboutUnit(om.registry.degree_Fahrenheit, opq.PhysicalQuantity.TEMPERATURE)
     VOLUME = _AboutUnit(om.registry.oil_barrel, opq.PhysicalQuantity.VOLUME)
 
