@@ -26,9 +26,6 @@ see the section, https://pint.readthedocs.io/en/stable/tutorial.html#using-pint-
 "perils" of using multiple registry instances.
 """
 
-# Load additional, orchid-specific unit definitions and aliases.
-registry.load_definitions(str(pathlib.Path(__file__).parent.resolve().joinpath('orchid_units.txt')))
-
 # Expose general types for use by type annotations
 Quantity = registry.Quantity
 """The type of a Pint measurement exposed for convenience."""
