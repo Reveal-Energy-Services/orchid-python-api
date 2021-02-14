@@ -61,10 +61,10 @@ class TestProject(unittest.TestCase):
 
     def test_azimuth_returns_azimuth_in_project_units(self):
         for actual_azimuth, project_units, expected_azimuth, tolerance in (
-                (om.Measurement(30.32, units.Common.ANGLE), units.UsOilfield,
-                 om.Measurement(30.32, units.Common.ANGLE), decimal.Decimal('0.01')),
-                (om.Measurement(60.35, units.Common.ANGLE), units.Metric,
-                 om.Measurement(60.35, units.Common.ANGLE), decimal.Decimal('0.01')),
+                (om.Quantity(30.32, units.Common.ANGLE), units.UsOilfield,
+                 om.Quantity(30.32, units.Common.ANGLE), decimal.Decimal('0.01')),
+                (om.Quantity(60.35, units.Common.ANGLE), units.Metric,
+                 om.Quantity(60.35, units.Common.ANGLE), decimal.Decimal('0.01')),
         ):
             with self.subTest(f'Testing azimuth in same units {expected_azimuth}'):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,
@@ -94,14 +94,14 @@ class TestProject(unittest.TestCase):
 
     def test_fluid_density_returns_fluid_density_in_project_units(self):
         for actual_density, project_units, expected_density, tolerance in (
-                (om.Measurement(47.02, units.UsOilfield.DENSITY), units.UsOilfield,
-                 om.Measurement(47.02, units.UsOilfield.DENSITY), decimal.Decimal('0.001')),
-                (om.Measurement(1053, units.Metric.DENSITY), units.Metric,
-                 om.Measurement(1053, units.Metric.DENSITY), decimal.Decimal('0.1')),
-                (om.Measurement(47.02, units.UsOilfield.DENSITY), units.Metric,
-                 om.Measurement(753.2, units.Metric.DENSITY), decimal.Decimal('0.2')),
-                (om.Measurement(1053, units.Metric.DENSITY), units.UsOilfield,
-                 om.Measurement(65.74, units.UsOilfield.DENSITY), decimal.Decimal('0.07')),
+                (om.Quantity(47.02, units.UsOilfield.DENSITY), units.UsOilfield,
+                 om.Quantity(47.02, units.UsOilfield.DENSITY), decimal.Decimal('0.001')),
+                (om.Quantity(1053, units.Metric.DENSITY), units.Metric,
+                 om.Quantity(1053, units.Metric.DENSITY), decimal.Decimal('0.1')),
+                (om.Quantity(47.02, units.UsOilfield.DENSITY), units.Metric,
+                 om.Quantity(753.2, units.Metric.DENSITY), decimal.Decimal('0.2')),
+                (om.Quantity(1053, units.Metric.DENSITY), units.UsOilfield,
+                 om.Quantity(65.74, units.UsOilfield.DENSITY), decimal.Decimal('0.07')),
         ):
             with self.subTest(f'Testing fluid density in same units {expected_density}'):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,

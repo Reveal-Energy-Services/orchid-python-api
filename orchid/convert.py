@@ -24,7 +24,7 @@ from orchid import (
 
 
 @toolz.curry
-def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measurement: om.Measurement):
+def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measurement: om.Quantity):
     """
     Convert a `Measurement` instance to the same measurement in `target_unit`.
 

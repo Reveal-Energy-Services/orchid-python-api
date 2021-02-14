@@ -101,7 +101,7 @@ def _measurement_text_to_measurement(measurement_text):
     else:
         raise ValueError(f'Unrecognized unit, "{unit_text}".')
 
-    result = om.Measurement(magnitude, unit)
+    result = om.Quantity(magnitude, unit)
     return result
 
 

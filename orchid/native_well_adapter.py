@@ -61,15 +61,15 @@ class NativeWellAdapter(dna.DotNetAdapter):
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
     @property
-    def ground_level_elevation_above_sea_level(self) -> om.Measurement:
+    def ground_level_elevation_above_sea_level(self) -> om.Quantity:
         return onq.obs_as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
 
     @property
-    def kelly_bushing_height_above_ground_level(self) -> om.Measurement:
+    def kelly_bushing_height_above_ground_level(self) -> om.Quantity:
         return onq.obs_as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
 
     def locations_for_md_kb_values(self,
-                                   md_kb_values: Iterable[om.Measurement],
+                                   md_kb_values: Iterable[om.Quantity],
                                    well_reference_frame_xy: origins.WellReferenceFrameXy,
                                    depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
         sample_at = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, md_kb_values))
