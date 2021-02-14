@@ -268,7 +268,7 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
         raise NetQuantityNoTzInfoError(time_point)
 
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                    time_point.second, _microseconds_to_integral_milliseconds(time_point.microsecond),
+                    time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
                     DateTimeKind.Utc)
 
 
@@ -404,6 +404,20 @@ def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) 
     return as_net_quantity(specified_unit.value.physical_quantity, target_measurement)
 
 
+def microseconds_to_integral_milliseconds(to_convert: int) -> int:
+    """
+    Convert microseconds to an integral number of milliseconds.
+
+    Args:
+        to_convert: The milliseconds to convert.
+
+    Returns:
+        An integral number of milliseconds equivalent to `to_convert` microseconds.
+
+    """
+    return int(round(to_convert / 1000))
+
+
 def net_decimal_to_float(net_decimal: Decimal) -> float:
     """
     Convert a .NET Decimal value to a Python float.
@@ -501,20 +515,6 @@ def _is_proppant_concentration(to_test):
 def _is_slurry_rate(to_test):
     return (to_test == units.UsOilfield.SLURRY_RATE
             or to_test == units.Metric.SLURRY_RATE)
-
-
-def _microseconds_to_integral_milliseconds(to_convert: int) -> int:
-    """
-    Convert microseconds to an integral number of milliseconds.
-
-    Args:
-        to_convert: The milliseconds to convert.
-
-    Returns:
-        An integral number of milliseconds equivalent to `to_convert` microseconds.
-
-    """
-    return int(round(to_convert / 1000))
 
 
 def _net_decimal_to_float(net_decimal: Decimal) -> float:
