@@ -47,7 +47,7 @@ class TestNativeWellAdapter(unittest.TestCase):
 
         assert_that(sut.display_name, equal_to(expected_well_display_name))
 
-    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_ground_level_elevation_above_sea_level(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(4537, units.UsOilfield.LENGTH),
@@ -71,7 +71,7 @@ class TestNativeWellAdapter(unittest.TestCase):
                 tcm.obs_assert_that_measurements_close_to(
                     sut.ground_level_elevation_above_sea_level, expected, tolerance)
 
-    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_kelly_bushing_height_above_ground_level(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.StubMeasurement(30.86, units.UsOilfield.LENGTH),
@@ -145,7 +145,7 @@ class TestNativeWellAdapter(unittest.TestCase):
 
                 assert_that(sut.uwi, equal_to(expected_uwi if expected_uwi else 'No UWI'))
 
-    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_empty_locations_for_md_kb_values_if_empty_md_kb_values(self, mock_as_unit_system):
         mock_as_unit_system.return_value = units.Metric
         stub_native_well = tsn.create_stub_net_well()
@@ -155,7 +155,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         # noinspection PyTypeChecker
         assert_that(list(actual), is_(empty()))
 
-    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_single_location_for_md_kb_values_if_single_md_kb_values(self, mock_as_unit_system):
         for orchid_actual, expected, md_kb, project_units, frame, datum, tolerance in [
             (tsn.StubSubsurfaceLocation(tsn.StubMeasurement(508.0e3, units.UsOilfield.LENGTH),
@@ -218,7 +218,7 @@ class TestNativeWellAdapter(unittest.TestCase):
                 tcm.obs_assert_that_measurements_close_to(actual[0].y, expected.y, tolerance.y)
                 tcm.obs_assert_that_measurements_close_to(actual[0].depth, expected.depth, tolerance.depth)
 
-    @unittest.mock.patch('orchid.obs_unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_many_locations_for_md_kb_values_if_many_md_kb_values(self, mock_as_unit_system):
         for orchid_actual, expected, md_kb_values, project_units, frame, datum, tolerance in [
             ((tsn.StubSubsurfaceLocation(tsn.StubMeasurement(374.3e3, units.UsOilfield.LENGTH),
