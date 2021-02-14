@@ -35,7 +35,7 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid.obs_unit_system import as_unit_system
+from orchid import (unit_system as units)
 
 
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
