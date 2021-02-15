@@ -69,7 +69,12 @@ class TestMeasurement(unittest.TestCase):
             (om.Quantity(130.7e3, om.Unit('kg')), 130.7e3, 'kg'),
             (om.Quantity('106.6 oil_bbl/min'), 106.6, 'oil_bbl/min'),
             (13.60 * om.registry('m**3/min'), 13.60, 'm\u00b3/min'),
-            (om.Quantity('70.10lb/cu_ft'), 70.10, 'lb/cu_ft')
+            # Although Pint supports the unit `cu_ft`, we have chosen to use the synonym, `ft ** 3` (which is
+            # printed as 'ft\u00b3` (that is, 'ft' followed by a Unicode superscript 3)). According to a
+            # citation on [Wikipedia article](https://en.wikipedia.org/wiki/Cubic_foot), this "is the IEEE
+            # symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
+            # but, on various conversion, produce the Pint unit `ft**3`.
+            (om.Quantity('70.10lb/ft**3'), 70.10, 'lb/ft\u00b3'),  # density (US oilfield)
         ]:
             with self.subTest(f'Test sampling unit creation with magnitude, {expected_magnitude},'
                               f' and unit, {expected_unit}.'):
