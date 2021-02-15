@@ -52,10 +52,15 @@ import UnitsNet
 from System import Array
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
-StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
+MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
+
+
+make_measurement_dto = toolz.flip(MeasurementDto)
+"""This callable creates instances of `MeasurementDto` allowing a caller to supply a single unit as the first
+argument and providing the magnitude later."""
 
 
 # noinspection PyPep8Naming
@@ -166,15 +171,9 @@ class StubNetTreatmentCurve:
         return self._time_series
 
 
-def make_net_length_unit(measurement):
-    if measurement.unit == units.UsOilfield.LENGTH:
-        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                    UnitsNet.Units.LengthUnit.Foot)
-    elif measurement.unit == units.Metric.LENGTH:
-        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                    UnitsNet.Units.LengthUnit.Meter)
-
-    raise ValueError(f'Unknown (length) unit: {measurement.unit.unit}')
+def make_net_length_unit(measurement_dto):
+    measurement = units.make_measurement(measurement_dto.unit, measurement_dto.magnitude)
+    return onq.as_net_quantity(measurement_dto.unit, measurement)
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
@@ -321,7 +320,7 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
 
 def create_stub_net_trajectory_array(magnitudes, unit):
     def make_stub_measurement_with_unit(measurement_unit):
-        return toolz.flip(StubMeasurement, measurement_unit)
+        return toolz.flip(MeasurementDto, measurement_unit)
 
     result = toolz.pipe(magnitudes,
                         toolz.map(make_stub_measurement_with_unit(unit)),

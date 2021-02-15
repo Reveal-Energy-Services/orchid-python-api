@@ -69,24 +69,22 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
             target_length_unit: The target unit for all lengths.
         """
         super().__init__(adaptee)
-        self._length_converter_func = onq.convert_net_quantity_to_different_unit(target_length_unit)
-        self._as_length_measurement_func = onq.obs_as_measurement(opq.PhysicalQuantity.LENGTH)
+        self._as_length_measurement_func = onq.as_measurement(target_length_unit)
 
     @property
     def x(self):
         """The x-coordinate of this point."""
-        return onq.as_length_measurement(self._length_converter_func(self.dom_object.X))
+        return self._as_length_measurement_func(self.dom_object.X)
 
     @property
     def y(self):
         """The y-coordinate of this point."""
-        return onq.as_length_measurement(self._length_converter_func(self.dom_object.Y))
+        return self._as_length_measurement_func(self.dom_object.Y)
 
     @property
     def depth(self):
         """The depth of this point."""
-        result = onq.as_length_measurement(self._length_converter_func(self.dom_object.Depth))
-        return result
+        return self._as_length_measurement_func(self.dom_object.Depth)
 
 
 @toolz.curry

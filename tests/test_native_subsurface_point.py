@@ -12,13 +12,13 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import decimal
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
 from orchid import (
-    measurement as om,
     native_subsurface_point as nsp,
     reference_origins as origins,
     unit_system as units,
@@ -43,25 +43,25 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_x(self):
-        scalar_x = tsn.StubMeasurement(-2725.83, units.Metric.LENGTH)
+        scalar_x = tsn.MeasurementDto(-2725.83, units.Metric.LENGTH)
         sut = create_sut(x=scalar_x)
 
-        expected_x = om.make_measurement(scalar_x.unit, scalar_x.magnitude)
-        tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
+        expected_x = units.make_measurement(scalar_x.unit, scalar_x.magnitude)
+        tcm.assert_that_measurements_close_to(sut.x, expected_x, decimal.Decimal('0.01'))
 
     def test_y(self):
-        scalar_y = tsn.StubMeasurement(1656448.10, units.Metric.LENGTH)
+        scalar_y = tsn.MeasurementDto(1656448.1, units.Metric.LENGTH)
         sut = create_sut(y=scalar_y)
 
-        expected_y = om.make_measurement(scalar_y.unit, scalar_y.magnitude)
-        tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 6e-2)
+        expected_y = units.make_measurement(scalar_y.unit, scalar_y.magnitude)
+        tcm.assert_that_measurements_close_to(sut.y, expected_y, decimal.Decimal('0.1'))
 
     def test_depth(self):
-        scalar_depth = tsn.StubMeasurement(8945.60, units.UsOilfield.LENGTH)
+        scalar_depth = tsn.MeasurementDto(8945.6, units.UsOilfield.LENGTH)
         sut = create_sut(depth=scalar_depth)
 
-        expected_depth = om.make_measurement(scalar_depth.unit, scalar_depth.magnitude)
-        tcm.assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
+        expected_depth = units.make_measurement(scalar_depth.unit, scalar_depth.magnitude)
+        tcm.assert_that_measurements_close_to(sut.depth, expected_depth, decimal.Decimal('0.1'))
 
     def test_xy_origin(self):
         expected_xy_origin = origins.WellReferenceFrameXy.PROJECT
@@ -82,28 +82,31 @@ class TestNativeSubsurfacePoint(unittest.TestCase):
     def test_as_length_unit(self):
         @toolz.curry
         def make_scalar_quantity(magnitude, unit):
-            return tsn.StubMeasurement(magnitude=magnitude, unit=unit)
+            return tsn.MeasurementDto(magnitude=magnitude, unit=unit)
 
         all_test_data = [
-            ((126834.6, 321614.0, 1836.6, 3136.3), units.Metric.LENGTH,
-             (416124, 1055164, 6025.56, 10289.7), units.UsOilfield.LENGTH),
-            ((444401, 9009999, 7799.91, 6722.57), units.UsOilfield.LENGTH,
-             (135453.42, 2746247.70, 2377.41, 2049.04), units.Metric.LENGTH),
+            ((126834.6, 321614.0, 1836.6), units.Metric.LENGTH,
+             (416124, 1055164, 6025.56), units.UsOilfield.LENGTH,
+             toolz.pipe(('0.4', '0.4', '0.4'),
+                        toolz.map(decimal.Decimal),
+                        list)),
+            ((444401, 9009999, 7799.91), units.UsOilfield.LENGTH,
+             (135453.42, 2746247.70, 2377.41), units.Metric.LENGTH,
+             toolz.pipe(('0.4', '0.04', '0.01'),
+                        toolz.map(decimal.Decimal),
+                        list)),
         ]
-        for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit in all_test_data:
+        for length_magnitudes, length_unit, as_length_magnitudes, as_length_unit, tolerances in all_test_data:
             with self.subTest(f'Test as_length_unit {length_magnitudes[0]} {length_unit.value.unit:~P}'):
-                from_lengths = list(toolz.map(toolz.flip(tsn.StubMeasurement, length_unit), length_magnitudes))
+                from_lengths = list(toolz.map(tsn.make_measurement_dto(length_unit), length_magnitudes))
                 sut = create_sut(x=from_lengths[0], y=from_lengths[1], depth=from_lengths[2])
                 actual_as_length_unit = sut.as_length_unit(as_length_unit)
 
-                make_length_measurement = om.make_measurement(as_length_unit)
+                make_length_measurement = units.make_measurement(as_length_unit)
                 expected_lengths = list(toolz.map(make_length_measurement, as_length_magnitudes))
-                tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.x,
-                                                           expected_lengths[0], 6e-2)
-                tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.y,
-                                                           expected_lengths[1], 6e-2)
-                tcm.assert_that_scalar_quantities_close_to(actual_as_length_unit.depth,
-                                                           expected_lengths[2], 6e-2)
+                tcm.assert_that_measurements_close_to(actual_as_length_unit.x, expected_lengths[0], tolerances[0])
+                tcm.assert_that_measurements_close_to(actual_as_length_unit.y, expected_lengths[1], tolerances[1])
+                tcm.assert_that_measurements_close_to(actual_as_length_unit.depth, expected_lengths[2], tolerances[2])
 
 
 if __name__ == '__main__':
