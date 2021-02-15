@@ -171,7 +171,7 @@ class StubNetTreatmentCurve:
         return self._time_series
 
 
-def make_net_length_unit(measurement_dto):
+def make_net_measurement(measurement_dto):
     measurement = units.make_measurement(measurement_dto.unit, measurement_dto.magnitude)
     return onq.as_net_quantity(measurement_dto.unit, measurement)
 
@@ -306,11 +306,11 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point')
     if x is not None:
-        stub_subsurface_point.X = make_net_length_unit(x)
+        stub_subsurface_point.X = make_net_measurement(x)
     if y is not None:
-        stub_subsurface_point.Y = make_net_length_unit(y)
+        stub_subsurface_point.Y = make_net_measurement(y)
     if depth is not None:
-        stub_subsurface_point.Depth = make_net_length_unit(depth)
+        stub_subsurface_point.Depth = make_net_measurement(depth)
     if xy_origin is not None:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
     if depth_origin is not None:
@@ -324,7 +324,7 @@ def create_stub_net_trajectory_array(magnitudes, unit):
 
     result = toolz.pipe(magnitudes,
                         toolz.map(make_stub_measurement_with_unit(unit)),
-                        toolz.map(make_net_length_unit))
+                        toolz.map(make_net_measurement))
     return result
 
 
@@ -521,9 +521,9 @@ def create_stub_net_project(name='',
 
     stub_net_project.Name = name
     if azimuth is not None:
-        stub_net_project.Azimuth = onq.as_net_quantity(azimuth)
+        stub_net_project.Azimuth = make_net_measurement(azimuth)
     if fluid_density is not None:
-        stub_net_project.FluidDensity = onq.as_net_quantity(fluid_density)
+        stub_net_project.FluidDensity = make_net_measurement(fluid_density)
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
@@ -533,9 +533,9 @@ def create_stub_net_project(name='',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
 
-    if project_center:
+    if project_center is not None:
         net_center = toolz.pipe(project_center,
-                                toolz.map(onq.as_net_quantity),
+                                toolz.map(make_net_measurement),
                                 list,
                                 )
         stub_net_project.GetProjectCenter = unittest.mock.MagicMock(name='stub_get_project_center',
