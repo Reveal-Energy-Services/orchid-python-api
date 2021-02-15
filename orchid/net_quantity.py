@@ -123,6 +123,13 @@ def as_datetime(net_time_point: DateTime) -> datetime.datetime:
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
 
+#
+# Although Pint supports the unit `cu_ft`, we have chosen to use the synonym, `ft ** 3` (which is
+# printed as 'ft\u00b3` (that is, 'ft' followed by a Unicode superscript 3)). According to a
+# citation on [Wikipedia article](https://en.wikipedia.org/wiki/Cubic_foot), this "is the IEEE
+# symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
+# but, on various conversion, produce the Pint unit `ft**3`.
+#
 @singledispatch
 @toolz.curry
 def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
@@ -272,6 +279,13 @@ def as_net_date_time(time_point: datetime.datetime) -> DateTime:
                     DateTimeKind.Utc)
 
 
+#
+# Although Pint supports the unit `cu_ft`, we have chosen to use the synonym, `ft ** 3` (which is
+# printed as 'ft\u00b3` (that is, 'ft' followed by a Unicode superscript 3)). According to a
+# citation on [Wikipedia article](https://en.wikipedia.org/wiki/Cubic_foot), this "is the IEEE
+# symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
+# but, on various conversion, produce the Pint unit `ft**3`.
+#
 @singledispatch
 @toolz.curry
 def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:
@@ -318,7 +332,7 @@ _PINT_UNIT_CREATE_NET_UNITS = {
 
 
 def _us_oilfield_slurry_rate(qv):
-    return UnitsNet.Density.FromPoundsPerCubicFoot(qv);
+    return UnitsNet.Density.FromPoundsPerCubicFoot(qv)
 
 
 _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
@@ -538,7 +552,7 @@ def _net_decimal_to_float(net_decimal: Decimal) -> float:
 
 _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
     opq.PhysicalQuantity.DENSITY: {
-        UnitsNet.Units.DensityUnit.PoundPerCubicFoot: om.registry.lb / om.registry.cu_ft,
+        UnitsNet.Units.DensityUnit.PoundPerCubicFoot: om.registry.lb / om.registry.ft ** 3,
         UnitsNet.Units.DensityUnit.KilogramPerCubicMeter: om.registry.kg / (om.registry.m ** 3),
     },
     opq.PhysicalQuantity.ENERGY: {

@@ -65,6 +65,20 @@ def is_power_unit(unit):
 # - stage.md_top, md_bottom (adjust existing)
 # - stage.get_stage_location_center and similar (adjust existing)
 # - stage_port.isip (property)
+#
+# Although Pint supports the unit `cu_ft`, we have chosen to use the synonym, `ft ** 3` (which is
+# printed as 'ft\u00b3` (that is, 'ft' followed by a Unicode superscript 3)). According to a
+# citation on [Wikipedia article](https://en.wikipedia.org/wiki/Cubic_foot), this "is the IEEE
+# symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
+# but, on various conversion, produce the Pint unit `ft**3`.
+#
+# The behavior resulting from this choice is illustrated in:
+# - test_as_measurement
+# - test_as_measurement_in_specified_same_unit
+# - test_as_measurement_in_specified_different_unit
+# - test_as_net_quantity
+# - test_as_net_quantity_in_same_unit
+# - test_as_net_quantity_in_different_unit
 class TestNetQuantity(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -100,7 +114,7 @@ class TestNetQuantity(unittest.TestCase):
             (UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414)),
              1.414 * om.registry.min, opq.PhysicalQuantity.DURATION, decimal.Decimal('0.1')),
             (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(70.13e-3)),
-             70.13e-3 * om.registry.lb / om.registry.cu_ft,
+             70.13e-3 * om.registry.lb / om.registry.ft ** 3,
              opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.01e-3')),
             (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(1.123)),
              1.123 * om.registry.kg / (om.registry.m ** 3),
@@ -166,7 +180,7 @@ class TestNetQuantity(unittest.TestCase):
     def test_as_measurement_in_specified_same_unit(self):
         for to_convert_net_quantity, expected, to_unit, tolerance in [
             (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(40.79)),
-             40.79 * om.registry.lb / om.registry.cu_ft, units.UsOilfield.DENSITY, decimal.Decimal('0.01')),
+             40.79 * om.registry.lb / om.registry.ft ** 3, units.UsOilfield.DENSITY, decimal.Decimal('0.01')),
             (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(921.4)),
              921.4 * om.registry.kg / (om.registry.m ** 3), units.Metric.DENSITY, decimal.Decimal('0.01')),
             (UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(43.12e9)),
@@ -223,7 +237,7 @@ class TestNetQuantity(unittest.TestCase):
             (UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(62.30)),
              998.0 * om.registry.kg / (om.registry.m ** 3), units.Metric.DENSITY, decimal.Decimal('0.2')),
             (UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(998.0)),
-             62.30 * om.registry.lb / om.registry.cu_ft, units.UsOilfield.DENSITY, decimal.Decimal('0.006')),
+             62.30 * om.registry.lb / om.registry.ft ** 3, units.UsOilfield.DENSITY, decimal.Decimal('0.006')),
             (UnitsNet.Energy.FromFootPounds(UnitsNet.QuantityValue.op_Implicit(2.024)),
              2.744 * om.registry.J, units.Metric.ENERGY, decimal.Decimal('0.002')),
             (UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(2.744)),
@@ -305,6 +319,8 @@ class TestNetQuantity(unittest.TestCase):
              UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(1.414))),
             (17.17 * om.registry.lb / om.registry.cu_ft, opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.01'),
              UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(17.17))),
+            (17.17 * om.registry.lb / om.registry.ft ** 3, opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.01'),
+             UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(17.17))),
             (2.72 * om.registry.kg / (om.registry.m ** 3), opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.01'),
              UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(2.72))),
             (36.26e9 * om.registry.ft_lb, opq.PhysicalQuantity.ENERGY, decimal.Decimal('0.01e3'),
@@ -370,6 +386,8 @@ class TestNetQuantity(unittest.TestCase):
              UnitsNet.Duration.FromMinutes(UnitsNet.QuantityValue.op_Implicit(27.18))),
             (217.7 * om.registry.lb / om.registry.cu_ft, units.UsOilfield.DENSITY, decimal.Decimal('0.1'),
              UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(217.7))),
+            (217.7 * om.registry.lb / om.registry.ft ** 3, units.UsOilfield.DENSITY, decimal.Decimal('0.1'),
+             UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(217.7))),
             (3487 * om.registry.kg / om.registry.m ** 3, units.Metric.DENSITY, decimal.Decimal('1'),
              UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(3487))),
             (31.20e9 * om.registry.ft_lb, units.UsOilfield.ENERGY, decimal.Decimal('0.01e9'),
@@ -429,6 +447,8 @@ class TestNetQuantity(unittest.TestCase):
             (2638 * om.registry.kg / (om.registry.m ** 3), units.UsOilfield.DENSITY, decimal.Decimal('0.06'),
              UnitsNet.Density.FromPoundsPerCubicFoot(UnitsNet.QuantityValue.op_Implicit(164.7))),
             (164.7 * om.registry.lb / om.registry.cu_ft, units.Metric.DENSITY, decimal.Decimal('2'),
+             UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(2638))),
+            (164.7 * om.registry.lb / om.registry.ft ** 3, units.Metric.DENSITY, decimal.Decimal('2'),
              UnitsNet.Density.FromKilogramsPerCubicMeter(UnitsNet.QuantityValue.op_Implicit(2638))),
             (53.58e9 * om.registry.ft_lb, units.Metric.ENERGY, decimal.Decimal('0.01e9'),
              UnitsNet.Energy.FromJoules(UnitsNet.QuantityValue.op_Implicit(72.65e9))),
