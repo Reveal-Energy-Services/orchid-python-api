@@ -171,8 +171,12 @@ class StubNetTreatmentCurve:
         return self._time_series
 
 
+def make_measurement(measurement_dto):
+    return units.make_measurement(measurement_dto.unit, measurement_dto.magnitude)
+
+
 def make_net_measurement(measurement_dto):
-    measurement = units.make_measurement(measurement_dto.unit, measurement_dto.magnitude)
+    measurement = make_measurement(measurement_dto)
     return onq.as_net_quantity(measurement_dto.unit, measurement)
 
 
@@ -426,7 +430,10 @@ def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
 
     def measurement_key_to_net_key(source_key):
         sample_measurements, frame, datum = source_key
-        net_lengths = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, sample_measurements))
+        net_sample_measurements = toolz.pipe(sample_measurements,
+                                             toolz.map(make_net_measurement),
+                                             list)
+        net_lengths = Array[UnitsNet.Length](net_sample_measurements)
         return net_lengths, frame, datum
 
     locations_with_net_keys = toolz.keymap(measurement_key_to_net_key, locations_for_md_kb_values)
@@ -445,8 +452,6 @@ def create_stub_net_well(name='',
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
 
-    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
-
     if name:
         result.Name = name
 
@@ -462,7 +467,7 @@ def create_stub_net_well(name='',
     if uwi:
         result.Uwi = uwi
 
-    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
+    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
 
     def get_location_for(md_kb_values, frame, datum):
         # return an empty list if nothing configured
@@ -487,6 +492,7 @@ def create_stub_net_well(name='',
 
         return list(candidates.items())[0][1]
 
+    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
     result.GetLocationsForMdKbValues.side_effect = get_location_for
 
     return result
