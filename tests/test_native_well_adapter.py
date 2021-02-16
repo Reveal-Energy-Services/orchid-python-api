@@ -22,6 +22,7 @@ from hamcrest import assert_that, equal_to, instance_of, is_, empty
 import toolz.curried as toolz
 
 from orchid import (
+    measurement as om,
     native_stage_adapter as nsa,
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
@@ -51,48 +52,40 @@ class TestNativeWellAdapter(unittest.TestCase):
     def test_ground_level_elevation_above_sea_level(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.MeasurementDto(4537, units.UsOilfield.LENGTH),
-             tsn.MeasurementDto(4537, units.UsOilfield.LENGTH),
-             units.UsOilfield, decimal.Decimal('1')),
+             4537 * om.registry.ft, units.UsOilfield, decimal.Decimal('1')),
             (tsn.MeasurementDto(1383, units.Metric.LENGTH),
-             tsn.MeasurementDto(1383, units.Metric.LENGTH),
-             units.Metric, decimal.Decimal('1')),
+             1383 * om.registry.m, units.Metric, decimal.Decimal('1')),
             (tsn.MeasurementDto(4537, units.UsOilfield.LENGTH),
-             tsn.MeasurementDto(1383, units.Metric.LENGTH),
-             units.Metric, decimal.Decimal('0.4')),
+             1383 * om.registry.m, units.Metric, decimal.Decimal('0.4')),
             (tsn.MeasurementDto(1383, units.Metric.LENGTH),
-             tsn.MeasurementDto(4537, units.UsOilfield.LENGTH),
-             units.UsOilfield, decimal.Decimal('4')),
+             4537 * om.registry.ft, units.UsOilfield, decimal.Decimal('4')),
         ]:
-            with self.subTest(f'Test ground level elevation, {expected}, in units, {project_units.LENGTH}'):
+            with self.subTest(f'Test ground level elevation, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.create_stub_net_well(
                     ground_level_elevation_above_sea_level=orchid_actual)
                 sut = nwa.NativeWellAdapter(stub_native_well)
-                tcm.obs_assert_that_measurements_close_to(
+                tcm.assert_that_measurements_close_to(
                     sut.ground_level_elevation_above_sea_level, expected, tolerance)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_kelly_bushing_height_above_ground_level(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.MeasurementDto(30.86, units.UsOilfield.LENGTH),
-             tsn.MeasurementDto(30.86, units.UsOilfield.LENGTH),
-             units.UsOilfield, decimal.Decimal('0.01')),
+             30.86 * om.registry.ft, units.UsOilfield, decimal.Decimal('0.01')),
             (tsn.MeasurementDto(9.406, units.Metric.LENGTH),
-             tsn.MeasurementDto(9.406, units.Metric.LENGTH),
-             units.Metric, decimal.Decimal('0.01')),
+             9.406 * om.registry.m, units.Metric, decimal.Decimal('0.01')),
             (tsn.MeasurementDto(30.86, units.UsOilfield.LENGTH),
-             tsn.MeasurementDto(9.406, units.Metric.LENGTH),
-             units.Metric, decimal.Decimal('0.004')),
+             9.406 * om.registry.m, units.Metric, decimal.Decimal('0.004')),
             (tsn.MeasurementDto(9.406, units.Metric.LENGTH),
-             tsn.MeasurementDto(30.86, units.UsOilfield.LENGTH),
-             units.UsOilfield, decimal.Decimal('0.004')),
+                30.86 * om.registry.ft, units.UsOilfield, decimal.Decimal('0.004')),
         ]:
-            with self.subTest(f'Test kelly bushing height, {expected}, in units, {project_units.LENGTH}'):
+            with self.subTest(f'Test kelly bushing height above ground level, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.create_stub_net_well(
                     kelly_bushing_height_above_ground_level=orchid_actual)
                 sut = nwa.NativeWellAdapter(stub_native_well)
-                tcm.obs_assert_that_measurements_close_to(
+                tcm.assert_that_measurements_close_to(
                     sut.kelly_bushing_height_above_ground_level, expected, tolerance)
 
     def test_name(self):
@@ -214,9 +207,9 @@ class TestNativeWellAdapter(unittest.TestCase):
                 actual = list(sut.locations_for_md_kb_values([md_kb], frame, datum))
 
                 assert_that(len(actual), equal_to(1))
-                tcm.obs_assert_that_measurements_close_to(actual[0].x, expected.x, tolerance.x)
-                tcm.obs_assert_that_measurements_close_to(actual[0].y, expected.y, tolerance.y)
-                tcm.obs_assert_that_measurements_close_to(actual[0].depth, expected.depth, tolerance.depth)
+                tcm.assert_that_measurements_close_to(actual[0].x, expected.x, tolerance.x)
+                tcm.assert_that_measurements_close_to(actual[0].y, expected.y, tolerance.y)
+                tcm.assert_that_measurements_close_to(actual[0].depth, expected.depth, tolerance.depth)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_many_locations_for_md_kb_values_if_many_md_kb_values(self, mock_as_unit_system):
@@ -290,9 +283,9 @@ class TestNativeWellAdapter(unittest.TestCase):
 
                 assert_that(len(actual), equal_to(len(expected)))
                 for actual_point, expected_point, tolerance_point in zip(actual, expected, tolerance):
-                    tcm.obs_assert_that_measurements_close_to(actual_point.x, expected_point.x, tolerance_point.x)
-                    tcm.obs_assert_that_measurements_close_to(actual_point.y, expected_point.y, tolerance_point.y)
-                    tcm.obs_assert_that_measurements_close_to(actual_point.depth, expected_point.depth,
+                    tcm.assert_that_measurements_close_to(actual_point.x, expected_point.x, tolerance_point.x)
+                    tcm.assert_that_measurements_close_to(actual_point.y, expected_point.y, tolerance_point.y)
+                    tcm.assert_that_measurements_close_to(actual_point.depth, expected_point.depth,
                                                               tolerance_point.depth)
 
 

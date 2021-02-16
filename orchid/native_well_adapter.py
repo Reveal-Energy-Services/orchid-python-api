@@ -62,11 +62,11 @@ class NativeWellAdapter(dna.DotNetAdapter):
 
     @property
     def ground_level_elevation_above_sea_level(self) -> om.Quantity:
-        return onq.obs_as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
 
     @property
     def kelly_bushing_height_above_ground_level(self) -> om.Quantity:
-        return onq.obs_as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
+        return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
 
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],

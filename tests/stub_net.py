@@ -454,10 +454,10 @@ def create_stub_net_well(name='',
         result.DisplayName = display_name
 
     if ground_level_elevation_above_sea_level is not None:
-        result.GroundLevelElevationAboveSeaLevel = onq.as_net_quantity(ground_level_elevation_above_sea_level)
+        result.GroundLevelElevationAboveSeaLevel = make_net_measurement(ground_level_elevation_above_sea_level)
 
     if kelly_bushing_height_above_ground_level is not None:
-        result.KellyBushingHeightAboveGroundLevel = onq.as_net_quantity(kelly_bushing_height_above_ground_level)
+        result.KellyBushingHeightAboveGroundLevel = make_net_measurement(kelly_bushing_height_above_ground_level)
 
     if uwi:
         result.Uwi = uwi
