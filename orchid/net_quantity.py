@@ -20,6 +20,7 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 
 import datetime
+from numbers import Real
 from functools import singledispatch
 
 import dateutil.tz as duz
@@ -97,6 +98,44 @@ class NetQuantityNoTzInfoError(NetQuantityTimeZoneError):
             time_point: A Python `datetime.datetime` representing a specific point in time.
         """
         super().__init__(self, f'The Python time point must specify the time zone.', time_point.isoformat())
+
+
+class EqualsComparisonDetails:
+    def __init__(self, tolerance: Real = 1e-4,
+                 net_comparison_type: UnitsNet.ComparisonType = UnitsNet.ComparisonType.Relative):
+        """
+        Construct an instance that uses `tolerance` and `comparison_type` to determine equality.
+
+        This class exists because the `tolerance` and `comparison_type` are closely coupled; that is, one
+        cannot correctly interpret the use of `tolerance` without a reference to the `comparison_type`.
+
+        Args:
+            tolerance: The maximum difference tolerated between two instances in determining equality.
+            net_comparison_type: The type of comparison: `UnitsNet.ComparisonType.Relative` or
+            `UnitsNet.ComparisonType.Absolute`.
+        """
+        self._tolerance = tolerance
+        self._comparison_type = net_comparison_type
+
+    @property
+    def tolerance(self) -> Real:
+        """
+        Return the tolerance to be use in determining equality.
+
+        Although this property is public, it is intended only to be read by the `equal_net_comparison`
+        function.
+        """
+        return self._tolerance
+
+    @property
+    def comparison_type(self) -> UnitsNet.ComparisonType:
+        """
+        Return the comparison type to be use in determining equality.
+
+        Although this property is public, it is intended only to be read by the `equal_net_comparison`
+        function.
+        """
+        return self._comparison_type
 
 
 def as_datetime(net_time_point: DateTime) -> datetime.datetime:
@@ -403,7 +442,7 @@ def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity)
 @as_net_quantity.register(units.Metric)
 @as_net_quantity.register(units.UsOilfield)
 @toolz.curry
-def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) -> om.Quantity:
+def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
 
@@ -416,6 +455,32 @@ def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) 
     """
     target_measurement = measurement.to(specified_unit.value.unit)
     return as_net_quantity(specified_unit.value.physical_quantity, target_measurement)
+
+
+def equal_net_quantities(left_quantity: UnitsNet.IQuantity, right_quantity: UnitsNet.IQuantity,
+                         comparison_details: EqualsComparisonDetails = EqualsComparisonDetails()):
+    """
+    Compares two UnitsNet.IQuantity instances for equality
+
+    Python.NET transforms == (perhaps indirectly) into a call to Equals. Unfortunately, comparing
+    two measurements that have been transformed may have floating point differences. Specifically,
+    UnitsNet marks the `Equals` method as `Obsolete` with the following message:
+    > "It is not safe to compare equality due to using System.Double as the internal representation.
+    > It is very easy to get slightly different values due to floating point operations. Instead use
+    > Equals(Length, double, ComparisonType) to provide the max allowed absolute or relative error."
+
+    Consequently, to determine if two `UnitsNet.IQuantity` instances are equal, I use the
+    `Equals(Length, double, ComparisonType)` method applied to each instance.
+
+    Args:
+        left_quantity: The `IQuantity` instance on the "left-hand-side" of the (implicit) == operator.
+        right_quantity: The `IQuantity` instance on the "right-hand-side" of the (implicit) == operator.
+        comparison_details: The details of how to compare the two `UnitsNet.IQuantity` instances.
+
+    Returns:
+
+    """
+    return left_quantity.Equals(right_quantity, comparison_details.tolerance, comparison_details.comparison_type)
 
 
 def microseconds_to_integral_milliseconds(to_convert: int) -> int:
