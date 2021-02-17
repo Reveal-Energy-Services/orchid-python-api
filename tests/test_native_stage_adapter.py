@@ -269,17 +269,13 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_pnet(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.MeasurementDto(46.93e3, units.UsOilfield.PRESSURE),
-             tsn.MeasurementDto(46.93e3, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('1')),
+             46.93e3 * om.registry.psi, units.UsOilfield, decimal.Decimal('1')),
             (tsn.MeasurementDto(323.6e3, units.Metric.PRESSURE),
-             tsn.MeasurementDto(323.6e3, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
+             323.6e3 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
             (tsn.MeasurementDto(46.93e3, units.UsOilfield.PRESSURE),
-             tsn.MeasurementDto(323.6e3, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.1e3')),
+             323.6e3 * om.registry.kPa, units.Metric, decimal.Decimal('0.1e3')),
             (tsn.MeasurementDto(323.6e3, units.Metric.PRESSURE),
-             tsn.MeasurementDto(46.93e3, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('0.02e3')),
+             46.93e3 * om.registry.psi, units.UsOilfield, decimal.Decimal('0.02e3')),
         ]:
             with self.subTest(self.in_project_units_test_description('PNET', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
@@ -301,17 +297,13 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_shmin(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
             (tsn.MeasurementDto(2.392, units.UsOilfield.PRESSURE),
-             tsn.MeasurementDto(2.392, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('1')),
+             2.392 * om.registry.psi, units.UsOilfield, decimal.Decimal('1')),
             (tsn.MeasurementDto(16.49, units.Metric.PRESSURE),
-             tsn.MeasurementDto(16.49, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
+             16.49 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
             (tsn.MeasurementDto(2.392, units.UsOilfield.PRESSURE),
-             tsn.MeasurementDto(16.49, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
+                16.49 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
             (tsn.MeasurementDto(16.49, units.Metric.PRESSURE),
-             tsn.MeasurementDto(2.392, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('0.001')),
+             2.392 * om.registry.psi, units.UsOilfield, decimal.Decimal('0.001')),
         ]:
             with self.subTest(self.in_project_units_test_description('shmin', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
