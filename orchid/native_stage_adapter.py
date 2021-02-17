@@ -303,6 +303,19 @@ class NativeStageAdapter(dna.DotNetAdapter):
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         return onq.as_measurement(target_unit, self.dom_object.Isip)
 
+    def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
+        """
+        Return the measured depth of the bottom of this stage (farthest from the well head / closest to the toe)
+        in the specified unit.
+
+        Args:
+            in_length_unit: An unit of the unit of length for the returned Measurement.
+
+        Returns:
+             The measured depth of the stage bottom in the specified unit.
+        """
+        return onq.as_measurement(in_length_unit, self.dom_object.MdBottom)
+
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
         Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
@@ -318,19 +331,6 @@ class NativeStageAdapter(dna.DotNetAdapter):
         md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
         result = onq.as_length_measurement(md_top_quantity)
         return result
-
-    def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
-        """
-        Return the measured depth of the bottom of this stage (farthest from the well head / closest to the toe)
-        in the specified unit.
-
-        Args:
-            in_length_unit: An unit of the unit of length for the returned Measurement.
-
-        Returns:
-             The measured depth of the stage bottom in the specified unit.
-        """
-        return onq.as_measurement(in_length_unit, self.dom_object.MdBottom)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:

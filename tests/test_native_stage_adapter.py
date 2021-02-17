@@ -229,22 +229,6 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(calling(sut.isip_in_pressure_unit).with_args(units.UsOilfield.LENGTH),
                     raises(deal.PreContractError))
 
-    def test_md_top(self):
-        for actual_top, expected_top in [(om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
-                                          om.make_measurement(units.UsOilfield.LENGTH, 13467.8)),
-                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
-                                          om.make_measurement(units.Metric.LENGTH, 3702.48)),
-                                         (om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
-                                          om.make_measurement(units.Metric.LENGTH, 4104.98)),
-                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
-                                          om.make_measurement(units.UsOilfield.LENGTH, 12147.2))]:
-            with self.subTest(f'Test MD top {expected_top}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
-                sut = nsa.NativeStageAdapter(stub_net_stage)
-
-                actual_top = sut.md_top(expected_top.unit)
-                tcm.assert_that_measurements_close_to(actual_top, expected_top, 5e-2)
-
     def test_md_bottom(self):
         for actual_bottom_dto, expected_bottom_dto in [
             (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13806.7),
@@ -263,6 +247,22 @@ class TestNativeStageAdapter(unittest.TestCase):
 
                 actual_bottom = sut.md_bottom(expected_bottom_dto.unit)
                 tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
+
+    def test_md_top(self):
+        for actual_top, expected_top in [(om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
+                                          om.make_measurement(units.UsOilfield.LENGTH, 13467.8)),
+                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
+                                          om.make_measurement(units.Metric.LENGTH, 3702.48)),
+                                         (om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
+                                          om.make_measurement(units.Metric.LENGTH, 4104.98)),
+                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
+                                          om.make_measurement(units.UsOilfield.LENGTH, 12147.2))]:
+            with self.subTest(f'Test MD top {expected_top}'):
+                stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_top = sut.md_top(expected_top.unit)
+                tcm.assert_that_measurements_close_to(actual_top, expected_top, 5e-2)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_pnet(self, mock_as_unit_system):
