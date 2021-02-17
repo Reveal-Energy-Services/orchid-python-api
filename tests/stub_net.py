@@ -276,7 +276,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         
     if shmin is not None:
         if hasattr(shmin, 'unit'):
-            result.Shmin = onq.as_net_quantity(shmin)
+            result.Shmin = make_net_measurement(shmin)
         elif hasattr(shmin, 'Unit'):
             result.Shmin = shmin
         else:
@@ -285,7 +285,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         
     if pnet is not None:
         if hasattr(pnet, 'unit'):
-            result.Pnet = onq.as_net_quantity(pnet)
+            result.Pnet = make_net_measurement(pnet)
         elif hasattr(pnet, 'Unit'):
             result.Pnet = pnet
         else:
@@ -294,7 +294,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         
     if isip is not None:
         if hasattr(isip, 'unit'):
-            result.Isip = onq.as_net_quantity(isip)
+            result.Isip = make_net_measurement(isip)
         elif hasattr(isip, 'Unit'):
             result.Isip = isip
         else:
