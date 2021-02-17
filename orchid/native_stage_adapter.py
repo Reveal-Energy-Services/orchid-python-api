@@ -341,9 +341,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        net_shmin = self.dom_object.Shmin
-        net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_shmin)
-        return onq.as_pressure_measurement(net_shmin_correct_units)
+        return onq.as_measurement(target_unit, self.dom_object.Shmin)
 
     def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
