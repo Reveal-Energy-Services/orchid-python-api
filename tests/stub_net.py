@@ -324,7 +324,7 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
 
 def create_stub_net_trajectory_array(magnitudes, unit):
     def make_stub_measurement_with_unit(measurement_unit):
-        return toolz.flip(MeasurementDto, measurement_unit)
+        return make_measurement_dto(measurement_unit)
 
     result = toolz.pipe(magnitudes,
                         toolz.map(make_stub_measurement_with_unit(unit)),
