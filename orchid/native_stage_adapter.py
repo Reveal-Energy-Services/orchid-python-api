@@ -120,7 +120,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
         Return the instantaneous shut in pressure of this stage in project units.
         """
-        return onq.obs_as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Isip)
+        return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Isip)
 
     @property
     def pnet(self) -> om.Quantity:
@@ -130,14 +130,14 @@ class NativeStageAdapter(dna.DotNetAdapter):
         The net pressure of a stage is calculated by the formula:
             pnet = isip + fluid-density * tvd - shmin (where tvd is the true vertical depth)
         """
-        return onq.obs_as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Pnet)
+        return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Pnet)
 
     @property
     def shmin(self) -> om.Quantity:
         """
         Return the minimum horizontal stress of this stage in project units.
         """
-        return onq.obs_as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Shmin)
+        return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Shmin)
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
