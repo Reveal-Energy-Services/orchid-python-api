@@ -482,7 +482,18 @@ def create_stub_net_well(name='',
             if to_test_datum != datum:
                 return False
 
-            return list(to_test_samples) == list(md_kb_values)
+            # Python.NET transforms == (perhaps indirectly) into a call to Equals. Unfortunately, comparing
+            # two measurements that have been transformed may have floating point differences. Specifically,
+            # UnitsNet marks the `Equals` method as `Obsolete` with the following message:
+            # > "It is not safe to compare equality due to using System.Double as the internal representation.
+            # > It is very easy to get slightly different values due to floating point operations. Instead use
+            # > Equals(Length, double, ComparisonType) to provide the max allowed absolute or relative error."
+            #
+            # Consequently, to "match" the arguments passed in with the arguments expected, I use the
+            # `Equals(Length, double, ComparisonType)` method applied to each MD KB sample.
+            # return list(to_test_samples) == list(md_kb_values)
+            return any(toolz.map(lambda l, r: l.Equals(r, 1e-4, UnitsNet.ComparisonType.Relative),
+                                 to_test_samples, md_kb_values))
 
         candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
         if len(candidates) == 0:
