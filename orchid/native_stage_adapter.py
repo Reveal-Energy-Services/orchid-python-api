@@ -301,9 +301,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        net_isip = self.dom_object.Isip
-        net_isip_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_isip)
-        return onq.as_pressure_measurement(net_isip_correct_units)
+        return onq.as_measurement(target_unit, self.dom_object.Isip)
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """

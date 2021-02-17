@@ -216,18 +216,19 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_isip_all(self):
         net_isips, expected_matrix = self._make_pressure_test_pairs()
         for net_isip, expected_pair in zip(net_isips, expected_matrix):
-            expected, tolerance = expected_pair
-            with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+            expected_dto, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(isip=net_isip)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected.unit), expected, tolerance)
+                expected = tsn.make_measurement(expected_dto)
+                tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected_dto.unit), expected, tolerance)
 
     def test_isip_all_non_unit_errors(self):
-        expected_pressure = om.make_measurement(units.UsOilfield.PRESSURE, 1414)
-        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure)
+        expected_pressure_dto = tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414)
+        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure_dto)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        with self.assertRaises(deal._exceptions.PreContractError):
-            _ = sut.isip_in_pressure_unit(units.UsOilfield.LENGTH)
+        assert_that(calling(sut.isip_in_pressure_unit).with_args(units.UsOilfield.LENGTH),
+                    raises(deal.PreContractError))
 
     def test_md_top(self):
         for actual_top, expected_top in [(om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
@@ -438,17 +439,17 @@ class TestNativeStageAdapter(unittest.TestCase):
     @staticmethod
     def _make_pressure_test_pairs():
         net_pressures = [
-            om.make_measurement(units.UsOilfield.PRESSURE, 1414),
-            om.make_measurement(units.Metric.PRESSURE, 3.142),
+            tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414),
+            tsn.make_measurement_dto(units.Metric.PRESSURE, 3.142),
             UnitsNet.Pressure.FromBars(UnitsNet.QuantityValue.op_Implicit(0.1506)),
         ]
         expected_measurements = [
-            (om.make_measurement(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),
-            (om.make_measurement(units.UsOilfield.PRESSURE, 0.4557), decimal.Decimal('0.0001')),
-            (om.make_measurement(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
-            (om.make_measurement(units.Metric.PRESSURE, 9749), decimal.Decimal('1')),
-            (om.make_measurement(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
-            (om.make_measurement(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 0.4557), decimal.Decimal('0.0001')),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 9749), decimal.Decimal('1')),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
         return net_pressures * 2, expected_measurements
 
