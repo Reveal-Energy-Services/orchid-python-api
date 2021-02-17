@@ -217,15 +217,9 @@ class TestNativeWellAdapter(unittest.TestCase):
               tsn.StubSubsurfaceLocation(tsn.MeasurementDto(182.4e3, units.UsOilfield.LENGTH),
                                          tsn.MeasurementDto(541.2e3, units.UsOilfield.LENGTH),
                                          tsn.MeasurementDto(7783, units.UsOilfield.LENGTH))),
-             (tsn.StubSubsurfaceLocation(tsn.MeasurementDto(374.3e3, units.UsOilfield.LENGTH),
-                                         tsn.MeasurementDto(1.365e6, units.UsOilfield.LENGTH),
-                                         tsn.MeasurementDto(8288, units.UsOilfield.LENGTH)),
-              tsn.StubSubsurfaceLocation(tsn.MeasurementDto(384.1e3, units.UsOilfield.LENGTH),
-                                         tsn.MeasurementDto(8.740e6, units.UsOilfield.LENGTH),
-                                         tsn.MeasurementDto(7572, units.UsOilfield.LENGTH)),
-              tsn.StubSubsurfaceLocation(tsn.MeasurementDto(182.4e3, units.UsOilfield.LENGTH),
-                                         tsn.MeasurementDto(541.2e3, units.UsOilfield.LENGTH),
-                                         tsn.MeasurementDto(7783, units.UsOilfield.LENGTH))),
+             (tsn.StubSubsurfaceLocation(374.3e3 * om.registry.ft, 1.365e6 * om.registry.ft, 8288 * om.registry.ft),
+              tsn.StubSubsurfaceLocation(384.1e3 * om.registry.ft, 8.740e6 * om.registry.ft, 7572 * om.registry.ft),
+              tsn.StubSubsurfaceLocation(182.4e3 * om.registry.ft, 541.2e3 * om.registry.ft, 7783 * om.registry.ft)),
              (tsn.MeasurementDto(10.89e3, units.UsOilfield.LENGTH),
               tsn.MeasurementDto(12.55e3, units.UsOilfield.LENGTH),
               tsn.MeasurementDto(12.16e3, units.UsOilfield.LENGTH)),
@@ -242,15 +236,9 @@ class TestNativeWellAdapter(unittest.TestCase):
               tsn.StubSubsurfaceLocation(tsn.MeasurementDto(182.4e3, units.UsOilfield.LENGTH),
                                          tsn.MeasurementDto(541.2e3, units.UsOilfield.LENGTH),
                                          tsn.MeasurementDto(7783, units.UsOilfield.LENGTH))),
-             (tsn.StubSubsurfaceLocation(tsn.MeasurementDto(114.1e3, units.Metric.LENGTH),
-                                         tsn.MeasurementDto(416.2e3, units.Metric.LENGTH),
-                                         tsn.MeasurementDto(2526, units.Metric.LENGTH)),
-              tsn.StubSubsurfaceLocation(tsn.MeasurementDto(117.1e3, units.Metric.LENGTH),
-                                         tsn.MeasurementDto(2.664e6, units.Metric.LENGTH),
-                                         tsn.MeasurementDto(2308, units.Metric.LENGTH)),
-              tsn.StubSubsurfaceLocation(tsn.MeasurementDto(55.61e3, units.Metric.LENGTH),
-                                         tsn.MeasurementDto(165.0e3, units.Metric.LENGTH),
-                                         tsn.MeasurementDto(2372, units.Metric.LENGTH))),
+             (tsn.StubSubsurfaceLocation(114.1e3 * om.registry.m, 416.2e3 * om.registry.m, 2526 * om.registry.m),
+              tsn.StubSubsurfaceLocation(117.1e3 * om.registry.m, 2.664e6 * om.registry.m, 2308 * om.registry.m),
+              tsn.StubSubsurfaceLocation(55.61e3 * om.registry.m, 165.0e3 * om.registry.m, 2372 * om.registry.m)),
              (tsn.MeasurementDto(10.89e3, units.UsOilfield.LENGTH),
               tsn.MeasurementDto(12.55e3, units.UsOilfield.LENGTH),
               tsn.MeasurementDto(12.16e3, units.UsOilfield.LENGTH)),
@@ -279,8 +267,9 @@ class TestNativeWellAdapter(unittest.TestCase):
                 for actual_point, expected_point, tolerance_point in zip(actual, expected, tolerance):
                     tcm.assert_that_measurements_close_to(actual_point.x, expected_point.x, tolerance_point.x)
                     tcm.assert_that_measurements_close_to(actual_point.y, expected_point.y, tolerance_point.y)
-                    tcm.assert_that_measurements_close_to(actual_point.depth, expected_point.depth,
-                                                              tolerance_point.depth)
+                    tcm.assert_that_measurements_close_to(actual_point.depth,
+                                                          expected_point.depth,
+                                                          tolerance_point.depth)
 
 
 if __name__ == '__main__':

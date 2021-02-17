@@ -492,8 +492,9 @@ def create_stub_net_well(name='',
             # Consequently, to "match" the arguments passed in with the arguments expected, I use the
             # `Equals(Length, double, ComparisonType)` method applied to each MD KB sample.
             # return list(to_test_samples) == list(md_kb_values)
-            return any(toolz.map(lambda l, r: l.Equals(r, 1e-4, UnitsNet.ComparisonType.Relative),
-                                 to_test_samples, md_kb_values))
+            each_equals = toolz.map(lambda l, r: l.Equals(r, 1e-4, UnitsNet.ComparisonType.Relative), to_test_samples,
+                                    md_kb_values)
+            return all(each_equals)
 
         candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
         if len(candidates) == 0:
