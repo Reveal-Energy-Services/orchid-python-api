@@ -337,9 +337,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        net_pnet = self.dom_object.Pnet
-        net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_pnet)
-        return onq.as_pressure_measurement(net_pnet_correct_units)
+        return onq.as_measurement(target_unit, self.dom_object.Pnet)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:

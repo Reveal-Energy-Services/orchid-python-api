@@ -287,11 +287,12 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_pnet_all(self):
         net_pnets, expected_matrix = self._make_pressure_test_pairs()
         for net_pnet, expected_pair in zip(net_pnets, expected_matrix):
-            expected, tolerance = expected_pair
-            with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+            expected_dto, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(pnet=net_pnet)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected.unit), expected, tolerance)
+                expected = tsn.make_measurement(expected_dto)
+                tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected_dto.unit), expected, tolerance)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_shmin(self, mock_as_unit_system):
