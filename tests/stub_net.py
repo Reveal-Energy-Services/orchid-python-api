@@ -245,7 +245,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     if md_top is not None:
         result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit)
     if md_bottom is not None:
-        result.MdBottom = onq.as_net_quantity_in_different_unit(md_bottom.measurement, md_bottom.as_unit)
+        result.MdBottom = make_net_measurement(md_bottom)
     if stage_location_bottom is not None:
         if callable(stage_location_bottom):
             result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',

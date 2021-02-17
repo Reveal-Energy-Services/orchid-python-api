@@ -330,10 +330,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
              The measured depth of the stage bottom in the specified unit.
         """
-        original = self.dom_object.MdBottom
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
-        result = onq.as_length_measurement(md_top_quantity)
-        return result
+        return onq.as_measurement(in_length_unit, self.dom_object.MdBottom)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:

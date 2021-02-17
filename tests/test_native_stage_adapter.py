@@ -27,7 +27,6 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    net_quantity as onq,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
     reference_origins as origins,
@@ -247,22 +246,22 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual_top, expected_top, 5e-2)
 
     def test_md_bottom(self):
-        for actual_bottom, expected_bottom in [
-            (om.make_measurement(units.UsOilfield.LENGTH, 13806.7),
-             om.make_measurement(units.UsOilfield.LENGTH, 13806.7)),
-            (om.make_measurement(units.Metric.LENGTH, 4608.73),
-             om.make_measurement(units.Metric.LENGTH, 4608.73)),
-            (om.make_measurement(units.UsOilfield.LENGTH, 12147.2),
-             om.make_measurement(units.Metric.LENGTH, 3702.47)),
-            (om.make_measurement(units.Metric.LENGTH, 4608.73),
-             om.make_measurement(units.UsOilfield.LENGTH, 15120.5)),
+        for actual_bottom_dto, expected_bottom_dto in [
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13806.7),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13806.7)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 4608.73),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 4608.73)),
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12147.2),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3702.47)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 4608.73),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 15120.5)),
         ]:
-            with self.subTest(f'Test MD bottom {expected_bottom}'):
-                stub_net_stage = tsn.create_stub_net_stage(
-                    md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
+            expected_bottom = tsn.make_measurement(expected_bottom_dto)
+            with self.subTest(f'Test MD bottom {expected_bottom:~P}'):
+                stub_net_stage = tsn.create_stub_net_stage(md_bottom=actual_bottom_dto)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
-                actual_bottom = sut.md_bottom(expected_bottom.unit)
+                actual_bottom = sut.md_bottom(expected_bottom_dto.unit)
                 tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
