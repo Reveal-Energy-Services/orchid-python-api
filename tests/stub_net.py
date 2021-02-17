@@ -243,7 +243,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     result.NumberOfClusters = cluster_count
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
-        result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit)
+        result.MdTop = make_net_measurement(md_top)
     if md_bottom is not None:
         result.MdBottom = make_net_measurement(md_bottom)
     if stage_location_bottom is not None:
