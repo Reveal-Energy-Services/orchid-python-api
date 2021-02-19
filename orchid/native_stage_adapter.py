@@ -347,10 +347,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The Measurement of the length of this stage.
         """
-        length_magnitude = \
-            self.md_bottom(in_length_unit).magnitude - self.md_top(in_length_unit).magnitude
-        result = om.make_measurement(in_length_unit, length_magnitude)
-        return result
+        return self.md_bottom(in_length_unit) - self.md_top(in_length_unit)
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                      xy_reference_frame: origins.WellReferenceFrameXy,

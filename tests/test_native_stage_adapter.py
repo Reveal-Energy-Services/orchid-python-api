@@ -326,6 +326,45 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(sut.shmin_in_pressure_unit(expected_dto.unit),
                                                       expected, tolerance)
 
+    def test_stage_length(self):
+        for actual_top_dto, actual_bottom_dto, expected_stage_length_dto in [
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11568),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11725),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 158)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3526),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3574),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 48)),
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11568),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11725),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 48)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3526),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3574),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 158)),
+        ]:
+            expected_stage_length = tsn.make_measurement(expected_stage_length_dto)
+            with self.subTest(f'Test stage length with expected stage length {expected_stage_length:~P}'):
+                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_stage_length = sut.stage_length(expected_stage_length_dto.unit)
+                tcm.assert_that_measurements_close_to(actual_stage_length, expected_stage_length, decimal.Decimal('1'))
+
+    def test_start_time(self):
+        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)
+        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time
+        assert_that(actual_start_time, equal_to(expected_start_time))
+
+    def test_stop_time(self):
+        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, duz.UTC)
+        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time
+        assert_that(actual_stop_time, equal_to(expected_stop_time))
+
     def test_subsurface_point_in_length_unit(self):
         net_points = [
             AboutLocation(1.214e5, 6.226e5, 2336, units.Metric.LENGTH),
@@ -364,22 +403,6 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual.x, expected.x, tolerance.x)
                 tcm.assert_that_measurements_close_to(actual.y, expected.y, tolerance.y)
                 tcm.assert_that_measurements_close_to(actual.depth, expected.depth, tolerance.depth)
-
-    def test_start_time(self):
-        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)
-        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-
-        actual_start_time = sut.start_time
-        assert_that(actual_start_time, equal_to(expected_start_time))
-
-    def test_stop_time(self):
-        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, duz.UTC)
-        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-
-        actual_stop_time = sut.stop_time
-        assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_top_location_invokes_get_stage_location_top_correctly(self):
         top_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
