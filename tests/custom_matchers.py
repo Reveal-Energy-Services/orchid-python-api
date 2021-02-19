@@ -25,17 +25,17 @@ def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None):
     _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
 
 
-def _assert_magnitudes_close_to(actual, expected, tolerance):
+def _assert_magnitudes_close_to(actual, expected, tolerance, reason):
     to_test_actual = decimal.Decimal(actual)
     to_test_expected = decimal.Decimal(expected)
     to_test_tolerance = decimal.Decimal((0, (1,), to_test_expected.as_tuple()[-1] - 1)) if tolerance is None \
         else decimal.Decimal(tolerance)
-    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
+    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance), reason)
 
 
-def assert_that_measurements_close_to(actual, expected, tolerance=None):
-    assert_that(actual.units, equal_to(expected.units))
-    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
+def assert_that_measurements_close_to(actual, expected, tolerance=None, reason=''):
+    assert_that(actual.units, equal_to(expected.units), reason)
+    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance, reason)
 
 
 def obs_assert_that_measurements_close_to(actual, expected, tolerance=None):
@@ -44,9 +44,9 @@ def obs_assert_that_measurements_close_to(actual, expected, tolerance=None):
     _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
 
 
-def assert_that_net_quantities_close_to(actual, expected, tolerance=None):
+def assert_that_net_quantities_close_to(actual, expected, tolerance=None, reason=''):
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
-    _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance)
+    _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance, reason)
 
 
 def get_net_unit(net_quantity):
