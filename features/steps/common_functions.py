@@ -13,13 +13,13 @@
 #
 
 
-import decimal
-
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 
 import toolz.curried as toolz
 
-from orchid import (unit_system as units)
+# We import functions from `tests.custom_matchers` simply to expose them to all our steps
+# noinspection PyUnresolvedReferences
+from tests.custom_matchers import (assert_that_measurements_close_to)
 
 
 @toolz.curry

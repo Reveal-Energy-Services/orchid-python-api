@@ -27,6 +27,7 @@ from .native_monitor_curve_adapter import MonitorCurveTypes
 
 # Helpful functions
 from .convert import to_unit
+from .measurement import registry as unit_reg
 from .native_treatment_calculations import (median_treating_pressure, pumped_fluid_volume, total_proppant_mass)
 from .reference_origins import WellReferenceFrameXy
 

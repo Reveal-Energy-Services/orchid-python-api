@@ -26,6 +26,8 @@ import toolz.curried as toolz
 
 import orchid
 
+import common_functions as cf
+
 
 FIELD_NAME_PATHNAME_MAP = {
     'Bakken': str(orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')),
@@ -161,50 +163,15 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
         center_y (str): The y-coordinate of the project center in project units.
     """
 
-    expected_fluid_density_text, raw_expected_fluid_density_unit = fluid_density.split(maxsplit=1)
-    # Encoding for Unicode superscript 3
-    expected_fluid_density_unit = raw_expected_fluid_density_unit.replace('^3', '\u00b3')
-    actual_fluid_density_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['fluid_density'].unit)
-    assert_that(actual_fluid_density_unit, equal_to(expected_fluid_density_unit))
-    expected_fluid_density_magnitude = decimal.Decimal(expected_fluid_density_text)
+    assert_that_actual_close_to_expected(context.project_measurements['fluid_density'], fluid_density)
+    assert_that_actual_close_to_expected(context.project_measurements['azimuth'], azimuth)
+    assert_that_actual_close_to_expected(context.project_measurements['center_x'], center_x)
+    assert_that_actual_close_to_expected(context.project_measurements['center_y'], center_y)
 
-    # Decrease exponent when last significant digit less than 1 so that error is in digit one more than the
-    # last significant (decimal) digit
-    fluid_density_tolerance = decimal.Decimal((0, (6,), expected_fluid_density_magnitude.as_tuple()[-1] - 1))
-    assert_that(decimal.Decimal(context.project_measurements['fluid_density'].magnitude),
-                close_to(expected_fluid_density_magnitude, fluid_density_tolerance))
 
-    expected_azimuth_text, raw_expected_azimuth_unit = azimuth.split(maxsplit=1)
-    # Encoding for Unicode degree symbol.
-    expected_azimuth_unit = raw_expected_azimuth_unit.replace('deg', '\u00b0')
-    actual_azimuth_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['azimuth'].unit)
-    assert_that(actual_azimuth_unit, equal_to(expected_azimuth_unit))
-    expected_azimuth_magnitude = decimal.Decimal(expected_azimuth_text)
-
-    # Decrease exponent when last significant digit equal to 1 so that error is in digit one more than the
-    # last significant (decimal) digit
-    azimuth_tolerance = decimal.Decimal((0, (1,), expected_azimuth_magnitude.as_tuple()[-1] - 1))
-    assert_that(decimal.Decimal(context.project_measurements['azimuth'].magnitude),
-                close_to(expected_azimuth_magnitude, azimuth_tolerance))
-
-    expected_center_x_text, expected_center_x_unit = center_x.split(maxsplit=1)
-    actual_center_x_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['center_x'].unit)
-    assert_that(actual_center_x_unit, equal_to(expected_center_x_unit))
-    expected_center_x_magnitude = decimal.Decimal(expected_center_x_text)
-
-    # Increase exponent when last significant digit greater than 1 so that error is in digit one more than
-    # the last significant (decimal) digit
-    center_x_tolerance = decimal.Decimal((0, (6,), expected_center_x_magnitude.as_tuple()[-1] + 1))
-    assert_that(decimal.Decimal(context.project_measurements['center_x'].magnitude),
-                close_to(expected_center_x_magnitude, center_x_tolerance))
-
-    expected_center_y_text, expected_center_y_unit = center_y.split(maxsplit=1)
-    actual_center_y_unit = orchid.obs_unit_system.abbreviation(context.project_measurements['center_y'].unit)
-    assert_that(actual_center_y_unit, equal_to(expected_center_y_unit))
-    expected_center_y_magnitude = decimal.Decimal(expected_center_y_text)
-
-    # Increase exponent when last significant digit greater than 1 so that error is in digit one more than
-    # the last significant (decimal) digit
-    center_y_tolerance = decimal.Decimal((0, (6,), expected_center_y_magnitude.as_tuple()[-1] + 1))
-    assert_that(decimal.Decimal(context.project_measurements['center_y'].magnitude),
-                close_to(expected_center_y_magnitude, center_y_tolerance))
+def assert_that_actual_close_to_expected(actual, expected_text):
+    expected = orchid.unit_reg.Quantity(expected_text)
+    # Allow error of +/- 1 in last significant figure of expected value.
+    expected_magnitude_text = expected_text.split(maxsplit=1)[0]
+    tolerance = decimal.Decimal((0, (1,), decimal.Decimal(expected_magnitude_text).as_tuple()[-1]))
+    cf.assert_that_measurements_close_to(actual, expected, tolerance)

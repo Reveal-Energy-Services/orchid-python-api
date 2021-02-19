@@ -16,7 +16,7 @@ import decimal
 import warnings
 
 from hamcrest import assert_that, equal_to, close_to
-from hamcrest.core.base_matcher import BaseMatcher, T
+from hamcrest.core.base_matcher import BaseMatcher
 from hamcrest.core.description import Description
 
 
