@@ -24,7 +24,7 @@ import orchid
 from tests import (custom_matchers as tcm)
 
 
-def assert_that_actual_close_to_expected(actual, expected_text):
+def assert_that_actual_measurement_close_to_expected(actual, expected_text):
     expected = orchid.unit_reg.Quantity(expected_text)
     # Allow error of +/- 1 in last significant figure of expected value.
     expected_magnitude_text = expected_text.split(maxsplit=1)[0]

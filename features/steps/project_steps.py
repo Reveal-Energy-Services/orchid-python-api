@@ -161,7 +161,7 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
         center_y (str): The y-coordinate of the project center in project units.
     """
 
-    cf.assert_that_actual_close_to_expected(context.project_measurements['fluid_density'], fluid_density)
-    cf.assert_that_actual_close_to_expected(context.project_measurements['azimuth'], azimuth)
-    cf.assert_that_actual_close_to_expected(context.project_measurements['center_x'], center_x)
-    cf.assert_that_actual_close_to_expected(context.project_measurements['center_y'], center_y)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['fluid_density'], fluid_density)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['azimuth'], azimuth)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['center_x'], center_x)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['center_y'], center_y)
