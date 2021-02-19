@@ -19,9 +19,7 @@
 from behave import *
 use_step_matcher("parse")
 
-import decimal
-
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
 import orchid
@@ -163,15 +161,7 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
         center_y (str): The y-coordinate of the project center in project units.
     """
 
-    assert_that_actual_close_to_expected(context.project_measurements['fluid_density'], fluid_density)
-    assert_that_actual_close_to_expected(context.project_measurements['azimuth'], azimuth)
-    assert_that_actual_close_to_expected(context.project_measurements['center_x'], center_x)
-    assert_that_actual_close_to_expected(context.project_measurements['center_y'], center_y)
-
-
-def assert_that_actual_close_to_expected(actual, expected_text):
-    expected = orchid.unit_reg.Quantity(expected_text)
-    # Allow error of +/- 1 in last significant figure of expected value.
-    expected_magnitude_text = expected_text.split(maxsplit=1)[0]
-    tolerance = decimal.Decimal((0, (1,), decimal.Decimal(expected_magnitude_text).as_tuple()[-1]))
-    cf.assert_that_measurements_close_to(actual, expected, tolerance)
+    cf.assert_that_actual_close_to_expected(context.project_measurements['fluid_density'], fluid_density)
+    cf.assert_that_actual_close_to_expected(context.project_measurements['azimuth'], azimuth)
+    cf.assert_that_actual_close_to_expected(context.project_measurements['center_x'], center_x)
+    cf.assert_that_actual_close_to_expected(context.project_measurements['center_y'], center_y)

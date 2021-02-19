@@ -12,14 +12,24 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import decimal
 
 from hamcrest import assert_that, equal_to
 
 import toolz.curried as toolz
 
-# We import functions from `tests.custom_matchers` simply to expose them to all our steps
+import orchid
+
 # noinspection PyUnresolvedReferences
-from tests.custom_matchers import (assert_that_measurements_close_to)
+from tests import (custom_matchers as tcm)
+
+
+def assert_that_actual_close_to_expected(actual, expected_text):
+    expected = orchid.unit_reg.Quantity(expected_text)
+    # Allow error of +/- 1 in last significant figure of expected value.
+    expected_magnitude_text = expected_text.split(maxsplit=1)[0]
+    tolerance = decimal.Decimal((0, (1,), decimal.Decimal(expected_magnitude_text).as_tuple()[-1]))
+    tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
 
 @toolz.curry
