@@ -27,19 +27,19 @@ Feature: Low-level DOM API (treatment)
     And I see correct sample values for <well>, <index>, <stage_no>, <volume>, <proppant> and <median>
 
     Examples: Bakken
-      | field  | well    | index | stage_no | volume      | proppant     | median      |
-      | Bakken | Demo_1H | 0     | 1        | 3668.3 bbl  | 128421.2 lb  | 6164.04 psi |
-      | Bakken | Demo_1H | 49    | 50       | 4793.33 bbl | 137810.07 lb | 6892.08 psi |
-      | Bakken | Demo_1H | 27    | 28       | 6271.89 bbl | 187685.84 lb | 8193.22 psi |
-      | Bakken | Demo_1H | 22    | 23       | 7818.02 bbl | 241601.3 lb  | 8224.48 psi |
-      | Bakken | Demo_2H | 0     | 1        | 3920.99 bbl | 135560.01 lb | 6535.85 psi |
-      | Bakken | Demo_2H | 49    | 50       | 5329.46 bbl | 99195.4 lb   | 6496.81 psi |
-      | Bakken | Demo_2H | 44    | 45       | 5371.62 bbl | 98148.74 lb  | 6722.27 psi |
-      | Bakken | Demo_2H | 12    | 13       | 8415.64 bbl | 171597.71 lb | 8235.68 psi |
-      | Bakken | Demo_4H | 0     | 1        | 3870.54 bbl | 139758.48 lb | 6322.39 psi |
-      | Bakken | Demo_4H | 34    | 35       | 8294.68 bbl | 132610.71 lb | 6442.86 psi |
-      | Bakken | Demo_4H | 18    | 19       | 9380.16 bbl | 246036.99 lb | 7927.32 psi |
-      | Bakken | Demo_4H | 13    | 14       | 10775.5 bbl | 303855.12 lb | 7973.23 psi |
+      | field  | well    | index | stage_no | volume          | proppant     | median      |
+      | Bakken | Demo_1H | 0     | 1        | 3668.3 oil_bbl  | 128421.2 lb  | 6164.04 psi |
+      | Bakken | Demo_1H | 49    | 50       | 4793.33 oil_bbl | 137810.07 lb | 6892.08 psi |
+      | Bakken | Demo_1H | 27    | 28       | 6271.89 oil_bbl | 187685.84 lb | 8193.22 psi |
+      | Bakken | Demo_1H | 22    | 23       | 7818.02 oil_bbl | 241601.3 lb  | 8224.48 psi |
+      | Bakken | Demo_2H | 0     | 1        | 3920.99 oil_bbl | 135560.01 lb | 6535.85 psi |
+      | Bakken | Demo_2H | 49    | 50       | 5329.46 oil_bbl | 99195.4 lb   | 6496.81 psi |
+      | Bakken | Demo_2H | 44    | 45       | 5371.62 oil_bbl | 98148.74 lb  | 6722.27 psi |
+      | Bakken | Demo_2H | 12    | 13       | 8415.64 oil_bbl | 171597.71 lb | 8235.68 psi |
+      | Bakken | Demo_4H | 0     | 1        | 3870.54 oil_bbl | 139758.48 lb | 6322.39 psi |
+      | Bakken | Demo_4H | 34    | 35       | 8294.68 oil_bbl | 132610.71 lb | 6442.86 psi |
+      | Bakken | Demo_4H | 18    | 19       | 9380.16 oil_bbl | 246036.99 lb | 7927.32 psi |
+      | Bakken | Demo_4H | 13    | 14       | 10775.5 oil_bbl | 303855.12 lb | 7973.23 psi |
 
     # With my current setup, `behave` will not read text, 'm\u00b3', as the character m with the unicode
     # superscript 3 character. To work around this, I "encode" this value as 'm^3'. The step will then convert
