@@ -21,12 +21,11 @@ use_step_matcher("parse")
 
 import decimal
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 
 import common_functions as cf
 
 from orchid import (
-    measurement as om,
     reference_origins as origins,
     unit_system as units,
 )
@@ -99,7 +98,7 @@ def _measurement_text_to_measurement(measurement_text):
     else:
         raise ValueError(f'Unrecognized unit, "{unit_text}".')
 
-    result = om.Quantity(magnitude, unit)
+    result = units.make_measurement(unit, magnitude)
     return result
 
 
