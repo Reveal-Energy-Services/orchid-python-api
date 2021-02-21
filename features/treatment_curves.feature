@@ -59,14 +59,14 @@ Feature: Treatment curves API
       | Bakken | Demo_1H | 1        | pressure   | 7680  | 2018-06-06T15:37:00.0000000Z | 7214.85 psi      |
       | Bakken | Demo_1H | 1        | pressure   | 7836  | 2018-06-06T15:39:36.0000000Z | 6855.80 psi      |
       | Bakken | Demo_1H | 1        | pressure   | 3979  | 2018-06-06T14:35:19.0000000Z | -7.50 psi        |
-#      | Bakken | Demo_1H | 1        | proppant   | 10607 | 2018-06-06T16:25:47.0000000Z | 2.15 lb/gal      |
-#      | Bakken | Demo_1H | 1        | proppant   | 910   | 2018-06-06T13:44:10.0000000Z | -0.15 lb/gal     |
-#      | Bakken | Demo_1H | 1        | proppant   | 1745  | 2018-06-06T13:58:05.0000000Z | 0.51 lb/gal      |
-#      | Bakken | Demo_1H | 1        | proppant   | 5037  | 2018-06-06T14:52:57.0000000Z | -0.45 lb/gal     |
-#      | Bakken | Demo_1H | 1        | proppant   | 22    | 2018-06-06T13:29:22.0000000Z | -0.26 lb/gal     |
-#      | Bakken | Demo_1H | 1        | proppant   | 832   | 2018-06-06T13:42:52.0000000Z | -0.16 lb/gal     |
-#      | Bakken | Demo_1H | 1        | proppant   | 11375 | 2018-06-06T16:38:35.0000000Z | -0.07 lb/gal     |
-#      | Bakken | Demo_1H | 1        | proppant   | 3160  | 2018-06-06T14:21:40.0000000Z | -0.08 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 10607 | 2018-06-06T16:25:47.0000000Z | 2.15 lb/gal      |
+      | Bakken | Demo_1H | 1        | proppant   | 910   | 2018-06-06T13:44:10.0000000Z | -0.15 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 1745  | 2018-06-06T13:58:05.0000000Z | 0.51 lb/gal      |
+      | Bakken | Demo_1H | 1        | proppant   | 5037  | 2018-06-06T14:52:57.0000000Z | -0.45 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 22    | 2018-06-06T13:29:22.0000000Z | -0.26 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 832   | 2018-06-06T13:42:52.0000000Z | -0.16 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 11375 | 2018-06-06T16:38:35.0000000Z | -0.07 lb/gal     |
+      | Bakken | Demo_1H | 1        | proppant   | 3160  | 2018-06-06T14:21:40.0000000Z | -0.08 lb/gal     |
 #      | Bakken | Demo_1H | 1        | slurry     | 8557  | 2018-06-06T15:51:37.0000000Z | 35.08 bpm        |
 #      | Bakken | Demo_1H | 1        | slurry     | 5415  | 2018-06-06T14:59:15.0000000Z | 0.14 bpm         |
 #      | Bakken | Demo_1H | 1        | slurry     | 8125  | 2018-06-06T15:44:25.0000000Z | 35.49 bpm        |
@@ -83,14 +83,14 @@ Feature: Treatment curves API
       | Bakken | Demo_1H | 50       | pressure   | 1897  | 2018-06-28T13:11:37.0000000Z | 6828.63 psi      |
       | Bakken | Demo_1H | 50       | pressure   | 260   | 2018-06-28T12:44:20.0000000Z | 7954.80 psi      |
       | Bakken | Demo_1H | 50       | pressure   | 1913  | 2018-06-28T13:11:53.0000000Z | 6828.10 psi      |
-#      | Bakken | Demo_1H | 50       | proppant   | 604   | 2018-06-28T12:50:04.0000000Z | 0.79 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 2509  | 2018-06-28T13:21:49.0000000Z | 0.48 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 3233  | 2018-06-28T13:33:53.0000000Z | 0.86 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 1133  | 2018-06-28T12:58:53.0000000Z | 0.84 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 2116  | 2018-06-28T13:15:16.0000000Z | 1.05 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 1835  | 2018-06-28T13:10:35.0000000Z | 1.06 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 2481  | 2018-06-28T13:21:21.0000000Z | 0.41 lb/gal      |
-#      | Bakken | Demo_1H | 50       | proppant   | 2782  | 2018-06-28T13:26:22.0000000Z | 0.50 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 604   | 2018-06-28T12:50:04.0000000Z | 0.79 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 2509  | 2018-06-28T13:21:49.0000000Z | 0.48 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 3233  | 2018-06-28T13:33:53.0000000Z | 0.86 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 1133  | 2018-06-28T12:58:53.0000000Z | 0.84 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 2116  | 2018-06-28T13:15:16.0000000Z | 1.05 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 1835  | 2018-06-28T13:10:35.0000000Z | 1.06 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 2481  | 2018-06-28T13:21:21.0000000Z | 0.41 lb/gal      |
+      | Bakken | Demo_1H | 50       | proppant   | 2782  | 2018-06-28T13:26:22.0000000Z | 0.50 lb/gal      |
 #      | Bakken | Demo_1H | 50       | slurry     | 3067  | 2018-06-28T13:31:07.0000000Z | 71.73 bpm        |
 #      | Bakken | Demo_1H | 50       | slurry     | 3872  | 2018-06-28T13:44:32.0000000Z | 71.73 bpm        |
 #      | Bakken | Demo_1H | 50       | slurry     | 1877  | 2018-06-28T13:11:17.0000000Z | 71.86 bpm        |
@@ -107,14 +107,14 @@ Feature: Treatment curves API
       | Bakken | Demo_1H | 41       | pressure   | 143   | 2018-06-26T13:44:25.0000000Z | 7007.66 psi      |
       | Bakken | Demo_1H | 41       | pressure   | 4318  | 2018-06-26T14:54:00.0000000Z | 7141.08 psi      |
       | Bakken | Demo_1H | 41       | pressure   | 1653  | 2018-06-26T14:09:35.0000000Z | 7672.33 psi      |
-#      | Bakken | Demo_1H | 41       | proppant   | 1833  | 2018-06-26T14:12:35.0000000Z | 1.06 lb/gal      |
-#      | Bakken | Demo_1H | 41       | proppant   | 2188  | 2018-06-26T14:18:30.0000000Z | 1.40 lb/gal      |
-#      | Bakken | Demo_1H | 41       | proppant   | 3406  | 2018-06-26T14:38:48.0000000Z | 0.55 lb/gal      |
-#      | Bakken | Demo_1H | 41       | proppant   | 514   | 2018-06-26T13:50:36.0000000Z | -0.11 lb/gal     |
-#      | Bakken | Demo_1H | 41       | proppant   | 1498  | 2018-06-26T14:07:00.0000000Z | 1.15 lb/gal      |
-#      | Bakken | Demo_1H | 41       | proppant   | 1586  | 2018-06-26T14:08:28.0000000Z | 1.12 lb/gal      |
-#      | Bakken | Demo_1H | 41       | proppant   | 4683  | 2018-06-26T15:00:05.0000000Z | -0.04 lb/gal     |
-#      | Bakken | Demo_1H | 41       | proppant   | 1427  | 2018-06-26T14:05:49.0000000Z | 0.97 lb/gal      |
+      | Bakken | Demo_1H | 41       | proppant   | 1833  | 2018-06-26T14:12:35.0000000Z | 1.06 lb/gal      |
+      | Bakken | Demo_1H | 41       | proppant   | 2188  | 2018-06-26T14:18:30.0000000Z | 1.40 lb/gal      |
+      | Bakken | Demo_1H | 41       | proppant   | 3406  | 2018-06-26T14:38:48.0000000Z | 0.55 lb/gal      |
+      | Bakken | Demo_1H | 41       | proppant   | 514   | 2018-06-26T13:50:36.0000000Z | -0.11 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 1498  | 2018-06-26T14:07:00.0000000Z | 1.15 lb/gal      |
+      | Bakken | Demo_1H | 41       | proppant   | 1586  | 2018-06-26T14:08:28.0000000Z | 1.12 lb/gal      |
+      | Bakken | Demo_1H | 41       | proppant   | 4683  | 2018-06-26T15:00:05.0000000Z | -0.04 lb/gal     |
+      | Bakken | Demo_1H | 41       | proppant   | 1427  | 2018-06-26T14:05:49.0000000Z | 0.97 lb/gal      |
 #      | Bakken | Demo_1H | 41       | slurry     | 1976  | 2018-06-26T14:14:58.0000000Z | 71.88 bpm        |
 #      | Bakken | Demo_1H | 41       | slurry     | 3273  | 2018-06-26T14:36:35.0000000Z | 71.87 bpm        |
 #      | Bakken | Demo_1H | 41       | slurry     | 4813  | 2018-06-26T15:02:15.0000000Z | 0.38 bpm         |
@@ -131,14 +131,14 @@ Feature: Treatment curves API
       | Bakken | Demo_1H | 20       | pressure   | 6797  | 2018-06-15T23:19:51.0000000Z | 8055.14 psi      |
       | Bakken | Demo_1H | 20       | pressure   | 7593  | 2018-06-15T23:33:07.0000000Z | 8123.00 psi      |
       | Bakken | Demo_1H | 20       | pressure   | 6810  | 2018-06-15T23:20:04.0000000Z | 8053.74 psi      |
-#      | Bakken | Demo_1H | 20       | proppant   | 7036  | 2018-06-15T23:23:50.0000000Z | 1.06 lb/gal      |
-#      | Bakken | Demo_1H | 20       | proppant   | 1361  | 2018-06-15T21:49:15.0000000Z | 0.08 lb/gal      |
-#      | Bakken | Demo_1H | 20       | proppant   | 7562  | 2018-06-15T23:32:36.0000000Z | 0.20 lb/gal      |
-#      | Bakken | Demo_1H | 20       | proppant   | 1908  | 2018-06-15T21:58:22.0000000Z | 0.60 lb/gal      |
-#      | Bakken | Demo_1H | 20       | proppant   | 7295  | 2018-06-15T23:28:09.0000000Z | 1.46 lb/gal      |
-#      | Bakken | Demo_1H | 20       | proppant   | 400   | 2018-06-15T21:33:14.0000000Z | -0.30 lb/gal     |
-#      | Bakken | Demo_1H | 20       | proppant   | 2045  | 2018-06-15T22:00:39.0000000Z | -0.02 lb/gal     |
-#      | Bakken | Demo_1H | 20       | proppant   | 187   | 2018-06-15T21:29:41.0000000Z | -0.20 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 7036  | 2018-06-15T23:23:50.0000000Z | 1.06 lb/gal      |
+      | Bakken | Demo_1H | 20       | proppant   | 1361  | 2018-06-15T21:49:15.0000000Z | 0.08 lb/gal      |
+      | Bakken | Demo_1H | 20       | proppant   | 7562  | 2018-06-15T23:32:36.0000000Z | 0.20 lb/gal      |
+      | Bakken | Demo_1H | 20       | proppant   | 1908  | 2018-06-15T21:58:22.0000000Z | 0.60 lb/gal      |
+      | Bakken | Demo_1H | 20       | proppant   | 7295  | 2018-06-15T23:28:09.0000000Z | 1.46 lb/gal      |
+      | Bakken | Demo_1H | 20       | proppant   | 400   | 2018-06-15T21:33:14.0000000Z | -0.30 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 2045  | 2018-06-15T22:00:39.0000000Z | -0.02 lb/gal     |
+      | Bakken | Demo_1H | 20       | proppant   | 187   | 2018-06-15T21:29:41.0000000Z | -0.20 lb/gal     |
 #      | Bakken | Demo_1H | 20       | slurry     | 2500  | 2018-06-15T22:08:14.0000000Z | 29.32 bpm        |
 #      | Bakken | Demo_1H | 20       | slurry     | 4767  | 2018-06-15T22:46:01.0000000Z | 70.08 bpm        |
 #      | Bakken | Demo_1H | 20       | slurry     | 4340  | 2018-06-15T22:38:54.0000000Z | 68.13 bpm        |
@@ -155,14 +155,14 @@ Feature: Treatment curves API
       | Bakken | Demo_2H | 1        | pressure   | 11631 | 2018-06-06T08:12:24.0000000Z | 6345.52 psi      |
       | Bakken | Demo_2H | 1        | pressure   | 3358  | 2018-06-06T05:54:31.0000000Z | 9.23 psi         |
       | Bakken | Demo_2H | 1        | pressure   | 6133  | 2018-06-06T06:40:46.0000000Z | 7324.85 psi      |
-#      | Bakken | Demo_2H | 1        | proppant   | 9032  | 2018-06-06T07:29:05.0000000Z | -0.04 lb/gal     |
-#      | Bakken | Demo_2H | 1        | proppant   | 12912 | 2018-06-06T08:33:45.0000000Z | 2.12 lb/gal      |
-#      | Bakken | Demo_2H | 1        | proppant   | 1838  | 2018-06-06T05:29:11.0000000Z | 1.41 lb/gal      |
-#      | Bakken | Demo_2H | 1        | proppant   | 4199  | 2018-06-06T06:08:32.0000000Z | 1.41 lb/gal      |
-#      | Bakken | Demo_2H | 1        | proppant   | 7351  | 2018-06-06T07:01:04.0000000Z | -0.01 lb/gal     |
-#      | Bakken | Demo_2H | 1        | proppant   | 12643 | 2018-06-06T08:29:16.0000000Z | 2.14 lb/gal      |
-#      | Bakken | Demo_2H | 1        | proppant   | 2828  | 2018-06-06T05:45:41.0000000Z | 1.36 lb/gal      |
-#      | Bakken | Demo_2H | 1        | proppant   | 598   | 2018-06-06T05:08:31.0000000Z | 1.41 lb/gal      |
+      | Bakken | Demo_2H | 1        | proppant   | 9032  | 2018-06-06T07:29:05.0000000Z | -0.04 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 12912 | 2018-06-06T08:33:45.0000000Z | 2.12 lb/gal      |
+      | Bakken | Demo_2H | 1        | proppant   | 1838  | 2018-06-06T05:29:11.0000000Z | 1.41 lb/gal      |
+      | Bakken | Demo_2H | 1        | proppant   | 4199  | 2018-06-06T06:08:32.0000000Z | 1.41 lb/gal      |
+      | Bakken | Demo_2H | 1        | proppant   | 7351  | 2018-06-06T07:01:04.0000000Z | -0.01 lb/gal     |
+      | Bakken | Demo_2H | 1        | proppant   | 12643 | 2018-06-06T08:29:16.0000000Z | 2.14 lb/gal      |
+      | Bakken | Demo_2H | 1        | proppant   | 2828  | 2018-06-06T05:45:41.0000000Z | 1.36 lb/gal      |
+      | Bakken | Demo_2H | 1        | proppant   | 598   | 2018-06-06T05:08:31.0000000Z | 1.41 lb/gal      |
 #      | Bakken | Demo_2H | 1        | slurry     | 11349 | 2018-06-06T08:07:42.0000000Z | 35.69 bpm        |
 #      | Bakken | Demo_2H | 1        | slurry     | 7792  | 2018-06-06T07:08:25.0000000Z | 2.78 bpm         |
 #      | Bakken | Demo_2H | 1        | slurry     | 14101 | 2018-06-06T08:53:34.0000000Z | 35.56 bpm        |
@@ -179,14 +179,14 @@ Feature: Treatment curves API
       | Bakken | Demo_2H | 50       | pressure   | 1584  | 2018-06-29T23:56:24.0000000Z | 5334 psi         |
       | Bakken | Demo_2H | 50       | pressure   | 7102  | 2018-06-30T01:28:22.0000000Z | 4537 psi         |
       | Bakken | Demo_2H | 50       | pressure   | 5507  | 2018-06-30T01:01:47.0000000Z | 6341 psi         |
-#      | Bakken | Demo_2H | 50       | proppant   | 5128  | 2018-06-30T00:55:28.0000000Z | 0.7288 lb/gal    |
-#      | Bakken | Demo_2H | 50       | proppant   | 1980  | 2018-06-30T00:03:00.0000000Z | -3.059e-3 lb/gal |
-#      | Bakken | Demo_2H | 50       | proppant   | 1538  | 2018-06-29T23:55:38.0000000Z | -6.446e-2 lb/gal |
-#      | Bakken | Demo_2H | 50       | proppant   | 292   | 2018-06-29T23:34:52.0000000Z | -9.890e-2 lb/gal |
-#      | Bakken | Demo_2H | 50       | proppant   | 2433  | 2018-06-30T00:10:33.0000000Z | 0.4354 lb/gal    |
-#      | Bakken | Demo_2H | 50       | proppant   | 6840  | 2018-06-30T01:24:00.0000000Z | -0.1004 lb/gal   |
-#      | Bakken | Demo_2H | 50       | proppant   | 1766  | 2018-06-29T23:59:26.0000000Z | -4.708e-2 lb/gal |
-#      | Bakken | Demo_2H | 50       | proppant   | 5595  | 2018-06-30T01:03:15.0000000Z | 0.9640 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 5128  | 2018-06-30T00:55:28.0000000Z | 0.7288 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 1980  | 2018-06-30T00:03:00.0000000Z | -3.059e-3 lb/gal |
+      | Bakken | Demo_2H | 50       | proppant   | 1538  | 2018-06-29T23:55:38.0000000Z | -6.446e-2 lb/gal |
+      | Bakken | Demo_2H | 50       | proppant   | 292   | 2018-06-29T23:34:52.0000000Z | -9.890e-2 lb/gal |
+      | Bakken | Demo_2H | 50       | proppant   | 2433  | 2018-06-30T00:10:33.0000000Z | 0.4354 lb/gal    |
+      | Bakken | Demo_2H | 50       | proppant   | 6840  | 2018-06-30T01:24:00.0000000Z | -0.1004 lb/gal   |
+      | Bakken | Demo_2H | 50       | proppant   | 1766  | 2018-06-29T23:59:26.0000000Z | -4.708e-2 lb/gal |
+      | Bakken | Demo_2H | 50       | proppant   | 5595  | 2018-06-30T01:03:15.0000000Z | 0.9640 lb/gal    |
 #      | Bakken | Demo_2H | 50       | slurry     | 1124  | 2018-06-29T23:48:44.0000000Z | 29.78 bpm        |
 #      | Bakken | Demo_2H | 50       | slurry     | 74    | 2018-06-29T23:31:14.0000000Z | 0.1565 bpm       |
 #      | Bakken | Demo_2H | 50       | slurry     | 6992  | 2018-06-30T01:26:32.0000000Z | 0.2609 bpm       |
@@ -203,14 +203,14 @@ Feature: Treatment curves API
       | Bakken | Demo_2H | 21       | pressure   | 804   | 2018-06-17T13:21:27.0000000Z | 8367 psi         |
       | Bakken | Demo_2H | 21       | pressure   | 5497  | 2018-06-17T14:39:40.0000000Z | 8410 psi         |
       | Bakken | Demo_2H | 21       | pressure   | 3410  | 2018-06-17T14:04:53.0000000Z | 8177 psi         |
-#      | Bakken | Demo_2H | 21       | proppant   | 2361  | 2018-06-17T13:47:24.0000000Z | 0.4382 lb/gal    |
-#      | Bakken | Demo_2H | 21       | proppant   | 6234  | 2018-06-17T14:51:57.0000000Z | 0.3165 lb/gal    |
-#      | Bakken | Demo_2H | 21       | proppant   | 3781  | 2018-06-17T14:11:04.0000000Z | 3.467e-2 lb/gal  |
-#      | Bakken | Demo_2H | 21       | proppant   | 2521  | 2018-06-17T13:50:04.0000000Z | 0.4257 lb/gal    |
-#      | Bakken | Demo_2H | 21       | proppant   | 999   | 2018-06-17T13:24:42.0000000Z | -2.390e-2 lb/gal |
-#      | Bakken | Demo_2H | 21       | proppant   | 3898  | 2018-06-17T14:13:01.0000000Z | -3.143e-2 lb/gal |
-#      | Bakken | Demo_2H | 21       | proppant   | 4382  | 2018-06-17T14:21:05.0000000Z | 0.6323 lb/gal    |
-#      | Bakken | Demo_2H | 21       | proppant   | 7186  | 2018-06-17T15:07:49.0000000Z | 1.222 lb/gal     |
+      | Bakken | Demo_2H | 21       | proppant   | 2361  | 2018-06-17T13:47:24.0000000Z | 0.4382 lb/gal    |
+      | Bakken | Demo_2H | 21       | proppant   | 6234  | 2018-06-17T14:51:57.0000000Z | 0.3165 lb/gal    |
+      | Bakken | Demo_2H | 21       | proppant   | 3781  | 2018-06-17T14:11:04.0000000Z | 3.467e-2 lb/gal  |
+      | Bakken | Demo_2H | 21       | proppant   | 2521  | 2018-06-17T13:50:04.0000000Z | 0.4257 lb/gal    |
+      | Bakken | Demo_2H | 21       | proppant   | 999   | 2018-06-17T13:24:42.0000000Z | -2.390e-2 lb/gal |
+      | Bakken | Demo_2H | 21       | proppant   | 3898  | 2018-06-17T14:13:01.0000000Z | -3.143e-2 lb/gal |
+      | Bakken | Demo_2H | 21       | proppant   | 4382  | 2018-06-17T14:21:05.0000000Z | 0.6323 lb/gal    |
+      | Bakken | Demo_2H | 21       | proppant   | 7186  | 2018-06-17T15:07:49.0000000Z | 1.222 lb/gal     |
 #      | Bakken | Demo_2H | 21       | slurry     | 6831  | 2018-06-17T15:01:54.0000000Z | 69.49 bpm        |
 #      | Bakken | Demo_2H | 21       | slurry     | 1143  | 2018-06-17T13:27:06.0000000Z | 28.21 bpm        |
 #      | Bakken | Demo_2H | 21       | slurry     | 736   | 2018-06-17T13:20:19.0000000Z | 29.98 bpm        |
@@ -224,14 +224,14 @@ Feature: Treatment curves API
       | Bakken | Demo_2H | 44       | pressure   | 1030  | 2018-06-29T00:19:31.0000000Z | 6601 psi         |
       | Bakken | Demo_2H | 44       | pressure   | 876   | 2018-06-29T00:16:57.0000000Z | 6742 psi         |
       | Bakken | Demo_2H | 44       | pressure   | 6129  | 2018-06-29T01:44:30.0000000Z | 5379 psi         |
-#      | Bakken | Demo_2H | 44       | proppant   | 4726  | 2018-06-29T01:21:07.0000000Z | 0.3101 lb/gal    |
-#      | Bakken | Demo_2H | 44       | proppant   | 4039  | 2018-06-29T01:09:40.0000000Z | -3.825e-2 lb/gal |
-#      | Bakken | Demo_2H | 44       | proppant   | 6155  | 2018-06-29T01:44:56.0000000Z | -6.655e-2 lb/gal |
-#      | Bakken | Demo_2H | 44       | proppant   | 386   | 2018-06-29T00:08:47.0000000Z | -0.1605 lb/gal   |
-#      | Bakken | Demo_2H | 44       | proppant   | 2034  | 2018-06-29T00:36:15.0000000Z | 0.1910 lb/gal    |
-#      | Bakken | Demo_2H | 44       | proppant   | 5716  | 2018-06-29T01:37:37.0000000Z | 0.0284 lb/gal    |
-#      | Bakken | Demo_2H | 44       | proppant   | 4265  | 2018-06-29T01:13:26.0000000Z | 0.2296 lb/gal     |
-#      | Bakken | Demo_2H | 44       | proppant   | 1162  | 2018-06-29T00:21:43.0000000Z | -5.815e-2 lb/gal |
+      | Bakken | Demo_2H | 44       | proppant   | 4726  | 2018-06-29T01:21:07.0000000Z | 0.3101 lb/gal    |
+      | Bakken | Demo_2H | 44       | proppant   | 4039  | 2018-06-29T01:09:40.0000000Z | -3.825e-2 lb/gal |
+      | Bakken | Demo_2H | 44       | proppant   | 6155  | 2018-06-29T01:44:56.0000000Z | -6.655e-2 lb/gal |
+      | Bakken | Demo_2H | 44       | proppant   | 386   | 2018-06-29T00:08:47.0000000Z | -0.1605 lb/gal   |
+      | Bakken | Demo_2H | 44       | proppant   | 2034  | 2018-06-29T00:36:15.0000000Z | 0.1910 lb/gal    |
+      | Bakken | Demo_2H | 44       | proppant   | 5716  | 2018-06-29T01:37:37.0000000Z | 0.0284 lb/gal    |
+      | Bakken | Demo_2H | 44       | proppant   | 4265  | 2018-06-29T01:13:26.0000000Z | 0.2296 lb/gal     |
+      | Bakken | Demo_2H | 44       | proppant   | 1162  | 2018-06-29T00:21:43.0000000Z | -5.815e-2 lb/gal |
 #      | Bakken | Demo_2H | 44       | slurry     | 3023  | 2018-06-29T00:52:44.0000000Z | 71.66 bpm        |
 #      | Bakken | Demo_2H | 44       | slurry     | 2102  | 2018-06-29T00:37:23.0000000Z | 71.41 bpm        |
 #      | Bakken | Demo_2H | 44       | slurry     | 5629  | 2018-06-29T01:36:10.0000000Z | 71.66 bpm        |
@@ -248,14 +248,14 @@ Feature: Treatment curves API
       | Bakken | Demo_4H | 1        | pressure   | 5317  | 2018-06-06T11:08:37.0000000Z | 6399 psi         |
       | Bakken | Demo_4H | 1        | pressure   | 5490  | 2018-06-06T11:11:30.0000000Z | 6350 psi         |
       | Bakken | Demo_4H | 1        | pressure   | 6704  | 2018-06-06T11:31:44.0000000Z | 6207 psi         |
-#      | Bakken | Demo_4H | 1        | proppant   | 5873  | 2018-06-06T11:17:53.0000000Z | 2.245 lb/gal     |
-#      | Bakken | Demo_4H | 1        | proppant   | 6490  | 2018-06-06T11:28:10.0000000Z | 2.289 lb/gal     |
-#      | Bakken | Demo_4H | 1        | proppant   | 2994  | 2018-06-06T10:29:54.0000000Z | 4.342e-2 lb/gal  |
-#      | Bakken | Demo_4H | 1        | proppant   | 2449  | 2018-06-06T10:20:49.0000000Z | -8.491e-2 lb/gal |
-#      | Bakken | Demo_4H | 1        | proppant   | 6059  | 2018-06-06T11:20:59.0000000Z | 2.220 lb/gal     |
-#      | Bakken | Demo_4H | 1        | proppant   | 4607  | 2018-06-06T10:56:47.0000000Z | 1.311 lb/gal     |
-#      | Bakken | Demo_4H | 1        | proppant   | 3458  | 2018-06-06T10:37:38.0000000Z | 0.595 lb/gal     |
-#      | Bakken | Demo_4H | 1        | proppant   | 7425  | 2018-06-06T11:43:45.0000000Z | -3.851e-2 lb/gal |
+      | Bakken | Demo_4H | 1        | proppant   | 5873  | 2018-06-06T11:17:53.0000000Z | 2.245 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 6490  | 2018-06-06T11:28:10.0000000Z | 2.289 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 2994  | 2018-06-06T10:29:54.0000000Z | 4.342e-2 lb/gal  |
+      | Bakken | Demo_4H | 1        | proppant   | 2449  | 2018-06-06T10:20:49.0000000Z | -8.491e-2 lb/gal |
+      | Bakken | Demo_4H | 1        | proppant   | 6059  | 2018-06-06T11:20:59.0000000Z | 2.220 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 4607  | 2018-06-06T10:56:47.0000000Z | 1.311 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 3458  | 2018-06-06T10:37:38.0000000Z | 0.595 lb/gal     |
+      | Bakken | Demo_4H | 1        | proppant   | 7425  | 2018-06-06T11:43:45.0000000Z | -3.851e-2 lb/gal |
 #      | Bakken | Demo_4H | 1        | slurry     | 5568  | 2018-06-06T11:12:48.0000000Z | 35.32 bpm        |
 #      | Bakken | Demo_4H | 1        | slurry     | 2419  | 2018-06-06T10:20:19.0000000Z | 23.57 bpm        |
 #      | Bakken | Demo_4H | 1        | slurry     | 3821  | 2018-06-06T10:43:41.0000000Z | 35.40 bpm        |
@@ -272,14 +272,14 @@ Feature: Treatment curves API
       | Bakken | Demo_4H | 35       | pressure   | 7028  | 2018-06-28T20:23:48.0000000Z | 6388 psi         |
       | Bakken | Demo_4H | 35       | pressure   | 4967  | 2018-06-28T19:49:27.0000000Z | 6641 psi         |
       | Bakken | Demo_4H | 35       | pressure   | 7784  | 2018-06-28T20:36:24.0000000Z | -7.500 psi       |
-#      | Bakken | Demo_4H | 35       | proppant   | 5280  | 2018-06-28T19:54:40.0000000Z | 0.2331 lb/gal    |
-#      | Bakken | Demo_4H | 35       | proppant   | 5404  | 2018-06-28T19:56:44.0000000Z | 0.2512 lb/gal    |
-#      | Bakken | Demo_4H | 35       | proppant   | 7722  | 2018-06-28T20:35:22.0000000Z | -0.2054 lb/gal   |
-#      | Bakken | Demo_4H | 35       | proppant   | 2996  | 2018-06-28T19:16:36.0000000Z | -5.288e-2 lb/gal |
-#      | Bakken | Demo_4H | 35       | proppant   | 3586  | 2018-06-28T19:26:26.0000000Z | 0.4304 lb/gal    |
-#      | Bakken | Demo_4H | 35       | proppant   | 5831  | 2018-06-28T20:03:51.0000000Z | 0.3854 lb/gal    |
-#      | Bakken | Demo_4H | 35       | proppant   | 1722  | 2018-06-28T18:55:22.0000000Z | 0.3903 lb/gal    |
-#      | Bakken | Demo_4H | 35       | proppant   | 4705  | 2018-06-28T19:45:05.0000000Z | -2.078e-2 lb/gal |
+      | Bakken | Demo_4H | 35       | proppant   | 5280  | 2018-06-28T19:54:40.0000000Z | 0.2331 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 5404  | 2018-06-28T19:56:44.0000000Z | 0.2512 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 7722  | 2018-06-28T20:35:22.0000000Z | -0.2054 lb/gal   |
+      | Bakken | Demo_4H | 35       | proppant   | 2996  | 2018-06-28T19:16:36.0000000Z | -5.288e-2 lb/gal |
+      | Bakken | Demo_4H | 35       | proppant   | 3586  | 2018-06-28T19:26:26.0000000Z | 0.4304 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 5831  | 2018-06-28T20:03:51.0000000Z | 0.3854 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 1722  | 2018-06-28T18:55:22.0000000Z | 0.3903 lb/gal    |
+      | Bakken | Demo_4H | 35       | proppant   | 4705  | 2018-06-28T19:45:05.0000000Z | -2.078e-2 lb/gal |
 #      | Bakken | Demo_4H | 35       | slurry     | 1503  | 2018-06-28T18:51:43.0000000Z | 71.97 bpm        |
 #      | Bakken | Demo_4H | 35       | slurry     | 4876  | 2018-06-28T19:47:56.0000000Z | 71.75 bpm        |
 #      | Bakken | Demo_4H | 35       | slurry     | 7327  | 2018-06-28T20:28:47.0000000Z | 71.64 bpm        |
@@ -296,14 +296,14 @@ Feature: Treatment curves API
       | Bakken | Demo_4H | 10       | pressure   | 5918  | 2018-06-14T04:46:01.0000000Z | 8504 psi         |
       | Bakken | Demo_4H | 10       | pressure   | 561   | 2018-06-14T03:16:44.0000000Z | 9329 psi         |
       | Bakken | Demo_4H | 10       | pressure   | 6671  | 2018-06-14T04:58:34.0000000Z | 8248 psi         |
-#      | Bakken | Demo_4H | 10       | proppant   | 8503  | 2018-06-14T05:29:06.0000000Z | 0.4467 lb/gal    |
-#      | Bakken | Demo_4H | 10       | proppant   | 3646  | 2018-06-14T04:08:09.0000000Z | 0.4516 lb/gal    |
-#      | Bakken | Demo_4H | 10       | proppant   | 11436 | 2018-06-14T06:17:59.0000000Z | 5.351e-2 lb/gal  |
-#      | Bakken | Demo_4H | 10       | proppant   | 8685  | 2018-06-14T05:32:08.0000000Z | 0.4909 lb/gal    |
-#      | Bakken | Demo_4H | 10       | proppant   | 3521  | 2018-06-14T04:06:04.0000000Z | 0.5903 lb/gal    |
-#      | Bakken | Demo_4H | 10       | proppant   | 5069  | 2018-06-14T04:31:52.0000000Z | 0.9827 lb/gal    |
-#      | Bakken | Demo_4H | 10       | proppant   | 12148 | 2018-06-14T06:29:51.0000000Z | -0.1134 lb/gal   |
-#      | Bakken | Demo_4H | 10       | proppant   | 5902  | 2018-06-14T04:45:45.0000000Z | 0.4883 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 8503  | 2018-06-14T05:29:06.0000000Z | 0.4467 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 3646  | 2018-06-14T04:08:09.0000000Z | 0.4516 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 11436 | 2018-06-14T06:17:59.0000000Z | 5.351e-2 lb/gal  |
+      | Bakken | Demo_4H | 10       | proppant   | 8685  | 2018-06-14T05:32:08.0000000Z | 0.4909 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 3521  | 2018-06-14T04:06:04.0000000Z | 0.5903 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 5069  | 2018-06-14T04:31:52.0000000Z | 0.9827 lb/gal    |
+      | Bakken | Demo_4H | 10       | proppant   | 12148 | 2018-06-14T06:29:51.0000000Z | -0.1134 lb/gal   |
+      | Bakken | Demo_4H | 10       | proppant   | 5902  | 2018-06-14T04:45:45.0000000Z | 0.4883 lb/gal    |
 #      | Bakken | Demo_4H | 10       | slurry     | 8227  | 2018-06-14T05:24:30.0000000Z | 71.91 bpm        |
 #      | Bakken | Demo_4H | 10       | slurry     | 5533  | 2018-06-14T04:39:36.0000000Z | 71.80 bpm        |
 #      | Bakken | Demo_4H | 10       | slurry     | 46    | 2018-06-14T03:08:09.0000000Z | 0.0 bpm          |
@@ -320,14 +320,14 @@ Feature: Treatment curves API
       | Bakken | Demo_4H | 26       | pressure   | 39    | 2018-06-25T08:35:54.0000000Z | 4849 psi         |
       | Bakken | Demo_4H | 26       | pressure   | 7250  | 2018-06-25T10:36:05.0000000Z | 6995 psi         |
       | Bakken | Demo_4H | 26       | pressure   | 8631  | 2018-06-25T10:59:06.0000000Z | 7185 psi         |
-#      | Bakken | Demo_4H | 26       | proppant   | 1983  | 2018-06-25T09:08:18.0000000Z | -8.272e-3 lb/gal |
-#      | Bakken | Demo_4H | 26       | proppant   | 4960  | 2018-06-25T09:57:55.0000000Z | 0.8330 lb/gal    |
-#      | Bakken | Demo_4H | 26       | proppant   | 6044  | 2018-06-25T10:15:59.0000000Z | 1.783 lb/gal     |
-#      | Bakken | Demo_4H | 26       | proppant   | 3278  | 2018-06-25T09:29:53.0000000Z | 0.7526 lb/gal    |
-#      | Bakken | Demo_4H | 26       | proppant   | 4418  | 2018-06-25T09:48:53.0000000Z | 1.1966 lb/gal    |
-#      | Bakken | Demo_4H | 26       | proppant   | 4296  | 2018-06-25T09:46:51.0000000Z | 1.1468 lb/gal    |
-#      | Bakken | Demo_4H | 26       | proppant   | 3723  | 2018-06-25T09:37:18.0000000Z | 0.9455 lb/gal    |
-#      | Bakken | Demo_4H | 26       | proppant   | 8876  | 2018-06-25T11:03:11.0000000Z | 6.637e-2 lb/gal  |
+      | Bakken | Demo_4H | 26       | proppant   | 1983  | 2018-06-25T09:08:18.0000000Z | -8.272e-3 lb/gal |
+      | Bakken | Demo_4H | 26       | proppant   | 4960  | 2018-06-25T09:57:55.0000000Z | 0.8330 lb/gal    |
+      | Bakken | Demo_4H | 26       | proppant   | 6044  | 2018-06-25T10:15:59.0000000Z | 1.783 lb/gal     |
+      | Bakken | Demo_4H | 26       | proppant   | 3278  | 2018-06-25T09:29:53.0000000Z | 0.7526 lb/gal    |
+      | Bakken | Demo_4H | 26       | proppant   | 4418  | 2018-06-25T09:48:53.0000000Z | 1.1966 lb/gal    |
+      | Bakken | Demo_4H | 26       | proppant   | 4296  | 2018-06-25T09:46:51.0000000Z | 1.1468 lb/gal    |
+      | Bakken | Demo_4H | 26       | proppant   | 3723  | 2018-06-25T09:37:18.0000000Z | 0.9455 lb/gal    |
+      | Bakken | Demo_4H | 26       | proppant   | 8876  | 2018-06-25T11:03:11.0000000Z | 6.637e-2 lb/gal  |
 #      | Bakken | Demo_4H | 26       | slurry     | 8610  | 2018-06-25T10:58:45.0000000Z | 71.48 bpm        |
 #      | Bakken | Demo_4H | 26       | slurry     | 7551  | 2018-06-25T10:41:06.0000000Z | 71.91 bpm        |
 #      | Bakken | Demo_4H | 26       | slurry     | 2603  | 2018-06-25T09:18:38.0000000Z | 64.80 bpm        |

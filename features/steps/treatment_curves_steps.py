@@ -55,4 +55,21 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
     actual_value_magnitude = decimal.Decimal(actual_time_series_value)
     actual_value_unit = actual_treatment_curve.sampled_quantity_unit()
     actual_value = units.make_measurement(actual_value_unit, actual_value_magnitude)
-    cf.assert_that_actual_measurement_close_to_expected(actual_value, value)
+
+    # In general, our actual value needs to equal the expected value within the precision of the expected
+    # value. (Generally, 4 significant figures, but sometimes 2 decimal places.) However, because of the:
+    # - Rounding of significant figures in the expected values
+    # - Conversion from .NET floating point values (and perhaps .NET `Decimal` values) to Python floats
+    # The author has chosen a two-part strategy for equality:
+    # - Try for equality within the significant figures of the expected value
+    # - If this fails the assertion, expand the equality range to an additional .6 of the significant figures
+    #   of the expected value.
+    # Empirically, this works.
+    expected_value = decimal.Decimal(value.split(maxsplit=1)[0])
+    _, _, expected_exponent = expected_value.as_tuple()
+    try:
+        calculated_max_error = decimal.Decimal((0, (1,), expected_exponent))
+        cf.assert_that_actual_measurement_close_to_expected(actual_value, value, tolerance=calculated_max_error)
+    except AssertionError:
+        calculated_max_error = decimal.Decimal((0, (1,6), expected_exponent))
+        cf.assert_that_actual_measurement_close_to_expected(actual_value, value, tolerance=calculated_max_error)

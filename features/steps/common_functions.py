@@ -24,11 +24,13 @@ import orchid
 from tests import (custom_matchers as tcm)
 
 
-def assert_that_actual_measurement_close_to_expected(actual, expected_text, reason=''):
+def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
     expected = orchid.unit_reg.Quantity(expected_text)
     # Allow error of +/- 1 in last significant figure of expected value.
     expected_magnitude_text = expected_text.split(maxsplit=1)[0]
-    tolerance = decimal.Decimal((0, (1,), decimal.Decimal(expected_magnitude_text).as_tuple()[-1]))
+    tolerance = (decimal.Decimal((0, (1,), decimal.Decimal(expected_magnitude_text).as_tuple()[-1]))
+                 if tolerance is None
+                 else tolerance)
     tcm.assert_that_measurements_close_to(actual, expected, tolerance=tolerance, reason=reason)
 
 
