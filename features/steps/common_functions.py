@@ -16,6 +16,7 @@ import decimal
 
 from hamcrest import assert_that, equal_to
 
+import pint
 import toolz.curried as toolz
 
 import orchid
@@ -25,7 +26,15 @@ from tests import (custom_matchers as tcm)
 
 
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
-    expected = orchid.unit_reg.Quantity(expected_text)
+    try:
+        expected = orchid.unit_reg.Quantity(expected_text)
+    except pint.errors.UndefinedUnitError:
+        expected_magnitude_text, expected_unit_text = expected_text.split(maxsplit=1)
+        if expected_unit_text == 'bpm':
+            expected = orchid.unit_reg.Quantity(f'{expected_magnitude_text} oil_bbl/min')
+        else:
+            raise
+
     # Allow error of +/- 1 in last significant figure of expected value.
     expected_magnitude_text = expected_text.split(maxsplit=1)[0]
     tolerance = (decimal.Decimal((0, (1,), decimal.Decimal(expected_magnitude_text).as_tuple()[-1]))
