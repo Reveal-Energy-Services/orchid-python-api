@@ -32,12 +32,6 @@ from Orchid.FractureDiagnostics import UnitSystem as NetUnitSystem
 import UnitsNet
 
 
-# TODO: Remove the duplicate code (when removing the module `obs_unit_system`.
-# Because I copied the contents of this module from the original `unit_system` (now named `obs_unit_system`),
-# this module is filled with duplicate code fragments. Over time these should disappear and should completely
-# disappear when one removes `obs_unit_system` from the system.
-
-
 # I use this private class to distinguish units that measure **different** physical quantities but use the
 # same measurement unit. Currently, this applies to DENSITY and PRESSURE.
 _AboutUnit = namedtuple('AboutUnit', ['unit', 'physical_quantity'])

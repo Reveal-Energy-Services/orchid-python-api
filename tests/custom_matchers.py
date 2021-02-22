@@ -62,12 +62,6 @@ def assert_that_measurements_close_to(actual, expected, tolerance=None, reason='
     _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance, reason)
 
 
-def obs_assert_that_measurements_close_to(actual, expected, tolerance=None):
-    warnings.warn('Obsolete function expecting Measurement', FutureWarning)
-    assert_that(actual.unit, equal_to(expected.unit))
-    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
-
-
 def assert_that_net_quantities_close_to(actual, expected, tolerance=None, reason=''):
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
     _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance, reason)
