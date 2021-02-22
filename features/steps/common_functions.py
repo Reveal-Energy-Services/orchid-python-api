@@ -27,11 +27,11 @@ from tests import (custom_matchers as tcm)
 
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
     try:
-        expected = orchid.unit_reg.Quantity(expected_text)
+        expected = orchid.unit_registry.Quantity(expected_text)
     except pint.errors.UndefinedUnitError:
         expected_magnitude_text, expected_unit_text = expected_text.split(maxsplit=1)
         if expected_unit_text == 'bpm':
-            expected = orchid.unit_reg.Quantity(f'{expected_magnitude_text} oil_bbl/min')
+            expected = orchid.unit_registry.Quantity(f'{expected_magnitude_text} oil_bbl/min')
         else:
             raise
 
