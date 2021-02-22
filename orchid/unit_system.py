@@ -148,3 +148,18 @@ def make_measurement(unit: UnitSystem, magnitude: numbers.Real) -> om.Quantity:
         The created `pint` `Quantity` instance.
     """
     return om.Quantity(magnitude, unit.value.unit)
+
+
+def abbreviation(unit: UnitSystem):
+    """
+    Return the abbreviation of `unit`.
+
+    This function provides a functional interface for calculating abbreviations of `UnitSystem` members.
+
+    Args:
+        unit: The `UnitSystem` member whose abbreviation is sought.
+
+    Returns:
+        The abbreviation for `unit`.
+    """
+    return unit.abbreviation()

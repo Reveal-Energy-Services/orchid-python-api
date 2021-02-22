@@ -59,6 +59,22 @@ class TestUnitSystem(unittest.TestCase):
             with self.subTest(f'Testing abbreviation for unit {unit!r}'):
                 assert_that(unit.abbreviation(), equal_to(expected))
 
+    def test_abbreviation_function(self):
+        for expected, unit in [
+            ('deg', units.Common.ANGLE),
+            ('min', units.Common.DURATION),
+            ('ft_lb', units.UsOilfield.ENERGY),
+            ('lbf', units.UsOilfield.FORCE),
+            ('lb/gal', units.UsOilfield.PROPPANT_CONCENTRATION),
+            ('oil_bbl/min', units.UsOilfield.SLURRY_RATE),
+            ('kg/m\u00b3', units.Metric.DENSITY),
+            ('kg/m\u00b3', units.Metric.PROPPANT_CONCENTRATION),
+            ('m\u00b3/min', units.Metric.SLURRY_RATE),
+            ('\u00b0C', units.Metric.TEMPERATURE),
+        ]:
+            with self.subTest(f'Testing abbreviation for unit {unit!r}'):
+                assert_that(unit.abbreviation(), equal_to(expected))
+
     def test_make_measurement_from_unit(self):
         for expected_magnitude, actual_unit, expected_unit, tolerance in [
             (94.17, units.Common.ANGLE, om.registry.deg, decimal.Decimal('0.01')),
