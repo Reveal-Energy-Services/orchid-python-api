@@ -14,7 +14,7 @@
 
 
 from abc import ABCMeta, abstractmethod
-from typing import Union
+from typing import Callable, Union
 
 import pandas as pd
 
@@ -25,8 +25,6 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import UnitSystem
-# noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
@@ -36,14 +34,14 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
     sampled_quantity_name = dna.dom_property('sampled_quantity_name',
                                              'Return the sampled quantity name for this curve.')
 
-    def __init__(self, adaptee: IQuantityTimeSeries):
+    def __init__(self, adaptee: IQuantityTimeSeries, net_project_callable: Callable):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
 
         Args:
             adaptee: The .NET stage time series to be adapted.
         """
-        super().__init__(adaptee)
+        super().__init__(adaptee, net_project_callable)
 
     @abstractmethod
     def get_net_project_units(self):

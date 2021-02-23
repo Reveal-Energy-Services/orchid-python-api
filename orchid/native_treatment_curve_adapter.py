@@ -23,7 +23,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import UnitSystem
+from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class TreatmentCurveTypes(enum.Enum):
@@ -34,6 +34,9 @@ class TreatmentCurveTypes(enum.Enum):
 
 class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
+
+    def __init__(self, net_treatment_curve: IQuantityTimeSeries):
+        super().__init__(net_treatment_curve, dna.constantly(None))
 
     def get_net_project_units(self):
         """

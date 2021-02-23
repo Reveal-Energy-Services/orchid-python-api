@@ -22,10 +22,13 @@ from orchid import (base_curve_adapter as bca,
 
 class StubBaseCurveAdapter(bca.BaseCurveAdapter):
     def __init__(self, adaptee=None,
+                 net_project_callable=None,
                  net_project_units=None,
                  quantity_name_unit_map=None,
                  sampled_quantity_name=None):
-        super().__init__(adaptee if adaptee else unittest.mock.MagicMock(name='stub_adaptee'))
+        super().__init__(adaptee if adaptee else unittest.mock.MagicMock(name='stub_adaptee'),
+                         (net_project_callable if net_project_callable
+                          else unittest.mock.MagicMock(name='stub_net_project_callable')))
         self._net_project_units = net_project_units
         self._quantity_name_unit_map = quantity_name_unit_map
         self._sampled_quantity_name = sampled_quantity_name

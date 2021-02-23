@@ -16,11 +16,15 @@
 #
 
 import enum
+from typing import Callable
 
-from orchid import (base_curve_adapter as bca)
+from orchid import (
+    base_curve_adapter as bca,
+    dot_net_dom_access as dna,
+)
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import UnitSystem
+from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class MonitorCurveTypes(enum.Enum):
@@ -29,6 +33,8 @@ class MonitorCurveTypes(enum.Enum):
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
+    def __init__(self, net_monitor_curve: IQuantityTimeSeries):
+        super().__init__(net_monitor_curve, dna.constantly(None))
 
     def get_net_project_units(self):
         """
