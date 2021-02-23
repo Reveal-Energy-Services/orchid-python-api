@@ -47,39 +47,23 @@ class TestBaseCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.mock.patch('orchid.base_curve_adapter.UnitSystem')
-    def test_sampled_quantity_units_returns_correct_units_for_us_oilfield(self, stub_net_unit_system):
-        project_units = units.UsOilfield
-        stub_net_us_oilfield_system = unittest.mock.MagicMock(name='stub_net_us_oilfield_system')
-        stub_net_unit_system.USOilfield = unittest.mock.MagicMock(name='us_oilfield',
-                                                                  return_value=stub_net_us_oilfield_system)
-        self.verify_sampled_quantity_unit(project_units, stub_net_us_oilfield_system)
+    @unittest.mock.patch('orchid.base_curve_adapter.units.as_unit_system')
+    def test_sampled_quantity_units_returns_correct_units_for_pressure(self, stub_as_unit_system):
+        test_data = {
+            'PRESSURE': [('compressus', units.UsOilfield), ('nisus', units.Metric)],
+            'TEMPERATURE': [('frigus', units.UsOilfield), ('calidus', units.Metric)],
+            'PROPPANT_CONCENTRATION': [('intensio', units.UsOilfield), ('apozema', units.Metric)],
+            'SLURRY_RATE': [('secundarius', units.UsOilfield), ('caputalis', units.Metric)],
+        }
+        for expected_quantity in test_data.keys():
+            for quantity_name, unit_system in test_data[expected_quantity]:
+                with self.subTest(f'Testing quantity name, "{quantity_name}", and unit system, {unit_system}'):
+                    stub_as_unit_system.return_value = unit_system
+                    sut = StubBaseCurveAdapter(quantity_name_unit_map={quantity_name: unit_system[expected_quantity]},
+                                               sampled_quantity_name=quantity_name)
+                    actual = sut.sampled_quantity_unit()
 
-    def verify_sampled_quantity_unit(self, project_units, stub_net_us_oilfield_system):
-        for quantity_name, expected in (('Pressure', project_units.PRESSURE),
-                                        ('Temperature', project_units.TEMPERATURE),
-                                        ('Surface Proppant Concentration', project_units.PROPPANT_CONCENTRATION),
-                                        ('Slurry Rate', project_units.SLURRY_RATE)):
-            with self.subTest(f'Testing sampled_quantity_units() for "{quantity_name}"'):
-                sut = StubBaseCurveAdapter(net_project_units=stub_net_us_oilfield_system,
-                                           quantity_name_unit_map={quantity_name: expected},
-                                           sampled_quantity_name=quantity_name)
-
-                actual = sut.sampled_quantity_unit()
-                assert_that(actual, equal_to(expected))
-
-    @unittest.mock.patch('orchid.base_curve_adapter.UnitSystem')
-    def test_sampled_quantity_units_returns_correct_units_for_metric(self, stub_net_unit_system):
-        project_units = units.Metric
-        stub_net_metric_system = unittest.mock.MagicMock(name='stub_net_metric_system')
-        stub_net_unit_system.Metric = unittest.mock.MagicMock(name='metric',
-                                                              return_value=stub_net_metric_system)
-        self.verify_sampled_quantity_unit(project_units, stub_net_metric_system)
-
-    def test_sampled_quantity_units_raises_error_if_net_unit_system_unrecognized(self):
-        sut = StubBaseCurveAdapter()
-
-        assert_that(calling(StubBaseCurveAdapter.sampled_quantity_unit).with_args(sut), raises(KeyError))
+                    assert_that(actual, equal_to(unit_system[expected_quantity]))
 
 
 if __name__ == '__main__':

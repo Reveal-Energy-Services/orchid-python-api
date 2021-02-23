@@ -56,14 +56,6 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         """
         pass
 
-    # noinspection PyMethodMayBeStatic
-    def net_unit_system_unit_system_map(self):
-        result = {
-            UnitSystem.USOilfield(): units.UsOilfield,
-            UnitSystem.Metric(): units.Metric,
-        }
-        return result
-
     @abstractmethod
     def quantity_name_unit_map(self, project_units):
         """
@@ -90,8 +82,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         Returns:
             A `UnitSystem` member containing the unit for the sample in this curve.
         """
-        # net_project_units = self.dom_object.Stage.Well.Project.ProjectUnits
-        project_units = self.net_unit_system_unit_system_map()[self.get_net_project_units()]
+        project_units = units.as_unit_system(self.get_net_project_units())
 
         quantity_name_unit_map = self.quantity_name_unit_map(project_units)
         return quantity_name_unit_map[self.sampled_quantity_name]
