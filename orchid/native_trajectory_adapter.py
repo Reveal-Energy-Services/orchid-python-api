@@ -18,9 +18,11 @@
 import deal
 import numpy as np
 
-import orchid.dot_net_dom_access as dna
-import orchid.validation
-import orchid.reference_origins as origins
+from orchid import (
+    dot_net_dom_access as dna,
+    reference_origins as origins,
+    validation,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWellTrajectory
@@ -37,7 +39,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         super().__init__(net_trajectory)
 
-    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(validation.arg_not_none)
     def get_easting_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:
         """
         Calculates the eastings of this trajectory in the specified `reference_frame` measured in project length units
@@ -48,7 +50,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         raw_eastings = self.dom_object.GetEastingArray(reference_frame)
         return np.array([e.As(project_length_unit) for e in raw_eastings])
 
-    @deal.pre(orchid.validation.arg_not_none)
+    @deal.pre(validation.arg_not_none)
     def get_northing_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:
         """
         Calculates the northings of this trajectory in the specified `reference_frame` measured in project length units
