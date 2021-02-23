@@ -379,19 +379,23 @@ def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sam
     return stub_net_monitor_curve
 
 
-def create_stub_net_well_trajectory(project_units=None, easting_magnitudes=None, northing_magnitudes=None):
+def create_stub_net_well_trajectory(project=None,
+                                    easting_magnitudes=None,
+                                    northing_magnitudes=None):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
-    if project_units is not None:
-        stub_trajectory.Well.Project = create_stub_net_project(project_units=project_units)
-    if easting_magnitudes is not None and project_units is not None:
-        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project_units.LENGTH)
+    if project is not None:
+        stub_trajectory.Well.Project = project
+
+    if easting_magnitudes is not None and project.project_units is not None:
+        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project.project_units.LENGTH)
         stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
-    if northing_magnitudes is not None and project_units is not None:
+
+    if northing_magnitudes is not None and project.project_units is not None:
         stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
-                                                          project_units.LENGTH)
+                                                          project.project_units.LENGTH)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
     return stub_trajectory
@@ -548,6 +552,7 @@ def create_stub_net_project(name='',
         stub_net_project.GetProjectCenter = unittest.mock.MagicMock(name='stub_get_project_center',
                                                                     return_value=net_center)
 
+    stub_net_project.project_units = project_units
     if project_units == units.UsOilfield:
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()
     elif project_units == units.Metric:
