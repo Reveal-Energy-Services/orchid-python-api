@@ -18,7 +18,6 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    net_quantity as onq,
     unit_system as units,
 )
 

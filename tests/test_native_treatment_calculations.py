@@ -20,7 +20,6 @@ import dateutil.tz as duz
 from hamcrest import assert_that, equal_to
 
 from orchid import (
-    measurement as om,
     project_loader as loader,
     native_stage_adapter as nsa,
     native_treatment_calculations as ntc,

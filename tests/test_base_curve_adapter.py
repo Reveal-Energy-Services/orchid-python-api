@@ -14,7 +14,7 @@
 
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, calling, raises
+from hamcrest import assert_that, equal_to
 
 from orchid import (base_curve_adapter as bca,
                     unit_system as units)
@@ -42,7 +42,6 @@ class StubBaseCurveAdapter(bca.BaseCurveAdapter):
 
 
 # Test ideas:
-# - Raise exception if unrecognized unit system
 class TestBaseCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))

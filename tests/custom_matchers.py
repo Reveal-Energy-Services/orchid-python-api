@@ -13,7 +13,6 @@
 #
 
 import decimal
-import warnings
 from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
