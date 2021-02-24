@@ -30,6 +30,19 @@ Feature: Low-level DOM API (project)
       | Project_frankNstein_Permian_UTM13_FEET.ifrac   | Project_frankNstein_subset02_UTM13_FEET |
       | Project-frankNstein_Montney_UTM13_METERS.ifrac | Project-frankNstein                     |
 
+  Scenario Outline: Get project measurements in project units
+    Given I have loaded the project for the field, '<field>'
+    When I query the project measurements
+    Then I see project measurements <fluid_density>, <azimuth>, <center_x>, and <center_y>
+
+    Examples: Bakken
+      | field  | fluid_density | azimuth   | center_x   | center_y   |
+      | Bakken | 63.20 lb/ft^3 | 50.00 deg | 1.990e6 ft | 17.50e6 ft |
+
+    Examples: Montney
+      | field   | fluid_density | azimuth   | center_x  | center_y  |
+      | Montney | 1012 kg/m^3   | 90.00 deg | 657.2e3 m | 6.179e6 m |
+
   Scenario Outline: Get the well counts from a project
     Given I have loaded the project for the field, '<field>'
     When I query the project wells
@@ -86,16 +99,3 @@ Feature: Low-level DOM API (project)
       | 0.466 | 0.674 | 0.188 |
       | 0.301 | 0.745 | 0.933 |
       | 0.635 | 0.078 | 0.184 |
-
-  Scenario Outline: Get project measurements in project units
-    Given I have loaded the project for the field, '<field>'
-    When I query the project measurements
-    Then I see project measurements <fluid_density>, <azimuth>, <center_x>, and <center_y>
-
-    Examples: Bakken
-      | field  | fluid_density | azimuth   | center_x   | center_y   |
-      | Bakken | 63.20 lb/ft^3 | 50.00 deg | 1.990e6 ft | 17.50e6 ft |
-
-    Examples: Montney
-      | field   | fluid_density | azimuth   | center_x  | center_y  |
-      | Montney | 1012 kg/m^3   | 90.00 deg | 657.2e3 m | 6.179e6 m |
