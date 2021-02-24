@@ -30,6 +30,6 @@ Quantity = registry.Quantity
 Unit = registry.Unit
 """The type of Pint units of measure."""
 
-# Register this instance of the registry as the application registry to support picking and unpickling of Pint
+# Register this instance of the registry as the application registry to support pickling and unpickling of Pint
 # Quantity and Unit instances.
 pint.set_application_registry(registry)
