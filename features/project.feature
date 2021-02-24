@@ -43,6 +43,23 @@ Feature: Low-level DOM API (project)
       | field   | fluid_density | azimuth   | center_x  | center_y  |
       | Montney | 1012 kg/m^3   | 90.00 deg | 657.2e3 m | 6.179e6 m |
 
+  Scenario Outline: Get project bounds in project units
+    Given I have loaded the project for the field, '<field>'
+    When I query the project measurements
+    Then I see project measurements <min_x>, <max_x>, <min_y>, <max_y>, <min_depth>, and <max_depth>,
+
+    Examples: Bakken
+      | field  | min_x      | max_x      | min_y       | max_y       | min_depth | max_depth |
+      | Bakken | 1979381 ft | 1990412 ft | 17495687 ft | 17498048 ft | 0 m       | 10773 ft  |
+
+    Examples: Montney
+      | field   | min_x    | max_x    | min_y     | max_y     | min_depth | max_depth |
+      | Montney | 656540 m | 659106 m | 6177242 m | 6179349 m | -728.0 m  | 1972 m    |
+
+    Examples: Permian
+      | field   | min_x      | max_x      | min_y       | max_y       | min_depth | max_depth |
+      | Permian | 2141174 ft | 2142179 ft | 11664081 ft | 11669346 ft | -2872 ft  | 11749 ft  |
+
   Scenario Outline: Get the well counts from a project
     Given I have loaded the project for the field, '<field>'
     When I query the project wells
