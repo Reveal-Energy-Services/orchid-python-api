@@ -142,7 +142,7 @@ def step_impl(context):
     Args:
         context (behave.runner.Context):  The test context.
     """
-    min_x, max_x, min_y, max_y, min_depth, max_depth = context.project.get_project_bounds()
+    min_x, max_x, min_y, max_y, min_depth, max_depth = context.project.project_bounds()
     context.project_bounds = {
         'min_x': min_x,
         'max_x': max_x,
