@@ -45,8 +45,8 @@ Feature: Low-level DOM API (project)
 
   Scenario Outline: Get project bounds in project units
     Given I have loaded the project for the field, '<field>'
-    When I query the project measurements
-    Then I see project measurements <min_x>, <max_x>, <min_y>, <max_y>, <min_depth>, and <max_depth>,
+    When I query the project bounds
+    Then I see project bounds <min_x>, <max_x>, <min_y>, <max_y>, <min_depth>, and <max_depth>,
 
     Examples: Bakken
       | field  | min_x      | max_x      | min_y       | max_y       | min_depth | max_depth |
