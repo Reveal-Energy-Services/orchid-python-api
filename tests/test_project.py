@@ -96,12 +96,12 @@ class TestProject(unittest.TestCase):
         for actual_density, project_units, expected_density, tolerance in (
                 (tsn.MeasurementDto(47.02, units.UsOilfield.DENSITY), units.UsOilfield,
                  47.02 * om.registry.lb / om.registry.ft ** 3, decimal.Decimal('0.01')),
-                # (tsn.MeasurementDto(1053, units.Metric.DENSITY), units.Metric,
-                #  1053 * om.registry.kg / om.registry.m ** 3, decimal.Decimal('1')),
-                # (tsn.MeasurementDto(47.02, units.UsOilfield.DENSITY), units.Metric,
-                #  753.2 * om.registry.kg / om.registry.m ** 3, decimal.Decimal('0.2')),
-                # (tsn.MeasurementDto(1053, units.Metric.DENSITY), units.UsOilfield,
-                #  65.74 * om.registry.lb / om.registry.ft ** 3, decimal.Decimal('0.07')),
+                (tsn.MeasurementDto(1053, units.Metric.DENSITY), units.Metric,
+                 1053 * om.registry.kg / om.registry.m ** 3, decimal.Decimal('1')),
+                (tsn.MeasurementDto(47.02, units.UsOilfield.DENSITY), units.Metric,
+                 753.2 * om.registry.kg / om.registry.m ** 3, decimal.Decimal('0.2')),
+                (tsn.MeasurementDto(1053, units.Metric.DENSITY), units.UsOilfield,
+                 65.74 * om.registry.lb / om.registry.ft ** 3, decimal.Decimal('0.07')),
         ):
             with self.subTest(f'Testing fluid density in same units {expected_density}'):
                 stub_native_project = tsn.create_stub_net_project(project_units=project_units,
