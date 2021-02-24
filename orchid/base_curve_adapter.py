@@ -29,11 +29,6 @@ from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
-    name = dna.dom_property('name', 'Return the name for this treatment curve.')
-    display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
-    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
-                                             'Return the sampled quantity name for this curve.')
-
     def __init__(self, adaptee: IQuantityTimeSeries, net_project_callable: Callable):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
@@ -43,16 +38,10 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         """
         super().__init__(adaptee, net_project_callable)
 
-    @abstractmethod
-    def get_net_project_units(self):
-        """
-        Returns the .NET project units (a `UnitSystem`) for this instance.
-
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
-        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
-        classes through invocation of "Primitive Operations".
-        """
-        pass
+    name = dna.dom_property('name', 'Return the name for this treatment curve.')
+    display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
+    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
+                                             'Return the sampled quantity name for this curve.')
 
     @abstractmethod
     def quantity_name_unit_map(self, project_units):
@@ -80,9 +69,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         Returns:
             A `UnitSystem` member containing the unit for the sample in this curve.
         """
-        project_units = units.as_unit_system(self.get_net_project_units())
-
-        quantity_name_unit_map = self.quantity_name_unit_map(project_units)
+        quantity_name_unit_map = self.quantity_name_unit_map(self.maybe_project_units)
         return quantity_name_unit_map[self.sampled_quantity_name]
 
     def time_series(self) -> pd.Series:

@@ -16,32 +16,20 @@ import unittest.mock
 
 from hamcrest import assert_that, equal_to
 
-from orchid import (base_curve_adapter as bca,
-                    unit_system as units)
+from orchid import (
+    base_curve_adapter as bca,
+    unit_system as units,
+)
 
 
 class StubBaseCurveAdapter(bca.BaseCurveAdapter):
-    def __init__(self, adaptee=None,
-                 net_project_callable=None,
-                 net_project_units=None,
-                 quantity_name_unit_map=None,
-                 sampled_quantity_name=None):
+    def __init__(self, adaptee=None, net_project_callable=None):
         super().__init__(adaptee if adaptee else unittest.mock.MagicMock(name='stub_adaptee'),
                          (net_project_callable if net_project_callable
                           else unittest.mock.MagicMock(name='stub_net_project_callable')))
-        self._net_project_units = net_project_units
-        self._quantity_name_unit_map = quantity_name_unit_map
-        self._sampled_quantity_name = sampled_quantity_name
-
-    def get_net_project_units(self):
-        return self._net_project_units
 
     def quantity_name_unit_map(self, project_units):
-        return self._quantity_name_unit_map
-
-    @property
-    def sampled_quantity_name(self):
-        return self._sampled_quantity_name
+        pass
 
 
 # Test ideas:
@@ -61,11 +49,41 @@ class TestBaseCurveAdapter(unittest.TestCase):
             for quantity_name, unit_system in test_data[expected_quantity]:
                 with self.subTest(f'Testing quantity name, "{quantity_name}", and unit system, {unit_system}'):
                     stub_as_unit_system.return_value = unit_system
-                    sut = StubBaseCurveAdapter(quantity_name_unit_map={quantity_name: unit_system[expected_quantity]},
-                                               sampled_quantity_name=quantity_name)
+                    sut = StubBaseCurveAdapter()
+                    type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
+                        name='stub_sampled_quantity_name',
+                        return_value=quantity_name,
+                    )
+                    sut.quantity_name_unit_map = unittest.mock.MagicMock(
+                        name='stub_quantity_name_unit_map',
+                        return_value={quantity_name: unit_system[expected_quantity]}
+                    )
                     actual = sut.sampled_quantity_unit()
 
                     assert_that(actual, equal_to(unit_system[expected_quantity]))
+
+    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.maybe_project_units',
+                         name='stub_maybe_project_units',
+                         new_callable=unittest.mock.PropertyMock)
+    def test_sampled_quantity_unit_calls_quantity_name_unit_map_with_correct_project_units(self,
+                                                                                           stub_maybe_project_units):
+        unit_system = units.Metric
+        quantity_name = 'energiae'
+        quantity = 'ENERGY'
+        sut = StubBaseCurveAdapter()
+        stub_maybe_project_units.return_value = unit_system
+        type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
+            name='stub_sampled_quantity_name',
+            return_value=quantity_name,
+        )
+        sut.quantity_name_unit_map = unittest.mock.MagicMock(
+            name='stub_quantity_name_unit_map',
+            return_value={quantity_name: unit_system[quantity]}
+        )
+
+        sut.sampled_quantity_unit()
+
+        sut.quantity_name_unit_map.assert_called_once_with(unit_system)
 
 
 if __name__ == '__main__':
