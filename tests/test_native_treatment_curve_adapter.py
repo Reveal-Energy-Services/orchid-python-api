@@ -33,6 +33,16 @@ from tests import (stub_net as tsn)
 
 
 class TestTreatmentCurveAdapter(unittest.TestCase):
+    # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
+    # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.
+    # This approach works, but, in theory, this set up conflates testing the unit, `NativeMonitorCurveAdapter`,
+    # and its base classes, `BaseCurveAdapter` and `DotNetAdapter`.
+    #
+    # This conflation is not required. (See the unit tests for `BaseCurveAdapter` for examples of mocking the
+    # required base class properties.) However, it uses a set up that is unlike other unit test set up.
+    # Because of time pressure, because the unit (and acceptance / integration) tests all work, and because
+    # of this dissimilar set up, I have chosen for now to leave these unit tests as is.
+
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -40,13 +50,6 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
         sut = create_sut(display_name='boni')
 
         assert_that(sut.display_name, equal_to('boni'))
-
-    def test_get_net_project_units_returns_well_project_units(self):
-        expected = unittest.mock.MagicMock('expected_project_units')
-        stub_project = tsn.create_stub_net_project(project_units=expected)
-        sut = create_sut(project=stub_project)
-
-        assert_that(sut.get_net_project_units(), equal_to(expected))
 
     def test_name_from_treatment_curve(self):
         sut = create_sut(name='magnitudina')
