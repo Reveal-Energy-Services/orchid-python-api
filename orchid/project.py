@@ -35,8 +35,6 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid import (unit_system as units)
-
 
 ProjectBounds = namedtuple('ProjectBounds', [
     'min_x', 'max_x',
@@ -94,12 +92,11 @@ class Project(dna.DotNetAdapter):
             return []
 
     def project_bounds(self) -> ProjectBounds:
-        make_length = units.make_measurement(self.project_units.LENGTH)
-        return ProjectBounds(
-            make_length(0), make_length(0),
-            make_length(0), make_length(0),
-            make_length(0), make_length(0),
-        )
+        result = toolz.pipe(self.dom_object.GetProjectBounds(),
+                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            list,
+                            lambda ls: ProjectBounds(*ls))
+        return result
 
     def project_center(self) -> SurfacePoint:
         """
