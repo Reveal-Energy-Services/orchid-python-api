@@ -170,8 +170,8 @@ def step_impl(context, min_x, max_x, min_y, max_y, min_depth, max_depth):
     cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_x'], max_x)
     cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['min_y'], min_y)
     cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_y'], max_y)
-    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['min_y'], min_depth)
-    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_y'], max_depth)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['min_depth'], min_depth)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_depth'], max_depth)
 
 
 @when("I query the project measurements")

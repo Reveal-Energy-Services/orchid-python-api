@@ -50,7 +50,7 @@ Feature: Low-level DOM API (project)
 
     Examples: Bakken
       | field  | min_x      | max_x      | min_y       | max_y       | min_depth | max_depth |
-      | Bakken | 1979381 ft | 1990412 ft | 17495687 ft | 17498048 ft | 0 m       | 10773 ft  |
+      | Bakken | 1979381 ft | 1990412 ft | 17495687 ft | 17498048 ft | 0 ft       | 10773 ft  |
 
     Examples: Montney
       | field   | min_x    | max_x    | min_y     | max_y     | min_depth | max_depth |
