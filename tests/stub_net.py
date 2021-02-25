@@ -52,10 +52,15 @@ import UnitsNet
 from System import Array
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
-StubMeasurement = namedtuple('StubMeasurement', ['magnitude', 'unit'])
+MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
+
+
+make_measurement_dto = toolz.flip(MeasurementDto)
+"""This callable creates instances of `MeasurementDto` allowing a caller to supply a single unit as the first
+argument and providing the magnitude later."""
 
 
 # noinspection PyPep8Naming
@@ -166,15 +171,13 @@ class StubNetTreatmentCurve:
         return self._time_series
 
 
-def make_net_length_unit(measurement):
-    if measurement.unit == units.UsOilfield.LENGTH:
-        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                    UnitsNet.Units.LengthUnit.Foot)
-    elif measurement.unit == units.Metric.LENGTH:
-        return UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(measurement.magnitude),
-                                    UnitsNet.Units.LengthUnit.Meter)
+def make_measurement(measurement_dto):
+    return units.make_measurement(measurement_dto.unit, measurement_dto.magnitude)
 
-    raise ValueError(f'Unknown (length) unit: {measurement.unit.unit}')
+
+def make_net_measurement(measurement_dto):
+    measurement = make_measurement(measurement_dto)
+    return onq.as_net_quantity(measurement_dto.unit, measurement)
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
@@ -240,9 +243,9 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     result.NumberOfClusters = cluster_count
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
-        result.MdTop = onq.as_net_quantity_in_different_unit(md_top.measurement, md_top.as_unit)
+        result.MdTop = make_net_measurement(md_top)
     if md_bottom is not None:
-        result.MdBottom = onq.as_net_quantity_in_different_unit(md_bottom.measurement, md_bottom.as_unit)
+        result.MdBottom = make_net_measurement(md_bottom)
     if stage_location_bottom is not None:
         if callable(stage_location_bottom):
             result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
@@ -273,7 +276,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         
     if shmin is not None:
         if hasattr(shmin, 'unit'):
-            result.Shmin = onq.as_net_quantity(shmin)
+            result.Shmin = make_net_measurement(shmin)
         elif hasattr(shmin, 'Unit'):
             result.Shmin = shmin
         else:
@@ -282,7 +285,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         
     if pnet is not None:
         if hasattr(pnet, 'unit'):
-            result.Pnet = onq.as_net_quantity(pnet)
+            result.Pnet = make_net_measurement(pnet)
         elif hasattr(pnet, 'Unit'):
             result.Pnet = pnet
         else:
@@ -291,7 +294,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         
     if isip is not None:
         if hasattr(isip, 'unit'):
-            result.Isip = onq.as_net_quantity(isip)
+            result.Isip = make_net_measurement(isip)
         elif hasattr(isip, 'Unit'):
             result.Isip = isip
         else:
@@ -307,11 +310,11 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_subsurface_point = unittest.mock.MagicMock(name='stub_subsurface_point')
     if x is not None:
-        stub_subsurface_point.X = make_net_length_unit(x)
+        stub_subsurface_point.X = make_net_measurement(x)
     if y is not None:
-        stub_subsurface_point.Y = make_net_length_unit(y)
+        stub_subsurface_point.Y = make_net_measurement(y)
     if depth is not None:
-        stub_subsurface_point.Depth = make_net_length_unit(depth)
+        stub_subsurface_point.Depth = make_net_measurement(depth)
     if xy_origin is not None:
         stub_subsurface_point.WellReferenceFrameXy = xy_origin
     if depth_origin is not None:
@@ -321,11 +324,11 @@ def create_stub_net_subsurface_point(x=None, y=None, depth=None, xy_origin=None,
 
 def create_stub_net_trajectory_array(magnitudes, unit):
     def make_stub_measurement_with_unit(measurement_unit):
-        return toolz.flip(StubMeasurement, measurement_unit)
+        return make_measurement_dto(measurement_unit)
 
     result = toolz.pipe(magnitudes,
                         toolz.map(make_stub_measurement_with_unit(unit)),
-                        toolz.map(make_net_length_unit))
+                        toolz.map(make_net_measurement))
     return result
 
 
@@ -376,19 +379,23 @@ def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sam
     return stub_net_monitor_curve
 
 
-def create_stub_net_well_trajectory(project_units=None, easting_magnitudes=None, northing_magnitudes=None):
+def create_stub_net_well_trajectory(project=None,
+                                    easting_magnitudes=None,
+                                    northing_magnitudes=None):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
-    if project_units is not None:
-        stub_trajectory.Well.Project = create_stub_net_project(project_units=project_units)
-    if easting_magnitudes is not None and project_units is not None:
-        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project_units.LENGTH)
+    if project is not None:
+        stub_trajectory.Well.Project = project
+
+    if easting_magnitudes is not None and project.project_units is not None:
+        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project.project_units.LENGTH)
         stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
-    if northing_magnitudes is not None and project_units is not None:
+
+    if northing_magnitudes is not None and project.project_units is not None:
         stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
-                                                          project_units.LENGTH)
+                                                          project.project_units.LENGTH)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
     return stub_trajectory
@@ -427,7 +434,10 @@ def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
 
     def measurement_key_to_net_key(source_key):
         sample_measurements, frame, datum = source_key
-        net_lengths = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity, sample_measurements))
+        net_sample_measurements = toolz.pipe(sample_measurements,
+                                             toolz.map(make_net_measurement),
+                                             list)
+        net_lengths = Array[UnitsNet.Length](net_sample_measurements)
         return net_lengths, frame, datum
 
     locations_with_net_keys = toolz.keymap(measurement_key_to_net_key, locations_for_md_kb_values)
@@ -446,8 +456,6 @@ def create_stub_net_well(name='',
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
 
-    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
-
     if name:
         result.Name = name
 
@@ -455,15 +463,15 @@ def create_stub_net_well(name='',
         result.DisplayName = display_name
 
     if ground_level_elevation_above_sea_level is not None:
-        result.GroundLevelElevationAboveSeaLevel = onq.as_net_quantity(ground_level_elevation_above_sea_level)
+        result.GroundLevelElevationAboveSeaLevel = make_net_measurement(ground_level_elevation_above_sea_level)
 
     if kelly_bushing_height_above_ground_level is not None:
-        result.KellyBushingHeightAboveGroundLevel = onq.as_net_quantity(kelly_bushing_height_above_ground_level)
+        result.KellyBushingHeightAboveGroundLevel = make_net_measurement(kelly_bushing_height_above_ground_level)
 
     if uwi:
         result.Uwi = uwi
 
-    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
+    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
 
     def get_location_for(md_kb_values, frame, datum):
         # return an empty list if nothing configured
@@ -478,7 +486,8 @@ def create_stub_net_well(name='',
             if to_test_datum != datum:
                 return False
 
-            return list(to_test_samples) == list(md_kb_values)
+            each_equals = toolz.map(onq.equal_net_quantities, to_test_samples, md_kb_values)
+            return all(each_equals)
 
         candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
         if len(candidates) == 0:
@@ -488,6 +497,7 @@ def create_stub_net_well(name='',
 
         return list(candidates.items())[0][1]
 
+    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
     result.GetLocationsForMdKbValues.side_effect = get_location_for
 
     return result
@@ -522,9 +532,9 @@ def create_stub_net_project(name='',
 
     stub_net_project.Name = name
     if azimuth is not None:
-        stub_net_project.Azimuth = onq.as_net_quantity(azimuth)
+        stub_net_project.Azimuth = make_net_measurement(azimuth)
     if fluid_density is not None:
-        stub_net_project.FluidDensity = onq.as_net_quantity(fluid_density)
+        stub_net_project.FluidDensity = make_net_measurement(fluid_density)
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
@@ -534,14 +544,15 @@ def create_stub_net_project(name='',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
 
-    if project_center:
+    if project_center is not None:
         net_center = toolz.pipe(project_center,
-                                toolz.map(onq.as_net_quantity),
+                                toolz.map(make_net_measurement),
                                 list,
                                 )
         stub_net_project.GetProjectCenter = unittest.mock.MagicMock(name='stub_get_project_center',
                                                                     return_value=net_center)
 
+    stub_net_project.project_units = project_units
     if project_units == units.UsOilfield:
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()
     elif project_units == units.Metric:

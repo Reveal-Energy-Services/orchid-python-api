@@ -23,13 +23,16 @@ from collections import namedtuple
 import decimal
 import math
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
 from orchid import (
+    measurement as om,
     native_treatment_calculations as calcs,
-    unit_system as units,
 )
+
+import common_functions as cf
+
 
 StageAggregates = namedtuple('StageAggregates', ['stage', 'pumped_volume', 'proppant_mass', 'median_treating_pressure'])
 
@@ -97,37 +100,25 @@ def step_impl(context, well, index, stage_no, volume, proppant, median):
         return f'{well_name} {ndx} {quantity_name}'
     assert_message_quantity_name = toolz.partial(assert_message, well, index)
 
-    assert_expected_measurement(aggregates_for_stage.pumped_volume.measurement.magnitude,
-                                aggregates_for_stage.pumped_volume.measurement.unit,
-                                volume.split()[0],
-                                volume.split()[1],
+    assert_expected_measurement(aggregates_for_stage.pumped_volume.measurement,
+                                volume,
                                 assert_message_quantity_name('pumped volume'))
 
-    assert_expected_measurement(aggregates_for_stage.proppant_mass.measurement.magnitude,
-                                aggregates_for_stage.proppant_mass.measurement.unit,
-                                proppant.split()[0],
-                                proppant.split()[1],
+    assert_expected_measurement(aggregates_for_stage.proppant_mass.measurement,
+                                proppant,
                                 assert_message_quantity_name('proppant_mass'))
 
-    assert_expected_measurement(aggregates_for_stage.median_treating_pressure.measurement.magnitude,
-                                aggregates_for_stage.median_treating_pressure.measurement.unit,
-                                median.split()[0],
-                                median.split()[1],
+    assert_expected_measurement(aggregates_for_stage.median_treating_pressure.measurement,
+                                median,
                                 assert_message_quantity_name('median treating pressure'))
 
 
-def assert_expected_measurement(actual_magnitude, actual_unit,
-                                expected_magnitude, encoded_expected_unit,
-                                message):
-    actual_magnitude_to_test = decimal.Decimal(actual_magnitude)
-    expected_magnitude_to_test = decimal.Decimal(expected_magnitude)
-    if not math.isnan(expected_magnitude_to_test):
-        delta = decimal.Decimal((0, (1,), expected_magnitude_to_test.as_tuple()[2]))
-        assert_that(actual_magnitude_to_test, close_to(expected_magnitude_to_test, delta), message)
+def assert_expected_measurement(actual, expected_text, message):
+    expected_magnitude_text, expected_units_text = expected_text.split(maxsplit=1)
+    expected_magnitude = decimal.Decimal(expected_magnitude_text)
+    if not math.isnan(expected_magnitude):
+        cf.assert_that_actual_measurement_close_to_expected(actual, expected_text, reason=message)
     else:
-        assert_that(math.isnan(actual_magnitude_to_test), equal_to(True))
-    # Encoding for unicode superscript 3
-    expected_unit = encoded_expected_unit.replace('^3', '\u00b3')
-    assert_that(units.abbreviation(actual_unit), equal_to(expected_unit), message)
-
-
+        assert_that(math.isnan(actual.magnitude), reason=message)
+        expected_units = om.registry.Unit(expected_units_text)
+        assert_that(actual.units, equal_to(expected_units), reason=message)

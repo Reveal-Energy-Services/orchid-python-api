@@ -17,11 +17,13 @@
 
 import enum
 
-from orchid import (base_curve_adapter as bca,
-                    dot_net_dom_access as dna)
+from orchid import (
+    base_curve_adapter as bca,
+    dot_net_dom_access as dna,
+)
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import UnitSystem
+from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class TreatmentCurveTypes(enum.Enum):
@@ -33,16 +35,8 @@ class TreatmentCurveTypes(enum.Enum):
 class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
-    def get_net_project_units(self):
-        """
-        Returns the .NET project units (a `UnitSystem`) for this instance.
-
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
-        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
-        classes through invocation of "Primitive Operations".
-        """
-        result = self.dom_object.Stage.Well.Project.ProjectUnits
-        return result
+    def __init__(self, net_treatment_curve: IQuantityTimeSeries):
+        super().__init__(net_treatment_curve, dna.constantly(net_treatment_curve.Stage.Well.Project))
 
     def quantity_name_unit_map(self, project_units):
         """

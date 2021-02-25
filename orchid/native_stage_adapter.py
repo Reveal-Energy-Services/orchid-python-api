@@ -116,14 +116,14 @@ class NativeStageAdapter(dna.DotNetAdapter):
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
 
     @property
-    def isip(self) -> om.Measurement:
+    def isip(self) -> om.Quantity:
         """
         Return the instantaneous shut in pressure of this stage in project units.
         """
         return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Isip)
 
     @property
-    def pnet(self) -> om.Measurement:
+    def pnet(self) -> om.Quantity:
         """
         Return the net pressure of this stage in project units.
 
@@ -133,7 +133,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return onq.as_measurement(self.maybe_project_units.PRESSURE, self.dom_object.Pnet)
 
     @property
-    def shmin(self) -> om.Measurement:
+    def shmin(self) -> om.Quantity:
         """
         Return the minimum horizontal stress of this stage in project units.
         """
@@ -153,7 +153,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return candidates[0]
 
     def _center_location_depth(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                               depth_datum: origins.DepthDatum) -> om.Measurement:
+                               depth_datum: origins.DepthDatum) -> om.Quantity:
         """
         Return the depth of the stage center relative to the specified `depth_datum.`
 
@@ -203,7 +203,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                self.dom_object.GetStageLocationCenter)
 
     def center_location_easting(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                                xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
+                                xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Quantity:
         """
         Return the easting location of the stage center relative to the specified reference frame in the
         specified unit.
@@ -219,7 +219,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return result
 
     def center_location_northing(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Measurement:
+                                 xy_well_reference_frame: origins.WellReferenceFrameXy) -> om.Quantity:
         """
         Return the northing location of the stage center in the `xy_well_reference_frame` in the specified unit.
 
@@ -234,7 +234,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.y
 
-    def center_location_md(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+    def center_location_md(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
         Return the measured depth of the stage center in project units.
 
@@ -243,7 +243,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
         return self._center_location_depth(in_length_unit, origins.DepthDatum.KELLY_BUSHING)
 
-    def center_location_tvdgl(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+    def center_location_tvdgl(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
         Returns the total vertical depth from ground level of the stage center in project units.
 
@@ -252,7 +252,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         """
         return self._center_location_depth(in_length_unit, origins.DepthDatum.GROUND_LEVEL)
 
-    def center_location_tvdss(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+    def center_location_tvdss(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
         Returns the total vertical depth from sea level of the stage center in project units.
 
@@ -262,8 +262,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
         return self._center_location_depth(in_length_unit, origins.DepthDatum.SEA_LEVEL)
 
     def center_location_xy(self, in_length_unit: Union[units.UsOilfield, units.Metric],
-                           xy_well_reference_frame: origins.WellReferenceFrameXy) -> Tuple[om.Measurement,
-                                                                                           om.Measurement]:
+                           xy_well_reference_frame: origins.WellReferenceFrameXy) -> Tuple[om.Quantity,
+                                                                                           om.Quantity]:
         """
         Return the easting-northing location of the stage center in the `xy_well_reference_frame` in project units.
 
@@ -300,26 +300,8 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                stage_location_cluster_func)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
-    def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        net_isip = self.dom_object.Isip
-        net_isip_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_isip)
-        return onq.as_pressure_measurement(net_isip_correct_units)
-
-    def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        """
-        Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
-        in the specified unit.
-
-        Args:
-            in_length_unit: An unit of the requested resultant length unit.
-
-        Returns;
-         The measured depth of the stage top in the specified unit.
-        """
-        original = self.dom_object.MdTop
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
-        result = onq.as_length_measurement(md_top_quantity)
-        return result
+    def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
+        return onq.as_measurement(target_unit, self.dom_object.Isip)
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
@@ -332,24 +314,30 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
              The measured depth of the stage bottom in the specified unit.
         """
-        original = self.dom_object.MdBottom
-        md_top_quantity = onq.convert_net_quantity_to_different_unit(in_length_unit, original)
-        result = onq.as_length_measurement(md_top_quantity)
-        return result
+        return onq.as_measurement(in_length_unit, self.dom_object.MdBottom)
+
+    def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
+        """
+        Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
+        in the specified unit.
+
+        Args:
+            in_length_unit: An unit of the requested resultant length unit.
+
+        Returns;
+         The measured depth of the stage top in the specified unit.
+        """
+        return onq.as_measurement(in_length_unit, self.dom_object.MdTop)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
-    def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        net_pnet = self.dom_object.Pnet
-        net_pnet_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_pnet)
-        return onq.as_pressure_measurement(net_pnet_correct_units)
+    def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
+        return onq.as_measurement(target_unit, self.dom_object.Pnet)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
-    def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
-        net_shmin = self.dom_object.Shmin
-        net_shmin_correct_units = onq.convert_net_quantity_to_different_unit(target_unit, net_shmin)
-        return onq.as_pressure_measurement(net_shmin_correct_units)
+    def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
+        return onq.as_measurement(target_unit, self.dom_object.Shmin)
 
-    def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Measurement:
+    def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
         Return the stage length in the specified unit.
 
@@ -359,10 +347,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
         Returns:
             The Measurement of the length of this stage.
         """
-        length_magnitude = \
-            self.md_bottom(in_length_unit).magnitude - self.md_top(in_length_unit).magnitude
-        result = om.make_measurement(in_length_unit, length_magnitude)
-        return result
+        return self.md_bottom(in_length_unit) - self.md_top(in_length_unit)
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                      xy_reference_frame: origins.WellReferenceFrameXy,

@@ -27,7 +27,6 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    net_quantity as onq,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
     reference_origins as origins,
@@ -54,7 +53,7 @@ DONT_CARE_US_OILFIELD_LOCATION = AboutLocation(271800, 3142000, 14140, units.UsO
 
 
 def _make_subsurface_coordinate(coord, unit):
-    return onq.as_net_quantity(om.make_measurement(unit, coord))
+    return tsn.make_net_measurement(tsn.make_measurement_dto(unit, coord))
 
 
 @toolz.curry
@@ -70,7 +69,7 @@ def mock_subsurface_point_func(expected_location,
 
 
 def create_expected(expected_location):
-    make_measurement_with_unit = om.make_measurement(expected_location[-1])
+    make_measurement_with_unit = units.make_measurement(expected_location[-1])
     expected = toolz.pipe(expected_location[:-1],
                           toolz.map(make_measurement_with_unit),
                           lambda coords: tsn.StubSubsurfaceLocation(*coords))
@@ -192,18 +191,14 @@ class TestNativeStageAdapter(unittest.TestCase):
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_isip(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
-            (tsn.StubMeasurement(4901, units.UsOilfield.PRESSURE),
-             tsn.StubMeasurement(4901, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('1')),
-            (tsn.StubMeasurement(33.79e3, units.Metric.PRESSURE),
-             tsn.StubMeasurement(33.79e3, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
-            (tsn.StubMeasurement(4901, units.UsOilfield.PRESSURE),
-             tsn.StubMeasurement(33.79e3, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('7')),
-            (tsn.StubMeasurement(33.79e3, units.Metric.PRESSURE),
-             tsn.StubMeasurement(4901, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('2')),
+            (tsn.MeasurementDto(4901, units.UsOilfield.PRESSURE),
+             4901 * om.registry.psi, units.UsOilfield, decimal.Decimal('1')),
+            (tsn.MeasurementDto(33.79e3, units.Metric.PRESSURE),
+             33.79e3 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
+            (tsn.MeasurementDto(4901, units.UsOilfield.PRESSURE),
+             33.79e3 * om.registry.kPa, units.Metric, decimal.Decimal('7')),
+            (tsn.MeasurementDto(33.79e3, units.Metric.PRESSURE),
+             4901 * om.registry.psi, units.UsOilfield, decimal.Decimal('2')),
         ]:
             with self.subTest(self.in_project_units_test_description('ISIP', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
@@ -215,75 +210,74 @@ class TestNativeStageAdapter(unittest.TestCase):
     @staticmethod
     def in_project_units_test_description(phenomenon, orchid_actual, expected, project_units):
         return (f'Test actual {phenomenon}, {orchid_actual.magnitude} {orchid_actual.unit.value.unit:~P},'
-                f' to expected, {expected.magnitude} {expected.unit.value.unit:~P},'
-                f' in project units, {project_units}.')
+                f' to expected, {expected:~P}, in project units, {project_units}.')
 
     def test_isip_all(self):
         net_isips, expected_matrix = self._make_pressure_test_pairs()
         for net_isip, expected_pair in zip(net_isips, expected_matrix):
-            expected, tolerance = expected_pair
-            with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+            expected_dto, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(isip=net_isip)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected.unit), expected, tolerance)
+                expected = tsn.make_measurement(expected_dto)
+                tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected_dto.unit), expected, tolerance)
 
     def test_isip_all_non_unit_errors(self):
-        expected_pressure = om.make_measurement(units.UsOilfield.PRESSURE, 1414)
-        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure)
+        expected_pressure_dto = tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414)
+        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure_dto)
         sut = nsa.NativeStageAdapter(stub_net_stage)
-        with self.assertRaises(deal._exceptions.PreContractError):
-            _ = sut.isip_in_pressure_unit(units.UsOilfield.LENGTH)
-
-    def test_md_top(self):
-        for actual_top, expected_top in [(om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
-                                          om.make_measurement(units.UsOilfield.LENGTH, 13467.8)),
-                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
-                                          om.make_measurement(units.Metric.LENGTH, 3702.48)),
-                                         (om.make_measurement(units.UsOilfield.LENGTH, 13467.8),
-                                          om.make_measurement(units.Metric.LENGTH, 4104.98)),
-                                         (om.make_measurement(units.Metric.LENGTH, 3702.48),
-                                          om.make_measurement(units.UsOilfield.LENGTH, 12147.2))]:
-            with self.subTest(f'Test MD top {expected_top}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=tsn.MeasurementAsUnit(actual_top, expected_top.unit))
-                sut = nsa.NativeStageAdapter(stub_net_stage)
-
-                actual_top = sut.md_top(expected_top.unit)
-                tcm.assert_that_measurements_close_to(actual_top, expected_top, 5e-2)
+        assert_that(calling(sut.isip_in_pressure_unit).with_args(units.UsOilfield.LENGTH),
+                    raises(deal.PreContractError))
 
     def test_md_bottom(self):
-        for actual_bottom, expected_bottom in [
-            (om.make_measurement(units.UsOilfield.LENGTH, 13806.7),
-             om.make_measurement(units.UsOilfield.LENGTH, 13806.7)),
-            (om.make_measurement(units.Metric.LENGTH, 4608.73),
-             om.make_measurement(units.Metric.LENGTH, 4608.73)),
-            (om.make_measurement(units.UsOilfield.LENGTH, 12147.2),
-             om.make_measurement(units.Metric.LENGTH, 3702.47)),
-            (om.make_measurement(units.Metric.LENGTH, 4608.73),
-             om.make_measurement(units.UsOilfield.LENGTH, 15120.5)),
+        for actual_bottom_dto, expected_bottom_dto in [
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13806.7),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13806.7)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 4608.73),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 4608.73)),
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12147.2),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3702.47)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 4608.73),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 15120.5)),
         ]:
-            with self.subTest(f'Test MD bottom {expected_bottom}'):
-                stub_net_stage = tsn.create_stub_net_stage(
-                    md_bottom=tsn.MeasurementAsUnit(actual_bottom, actual_bottom.unit))
+            expected_bottom = tsn.make_measurement(expected_bottom_dto)
+            with self.subTest(f'Test MD bottom {expected_bottom:~P}'):
+                stub_net_stage = tsn.create_stub_net_stage(md_bottom=actual_bottom_dto)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
-                actual_bottom = sut.md_bottom(expected_bottom.unit)
+                actual_bottom = sut.md_bottom(expected_bottom_dto.unit)
                 tcm.assert_that_measurements_close_to(actual_bottom, expected_bottom, 5e-2)
+
+    def test_md_top(self):
+        for actual_top_dto, expected_top_dto in [
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13467.8),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13467.8)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3702.48),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3702.48)),
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 13467.8),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 4104.98)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3702.48),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12147.2)),
+        ]:
+            expected_top = tsn.make_measurement(expected_top_dto)
+            with self.subTest(f'Test MD top {expected_top:~P}'):
+                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_top = sut.md_top(expected_top_dto.unit)
+                tcm.assert_that_measurements_close_to(actual_top, expected_top, 5e-2)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_pnet(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
-            (tsn.StubMeasurement(46.93e3, units.UsOilfield.PRESSURE),
-             tsn.StubMeasurement(46.93e3, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('1')),
-            (tsn.StubMeasurement(323.6e3, units.Metric.PRESSURE),
-             tsn.StubMeasurement(323.6e3, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
-            (tsn.StubMeasurement(46.93e3, units.UsOilfield.PRESSURE),
-             tsn.StubMeasurement(323.6e3, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.1e3')),
-            (tsn.StubMeasurement(323.6e3, units.Metric.PRESSURE),
-             tsn.StubMeasurement(46.93e3, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('0.02e3')),
+            (tsn.MeasurementDto(46.93e3, units.UsOilfield.PRESSURE),
+             46.93e3 * om.registry.psi, units.UsOilfield, decimal.Decimal('1')),
+            (tsn.MeasurementDto(323.6e3, units.Metric.PRESSURE),
+             323.6e3 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
+            (tsn.MeasurementDto(46.93e3, units.UsOilfield.PRESSURE),
+             323.6e3 * om.registry.kPa, units.Metric, decimal.Decimal('0.1e3')),
+            (tsn.MeasurementDto(323.6e3, units.Metric.PRESSURE),
+             46.93e3 * om.registry.psi, units.UsOilfield, decimal.Decimal('0.02e3')),
         ]:
             with self.subTest(self.in_project_units_test_description('PNET', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
@@ -295,27 +289,24 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_pnet_all(self):
         net_pnets, expected_matrix = self._make_pressure_test_pairs()
         for net_pnet, expected_pair in zip(net_pnets, expected_matrix):
-            expected, tolerance = expected_pair
-            with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+            expected_dto, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(pnet=net_pnet)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected.unit), expected, tolerance)
+                expected = tsn.make_measurement(expected_dto)
+                tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected_dto.unit), expected, tolerance)
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_shmin(self, mock_as_unit_system):
         for orchid_actual, expected, project_units, tolerance in [
-            (tsn.StubMeasurement(2.392, units.UsOilfield.PRESSURE),
-             tsn.StubMeasurement(2.392, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('1')),
-            (tsn.StubMeasurement(16.49, units.Metric.PRESSURE),
-             tsn.StubMeasurement(16.49, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
-            (tsn.StubMeasurement(2.392, units.UsOilfield.PRESSURE),
-             tsn.StubMeasurement(16.49, units.Metric.PRESSURE),
-             units.Metric, decimal.Decimal('0.01')),
-            (tsn.StubMeasurement(16.49, units.Metric.PRESSURE),
-             tsn.StubMeasurement(2.392, units.UsOilfield.PRESSURE),
-             units.UsOilfield, decimal.Decimal('0.001')),
+            (tsn.MeasurementDto(2.392, units.UsOilfield.PRESSURE),
+             2.392 * om.registry.psi, units.UsOilfield, decimal.Decimal('1')),
+            (tsn.MeasurementDto(16.49, units.Metric.PRESSURE),
+             16.49 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
+            (tsn.MeasurementDto(2.392, units.UsOilfield.PRESSURE),
+                16.49 * om.registry.kPa, units.Metric, decimal.Decimal('0.01')),
+            (tsn.MeasurementDto(16.49, units.Metric.PRESSURE),
+             2.392 * om.registry.psi, units.UsOilfield, decimal.Decimal('0.001')),
         ]:
             with self.subTest(self.in_project_units_test_description('shmin', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
@@ -327,11 +318,52 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_shmin_all(self):
         net_shmins, expected_matrix = self._make_pressure_test_pairs()
         for net_shmin, expected_pair in zip(net_shmins, expected_matrix):
-            expected, tolerance = expected_pair
-            with self.subTest(f'Test .NET shmin {net_shmin} in US oilfield units, "{expected.unit.value.unit:~P}"'):
+            expected_dto, tolerance = expected_pair
+            with self.subTest(f'Test .NET shmin {net_shmin} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
                 stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
                 sut = nsa.NativeStageAdapter(stub_net_stage)
-                tcm.assert_that_measurements_close_to(sut.shmin_in_pressure_unit(expected.unit), expected, tolerance)
+                expected = tsn.make_measurement(expected_dto)
+                tcm.assert_that_measurements_close_to(sut.shmin_in_pressure_unit(expected_dto.unit),
+                                                      expected, tolerance)
+
+    def test_stage_length(self):
+        for actual_top_dto, actual_bottom_dto, expected_stage_length_dto in [
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11568),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11725),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 158)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3526),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3574),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 48)),
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11568),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 11725),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 48)),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3526),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3574),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 158)),
+        ]:
+            expected_stage_length = tsn.make_measurement(expected_stage_length_dto)
+            with self.subTest(f'Test stage length with expected stage length {expected_stage_length:~P}'):
+                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_stage_length = sut.stage_length(expected_stage_length_dto.unit)
+                tcm.assert_that_measurements_close_to(actual_stage_length, expected_stage_length, decimal.Decimal('1'))
+
+    def test_start_time(self):
+        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)
+        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time
+        assert_that(actual_start_time, equal_to(expected_start_time))
+
+    def test_stop_time(self):
+        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, duz.UTC)
+        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time
+        assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_subsurface_point_in_length_unit(self):
         net_points = [
@@ -371,22 +403,6 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual.x, expected.x, tolerance.x)
                 tcm.assert_that_measurements_close_to(actual.y, expected.y, tolerance.y)
                 tcm.assert_that_measurements_close_to(actual.depth, expected.depth, tolerance.depth)
-
-    def test_start_time(self):
-        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)
-        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-
-        actual_start_time = sut.start_time
-        assert_that(actual_start_time, equal_to(expected_start_time))
-
-    def test_stop_time(self):
-        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, duz.UTC)
-        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-
-        actual_stop_time = sut.stop_time
-        assert_that(actual_stop_time, equal_to(expected_stop_time))
 
     def test_top_location_invokes_get_stage_location_top_correctly(self):
         top_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
@@ -443,17 +459,17 @@ class TestNativeStageAdapter(unittest.TestCase):
     @staticmethod
     def _make_pressure_test_pairs():
         net_pressures = [
-            om.make_measurement(units.UsOilfield.PRESSURE, 1414),
-            om.make_measurement(units.Metric.PRESSURE, 3.142),
+            tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414),
+            tsn.make_measurement_dto(units.Metric.PRESSURE, 3.142),
             UnitsNet.Pressure.FromBars(UnitsNet.QuantityValue.op_Implicit(0.1506)),
         ]
         expected_measurements = [
-            (om.make_measurement(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),
-            (om.make_measurement(units.UsOilfield.PRESSURE, 0.4557), decimal.Decimal('0.0001')),
-            (om.make_measurement(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
-            (om.make_measurement(units.Metric.PRESSURE, 9749), decimal.Decimal('1')),
-            (om.make_measurement(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
-            (om.make_measurement(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 0.4557), decimal.Decimal('0.0001')),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 2.184), decimal.Decimal('0.001')),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 9749), decimal.Decimal('1')),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 3.142), decimal.Decimal('0.001')),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
         return net_pressures * 2, expected_measurements
 

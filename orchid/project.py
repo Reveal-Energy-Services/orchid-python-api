@@ -23,11 +23,9 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    measurement as om,
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
     net_quantity as onq,
-    unit_system as units,
 )
 from orchid.project_loader import ProjectLoader
 
@@ -36,7 +34,7 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid.unit_system import as_unit_system
+from orchid import (unit_system as units)
 
 
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
@@ -59,7 +57,7 @@ class Project(dna.DotNetAdapter):
 
     azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
     name = dna.dom_property('name', 'The name of this project.')
-    project_units = dna.transformed_dom_property('project_units', 'The project unit system.', as_unit_system)
+    project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   nwa.NativeWellAdapter)
 

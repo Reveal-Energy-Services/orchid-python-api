@@ -16,11 +16,15 @@
 #
 
 import enum
+from typing import Callable
 
-from orchid import (base_curve_adapter as bca)
+from orchid import (
+    base_curve_adapter as bca,
+    dot_net_dom_access as dna,
+)
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import UnitSystem
+from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class MonitorCurveTypes(enum.Enum):
@@ -29,17 +33,8 @@ class MonitorCurveTypes(enum.Enum):
 
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
-
-    def get_net_project_units(self):
-        """
-        Returns the .NET project units (a `UnitSystem`) for this instance.
-
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
-        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
-        classes through invocation of "Primitive Operations".
-        """
-        result = self.dom_object.Well.Project.ProjectUnits
-        return result
+    def __init__(self, net_monitor_curve: IQuantityTimeSeries):
+        super().__init__(net_monitor_curve, dna.constantly(net_monitor_curve.Well.Project))
 
     def quantity_name_unit_map(self, project_units):
         """

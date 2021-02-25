@@ -73,12 +73,12 @@ class DotNetAdapterTest(unittest.TestCase):
         assert_that(sut.maybe_project_units, is_(none()))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_maybe_project_units_returns_none_if_net_project_callable_not_none(self, mock_as_unit_system):
+    def test_maybe_project_units_returns_unit_system_if_net_project_callable_not_none(self, mock_as_unit_system):
         mock_as_unit_system.return_value = units.Metric
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         sut = dna.DotNetAdapter(stub_adaptee, unittest.mock.MagicMock(name='net_project_callable'))
 
-        assert_that(sut.maybe_project_units, is_(not_none()))
+        assert_that(sut.maybe_project_units, equal_to(units.Metric))
 
 
 class DomPropertyTest(unittest.TestCase):

@@ -14,53 +14,34 @@
 
 
 from abc import ABCMeta, abstractmethod
-from typing import Union
+from typing import Callable, Union
 
 import pandas as pd
 
-from orchid import (dot_net_dom_access as dna,
-                    net_quantity as onq,
-                    unit_system as units)
+from orchid import (
+    dot_net_dom_access as dna,
+    net_quantity as onq,
+    unit_system as units,
+)
 
-# noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import UnitSystem
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
-    name = dna.dom_property('name', 'Return the name for this treatment curve.')
-    display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
-    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
-                                             'Return the sampled quantity name for this curve.')
-
-    def __init__(self, adaptee: IQuantityTimeSeries):
+    def __init__(self, adaptee: IQuantityTimeSeries, net_project_callable: Callable):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
 
         Args:
             adaptee: The .NET stage time series to be adapted.
         """
-        super().__init__(adaptee)
+        super().__init__(adaptee, net_project_callable)
 
-    @abstractmethod
-    def get_net_project_units(self):
-        """
-        Returns the .NET project units (a `UnitSystem`) for this instance.
-
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
-        role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
-        classes through invocation of "Primitive Operations".
-        """
-        pass
-
-    # noinspection PyMethodMayBeStatic
-    def net_unit_system_unit_system_map(self):
-        result = {
-            UnitSystem.USOilfield(): units.UsOilfield,
-            UnitSystem.Metric(): units.Metric,
-        }
-        return result
+    name = dna.dom_property('name', 'Return the name for this treatment curve.')
+    display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
+    sampled_quantity_name = dna.dom_property('sampled_quantity_name',
+                                             'Return the sampled quantity name for this curve.')
 
     @abstractmethod
     def quantity_name_unit_map(self, project_units):
@@ -88,10 +69,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         Returns:
             A `UnitSystem` member containing the unit for the sample in this curve.
         """
-        # net_project_units = self.dom_object.Stage.Well.Project.ProjectUnits
-        project_units = self.net_unit_system_unit_system_map()[self.get_net_project_units()]
-
-        quantity_name_unit_map = self.quantity_name_unit_map(project_units)
+        quantity_name_unit_map = self.quantity_name_unit_map(self.maybe_project_units)
         return quantity_name_unit_map[self.sampled_quantity_name]
 
     def time_series(self) -> pd.Series:

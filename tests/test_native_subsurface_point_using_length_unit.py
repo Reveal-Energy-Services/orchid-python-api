@@ -17,7 +17,6 @@ import unittest.mock
 from hamcrest import assert_that, equal_to
 
 from orchid import (
-    measurement as om,
     native_subsurface_point as nsp,
     reference_origins as origins,
     unit_system as units,
@@ -44,25 +43,25 @@ class TestNativeSubsurfacePointUsingLength(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_x(self):
-        scalar_x = tsn.StubMeasurement(-2725.83, units.Metric.LENGTH)
+        scalar_x = tsn.MeasurementDto(-2725.83, units.Metric.LENGTH)
         sut = create_sut(units.UsOilfield.LENGTH, x=scalar_x)
 
-        expected_x = om.make_measurement(units.UsOilfield.LENGTH, -8943.01)
-        tcm.assert_that_scalar_quantities_close_to(sut.x, expected_x, 6e-2)
+        expected_x = units.make_measurement(units.UsOilfield.LENGTH, -8943.01)
+        tcm.assert_that_measurements_close_to(sut.x, expected_x, 6e-2)
 
     def test_y(self):
-        scalar_y = tsn.StubMeasurement(1656448.10, units.Metric.LENGTH)
+        scalar_y = tsn.MeasurementDto(1656448.10, units.Metric.LENGTH)
         sut = create_sut(units.UsOilfield.LENGTH, y=scalar_y)
 
-        expected_y = om.make_measurement(units.UsOilfield.LENGTH, 5434541.01)
-        tcm.assert_that_scalar_quantities_close_to(sut.y, expected_y, 9e-2)
+        expected_y = units.make_measurement(units.UsOilfield.LENGTH, 5434541.01)
+        tcm.assert_that_measurements_close_to(sut.y, expected_y, 9e-2)
 
     def test_depth(self):
-        scalar_depth = tsn.StubMeasurement(8945.60, units.UsOilfield.LENGTH)
+        scalar_depth = tsn.MeasurementDto(8945.60, units.UsOilfield.LENGTH)
         sut = create_sut(units.Metric.LENGTH, depth=scalar_depth)
 
-        expected_depth = om.make_measurement(units.Metric.LENGTH, 2726.62)
-        tcm.assert_that_scalar_quantities_close_to(sut.depth, expected_depth, 6e-2)
+        expected_depth = units.make_measurement(units.Metric.LENGTH, 2726.62)
+        tcm.assert_that_measurements_close_to(sut.depth, expected_depth, 6e-2)
 
     def test_xy_origin(self):
         expected_xy_origin = origins.WellReferenceFrameXy.PROJECT

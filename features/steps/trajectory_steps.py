@@ -22,7 +22,7 @@ import numpy as np
 
 from hamcrest import assert_that, has_length, close_to
 
-import orchid.reference_origins as origins
+from orchid import (reference_origins as origins)
 
 
 @when('I query the trajectory for well "{well}"')

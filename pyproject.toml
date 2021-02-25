@@ -39,7 +39,6 @@ include=[
     "LICENSE",
     "ReleaseNotes.md",
     "orchid/*.py",
-    "orchid/orchid_units.txt",
     "orchid/VERSION",
     "orchid_python_api/examples/*.ipynb",
     "copy_orchid_examples.py",

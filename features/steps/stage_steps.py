@@ -17,16 +17,13 @@
 
 # noinspection PyPackageRequirements
 from behave import *
+
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 import toolz.curried as toolz
 
-from common_functions import (
-    find_stage_no_in_well,
-    find_well_by_name_in_stages_for_wells,
-    find_stage_by_stage_no
-)
+import common_functions as cf
 
 from orchid import (
     native_stage_adapter as nsa,
@@ -76,13 +73,6 @@ def find_stage(display_name_with_well, all_stages):
     return candidates[0]
 
 
-def assert_measurement_equal(actual, expected):
-    expected_magnitude_text, expected_unit = expected.split()
-    expected_magnitude = float(expected_magnitude_text)
-    assert_that(actual.magnitude, close_to(expected_magnitude, 6e-2))
-    assert_that(units.abbreviation(actual.unit), equal_to(expected_unit))
-
-
 # noinspection PyBDDParameters
 @then("I see the correct {stage_no:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
 def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_count):
@@ -99,8 +89,10 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     assert_that(stage_of_interest.display_stage_number, equal_to(stage_no))
-    assert_measurement_equal(stage_of_interest.md_top(context.project.project_units.LENGTH), md_top)
-    assert_measurement_equal(stage_of_interest.md_bottom(context.project.project_units.LENGTH), md_bottom)
+    actual = stage_of_interest.md_top(context.project.project_units.LENGTH)
+    cf.assert_that_actual_measurement_close_to_expected(actual, md_top)
+    actual1 = stage_of_interest.md_bottom(context.project.project_units.LENGTH)
+    cf.assert_that_actual_measurement_close_to_expected(actual1, md_bottom)
     assert_that(stage_of_interest.cluster_count, equal_to(cluster_count))
 
 
@@ -131,14 +123,16 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
     stage_of_interest = find_stage_with_name(context, name_with_well)
 
     in_length_unit = context.project.project_units.LENGTH
-    assert_measurement_equal(stage_of_interest.center_location_easting(in_length_unit,
-                                                                       origins.WellReferenceFrameXy.PROJECT),
-                             easting)
-    assert_measurement_equal(stage_of_interest.center_location_northing(in_length_unit,
-                                                                        origins.WellReferenceFrameXy.PROJECT),
-                             northing)
-    assert_measurement_equal(stage_of_interest.center_location_tvdss(in_length_unit), tvdss)
-    assert_measurement_equal(stage_of_interest.stage_length(in_length_unit), length)
+    actual = stage_of_interest.center_location_easting(in_length_unit,
+                                                                       origins.WellReferenceFrameXy.PROJECT)
+    cf.assert_that_actual_measurement_close_to_expected(actual, easting)
+    actual1 = stage_of_interest.center_location_northing(in_length_unit,
+                                                                        origins.WellReferenceFrameXy.PROJECT)
+    cf.assert_that_actual_measurement_close_to_expected(actual1, northing)
+    actual2 = stage_of_interest.center_location_tvdss(in_length_unit)
+    cf.assert_that_actual_measurement_close_to_expected(actual2, tvdss)
+    actual3 = stage_of_interest.stage_length(in_length_unit)
+    cf.assert_that_actual_measurement_close_to_expected(actual3, length)
 
 
 # noinspection PyBDDParameters
@@ -154,8 +148,8 @@ def step_impl(context, well, stage_no, name_without_well, order, global_stage_no
         global_stage_no (int): The global stage sequence number.
         connection (str): The name of the formation connection type of this stage.
     """
-    well_of_interest = find_well_by_name_in_stages_for_wells(context, well)
-    stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
+    well_of_interest = cf.find_well_by_name_in_stages_for_wells(context, well)
+    stage_of_interest = cf.find_stage_by_stage_no(context, stage_no, well_of_interest)
 
     message = f'Failure for field {context.field}, well {well}, and stage_no {stage_no}.'
 
@@ -194,7 +188,7 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
         y (str): The y-coordinate (northing) of the stage top subsurface location.
         depth (str): The depth (TVDSS) of the stage top subsurface location.
     """
-    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     subsurface_location = stage_of_interest.bottom_location(context.project.project_units.LENGTH,
                                                             reference_frame_from_frame_name(frame),
                                                             origins.DepthDatum.KELLY_BUSHING)
@@ -203,9 +197,9 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
 
 
 def assert_equal_location_measurements(subsurface_location, x, y, depth):
-    assert_measurement_equal(subsurface_location.x, x)
-    assert_measurement_equal(subsurface_location.y, y)
-    assert_measurement_equal(subsurface_location.depth, depth)
+    cf.assert_that_actual_measurement_close_to_expected(subsurface_location.x, x)
+    cf.assert_that_actual_measurement_close_to_expected(subsurface_location.y, y)
+    cf.assert_that_actual_measurement_close_to_expected(subsurface_location.depth, depth)
 
 
 # noinspection PyBDDParameters
@@ -218,7 +212,7 @@ def step_impl(context, well, stage_no, cluster_count):
         stage_no (int): The displayed stage number of interest.
         cluster_count (int) in the stage of interest.
     """
-    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     actual_cluster_count = stage_of_interest.cluster_count
 
     assert_that(actual_cluster_count, equal_to(cluster_count))
@@ -238,7 +232,7 @@ def step_impl(context, well, stage_no, cluster_no, frame, x, y, depth):
         y (str): The y-coordinate (northing) of the stage top subsurface location.
         depth (str): The depth (TVDSS) of the stage top subsurface location.
     """
-    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     subsurface_location = stage_of_interest.cluster_location(context.project.project_units.LENGTH,
                                                              cluster_no,
                                                              reference_frame_from_frame_name(frame),
@@ -260,7 +254,7 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
         y (str): The y-coordinate (northing) of the stage top subsurface location.
         depth (str): The depth (TVDSS) of the stage top subsurface location.
     """
-    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     subsurface_location = stage_of_interest.top_location(context.project.project_units.LENGTH,
                                                          reference_frame_from_frame_name(frame),
                                                          origins.DepthDatum.KELLY_BUSHING)
@@ -270,7 +264,7 @@ def step_impl(context, well, stage_no, frame, x, y, depth):
 
 @step("I see additional treatment data for samples {well}, {stage_no:d}, {shmin}, {isip}, and {pnet}")
 def step_impl(context, well, stage_no, shmin, isip, pnet):
-    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     # TODO: Change scenario to specify requested units instead of assuming project units.
     if context.field == 'Bakken':
         pressure_units = units.UsOilfield.PRESSURE
@@ -283,9 +277,9 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
     actual_isip = stage_of_interest.isip_in_pressure_unit(pressure_units)
     actual_pnet = stage_of_interest.pnet_in_pressure_unit(pressure_units)
 
-    assert_measurement_equal(actual_shmin, shmin)
-    assert_measurement_equal(actual_isip, isip)
-    assert_measurement_equal(actual_pnet, pnet)
+    cf.assert_that_actual_measurement_close_to_expected(actual_shmin, shmin)
+    cf.assert_that_actual_measurement_close_to_expected(actual_isip, isip)
+    cf.assert_that_actual_measurement_close_to_expected(actual_pnet, pnet)
 
 
 # noinspection PyBDDParameters
@@ -300,11 +294,11 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
         isip (str): The expected instantaneous shut-in pressure in project units.
         pnet (str): The net pressure for the stage in project units.
     """
-    stage_of_interest = find_stage_no_in_well(context, stage_no, well)
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     actual_shmin = stage_of_interest.shmin
     actual_isip = stage_of_interest.isip
     actual_pnet = stage_of_interest.pnet
 
-    assert_measurement_equal(actual_shmin, shmin)
-    assert_measurement_equal(actual_isip, isip)
-    assert_measurement_equal(actual_pnet, pnet)
+    cf.assert_that_actual_measurement_close_to_expected(actual_shmin, shmin)
+    cf.assert_that_actual_measurement_close_to_expected(actual_isip, isip)
+    cf.assert_that_actual_measurement_close_to_expected(actual_pnet, pnet)

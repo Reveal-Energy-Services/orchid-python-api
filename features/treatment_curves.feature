@@ -230,7 +230,7 @@ Feature: Treatment curves API
       | Bakken | Demo_2H | 44       | proppant   | 386   | 2018-06-29T00:08:47.0000000Z | -0.1605 lb/gal   |
       | Bakken | Demo_2H | 44       | proppant   | 2034  | 2018-06-29T00:36:15.0000000Z | 0.1910 lb/gal    |
       | Bakken | Demo_2H | 44       | proppant   | 5716  | 2018-06-29T01:37:37.0000000Z | 0.0284 lb/gal    |
-      | Bakken | Demo_2H | 44       | proppant   | 4265  | 2018-06-29T01:13:26.0000000Z | 0.2296 lb/gal     |
+      | Bakken | Demo_2H | 44       | proppant   | 4265  | 2018-06-29T01:13:26.0000000Z | 0.2296 lb/gal    |
       | Bakken | Demo_2H | 44       | proppant   | 1162  | 2018-06-29T00:21:43.0000000Z | -5.815e-2 lb/gal |
       | Bakken | Demo_2H | 44       | slurry     | 3023  | 2018-06-29T00:52:44.0000000Z | 71.66 bpm        |
       | Bakken | Demo_2H | 44       | slurry     | 2102  | 2018-06-29T00:37:23.0000000Z | 71.41 bpm        |
