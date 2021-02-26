@@ -53,6 +53,7 @@ from System import Array
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
+StubProjectBounds = namedtuple('StubProjectBounds', ['min_x', 'max_x', 'min_y', 'max_y', 'min_depth', 'max_depth'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
@@ -503,15 +504,10 @@ def create_stub_net_well(name='',
     return result
 
 
-def create_stub_net_project(name='',
-                            azimuth=None,
-                            fluid_density=None,
-                            default_well_colors=None,
-                            project_center=None,
-                            project_units=None,
-                            well_names=None, well_display_names=None, uwis=None,
-                            eastings=None, northings=None, tvds=None,
-                            curve_names=None, samples=None, curves_physical_quantities=None):
+def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
+                            project_center=None, project_units=None, well_names=None, well_display_names=None,
+                            uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
+                            curves_physical_quantities=None):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -543,6 +539,14 @@ def create_stub_net_project(name='',
     plotting_settings.GetDefaultWellColors = unittest.mock.MagicMock(name='stub_default_well_colors',
                                                                      return_value=default_well_colors)
     stub_net_project.PlottingSettings = plotting_settings
+
+    if project_bounds is not None:
+        net_bounds = toolz.pipe(project_bounds,
+                                toolz.map(make_net_measurement),
+                                list,
+                                )
+        stub_net_project.GetProjectBounds = unittest.mock.MagicMock(name='stub_get_project_bounds',
+                                                                    return_value=net_bounds)
 
     if project_center is not None:
         net_center = toolz.pipe(project_center,

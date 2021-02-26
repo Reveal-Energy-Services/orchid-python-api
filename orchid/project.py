@@ -26,6 +26,7 @@ from orchid import (
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
     net_quantity as onq,
+    unit_system as units,
 )
 from orchid.project_loader import ProjectLoader
 
@@ -34,9 +35,12 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid import (unit_system as units)
 
-
+ProjectBounds = namedtuple('ProjectBounds', [
+    'min_x', 'max_x',
+    'min_y', 'max_y',
+    'min_depth', 'max_depth',
+])
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
 
 
@@ -86,6 +90,13 @@ class Project(dna.DotNetAdapter):
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []
+
+    def project_bounds(self) -> ProjectBounds:
+        result = toolz.pipe(self.dom_object.GetProjectBounds(),
+                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            list,
+                            lambda ls: ProjectBounds(*ls))
+        return result
 
     def project_center(self) -> SurfacePoint:
         """

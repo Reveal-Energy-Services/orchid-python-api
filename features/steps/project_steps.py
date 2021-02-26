@@ -136,6 +136,44 @@ def step_impl(context):
             assert_that(actual[component_index], equal_to(float(expected[component_name])))
 
 
+@when("I query the project bounds")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):  The test context.
+    """
+    min_x, max_x, min_y, max_y, min_depth, max_depth = context.project.project_bounds()
+    context.project_bounds = {
+        'min_x': min_x,
+        'max_x': max_x,
+        'min_y': min_y,
+        'max_y': max_y,
+        'min_depth': min_depth,
+        'max_depth': max_depth,
+    }
+
+
+@then("I see project bounds {min_x}, {max_x}, {min_y}, {max_y}, {min_depth}, and {max_depth},")
+def step_impl(context, min_x, max_x, min_y, max_y, min_depth, max_depth):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        min_x (str): The project's minimum x-coordinate (in project units and relative to the absolute state plane).
+        max_x (str): The project's maximum y-coordinate.
+        min_y (str): The project's minimum y-coordinate.
+        max_y (str): The project's maximum y-coordinate.
+        min_depth (str): The project's minimum (total vertical) depth coordinate.
+        max_depth (str): The project's maximum depth coordinate.
+    """
+
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['min_x'], min_x)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_x'], max_x)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['min_y'], min_y)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_y'], max_y)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['min_depth'], min_depth)
+    cf.assert_that_actual_measurement_close_to_expected(context.project_bounds['max_depth'], max_depth)
+
+
 @when("I query the project measurements")
 def step_impl(context):
     """
