@@ -18,13 +18,12 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    net_quantity as onq,
     unit_system as units,
 )
 
 
 @toolz.curry
-def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measurement: om.Measurement):
+def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measurement: om.Quantity):
     """
     Convert a `Measurement` instance to the same measurement in `target_unit`.
 
@@ -42,10 +41,4 @@ def to_unit(target_unit: Union[units.UsOilfield, units.Metric], source_measureme
         source_measurement: The Measurement instance to convert.
         target_unit: The units to which I convert `source_measurement`.
     """
-    if source_measurement.unit == target_unit:
-        return source_measurement
-
-    result = toolz.pipe(onq.as_net_quantity_in_different_unit(source_measurement, target_unit),
-                        onq.as_measurement(target_unit.value.physical_quantity) )
-
-    return result
+    return source_measurement.to(target_unit.value.unit)

@@ -23,7 +23,6 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    measurement as om,
     native_well_adapter as nwa,
     native_monitor_curve_adapter as mca,
     net_quantity as onq,
@@ -36,9 +35,12 @@ from Orchid.FractureDiagnostics import IWell, UnitSystem
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-from orchid.unit_system import as_unit_system
 
-
+ProjectBounds = namedtuple('ProjectBounds', [
+    'min_x', 'max_x',
+    'min_y', 'max_y',
+    'min_depth', 'max_depth',
+])
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
 
 
@@ -59,7 +61,7 @@ class Project(dna.DotNetAdapter):
 
     azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
     name = dna.dom_property('name', 'The name of this project.')
-    project_units = dna.transformed_dom_property('project_units', 'The project unit system.', as_unit_system)
+    project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   nwa.NativeWellAdapter)
 
@@ -88,6 +90,13 @@ class Project(dna.DotNetAdapter):
                              self._project_loader.native_project().WellTimeSeriesList.Items)
         else:
             return []
+
+    def project_bounds(self) -> ProjectBounds:
+        result = toolz.pipe(self.dom_object.GetProjectBounds(),
+                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            list,
+                            lambda ls: ProjectBounds(*ls))
+        return result
 
     def project_center(self) -> SurfacePoint:
         """

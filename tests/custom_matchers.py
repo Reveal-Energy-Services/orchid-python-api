@@ -13,33 +13,57 @@
 #
 
 import decimal
+from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
-from hamcrest.core.base_matcher import BaseMatcher, T
+from hamcrest.core.base_matcher import BaseMatcher
 from hamcrest.core.description import Description
 
 
-def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None):
+def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None, reason=''):
     assert_that(actual.unit, equal_to(expected.unit))
-    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
+    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance, reason)
 
 
-def _assert_magnitudes_close_to(actual, expected, tolerance):
+def _assert_magnitudes_close_to(actual, expected, tolerance, reason):
     to_test_actual = decimal.Decimal(actual)
     to_test_expected = decimal.Decimal(expected)
-    to_test_tolerance = decimal.Decimal((0, (1,), to_test_expected.as_tuple()[-1] - 1)) if tolerance is None \
-        else decimal.Decimal(tolerance)
-    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance))
+    last_digit_adjustment = -1
+    to_test_tolerance = _calculate_to_test_tolerance(to_test_expected, last_digit_adjustment, tolerance)
+    assert_that(to_test_actual, close_to(to_test_expected, to_test_tolerance), reason)
 
 
-def assert_that_measurements_close_to(actual, expected, tolerance=None):
-    assert_that(actual.unit, equal_to(expected.unit))
-    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance)
+def _calculate_to_test_tolerance(expected: decimal.Decimal, last_digit_adjustment: int,
+                                 original_tolerance: Optional[float]):
+    """
+    Optionally calculate the absolute error tolerance based on the precision of `to_test_expected` and an
+    adjustment to the last digit in `to_test_expected`.
+
+    Args:
+        expected: The expected value for the test.
+        last_digit_adjustment: An adjustment to the precision of the last digit in `expected`. A negative
+        value "moves" the error from the last digit of the `expected` value to digit to the right of the
+        last digit. A positive value moves the error from the last digit of the `expected` value to the
+        digit to the left of the last digit.
+        original_tolerance: The original tolerance supplied by the caller. If not `None`, this value is
+        returned unchanged.
+
+    Returns:
+        The absolute error tolerance to be used in determining equality.
+    """
+    return (decimal.Decimal((0, (1,), expected.as_tuple()[-1] + last_digit_adjustment))
+            if original_tolerance is None
+            else decimal.Decimal(original_tolerance))
 
 
-def assert_that_net_quantities_close_to(actual, expected, tolerance=None):
+def assert_that_measurements_close_to(actual, expected, tolerance=None, reason=''):
+    assert_that(actual.units, equal_to(expected.units), reason)
+    _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance, reason)
+
+
+def assert_that_net_quantities_close_to(actual, expected, tolerance=None, reason=''):
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
-    _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance)
+    _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance, reason)
 
 
 def get_net_unit(net_quantity):

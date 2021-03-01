@@ -21,24 +21,21 @@ use_step_matcher("parse")
 
 import decimal
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 
 import common_functions as cf
 
 from orchid import (
-    measurement as om,
     reference_origins as origins,
     unit_system as units,
 )
 
 
 def _assert_measurement_close_to(actual, expected):
-    expected_magnitude_text, expected_unit = expected.split()
-    expected_magnitude = decimal.Decimal(expected_magnitude_text)
+    expected_magnitude = decimal.Decimal(expected.split(maxsplit=1)[0])
     # Tolerance determined empirically.
     magnitude_tolerance = decimal.Decimal((0, (4,), expected_magnitude.as_tuple()[-1]))
-    assert_that(decimal.Decimal(actual.magnitude), close_to(expected_magnitude, magnitude_tolerance))
-    assert_that(units.abbreviation(actual.unit), equal_to(expected_unit))
+    cf.assert_that_actual_measurement_close_to_expected(actual, expected, tolerance=magnitude_tolerance)
 
 
 @when("I query the well measurements for {well}")
@@ -101,7 +98,7 @@ def _measurement_text_to_measurement(measurement_text):
     else:
         raise ValueError(f'Unrecognized unit, "{unit_text}".')
 
-    result = om.Measurement(magnitude, unit)
+    result = units.make_measurement(unit, magnitude)
     return result
 
 
