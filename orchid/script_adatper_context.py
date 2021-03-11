@@ -13,8 +13,6 @@
 #
 
 
-import os
-import pathlib
 import sys
 
 import orchid.configuration
