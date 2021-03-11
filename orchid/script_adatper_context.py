@@ -63,6 +63,7 @@ class ScriptAdapterContext:
         try:
             ScriptAdapter.Init()
             return self
+        # TODO: Correct exception type / DEADFALL issue
         except InvalidOperationException as ioe:
             if 'REVEAL-CORE-0xDEADFA11' in ioe.Message:
                 print('Orchid licensing error. Please contact Orchid technical support.')
