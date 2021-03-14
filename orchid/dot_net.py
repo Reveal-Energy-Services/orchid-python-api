@@ -18,9 +18,9 @@
 
 import os
 import pathlib
-import sys
 
 import orchid.configuration
+import orchid.script_adatper_context as sac
 
 import toolz.curried as toolz
 
@@ -39,18 +39,8 @@ def add_orchid_assemblies() -> None:
     """
     clr.AddReference('Orchid.FractureDiagnostics')
     clr.AddReference('Orchid.FractureDiagnostics.Factories')
-    clr.AddReference('Orchid.FractureDiagnostics.SDKFacade')
     clr.AddReference('UnitsNet')
     return None
-
-
-def append_orchid_assemblies_directory_path() -> None:
-    """
-    Append the directory containing the required Orchid assemblies to `sys.path`.
-    """
-    orchid_bin_dir = toolz.get_in(['orchid', 'root'], orchid.configuration.python_api())
-    if orchid_bin_dir not in sys.path:
-        sys.path.append(orchid_bin_dir)
 
 
 def app_settings_path() -> str:
@@ -65,6 +55,10 @@ def app_settings_path() -> str:
 
 
 def prepare_imports() -> None:
-    orchid.dot_net.append_orchid_assemblies_directory_path()
-    # This function call must occur *after* the call to `append_orchid_assemblies_directory_path`
-    orchid.dot_net.add_orchid_assemblies()
+    # This function call must occur *after*
+    # - Importing clr
+    # - Adding a reference to `Orchid.FractureDiagnostics.SDKFacade`
+    # - Importing ScriptAdapter from `Orchid.FractureDiagnostics.SDKFacade`
+    # - The call to `append_orchid_assemblies_directory_path`
+    with sac.ScriptAdapterContext():
+        orchid.dot_net.add_orchid_assemblies()
