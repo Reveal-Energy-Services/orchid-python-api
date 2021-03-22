@@ -21,7 +21,7 @@ import deal
 
 from orchid import (
     dot_net,
-    script_adatper_context as sac,
+    script_adapter_context as sac,
     validation,
 )
 

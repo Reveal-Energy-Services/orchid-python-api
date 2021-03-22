@@ -20,7 +20,7 @@ import os
 import pathlib
 
 import orchid.configuration
-import orchid.script_adatper_context as sac
+import orchid.script_adapter_context as sac
 
 import toolz.curried as toolz
 
