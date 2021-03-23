@@ -34,14 +34,6 @@ class TestVersion(unittest.TestCase):
         assert_that(ov.Version(version=(2017, 3, 6970)),
                     equal_to(ov.Version(version=(2017, 3, 6970))))
 
-    def test_read_version(self):
-        for text_version, version_tuple in [('2018.3.3497', (2018, 3, 3497)), ('4.93.26.b2', (4, 93, 26, ('b', 2))), ]:
-            with self.subTest(f'Testing version {text_version}'):
-                with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
-                                                  open=unittest.mock.mock_open(read_data=text_version)):
-                    assert_that(ov.Version(),
-                                equal_to(ov.Version(version=version_tuple[:3])))
-
     def test_api_version(self):
         for text_version, version_tuple in [('2018.3.3497', (2018, 3, 3497)), ('4.93.26.b2', (4, 93, 26, ('b', 2))), ]:
             with self.subTest(f'Testing version {text_version}'):
