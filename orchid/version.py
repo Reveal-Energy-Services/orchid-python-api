@@ -19,7 +19,7 @@ from collections import namedtuple
 import pathlib
 from typing import Tuple
 
-import toolz.curried as toolz
+import packaging.version as pv
 
 
 VersionId = namedtuple('VersionId', ['major', 'minor', 'patch'])
@@ -41,7 +41,12 @@ class Version:
         else:
             with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
                 text_version = version_file.read()
-                self._major, self._minor, self._patch = toolz.map(int, text_version.split('.'))
+                version = pv.parse(text_version)
+                self._major = version.major
+                self._minor = version.minor
+                self._patch = version.micro
+                if version.is_prerelease:
+                    self._pre = version.pre
 
     def __eq__(self, other):
         if not isinstance(other, Version):
