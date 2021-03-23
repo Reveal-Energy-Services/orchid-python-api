@@ -26,27 +26,18 @@ VersionId = namedtuple('VersionId', ['major', 'minor', 'patch'])
 
 
 class Version:
-    def __init__(self, version=()):
+    def __init__(self):
         """
-        Constructs an instance.
-
-        If no version is supplied, this method will try to read the file, 'VERSION', in the same directory
-        as this module.
-
-        Args:
-            version (Tuple[int, int, int]): The 3-part (major, minor, patch) version identifier.
+        Constructs a default instance.
         """
-        if version:
-            self.major, self.minor, self.patch = version
-        else:
-            with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
-                text_version = version_file.read()
-                version = pv.parse(text_version)
-                self.major = version.major
-                self.minor = version.minor
-                self.patch = version.micro
-                if version.is_prerelease:
-                    self.pre = version.pre
+        with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
+            text_version = version_file.read()
+            version = pv.parse(text_version)
+            self.major = version.major
+            self.minor = version.minor
+            self.patch = version.micro
+            if version.is_prerelease:
+                self.pre = version.pre
 
     @property
     def is_prerelease(self):

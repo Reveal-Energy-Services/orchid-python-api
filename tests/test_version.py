@@ -30,10 +30,6 @@ class TestVersion(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
 
-    def test_supplied_version(self):
-        assert_that(ov.Version(version=(2017, 3, 6970)),
-                    equal_to(ov.Version(version=(2017, 3, 6970))))
-
     def test_api_version(self):
         for text_version, version_tuple in [('2018.3.3497', (2018, 3, 3497)), ('4.93.26.b2', (4, 93, 26, ('b', 2))), ]:
             with self.subTest(f'Testing version {text_version}'):
