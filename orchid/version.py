@@ -15,59 +15,9 @@
 # This file is part of Orchid and related technologies.
 #
 
-from collections import namedtuple
 import pathlib
 
 import packaging.version as pv
-
-
-VersionId = namedtuple('VersionId', ['major', 'minor', 'patch'])
-
-
-class Version:
-    def __init__(self):
-        """
-        Constructs a default instance.
-        """
-        with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
-            text_version = version_file.read()
-            version = pv.parse(text_version)
-            self.major = version.major
-            self.minor = version.minor
-            self.patch = version.micro
-            if version.is_prerelease:
-                self.pre = version.pre
-
-    @property
-    def is_prerelease(self):
-        return self._is_prerelease()
-
-    def __eq__(self, other):
-        if not isinstance(other, Version):
-            return False
-
-        return self.id() == other.id()
-
-    def __repr__(self):
-        return f'Version(major={self.major}, minor={self.minor}, patch={self.patch})'
-
-    def _is_prerelease(self) -> bool:
-        """
-        Is this version a pre-release version?
-
-        Returns:
-            True if this version is a pre-release; otherwise, false.
-        """
-        return hasattr(self, 'pre')
-
-    def id(self) -> VersionId:
-        """
-        Calculates the version identifier.
-
-        Returns:
-            The identifier for this instance.
-        """
-        return VersionId(self.major, self.minor, self.patch)
 
 
 def api_version():

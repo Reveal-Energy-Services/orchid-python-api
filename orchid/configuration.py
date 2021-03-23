@@ -80,8 +80,8 @@ def get_fallback_configuration() -> Dict:
     # `<version-specific-directory`.
     standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
                                                                             'Orchid')
-    version_id = orchid.version.Version().id()
-    version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}'
+    version_id = orchid.version.api_version()
+    version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.micro}'
     fallback = {'orchid': {'root': str(standard_orchid_dir.joinpath(version_dirname))}}
     _logger.debug(f'fallback configuration={fallback}')
     return fallback
