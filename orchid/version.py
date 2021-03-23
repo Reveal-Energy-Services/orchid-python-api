@@ -17,7 +17,6 @@
 
 from collections import namedtuple
 import pathlib
-from typing import Tuple
 
 import packaging.version as pv
 
@@ -78,4 +77,7 @@ def api_version():
     Returns:
         The Python API version read from the `VERSION` file.
     """
-    return Version()
+    with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
+        text_version = version_file.read()
+        result = pv.parse(text_version)
+        return result

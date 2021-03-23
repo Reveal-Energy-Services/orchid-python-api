@@ -19,7 +19,7 @@ from hamcrest import assert_that, equal_to, close_to
 from hamcrest.core.base_matcher import BaseMatcher, T
 from hamcrest.core.description import Description
 
-import orchid.version as ov
+import packaging.version as pv
 
 
 def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None, reason=''):
@@ -206,7 +206,15 @@ class IsEqualVersion(BaseMatcher):
             description.append_text(f'Version(major={self._major}, minor={self._minor}, patch={self._micro})')
 
     def _matches(self, item: T) -> bool:
-        if not isinstance(item, ov.Version):
+        """
+        Determine if expected matches `item`
+        Args:
+            item: The actual item to be matched.
+
+        Returns:
+            True if expected matches `item`; otherwise, False.
+        """
+        if not isinstance(item, pv.Version):
             return False
 
         if self._major != item.major:
@@ -215,7 +223,7 @@ class IsEqualVersion(BaseMatcher):
         if self._minor != item.minor:
             return False
 
-        if self._micro != item.patch:
+        if self._micro != item.micro:
             return False
 
         if item.is_prerelease:
