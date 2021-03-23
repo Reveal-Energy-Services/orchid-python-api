@@ -16,8 +16,10 @@ import decimal
 from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
-from hamcrest.core.base_matcher import BaseMatcher
+from hamcrest.core.base_matcher import BaseMatcher, T
 from hamcrest.core.description import Description
+
+import packaging.version as pv
 
 
 def assert_that_scalar_quantities_close_to(actual, expected, tolerance=None, reason=''):
@@ -163,3 +165,84 @@ def equal_to_net_date_time(expected):
 
     """
     return IsEqualNetDateTime(expected)
+
+
+class IsEqualVersion(BaseMatcher):
+    def __init__(self, expected):
+        """
+        Construct an instance for matching a packaging.version.Version instance against a `tuple` containing
+        either 3 (major, minor, patch) or 4 (major, minor, patch, pre) elements.
+
+        Args:
+            expected: A tuple containing 3 or 4 elements.
+        """
+        if len(expected) == 3:
+            self._major, self._minor, self._micro = expected
+        elif len(expected) == 4:
+            self._major, self._minor, self._micro, self._pre = expected
+        else:
+            raise ValueError(f'Unexpected version tuple {expected}')
+
+    def describe_mismatch(self, item, mismatch_description: Description) -> None:
+        """
+        Describes the mismatch using the actual item.
+        Args:
+            item: The actual value in the test.
+            mismatch_description: The incoming mismatch_description.
+        """
+        mismatch_description.append_text(item)
+
+    def describe_to(self, description: Description) -> None:
+        """
+        Describe the match failure using the expected value.
+
+        Args:
+            description: The previous failure description(s).
+        """
+        if hasattr(self, 'pre'):
+            description.append_text(f'Version(major={self._major}, minor={self._minor}, patch={self._micro}, '
+                                    f'pre={self._pre})')
+        else:
+            description.append_text(f'Version(major={self._major}, minor={self._minor}, patch={self._micro})')
+
+    def _matches(self, item: T) -> bool:
+        """
+        Determine if expected matches `item`
+        Args:
+            item: The actual item to be matched.
+
+        Returns:
+            True if expected matches `item`; otherwise, False.
+        """
+        if not isinstance(item, pv.Version):
+            return False
+
+        if self._major != item.major:
+            return False
+
+        if self._minor != item.minor:
+            return False
+
+        if self._micro != item.micro:
+            return False
+
+        if item.is_prerelease:
+            if self._pre != item.pre:
+                return False
+
+        return True
+
+
+def equal_to_version(expected):
+    """
+    Create a matcher verifying that a `packaging.version.Version` instance equals `expected`, a `tuple` of
+    either 3 (major, minor, micro) or 4 (major, minor, micro, pre) elements.
+
+    Args:
+        expected: A `tuple` of 3 or 4 elements.
+
+    Returns:
+`       A matcher against `expected`.
+    """
+
+    return IsEqualVersion(expected)

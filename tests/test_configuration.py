@@ -21,7 +21,6 @@ import unittest.mock
 
 from hamcrest import assert_that, equal_to, has_entry, empty, not_, has_key, has_entries, all_of
 
-from orchid.version import Version, VersionId
 import orchid.configuration
 
 
@@ -295,26 +294,21 @@ class FallbackConfigurationTest(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
-    def test_orchid_root_dir_based_on_version_id(self):
-        version_id = VersionId(3, 1, 4)
-        with unittest.mock.patch('orchid.version.Version', spec=Version) as stub_version:
-            to_patch = stub_version.return_value
-            to_patch.id.return_value = version_id
+    def test_orchid_root_dir_based_on_version(self):
+        with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
+                                          open=unittest.mock.mock_open(read_data='2019.1.441')):
             actual_fallback = orchid.configuration.get_fallback_configuration()
 
-            expected_fallback_bin_directory = pathlib.Path(self.ORCHID_VER_ROOT).joinpath(
-                f'Orchid-{version_id.major}.{version_id.minor}.{version_id.patch}')
+            expected_fallback_bin_directory = pathlib.Path(self.ORCHID_VER_ROOT).joinpath(f'Orchid-2019.1.441')
             assert_that(actual_fallback['orchid'], has_entry('root', str(expected_fallback_bin_directory)))
 
     @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
-    def test_orchid_training_data_dir_not_present(self):
-        version_id = VersionId(3, 1, 4)
-        with unittest.mock.patch('orchid.version.Version', spec=Version) as stub_version:
-            to_patch = stub_version.return_value
-            to_patch.id.return_value = version_id
+    def test_orchid_root_dir_based_on_version(self):
+        with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
+                                          open=unittest.mock.mock_open(read_data='2022.3.466')):
             actual_fallback = orchid.configuration.get_fallback_configuration()
 
-            assert_that(actual_fallback['orchid'], not_(has_key('training_dat')))
+            assert_that(actual_fallback['orchid'], not_(has_key('training_data')))
 
 
 # Test ideas
