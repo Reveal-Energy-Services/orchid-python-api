@@ -37,16 +37,20 @@ class Version:
             version (Tuple[int, int, int]): The 3-part (major, minor, patch) version identifier.
         """
         if version:
-            self._major, self._minor, self._patch = version
+            self.major, self.minor, self.patch = version
         else:
             with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
                 text_version = version_file.read()
                 version = pv.parse(text_version)
-                self._major = version.major
-                self._minor = version.minor
-                self._patch = version.micro
+                self.major = version.major
+                self.minor = version.minor
+                self.patch = version.micro
                 if version.is_prerelease:
-                    self._pre = version.pre
+                    self.pre = version.pre
+
+    @property
+    def is_prerelease(self):
+        return self._is_prerelease()
 
     def __eq__(self, other):
         if not isinstance(other, Version):
@@ -55,7 +59,16 @@ class Version:
         return self.id() == other.id()
 
     def __repr__(self):
-        return f'Version(major={self._major}, minor={self._minor}, patch={self._patch})'
+        return f'Version(major={self.major}, minor={self.minor}, patch={self.patch})'
+
+    def _is_prerelease(self) -> bool:
+        """
+        Is this version a pre-release version?
+
+        Returns:
+            True if this version is a pre-release; otherwise, false.
+        """
+        return hasattr(self, 'pre')
 
     def id(self) -> VersionId:
         """
@@ -64,4 +77,14 @@ class Version:
         Returns:
             The identifier for this instance.
         """
-        return VersionId(self._major, self._minor, self._patch)
+        return VersionId(self.major, self.minor, self.patch)
+
+
+def api_version():
+    """
+    Calculate the Python API version.
+
+    Returns:
+        The Python API version read from the `VERSION` file.
+    """
+    return Version()
