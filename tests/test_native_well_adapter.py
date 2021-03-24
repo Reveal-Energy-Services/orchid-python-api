@@ -271,6 +271,12 @@ class TestNativeWellAdapter(unittest.TestCase):
                                                           expected_point.depth,
                                                           tolerance_point.depth)
 
+    def test_formation_correct(self):
+        test_formation = 'Bakken'
+        assert_that(sut.formation, equal_to(test_formation))
+
+    def test_formation_uninitiated_returns_empty_string(self):
+        assert_that(sut.formation, equal_to(""))
 
 if __name__ == '__main__':
     unittest.main()
