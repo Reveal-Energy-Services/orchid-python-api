@@ -273,10 +273,14 @@ class TestNativeWellAdapter(unittest.TestCase):
 
     def test_formation_correct(self):
         test_formation = 'Bakken'
+        stub_native_well = tsn.create_stub_net_well(formation=test_formation)
+        sut = nwa.NativeWellAdapter(stub_native_well)
         assert_that(sut.formation, equal_to(test_formation))
 
     def test_formation_uninitiated_returns_empty_string(self):
-        assert_that(sut.formation, equal_to(""))
+        stub_native_well = tsn.create_stub_net_well()
+        sut = nwa.NativeWellAdapter(stub_native_well)
+        assert_that(sut.formation, equal_to(''))
 
 if __name__ == '__main__':
     unittest.main()

@@ -59,6 +59,7 @@ class NativeWellAdapter(dna.DotNetAdapter):
     trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
                                               nta.NativeTrajectoryAdapter)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
+    formation = dna.dom_property('formation', 'The production formation the well is landed')
 
     @property
     def ground_level_elevation_above_sea_level(self) -> om.Quantity:
