@@ -59,6 +59,9 @@ class NativeWellAdapter(dna.DotNetAdapter):
     trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
                                               nta.NativeTrajectoryAdapter)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
+
+    # The formation property **does not** check when a `None` value is passed from Orchid.
+    # Although it is possible, it is very unlikely to occur from IWell.Formation. 
     formation = dna.dom_property('formation', 'The production formation the well is landed')
 
     @property
