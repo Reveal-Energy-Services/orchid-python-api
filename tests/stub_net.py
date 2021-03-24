@@ -451,6 +451,7 @@ def create_stub_net_well(name='',
                          kelly_bushing_height_above_ground_level=None,
                          uwi=None,
                          locations_for_md_kb_values=None,
+                         formation=''
                          ):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
@@ -471,6 +472,9 @@ def create_stub_net_well(name='',
 
     if uwi:
         result.Uwi = uwi
+
+    if formation:
+        result.Formation = formation
 
     locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
 
