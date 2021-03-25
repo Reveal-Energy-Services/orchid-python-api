@@ -18,7 +18,7 @@
 import decimal
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, instance_of, is_, empty
+from hamcrest import assert_that, equal_to, instance_of, is_, empty, has_items
 import toolz.curried as toolz
 
 from orchid import (
@@ -281,6 +281,32 @@ class TestNativeWellAdapter(unittest.TestCase):
         stub_native_well = tsn.create_stub_net_well()
         sut = nwa.NativeWellAdapter(stub_native_well)
         assert_that(sut.formation, equal_to(''))
+
+    def test_wellhead_location_is_named_tuple_length_3(self):
+        self.dom_object.WellHeadLocation
+        assert_that(len(sut.wellhead_location), equal_to(3))
+
+    def test_wellhead_location_eastnorth_keys(self):
+        assert_that(sut.wellhead_location.keys(), has_items(['easting', 'northing']))
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_wellhead_location_values_are_correct(self, mock_as_unit_system):
+        # Since StubSubsurfaceLocation data points are so similar to wellhead location, this testing will
+        # use the same testing data in evaluation
+        east_test = tsn.MeasurementDto(154.8e3, units.UsOilfield.LENGTH)
+        north_test = tsn.MeasurementDto(543.2e3, units.UsOilfield.LENGTH)
+        depth_test = tsn.MeasurementDto(987.1e3, units.UsOilfield.LENGTH)
+        whl_expected = [east_test, north_test, depth_test]
+        mock_as_unit_system.return_value = units.UsOilfield
+        stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_expected)
+        sut = nwa.NativeWellAdapter(stub_native_well)
+        whl_actual = sut.wellhead_location
+        tcm.assert_that_measurements_close_to(whl_actual.easting, 154800 * om.registry.feet, decimal.Decimal('100'))
+        tcm.assert_that_measurements_close_to(whl_actual.northing, 543200 * om.registry.feet, decimal.Decimal('100'))
+        tcm.assert_that_measurements_close_to(whl_actual.depth, 987100 * om.registry.feet, decimal.Decimal('100'))
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

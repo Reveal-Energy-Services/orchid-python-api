@@ -58,7 +58,6 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 
-
 make_measurement_dto = toolz.flip(MeasurementDto)
 """This callable creates instances of `MeasurementDto` allowing a caller to supply a single unit as the first
 argument and providing the magnitude later."""
@@ -274,7 +273,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
                 sampled_quantity_name=sampled_quantity_name.value), treatment_curve_names))
     else:
         result.TreatmentCurves.Items = []
-        
+
     if shmin is not None:
         if hasattr(shmin, 'unit'):
             result.Shmin = make_net_measurement(shmin)
@@ -283,7 +282,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         else:
             raise ValueError(f'Unrecognized shmin={shmin}. The value, `shmin`, must be a Python `unit` or'
                              f' a UnitsNet `Unit`.')
-        
+
     if pnet is not None:
         if hasattr(pnet, 'unit'):
             result.Pnet = make_net_measurement(pnet)
@@ -292,7 +291,7 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
         else:
             raise ValueError(f'Unrecognized shmin={pnet}. The value, `shmin`, must be a Python `unit` or'
                              f' a UnitsNet `Unit`.')
-        
+
     if isip is not None:
         if hasattr(isip, 'unit'):
             result.Isip = make_net_measurement(isip)
@@ -451,8 +450,8 @@ def create_stub_net_well(name='',
                          kelly_bushing_height_above_ground_level=None,
                          uwi=None,
                          locations_for_md_kb_values=None,
-                         formation=None
-                         ):
+                         formation=None,
+                         wellhead_location=None):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
@@ -477,6 +476,13 @@ def create_stub_net_well(name='',
         result.Formation = formation
     else:
         result.Formation = ''
+
+    if wellhead_location:
+        # wellhead_location (whl) will be a list of 3 quantities (easting, northing, depth)
+        whl = toolz.pipe(wellhead_location,
+                         toolz.map(make_net_measurement),
+                         list, )
+        result.WellHeadLocation = whl
 
     locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
 

@@ -36,6 +36,10 @@ import UnitsNet
 # noinspection PyUnresolvedReferences
 from System import Array
 
+import collections
+WellHeadLocation = collections.namedtuple('WellHeadLocation',
+                                          ['easting', 'northing', 'depth'],
+                                          defaults=[0, ])
 
 def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
@@ -61,7 +65,7 @@ class NativeWellAdapter(dna.DotNetAdapter):
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
     # The formation property **does not** check when a `None` value is passed from Orchid.
-    # Although it is possible, it is very unlikely to occur from IWell.Formation. 
+    # Although it is possible, it is very unlikely to occur from IWell.Formation.
     formation = dna.dom_property('formation', 'The production formation the well is landed')
 
     @property
@@ -84,3 +88,11 @@ class NativeWellAdapter(dna.DotNetAdapter):
             list,
         )
         return result
+
+    @property
+    def wellhead_location(self):
+        dom_whl = self.dom_object.WellHeadLocation
+        result = toolz.pipe(dom_whl,
+                            toolz.map(onq.as_measurement(self.maybe_project_units.LENGTH)),
+                            list,)
+        return WellHeadLocation(*result)
