@@ -108,6 +108,14 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.fluid_density, expected_density, tolerance)
 
+    def test_monitors(self):
+        for monitors in [[], ['a'], ['a', 'b', 'c']]:
+            with self.subTest(f'Verify correct number of monitors: {monitors}'):
+                stub_native_project = tsn.create_stub_net_project(monitors=monitors)
+                sut = create_sut(stub_native_project)
+
+                assert_that(len(list(sut.monitors())), equal_to(len(monitors)))
+
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')
         sut = create_sut(stub_native_project)

@@ -24,6 +24,7 @@ import toolz.curried as toolz
 from orchid import (
     dot_net_dom_access as dna,
     native_well_adapter as nwa,
+    native_monitor_adapter as nma,
     native_monitor_curve_adapter as mca,
     net_quantity as onq,
     unit_system as units,
@@ -88,6 +89,18 @@ class Project(dna.DotNetAdapter):
         if len(native_time_series_list_items) > 0:
             return toolz.map(mca.NativeMonitorCurveAdapter,
                              self._project_loader.native_project().WellTimeSeriesList.Items)
+        else:
+            return []
+
+    def monitors(self) -> Iterable[nma.NativeMonitorAdapter]:
+        """
+            Return a sequence of monitors for this project.
+        Returns:
+            An iterable of `NativeMonitorAdapter`s.
+        """
+        native_monitor_items = self._project_loader.native_project().Monitors.Items
+        if len(native_monitor_items) > 0:
+            return toolz.map(nma.NativeMonitorAdapter, native_monitor_items)
         else:
             return []
 
