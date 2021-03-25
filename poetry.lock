@@ -220,6 +220,25 @@ six = "*"
 
 [[package]]
 category = "main"
+description = "DateTimeRange is a Python library to handle a time range. e.g. check whether a time is within the time range, get the intersection of time ranges, truncating a time range, iterate through a time range, and so forth."
+name = "datetimerange"
+optional = false
+python-versions = ">=3.5"
+version = "1.0.0"
+
+[package.dependencies]
+python-dateutil = ">=2.4.2,<3"
+setuptools = ">=38.3.0"
+
+[package.dependencies.typepy]
+extras = ["datetime"]
+version = ">=1.0.0,<2"
+
+[package.extras]
+test = ["pytest", "pytz"]
+
+[[package]]
+category = "main"
 description = "Programming by contract"
 name = "deal"
 optional = false
@@ -695,6 +714,20 @@ numpy = ">=1.15"
 pillow = ">=6.2.0"
 pyparsing = ">=2.0.3,<2.0.4 || >2.0.4,<2.1.2 || >2.1.2,<2.1.6 || >2.1.6"
 python-dateutil = ">=2.1"
+
+[[package]]
+category = "main"
+description = "multi-byte character string decoder"
+name = "mbstrdecoder"
+optional = false
+python-versions = ">=3.5"
+version = "1.0.1"
+
+[package.dependencies]
+chardet = ">=3.0.4,<5"
+
+[package.extras]
+test = ["Faker (>=1.0.2)", "pytest (>=6.0.1)", "pytest-md-report (>=0.1)"]
 
 [[package]]
 category = "main"
@@ -1535,6 +1568,30 @@ test = ["pytest", "typing-extensions"]
 
 [[package]]
 category = "main"
+description = "typepy is a Python library for variable type checker/validator/converter at a run time."
+name = "typepy"
+optional = false
+python-versions = ">=3.5"
+version = "1.1.4"
+
+[package.dependencies]
+mbstrdecoder = ">=1.0.0,<2"
+packaging = "*"
+
+[package.dependencies.python-dateutil]
+optional = true
+version = ">=2.8.0,<3.0.0"
+
+[package.dependencies.pytz]
+optional = true
+version = ">=2018.9"
+
+[package.extras]
+datetime = ["python-dateutil (>=2.8.0,<3.0.0)", "pytz (>=2018.9)"]
+test = ["pytest (>=6.0.1)", "tcolorpy", "python-dateutil (>=2.8.0,<3.0.0)", "pytz (>=2018.9)"]
+
+[[package]]
+category = "main"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
 optional = false
@@ -1644,7 +1701,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "ba24a2022cdedb31f9b7a7d834dcc7184eb66ad1e032237f72841f82c07ec177"
+content-hash = "bfc3c00dc50c003a943f187aba38aecef512735d20db30b6f91bea25f73139f1"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -1772,6 +1829,10 @@ colorama = [
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
+]
+datetimerange = [
+    {file = "DateTimeRange-1.0.0-py3-none-any.whl", hash = "sha256:d4f14d8f7ecdfc0b03ee28c081494484aeace0b1e8efea78198cb246fecb0d75"},
+    {file = "DateTimeRange-1.0.0.tar.gz", hash = "sha256:8b884202c0aa663e425d0611cc87a9f694d8696e0473d12519c8e08bd394f6be"},
 ]
 deal = [
     {file = "deal-3.9.0-py3-none-any.whl", hash = "sha256:6f566fe5601788bee5a507574483ea3103809c15e33334e68b89efad513da85d"},
@@ -2015,6 +2076,10 @@ matplotlib = [
     {file = "matplotlib-3.3.3-pp37-pypy37_pp73-macosx_10_9_x86_64.whl", hash = "sha256:746897fbd72bd462b888c74ed35d812ca76006b04f717cd44698cdfc99aca70d"},
     {file = "matplotlib-3.3.3-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:5ed3d3342698c2b1f3651f8ea6c099b0f196d16ee00e33dc3a6fee8cb01d530a"},
     {file = "matplotlib-3.3.3.tar.gz", hash = "sha256:b1b60c6476c4cfe9e5cf8ab0d3127476fd3d5f05de0f343a452badaad0e4bdec"},
+]
+mbstrdecoder = [
+    {file = "mbstrdecoder-1.0.1-py3-none-any.whl", hash = "sha256:56b967800d6554815a6b18f98f915e84912852eff21d94d5e036fe124bc27f53"},
+    {file = "mbstrdecoder-1.0.1.tar.gz", hash = "sha256:f895e1fb97496855ab5e43de99588787169c01f782c71625142d1a62729e9f9d"},
 ]
 mistune = [
     {file = "mistune-0.8.4-py2.py3-none-any.whl", hash = "sha256:88a1051873018da288eee8538d476dffe1262495144b33ecb586c4ab266bb8d4"},
@@ -2547,6 +2612,10 @@ typed-ast = [
 typeguard = [
     {file = "typeguard-2.10.0-py3-none-any.whl", hash = "sha256:a75c6d86ac9d1faf85c5ae952de473e5d26824dda6d4394ff6bc676849cfb939"},
     {file = "typeguard-2.10.0.tar.gz", hash = "sha256:d830132dcd544d3f8a2a842ea739eaa0d7c099fcebb9dcdf3802f4c9929d8191"},
+]
+typepy = [
+    {file = "typepy-1.1.4-py3-none-any.whl", hash = "sha256:1cee35cdc39052ed46a47e7ce79e006f22f4d2a77efe6ac0f931f5da5a4ff192"},
+    {file = "typepy-1.1.4.tar.gz", hash = "sha256:59e40619e68772976fc1c2b40bb9185a425a3198aff3fc165ed2ba0040ddb5c4"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.7.4.3-py2-none-any.whl", hash = "sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f"},
