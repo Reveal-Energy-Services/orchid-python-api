@@ -365,6 +365,22 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
+def create_stub_net_monitor(start=None, stop=None):
+    name = 'stub_net_monitor'
+    try:
+        result = unittest.mock.MagicMock(name=name, spec=IMonitor)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=name)
+
+    if start is not None:
+        result.Start = onq.as_net_date_time(start)
+
+    if stop is not None:
+        result.Stop = onq.as_net_date_time(stop)
+
+    return result
+
+
 def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sampled_quantity_type,
                                   samples, project):
     try:

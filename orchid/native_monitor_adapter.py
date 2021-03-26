@@ -12,13 +12,21 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime as dt
+
+import datetimerange as dtr
 
 from orchid import (
     dot_net_dom_access as dna,
+    net_quantity as onq,
 )
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IMonitor
+
+
+def make_time_range(start: dt.datetime, stop: dt.datetime) -> dtr.DateTimeRange:
+    pass
 
 
 class NativeMonitorAdapter(dna.DotNetAdapter):
@@ -31,3 +39,10 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
             net_monitor: The .NET monitor to be adapted.
         """
         super().__init__(net_monitor, dna.constantly(net_monitor.Project))
+
+    start = dna.transformed_dom_property('start', 'The start time of this monitor.', onq.as_datetime)
+    stop = dna.transformed_dom_property('stop', 'The stop time of this monitor.', onq.as_datetime)
+
+    @property
+    def time_range(self):
+        return dtr.DateTimeRange(self.start, self.stop)

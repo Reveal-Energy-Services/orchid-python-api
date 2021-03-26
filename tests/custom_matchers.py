@@ -12,12 +12,15 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime as dt
 import decimal
 from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
 from hamcrest.core.base_matcher import BaseMatcher, T
 from hamcrest.core.description import Description
+import dateutil.utils as duu
+import datetimerange as dtr
 
 import packaging.version as pv
 
@@ -246,3 +249,59 @@ def equal_to_version(expected):
     """
 
     return IsEqualVersion(expected)
+
+
+class IsEqualTimeRange(BaseMatcher):
+    def __init__(self, expected: dtr.DateTimeRange):
+        """
+        Construct an instance for matching `expected`.
+
+        Args:
+            expected: The expected `DateTimeRange` instance to be matched.
+        """
+        self._expected = expected
+
+    def describe_mismatch(self, item, mismatch_description: Description) -> None:
+        """
+        Describes the mismatch of the actual item.
+
+        Args:
+            item: The actual value in the test.
+            mismatch_description: The incoming mismatch_description.
+        """
+        mismatch_description.append_text(str(item))
+
+    def describe_to(self, description: Description) -> None:
+        """
+        Describe the match failure.
+
+        Args:
+            description: The previous failure description(s) if any.
+        """
+        description.append_text(str(self._expected))
+
+    def _matches(self, item: T) -> bool:
+        """
+        Determine if `item`, an instance of `dtr.DateTimeRange`, equals an expected instance.
+        Args:
+            item: The actual `dtr.DateTimeRange` instance.
+        """
+        def within_1_second(left_time, right_time):
+            return duu.within_delta(left_time, right_time, dt.timedelta(seconds=1))
+
+        return (within_1_second(self._expected.start_datetime, item.start_datetime) and
+                within_1_second(self._expected.end_datetime, item.end_datetime))
+
+
+def equal_to_time_range(expected: dtr.DateTimeRange):
+    """
+    Create a matcher to determine if another object equals an `expected` `dtr.DateTimeRange`.
+
+    Args:
+        expected: The expected `dtr.DateTimeRange` instance.
+
+    Returns:
+        A matcher against `expected`.
+
+    """
+    return IsEqualTimeRange(expected)
