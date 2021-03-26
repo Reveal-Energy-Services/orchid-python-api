@@ -21,6 +21,10 @@ use_step_matcher("parse")
 
 from hamcrest import assert_that, equal_to
 import dateutil.parser as dt_parser
+import datetimerange as dtr
+import toolz.curried as toolz
+
+from tests import custom_matchers as tcm
 
 
 @when("I query the monitor start and stop times for '{field}'")
@@ -30,20 +34,21 @@ def step_impl(context, field):
         context (behave.runner.Context):
         field (str): The name of the field whose monitor start and stop times are sought
     """
-    context.monitors = context.project.monitors
+    context.monitors = context.project.monitors()
 
 
-@then("I see the {start} and {stop} times for the monitor at {index}")
+# noinspection PyBDDParameters
+@then("I see the {start} and {stop} times for the monitor at {index:d}")
 def step_impl(context, start, stop, index):
     """
     Args:
         context (behave.runner.Context):
         start (str): The expected start time in ISO 8601 format.
         stop (str): The expected stop time in ISO 8601 format.
-        index (str): The index of the monitor of interest.
+        index (int): The index of the monitor of interest.
     """
-    monitor_time_range = context.monitors.time_range()
+    monitor_time_range = toolz.nth(index, context.monitors).time_range
     expected_start = dt_parser.parse(start)
-    assert_that(monitor_time_range.start, equal_to(expected_start))
-    expected_stop = dt_parser.parse(start)
-    assert_that(monitor_time_range.stop, equal_to(expected_stop))
+    expected_stop = dt_parser.parse(stop)
+    expected_time_range = dtr.DateTimeRange(expected_start, expected_stop)
+    assert_that(monitor_time_range, tcm.equal_to_time_range(expected_time_range))

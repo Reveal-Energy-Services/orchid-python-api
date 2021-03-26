@@ -40,9 +40,9 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
         """
         super().__init__(net_monitor, dna.constantly(net_monitor.Project))
 
-    start = dna.transformed_dom_property('start', 'The start time of this monitor.', onq.as_datetime)
-    stop = dna.transformed_dom_property('stop', 'The stop time of this monitor.', onq.as_datetime)
+    start_time = dna.transformed_dom_property('start_time', 'The start time of this monitor.', onq.as_datetime)
+    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of this monitor.', onq.as_datetime)
 
     @property
     def time_range(self):
-        return dtr.DateTimeRange(self.start, self.stop)
+        return dtr.DateTimeRange(self.start_time, self.stop_time)

@@ -373,10 +373,10 @@ def create_stub_net_monitor(start=None, stop=None):
         result = unittest.mock.MagicMock(name=name)
 
     if start is not None:
-        result.Start = onq.as_net_date_time(start)
+        result.StartTime = onq.as_net_date_time(start)
 
     if stop is not None:
-        result.Stop = onq.as_net_date_time(stop)
+        result.StopTime = onq.as_net_date_time(stop)
 
     return result
 
