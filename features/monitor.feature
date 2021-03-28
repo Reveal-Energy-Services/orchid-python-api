@@ -20,10 +20,10 @@ Feature: Adapted IMonitor DOM API
   I want to access Orchid monitors conveniently using Python
   In order to leverage my existing knowledge, code and data
 
-  Scenario Outline: Get monitor start and stop times
+  Scenario Outline: Get monitor identified by display name
     Given I have loaded the project for the field, '<field>'
-    When I query the monitor start and stop times for '<field>'
-    Then I see the <start> and <stop> times for the monitor at <index>
+    When I query the monitor '<field>' identified by <display_name>
+    Then I see the <name>, <start_time>, and <stop_time> for the queried monitor
 
     Examples: Bakken
       | field  | index | start                        | stop                         |

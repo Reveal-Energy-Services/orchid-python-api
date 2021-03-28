@@ -19,7 +19,7 @@
 from behave import *
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, is_, not_none
 import dateutil.parser as dt_parser
 import datetimerange as dtr
 import toolz.curried as toolz
@@ -27,28 +27,32 @@ import toolz.curried as toolz
 from tests import custom_matchers as tcm
 
 
-@when("I query the monitor start and stop times for '{field}'")
-def step_impl(context, field):
+@when("I query the monitor '{field}' identified by {display_name}")
+def step_impl(context, field, display_name):
     """
     Args:
-        context (behave.runner.Context):
-        field (str): The name of the field whose monitor start and stop times are sought
+        context (behave.runner.Context): The testing context.
+        field (str): The name of the field whose monitors are sought
+        display_name (str):
     """
-    context.monitors = context.project.monitors()
+    context.monitor = toolz.get(context.project.monitors(), display_name)
+    assert_that(context.monitor, is_(not_none))
 
 
 # noinspection PyBDDParameters
-@then("I see the {start} and {stop} times for the monitor at {index:d}")
-def step_impl(context, start, stop, index):
+@then("I see the {name}, {start_time}, and {stop_time} times for the queried monitor")
+def step_impl(context, name, start_time, stop_time, index):
     """
     Args:
-        context (behave.runner.Context):
-        start (str): The expected start time in ISO 8601 format.
-        stop (str): The expected stop time in ISO 8601 format.
-        index (int): The index of the monitor of interest.
+        context (behave.runner.Context): The testing context.
+        name: The name of the monitor (optional).
+        start_time (str): The expected start time in ISO 8601 format
+        stop_time (str): The expected stop time in ISO 8601 format
+        index (int): The index of the monitor of interest
     """
-    monitor_time_range = toolz.nth(index, context.monitors).time_range
-    expected_start = dt_parser.parse(start)
-    expected_stop = dt_parser.parse(stop)
+    assert_that(context.monitor.name, equal_to(name))
+    monitor_time_range = context.monitors.time_range
+    expected_start = dt_parser.parse(start_time)
+    expected_stop = dt_parser.parse(stop_time)
     expected_time_range = dtr.DateTimeRange(expected_start, expected_stop)
     assert_that(monitor_time_range, tcm.equal_to_time_range(expected_time_range))
