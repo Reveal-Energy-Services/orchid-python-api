@@ -38,8 +38,7 @@ from System import Array
 
 import collections
 WellHeadLocation = collections.namedtuple('WellHeadLocation',
-                                          ['easting', 'northing', 'depth'],
-                                          defaults=[0, ])
+                                          ['easting', 'northing', 'depth'])
 
 def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
