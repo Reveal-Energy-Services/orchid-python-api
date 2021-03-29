@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Dict
 
 import deal
 import toolz.curried as toolz
@@ -81,7 +81,8 @@ class Project(dna.DotNetAdapter):
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
         """
-            Return a sequence of well time series for this project.
+        Return a sequence of well time series for this project.
+
         Returns:
             An iterable of well time series.
         """
@@ -92,17 +93,20 @@ class Project(dna.DotNetAdapter):
         else:
             return []
 
-    def monitors(self) -> Iterable[nma.NativeMonitorAdapter]:
+    def monitors(self) -> Dict[str, nma.NativeMonitorAdapter]:
         """
-            Return a sequence of monitors for this project.
+        Return a dictionary of monitors for this project indexed by the monitor display name.
+
         Returns:
-            An iterable of `NativeMonitorAdapter`s.
+            An dictionary of `NativeMonitorAdapter`s indexed by the display name of each monitor.
         """
-        native_monitor_items = self._project_loader.native_project().Monitors.Items
-        if len(native_monitor_items) > 0:
-            return toolz.map(nma.NativeMonitorAdapter, native_monitor_items)
-        else:
-            return []
+        def collect_monitors(so_far, monitor):
+            return toolz.assoc(so_far, monitor.DisplayName, monitor)
+
+        result = toolz.pipe(self._project_loader.native_project().Monitors.Items,
+                            lambda ms: toolz.reduce(collect_monitors, ms, {}),
+                            toolz.valmap(lambda m: nma.NativeMonitorAdapter(m)))
+        return result
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),

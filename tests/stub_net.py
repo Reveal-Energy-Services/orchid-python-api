@@ -365,12 +365,15 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
-def create_stub_net_monitor(start=None, stop=None):
+def create_stub_net_monitor(display_name=None, start=None, stop=None):
     name = 'stub_net_monitor'
     try:
         result = unittest.mock.MagicMock(name=name, spec=IMonitor)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
+
+    if display_name is not None:
+        result.DisplayName = display_name
 
     if start is not None:
         result.StartTime = onq.as_net_date_time(start)
@@ -527,7 +530,8 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitors=None):
+                            curves_physical_quantities=None, monitors=None,
+                            monitor_display_names=None):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -561,6 +565,10 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
         except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
             stub_net_project.Monitors.Items = [unittest.mock.MagicMock(
                 name=f'stub_monitor{i}') for (i, monitor) in enumerate(monitors)]
+
+    if monitor_display_names is not None:
+        stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
+                                           monitor_display_name in monitor_display_names]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
