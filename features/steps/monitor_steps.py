@@ -27,28 +27,27 @@ import toolz.curried as toolz
 from tests import custom_matchers as tcm
 
 
-@when("I query the monitor '{field}' identified by {display_name}")
-def step_impl(context, field, display_name):
+@when("I query the monitor identified by {display_name} for the project for '{field}'")
+def step_impl(context, display_name, field):
     """
     Args:
         context (behave.runner.Context): The testing context.
         field (str): The name of the field whose monitors are sought
-        display_name (str):
+        display_name (str): The name used by operations engineers to identify the monitor of interest.
     """
-    context.monitor = toolz.get(context.project.monitors(), display_name)
-    assert_that(context.monitor, is_(not_none))
+    context.monitor = toolz.get(display_name, context.project.monitors())
+    assert_that(context.monitor, is_(not_none()))
 
 
 # noinspection PyBDDParameters
-@then("I see the {name}, {start_time}, and {stop_time} times for the queried monitor")
-def step_impl(context, name, start_time, stop_time, index):
+@then("I see the {name}, {start_time}, and {stop_time} for the queried monitor")
+def step_impl(context, name, start_time, stop_time):
     """
     Args:
         context (behave.runner.Context): The testing context.
         name: The name of the monitor (optional).
         start_time (str): The expected start time in ISO 8601 format
         stop_time (str): The expected stop time in ISO 8601 format
-        index (int): The index of the monitor of interest
     """
     assert_that(context.monitor.name, equal_to(name))
     monitor_time_range = context.monitors.time_range
