@@ -50,7 +50,7 @@ def step_impl(context, name, start_time, stop_time):
         stop_time (str): The expected stop time in ISO 8601 format
     """
     assert_that(context.monitor.name, equal_to(name))
-    monitor_time_range = context.monitors.time_range
+    monitor_time_range = context.monitor.time_range
     expected_start = dt_parser.parse(start_time)
     expected_stop = dt_parser.parse(stop_time)
     expected_time_range = dtr.DateTimeRange(expected_start, expected_stop)

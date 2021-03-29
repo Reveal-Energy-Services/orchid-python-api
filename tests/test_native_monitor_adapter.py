@@ -30,6 +30,18 @@ class TestNativeMonitorAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_display_name(self):
+        stub_net_monitor = tsn.create_stub_net_monitor(display_name='maiores')
+        sut = nma.NativeMonitorAdapter(stub_net_monitor)
+
+        assert_that(sut.display_name, equal_to('maiores'))
+
+    def test_name(self):
+        stub_net_monitor = tsn.create_stub_net_monitor(name='credula')
+        sut = nma.NativeMonitorAdapter(stub_net_monitor)
+
+        assert_that(sut.name, equal_to('credula'))
+
     def test_time_range(self):
         expected_start = datetime.datetime(2027, 7, 3, 7, 9, 37, 54174, tzinfo=dtz.tzutc())
         expected_stop = datetime.datetime(2027, 7, 12, 8, 55, 56, 628905, tzinfo=dtz.tzutc())
