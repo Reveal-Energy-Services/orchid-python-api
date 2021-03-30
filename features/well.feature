@@ -81,3 +81,20 @@ Feature: Adapted IWell DOM API
       | Montney | Vert_01 | 462.1 m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -983.9 m |
       | Montney | Vert_01 | 1158. m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -288.0 m |
       | Montney | Vert_01 | 2640. m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | 1194. m  |
+
+  Scenario Outline: Get wellhead locations in project units for different wells
+    Given I have loaded the project for the field, '<field>'
+    When I sample the well subsurface locations for '<well>'
+    Then I see the points <easting>, <northing>, and <depth>
+
+    Examples: Bakken
+      | field  | well    | easting       | northing       | depth  |
+      | Bakken | Demo_1H | 1989427.13 ft | 17496710.27 ft | 0.0 ft |
+      | Bakken | Demo_2H | 1989404.16 ft | 17496644.65 ft | 0.0 ft |
+      | Bakken | Demo_3H | 1990381.85 ft | 17495906.46 ft | 0.0 ft |
+
+    Examples: Montney
+      | field   | well    | easting       | northing       | depth |
+      | Montney | Hori_01 | 656587.37 m   | 6179346.351 m  | 0.0 m |
+      | Montney | Hori_03 | 656590.37 m   | 6179349.351 m  | 0.0 m |
+      | Montney | Vert_01 | 659044.57 m   | 6177836.623 m  | 0.0 m |
