@@ -271,23 +271,24 @@ class TestNativeWellAdapter(unittest.TestCase):
                                                           expected_point.depth,
                                                           tolerance_point.depth)
 
-    def test_formation_correct(self):
-        test_formation = 'Bakken'
-        stub_native_well = tsn.create_stub_net_well(formation=test_formation)
+    def test_formation_returns_expected_formation_when_initialized(self):
+        expected_formation = 'Bakken'
+        stub_native_well = tsn.create_stub_net_well(formation=expected_formation)
         sut = nwa.NativeWellAdapter(stub_native_well)
-        assert_that(sut.formation, equal_to(test_formation))
+        assert_that(sut.formation, equal_to(expected_formation))
 
-    def test_formation_uninitiated_returns_empty_string(self):
+    def test_formation_returns_empty_string_when_net_formation_unitialized(self):
         stub_native_well = tsn.create_stub_net_well()
         sut = nwa.NativeWellAdapter(stub_native_well)
+        #TODO Add custom matcher 'empty_string()', test would be "assert_that(sut.formation, equal_to(empty_string())"
         assert_that(sut.formation, equal_to(''))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_wellhead_location_is_named_tuple_length_3(self, mock_as_unit_system):
-        east_test = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
-        north_test = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
-        depth_test = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
-        whl_expected = [east_test, north_test, depth_test]
+        net_east = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
+        net_north = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
+        net_depth = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
+        whl_expected = [net_east, net_north, net_depth]
         mock_as_unit_system.return_value = units.UsOilfield
         stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_expected)
         sut = nwa.NativeWellAdapter(stub_native_well)
@@ -295,10 +296,10 @@ class TestNativeWellAdapter(unittest.TestCase):
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_wellhead_location_eastnorthdepth_keys(self, mock_as_unit_system):
-        east_test = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
-        north_test = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
-        depth_test = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
-        whl_expected = [east_test, north_test, depth_test]
+        net_east = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
+        net_north = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
+        net_depth = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
+        whl_expected = [net_east, net_north, net_depth]
         mock_as_unit_system.return_value = units.UsOilfield
         stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_expected)
         sut = nwa.NativeWellAdapter(stub_native_well)
@@ -324,29 +325,29 @@ class TestNativeWellAdapter(unittest.TestCase):
                     (384.1e3 * om.registry.ft, 8.740e6 * om.registry.ft, 7572 * om.registry.ft),
                     (182.4e3 * om.registry.ft, 541.2e3 * om.registry.ft, 7783 * om.registry.ft)]
 
-        tolerances = [(decimal.Decimal('0.04e3'),
-                       decimal.Decimal('0.004e6'),
-                       decimal.Decimal('0.4')),
-                      (decimal.Decimal('0.04e3'),
-                       decimal.Decimal('0.001e6'),
-                       decimal.Decimal('0.4')),
-                      (decimal.Decimal('0.04e3'),
-                       decimal.Decimal('0.001e6'),
-                       decimal.Decimal('0.4'))]
+        comparison_tolerances = [(decimal.Decimal('0.04e3'),
+                                  decimal.Decimal('0.004e6'),
+                                  decimal.Decimal('0.4')),
+                                 (decimal.Decimal('0.04e3'),
+                                  decimal.Decimal('0.001e6'),
+                                  decimal.Decimal('0.4')),
+                                 (decimal.Decimal('0.04e3'),
+                                  decimal.Decimal('0.001e6'),
+                                  decimal.Decimal('0.4'))]
 
-        for input_location, actual_location, tols in zip(inputs, expected, tolerances):
-            east_test = input_location[0]
-            north_test = input_location[1]
-            depth_test = input_location[2]
-            whl_input = [east_test, north_test, depth_test]
+        for input_location, actual_location, tolerances in zip(inputs, expected, comparison_tolerances):
+            net_east = input_location[0]
+            net_north = input_location[1]
+            net_depth = input_location[2]
+            whl_input = [net_east, net_north, net_depth]
             mock_as_unit_system.return_value = units.UsOilfield
             stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_input)
             sut = nwa.NativeWellAdapter(stub_native_well)
             whl_actual = sut.wellhead_location
             with self.subTest(f'Testing Wellhead Location'):
-                tcm.assert_that_measurements_close_to(whl_actual.easting, actual_location[0], tols[0])
-                tcm.assert_that_measurements_close_to(whl_actual.northing, actual_location[1], tols[1])
-                tcm.assert_that_measurements_close_to(whl_actual.depth, actual_location[2], tols[2])
+                tcm.assert_that_measurements_close_to(whl_actual.easting, actual_location[0], tolerances[0])
+                tcm.assert_that_measurements_close_to(whl_actual.northing, actual_location[1], tolerances[1])
+                tcm.assert_that_measurements_close_to(whl_actual.depth, actual_location[2], tolerances[2])
 
 
 if __name__ == '__main__':

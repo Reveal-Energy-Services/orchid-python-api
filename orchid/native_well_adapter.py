@@ -36,9 +36,11 @@ import UnitsNet
 # noinspection PyUnresolvedReferences
 from System import Array
 
-import collections
-WellHeadLocation = collections.namedtuple('WellHeadLocation',
-                                          ['easting', 'northing', 'depth'])
+from collections import namedtuple
+
+WellHeadLocation = namedtuple('WellHeadLocation',
+                              ['easting', 'northing', 'depth'])
+
 
 def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
@@ -46,6 +48,7 @@ def replace_no_uwi_with_text(uwi):
 
 class NativeWellAdapter(dna.DotNetAdapter):
     """Adapts a native IWell to python."""
+
     def __init__(self, net_well: IWell):
         """
         Constructs an instance adapting a .NET IWell.
@@ -75,6 +78,14 @@ class NativeWellAdapter(dna.DotNetAdapter):
     def kelly_bushing_height_above_ground_level(self) -> om.Quantity:
         return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
 
+    @property
+    def wellhead_location(self):
+        dom_whl = self.dom_object.WellHeadLocation
+        result = toolz.pipe(dom_whl,
+                            toolz.map(onq.as_measurement(self.maybe_project_units.LENGTH)),
+                            list, )
+        return WellHeadLocation(*result)
+
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],
                                    well_reference_frame_xy: origins.WellReferenceFrameXy,
@@ -87,11 +98,3 @@ class NativeWellAdapter(dna.DotNetAdapter):
             list,
         )
         return result
-
-    @property
-    def wellhead_location(self):
-        dom_whl = self.dom_object.WellHeadLocation
-        result = toolz.pipe(dom_whl,
-                            toolz.map(onq.as_measurement(self.maybe_project_units.LENGTH)),
-                            list,)
-        return WellHeadLocation(*result)

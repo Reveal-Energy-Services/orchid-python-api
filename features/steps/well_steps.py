@@ -17,7 +17,6 @@
 
 # noinspection PyPackageRequirements
 from behave import *
-
 use_step_matcher("parse")
 
 import decimal

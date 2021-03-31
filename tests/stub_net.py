@@ -58,6 +58,7 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 
+
 make_measurement_dto = toolz.flip(MeasurementDto)
 """This callable creates instances of `MeasurementDto` allowing a caller to supply a single unit as the first
 argument and providing the magnitude later."""
@@ -451,7 +452,8 @@ def create_stub_net_well(name='',
                          uwi=None,
                          locations_for_md_kb_values=None,
                          formation=None,
-                         wellhead_location=None):
+                         wellhead_location=None,
+                         ):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
