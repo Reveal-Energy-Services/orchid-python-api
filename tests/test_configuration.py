@@ -20,7 +20,7 @@ import pathlib
 import unittest.mock
 import warnings
 
-from hamcrest import assert_that, equal_to, has_entry, empty, not_, has_key, has_entries, all_of
+from hamcrest import assert_that, equal_to, has_entry, empty, not_, has_key, has_entries, all_of, is_, instance_of
 
 import orchid.configuration
 
@@ -344,6 +344,8 @@ class FallbackConfigurationTest(unittest.TestCase):
                     # noinspection PyTypeChecker
                     assert_that(actual_fallback, not_(has_key('orchid')))
                     assert_that(len(caught_warning), equal_to(1))
+                    # noinspection PyTypeChecker
+                    assert_that(caught_warning[0].message, is_(instance_of(UserWarning)))
 
 
 # Test ideas
