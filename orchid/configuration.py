@@ -15,10 +15,12 @@
 # This file is part of Orchid and related technologies.
 #
 
+import glob
 import logging
 import os
 import pathlib
 from typing import Dict
+import warnings
 
 import toolz.curried as toolz
 import yaml
@@ -78,12 +80,23 @@ def get_fallback_configuration() -> Dict:
     # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`. The following code
     # calculates an actual location by substituting the current version number for the symbol,
     # `<version-specific-directory`.
-    standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services, Inc',
+    standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services',
                                                                             'Orchid')
     version_id = orchid.version.api_version()
     version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.micro}'
-    fallback = {'orchid': {'root': str(standard_orchid_dir.joinpath(version_dirname))}}
-    _logger.debug(f'fallback configuration={fallback}')
+    glob_path = standard_orchid_dir.joinpath(f'{version_dirname}*')
+    candidate_directories = glob.glob(str(glob_path))
+    if len(candidate_directories) == 1:
+        fallback = {'orchid': {'root': str(candidate_directories[0])}}
+        _logger.debug(f'fallback configuration={fallback}')
+    elif len(candidate_directories) == 0:
+        fallback = {}
+        _logger.debug(f'fallback configuration={fallback}')
+    else:
+        fallback = {}
+        _logger.debug(f'fallback configuration={fallback}')
+        warnings.warn(f'Fallback configuration found multiple matches for {str(glob_path)}')
+
     return fallback
 
 
