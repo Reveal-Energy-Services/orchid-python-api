@@ -125,3 +125,16 @@ def step_impl(context, x, y, depth, md_kb, frame, datum):
     _assert_measurement_close_to(actual_point.x, x)
     _assert_measurement_close_to(actual_point.y, y)
     _assert_measurement_close_to(actual_point.depth, depth)
+
+
+@when("I sample the wellhead locations for {well}")
+def step_impl(context, well):
+    context.selected_well = cf.find_well_by_name_in_project(context, well)
+
+
+@then("I see the points {easting}, {northing}, and {depth}")
+def step_impl(context, easting, northing, depth):
+    actual_points = context.selected_well.wellhead_location
+    _assert_measurement_close_to(actual_points.easting, easting)
+    _assert_measurement_close_to(actual_points.northing, northing)
+    _assert_measurement_close_to(actual_points.depth, depth)
