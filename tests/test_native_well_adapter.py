@@ -277,77 +277,50 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = nwa.NativeWellAdapter(stub_native_well)
         assert_that(sut.formation, equal_to(expected_formation))
 
-    def test_formation_returns_empty_string_when_net_formation_unitialized(self):
+    def test_formation_returns_empty_string_when_net_formation_uninitialized(self):
         stub_native_well = tsn.create_stub_net_well()
         sut = nwa.NativeWellAdapter(stub_native_well)
-        #TODO Add custom matcher 'empty_string()', test would be "assert_that(sut.formation, equal_to(empty_string())"
+        # TODO Add custom matcher 'empty_string()', test would be "assert_that(sut.formation, equal_to(empty_string())"
         assert_that(sut.formation, equal_to(''))
-
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_wellhead_location_is_named_tuple_length_3(self, mock_as_unit_system):
-        net_east = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
-        net_north = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
-        net_depth = tsn.MeasurementDto(0, units.UsOilfield.LENGTH)
-        whl_expected = [net_east, net_north, net_depth]
-        mock_as_unit_system.return_value = units.UsOilfield
-        stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_expected)
-        sut = nwa.NativeWellAdapter(stub_native_well)
-        assert_that(len(sut.wellhead_location), equal_to(3))
-
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_wellhead_location_eastnorthdepth_keys(self, mock_as_unit_system):
-        net_east = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
-        net_north = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
-        net_depth = tsn.MeasurementDto(999, units.UsOilfield.LENGTH)
-        whl_expected = [net_east, net_north, net_depth]
-        mock_as_unit_system.return_value = units.UsOilfield
-        stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_expected)
-        sut = nwa.NativeWellAdapter(stub_native_well)
-        assert_that(list(sut.wellhead_location._fields), has_item('easting'))
-        assert_that(list(sut.wellhead_location._fields), has_item('northing'))
-        assert_that(list(sut.wellhead_location._fields), has_item('depth'))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_wellhead_location_values_are_correct(self, mock_as_unit_system):
         # Since StubSubsurfaceLocation data points are so similar to wellhead location, this testing will
         # use the same testing data in evaluation
-        inputs = [(tsn.MeasurementDto(374.3e3, units.UsOilfield.LENGTH),
-                   tsn.MeasurementDto(1.365e6, units.UsOilfield.LENGTH),
-                   tsn.MeasurementDto(8288, units.UsOilfield.LENGTH)),
-                  (tsn.MeasurementDto(384.1e3, units.UsOilfield.LENGTH),
-                   tsn.MeasurementDto(8.740e6, units.UsOilfield.LENGTH),
-                   tsn.MeasurementDto(7572, units.UsOilfield.LENGTH)),
-                  (tsn.MeasurementDto(182.4e3, units.UsOilfield.LENGTH),
-                   tsn.MeasurementDto(541.2e3, units.UsOilfield.LENGTH),
-                   tsn.MeasurementDto(7783, units.UsOilfield.LENGTH))]
+        inputs = [tsn.StubWellHeadLocation(tsn.MeasurementDto(374.3e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(1.365e6, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(8288, units.UsOilfield.LENGTH)),
+                  tsn.StubWellHeadLocation(tsn.MeasurementDto(384.1e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(8.740e6, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(7572, units.UsOilfield.LENGTH)),
+                  tsn.StubWellHeadLocation(tsn.MeasurementDto(182.4e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(541.2e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(7783, units.UsOilfield.LENGTH))]
 
-        expected = [(374.3e3 * om.registry.ft, 1.365e6 * om.registry.ft, 8288 * om.registry.ft),
-                    (384.1e3 * om.registry.ft, 8.740e6 * om.registry.ft, 7572 * om.registry.ft),
-                    (182.4e3 * om.registry.ft, 541.2e3 * om.registry.ft, 7783 * om.registry.ft)]
+        expected = [tsn.StubWellHeadLocation(374.3e3 * om.registry.ft, 1.365e6 * om.registry.ft, 8288 * om.registry.ft),
+                    tsn.StubWellHeadLocation(384.1e3 * om.registry.ft, 8.740e6 * om.registry.ft, 7572 * om.registry.ft),
+                    tsn.StubWellHeadLocation(182.4e3 * om.registry.ft, 541.2e3 * om.registry.ft, 7783 * om.registry.ft)]
 
-        comparison_tolerances = [(decimal.Decimal('0.04e3'),
-                                  decimal.Decimal('0.004e6'),
-                                  decimal.Decimal('0.4')),
-                                 (decimal.Decimal('0.04e3'),
-                                  decimal.Decimal('0.001e6'),
-                                  decimal.Decimal('0.4')),
-                                 (decimal.Decimal('0.04e3'),
-                                  decimal.Decimal('0.001e6'),
-                                  decimal.Decimal('0.4'))]
+        comparison_tolerances = [tsn.StubWellHeadLocation(decimal.Decimal('0.04e3'),
+                                                          decimal.Decimal('0.004e6'),
+                                                          decimal.Decimal('0.4')),
+                                 tsn.StubWellHeadLocation(decimal.Decimal('0.04e3'),
+                                                          decimal.Decimal('0.001e6'),
+                                                          decimal.Decimal('0.4')),
+                                 tsn.StubWellHeadLocation(decimal.Decimal('0.04e3'),
+                                                          decimal.Decimal('0.001e6'),
+                                                          decimal.Decimal('0.4'))]
 
-        for input_location, actual_location, tolerances in zip(inputs, expected, comparison_tolerances):
-            net_east = input_location[0]
-            net_north = input_location[1]
-            net_depth = input_location[2]
-            whl_input = [net_east, net_north, net_depth]
+        for input_location, expected_location, tolerances in zip(inputs, expected, comparison_tolerances):
+            whl_input = [input_location.easting, input_location.northing, input_location.depth]
             mock_as_unit_system.return_value = units.UsOilfield
             stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_input)
             sut = nwa.NativeWellAdapter(stub_native_well)
             whl_actual = sut.wellhead_location
             with self.subTest(f'Testing Wellhead Location'):
-                tcm.assert_that_measurements_close_to(whl_actual.easting, actual_location[0], tolerances[0])
-                tcm.assert_that_measurements_close_to(whl_actual.northing, actual_location[1], tolerances[1])
-                tcm.assert_that_measurements_close_to(whl_actual.depth, actual_location[2], tolerances[2])
+                tcm.assert_that_measurements_close_to(whl_actual.easting, expected_location.easting, tolerances.easting)
+                tcm.assert_that_measurements_close_to(whl_actual.northing, expected_location.northing, tolerances.northing)
+                tcm.assert_that_measurements_close_to(whl_actual.depth, expected_location.depth, tolerances.depth)
 
 
 if __name__ == '__main__':

@@ -57,6 +57,7 @@ StubProjectBounds = namedtuple('StubProjectBounds', ['min_x', 'max_x', 'min_y', 
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
+StubWellHeadLocation = namedtuple('StubWellHeadLocation', ['easting', 'northing', 'depth'])
 
 
 make_measurement_dto = toolz.flip(MeasurementDto)
