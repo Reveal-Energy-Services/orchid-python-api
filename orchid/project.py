@@ -88,8 +88,9 @@ class Project(dna.DotNetAdapter):
         """
         native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
         if len(native_time_series_list_items) > 0:
-            return toolz.map(mca.NativeMonitorCurveAdapter,
-                             self._project_loader.native_project().WellTimeSeriesList.Items)
+            return toolz.pipe(native_time_series_list_items,
+                              toolz.map(mca.NativeMonitorCurveAdapter),
+                              list)
         else:
             return []
 

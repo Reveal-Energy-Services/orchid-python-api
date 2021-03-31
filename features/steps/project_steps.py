@@ -19,7 +19,8 @@
 from behave import *
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to
+from dateutil import parser as dup
+from hamcrest import assert_that, equal_to, is_, not_none
 import toolz.curried as toolz
 
 import orchid
@@ -203,3 +204,44 @@ def step_impl(context, fluid_density, azimuth, center_x, center_y):
     cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['azimuth'], azimuth)
     cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['center_x'], center_x)
     cf.assert_that_actual_measurement_close_to_expected(context.project_measurements['center_y'], center_y)
+
+
+@when("I query the project well time series")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+    """
+    context.monitor_curves = context.project.monitor_curves()
+    assert_that(context.monitor_curves, is_(not_none()))
+
+
+# noinspection PyBDDParameters
+@then("I see the samples {index:d}, {qty_name}, {time}, and {value} for {name}")
+def step_impl(context, index, qty_name, time, value, name):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+        index (int): The index of the well time series sample of interest.
+        qty_name (str): The phenomenon type of sample of interest.
+        time (str): The time of the sample of interest
+        value (str): The measured value of the sample of interest.
+        name (str): The name of the sampled time series curve.
+    """
+    def is_candidate(curve):
+        return curve.name == name and curve.sampled_quantity_name == qty_name
+
+    candidate_curves = list(toolz.filter(is_candidate, context.monitor_curves))
+    assert_that(len(candidate_curves), equal_to(1),
+                f'Expected 1 curve with name, {name}, and sampled quantity_name, {qty_name}.' +
+                f' Found {len(candidate_curves)}')
+
+    curve = candidate_curves[0]
+    sample = curve.time_series()
+    print(sample.head())
+
+    expected_sample_time = dup.parse(time)
+    assert_that(sample.time_stamp, equal_to(expected_sample_time))
+
+    expected_sample_value = orchid.unit_registry.Quantity(value)
+    assert_that(sample.value, equal_to(expected_sample_value))
