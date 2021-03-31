@@ -36,6 +36,11 @@ import UnitsNet
 # noinspection PyUnresolvedReferences
 from System import Array
 
+from collections import namedtuple
+
+WellHeadLocation = namedtuple('WellHeadLocation',
+                              ['easting', 'northing', 'depth'])
+
 
 def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
@@ -43,6 +48,7 @@ def replace_no_uwi_with_text(uwi):
 
 class NativeWellAdapter(dna.DotNetAdapter):
     """Adapts a native IWell to python."""
+
     def __init__(self, net_well: IWell):
         """
         Constructs an instance adapting a .NET IWell.
@@ -60,6 +66,10 @@ class NativeWellAdapter(dna.DotNetAdapter):
                                               nta.NativeTrajectoryAdapter)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
+    # The formation property **does not** check when a `None` value is passed from Orchid.
+    # Although it is possible, it is very unlikely to occur from IWell.Formation.
+    formation = dna.dom_property('formation', 'The production formation the well is landed')
+
     @property
     def ground_level_elevation_above_sea_level(self) -> om.Quantity:
         return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
@@ -67,6 +77,14 @@ class NativeWellAdapter(dna.DotNetAdapter):
     @property
     def kelly_bushing_height_above_ground_level(self) -> om.Quantity:
         return onq.as_measurement(self.maybe_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
+
+    @property
+    def wellhead_location(self):
+        dom_whl = self.dom_object.WellHeadLocation
+        result = toolz.pipe(dom_whl,
+                            toolz.map(onq.as_measurement(self.maybe_project_units.LENGTH)),
+                            list, )
+        return WellHeadLocation(*result)
 
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],

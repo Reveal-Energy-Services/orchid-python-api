@@ -18,7 +18,7 @@
 import decimal
 import unittest.mock
 
-from hamcrest import assert_that, equal_to, instance_of, is_, empty
+from hamcrest import assert_that, equal_to, instance_of, is_, empty, has_item
 import toolz.curried as toolz
 
 from orchid import (
@@ -78,7 +78,7 @@ class TestNativeWellAdapter(unittest.TestCase):
             (tsn.MeasurementDto(30.86, units.UsOilfield.LENGTH),
              9.406 * om.registry.m, units.Metric, decimal.Decimal('0.004')),
             (tsn.MeasurementDto(9.406, units.Metric.LENGTH),
-                30.86 * om.registry.ft, units.UsOilfield, decimal.Decimal('0.004')),
+             30.86 * om.registry.ft, units.UsOilfield, decimal.Decimal('0.004')),
         ]:
             with self.subTest(f'Test kelly bushing height above ground level, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
@@ -270,6 +270,57 @@ class TestNativeWellAdapter(unittest.TestCase):
                     tcm.assert_that_measurements_close_to(actual_point.depth,
                                                           expected_point.depth,
                                                           tolerance_point.depth)
+
+    def test_formation_returns_expected_formation_when_initialized(self):
+        expected_formation = 'Bakken'
+        stub_native_well = tsn.create_stub_net_well(formation=expected_formation)
+        sut = nwa.NativeWellAdapter(stub_native_well)
+        assert_that(sut.formation, equal_to(expected_formation))
+
+    def test_formation_returns_empty_string_when_net_formation_uninitialized(self):
+        stub_native_well = tsn.create_stub_net_well()
+        sut = nwa.NativeWellAdapter(stub_native_well)
+        # TODO Add custom matcher 'empty_string()', test would be "assert_that(sut.formation, equal_to(empty_string())"
+        assert_that(sut.formation, equal_to(''))
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_wellhead_location_values_are_correct(self, mock_as_unit_system):
+        # Since StubSubsurfaceLocation data points are so similar to wellhead location, this testing will
+        # use the same testing data in evaluation
+        inputs = [tsn.StubWellHeadLocation(tsn.MeasurementDto(374.3e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(1.365e6, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(8288, units.UsOilfield.LENGTH)),
+                  tsn.StubWellHeadLocation(tsn.MeasurementDto(384.1e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(8.740e6, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(7572, units.UsOilfield.LENGTH)),
+                  tsn.StubWellHeadLocation(tsn.MeasurementDto(182.4e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(541.2e3, units.UsOilfield.LENGTH),
+                                           tsn.MeasurementDto(7783, units.UsOilfield.LENGTH))]
+
+        expected = [tsn.StubWellHeadLocation(374.3e3 * om.registry.ft, 1.365e6 * om.registry.ft, 8288 * om.registry.ft),
+                    tsn.StubWellHeadLocation(384.1e3 * om.registry.ft, 8.740e6 * om.registry.ft, 7572 * om.registry.ft),
+                    tsn.StubWellHeadLocation(182.4e3 * om.registry.ft, 541.2e3 * om.registry.ft, 7783 * om.registry.ft)]
+
+        comparison_tolerances = [tsn.StubWellHeadLocation(decimal.Decimal('0.04e3'),
+                                                          decimal.Decimal('0.004e6'),
+                                                          decimal.Decimal('0.4')),
+                                 tsn.StubWellHeadLocation(decimal.Decimal('0.04e3'),
+                                                          decimal.Decimal('0.001e6'),
+                                                          decimal.Decimal('0.4')),
+                                 tsn.StubWellHeadLocation(decimal.Decimal('0.04e3'),
+                                                          decimal.Decimal('0.001e6'),
+                                                          decimal.Decimal('0.4'))]
+
+        for input_location, expected_location, tolerances in zip(inputs, expected, comparison_tolerances):
+            whl_input = [input_location.easting, input_location.northing, input_location.depth]
+            mock_as_unit_system.return_value = units.UsOilfield
+            stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_input)
+            sut = nwa.NativeWellAdapter(stub_native_well)
+            whl_actual = sut.wellhead_location
+            with self.subTest(f'Testing Wellhead Location'):
+                tcm.assert_that_measurements_close_to(whl_actual.easting, expected_location.easting, tolerances.easting)
+                tcm.assert_that_measurements_close_to(whl_actual.northing, expected_location.northing, tolerances.northing)
+                tcm.assert_that_measurements_close_to(whl_actual.depth, expected_location.depth, tolerances.depth)
 
 
 if __name__ == '__main__':
