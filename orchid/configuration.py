@@ -79,7 +79,7 @@ def get_fallback_configuration() -> Dict:
     # Symbolically, the standard location for the installed Orchid binaries is
     # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`. The following code
     # calculates an actual location by substituting the current version number for the symbol,
-    # `<version-specific-directory`.
+    # `<version-specific-directory>`.
     standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services',
                                                                             'Orchid')
     version_id = orchid.version.api_version()

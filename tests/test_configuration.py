@@ -18,6 +18,7 @@
 import os
 import pathlib
 import unittest.mock
+import warnings
 
 from hamcrest import assert_that, equal_to, has_entry, empty, not_, has_key, has_entries, all_of
 
@@ -59,6 +60,7 @@ class ConfigurationTest(unittest.TestCase):
     BEWARE: The current unit tests assume that the configuration used by the Orchid Python API is a "two-level"
     configuration. If the dictionary becomes deeper or shallower, one would need to change these tests.
     """
+
     @staticmethod
     def test_canary_test():
         assert_that(2 + 2, equal_to(4))
@@ -285,6 +287,9 @@ class EnvironmentConfigurationTest(unittest.TestCase):
 
 
 # Test ideas
+# - Glob returns more than 1 candidate
+# - Glob returns 0 candidates (mostly tested already but missing 'orchid' key
+# - returns
 class FallbackConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
     ORCHID_VER_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')
@@ -294,21 +299,51 @@ class FallbackConfigurationTest(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
-    def test_orchid_root_dir_based_on_version(self):
+    def test_orchid_root_dir_based_on_1_glob_match_does_not_have_training_data(self):
         with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
-                                          open=unittest.mock.mock_open(read_data='2019.1.441')):
-            actual_fallback = orchid.configuration.get_fallback_configuration()
+                                          open=unittest.mock.mock_open(read_data='2023.3.466')):
 
-            expected_fallback_bin_directory = pathlib.Path(self.ORCHID_VER_ROOT).joinpath(f'Orchid-2019.1.441')
-            assert_that(actual_fallback['orchid'], has_entry('root', str(expected_fallback_bin_directory)))
+            with unittest.mock.patch('glob.glob') as patch_glob:
+                patch_glob.return_value = ['cheesecake factory']
+                actual_fallback = orchid.configuration.get_fallback_configuration()
+
+                assert_that(actual_fallback['orchid'], not_(has_key('training_data')))
 
     @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
-    def test_orchid_root_dir_based_on_version(self):
+    def test_orchid_root_dir_based_on_1_glob_match_has_correct_path(self):
         with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
                                           open=unittest.mock.mock_open(read_data='2022.3.466')):
-            actual_fallback = orchid.configuration.get_fallback_configuration()
+            with unittest.mock.patch('glob.glob') as patch_glob:
+                stub_dir = 'obiwan_kenobi'
+                patch_glob.return_value = [stub_dir]
+                actual_fallback = orchid.configuration.get_fallback_configuration()
 
-            assert_that(actual_fallback['orchid'], not_(has_key('training_data')))
+                assert_that(actual_fallback['orchid']['root'], equal_to(stub_dir))
+
+    @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
+    def test_orchid_root_dir_returns_empty_if_0_glob_matches(self):
+        with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
+                                          open=unittest.mock.mock_open(read_data='2022.3.466')):
+
+            with unittest.mock.patch('glob.glob') as patch_glob:
+                patch_glob.return_value = []
+                actual_fallback = orchid.configuration.get_fallback_configuration()
+
+                # noinspection PyTypeChecker
+                assert_that(actual_fallback, not_(has_key('orchid')))
+
+    @unittest.mock.patch.dict('os.environ', {'ProgramFiles': os.fspath(PROGRAM_FILES_PATH)})
+    def test_orchid_root_dir_returns_empty_if_multiple_glob_matches(self):
+        with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path,
+                                          open=unittest.mock.mock_open(read_data='2022.3.466')):
+            with unittest.mock.patch('glob.glob') as patch_glob:
+                patch_glob.return_value = ['legalos', 'gimli', 'gandalf']
+                with warnings.catch_warnings(record=True) as caught_warning:
+                    actual_fallback = orchid.configuration.get_fallback_configuration()
+
+                    # noinspection PyTypeChecker
+                    assert_that(actual_fallback, not_(has_key('orchid')))
+                    assert_that(len(caught_warning), equal_to(1))
 
 
 # Test ideas
