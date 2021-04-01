@@ -228,8 +228,8 @@ def step_impl(context, index, qty_name, time, value, name):
         value (str): The measured value of the sample of interest.
         name (str): The name of the sampled time series curve.
     """
-    def is_candidate(curve):
-        return curve.name == name and curve.sampled_quantity_name == qty_name
+    def is_candidate(curve_to_test):
+        return curve_to_test.name == name and curve_to_test.sampled_quantity_name == qty_name
 
     candidate_curves = list(toolz.filter(is_candidate, context.monitor_curves))
     assert_that(len(candidate_curves), equal_to(1),
@@ -237,11 +237,15 @@ def step_impl(context, index, qty_name, time, value, name):
                 f' Found {len(candidate_curves)}')
 
     curve = candidate_curves[0]
-    sample = curve.time_series()
-    print(sample.head())
+    actual_quantity_name = curve.sampled_quantity_name
+    assert_that(actual_quantity_name, equal_to(qty_name))
 
+    samples = curve.time_series()
+
+    actual_sample_time = samples.index[index]
     expected_sample_time = dup.parse(time)
-    assert_that(sample.time_stamp, equal_to(expected_sample_time))
+    assert_that(actual_sample_time, equal_to(expected_sample_time))
 
-    expected_sample_value = orchid.unit_registry.Quantity(value)
-    assert_that(sample.value, equal_to(expected_sample_value))
+    actual_sample_magnitude = samples[actual_sample_time]
+    actual_sample_measurement = orchid.make_measurement(curve.sampled_quantity_unit(), actual_sample_magnitude)
+    cf.assert_that_actual_measurement_close_to_expected(actual_sample_measurement, value)
