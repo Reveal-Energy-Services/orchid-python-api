@@ -287,9 +287,6 @@ class EnvironmentConfigurationTest(unittest.TestCase):
 
 
 # Test ideas
-# - Glob returns more than 1 candidate
-# - Glob returns 0 candidates (mostly tested already but missing 'orchid' key
-# - returns
 class FallbackConfigurationTest(unittest.TestCase):
     PROGRAM_FILES_PATH = pathlib.Path('K:').joinpath(os.sep, 'dolavi')
     ORCHID_VER_ROOT = PROGRAM_FILES_PATH.joinpath('Reveal Energy Services, Inc', 'Orchid')

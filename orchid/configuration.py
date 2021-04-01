@@ -88,15 +88,12 @@ def get_fallback_configuration() -> Dict:
     candidate_directories = glob.glob(str(glob_path))
     if len(candidate_directories) == 1:
         fallback = {'orchid': {'root': str(candidate_directories[0])}}
-        _logger.debug(f'fallback configuration={fallback}')
     elif len(candidate_directories) == 0:
         fallback = {}
-        _logger.debug(f'fallback configuration={fallback}')
     else:
         fallback = {}
-        _logger.debug(f'fallback configuration={fallback}')
         warnings.warn(f'Fallback configuration found multiple matches for {str(glob_path)}')
-
+    _logger.debug(f'fallback configuration={fallback}')
     return fallback
 
 
