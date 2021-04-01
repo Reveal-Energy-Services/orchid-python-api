@@ -16,7 +16,6 @@
 #
 
 import enum
-from typing import Callable
 
 from orchid import (
     base_curve_adapter as bca,
