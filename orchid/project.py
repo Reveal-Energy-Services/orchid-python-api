@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Dict
 
 import deal
 import toolz.curried as toolz
@@ -24,6 +24,7 @@ import toolz.curried as toolz
 from orchid import (
     dot_net_dom_access as dna,
     native_well_adapter as nwa,
+    native_monitor_adapter as nma,
     native_monitor_curve_adapter as mca,
     net_quantity as onq,
     unit_system as units,
@@ -80,16 +81,33 @@ class Project(dna.DotNetAdapter):
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
         """
-            Return a sequence of well time series for this project.
+        Return a sequence of well time series for this project.
+
         Returns:
             An iterable of well time series.
         """
         native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
         if len(native_time_series_list_items) > 0:
-            return toolz.map(mca.NativeMonitorCurveAdapter,
-                             self._project_loader.native_project().WellTimeSeriesList.Items)
+            return toolz.pipe(native_time_series_list_items,
+                              toolz.map(mca.NativeMonitorCurveAdapter),
+                              list)
         else:
             return []
+
+    def monitors(self) -> Dict[str, nma.NativeMonitorAdapter]:
+        """
+        Return a dictionary of monitors for this project indexed by the monitor display name.
+
+        Returns:
+            An dictionary of `NativeMonitorAdapter`s indexed by the display name of each monitor.
+        """
+        def collect_monitors(so_far, monitor):
+            return toolz.assoc(so_far, monitor.DisplayName, monitor)
+
+        result = toolz.pipe(self._project_loader.native_project().Monitors.Items,
+                            lambda ms: toolz.reduce(collect_monitors, ms, {}),
+                            toolz.valmap(lambda m: nma.NativeMonitorAdapter(m)))
+        return result
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),

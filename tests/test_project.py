@@ -84,8 +84,7 @@ class TestProject(unittest.TestCase):
 
     def test_default_well_colors_if_many_default_well_colors(self):
         expected_default_well_colors = [(0.610, 0.779, 0.675), (0.758, 0.982, 0.720), (0.297, 0.763, 0.388)]
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', default_well_colors=[list(t) for t
-                                                                                                in
+        stub_native_project = tsn.create_stub_net_project(name='exsistet', default_well_colors=[list(t) for t in
                                                                                                 expected_default_well_colors])
         sut = create_sut(stub_native_project)
         # noinspection PyTypeChecker
@@ -108,23 +107,41 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.fluid_density, expected_density, tolerance)
 
+    def test_monitors(self):
+        for monitor_display_names in [[], ['congruent'], ['histrio', 'principis', 'quaesivuisti']]:
+            with self.subTest(f'Verify correct number of monitors: {monitor_display_names}'):
+                stub_native_project = tsn.create_stub_net_project(monitor_display_names=monitor_display_names)
+                sut = create_sut(stub_native_project)
+
+                assert_that(len(list(sut.monitors())), equal_to(len(monitor_display_names)))
+                for monitor_display_name in monitor_display_names:
+                    assert_that(toolz.get(monitor_display_name, sut.monitors()).display_name,
+                                equal_to(monitor_display_name))
+
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')
         sut = create_sut(stub_native_project)
         assert_that(sut.name, equal_to('commodorum'))
 
     def test_project_bounds_in_project_units(self):
+        def us_oilfield_bounds():
+            return tsn.StubProjectBounds(tsn.MeasurementDto(538990, units.UsOilfield.LENGTH),
+                                         tsn.MeasurementDto(668394, units.UsOilfield.LENGTH),
+                                         tsn.MeasurementDto(3439222, units.UsOilfield.LENGTH),
+                                         tsn.MeasurementDto(7227474, units.UsOilfield.LENGTH),
+                                         tsn.MeasurementDto(7491, units.UsOilfield.LENGTH),
+                                         tsn.MeasurementDto(7713, units.UsOilfield.LENGTH))
+
+        def metric_bounds():
+            return tsn.StubProjectBounds(tsn.MeasurementDto(164284, units.Metric.LENGTH),
+                                         tsn.MeasurementDto(203726, units.Metric.LENGTH),
+                                         tsn.MeasurementDto(1048275, units.Metric.LENGTH),
+                                         tsn.MeasurementDto(2202934, units.Metric.LENGTH),
+                                         tsn.MeasurementDto(2283, units.Metric.LENGTH),
+                                         tsn.MeasurementDto(2351, units.Metric.LENGTH))
+
         for orchid_actual, expected, project_units, tolerances in [
-            # 538990 * om.registry.ft, 3439222 * om.registry.ft, 7491 * om.registry.ft
-            # 668349 * om.registry.ft, 7227474 * om.registry.ft, 7713 * om.registry.ft
-            # 164284 * om.registry.m, 1048275 * om.registry.m, 2283 * om.registry.m
-            # 203713 * om.registry.m, 2202934 * om.registry.m, 2351 * om.registry.m
-            (tsn.StubProjectBounds(tsn.MeasurementDto(538990, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(668394, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(3439222, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(7227474, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(7491, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(7713, units.UsOilfield.LENGTH)),
+            (us_oilfield_bounds(),
              tsn.StubProjectBounds(538990 * om.registry.ft, 668394 * om.registry.ft,
                                    3439222 * om.registry.ft, 7227474 * om.registry.ft,
                                    7491 * om.registry.ft, 7713 * om.registry.ft),
@@ -132,12 +149,7 @@ class TestProject(unittest.TestCase):
              tsn.StubProjectBounds(decimal.Decimal('1'), decimal.Decimal('1'),
                                    decimal.Decimal('1'), decimal.Decimal('1'),
                                    decimal.Decimal('1'), decimal.Decimal('1'))),
-            (tsn.StubProjectBounds(tsn.MeasurementDto(538990, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(668394, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(3439222, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(7227474, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(7491, units.UsOilfield.LENGTH),
-                                   tsn.MeasurementDto(7713, units.UsOilfield.LENGTH)),
+            (us_oilfield_bounds(),
              tsn.StubProjectBounds(164284 * om.registry.m, 203726 * om.registry.m,
                                    1048275 * om.registry.m, 2202934 * om.registry.m,
                                    2283 * om.registry.m, 2351 * om.registry.m),
@@ -145,12 +157,7 @@ class TestProject(unittest.TestCase):
              tsn.StubProjectBounds(decimal.Decimal('1'), decimal.Decimal('1'),
                                    decimal.Decimal('1'), decimal.Decimal('1'),
                                    decimal.Decimal('1'), decimal.Decimal('1'))),
-            (tsn.StubProjectBounds(tsn.MeasurementDto(164284, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(203726, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(1048275, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(2202934, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(2283, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(2351, units.Metric.LENGTH)),
+            (metric_bounds(),
              tsn.StubProjectBounds(164284 * om.registry.m, 203726 * om.registry.m,
                                    1048275 * om.registry.m, 2202934 * om.registry.m,
                                    2283 * om.registry.m, 2351 * om.registry.m),
@@ -158,12 +165,7 @@ class TestProject(unittest.TestCase):
              tsn.StubProjectBounds(decimal.Decimal('1'), decimal.Decimal('1'),
                                    decimal.Decimal('1'), decimal.Decimal('1'),
                                    decimal.Decimal('1'), decimal.Decimal('1'))),
-            (tsn.StubProjectBounds(tsn.MeasurementDto(164284, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(203726, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(1048275, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(2202934, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(2283, units.Metric.LENGTH),
-                                   tsn.MeasurementDto(2351, units.Metric.LENGTH)),
+            (metric_bounds(),
              tsn.StubProjectBounds(538990 * om.registry.ft, 668394 * om.registry.ft,
                                    3439222 * om.registry.ft, 7227474 * om.registry.ft,
                                    7491 * om.registry.ft, 7713 * om.registry.ft),

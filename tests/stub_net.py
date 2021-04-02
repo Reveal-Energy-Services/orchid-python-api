@@ -38,7 +38,11 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import (IProject, IPlottingSettings, IWell, IStage,
+from Orchid.FractureDiagnostics import (IMonitor,
+                                        IProject,
+                                        IPlottingSettings,
+                                        IWell,
+                                        IStage,
                                         ISubsurfacePoint,
                                         IWellTrajectory,
                                         UnitSystem)
@@ -362,6 +366,28 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
+def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None):
+    stub_name = (f'stub_net_monitor_{display_name}' if display_name is not None else 'stub_net_monitor')
+    try:
+        result = unittest.mock.MagicMock(name=stub_name, spec=IMonitor)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_name)
+
+    if display_name is not None:
+        result.DisplayName = display_name
+
+    if name is not None:
+        result.Name = name
+
+    if start is not None:
+        result.StartTime = onq.as_net_date_time(start)
+
+    if stop is not None:
+        result.StopTime = onq.as_net_date_time(stop)
+
+    return result
+
+
 def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sampled_quantity_type,
                                   samples, project):
     try:
@@ -522,7 +548,7 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None):
+                            curves_physical_quantities=None, monitor_display_names=None):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -546,6 +572,10 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
         stub_net_project.Azimuth = make_net_measurement(azimuth)
     if fluid_density is not None:
         stub_net_project.FluidDensity = make_net_measurement(fluid_density)
+
+    if monitor_display_names is not None:
+        stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
+                                           monitor_display_name in monitor_display_names]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
