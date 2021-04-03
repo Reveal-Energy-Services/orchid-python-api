@@ -221,9 +221,17 @@ To update the project dependencies:
 - Open the file `orchid/VERSION` for editing
 - Change the version in the file to the updated value. The safest way to update the value is copying the 
   value if at all possible. The log files print the version number in the banner at the beginning of each
-  execution of Orchid. (Beware, currently a version containing anything but numeric values will cause the
-  Orchid Python API to fail at run-time. During the beta program, we are manually removing the "-beta" suffix
-  from the version.)
+  execution of Orchid. 
+
+  (NOTE: the Orchid Python API only uses
+  the [release segment](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers) of its version. Further,
+  for the release segment, it only supports three parts:
+  the [major](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.major)
+  , [minor](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.minor),
+  and [micro](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.micro) (aka, maintenance) parts
+  of a [release](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.micro) or version.
+  Consequently, only include three components in the release specification in `orchid/VERSION`.)
+    
 - Open the file `pyproject.toml` for editing.
 - Copy the version number from `orchid/VERSION` to the value of the `version` key of the file. (The automated
   task, `update-ver`, visible when running `invoke --list` performs this task automatically. However, as a 
@@ -352,15 +360,16 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
 system. To ensure the correct version of Orchid is installed, 
 
-- Navigate to the orchid installation directory, `$PROGRAMFILES\Reveal Energy Services, Inc\Orchid`
+- Navigate to the orchid installation directory, `$PROGRAMFILES\Reveal Energy Services\Orchid`
 - List that directory
 - You should see a directory named something like, `Orchid-<python-api-version>`, where `<python-api-version>` 
   is a symbolic reference for the version number in which you are interested.
 - Navigate into the version specific information. For example, `Orchid-2020.4.232`
+- You should see a directory like `PythonApiLibs`
+- Navigate into this directory
 - You should see files like:
-    - `Orchid.Application.exe`
-    - `Orchid.FractureDiagnostics.dll`
     - `appSettings.json`
+    - `Orchid.FractureDiagnostics.dll`
     - Many, many others
     
 To make doubly certain, you could run `Orchid.Application.exe` and ensure that the application displays the 
@@ -395,10 +404,10 @@ If using `python invoke`,
 
 - Navigate to the repository root
 - Remove the existing virtualenv if any
-    - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
-      exists, running this task will produce a message like:
+    - Run `invoke poetry.venv.remove --venv=<virtual-env>`. NOTE: If no such virtualenv exists, running this
+      task will produce a message like:
     ```
-    invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
+    invoke poetry.venv.remove --dirname=c:/inst/orchid/pipenv
     No virtualenv has been created for this project yet!
     Aborted!
     ```
@@ -407,12 +416,12 @@ Delete any leftover files
 - If present, delete all leftover files from the virtualenv directory.
 
 Create a new skeleton virtual environment
-  - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+  - Run `invoke poetry.venv.create`.
     
 To test that you were successful,
 
 - Navigate to the virtual environment directory if not there already
-- Activate the virtualenv by executing, `pipenv shell`
+- Activate the virtualenv by executing, `poetry shell`
 - Execute the command, `pip list --local`. You should see output like the following (but probably with
   different version numbers)
 
