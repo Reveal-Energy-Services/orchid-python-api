@@ -84,7 +84,7 @@ def get_fallback_configuration() -> Dict:
                                                                             'Orchid')
     version_id = orchid.version.api_version()
     version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.micro}'
-    glob_path = standard_orchid_dir.joinpath(f'{version_dirname}*')
+    glob_path = standard_orchid_dir.joinpath(f'{version_dirname}*', 'PythonApiLibs')
     candidate_directories = glob.glob(str(glob_path))
     if len(candidate_directories) == 1:
         fallback = {'orchid': {'root': str(candidate_directories[0])}}
