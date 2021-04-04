@@ -538,6 +538,7 @@ To run all orchid tests
             - `plot_monitor_curves.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
+            - `volume_2_first_response.ipynb`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -555,6 +556,7 @@ To run all orchid tests
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
+        - `volume_2_first_response.ipynb`
 
 ## Configure the Orchid Python API
 
@@ -566,7 +568,7 @@ the installation, you may need to configure the Orchid Python API to refer to di
 If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
 installation. For your information, the default installation location is,
-`%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
+`%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses its version to find and use
 the corresponding version of Orchid.
 
 ### Using an environment variable
@@ -589,7 +591,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_ROOT". (These two 
-words are separated by the underscore, (_) symbol.)
+words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
 which Orchid is installed, `/path/to/orchid-installation`. This will paste the directory name into the 
@@ -661,7 +663,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_TRAINING_DATA".
-(These two words are separated by the underscore, (_) symbol.)
+(These two words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
@@ -674,7 +676,7 @@ tools can now use that variable. However, the details of "new" is technical and 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using n configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
@@ -712,7 +714,7 @@ is to close this REPL and create another, "clean" REPL.
 You should see output like the following:
 
 ```
-DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services, Inc\\Orchid\\Orchid-2020.4.361'}}
+DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services\\Orchid\\Orchid-2020.4.361'}}
 DEBUG:orchid.configuration:file configuration={'orchid': {'root': 'c:\\path-to\\bin\\x64\\Debug\\net48', 'training_data ': 'c:\\path-to\\installed-training-data'}}
 DEBUG:orchid.configuration:environment configuration = {'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
 DEBUG:orchid.configuration:result configuration={'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
