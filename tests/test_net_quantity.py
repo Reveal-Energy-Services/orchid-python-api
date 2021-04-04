@@ -41,30 +41,6 @@ from System import (DateTime, DateTimeKind, Decimal)
 import UnitsNet
 
 
-def make_net_quantity(magnitude, abbreviation):
-    quantity = UnitsNet.QuantityValue.op_Implicit(magnitude)
-    if abbreviation == 'ft':
-        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Foot)
-    elif abbreviation == 'm':
-        return UnitsNet.Length.From(quantity, UnitsNet.Units.LengthUnit.Meter)
-    elif abbreviation == 'lb':
-        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Pound)
-    elif abbreviation == 'kg':
-        return UnitsNet.Mass.From(quantity, UnitsNet.Units.MassUnit.Kilogram)
-    elif abbreviation == 'psi':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
-    elif abbreviation == 'kPa':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Kilopascal)
-    elif abbreviation == 'MPa':
-        return UnitsNet.Pressure.From(quantity, UnitsNet.Units.PressureUnit.Megapascal)
-    elif abbreviation == 'bbl':
-        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.OilBarrel)
-    elif abbreviation == 'm^3' or abbreviation == 'm\u00b3':
-        return UnitsNet.Volume.From(quantity, UnitsNet.Units.VolumeUnit.CubicMeter)
-    else:
-        raise ValueError(f'Unhandled abbreviation {abbreviation}')
-
-
 def assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance):
     assert_that(tcm.get_net_unit(actual), equal_to(tcm.get_net_unit(expected_net_quantity)))
     to_test_actual = decimal.Decimal(onq.net_decimal_to_float(actual.Value))

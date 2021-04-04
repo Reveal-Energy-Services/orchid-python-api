@@ -691,6 +691,42 @@ Language"), a "human friendly data serialization standard". (For technical detai
 [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
 introductions / tutorials.)
 
+## View Orchid Configuration Details
+
+To "debug" the Orchid Python API configuration, perform the following steps:
+
+- Change to the directory associated with your Python virtual environment.
+- If necessary, activate the virtual environment.
+- Within that virtual environment, invoke Python. It is important to create a new REPL so that you start with
+  a "clean" environment.
+- Within the Python REPL, execute the following commands.
+  ```
+  import logging
+  logging.basicConfi(level=logging.DEBUG)
+  import orchid
+  ```
+
+Enabling logging **before** importing is critical. If you have already imported `orchid`, the simplest solution
+is to close this REPL and create another, "clean" REPL.
+
+You should see output like the following:
+
+```
+DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services, Inc\\Orchid\\Orchid-2020.4.361'}}
+DEBUG:orchid.configuration:file configuration={'orchid': {'root': 'c:\\path-to\\bin\\x64\\Debug\\net48', 'training_data ': 'c:\\path-to\\installed-training-data'}}
+DEBUG:orchid.configuration:environment configuration = {'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
+DEBUG:orchid.configuration:result configuration={'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
+```
+
+This output describes four details of the configuration.
+
+| Configuration | Explanation |
+| ------------- | ----------- |
+| result | The configuration used by the Orchid Python API |
+| fallback | The always available configuration |
+| file | The configuration specified in your configuration file |
+| environment | The configuration specified using environment variables | 
+
 # Contribute
 
 To contribute to this project, follow our typical development process:

@@ -38,6 +38,11 @@ Replace custom `Measurement` class with the features available in `pint`.
 
 ### Known issues
 
+- [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
+  
+  This issue is a deprecation warning from `matplotlib`. It began occurring after updating the package
+  dependencies. We do not believe this error will affect customer code.
+
 - [GitHub issue 16](https://github.com/Reveal-Energy-Services/orchid-python-api/issues)
   
   All monitor curves can be access indirectly via the `Project.monitor_curves()` method. The work-around for
