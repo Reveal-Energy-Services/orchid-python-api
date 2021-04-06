@@ -8,13 +8,14 @@ This project defines the implementation of the Python API for Orchid*.
 (*Orchid in a mark of Revel Energy Services. Inc.)
 
 Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
-Additionally, this project includes four examples in the `examples` directory of the `orchid-python-api`
+Additionally, this project includes five examples in the `examples` directory of the `orchid-python-api`
 package:
 
 - `plot_trajectories.ipynb`
 - `plot_monitor_curves.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
+- `volume_2_first_response.ipynb`
 
 The first three notebooks plot:
 
@@ -22,8 +23,10 @@ The first three notebooks plot:
 - The monitor curves for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
  
-Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project.
+The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
+performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
+typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
+first response.
  
 To use these examples: 
 
@@ -220,9 +223,17 @@ To update the project dependencies:
 - Open the file `orchid/VERSION` for editing
 - Change the version in the file to the updated value. The safest way to update the value is copying the 
   value if at all possible. The log files print the version number in the banner at the beginning of each
-  execution of Orchid. (Beware, currently a version containing anything but numeric values will cause the
-  Orchid Python API to fail at run-time. During the beta program, we are manually removing the "-beta" suffix
-  from the version.)
+  execution of Orchid. 
+
+  (NOTE: the Orchid Python API only uses
+  the [release segment](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers) of its version. Further,
+  for the release segment, it only supports three parts:
+  the [major](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.major)
+  , [minor](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.minor),
+  and [micro](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.micro) (aka, maintenance) parts
+  of a [release](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.micro) or version.
+  Consequently, only include three components in the release specification in `orchid/VERSION`.)
+    
 - Open the file `pyproject.toml` for editing.
 - Copy the version number from `orchid/VERSION` to the value of the `version` key of the file. (The automated
   task, `update-ver`, visible when running `invoke --list` performs this task automatically. However, as a 
@@ -276,38 +287,11 @@ Once published, test the published distribution by:
 - Activate the virtualenv (run `pipenv shell`)
 - Install the package distribution by running the command, 
   `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`. 
+- [Run Orchid examples](#run-installed-orchid-examples).
+
+If an error occurs, read the error message(s) and consult the section 
+[Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
   
-Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error 
-stating that a package version is unavailable. For example, 
-
-> pip install --index-url https://test.pypi.org/simple/ orchid-python-api
-> Looking in indexes: https://test.pypi.org/simple/
-> Collecting orchid-python-api
->  Downloading https://test-files.pythonhosted.org/packages/90/89/cf9fd41f8dea07ae54898cc6b6951280d4509e55caec703d4b540a57135a/orchid_python_api-2020.4.232-py3-none-any.whl (55 kB)
->     |████████████████████████████████| 55 kB 622 kB/s
-> ERROR: Could not find a version that satisfies the requirement numpy==1.19.0 (from orchid-python-api) (from versions 1.9.3)
-> ERROR: No matching distribution found for numpy==1.19.0 (from orchid-python-api)
-
-The workaround for this issue is to:
-
-- [Install a local distribution](#install-local-package) **but do not**
-
-    - Run the tests
-    
-    This action will install all the dependent packages available on your workstation.
-    
-- Remove orchid by running the command, `pip uninstall orchid-python-api <version>` where `<version>` is 
-  replaced by a version identifier like, '2020.4.232'.
-- Verify that `orchid-python-api` is uninstalled by either:
-    - Execute `pip list --local`
-    - Verify that `orchid-pyhon-api` is **not** present
-- Or by:
-    - Executing `pip list --local | select-string "orchid-python-api"` and observing no lines
-
-Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
-
-Finally, [Run Orchid examples](#run-installed-orchid-examples).
-
 ## Publish to PyPI
 
 **Before** publishing to PyPI, ensure that:
@@ -351,15 +335,16 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
 system. To ensure the correct version of Orchid is installed, 
 
-- Navigate to the orchid installation directory, `$PROGRAMFILES\Reveal Energy Services, Inc\Orchid`
+- Navigate to the orchid installation directory, `$PROGRAMFILES\Reveal Energy Services\Orchid`
 - List that directory
 - You should see a directory named something like, `Orchid-<python-api-version>`, where `<python-api-version>` 
   is a symbolic reference for the version number in which you are interested.
 - Navigate into the version specific information. For example, `Orchid-2020.4.232`
+- You should see a directory like `PythonApiLibs`
+- Navigate into this directory
 - You should see files like:
-    - `Orchid.Application.exe`
-    - `Orchid.FractureDiagnostics.dll`
     - `appSettings.json`
+    - `Orchid.FractureDiagnostics.dll`
     - Many, many others
     
 To make doubly certain, you could run `Orchid.Application.exe` and ensure that the application displays the 
@@ -394,10 +379,10 @@ If using `python invoke`,
 
 - Navigate to the repository root
 - Remove the existing virtualenv if any
-    - Run `invoke pipenv.venv.remove --dirname=<path/to/inst/orchid/pipenv>`. NOTE: If no such virtualenv 
-      exists, running this task will produce a message like:
+    - Run `invoke poetry.venv.remove --venv=<virtual-env>`. NOTE: If no such virtualenv exists, running this
+      task will produce a message like:
     ```
-    invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
+    invoke poetry.venv.remove --dirname=c:/inst/orchid/pipenv
     No virtualenv has been created for this project yet!
     Aborted!
     ```
@@ -406,12 +391,12 @@ Delete any leftover files
 - If present, delete all leftover files from the virtualenv directory.
 
 Create a new skeleton virtual environment
-  - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+  - Run `invoke poetry.venv.create`.
     
 To test that you were successful,
 
 - Navigate to the virtual environment directory if not there already
-- Activate the virtualenv by executing, `pipenv shell`
+- Activate the virtualenv by executing, `poetry shell`
 - Execute the command, `pip list --local`. You should see output like the following (but probably with
   different version numbers)
 
@@ -509,6 +494,7 @@ To run all orchid tests
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
+        - `volume_2_first_response.ipynb`
 
 ### Run installed orchid examples
 
@@ -524,11 +510,12 @@ To run all orchid tests
           the system version of python.
         - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
-        - Verify that the current directory has four notebooks:
+        - Verify that the current directory has five notebooks:
             - `completion_analysis.ipynb`
             - `plot_monitor_curves.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
+            - `volume_2_first_response.ipynb`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -546,6 +533,80 @@ To run all orchid tests
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
+        - `volume_2_first_response.ipynb`
+
+## Possible installation errors and resolutions
+
+### Package not installed from TestPyPI
+
+Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error
+stating that a package version is unavailable. For example,
+
+> pip install --index-url https://test.pypi.org/simple/ orchid-python-api
+> Looking in indexes: https://test.pypi.org/simple/
+> Collecting orchid-python-api
+>  Downloading https://test-files.pythonhosted.org/packages/90/89/cf9fd41f8dea07ae54898cc6b6951280d4509e55caec703d4b540a57135a/orchid_python_api-2020.4.232-py3-none-any.whl (55 kB)
+>     |████████████████████████████████| 55 kB 622 kB/s
+> ERROR: Could not find a version that satisfies the requirement numpy==1.19.0 (from orchid-python-api) (from versions 1.9.3)
+> ERROR: No matching distribution found for numpy==1.19.0 (from orchid-python-api)
+
+We have seen this issue occur for:
+- `NumPy`
+- `DateTimeRange`
+
+The workaround for this issue is to:
+
+- [Install a local distribution](#install-local-package) **but do not**
+
+    - Run the tests
+
+  This action will install all the dependent packages available on your workstation.
+
+- Remove orchid by running the command, `pip uninstall orchid-python-api <version>` where `<version>` is
+  replaced by a version identifier like, '2020.4.232'.
+- Verify that `orchid-python-api` is uninstalled by either:
+    - Execute `pip list --local`
+    - Verify that `orchid-pyhon-api` is **not** present
+- Or by:
+    - Executing `pip list --local | select-string "orchid-python-api"` and observing no lines
+
+Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
+
+### Pip reports resolution impossible
+
+#### Incompatible pip and packaging
+
+It is possible that you see the following error:
+
+> ERROR: Cannot install orchid-python-api==2020.4.151, orchid-python-api==2020.4.151.post1,
+> orchid-python-api==2020.4.191, orchid-python-api==2020.4.232, orchid-python-api==2020.4.361,
+> orchid-python-api==2020.4.459, orchid-python-api==2020.4.595, orchid-python-api==2020.4.690 and
+> orchid-python-api==2021.1.399 because these package versions have conflicting dependencies.
+>
+> The conflict is caused by:                                                                                          
+>    orchid-python-api 2021.1.399 depends on packaging<21.0 and >=20.9
+>    orchid-python-api 2020.4.690 depends on deal<4.0.0 and >=3.9.0
+>    orchid-python-api 2020.4.595 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.459 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.361 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.232 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.191 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.151.post1 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.151 depends on toolz==0.10.0
+>
+> To fix this you could try to:
+> 1. loosen the range of package versions you've specified
+> 2. remove package versions to allow pip attempt to solve the dependency conflict
+
+> ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/user_guide/#fixing-conflicting-dependencies
+
+Here are possible resolutions.
+- From the [open pypa issue 2364](https://github.com/pypa/pipenv/issues/2364)
+  > I don’t think Pipenv did anything here, and I even filed #1884 specifically because it’s not very
+  > convenient to upgrade them. IIRC there is some code to explicitly prevent Pipenv from touching them during
+  > installation. Maybe you can try pipenv run pip install setuptools<=38.5.2 and see if pipenv install
+  > updates it? Also you may want to check how they are locked in Pipfile.lock.
+- Try the resolutions from [Package not installed from TestPyPI](#package-not-installed-from-testpypi)
 
 ## Configure the Orchid Python API
 
@@ -557,7 +618,7 @@ the installation, you may need to configure the Orchid Python API to refer to di
 If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
 installation. For your information, the default installation location is,
-`%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
+`%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses its version to find and use
 the corresponding version of Orchid.
 
 ### Using an environment variable
@@ -580,7 +641,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_ROOT". (These two 
-words are separated by the underscore, (_) symbol.)
+words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into 
 which Orchid is installed, `/path/to/orchid-installation`. This will paste the directory name into the 
@@ -652,7 +713,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_TRAINING_DATA".
-(These two words are separated by the underscore, (_) symbol.)
+(These two words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
@@ -665,7 +726,7 @@ tools can now use that variable. However, the details of "new" is technical and 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using n configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
@@ -681,6 +742,42 @@ Language"), a "human friendly data serialization standard". (For technical detai
 [the website](https://yaml.org/). For a gentler introduction, visit 
 [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
 introductions / tutorials.)
+
+## View Orchid Configuration Details
+
+To "debug" the Orchid Python API configuration, perform the following steps:
+
+- Change to the directory associated with your Python virtual environment.
+- If necessary, activate the virtual environment.
+- Within that virtual environment, invoke Python. It is important to create a new REPL so that you start with
+  a "clean" environment.
+- Within the Python REPL, execute the following commands.
+  ```
+  import logging
+  logging.basicConfi(level=logging.DEBUG)
+  import orchid
+  ```
+
+Enabling logging **before** importing is critical. If you have already imported `orchid`, the simplest solution
+is to close this REPL and create another, "clean" REPL.
+
+You should see output like the following:
+
+```
+DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services\\Orchid\\Orchid-2020.4.361'}}
+DEBUG:orchid.configuration:file configuration={'orchid': {'root': 'c:\\path-to\\bin\\x64\\Debug\\net48', 'training_data ': 'c:\\path-to\\installed-training-data'}}
+DEBUG:orchid.configuration:environment configuration = {'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
+DEBUG:orchid.configuration:result configuration={'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
+```
+
+This output describes four details of the configuration.
+
+| Configuration | Explanation |
+| ------------- | ----------- |
+| result | The configuration used by the Orchid Python API |
+| fallback | The always available configuration |
+| file | The configuration specified in your configuration file |
+| environment | The configuration specified using environment variables | 
 
 # Contribute
 
