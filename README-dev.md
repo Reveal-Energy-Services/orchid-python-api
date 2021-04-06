@@ -8,13 +8,14 @@ This project defines the implementation of the Python API for Orchid*.
 (*Orchid in a mark of Revel Energy Services. Inc.)
 
 Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
-Additionally, this project includes four examples in the `examples` directory of the `orchid-python-api`
+Additionally, this project includes five examples in the `examples` directory of the `orchid-python-api`
 package:
 
 - `plot_trajectories.ipynb`
 - `plot_monitor_curves.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
+- `volume_2_first_response.ipynb`
 
 The first three notebooks plot:
 
@@ -22,8 +23,10 @@ The first three notebooks plot:
 - The monitor curves for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
  
-Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project.
+The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
+performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
+typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
+first response.
  
 To use these examples: 
 
@@ -284,38 +287,11 @@ Once published, test the published distribution by:
 - Activate the virtualenv (run `pipenv shell`)
 - Install the package distribution by running the command, 
   `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`. 
+- [Run Orchid examples](#run-installed-orchid-examples).
+
+If an error occurs, read the error message(s) and consult the section 
+[Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
   
-Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error 
-stating that a package version is unavailable. For example, 
-
-> pip install --index-url https://test.pypi.org/simple/ orchid-python-api
-> Looking in indexes: https://test.pypi.org/simple/
-> Collecting orchid-python-api
->  Downloading https://test-files.pythonhosted.org/packages/90/89/cf9fd41f8dea07ae54898cc6b6951280d4509e55caec703d4b540a57135a/orchid_python_api-2020.4.232-py3-none-any.whl (55 kB)
->     |████████████████████████████████| 55 kB 622 kB/s
-> ERROR: Could not find a version that satisfies the requirement numpy==1.19.0 (from orchid-python-api) (from versions 1.9.3)
-> ERROR: No matching distribution found for numpy==1.19.0 (from orchid-python-api)
-
-The workaround for this issue is to:
-
-- [Install a local distribution](#install-local-package) **but do not**
-
-    - Run the tests
-    
-    This action will install all the dependent packages available on your workstation.
-    
-- Remove orchid by running the command, `pip uninstall orchid-python-api <version>` where `<version>` is 
-  replaced by a version identifier like, '2020.4.232'.
-- Verify that `orchid-python-api` is uninstalled by either:
-    - Execute `pip list --local`
-    - Verify that `orchid-pyhon-api` is **not** present
-- Or by:
-    - Executing `pip list --local | select-string "orchid-python-api"` and observing no lines
-
-Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
-
-Finally, [Run Orchid examples](#run-installed-orchid-examples).
-
 ## Publish to PyPI
 
 **Before** publishing to PyPI, ensure that:
@@ -518,6 +494,7 @@ To run all orchid tests
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
+        - `volume_2_first_response.ipynb`
 
 ### Run installed orchid examples
 
@@ -533,7 +510,7 @@ To run all orchid tests
           the system version of python.
         - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
-        - Verify that the current directory has four notebooks:
+        - Verify that the current directory has five notebooks:
             - `completion_analysis.ipynb`
             - `plot_monitor_curves.ipynb`
             - `plot_trajectories.ipynb`
@@ -557,6 +534,79 @@ To run all orchid tests
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
+
+## Possible installation errors and resolutions
+
+### Package not installed from TestPyPI
+
+Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error
+stating that a package version is unavailable. For example,
+
+> pip install --index-url https://test.pypi.org/simple/ orchid-python-api
+> Looking in indexes: https://test.pypi.org/simple/
+> Collecting orchid-python-api
+>  Downloading https://test-files.pythonhosted.org/packages/90/89/cf9fd41f8dea07ae54898cc6b6951280d4509e55caec703d4b540a57135a/orchid_python_api-2020.4.232-py3-none-any.whl (55 kB)
+>     |████████████████████████████████| 55 kB 622 kB/s
+> ERROR: Could not find a version that satisfies the requirement numpy==1.19.0 (from orchid-python-api) (from versions 1.9.3)
+> ERROR: No matching distribution found for numpy==1.19.0 (from orchid-python-api)
+
+We have seen this issue occur for:
+- `NumPy`
+- `DateTimeRange`
+
+The workaround for this issue is to:
+
+- [Install a local distribution](#install-local-package) **but do not**
+
+    - Run the tests
+
+  This action will install all the dependent packages available on your workstation.
+
+- Remove orchid by running the command, `pip uninstall orchid-python-api <version>` where `<version>` is
+  replaced by a version identifier like, '2020.4.232'.
+- Verify that `orchid-python-api` is uninstalled by either:
+    - Execute `pip list --local`
+    - Verify that `orchid-pyhon-api` is **not** present
+- Or by:
+    - Executing `pip list --local | select-string "orchid-python-api"` and observing no lines
+
+Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
+
+### Pip reports resolution impossible
+
+#### Incompatible pip and packaging
+
+It is possible that you see the following error:
+
+> ERROR: Cannot install orchid-python-api==2020.4.151, orchid-python-api==2020.4.151.post1,
+> orchid-python-api==2020.4.191, orchid-python-api==2020.4.232, orchid-python-api==2020.4.361,
+> orchid-python-api==2020.4.459, orchid-python-api==2020.4.595, orchid-python-api==2020.4.690 and
+> orchid-python-api==2021.1.399 because these package versions have conflicting dependencies.
+>
+> The conflict is caused by:                                                                                          
+>    orchid-python-api 2021.1.399 depends on packaging<21.0 and >=20.9
+>    orchid-python-api 2020.4.690 depends on deal<4.0.0 and >=3.9.0
+>    orchid-python-api 2020.4.595 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.459 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.361 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.232 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.191 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.151.post1 depends on toolz==0.10.0
+>    orchid-python-api 2020.4.151 depends on toolz==0.10.0
+>
+> To fix this you could try to:
+> 1. loosen the range of package versions you've specified
+> 2. remove package versions to allow pip attempt to solve the dependency conflict
+
+> ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/user_guide/#fixing-conflicting-dependencies
+
+Here are possible resolutions.
+- From the [open pypa issue 2364](https://github.com/pypa/pipenv/issues/2364)
+  > I don’t think Pipenv did anything here, and I even filed #1884 specifically because it’s not very
+  > convenient to upgrade them. IIRC there is some code to explicitly prevent Pipenv from touching them during
+  > installation. Maybe you can try pipenv run pip install setuptools<=38.5.2 and see if pipenv install
+  > updates it? Also you may want to check how they are locked in Pipfile.lock.
+- Try the resolutions from [Package not installed from TestPyPI](#package-not-installed-from-testpypi)
 
 ## Configure the Orchid Python API
 
