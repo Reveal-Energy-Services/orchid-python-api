@@ -301,7 +301,14 @@ The import should complete with no errors.
 
 # Run Orchid examples
 
+- If you have not already done so, 
+[configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- You **must** 
+[configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - Navigate to the directory associated with the virtual environment
+- If necessary, activate the virtual environment by executing either 
+  - `pipenv shell` or 
+  - `conda activate <your-virtualenv_name>`.
 - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`
 - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
   `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
@@ -314,7 +321,6 @@ The import should complete with no errors.
 - The notebooks, as installed, "symbolically" reference the Orchid training data. To resolve this "symbolic
   reference", 
   [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data).
-- Activate your virtual environment by `pipenv shell` if not already activated
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
     - Run the notebook, `plot_trajectories.ipynb`
@@ -359,10 +365,10 @@ This output describes four details of the configuration.
 
 | Configuration | Explanation |
 | ------------- | ----------- |
-| result | The configuration used by the Orchid Python API |
-| fallback | The always available configuration |
-| file | The configuration specified in your configuration file |
-| environment | The configuration specified using environment variables | 
+| fallback | The always available configuration (may be empty) |
+| file | The configuration specified in your configuration file (may be empty) |
+| environment | The configuration specified using environment variables (may be empty) | 
+| result | The configuration used by the Orchid Python API (should not be empty) |
 
 # The "numpy fmod" issue
 

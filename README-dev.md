@@ -505,6 +505,7 @@ To run all orchid tests
       [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
     - If you are testing a `pipenv` virtual environment
         - Navigate to the directory associated with the virtual environment
+        - If necessary, activate the virtual environment.
         - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`. Be sure to specify 
           `python` to run the script with the version of python install in the virtual environment and **not**
           the system version of python.
