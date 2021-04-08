@@ -12,13 +12,14 @@ Specifically, the `orchid` package exposes the Orchid API to Python applications
 
 # Examples
 
-Additionally, this project installs four examples in the `examples` directory of the `orchid-python-api`
+Additionally, this project installs five examples in the `examples` directory of the `orchid-python-api`
 package:
 
 - `plot_trajectories.ipynb`
 - `plot_monitor_curves.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
+- `volume_2_first_response.ipynb`
 
 The first three notebooks plot:
 
@@ -27,7 +28,9 @@ The first three notebooks plot:
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
  
 Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project.
+performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
+typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
+first response.
  
 To use these examples: 
 
@@ -119,7 +122,7 @@ the installation, you may need to configure the Orchid Python API to refer to di
 If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
 installation. For your information, the default installation location is,
-`%ProgramFiles%\Reveal Energy Services, Inc\Orchid`. The Orchid Python API uses its version to find and use
+`%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses its version to find and use
 the corresponding version of Orchid.
 
 ### Using an environment variable
@@ -289,24 +292,25 @@ The import should complete with no errors.
 
 The import should complete with no errors.
 
-# Run orchid examples
+# Run Orchid examples
 
 - Navigate to the directory associated with the virtual environment
 - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`
 - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
   `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
-- Verify that the current directory has four notebooks:
+- Verify that the current directory has five notebooks:
     - `plot_trajectories.ipynb`
     - `plot_monitor_curves.ipynb`
     - `plot_treatment.ipynb`
     - `completion_analysis.ipynb`
+    - `volume_2_first_response.ipynb`
 - The notebooks, as installed, "symbolically" reference the Orchid training data. To resolve this "symbolic
   reference", 
   [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data).
 - Activate your virtual environment by `pipenv shell` if not already activated
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
-    Run the notebook, `plot_trajectories.ipynb`
+    - Run the notebook, `plot_trajectories.ipynb`
         1. Open notebook
         2. Run all cells of notebook
         3. Wait patiently
@@ -315,6 +319,7 @@ The import should complete with no errors.
         - `plot_monitor_curves.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
+        - `volume_2_first_repsonse.ipynb`
 
 # View Orchid Configuration Details
 
@@ -337,7 +342,7 @@ is to close this REPL and create another, "clean" REPL.
 You should see output like the following:
 
 ```
-DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services, Inc\\Orchid\\Orchid-2020.4.361'}}
+DEBUG:orchid.configuration:fallback configuration={'orchid': {'root': 'C:\\Program Files\\Reveal Energy Services\\Orchid\\Orchid-2020.4.361'}}
 DEBUG:orchid.configuration:file configuration={'orchid': {'root': 'c:\\path-to\\bin\\x64\\Debug\\net48', 'training_data ': 'c:\\path-to\\installed-training-data'}}
 DEBUG:orchid.configuration:environment configuration = {'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
 DEBUG:orchid.configuration:result configuration={'orchid': {'root': 'c:\\another\\path-to\bin\\x64\\Debug\\net48'}}
