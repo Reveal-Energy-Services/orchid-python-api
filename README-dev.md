@@ -5,10 +5,10 @@
 
 This project defines the implementation of the Python API for Orchid*.
 
-(*Orchid in a mark of Revel Energy Services. Inc.)
+(*Orchid is a mark of Reveal Energy Services, Inc.)
 
-Specifically, the `orchid` package exposes the Orchid API to Python applications and the Python REPL.
-Additionally, this project includes five examples in the `examples` directory of the `orchid-python-api`
+Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python
+REPL. Additionally, this project includes five examples in the `examples` directory of the `orchid-python-api`
 package:
 
 - `plot_trajectories.ipynb`
@@ -496,7 +496,7 @@ To run all orchid tests
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
 
-### Run installed orchid examples
+### Run installed Orchid examples
 
 - Prepare to run examples
     - If you have not already done so, 
@@ -639,7 +639,7 @@ available to all your tools. Symbolically, this document will refer to the root 
 
 To create the required environment variable, enter the search term "environment variables" in the Windows-10 
 search box and select the item named, "Edit environment variables for your account." The system will then 
-present your with the "Environment Variables" dialog. Under the section named "User variables for 
+present you with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_ROOT". (These two 
 words are separated by the underscore symbol.)
 
@@ -650,8 +650,8 @@ see the name `ORCHID_ROOT` with the correct value in the "User variables for <yo
 click "OK" to dismiss the "Environment Variables" dialog.
 
 Although you have now created the `ORCHID_ROOT` environment variable with the appropriate value, "new" tools 
-could now use that variable. However, the details of "new" is technical and may not correspond to your 
-what you expect. If you understand these details, you can return to your original task.
+could now use that variable. However, the details of "new" is technical and may not correspond to what you
+expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
 ### Using a configuration file
