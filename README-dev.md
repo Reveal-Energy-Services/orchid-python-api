@@ -219,26 +219,30 @@ To update the project dependencies:
     - Run `poetry update`
 
 ## Update API version
-
-- Open the file `orchid/VERSION` for editing
+- Open the file `orchid/VERSION` for editing.
 - Change the version in the file to the updated value. The safest way to update the value is copying the 
   value if at all possible. The log files print the version number in the banner at the beginning of each
   execution of Orchid. 
 
-  (NOTE: the Orchid Python API only uses
-  the [release segment](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers) of its version. Further,
-  for the release segment, it only supports three parts:
-  the [major](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.major)
-  , [minor](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.minor),
-  and [micro](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.micro) (aka, maintenance) parts
-  of a [release](https://packaging.pypa.io/en/latest/version.html#packaging.version.Version.micro) or version.
-  Consequently, only include three components in the release specification in `orchid/VERSION`.)
+  NOTE: the Orchid Python API only uses the
+  [release segment](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers) of its version to
+  calculate the corresponding Orchid version. Consequently, one shall:
+  - Copy the major, minor and patch version of the Orchid API version. (This choice means **not** copying the
+    "build" segment of the Orchid API version).
+  - If the Orchid Python API has either a
+    [post-release](https://www.python.org/dev/peps/pep-0440/#post-releases) or a
+    [pre-release](https://www.python.org/dev/peps/pep-0440/#post-releases) segment, one **shall** append this
+    additional segment to the version number in `orchid/VERSION`.
     
 - Open the file `pyproject.toml` for editing.
-- Copy the version number from `orchid/VERSION` to the value of the `version` key of the file. (The automated
-  task, `update-ver`, visible when running `invoke --list` performs this task automatically. However, as a 
-  "side effect", this task *removes* all the comment lines from the `.toml` file. The author does not 
-  believe that we are ready to lose all those reminders yet.)
+- Copy the version number from `orchid/VERSION` to the value of the `version` key of the file.
+- Search for the `classifiers` element of `pyproject.toml`. 
+  - If the Orchid Python API version is a pre-release version,
+    - Uncomment the `Development Status :: 4 - Beta` item.
+    - Comment out the `Development Status :: 5 Production/Stable` item.
+  - If the Orchid Python API version is a final release version,
+    - Comment out the `Development Status :: 4 - Beta` item.
+    - Uncomment the `Development Status :: 5 Production/Stable` item.
   
 ## Publish to TestPyPI
 
