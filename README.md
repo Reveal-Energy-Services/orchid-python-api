@@ -2,7 +2,7 @@
 
 This project defines the implementation of the Python API for Orchid*.
 
-(*Orchid in a mark of Revel Energy Services. Inc.)
+(*Orchid is a mark of Revel Energy Services. Inc.)
 
 Specifically, the `orchid` package exposes the Orchid API to Python applications and to the Python REPL.
 
@@ -143,7 +143,7 @@ available to all your tools. Symbolically, this document will refer to the root 
 
 To create the required environment variable, enter the search term "environment variables" in the Windows-10 
 search box and select the item named, "Edit environment variables for your account." The system will then 
-present your with the "Environment Variables" dialog. Under the section named "User variables for 
+present you with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_ROOT". (These two 
 words are separated by the underscore symbol.)
 
@@ -154,8 +154,8 @@ name `ORCHID_ROOT` with the correct value in the "User variables for <your.usern
 "OK" to dismiss the "Environment Variables" dialog.
 
 Although you have now created the `ORCHID_ROOT` environment variable with the appropriate value, only "new" 
-tools can now use that variable. However, the details of "new" is technical and may not correspond to your 
-what you expect. If you understand these details, you can jump to [Verify Installation](#verify-installation).
+tools can now use that variable. However, the details of "new" is technical and may not correspond to what
+you expect. If you understand these details, you can jump to [Verify Installation](#verify-installation).
 If you are not confident of these details, restart your system before proceeding to 
 [Verify Installation](#verify-installation).
 
