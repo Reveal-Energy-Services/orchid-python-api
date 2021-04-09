@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "2021.1.399"
+version = "2021.1.399.post1"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -22,7 +22,8 @@ classifiers=[
     #   3 - Alpha
     #   4 - Beta
     #   5 - Production/Stable
-    "Development Status :: 4 - Beta",
+    # "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     # Indicate who your project is intended for
     "Intended Audience :: Science/Research",
     "Intended Audience :: Other Audience",
