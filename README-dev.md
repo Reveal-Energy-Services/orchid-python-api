@@ -227,20 +227,24 @@ To update the project dependencies:
   NOTE: the Orchid Python API only uses the
   [release segment](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers) of its version to
   calculate the corresponding Orchid version. Consequently, one shall:
-  - Copy the major, minor and patch version of the Orchid API version. (This choice means **not** copying the
-    "build" segment of the Orchid API version).
+  - Copy only the first three components of the Orchid version (the major, minor and patch components). This
+    choice means **not** copying the fourth or build component of the Orchid API version. This action results
+    in an API version identifier like `2021.1.399`.
   - If the Orchid Python API has either a
     [post-release](https://www.python.org/dev/peps/pep-0440/#post-releases) or a
-    [pre-release](https://www.python.org/dev/peps/pep-0440/#post-releases) segment, one **shall** append this
-    additional segment to the version number in `orchid/VERSION`.
+    [pre-release](https://www.python.org/dev/peps/pep-0440/#post-releases) segment, append this segment to the
+    version identifier in `orchid/VERSION`. This action results in an API version identifier like
+    - `2021.1.399.post1` - a post-release or
+    - `2021.1.399.b3` - a "beta-3" pre-release
     
 - Open the file `pyproject.toml` for editing.
-- Copy the version number from `orchid/VERSION` to the value of the `version` key of the file.
+- Copy the version identifier from `orchid/VERSION` to the value of the `version` key of the file.
 - Search for the `classifiers` element of `pyproject.toml`. 
-  - If the Orchid Python API version is a pre-release version,
+  - If the Orchid Python API version identifier is a pre-release version identifier,
     - Uncomment the `Development Status :: 4 - Beta` item.
     - Comment out the `Development Status :: 5 Production/Stable` item.
-  - If the Orchid Python API version is a final release version,
+  - If the Orchid Python API version identifier is a 
+    [final release](https://www.python.org/dev/peps/pep-0440/#final-releases) version identifier,
     - Comment out the `Development Status :: 4 - Beta` item.
     - Uncomment the `Development Status :: 5 Production/Stable` item.
   
