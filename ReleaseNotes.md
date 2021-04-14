@@ -1,5 +1,20 @@
 # Orchid Python API Release Notes
 
+## Release notes for 2021.2.NNN.b1
+
+### Resolved Issues
+
+- [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
+- [GitHub issue 12](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/12)
+
+### Features
+
+- None
+
+### Known Issues
+
+- None
+
 ## Release notes for 2021.1.399
 
 This release is the second production release of the Orchid Python API. This release changes the 
