@@ -69,7 +69,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         Returns:
             A `UnitSystem` member containing the unit for the sample in this curve.
         """
-        quantity_name_unit_map = self.quantity_name_unit_map(self.maybe_project_units)
+        quantity_name_unit_map = self.quantity_name_unit_map(self.expect_project_units)
         return quantity_name_unit_map[self.sampled_quantity_name]
 
     def time_series(self) -> pd.Series:

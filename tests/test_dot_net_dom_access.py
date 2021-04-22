@@ -19,6 +19,7 @@ import uuid
 import dateutil.tz
 import deal
 from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, none, not_none
+import option
 
 from orchid import (
     dot_net_dom_access as dna,
@@ -66,19 +67,25 @@ class DotNetAdapterTest(unittest.TestCase):
         assert_that(calling(dna.DotNetAdapter).with_args(None), raises(deal.PreContractError))
 
     @staticmethod
-    def test_maybe_project_units_returns_none_if_net_project_callable_none():
+    def test_expect_project_units_raises_error_if_net_project_callable_none():
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         sut = dna.DotNetAdapter(stub_adaptee)
 
-        assert_that(sut.maybe_project_units, is_(none()))
+        def project_units():
+            return sut.expect_project_units
+
+        assert_that(calling(project_units).with_args(), raises(ValueError,
+                                                               pattern='Expected associated project'))
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    def test_maybe_project_units_returns_unit_system_if_net_project_callable_not_none(self, mock_as_unit_system):
-        mock_as_unit_system.return_value = units.Metric
-        stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
-        sut = dna.DotNetAdapter(stub_adaptee, unittest.mock.MagicMock(name='net_project_callable'))
+    def test_expect_project_units_returns_unit_system_if_net_project_callable_not_none(self, mock_as_unit_system):
+        for unit_system in [units.UsOilfield, units.Metric]:
+            with self.subTest(f'Test maybe_project_units returns {unit_system}'):
+                mock_as_unit_system.return_value = unit_system
+                stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
+                sut = dna.DotNetAdapter(stub_adaptee, unittest.mock.MagicMock(name='net_project_callable'))
 
-        assert_that(sut.maybe_project_units, equal_to(units.Metric))
+                assert_that(sut.expect_project_units, equal_to(unit_system))
 
 
 class DomPropertyTest(unittest.TestCase):

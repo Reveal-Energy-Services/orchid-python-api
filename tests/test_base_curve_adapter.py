@@ -37,10 +37,10 @@ class TestBaseCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.maybe_project_units',
-                         name='stub_maybe_project_units',
+    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
+                         name='stub_expect_project_units',
                          new_callable=unittest.mock.PropertyMock)
-    def test_sampled_quantity_units_returns_correct_units_for_pressure(self, stub_maybe_project_units):
+    def test_sampled_quantity_units_returns_correct_units_for_pressure(self, stub_expect_project_units):
         test_data = {
             'PRESSURE': [('compressus', units.UsOilfield), ('nisus', units.Metric)],
             'TEMPERATURE': [('frigus', units.UsOilfield), ('calidus', units.Metric)],
@@ -51,7 +51,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
             for quantity_name, unit_system in test_data[expected_quantity]:
                 with self.subTest(f'Testing quantity name, "{quantity_name}", and unit system, {unit_system}'):
                     sut = StubBaseCurveAdapter()
-                    stub_maybe_project_units.return_value = unit_system
+                    stub_expect_project_units.return_value = unit_system
                     type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
                         name='stub_sampled_quantity_name',
                         return_value=quantity_name,
@@ -64,16 +64,16 @@ class TestBaseCurveAdapter(unittest.TestCase):
 
                     assert_that(actual, equal_to(unit_system[expected_quantity]))
 
-    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.maybe_project_units',
-                         name='stub_maybe_project_units',
+    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
+                         name='stub_expect_project_units',
                          new_callable=unittest.mock.PropertyMock)
     def test_sampled_quantity_unit_calls_quantity_name_unit_map_with_correct_project_units(self,
-                                                                                           stub_maybe_project_units):
+                                                                                           stub_expect_project_units):
         unit_system = units.Metric
         quantity_name = 'energiae'
         quantity = 'ENERGY'
         sut = StubBaseCurveAdapter()
-        stub_maybe_project_units.return_value = unit_system
+        stub_expect_project_units.return_value = unit_system
         type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
             name='stub_sampled_quantity_name',
             return_value=quantity_name,
