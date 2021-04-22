@@ -67,6 +67,7 @@ toolz = "^0.10.0"
 pint = "^0.16.1"
 packaging = "^20.9"
 DateTimeRange = "^1.0.0"
+option = "^1.0.3"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^3.1.2"
