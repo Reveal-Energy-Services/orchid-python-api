@@ -23,9 +23,10 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    native_well_adapter as nwa,
+    native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_monitor_curve_adapter as mca,
+    native_well_adapter as nwa,
     net_quantity as onq,
     unit_system as units,
 )
@@ -79,7 +80,17 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
+    def data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
+        """
+        Return a sequence of data frames for this project.
+
+        Returns:
+            An iterable of data frames.
+        """
+        return []
+
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
+
         """
         Return a sequence of well time series for this project.
 
