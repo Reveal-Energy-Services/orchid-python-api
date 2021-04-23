@@ -50,8 +50,7 @@ def step_impl(context, object_id, name, display_name):
 
     assert_that(data_frame_of_interest.object_id, equal_to(data_frame_object_id))
     assert_that(data_frame_of_interest.name, equal_to(name))
-    expected_display_name = 'None' if display_name == 'None' else display_name
-    assert_that(data_frame_of_interest.display_name, equal_to(expected_display_name))
+    assert_that(data_frame_of_interest.display_name, equal_to(display_name))
 
 
 # TODO: Adapted from `dot_net_dom_access.py`
@@ -67,4 +66,4 @@ def _find_data_frame_by_id(object_id, data_frames):
     )
     assert_that(candidates, has_length(1))
 
-    return toolz.get(candidates)
+    return toolz.first(candidates)
