@@ -238,7 +238,7 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
-def create_stub_net_data_frame(name=None):
+def create_stub_net_data_frame(name=None, display_name=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
         result = unittest.mock.MagicMock(name=stub_net_data_frame_name, spec=IStaticDataFrame)
@@ -246,6 +246,7 @@ def create_stub_net_data_frame(name=None):
         result = unittest.mock.MagicMock(name=stub_net_data_frame_name)
 
     result.Name = name
+    result.DisplayName = display_name
 
     return result
 
