@@ -21,7 +21,7 @@ use_step_matcher("parse")
 
 import uuid
 
-from hamcrest import assert_that, not_none, equal_to
+from hamcrest import assert_that, not_none, equal_to, has_length
 import toolz.curried as toolz
 
 
@@ -65,7 +65,6 @@ def _find_data_frame_by_id(object_id, data_frames):
         toolz.filter(lambda df: df.object_id == object_id),
         list
     )
-    assert len(candidates) == 1, (f'Expected single data frame identified by object_id, "{object_id}"' +
-                                  f' but found {len(candidates)} data frames.')
+    assert_that(candidates, has_length(1))
 
     return toolz.get(candidates)
