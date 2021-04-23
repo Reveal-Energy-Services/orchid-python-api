@@ -12,10 +12,11 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import uuid
+from orchid import dot_net_dom_access as dna
 
 
-class NativeDataFrameAdapter:
-    object_id = uuid.uuid4()
-    name = 'foobar'
-    display_name = 'baz'
+class NativeDataFrameAdapter(dna.DotNetAdapter):
+    def __init__(self, net_data_frame):
+        super().__init__(net_data_frame, dna.constantly(net_data_frame.Project))
+
+    name = dna.dom_property('name', 'The name of this data frame.')

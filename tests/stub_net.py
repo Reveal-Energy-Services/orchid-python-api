@@ -41,14 +41,16 @@ from orchid import (
 from Orchid.FractureDiagnostics import (IMonitor,
                                         IProject,
                                         IPlottingSettings,
-                                        IWell,
                                         IStage,
                                         ISubsurfacePoint,
+                                        IWell,
                                         IWellTrajectory,
                                         UnitSystem)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.DataFrames import IStaticDataFrame
+# noinspection PyUnresolvedReferences,PyPackageRequirementsk
 from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -234,6 +236,18 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
         return_value=stub_native_treatment_calculations)
 
     return stub_native_calculations_factory
+
+
+def create_stub_net_data_frame(name=None):
+    stub_net_data_frame_name = 'stub_net_data_frame'
+    try:
+        result = unittest.mock.MagicMock(name=stub_net_data_frame_name, spec=IStaticDataFrame)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_net_data_frame_name)
+
+    result.Name = name
+
+    return result
 
 
 def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
@@ -548,7 +562,7 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_display_names=None):
+                            curves_physical_quantities=None, monitor_display_names=(), data_frame_names=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -573,9 +587,11 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     if fluid_density is not None:
         stub_net_project.FluidDensity = make_net_measurement(fluid_density)
 
-    if monitor_display_names is not None:
-        stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
-                                           monitor_display_name in monitor_display_names]
+    stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
+                                       monitor_display_name in monitor_display_names]
+
+    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(name=data_frame_name) for
+                                         data_frame_name in data_frame_names]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)

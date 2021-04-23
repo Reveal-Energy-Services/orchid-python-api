@@ -87,7 +87,9 @@ class Project(dna.DotNetAdapter):
         Returns:
             An iterable of data frames.
         """
-        return []
+        result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
+                            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
+        return result
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 
