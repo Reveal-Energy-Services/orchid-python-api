@@ -92,7 +92,7 @@ Feature: Adapted IDataFrame DOM API
       | 89     | 6043602.2  | 6.040994e+06 | 3335.243499 | 1        | 21.0         |       |
       | 170    | 6043611.3  | 6.041006e+06 | 3396.249537 | 39       | 29.0         |       |
       | 210    | 6041330.2  | 6.042960e+06 | 3311.431913 |          |              |       |
-#
+
 #  Scenario: Sampled GnG fault trace set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
 #    When I query the loaded project for the data frame named 'Fault Trace Set Data Frame 01'

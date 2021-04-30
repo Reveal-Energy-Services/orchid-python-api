@@ -19,6 +19,7 @@ from collections import namedtuple
 from typing import List, Tuple, Iterable, Dict
 
 import deal
+import pandas as pd
 import toolz.curried as toolz
 
 from orchid import (
@@ -90,6 +91,15 @@ class Project(dna.DotNetAdapter):
         result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
                             toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
         return result
+
+    def data_frames_by_name(self, data_frame_name):
+        """
+        Return all project data frames named `data_frame_name`.
+
+        Args:
+            data_frame_name: The name of the data frame sought.
+        """
+        return [pd.DataFrame()]
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 

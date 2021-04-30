@@ -57,24 +57,53 @@ def step_impl(context, object_id, name, display_name):
 def step_impl(context, data_frame_name):
     """
     Args:
-        context (behave.runner.Context):
+        context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
-    raise NotImplementedError(f"STEP: When I query the loaded project for the data frame named '{data_frame_name}'")
+    candidates = list(context.project.data_frames_by_name(data_frame_name))
+    assert_that(len(candidates), equal_to(1))
+
+    context.data_frame = candidates[0]
 
 
 @then("I see the sampled cells")
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context):
+        context (behave.runner.Context): The test context
     """
-    raise NotImplementedError(u'STEP: Then I see the sampled cells')
+    for expected_sample in context.table:
+        sample_no = int(expected_sample['sample'])
+        for expected_column, frame_column in _expected_column_data_frame_column_enumeration(context.table.headings):
+            actual_cell = context.data_frame.iloc[sample_no, :][frame_column]
+            assert_that(actual_cell, equal_to(expected_sample[expected_column]))
 
 
 # TODO: Adapted from `dot_net_dom_access.py`
 def _as_uuid(guid_text: str):
     return uuid.UUID(guid_text)
+
+
+def _expected_column_data_frame_column_enumeration(headings):
+    """
+    Enumerate the expected column headings with the corresponding data frame column names
+
+    Args:
+        headings: The expected column headings.
+
+    Returns:
+        An iteration of column heading, column name pairs.
+    """
+    heading_column_map = {
+        'sample': 'Sample',
+        'sh_easting': 'Surface  Hole Easting',
+        'bh_northing': 'Bottom Hole Northing ',
+        'bh_tdv': 'Bottom Hole TDV ',
+        'stage_no': 'StageNumber',
+        'stage_length': 'StageLength',
+        'p_net': 'Pnet',
+    }
+    return toolz.map(lambda h: (h, toolz.get(h, heading_column_map)), headings)
 
 
 def _find_data_frame_by_id(object_id, data_frames):
