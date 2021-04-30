@@ -74,9 +74,10 @@ def step_impl(context):
     """
     for expected_sample in context.table:
         sample_no = int(expected_sample['sample'])
-        for expected_column, frame_column in _expected_column_data_frame_column_enumeration(context.table.headings):
+        for table_column in context.table.headings:
+            frame_column =table_column_to_data_frame_column(table_column)
             actual_cell = context.data_frame.iloc[sample_no, :][frame_column]
-            assert_that(actual_cell, equal_to(expected_sample[expected_column]))
+            assert_that(actual_cell, equal_to(expected_sample[table_column]))
 
 
 # TODO: Adapted from `dot_net_dom_access.py`
@@ -84,17 +85,17 @@ def _as_uuid(guid_text: str):
     return uuid.UUID(guid_text)
 
 
-def _expected_column_data_frame_column_enumeration(headings):
+def table_column_to_data_frame_column(table_column_name):
     """
-    Enumerate the expected column headings with the corresponding data frame column names
+    Convert a table column heading ta a data frame column heading.
 
     Args:
-        headings: The expected column headings.
+        table_column_name: The expected table column heading.
 
     Returns:
-        An iteration of column heading, column name pairs.
+        The data frame column name corresponding to `table_column_name`.
     """
-    heading_column_map = {
+    table_data_frame_columns = {
         'sample': 'Sample',
         'sh_easting': 'Surface  Hole Easting',
         'bh_northing': 'Bottom Hole Northing ',
@@ -103,7 +104,7 @@ def _expected_column_data_frame_column_enumeration(headings):
         'stage_length': 'StageLength',
         'p_net': 'Pnet',
     }
-    return toolz.map(lambda h: (h, toolz.get(h, heading_column_map)), headings)
+    return toolz.get(table_column_name, table_data_frame_columns)
 
 
 def _find_data_frame_by_id(object_id, data_frames):
