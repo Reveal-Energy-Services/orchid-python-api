@@ -53,6 +53,25 @@ def step_impl(context, object_id, name, display_name):
     assert_that(data_frame_of_interest.display_name, equal_to(display_name))
 
 
+@when("I query the loaded project for the data frame named '{data_frame_name}'")
+def step_impl(context, data_frame_name):
+    """
+    Args:
+        context (behave.runner.Context):
+        data_frame_name (str): The name of the data frame of interest.
+    """
+    raise NotImplementedError(f"STEP: When I query the loaded project for the data frame named '{data_frame_name}'")
+
+
+@then("I see the sampled cells")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    raise NotImplementedError(u'STEP: Then I see the sampled cells')
+
+
 # TODO: Adapted from `dot_net_dom_access.py`
 def _as_uuid(guid_text: str):
     return uuid.UUID(guid_text)
