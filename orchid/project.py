@@ -99,7 +99,8 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_name: The name of the data frame sought.
         """
-        return [pd.DataFrame()]
+        results = toolz.filter(lambda df: df.name == data_frame_name, self.data_frames())
+        return results
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 

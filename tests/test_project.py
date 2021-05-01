@@ -81,6 +81,29 @@ class TestProject(unittest.TestCase):
                 to_test_names = set(toolz.map(lambda df: df.name, sut.data_frames()))
                 assert_that(to_test_names, equal_to(set(data_frame_names)))
 
+    def test_data_frames_by_name_returns_correct_match_count(self):
+        for data_frame_names, name_to_match, match_count in [(['vicis'], 'vici', 0),
+                                                             (['rosae'], 'rosae', 1),
+                                                             (['diluit'] * 2, 'diluit', 2)]:
+            with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                sut = create_sut(stub_native_project)
+
+                matching_data_frames = sut.data_frames_by_name(name_to_match)
+                assert_that(len(list(matching_data_frames)), equal_to(match_count))
+
+    def test_data_frames_by_name_returns_matches_with_requested_name(self):
+        for data_frame_names, name_to_match, match_count in [(['vicis'], 'vici', 0),
+                                                             (['rosae'], 'rosae', 1),
+                                                             (['diluit'] * 2, 'diluit', 2)]:
+            with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                sut = create_sut(stub_native_project)
+
+                matching_data_frame_names = list(toolz.map(lambda df: df.name,
+                                                           sut.data_frames_by_name(name_to_match)))
+                assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
+
     def test_default_well_colors_if_no_default_well_colors(self):
         stub_native_project = tsn.create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
