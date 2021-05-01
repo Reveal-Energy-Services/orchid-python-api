@@ -13,6 +13,7 @@
 #
 
 import option
+import pandas as pd
 
 from orchid import dot_net_dom_access as dna
 
@@ -29,3 +30,6 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
     name = dna.dom_property('name', 'The name of this data frame.')
     display_name = dna.transformed_dom_property('display_name', 'The display name of this data frame.',
                                                 transform_display_name)
+
+    def pandas_data_frame(self):
+        return pd.DataFrame()

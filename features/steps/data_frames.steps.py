@@ -75,8 +75,8 @@ def step_impl(context):
     for expected_sample in context.table:
         sample_no = int(expected_sample['sample'])
         for table_column in context.table.headings:
-            frame_column =table_column_to_data_frame_column(table_column)
-            actual_cell = context.data_frame.iloc[sample_no, :][frame_column]
+            frame_column = _table_column_to_data_frame_column(table_column)
+            actual_cell = context.data_frame.pandas_data_frame().iloc[sample_no, :][frame_column]
             assert_that(actual_cell, equal_to(expected_sample[table_column]))
 
 
@@ -85,7 +85,7 @@ def _as_uuid(guid_text: str):
     return uuid.UUID(guid_text)
 
 
-def table_column_to_data_frame_column(table_column_name):
+def _table_column_to_data_frame_column(table_column_name):
     """
     Convert a table column heading ta a data frame column heading.
 
