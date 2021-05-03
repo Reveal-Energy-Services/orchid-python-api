@@ -40,6 +40,20 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         assert_that(sut.name, equal_to('avus'))
 
+    def test_empty_data_table_returns_empty_pandas_data_frame(self):
+        stub_net_data_frame = tsn.create_stub_net_data_frame(data_table={})
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        assert_that(sut.pandas_data_frame().empty, equal_to(True))
+
+    def test_pandas_data_frame_from_single_cell_data_table_has_correct_columns(self):
+        expected_data_frame = {'oratio': []}
+        stub_net_data_frame = tsn.create_stub_net_data_frame(data_table=expected_data_frame)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        actual_data_frame = sut.pandas_data_frame()
+        assert_that(actual_data_frame.columns, equal_to(['oratio']))
+
 
 if __name__ == '__main__':
     unittest.main()

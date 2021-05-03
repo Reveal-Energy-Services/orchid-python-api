@@ -55,7 +55,9 @@ from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSerie
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
-from System import Array
+from System import Array, Type
+# noinspection PyUnresolvedReferences
+from System.Data import DataColumn, DataTable
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
@@ -238,7 +240,7 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
-def create_stub_net_data_frame(name=None, display_name=None):
+def create_stub_net_data_frame(name=None, data_table=None, display_name=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
         result = unittest.mock.MagicMock(name=stub_net_data_frame_name, spec=IStaticDataFrame)
@@ -247,6 +249,17 @@ def create_stub_net_data_frame(name=None, display_name=None):
 
     result.Name = name
     result.DisplayName = display_name
+
+    if data_table is not None:
+        net_data_table = DataTable()
+        for column_name, row_values in data_table.items():
+            column = DataColumn(column_name, row_values[0])
+
+            for row_value in row_values:
+                next_row = net_data_table.AddRow()
+                next_row[column_name] =
+
+        result.DataTable = net_data_table
 
     return result
 
