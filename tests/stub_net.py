@@ -37,6 +37,8 @@ from orchid import (
     unit_system as units,
 )
 
+from tests import stub_net_data_table
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IMonitor,
                                         IProject,
@@ -55,7 +57,7 @@ from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSerie
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
-from System import Array, Type
+from System import Array, Guid, Type
 # noinspection PyUnresolvedReferences
 from System.Data import DataColumn, DataTable
 
@@ -240,7 +242,7 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
-def create_stub_net_data_frame(name=None, data_table=None, display_name=None):
+def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
         result = unittest.mock.MagicMock(name=stub_net_data_frame_name, spec=IStaticDataFrame)
@@ -249,17 +251,11 @@ def create_stub_net_data_frame(name=None, data_table=None, display_name=None):
 
     result.Name = name
     result.DisplayName = display_name
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
 
-    if data_table is not None:
-        net_data_table = DataTable()
-        for column_name, row_values in data_table.items():
-            column = DataColumn(column_name, row_values[0])
-
-            for row_value in row_values:
-                next_row = net_data_table.AddRow()
-                next_row[column_name] =
-
-        result.DataTable = net_data_table
+    if table_data is not None:
+        result.DataTable = stub_net_data_table.populate_data_table(toolz.identity, table_data)
 
     return result
 

@@ -92,7 +92,7 @@ def _read_data_table(data_table: DataTable) -> Iterable[dict]:
 
 
 def _table_row_to_dict(reader):
-    seed = {'Sample': None}
+    seed = {}
     table_result = {reader.GetName(i): reader[reader.GetName(i)] for i in range(reader.FieldCount)}
     result = toolz.merge(seed, table_result)
     return result
