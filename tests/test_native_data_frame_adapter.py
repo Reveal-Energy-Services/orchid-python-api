@@ -26,7 +26,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - DataTable with single cell and mapped column name produces DataFrame with mapped column name and cell
 # - DataTable with single column and many rows produces DataFrame with same column and many cells
 # - DataTable with single mapped column and many rows produces DataFrame with mapped column and many cells
 # - DataTable with many columns and single row produces DataFrame with same columns and single cell
@@ -61,19 +60,33 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         assert_that(sut.object_id, equal_to(uuid.UUID('35582fd2-7499-4259-99b8-04b01876f309')))
 
     def test_empty_data_table_produces_empty_pandas_data_frame(self):
-        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data=[])
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=tsn.TableDataDto([], toolz.identity))
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
 
         pdt.assert_frame_equal(sut.pandas_data_frame(), pd.DataFrame())
 
     def test_single_cell_data_table_produces_correct_pandas_data_frame(self):
-        data_dto = [{'oratio': 57.89}]
-        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data=data_dto)
+        table_data_dto = tsn.TableDataDto([{'oratio': 57.89}], toolz.identity)
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
 
         actual_data_frame = sut.pandas_data_frame()
-        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *data_dto),
-                                           columns=toolz.first(data_dto).keys())
+        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *table_data_dto.table_data),
+                                           columns=toolz.first(table_data_dto.table_data).keys())
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_single_cell_data_table_with_column_mapping_produces_correct_pandas_data_frame(self):
+        rename_columns_func = toolz.flip(toolz.get)({'stultus': 'fulmino'})
+        table_data_dto = tsn.TableDataDto([{'stultus': 'timeo'}], rename_columns_func)
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        actual_data_frame = sut.pandas_data_frame()
+
+        expected_data = toolz.keymap(rename_columns_func, toolz.merge_with(toolz.identity, *table_data_dto.table_data))
+        expected_columns = list(toolz.map(rename_columns_func, toolz.first(table_data_dto.table_data).keys()))
+        expected_data_frame = pd.DataFrame(data=expected_data,
+                                           columns=expected_columns)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
 

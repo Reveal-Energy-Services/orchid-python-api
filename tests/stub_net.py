@@ -68,6 +68,7 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 StubWellHeadLocation = namedtuple('StubWellHeadLocation', ['easting', 'northing', 'depth'])
+TableDataDto = namedtuple('TableDataDto', ['table_data', 'rename_columns_func'])
 
 
 make_measurement_dto = toolz.flip(MeasurementDto)
@@ -242,7 +243,7 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
-def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data=None):
+def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data_dto=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
         result = unittest.mock.MagicMock(name=stub_net_data_frame_name, spec=IStaticDataFrame)
@@ -254,8 +255,9 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
     if object_id is not None:
         result.ObjectId = Guid(object_id)
 
-    if table_data is not None:
-        result.DataTable = stub_net_data_table.populate_data_table(toolz.identity, table_data)
+    if table_data_dto is not None:
+        result.DataTable = stub_net_data_table.populate_data_table(table_data_dto.rename_columns_func,
+                                                                   table_data_dto.table_data)
 
     return result
 
