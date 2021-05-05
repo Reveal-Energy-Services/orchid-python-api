@@ -26,8 +26,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - DataTable with many columns and many rows produces DataFrame with correct columns and cells
-# - DataTable with many mapped columns and many rows produces DataFrame with mapped columns and cells
 # - DataTable with DateTime column produces DataFrame with correct datetime cells
 # - DataTable with DBNull cells produces DataFrame with corresponding cells containing `None`
 class TestNativeDataFrameAdapter(unittest.TestCase):
@@ -132,6 +130,35 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         table_data_dto = tsn.TableDataDto([{'Servius': 24},
                                            {'Servius': 8},
                                            {'Servius': -61}],
+                                          rename_columns_func)
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        actual_data_frame = sut.pandas_data_frame()
+        expected_data = toolz.keymap(rename_columns_func, toolz.merge_with(toolz.identity, *table_data_dto.table_data))
+        expected_columns = list(toolz.map(rename_columns_func, toolz.first(table_data_dto.table_data).keys()))
+        expected_data_frame = pd.DataFrame(data=expected_data,
+                                           columns=expected_columns)
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_many_columns_many_rows_data_table_produces_correct_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([{'cana': 'imbris', 'querula': -203, 'recidebimus': 8.700},
+                                           {'cana': 'privat', 'querula': 111, 'recidebimus': 52.02},
+                                           {'cana': 'desperant', 'querula': -44, 'recidebimus': 19.52}],
+                                          toolz.identity)
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        actual_data_frame = sut.pandas_data_frame()
+        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *table_data_dto.table_data),
+                                           columns=toolz.first(table_data_dto.table_data).keys())
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_many_columns_many_rows_data_table_with_column_mapping_produces_correct_pandas_data_frame(self):
+        rename_columns_func = toolz.flip(toolz.get)({'commoda': 'Manius', 'mutabilis': 'annui', 'lenit': 'lenit'})
+        table_data_dto = tsn.TableDataDto([{'mutabilis': 6, 'lenit': 'imbris', 'commoda': 31.71},
+                                           {'mutabilis': 52, 'lenit': 'privat', 'commoda': 65.52},
+                                           {'mutabilis': 36, 'lenit': 'desperant', 'commoda': -95.01}],
                                           rename_columns_func)
         stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
