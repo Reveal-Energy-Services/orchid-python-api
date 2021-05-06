@@ -28,29 +28,49 @@ from System.Data import DataTable, DataColumn
 
 # The `dump_xxx` and `format_yyy` functions are diagnostic tools.
 def dump_table(data_table):
+    if len(data_table.Columns) == 0 and len(data_table.Rows) == 0:
+        print('Empty data table')
+        return
+
     dump_column_names(data_table)
-    dump_rows(data_table)
+    # dump_rows(data_table)
 
 
 def dump_column_names(data_table):
-    print(f'{"".join([" "] * 8):8}'
-          f' | {data_table.Columns[0].ColumnName:8}'
-          f' | {data_table.Columns[1].ColumnName:8}'
-          f' | {data_table.Columns[2].ColumnName:12}'
-          f' | {data_table.Columns[2].ColumnName:32} |')
+    print(format_header(data_table))
+
+
+def format_header(data_table):
+    prefix = f'{"".join([" "] * 8):8}'
+    suffix = ' |'
+    result = ''.join(toolz.concatv([prefix], toolz.concat(toolz.map(format_column_name, data_table.Columns)), [suffix]))
+    return result
+
+
+def format_column_name(column):
+    return f' | {column.ColumnName:{format_column_width(column)}}'
+
+
+def format_column_width(column):
+    if str(column.DataType) in ('System.Int32', 'System.Double'):
+        return 8
+    if str(column.DataType) in ('System.String', 'System.DateTime'):
+        return 32
+    raise KeyError(f'Cannot determine size of column {column.ColumnName}')
 
 
 def dump_rows(data_table):
-    for i, row in enumerate(data_table.Rows):
-        print(format_row(i, row))
+    for row_no, row in enumerate(data_table.Rows):
+        print(format_row(row_no, row, data_table.Columns))
 
 
-def format_row(i, row):
-    return (f'row {i: 4}'
-            f' | {format_row_value(maybe_row_value(row[0])):8}'
-            f' | {format_row_value(maybe_row_value(row[1])):8}'
-            f' | {format_row_value(maybe_row_value(row[2])):12}'
-            f' | {format_row_value(maybe_row_value(row[3])):32} |')
+def format_row(i, row, columns):
+    result = (f'row {i: 4}'
+              f' | {format_row_value(maybe_row_value(row[0]), columns[0]):8}'
+              f' | {format_row_value(maybe_row_value(row[1]), columns[0]):8}'
+              f' | {format_row_value(maybe_row_value(row[2]), columns[0]):12}'
+              f' | {format_row_value(maybe_row_value(row[3]), columns[0]):32} |')
+    return result
 
 
 def dump_column_details(data_table):
@@ -62,12 +82,13 @@ def dump_column_details(data_table):
     print('')
 
 
-def format_row_value(maybe_value):
-    return maybe_value.map_or_else(format_some_value, lambda: 'Nothing')
+def format_row_value(column, maybe_value):
+    return maybe_value.map_or_else(format_some_value(column), lambda: 'Nothing')
 
 
-def format_some_value(value):
-    if isinstance(value, int) or isinstance(value, float) or isinstance(value, str):
+@toolz.curry
+def format_some_value(column, value):
+    if str(column.DataType) in ('System.Int32', 'System.Double', 'System.String'):
         return value
 
     if type(value) == DateTime:
