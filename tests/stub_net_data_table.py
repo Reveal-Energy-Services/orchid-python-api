@@ -117,14 +117,13 @@ def populate_data_table(table_data_dto):
         add_data_table_columns(table_data_dto),
         add_data_table_rows(table_data_dto),
     )
-    dump_column_details(result)
     return result
 
 
 @toolz.curry
 def add_data_table_columns(data_table_dto, data_table):
-    net_column_names = toolz.map(data_table_dto.rename_column_func, toolz.first(data_table_dto.table_data))
-    net_column_types = toolz.map(make_data_column_type, data_table_dto.column_types)
+    net_column_names = list(toolz.map(data_table_dto.rename_column_func, toolz.first(data_table_dto.table_data)))
+    net_column_types = list(toolz.map(make_data_column_type, data_table_dto.column_types))
     for net_column_name, net_column_type in zip(net_column_names, net_column_types):
         new_column = make_data_table_column(net_column_name, net_column_type)
         data_table.Columns.Add(new_column)
@@ -168,7 +167,6 @@ def make_data_table_column(net_column_name, net_column_type):
 def add_data_table_rows(data_table_dto, data_table):
     for row_data in data_table_dto.table_data:
         net_row_data = toolz.keymap(data_table_dto.rename_column_func, row_data)
-        print(f'{net_row_data=}')
         new_row = make_data_table_row(net_row_data, data_table)
         data_table.Rows.Add(new_row)
     return data_table
