@@ -20,15 +20,13 @@ import orchid
 import option
 import toolz.curried as toolz
 
-import tests.stub_net as tsn
-
 # noinspection PyUnresolvedReferences
 from System import DateTime, DBNull, Type
 # noinspection PyUnresolvedReferences
 from System.Data import DataTable, DataColumn
 
 
-# The `dump_xxx` and `format_yyy` functions are currently diagnostic tools.
+# The `dump_xxx` and `format_yyy` functions are diagnostic tools.
 def dump_table(data_table):
     dump_column_names(data_table)
     dump_rows(data_table)
@@ -170,14 +168,6 @@ def add_data_table_rows(data_table_dto, data_table):
         new_row = make_data_table_row(net_row_data, data_table)
         data_table.Rows.Add(new_row)
     return data_table
-
-
-# @toolz.curry
-# def add_data_table_rows(data_table_dto, data_table):
-#     for row_data in data_table_dto:
-#         new_row = make_data_table_row(data_table, row_data)
-#         data_table.Rows.Add(new_row)
-#     return data_table
 
 
 def make_data_table_row(row_data, data_table):
