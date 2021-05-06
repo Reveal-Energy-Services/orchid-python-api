@@ -20,6 +20,8 @@ import orchid
 import option
 import toolz.curried as toolz
 
+import tests.stub_net as tsn
+
 # noinspection PyUnresolvedReferences
 from System import DateTime, DBNull, Type
 # noinspection PyUnresolvedReferences
@@ -167,6 +169,9 @@ def make_data_column_type(row_value):
     except KeyError:
         if sought == dt.datetime:
             return Type.GetType('System.DateTime')
+        elif isinstance(sought, tsn.TableTypedValue):
+            return sought.type
+
         raise
 
 

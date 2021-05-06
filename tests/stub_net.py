@@ -68,7 +68,7 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 StubWellHeadLocation = namedtuple('StubWellHeadLocation', ['easting', 'northing', 'depth'])
-TableDataDto = namedtuple('TableDataDto', ['table_data', 'rename_columns_func'])
+TableDataDto = namedtuple('TableDataDto', ['column_types', 'table_data', 'rename_columns_func'])
 
 
 make_measurement_dto = toolz.flip(MeasurementDto)
