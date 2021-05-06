@@ -33,7 +33,7 @@ def dump_table(data_table):
         return
 
     dump_column_names(data_table)
-    # dump_rows(data_table)
+    dump_rows(data_table)
 
 
 def dump_column_names(data_table):
@@ -41,14 +41,14 @@ def dump_column_names(data_table):
 
 
 def format_header(data_table):
-    prefix = f'{"".join([" "] * 8):8}'
+    prefix = f'{"".join([" "] * 8)}'
     suffix = ' |'
     result = ''.join(toolz.concatv([prefix], toolz.concat(toolz.map(format_column_name, data_table.Columns)), [suffix]))
     return result
 
 
 def format_column_name(column):
-    return f' | {column.ColumnName:{format_column_width(column)}}'
+    return format_text_in_column(column.ColumnName, column)
 
 
 def format_column_width(column):
@@ -57,20 +57,6 @@ def format_column_width(column):
     if str(column.DataType) in ('System.String', 'System.DateTime'):
         return 32
     raise KeyError(f'Cannot determine size of column {column.ColumnName}')
-
-
-def dump_rows(data_table):
-    for row_no, row in enumerate(data_table.Rows):
-        print(format_row(row_no, row, data_table.Columns))
-
-
-def format_row(i, row, columns):
-    result = (f'row {i: 4}'
-              f' | {format_row_value(maybe_row_value(row[0]), columns[0]):8}'
-              f' | {format_row_value(maybe_row_value(row[1]), columns[0]):8}'
-              f' | {format_row_value(maybe_row_value(row[2]), columns[0]):12}'
-              f' | {format_row_value(maybe_row_value(row[3]), columns[0]):32} |')
-    return result
 
 
 def dump_column_details(data_table):
@@ -82,7 +68,43 @@ def dump_column_details(data_table):
     print('')
 
 
-def format_row_value(column, maybe_value):
+def dump_rows(data_table):
+    for row_no, row in enumerate(data_table.Rows):
+        print(format_row(row_no, row, data_table.Columns))
+
+
+# def format_row(row_no, row, columns):
+#     result = (f'row {row_no: 4}'
+#               f' | {format_row_value(maybe_row_value(row[0]), columns[0]):8}'
+#               f' | {format_row_value(maybe_row_value(row[1]), columns[0]):8}'
+#               f' | {format_row_value(maybe_row_value(row[2]), columns[0]):12}'
+#               f' | {format_row_value(maybe_row_value(row[3]), columns[0]):32} |')
+#     return result
+def format_row(row_no, row, columns):
+    prefix = f'row {row_no: 4}'
+    suffix = ' |'
+    formatted_row_values = toolz.pipe(
+        columns,
+        toolz.map(lambda c: (c, maybe_row_value(row[c]))),
+        toolz.map(lambda i: (i[0], text_row_value(*i))),
+        toolz.map(lambda i: format_row_value(*i)),
+        toolz.map(str),
+        list,
+    )
+    result = ''.join(toolz.concatv([prefix], formatted_row_values, [suffix]))
+
+    return result
+
+
+def maybe_row_value(value):
+    if DBNull.Value.Equals(value):
+        return option.NONE
+
+    return option.Some(value)
+
+
+@toolz.curry
+def text_row_value(column, maybe_value):
     return maybe_value.map_or_else(format_some_value(column), lambda: 'Nothing')
 
 
@@ -97,11 +119,13 @@ def format_some_value(column, value):
     raise TypeError(value)
 
 
-def maybe_row_value(value):
-    if DBNull.Value.Equals(value):
-        return option.NONE
+@toolz.curry
+def format_row_value(column, text_value):
+    return format_text_in_column(text_value, column)
 
-    return option.Some(value)
+
+def format_text_in_column(text, column):
+    return f' | {text:{format_column_width(column)}}'
 
 
 def populate_data_table(table_data_dto):

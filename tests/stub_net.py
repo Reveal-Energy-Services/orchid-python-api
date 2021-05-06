@@ -257,7 +257,6 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
 
     if table_data_dto is not None:
         result.DataTable = stub_net_data_table.populate_data_table(table_data_dto)
-        stub_net_data_table.dump_table(result.DataTable)
 
     return result
 
