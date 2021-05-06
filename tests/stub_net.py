@@ -68,7 +68,7 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 StubWellHeadLocation = namedtuple('StubWellHeadLocation', ['easting', 'northing', 'depth'])
-TableDataDto = namedtuple('TableDataDto', ['column_types', 'table_data', 'rename_columns_func'])
+TableDataDto = namedtuple('TableDataDto', ['column_types', 'table_data', 'rename_column_func'])
 
 
 make_measurement_dto = toolz.flip(MeasurementDto)
@@ -256,8 +256,7 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
         result.ObjectId = Guid(object_id)
 
     if table_data_dto is not None:
-        result.DataTable = stub_net_data_table.populate_data_table(table_data_dto.rename_columns_func,
-                                                                   table_data_dto.table_data)
+        result.DataTable = stub_net_data_table.populate_data_table(table_data_dto)
 
     return result
 
