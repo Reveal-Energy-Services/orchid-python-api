@@ -52,10 +52,12 @@ def format_column_name(column):
 
 
 def format_column_width(column):
-    if str(column.DataType) in ('System.Int32', 'System.Double'):
+    if is_net_int(column) or is_net_double(column):
         return 8
-    if str(column.DataType) in ('System.String', 'System.DateTime'):
+
+    if is_net_string(column) or is_net_date_time(column):
         return 32
+
     raise KeyError(f'Cannot determine size of column {column.ColumnName}')
 
 
@@ -110,10 +112,10 @@ def text_row_value(column, maybe_value):
 
 @toolz.curry
 def format_some_value(column, value):
-    if str(column.DataType) in ('System.Int32', 'System.Double', 'System.String'):
+    if is_net_int(column) or is_net_double(column) or is_net_string(column):
         return value
 
-    if type(value) == DateTime:
+    if is_net_date_time(column):
         return value.ToString('o')
 
     raise TypeError(value)
@@ -224,3 +226,14 @@ def make_data_table_row(row_data, data_table):
             # noinspection PyUnresolvedReferences
             data_table_row[net_column_name] = orchid.net_quantity.as_net_date_time(row_value)
     return data_table_row
+
+
+@toolz.curry
+def is_net_column_of_type(net_type_name, net_column):
+    return str(net_column.DataType) == net_type_name
+
+
+is_net_int = is_net_column_of_type('System.Int32')
+is_net_double = is_net_column_of_type('System.Double')
+is_net_string = is_net_column_of_type('System.String')
+is_net_date_time = is_net_column_of_type('System.DateTime')
