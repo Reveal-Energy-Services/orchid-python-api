@@ -16,6 +16,7 @@ import datetime as dt
 import unittest
 import uuid
 
+import dateutil.parser as dup
 from hamcrest import assert_that, equal_to
 import pandas as pd
 import pandas.testing as pdt
@@ -173,6 +174,70 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_columns = list(toolz.map(rename_column_func, toolz.first(table_data_dto.table_data).keys()))
         expected_data_frame = pd.DataFrame(data=expected_data,
                                            columns=expected_columns)
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_single_cell_data_table_with_date_time_column_produces_correct_pandas_data_frame(self):
+        rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'pulchritudo': dup.isoparse('2024-03-15T10:09:18Z')}],
+                                          rename_column_func)
+        # TODO: Repair this test that will fail.
+        # This failure occurs because Python.NET helpfully converts a value `DateTimeKind`, a .NET `Enum`,
+        # to a Python `int`. Because of this conversion, Python.NET calls the incorrect overload of the
+        # .NET `DateTime` constructor. It cannot distinguish between a `DateTimeKind` converted to an `int`
+        # and attempting to set the `Millisecond` property.
+        #
+        # Because of the number of changes needed to reliably address this issue, I plan to create a
+        # separate story and branch and then return.
+        #
+        # Note that these changes affect the DBNull test also (because that test includes a `DateTime` column.
+        #
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        actual_data_frame = sut.pandas_data_frame()
+        expected_data = toolz.keymap(rename_column_func, toolz.merge_with(toolz.identity, *table_data_dto.table_data))
+        expected_columns = list(toolz.map(rename_column_func, toolz.first(table_data_dto.table_data).keys()))
+        expected_data_frame = pd.DataFrame(data=expected_data,
+                                           columns=expected_columns)
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_many_columns_many_rows_data_table_with_db_null_values_produces_correct_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto(
+            [str, float, dt.datetime, int],
+            [
+                {
+                    'vitis': None,
+                    'controversum': -14.52,
+                    'indicis': dt.datetime.now(dt.timezone.utc),
+                    'inane': -92,
+                },
+                {
+                    'vitis': 'magistri',
+                    'controversum': None,
+                    'indicis': dt.datetime.now(dt.timezone.utc),
+                    'inane': 169,
+                },
+                {
+                    'vitis': 'inter cenam',
+                    'controversum': -73.83,
+                    'indicis': None,
+                    'inane': 148,
+                },
+                {
+                    'vitis': 'profuit',
+                    'controversum': -40.88,
+                    'indicis': dt.datetime.now(dt.timezone.utc),
+                    'inane': None,
+                },
+            ],
+            toolz.identity)
+        stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        actual_data_frame = sut.pandas_data_frame()
+        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *table_data_dto.table_data),
+                                           columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
 

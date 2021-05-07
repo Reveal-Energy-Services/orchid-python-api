@@ -210,7 +210,7 @@ def make_data_table_column(net_column_name, net_column_type):
 
 @toolz.curry
 def add_data_table_rows(data_table_dto, data_table):
-    for row_data in data_table_dto.table_data:
+    for row_data in toolz.map(toolz.valmap(option.maybe), data_table_dto.table_data):
         net_row_data = toolz.keymap(data_table_dto.rename_column_func, row_data)
         new_row = make_data_table_row(net_row_data, data_table)
         data_table.Rows.Add(new_row)
@@ -219,12 +219,13 @@ def add_data_table_rows(data_table_dto, data_table):
 
 def make_data_table_row(row_data, data_table):
     data_table_row = data_table.NewRow()
-    for net_column_name, row_value in row_data.items():
-        if data_table.Columns[net_column_name].DataType != DateTime:
-            data_table_row[net_column_name] = row_value
+    for net_column_name, perhaps_cell_value in row_data.items():
+        if not is_net_date_time(data_table.Columns[net_column_name]):
+            data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
         else:
             # noinspection PyUnresolvedReferences
-            data_table_row[net_column_name] = orchid.net_quantity.as_net_date_time(row_value)
+            data_table_row[net_column_name] = perhaps_cell_value.map_or(orchid.net_quantity.as_net_date_time,
+                                                                        DBNull.Value)
     return data_table_row
 
 

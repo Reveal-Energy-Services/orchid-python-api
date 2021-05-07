@@ -18,8 +18,13 @@ import option
 import pandas as pd
 import toolz.curried as toolz
 
-from orchid import dot_net_dom_access as dna
+from orchid import (
+    dot_net_dom_access as dna,
+    net_quantity as onq,
+)
 
+# noinspection PyUnresolvedReferences
+from System import DBNull
 # noinspection PyUnresolvedReferences
 from System.Data import DataTable
 
@@ -93,6 +98,31 @@ def _read_data_table(data_table: DataTable) -> Iterable[dict]:
 
 def _table_row_to_dict(reader):
     seed = {}
-    table_result = {reader.GetName(i): reader[reader.GetName(i)] for i in range(reader.FieldCount)}
-    result = toolz.merge(seed, table_result)
+
+    def add_to_dict(so_far, to_accumulate):
+        column_name, cell_value = to_accumulate
+        return toolz.assoc(so_far, column_name, cell_value)
+
+    def to_dict(pairs):
+        dict_result = toolz.reduce(add_to_dict, pairs, {})
+        return dict_result
+
+    def net_value_to_python_value(value):
+        if value == DBNull.Value:
+            return None
+
+        try:
+            if str(value.GetType()) == 'System.DateTime':
+                return onq.as_datetime(value)
+        except AttributeError:
+            # Not a .NET type so simply return it
+            return value
+
+    result = toolz.pipe(
+        range(reader.FieldCount),
+        toolz.map(lambda i: reader.GetName(i)),
+        toolz.map(lambda cn: (cn, reader[cn])),
+        to_dict,
+        toolz.valmap(net_value_to_python_value),
+    )
     return result
