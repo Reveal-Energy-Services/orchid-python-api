@@ -19,7 +19,7 @@
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 
-import datetime
+import datetime as dt
 from numbers import Real
 from functools import singledispatch
 
@@ -95,7 +95,7 @@ class NetQuantityNoTzInfoError(NetQuantityTimeZoneError):
         Construct an instance from a Python point in time.
 
         Args:
-            time_point: A Python `datetime.datetime` representing a specific point in time.
+            time_point: A Python `dt.datetime` representing a specific point in time.
         """
         super().__init__(self, f'The Python time point must specify the time zone.', time_point.isoformat())
 
@@ -138,20 +138,20 @@ class EqualsComparisonDetails:
         return self._comparison_type
 
 
-def as_datetime(net_time_point: DateTime) -> datetime.datetime:
+def as_datetime(net_time_point: DateTime) -> dt.datetime:
     """
-    Convert a .NET `DateTime` instance to a `datetime.datetime` instance.
+    Convert a .NET `DateTime` instance to a `dt.datetime` instance.
 
     Args:
         net_time_point: A point in time of type .NET `DateTime`.
 
     Returns:
-        The `datetime.datetime` equivalent to the `net_time_point`.
+        The `dt.datetime` equivalent to the `net_time_point`.
     """
     if net_time_point.Kind == DateTimeKind.Utc:
-        return datetime.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                                 net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                                 net_time_point.Millisecond * 1000, duz.UTC)
+        return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                           net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                           net_time_point.Millisecond * 1000, duz.UTC)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
         raise NetQuantityUnspecifiedDateTimeKindError(net_time_point)
@@ -300,17 +300,24 @@ def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQua
     return result
 
 
-def as_net_date_time(time_point: datetime.datetime) -> DateTime:
+def as_net_date_time(time_point: dt.datetime) -> DateTime:
     """
-    Convert a `datetime.datetime` instance to a .NET `DateTime` instance.
+    Convert a `dt.datetime` instance to a .NET `DateTime` instance.
 
     Args:
-        time_point: The `datetime.datetime` instance to covert.
+        time_point: The `dt.datetime` instance to covert.
 
     Returns:
         The equivalent .NET `DateTime` instance.
     """
-    if time_point.tzinfo != duz.UTC:
+    # TODO: Consider using the zulu package
+    # Research using the [zulu package](https://zulu.readthedocs.io/en/latest/). This package is "a drop-in
+    # replacement for native datetimes that embraces UTC."
+    #
+    # Much to my surprise, the `dateutil` and standard Python libraries have two **different** values for a
+    # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
+    # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
+    if time_point.tzinfo != duz.UTC and time_point.tzinfo != dt.timezone.utc:
         raise NetQuantityNoTzInfoError(time_point)
 
     return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
