@@ -18,7 +18,10 @@ import unittest
 from hamcrest import assert_that, calling, equal_to, raises
 import dateutil.tz as duz
 
-from orchid import net_date_time as ndt
+from orchid import (
+    measurement as om,
+    net_date_time as ndt,
+)
 
 from tests import (
     custom_matchers as tcm,
@@ -34,10 +37,11 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_as_datetime_net_time_point_kind_utc(self):
-        net_time_point = DateTime(2020, 8, 5, 6, 59, 41, 726, DateTimeKind.Utc)
-        actual = ndt.as_datetime(net_time_point)
+        time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, 726 * om.registry.milliseconds,
+                                              ndt.TimePointTimeZoneKind.UTC)
+        actual = ndt.as_datetime(stub_dt.make_net_date_time(time_point_dto))
 
-        assert_that(actual, equal_to(datetime.datetime(2020, 8, 5, 6, 59, 41, 726000, tzinfo=duz.UTC)))
+        assert_that(actual, equal_to(stub_dt.make_datetime(time_point_dto)))
 
     def test_as_datetime_net_time_point_kind_local(self):
         net_time_point = DateTime(2024, 11, 24, 18, 56, 35, 45, DateTimeKind.Local)

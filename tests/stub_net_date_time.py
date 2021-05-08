@@ -13,7 +13,28 @@
 #
 
 import enum
-from datetime import datetime, timedelta
+import datetime as dt
+from collections import namedtuple
+
+import dateutil.tz as duz
+import toolz.curried as toolz
+
+from orchid import (
+    measurement as om,
+    net_date_time as ndt,
+)
+
+# noinspection PyUnresolvedReferences
+from System import Int32, DateTime, DateTimeKind
+
+
+TimePointDto = namedtuple('TimePointDto', ['year', 'month', 'day',
+                                           'hour', 'minute', 'second',
+                                           # The fractional seconds (a `pint` measurement) and the "kind" of
+                                           # time zone (UTC, local or unspecified).
+                                           'fractional', 'kind'],
+                          # Default to 0 microseconds and UTC for time zone.
+                          defaults=[0 * om.registry.microsecond, ndt.TimePointTimeZoneKind.UTC])
 
 
 # noinspection PyPep8Naming
@@ -70,3 +91,60 @@ class StubDateTimeKind(enum.IntEnum):
     UTC = 1,
     LOCAL = 2,
     INVALID = -999999999,  # most likely not a match to any DateTimeKind member.
+
+
+def make_net_date_time(time_point_dto: TimePointDto) -> DateTime:
+    """
+    Construct a .NET `DateTime` instance from a `TimePointDto` instance.
+
+    Args:
+        time_point_dto: The `TimePointDto` instance used to construct the .NET `DateTime` instance.
+
+    Returns:
+        The .NET `DateTime` equivalent to `time_point_dto`.
+    """
+    # Python.NET converts .NET `Enum` members to Python `ints`. Although this conversion works and is
+    # typically convenient, it leads to errors
+    # result = DateTime.Overloads[Int32, Int32, Int32,
+    #                             Int32, Int32, Int32,
+    #                             Int32, DateTimeKind](time_point_dto.year, time_point_dto.month, time_point_dto.day,
+    #                                                  time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
+    #                                                  time_point_dto.fractional.to(om.registry.milliseconds),
+    #                                                  time_point_dto.kind)
+    result = DateTime(time_point_dto.year, time_point_dto.month, time_point_dto.day,
+                      time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
+                      int(time_point_dto.fractional.to(om.registry.milliseconds).magnitude),
+                      time_point_dto.kind.value)
+
+    return result
+
+
+def make_datetime(time_point_dto: TimePointDto) -> dt.datetime:
+    """
+    Constructs a `datetime` instance from a `TimePointDto` instance.
+
+    This method is mostly for convenience.
+
+    Args:
+        time_point_dto: The instance from which to construct the `datetime` instance.
+
+    Returns:
+        The `datetime` instance equivalent to `time_point_dto`.
+    """
+
+    result = dt.datetime(time_point_dto.year, time_point_dto.month, time_point_dto.day,
+                         time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
+                         int(time_point_dto.fractional.to(om.registry.microseconds).magnitude),
+                         _kind_to_tzinfo(time_point_dto.kind.value))
+    return result
+
+
+_KIND_TO_TZINFO = {
+    ndt.TimePointTimeZoneKind.UTC: dt.timezone.utc,
+    ndt.TimePointTimeZoneKind.LOCAL: duz.tzlocal(),
+    ndt.TimePointTimeZoneKind.UNSPECIFIED: None,
+}
+
+
+def _kind_to_tzinfo(to_convert: int) -> dt.tzinfo:
+    return toolz.get(ndt.TimePointTimeZoneKind(to_convert), _KIND_TO_TZINFO)

@@ -32,9 +32,9 @@ class TimePointTimeZoneKind(enum.Enum):
     the .NET `Enum`. (See
     [DateTimeKind](https://docs.microsoft.com/en-us/dotnet/api/system.datetimekind?view=net-5.0) for details).
     """
-    UTC = DateTimeKind.Utc,  # Time zone is UTC
-    LOCAL = DateTimeKind.Local,  # Time zone is specified to be local
-    UNSPECIFIED = DateTimeKind.Unspecified,  # Time zone is unspecified
+    UTC = DateTimeKind.Utc  # Time zone is UTC
+    LOCAL = DateTimeKind.Local  # Time zone is specified to be local
+    UNSPECIFIED = DateTimeKind.Unspecified  # Time zone is unspecified
 
 
 class NetQuantityTimeZoneError(ValueError):
