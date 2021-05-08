@@ -22,7 +22,7 @@ from orchid import net_date_time as ndt
 
 from tests import (
     custom_matchers as tcm,
-    stub_net as tsn,
+    stub_net_date_time as stub_dt,
 )
 
 # noinspection PyUnresolvedReferences
@@ -46,14 +46,14 @@ class TestNetDateTime(unittest.TestCase):
                     raises(ndt.NetQuantityLocalDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
-        net_time_point = tsn.StubDateTime(2023, 7, 31, 1, 11, 26, 216, tsn.StubDateTimeKind.UNSPECIFIED)
+        net_time_point = stub_dt.StubNetDateTime(2023, 7, 31, 1, 11, 26, 216, stub_dt.StubDateTimeKind.UNSPECIFIED)
         expected_error_message = f'{net_time_point.ToString("O")}'
         assert_that(calling(ndt.as_datetime).with_args(net_time_point),
                     raises(ndt.NetQuantityUnspecifiedDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unknown_throws_exception(self):
-        net_time_point = tsn.StubDateTime(2019, 2, 10, 9, 36, 36, 914, tsn.StubDateTimeKind.INVALID)
-        expected_error_pattern = f'Unknown .NET DateTime.Kind, {tsn.StubDateTimeKind.INVALID}.'
+        net_time_point = stub_dt.StubNetDateTime(2019, 2, 10, 9, 36, 36, 914, stub_dt.StubDateTimeKind.INVALID)
+        expected_error_pattern = f'Unknown .NET DateTime.Kind, {stub_dt.StubDateTimeKind.INVALID}.'
         assert_that(calling(ndt.as_datetime).with_args(net_time_point),
                     raises(ValueError, pattern=expected_error_pattern))
 

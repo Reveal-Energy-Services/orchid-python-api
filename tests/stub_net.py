@@ -23,7 +23,6 @@ properties required during testing but do not actually implement the .NET class 
 
 from collections import namedtuple
 from datetime import datetime, timedelta
-import enum
 import itertools
 import unittest.mock
 from typing import Sequence
@@ -38,7 +37,10 @@ from orchid import (
     unit_system as units,
 )
 
-from tests import stub_net_data_table
+from tests import (
+    stub_net_data_table as stub_ndt,
+    stub_net_date_time as stub_dt,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IMonitor,
@@ -77,83 +79,17 @@ make_measurement_dto = toolz.flip(MeasurementDto)
 argument and providing the magnitude later."""
 
 
-# noinspection PyPep8Naming
-class StubDateTime:
-    def __init__(self, year, month, day, hour, minute, second, millisecond, kind):
-        self._year = year
-        self._month = month
-        self._day = day
-        self._hour = hour
-        self._minute = minute
-        self._second = second
-        self._millisecond = millisecond
-        self._kind = kind
-
-    @property
-    def Year(self):
-        return self._year
-
-    @property
-    def Month(self):
-        return self._month
-
-    @property
-    def Day(self):
-        return self._day
-
-    @property
-    def Hour(self):
-        return self._hour
-
-    @property
-    def Minute(self):
-        return self._minute
-
-    @property
-    def Second(self):
-        return self._second
-
-    @property
-    def Millisecond(self):
-        return self._millisecond
-
-    @property
-    def Kind(self):
-        return self._kind
-
-    def ToString(self, _format):
-        return f'{self.Year}-{self.Month:02}-{self.Day:02}T{self.Hour:02}:{self.Minute:02}:{self.Second:02}' \
-               f'.000{self.Millisecond}K{self.Kind}'
-
-
-class StubDateTimeKind(enum.IntEnum):
-    UNSPECIFIED = 0,
-    UTC = 1,
-    LOCAL = 2,
-    INVALID = -999999999,  # most likely not a match to any DateTimeKind member.
-
-
 class StubNetSample:
     def __init__(self, time_point: datetime, value: float):
         # I chose to use capitalized names for compatability with .NET
         if time_point.tzinfo != dateutil.tz.UTC:
             raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
 
-        self.Timestamp = StubDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                      time_point.minute, time_point.second,
-                                      ndt.microseconds_to_integral_milliseconds(time_point.microsecond),
-                                      StubDateTimeKind.UTC)
+        self.Timestamp = stub_dt.StubNetDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
+                                                 time_point.minute, time_point.second,
+                                                 ndt.microseconds_to_integral_milliseconds(time_point.microsecond),
+                                                 stub_dt.StubDateTimeKind.UTC)
         self.Value = value
-
-
-def create_30_second_time_points(start_time_point: datetime, count: int):
-    """
-    Create a sequence of `count` time points, 30-seconds apart.
-    :param start_time_point: The starting time point of the sequence.
-    :param count: The number of time points in the sequence.
-    :return: The sequence of time points.
-    """
-    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
 
 
 def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Sequence[StubNetSample]:
@@ -169,6 +105,16 @@ def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Se
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
     return samples
+
+
+def create_30_second_time_points(start_time_point: datetime, count: int):
+    """
+    Create a sequence of `count` time points, 30-seconds apart.
+    :param start_time_point: The starting time point of the sequence.
+    :param count: The number of time points in the sequence.
+    :return: The sequence of time points.
+    """
+    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
 
 
 class StubNetTreatmentCurve:
@@ -257,7 +203,7 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
         result.ObjectId = Guid(object_id)
 
     if table_data_dto is not None:
-        result.DataTable = stub_net_data_table.populate_data_table(table_data_dto)
+        result.DataTable = stub_ndt.populate_data_table(table_data_dto)
 
     return result
 

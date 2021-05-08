@@ -17,11 +17,24 @@ Functions to convert between .NET `DateTime` instances and Python `datetime.date
 """
 
 import datetime as dt
+import enum
 
 from dateutil import tz as duz
 
 # noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind
+
+
+class TimePointTimeZoneKind(enum.Enum):
+    """Models the kind of time point.
+
+    This class eases conversions to the .NET `DateTime` class by providing Python with similar capabilities as
+    the .NET `Enum`. (See
+    [DateTimeKind](https://docs.microsoft.com/en-us/dotnet/api/system.datetimekind?view=net-5.0) for details).
+    """
+    UTC = DateTimeKind.Utc,  # Time zone is UTC
+    LOCAL = DateTimeKind.Local,  # Time zone is specified to be local
+    UNSPECIFIED = DateTimeKind.Unspecified,  # Time zone is unspecified
 
 
 class NetQuantityTimeZoneError(ValueError):
