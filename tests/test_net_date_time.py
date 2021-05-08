@@ -44,13 +44,17 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(actual, equal_to(stub_dt.make_datetime(time_point_dto)))
 
     def test_as_datetime_net_time_point_kind_local(self):
-        net_time_point = DateTime(2024, 11, 24, 18, 56, 35, 45, DateTimeKind.Local)
+        time_point_dto = stub_dt.TimePointDto(2024, 11, 24, 18, 56, 35, 45 * om.registry.milliseconds,
+                                              ndt.TimePointTimeZoneKind.LOCAL)
+        net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}.'
         assert_that(calling(ndt.as_datetime).with_args(net_time_point),
                     raises(ndt.NetQuantityLocalDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
-        net_time_point = stub_dt.StubNetDateTime(2023, 7, 31, 1, 11, 26, 216, stub_dt.StubDateTimeKind.UNSPECIFIED)
+        time_point_dto = stub_dt.TimePointDto(2023, 7, 31, 1, 11, 26, 216 * om.registry.milliseconds,
+                                              ndt.TimePointTimeZoneKind.UNSPECIFIED)
+        net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}'
         assert_that(calling(ndt.as_datetime).with_args(net_time_point),
                     raises(ndt.NetQuantityUnspecifiedDateTimeKindError, pattern=expected_error_message))
