@@ -16,7 +16,7 @@ import datetime
 import unittest
 
 from hamcrest import assert_that, calling, equal_to, raises
-import dateutil.tz as duz
+import dateutil.parser as dup
 
 from orchid import (
     measurement as om,
@@ -86,6 +86,14 @@ class TestNetDateTime(unittest.TestCase):
             with self.subTest(f'Test as_net_date_time for {expected.ToString("o")}'):
                 actual = ndt.as_net_date_time(stub_dt.make_datetime(time_point))
                 assert_that(actual, tcm.equal_to_net_date_time(expected))
+
+    def test_as_net_date_time_from_parsed_time_is_correct(self):
+        parsed_date_time = dup.parse("2025-12-16T23:19:56.095891Z")
+        expected_dto = stub_dt.TimePointDto(2025, 12, 16, 23, 19, 56,
+                                            95891 * om.registry.microseconds, ndt.TimePointTimeZoneKind.UTC)
+
+        expected = stub_dt.make_net_date_time(expected_dto)
+        assert_that(ndt.as_net_date_time(parsed_date_time), tcm.equal_to_net_date_time(expected))
 
     def test_as_net_date_time_raises_error_if_not_utc(self):
         to_test_datetime = datetime.datetime(2025, 12, 21, 9, 15, 7, 896671)
