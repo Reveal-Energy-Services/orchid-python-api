@@ -37,14 +37,14 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_as_datetime_net_time_point_kind_utc(self):
-        time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, 726 * om.registry.milliseconds,
+        time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, stub_dt.make_milliseconds(726 ),
                                               ndt.TimePointTimeZoneKind.UTC)
         actual = ndt.as_datetime(stub_dt.make_net_date_time(time_point_dto))
 
         assert_that(actual, equal_to(stub_dt.make_datetime(time_point_dto)))
 
     def test_as_datetime_net_time_point_kind_local(self):
-        time_point_dto = stub_dt.TimePointDto(2024, 11, 24, 18, 56, 35, 45 * om.registry.milliseconds,
+        time_point_dto = stub_dt.TimePointDto(2024, 11, 24, 18, 56, 35, stub_dt.make_milliseconds(45),
                                               ndt.TimePointTimeZoneKind.LOCAL)
         net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}.'
@@ -52,7 +52,7 @@ class TestNetDateTime(unittest.TestCase):
                     raises(ndt.NetQuantityLocalDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
-        time_point_dto = stub_dt.TimePointDto(2023, 7, 31, 1, 11, 26, 216 * om.registry.milliseconds,
+        time_point_dto = stub_dt.TimePointDto(2023, 7, 31, 1, 11, 26, stub_dt.make_milliseconds(216),
                                               ndt.TimePointTimeZoneKind.UNSPECIFIED)
         net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}'

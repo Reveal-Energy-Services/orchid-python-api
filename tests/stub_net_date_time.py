@@ -13,8 +13,9 @@
 #
 
 import enum
-import datetime as dt
 from collections import namedtuple
+import datetime as dt
+from numbers import Real
 
 import dateutil.tz as duz
 import toolz.curried as toolz
@@ -91,6 +92,18 @@ class StubDateTimeKind(enum.IntEnum):
     UTC = 1,
     LOCAL = 2,
     INVALID = -999999999,  # most likely not a match to any DateTimeKind member.
+
+
+def make_milliseconds(magnitude: Real) -> om.Quantity:
+    """
+    Make a `pint` `Quantity` with the specified magnitude and `millisecond` unit.
+    Args:
+        magnitude: The magnitude of the measurement
+
+    Returns:
+        The `pint` `Quantity`.
+    """
+    return magnitude * om.registry.milliseconds
 
 
 def make_net_date_time(time_point_dto: TimePointDto) -> DateTime:
