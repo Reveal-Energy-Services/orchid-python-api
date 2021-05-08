@@ -27,6 +27,7 @@ from orchid import (
     measurement as om,
     native_subsurface_point as nsp,
     native_treatment_curve_adapter as ntc,
+    net_date_time as ndt,
     net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
@@ -112,8 +113,10 @@ class NativeStageAdapter(dna.DotNetAdapter):
                                                    'The order in which this stage was completed on its well')
     stage_type = dna.transformed_dom_property('stage_type', 'The formation connection type of this stage',
                                               as_connection_type)
-    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment', onq.as_datetime)
-    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment', onq.as_datetime)
+    start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment',
+                                              ndt.as_datetime)
+    stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment',
+                                             ndt.as_datetime)
 
     @property
     def isip(self) -> om.Quantity:

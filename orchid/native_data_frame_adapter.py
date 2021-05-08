@@ -20,7 +20,7 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    net_quantity as onq,
+    net_date_time as ndt,
 )
 
 # noinspection PyUnresolvedReferences
@@ -113,7 +113,7 @@ def _table_row_to_dict(reader):
 
         try:
             if str(value.GetType()) == 'System.DateTime':
-                return onq.as_datetime(value)
+                return ndt.as_datetime(value)
         except AttributeError:
             # Not a .NET type so simply return it
             return value

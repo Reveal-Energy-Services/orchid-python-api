@@ -18,12 +18,11 @@ import uuid
 
 import dateutil.tz
 import deal
-from hamcrest import assert_that, equal_to, calling, raises, close_to, is_, none, not_none
-import option
+from hamcrest import assert_that, equal_to, calling, raises, close_to, is_
 
 from orchid import (
     dot_net_dom_access as dna,
-    net_quantity as onq,
+    net_date_time as ndt,
     unit_system as units,
 )
 
@@ -37,7 +36,7 @@ def increment(n):
 
 class StubDomObject(dna.DotNetAdapter):
     stub_property = dna.dom_property('stub_property', '')
-    stub_date_time = dna.transformed_dom_property('stub_date_time', '', onq.as_datetime)
+    stub_date_time = dna.transformed_dom_property('stub_date_time', '', ndt.as_datetime)
     stub_transformed_iterator = dna.transformed_dom_property_iterator('stub_transformed_iterator', '', increment)
 
 

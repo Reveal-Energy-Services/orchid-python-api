@@ -15,10 +15,10 @@
 
 import datetime as dt
 
-import orchid
-
 import option
 import toolz.curried as toolz
+
+from orchid import net_date_time as ndt
 
 # noinspection PyUnresolvedReferences
 from System import DateTime, DBNull, Type
@@ -27,6 +27,8 @@ from System.Data import DataTable, DataColumn
 
 
 # The `dump_xxx` and `format_yyy` functions are diagnostic tools.
+
+
 def dump_table(data_table):
     if len(data_table.Columns) == 0 and len(data_table.Rows) == 0:
         print('Empty data table')
@@ -224,7 +226,7 @@ def make_data_table_row(row_data, data_table):
             data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
         else:
             # noinspection PyUnresolvedReferences
-            data_table_row[net_column_name] = perhaps_cell_value.map_or(orchid.net_quantity.as_net_date_time,
+            data_table_row[net_column_name] = perhaps_cell_value.map_or(ndt.as_net_date_time,
                                                                         DBNull.Value)
     return data_table_row
 

@@ -18,6 +18,7 @@ from typing import Callable
 
 from orchid import (
     project_loader as loader,
+    net_date_time as ndt,
     net_quantity as onq,
     physical_quantity as opq,
 )
@@ -72,8 +73,8 @@ def median_treating_pressure(stage: IStage, start: DateTime, stop: DateTime):
     """
     def median_treatment_pressure_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetMedianTreatmentPressure(for_stage.dom_object,
-                                                                     onq.as_net_date_time(start_time),
-                                                                     onq.as_net_date_time(stop_time))
+                                                                     ndt.as_net_date_time(start_time),
+                                                                     ndt.as_net_date_time(stop_time))
         return calculation_result
 
     result = perform_calculation(median_treatment_pressure_calculation,
@@ -95,8 +96,8 @@ def pumped_fluid_volume(stage: IStage, start: DateTime, stop: DateTime):
     """
 
     def pumped_fluid_volume_calculation(calculations, for_stage, start_time, stop_time):
-        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object, onq.as_net_date_time(start_time),
-                                                          onq.as_net_date_time(stop_time))
+        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object, ndt.as_net_date_time(start_time),
+                                                          ndt.as_net_date_time(stop_time))
         return calculation_result
 
     result = perform_calculation(pumped_fluid_volume_calculation, stage, start, stop, opq.PhysicalQuantity.VOLUME)
@@ -117,8 +118,8 @@ def total_proppant_mass(stage: IStage, start: DateTime, stop: DateTime):
     """
     def total_proppant_mass_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetTotalProppantMass(for_stage.dom_object,
-                                                               onq.as_net_date_time(start_time),
-                                                               onq.as_net_date_time(stop_time))
+                                                               ndt.as_net_date_time(start_time),
+                                                               ndt.as_net_date_time(stop_time))
         return calculation_result
 
     result = perform_calculation(total_proppant_mass_calculation, stage, start, stop, opq.PhysicalQuantity.MASS)

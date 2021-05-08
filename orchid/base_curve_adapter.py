@@ -20,7 +20,7 @@ import pandas as pd
 
 from orchid import (
     dot_net_dom_access as dna,
-    net_quantity as onq,
+    net_date_time as ndt,
     unit_system as units,
 )
 
@@ -81,6 +81,6 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         """
         # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self.dom_object.GetOrderedTimeSeriesHistory()))
-        result = pd.Series(data=map(lambda s: s[1], samples), index=map(onq.as_datetime, map(lambda s: s[0], samples)),
+        result = pd.Series(data=map(lambda s: s[1], samples), index=map(ndt.as_datetime, map(lambda s: s[0], samples)),
                            name=self.name)
         return result
