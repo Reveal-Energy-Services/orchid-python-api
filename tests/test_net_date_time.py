@@ -66,23 +66,25 @@ class TestNetDateTime(unittest.TestCase):
                     raises(ValueError, pattern=expected_error_pattern))
 
     def test_as_net_date_time(self):
-        for expected, time_point in [(DateTime(2017, 3, 22, 3, 0, 37, 23, DateTimeKind.Utc),
-                                      datetime.datetime(2017, 3, 22, 3, 0, 37, 23124, duz.UTC)),
-                                     (DateTime(2020, 9, 20, 22, 11, 51, 655, DateTimeKind.Utc),
-                                      datetime.datetime(2020, 9, 20, 22, 11, 51, 654859, duz.UTC)),
-                                     # The Python `round` function employs "half-even" rounding; however, the
-                                     # following test rounds to an *odd* value instead. See the "Note" in the
-                                     # Python documentation of `round` for an explanation of this (unexpected)
-                                     # behavior.
-                                     (DateTime(2022, 2, 2, 23, 35, 39, 979, DateTimeKind.Utc),
-                                      datetime.datetime(2022, 2, 2, 23, 35, 39, 978531, duz.UTC)),
-                                     (DateTime(2019, 2, 7, 10, 18, 17, 488, DateTimeKind.Utc),
-                                      datetime.datetime(2019, 2, 7, 10, 18, 17, 487500, duz.UTC)),
-                                     (DateTime(2022, 1, 14, 20, 29, 18, 852, DateTimeKind.Utc),
-                                      datetime.datetime(2022, 1, 14, 20, 29, 18, 852500, duz.UTC))
-                                     ]:
-            with self.subTest(f'Test as_net_date_time for {expected}'):
-                actual = ndt.as_net_date_time(time_point)
+        for time_point in [
+            stub_dt.TimePointDto(2017, 3, 22, 3, 0, 37,
+                                 stub_dt.make_microseconds(23124), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2020, 9, 20, 22, 11, 51,
+                                 stub_dt.make_microseconds(654859), ndt.TimePointTimeZoneKind.UTC),
+            # The Python `round` function employs "half-even" rounding; however, the
+            # following test rounds to an *odd* value instead. See the "Note" in the
+            # Python documentation of `round` for an explanation of this (unexpected)
+            # behavior.
+            stub_dt.TimePointDto(2022, 2, 2, 23, 35, 39,
+                                 stub_dt.make_microseconds(978531), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2019, 2, 7, 10, 18, 17,
+                                 stub_dt.make_microseconds(487500), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2022, 1, 14, 20, 29, 18,
+                                 stub_dt.make_microseconds(852500), ndt.TimePointTimeZoneKind.UTC),
+        ]:
+            expected = stub_dt.make_net_date_time(time_point)
+            with self.subTest(f'Test as_net_date_time for {expected.ToString("o")}'):
+                actual = ndt.as_net_date_time(stub_dt.make_datetime(time_point))
                 assert_that(actual, tcm.equal_to_net_date_time(expected))
 
     def test_as_net_date_time_raises_error_if_not_utc(self):
