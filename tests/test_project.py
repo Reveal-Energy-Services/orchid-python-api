@@ -71,6 +71,28 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
+    def test_data_frames(self):
+        for data_frame_names in [[], ['circumspectus'], ['omne', 'grandiloquum', 'gerent']]:
+            with self.subTest(f'Verify correct number of data_frames: {data_frame_names}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                sut = create_sut(stub_native_project)
+
+                assert_that(len(list(sut.data_frames())), equal_to(len(data_frame_names)))
+                to_test_names = set(toolz.map(lambda df: df.name, sut.data_frames()))
+                assert_that(to_test_names, equal_to(set(data_frame_names)))
+
+    def test_data_frames_by_name_returns_matches_with_requested_name(self):
+        for data_frame_names, name_to_match, match_count in [(['vicis'], 'vici', 0),
+                                                             (['rosae'], 'rosae', 1),
+                                                             (['diluit'] * 2, 'diluit', 2)]:
+            with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                sut = create_sut(stub_native_project)
+
+                matching_data_frame_names = list(toolz.map(lambda df: df.name,
+                                                           sut.data_frames_by_name(name_to_match)))
+                assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
+
     def test_default_well_colors_if_no_default_well_colors(self):
         stub_native_project = tsn.create_stub_net_project(name='exsistet')
         sut = create_sut(stub_native_project)
@@ -84,8 +106,8 @@ class TestProject(unittest.TestCase):
 
     def test_default_well_colors_if_many_default_well_colors(self):
         expected_default_well_colors = [(0.610, 0.779, 0.675), (0.758, 0.982, 0.720), (0.297, 0.763, 0.388)]
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', default_well_colors=[list(t) for t in
-                                                                                                expected_default_well_colors])
+        stub_native_project = tsn.create_stub_net_project(
+            name='exsistet', default_well_colors=[list(t) for t in expected_default_well_colors])
         sut = create_sut(stub_native_project)
         # noinspection PyTypeChecker
         assert_that(sut.default_well_colors(), contains_exactly(*expected_default_well_colors))

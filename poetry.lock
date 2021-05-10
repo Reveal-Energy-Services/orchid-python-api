@@ -851,6 +851,14 @@ python-versions = ">=3.7"
 version = "1.20.2"
 
 [[package]]
+category = "main"
+description = "Rust like Option and Result types in Python"
+name = "option"
+optional = false
+python-versions = ">=3.6"
+version = "1.0.3"
+
+[[package]]
 category = "dev"
 description = "Ordered Multivalue Dictionary"
 name = "orderedmultidict"
@@ -1102,7 +1110,7 @@ wcwidth = "*"
 [[package]]
 category = "main"
 description = "Run a subprocess in a pseudo terminal"
-marker = "sys_platform != \"win32\" or os_name != \"nt\" or python_version >= \"3.3\" and sys_platform != \"win32\""
+marker = "python_version >= \"3.3\" and sys_platform != \"win32\" or sys_platform != \"win32\" or os_name != \"nt\" or python_version >= \"3.3\" and sys_platform != \"win32\" and (python_version >= \"3.3\" and sys_platform != \"win32\" or sys_platform != \"win32\")"
 name = "ptyprocess"
 optional = false
 python-versions = "*"
@@ -1707,7 +1715,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "119393f3fd01bafc41bc3c2b2d3572f234435965dac14c9c8eb51f44edd604e5"
+content-hash = "a050633f1268cab9890312ddd311f2efcff93d71b05c17f84d512d0f3d081305"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -2135,6 +2143,10 @@ numpy = [
     {file = "numpy-1.20.2-cp39-cp39-win_amd64.whl", hash = "sha256:924dc3f83de20437de95a73516f36e09918e9c9c18d5eac520062c49191025fb"},
     {file = "numpy-1.20.2-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:97ce8b8ace7d3b9288d88177e66ee75480fb79b9cf745e91ecfe65d91a856042"},
     {file = "numpy-1.20.2.zip", hash = "sha256:878922bf5ad7550aa044aa9301d417e2d3ae50f0f577de92051d739ac6096cee"},
+]
+option = [
+    {file = "option-1.0.3-py3-none-any.whl", hash = "sha256:0845c19ac2a5292dcdda63b7e0d73628715fd522330be7411a3596671e75d26e"},
+    {file = "option-1.0.3.tar.gz", hash = "sha256:16f10b7d74c8bf5da8530c6c27a3c37db30ebe9dc7e22830d2eb552909ab1415"},
 ]
 orderedmultidict = [
     {file = "orderedmultidict-1.0.1-py2.py3-none-any.whl", hash = "sha256:43c839a17ee3cdd62234c47deca1a8508a3f2ca1d0678a3bf791c87cf84adbf3"},

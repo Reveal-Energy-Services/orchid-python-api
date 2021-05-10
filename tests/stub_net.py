@@ -23,7 +23,6 @@ properties required during testing but do not actually implement the .NET class 
 
 from collections import namedtuple
 from datetime import datetime, timedelta
-import enum
 import itertools
 import unittest.mock
 from typing import Sequence
@@ -33,27 +32,37 @@ import toolz.curried as toolz
 
 from orchid import (
     native_treatment_curve_adapter as ontc,
+    net_date_time as ndt,
     net_quantity as onq,
     unit_system as units,
+)
+
+from tests import (
+    stub_net_data_table as stub_ndt,
+    stub_net_date_time as stub_dt,
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IMonitor,
                                         IProject,
                                         IPlottingSettings,
-                                        IWell,
                                         IStage,
                                         ISubsurfacePoint,
+                                        IWell,
                                         IWellTrajectory,
                                         UnitSystem)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.DataFrames import IStaticDataFrame
+# noinspection PyUnresolvedReferences,PyPackageRequirementsk
 from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
-from System import Array
+from System import Array, Guid, Type
+# noinspection PyUnresolvedReferences
+from System.Data import DataColumn, DataTable
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
@@ -62,67 +71,12 @@ StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
 StubWellHeadLocation = namedtuple('StubWellHeadLocation', ['easting', 'northing', 'depth'])
+TableDataDto = namedtuple('TableDataDto', ['column_types', 'table_data', 'rename_column_func'])
 
 
 make_measurement_dto = toolz.flip(MeasurementDto)
 """This callable creates instances of `MeasurementDto` allowing a caller to supply a single unit as the first
 argument and providing the magnitude later."""
-
-
-# noinspection PyPep8Naming
-class StubDateTime:
-    def __init__(self, year, month, day, hour, minute, second, millisecond, kind):
-        self._year = year
-        self._month = month
-        self._day = day
-        self._hour = hour
-        self._minute = minute
-        self._second = second
-        self._millisecond = millisecond
-        self._kind = kind
-
-    @property
-    def Year(self):
-        return self._year
-
-    @property
-    def Month(self):
-        return self._month
-
-    @property
-    def Day(self):
-        return self._day
-
-    @property
-    def Hour(self):
-        return self._hour
-
-    @property
-    def Minute(self):
-        return self._minute
-
-    @property
-    def Second(self):
-        return self._second
-
-    @property
-    def Millisecond(self):
-        return self._millisecond
-
-    @property
-    def Kind(self):
-        return self._kind
-
-    def ToString(self, _format):
-        return f'{self.Year}-{self.Month:02}-{self.Day:02}T{self.Hour:02}:{self.Minute:02}:{self.Second:02}' \
-               f'.000{self.Millisecond}K{self.Kind}'
-
-
-class StubDateTimeKind(enum.IntEnum):
-    UNSPECIFIED = 0,
-    UTC = 1,
-    LOCAL = 2,
-    INVALID = -999999999,  # most likely not a match to any DateTimeKind member.
 
 
 class StubNetSample:
@@ -131,21 +85,11 @@ class StubNetSample:
         if time_point.tzinfo != dateutil.tz.UTC:
             raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
 
-        self.Timestamp = StubDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                      time_point.minute, time_point.second,
-                                      onq.microseconds_to_integral_milliseconds(time_point.microsecond),
-                                      StubDateTimeKind.UTC)
+        self.Timestamp = stub_dt.StubNetDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
+                                                 time_point.minute, time_point.second,
+                                                 ndt.microseconds_to_integral_milliseconds(time_point.microsecond),
+                                                 stub_dt.StubDateTimeKind.UTC)
         self.Value = value
-
-
-def create_30_second_time_points(start_time_point: datetime, count: int):
-    """
-    Create a sequence of `count` time points, 30-seconds apart.
-    :param start_time_point: The starting time point of the sequence.
-    :param count: The number of time points in the sequence.
-    :return: The sequence of time points.
-    """
-    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
 
 
 def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Sequence[StubNetSample]:
@@ -161,6 +105,16 @@ def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Se
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
     return samples
+
+
+def create_30_second_time_points(start_time_point: datetime, count: int):
+    """
+    Create a sequence of `count` time points, 30-seconds apart.
+    :param start_time_point: The starting time point of the sequence.
+    :param count: The number of time points in the sequence.
+    :return: The sequence of time points.
+    """
+    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
 
 
 class StubNetTreatmentCurve:
@@ -236,6 +190,24 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
+def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data_dto=None):
+    stub_net_data_frame_name = 'stub_net_data_frame'
+    try:
+        result = unittest.mock.MagicMock(name=stub_net_data_frame_name, spec=IStaticDataFrame)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_net_data_frame_name)
+
+    result.Name = name
+    result.DisplayName = display_name
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
+
+    if table_data_dto is not None:
+        result.DataTable = stub_ndt.populate_data_table(table_data_dto)
+
+    return result
+
+
 def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
                           stage_location_bottom=None, stage_location_cluster=None,
                           stage_location_center=None, stage_location_top=None,
@@ -269,9 +241,9 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
             result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',
                                                                  side_effect=stage_location_top)
     if start_time is not None:
-        result.StartTime = onq.as_net_date_time(start_time)
+        result.StartTime = ndt.as_net_date_time(start_time)
     if stop_time is not None:
-        result.StopTime = onq.as_net_date_time(stop_time)
+        result.StopTime = ndt.as_net_date_time(stop_time)
 
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
@@ -357,7 +329,7 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     if values_starting_at is not None:
         values, start_time_point = values_starting_at
         time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        samples = [StubSample(t, v) for (t, v) in zip(map(onq.as_net_date_time, time_points), values)]
+        samples = [StubSample(t, v) for (t, v) in zip(map(ndt.as_net_date_time, time_points), values)]
         stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
                                                                                        return_value=samples)
     if project is not None:
@@ -380,10 +352,10 @@ def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None)
         result.Name = name
 
     if start is not None:
-        result.StartTime = onq.as_net_date_time(start)
+        result.StartTime = ndt.as_net_date_time(start)
 
     if stop is not None:
-        result.StopTime = onq.as_net_date_time(stop)
+        result.StopTime = ndt.as_net_date_time(stop)
 
     return result
 
@@ -548,7 +520,7 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_display_names=None):
+                            curves_physical_quantities=None, monitor_display_names=(), data_frame_names=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -573,9 +545,11 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     if fluid_density is not None:
         stub_net_project.FluidDensity = make_net_measurement(fluid_density)
 
-    if monitor_display_names is not None:
-        stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
-                                           monitor_display_name in monitor_display_names]
+    stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
+                                       monitor_display_name in monitor_display_names]
+
+    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(name=data_frame_name) for
+                                         data_frame_name in data_frame_names]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)

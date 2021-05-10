@@ -19,6 +19,7 @@ import uuid
 from typing import Callable, Union
 
 import deal
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -166,7 +167,7 @@ class DotNetAdapter:
         return self._adaptee
 
     @property
-    def maybe_project_units(self) -> Union[units.UsOilfield, units.Metric]:
+    def expect_project_units(self) -> Union[units.UsOilfield, units.Metric]:
         """
         (PROTECTED) Return the `UnitSystem` appropriate the .NET `IProject` of this instance.
 
@@ -174,10 +175,34 @@ class DotNetAdapter:
         that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
 
         Returns:
-            The unit system, `units.UsOilfield` or `units.Metric`, for this instance. For some derived
-            classes, such as `BaseCurveAdapter`, the `IProject` cannot be determined. In those cases, I
-            return `None`.
+            A unit system - either `units.UsOilfield` or `units.Metric`.
+
+        Raises:
+            ValueError if the derived instances, for example, a `BaseCurveAdapter` is **not** associated with
+            an `IProject`.
         """
-        return (units.as_unit_system(self._net_project_callable().ProjectUnits)
+        return self._maybe_project_units.expect('Expected associated project')
+
+    @property
+    def _maybe_project_units(self) -> option.Option[Union[units.UsOilfield, units.Metric]]:
+        """
+        Return the `option.Option[UnitSystem]` appropriate the .NET `IProject` of this instance.
+
+        Although by naming convention, this property is "public," the author intends it to be "protected";
+        that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
+
+        Returns:
+            An `option.Option()` instance.
+
+            Some derived classes, such as 'NativeWellAdapter` and
+            `NativeDataFrame`, contain a `Project` property that returns the `IProject` of the .NET class.
+            For other derived classes, such as `BaseCurveAdapter`, the `IProject` cannot be determined. In the
+            former situation, an associated `IProject`, this method returns an
+            `option.Some[units.UsOilfield]` or an `option.Some[units.Metric]`. For the latter situation, no
+            associated `IProject`, this method returns `option.NONE`. The methods of the
+            [option.Option class](https://mat1g3r.github.io/option/option.html#module-option.option) allow
+            derived classes to process these two situations with less likelihood of an error.
+        """
+        return (option.Some(units.as_unit_system(self._net_project_callable().ProjectUnits))
                 if self._net_project_callable
-                else None)
+                else option.NONE)

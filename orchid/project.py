@@ -19,13 +19,15 @@ from collections import namedtuple
 from typing import List, Tuple, Iterable, Dict
 
 import deal
+import pandas as pd
 import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    native_well_adapter as nwa,
+    native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_monitor_curve_adapter as mca,
+    native_well_adapter as nwa,
     net_quantity as onq,
     unit_system as units,
 )
@@ -79,7 +81,29 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
+    def data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
+        """
+        Return a sequence of data frames for this project.
+
+        Returns:
+            An iterable of data frames.
+        """
+        result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
+                            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
+        return result
+
+    def data_frames_by_name(self, data_frame_name):
+        """
+        Return all project data frames named `data_frame_name`.
+
+        Args:
+            data_frame_name: The name of the data frame sought.
+        """
+        result = list(toolz.filter(lambda df: df.name == data_frame_name, self.data_frames()))
+        return result
+
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
+
         """
         Return a sequence of well time series for this project.
 

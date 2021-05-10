@@ -1,4 +1,4 @@
-#  Copyright 2017-2021 Reveal Energy Services, Inc 
+#  Copyright 2017-2021 Reveal Energy Services, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -31,7 +31,10 @@ import common_functions as cf
 FIELD_NAME_PATHNAME_MAP = {
     'Bakken': str(orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')),
     'Permian': str(orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')),
-    'Montney': str(orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac'))
+    'Montney': str(orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')),
+    'Permian-a': str(orchid.training_data_path().joinpath(
+        'Project-frankNstein_Permian_UTM13FT_0412_PjtDataFrame.ifrac')),
+    'GnG': str(orchid.training_data_path().joinpath('GnG_DemoProject_wDataFrames.ifrac')),
 }
 
 
