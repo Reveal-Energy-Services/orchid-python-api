@@ -138,12 +138,13 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     # Much to my surprise, the `dateutil` and standard Python libraries have two **different** values for a
     # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
     # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
-    if time_point.tzinfo != duz.UTC and time_point.tzinfo != dt.timezone.utc:
+    if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
         raise NetQuantityNoTzInfoError(time_point)
 
-    return DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                    time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
-                    DateTimeKind.Utc)
+    result = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
+                      time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
+                      DateTimeKind.Utc)
+    return result
 
 
 def microseconds_to_integral_milliseconds(to_convert: int) -> int:
