@@ -23,7 +23,7 @@ from orchid import net_date_time as ndt
 # noinspection PyUnresolvedReferences
 from System import DateTime, DBNull, Type
 # noinspection PyUnresolvedReferences
-from System.Data import DataTable, DataColumn
+from System.Data import DataColumn, DataSetDateTime, DataTable
 
 
 # The `dump_xxx` and `format_yyy` functions are diagnostic tools.
@@ -193,6 +193,8 @@ def make_data_table_column(net_column_name, net_column_type):
     new_column = DataColumn()
     new_column.ColumnName = net_column_name
     new_column.DataType = net_column_type
+    if is_net_date_time(new_column):
+        new_column.DateTimeMode = DataSetDateTime.Utc
     new_column.ReadOnly = True
     return new_column
 
@@ -225,9 +227,8 @@ def make_data_table_row(row_data, data_table):
         if not is_net_date_time(data_table.Columns[net_column_name]):
             data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
         else:
-            # noinspection PyUnresolvedReferences
-            data_table_row[net_column_name] = perhaps_cell_value.map_or(ndt.as_net_date_time,
-                                                                        DBNull.Value)
+            net_time_point = perhaps_cell_value.map_or(ndt.as_net_date_time, DBNull.Value)
+            data_table_row[net_column_name] = net_time_point
     return data_table_row
 
 
