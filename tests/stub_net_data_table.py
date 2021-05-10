@@ -77,13 +77,6 @@ def dump_rows(data_table):
         print(format_row(row_no, row, data_table.Columns))
 
 
-# def format_row(row_no, row, columns):
-#     result = (f'row {row_no: 4}'
-#               f' | {format_row_value(maybe_row_value(row[0]), columns[0]):8}'
-#               f' | {format_row_value(maybe_row_value(row[1]), columns[0]):8}'
-#               f' | {format_row_value(maybe_row_value(row[2]), columns[0]):12}'
-#               f' | {format_row_value(maybe_row_value(row[3]), columns[0]):32} |')
-#     return result
 def format_row(row_no, row, columns):
     prefix = f'row {row_no: 4}'
     suffix = ' |'
