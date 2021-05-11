@@ -74,7 +74,7 @@ class TestProject(unittest.TestCase):
     def test_data_frames(self):
         for data_frame_names in [[], ['circumspectus'], ['omne', 'grandiloquum', 'gerent']]:
             with self.subTest(f'Verify correct number of data_frames: {data_frame_names}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)
 
                 assert_that(len(list(sut.data_frames())), equal_to(len(data_frame_names)))
@@ -86,7 +86,7 @@ class TestProject(unittest.TestCase):
                                                              (['rosae'], 'rosae', 1),
                                                              (['diluit'] * 2, 'diluit', 2)]:
             with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)
 
                 matching_data_frame_names = list(toolz.map(lambda df: df.name,
