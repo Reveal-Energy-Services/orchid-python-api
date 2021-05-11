@@ -72,19 +72,27 @@ class TestProject(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
     def test_data_frames(self):
-        for data_frame_names in [[], ['circumspectus'], ['omne', 'grandiloquum', 'gerent']]:
+        for data_frame_names in [[],
+                                 [{'name': 'circumspectus'}],
+                                 [{'name': 'omne'}, {'name': 'grandiloquum'}, {'name': 'gerent'}]]:
             with self.subTest(f'Verify correct number of data_frames: {data_frame_names}'):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)
 
-                assert_that(len(list(sut.data_frames())), equal_to(len(data_frame_names)))
-                to_test_names = set(toolz.map(lambda df: df.name, sut.data_frames()))
-                assert_that(to_test_names, equal_to(set(data_frame_names)))
+                actual_data_frames = list(sut.data_frames())
+                assert_that(len(actual_data_frames), equal_to(len(data_frame_names)))
+                expected_names = toolz.pipe(
+                    data_frame_names,
+                    toolz.map(toolz.get('name')),
+                    list,
+                )
+                actual_names = [df.name for df in actual_data_frames]
+                assert_that(actual_names, equal_to(expected_names))
 
     def test_data_frames_by_name_returns_matches_with_requested_name(self):
-        for data_frame_names, name_to_match, match_count in [(['vicis'], 'vici', 0),
-                                                             (['rosae'], 'rosae', 1),
-                                                             (['diluit'] * 2, 'diluit', 2)]:
+        for data_frame_names, name_to_match, match_count in [([{'name': 'vicis'}], 'vici', 0),
+                                                             ([{'name': 'rosae'}], 'rosae', 1),
+                                                             ([{'name': 'diluit'}] * 2, 'diluit', 2)]:
             with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)

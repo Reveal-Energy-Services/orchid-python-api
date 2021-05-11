@@ -548,8 +548,8 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
                                        monitor_display_name in monitor_display_names]
 
-    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(name=data_frame_name) for
-                                         data_frame_name in data_frame_ids]
+    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_id) for
+                                         data_frame_id in data_frame_ids]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
