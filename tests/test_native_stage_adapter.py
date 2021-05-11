@@ -20,7 +20,6 @@ import decimal
 from datetime import datetime
 import unittest.mock
 
-import dateutil.tz as duz
 import deal
 from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, instance_of, calling, raises
 import toolz.curried as toolz
@@ -35,6 +34,7 @@ from orchid import (
 
 from tests import (
     custom_matchers as tcm,
+    stub_net_date_time as tdt,
     stub_net as tsn,
 )
 
@@ -350,7 +350,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual_stage_length, expected_stage_length, decimal.Decimal('1'))
 
     def test_start_time(self):
-        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, duz.UTC)
+        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, tdt.utc_time_zone())
         stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -358,7 +358,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         assert_that(actual_start_time, equal_to(expected_start_time))
 
     def test_stop_time(self):
-        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, duz.UTC)
+        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, tdt.utc_time_zone())
         stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
         sut = nsa.NativeStageAdapter(stub_net_stage)
 

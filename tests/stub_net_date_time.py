@@ -164,6 +164,16 @@ def make_datetime(time_point_dto: TimePointDto) -> dt.datetime:
     return result
 
 
+def utc_time_zone() -> dt.tzinfo:
+    """
+    Calculate the single instance of the UTC time zone.
+
+    Returns:
+        The single instance of the UTC time zone.
+    """
+    return duz.UTC
+
+
 _KIND_TO_TZINFO = {
     ndt.TimePointTimeZoneKind.UTC: dt.timezone.utc,
     ndt.TimePointTimeZoneKind.LOCAL: duz.tzlocal(),

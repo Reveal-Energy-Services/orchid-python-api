@@ -22,14 +22,16 @@ import unittest.mock
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
-import dateutil.tz as duz
 from hamcrest import assert_that, equal_to, has_entries
 
 from orchid import (
     native_treatment_curve_adapter as tca,
     unit_system as units,
 )
-from tests import (stub_net as tsn)
+from tests import (
+    stub_net_date_time as tdt,
+    stub_net as tsn,
+)
 
 
 class TestTreatmentCurveAdapter(unittest.TestCase):
@@ -89,7 +91,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
     def test_single_sample_time_series_from_curve_with_single_samples(self):
         values = [671.09]
-        start_time_point = datetime(2016, 2, 9, 4, 50, 39, 340000, tzinfo=duz.UTC)
+        start_time_point = datetime(2016, 2, 9, 4, 50, 39, 340000, tzinfo=tdt.utc_time_zone())
         sut = create_sut(name='palmis', values_starting_at=(values, start_time_point))
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
@@ -98,7 +100,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
-        start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000, tzinfo=duz.UTC)
+        start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000, tzinfo=tdt.utc_time_zone())
         sut = create_sut(name='clavis', values_starting_at=(values, start_time_point))
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]

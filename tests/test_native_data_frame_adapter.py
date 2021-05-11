@@ -16,10 +16,7 @@ import datetime as dt
 import unittest
 import uuid
 
-from dateutil import (
-    parser as dup,
-    tz as duz,
-)
+from dateutil import parser as dup
 from hamcrest import assert_that, equal_to
 import pandas as pd
 import pandas.testing as pdt
@@ -27,7 +24,10 @@ import toolz.curried as toolz
 
 from orchid import native_data_frame_adapter as dfa
 
-from tests import stub_net as tsn
+from tests import (
+    stub_net_date_time as tdt,
+    stub_net as tsn,
+)
 
 
 # Test ideas
@@ -176,13 +176,13 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 {
                     'vitis': None,
                     'controversum': -14.52,
-                    'indicis': dt.datetime(2018, 11, 20, 13, 36, 0, 331602, duz.UTC),
+                    'indicis': dt.datetime(2018, 11, 20, 13, 36, 0, 331602, tdt.utc_time_zone()),
                     'inane': -92,
                 },
                 {
                     'vitis': 'magistri',
                     'controversum': None,
-                    'indicis': dt.datetime(2021, 5, 2, 14, 21, 11, 0, duz.UTC),
+                    'indicis': dt.datetime(2021, 5, 2, 14, 21, 11, 0, tdt.utc_time_zone()),
                     'inane': 169,
                 },
                 {
@@ -194,7 +194,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 {
                     'vitis': 'profuit',
                     'controversum': -40.88,
-                    'indicis': dt.datetime(2021, 11, 13, 4, 2, 46, 651626, duz.UTC),
+                    'indicis': dt.datetime(2021, 11, 13, 4, 2, 46, 651626, tdt.utc_time_zone()),
                     'inane': None,
                 },
             ],
