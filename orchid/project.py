@@ -92,6 +92,16 @@ class Project(dna.DotNetAdapter):
                             toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
         return result
 
+    def data_frames_by_display_name(self, data_frame_display_name):
+        """
+        Return all project data frames with `display_name`, `data_frame_name`.
+
+        Args:
+            data_frame_display_name: The display name of the data frame sought.
+        """
+        result = list(toolz.filter(lambda df: df.display_name == data_frame_display_name, self.data_frames()))
+        return result
+
     def data_frames_by_name(self, data_frame_name):
         """
         Return all project data frames named `data_frame_name`.

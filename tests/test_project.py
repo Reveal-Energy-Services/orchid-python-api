@@ -89,6 +89,20 @@ class TestProject(unittest.TestCase):
                 actual_names = [df.name for df in actual_data_frames]
                 assert_that(actual_names, equal_to(expected_names))
 
+    def test_data_frames_by_display_name_returns_matches_with_requested_name(self):
+        for data_frame_display_names, name_to_match, match_count in [
+            ([{'display_name': 'restaurat'}], 'restauras', 0),
+            ([{'display_name': 'insuperabile'}], 'insuperabile', 1),
+            ([{'display_name': 'diluit'}] * 2, 'diluit', 2)
+        ]:
+            with self.subTest(f'Verify {data_frame_display_names} have {match_count} matches of "{name_to_match}"'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_display_names)
+                sut = create_sut(stub_native_project)
+
+                matching_data_frame_display_names = list(toolz.map(lambda df: df.display_name,
+                                                                   sut.data_frames_by_display_name(name_to_match)))
+                assert_that(matching_data_frame_display_names, equal_to([name_to_match] * match_count))
+
     def test_data_frames_by_name_returns_matches_with_requested_name(self):
         for data_frame_names, name_to_match, match_count in [([{'name': 'vicis'}], 'vici', 0),
                                                              ([{'name': 'rosae'}], 'rosae', 1),
