@@ -16,7 +16,10 @@ import datetime as dt
 import unittest
 import uuid
 
-import dateutil.parser as dup
+from dateutil import (
+    parser as dup,
+    tz as duz,
+)
 from hamcrest import assert_that, equal_to
 import pandas as pd
 import pandas.testing as pdt
@@ -191,7 +194,6 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                                            columns=expected_columns)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    @unittest.skip('failing db null')
     def test_many_columns_many_rows_data_table_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
             [str, float, dt.datetime, int],
@@ -199,34 +201,48 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 {
                     'vitis': None,
                     'controversum': -14.52,
-                    'indicis': dt.datetime.now(dt.timezone.utc),
+                    'indicis': dt.datetime(2018, 11, 20, 13, 36, 0, 331602, duz.UTC),
                     'inane': -92,
                 },
-                # {
-                #     'vitis': 'magistri',
-                #     'controversum': None,
-                #     'indicis': dt.datetime.now(dt.timezone.utc),
-                #     'inane': 169,
-                # },
-                # {
-                #     'vitis': 'inter cenam',
-                #     'controversum': -73.83,
-                #     'indicis': None,
-                #     'inane': 148,
-                # },
-                # {
-                #     'vitis': 'profuit',
-                #     'controversum': -40.88,
-                #     'indicis': dt.datetime.now(dt.timezone.utc),
-                #     'inane': None,
-                # },
+                {
+                    'vitis': 'magistri',
+                    'controversum': None,
+                    'indicis': dt.datetime(2021, 5, 2, 14, 21, 11, 0, duz.UTC),
+                    'inane': 169,
+                },
+                {
+                    'vitis': 'inter cenam',
+                    'controversum': -73.83,
+                    'indicis': None,
+                    'inane': 148,
+                },
+                {
+                    'vitis': 'profuit',
+                    'controversum': -40.88,
+                    'indicis': dt.datetime(2021, 11, 13, 4, 2, 46, 651626, duz.UTC),
+                    'inane': None,
+                },
             ],
             toolz.identity)
         stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
 
         actual_data_frame = sut.pandas_data_frame()
-        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *table_data_dto.table_data),
+
+        def datetime_to_milliseconds(value):
+            try:
+                microsecond = value.microsecond
+                millisecond = int(round(microsecond / 1000)) * 1000
+                return value.replace(microsecond=millisecond)
+            except AttributeError:
+                # Assume `value` not a `datetime` instance
+                return value
+
+        expected_table_data = toolz.pipe(table_data_dto.table_data,
+                                         toolz.map(toolz.valmap(datetime_to_milliseconds)),
+                                         list,
+                                         )
+        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *expected_table_data),
                                            columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
