@@ -17,9 +17,10 @@
 
 from collections import namedtuple
 from typing import List, Tuple, Iterable, Dict
+import uuid
 
 import deal
-import pandas as pd
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -81,6 +82,19 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
+    def data_frame_by_object_id(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
+        """
+        Return the single data frame from this project identified by `id_to_match`.
+        Args:
+            id_to_match: The `uuid.UUID` sought.
+
+        Returns:
+            `option.Some`(data frame) if one match; otherwise, `option.NONE`.
+        """
+        candidates = list(toolz.filter(lambda df: df.object_id == id_to_match, self.data_frames()))
+        assert len(candidates) <= 1, f'More than 1 data frame with object ID, {id_to_match}.'
+        return option.maybe(candidates[0] if len(candidates) == 1 else None)
+
     def data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return a sequence of data frames for this project.
@@ -92,24 +106,24 @@ class Project(dna.DotNetAdapter):
                             toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
         return result
 
-    def data_frames_by_display_name(self, data_frame_display_name):
+    def data_frames_by_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames with `display_name`, `data_frame_name`.
 
         Args:
             data_frame_display_name: The display name of the data frame sought.
         """
-        result = list(toolz.filter(lambda df: df.display_name == data_frame_display_name, self.data_frames()))
+        result = toolz.filter(lambda df: df.display_name == data_frame_display_name, self.data_frames())
         return result
 
-    def data_frames_by_name(self, data_frame_name):
+    def data_frames_by_name(self, data_frame_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames named `data_frame_name`.
 
         Args:
             data_frame_name: The name of the data frame sought.
         """
-        result = list(toolz.filter(lambda df: df.name == data_frame_name, self.data_frames()))
+        result = toolz.filter(lambda df: df.name == data_frame_name, self.data_frames())
         return result
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:

@@ -19,9 +19,11 @@ import decimal
 import datetime
 import unittest
 import unittest.mock
+import uuid
 
 import deal
 from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -70,6 +72,21 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(azimuth=actual_azimuth, project_units=project_units)
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
+
+    def test_data_frames_by_object_id_returns_matches_with_requested_object_id(self):
+        for data_frame_object_ids, id_to_match, expected in [
+            ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],
+             uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42'), option.NONE),
+            ([{'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}],
+             uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb'),
+             option.Some(uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb')))
+        ]:
+            with self.subTest(f'Verify {data_frame_object_ids} returns {expected} for "{id_to_match}"'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_object_ids)
+                sut = create_sut(stub_native_project)
+
+                matching_data_frame_object_id = sut.data_frame_by_object_id(id_to_match).map(lambda df: df.object_id)
+                assert_that(matching_data_frame_object_id, equal_to(expected))
 
     def test_data_frames(self):
         for data_frame_names in [[],
