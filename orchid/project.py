@@ -123,6 +123,7 @@ class Project(dna.DotNetAdapter):
         assert len(candidates) <= 1, f'More than 1 data frame with object ID, {id_to_match}.'
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
+    # TODO: Extract common code into private method
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames with `display_name`, `data_frame_name`.
@@ -130,7 +131,11 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_display_name: The display name of the data frame sought.
         """
-        result = toolz.filter(lambda df: df.display_name == data_frame_display_name, self.all_data_frames())
+        result = toolz.pipe(
+            self.all_data_frames_by_object_ids(),
+            toolz.valfilter(lambda df: df.display_name == data_frame_display_name),
+            lambda dfs: dfs.values(),
+        )
         return result
 
     def find_data_frames_with_name(self, data_frame_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
@@ -140,7 +145,11 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_name: The name of the data frame sought.
         """
-        result = toolz.filter(lambda df: df.name == data_frame_name, self.all_data_frames())
+        result = toolz.pipe(
+            self.all_data_frames_by_object_ids(),
+            toolz.valfilter(lambda df: df.name == data_frame_name),
+            lambda dfs: dfs.values(),
+        )
         return result
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
