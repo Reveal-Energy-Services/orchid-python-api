@@ -94,6 +94,25 @@ class TestProject(unittest.TestCase):
         matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
         assert_that(matching_data_frame_object_id, equal_to(option.NONE))
 
+    def test_all_data_frames_object_ids_returns_all_object_ids(self):
+        for data_frame_ids, expected_object_ids in [
+            ([], []),
+            ([{'object_id': '745fefae-b757-4295-8067-8dc83e2b6c53'}],
+             [uuid.UUID('745fefae-b757-4295-8067-8dc83e2b6c53')]),
+            ([{'object_id': '2dca4e6b-4149-4e8b-908f-7e9e5f62d38a'},
+              {'object_id': '2a64351c-24ba-4db3-beaf-ce7f32706a4e'},
+              {'object_id': 'eb6ea8fb-b592-4f9b-b515-3ba63fb3541e'}],
+             toolz.map(uuid.UUID, ['2dca4e6b-4149-4e8b-908f-7e9e5f62d38a',
+                                   '2a64351c-24ba-4db3-beaf-ce7f32706a4e',
+                                   'eb6ea8fb-b592-4f9b-b515-3ba63fb3541e']))
+        ]:
+            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_object_ids}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+                sut = create_sut(stub_native_project)
+
+                actual_object_ids = sut.all_data_frames_object_ids()
+                assert_that(actual_object_ids, contains_inanyorder(*expected_object_ids))
+
     def test_all_data_frames_display_names_returns_all_display_names(self):
         for data_frame_ids, expected_display_names in [
             ([], []),
