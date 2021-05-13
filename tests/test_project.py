@@ -54,6 +54,12 @@ def make_samples_for_starts(starts, values_for_starts):
 
 
 # Test ideas
+# - all_data_frames returns all data frames
+# - all_data_frames_by_object_id returns all data frames indexed by object ID
+# - data_frame(object_id) no match returns option.NONE
+# - data_frame(object_id) match returns Some(matching_df)
+# - data_frames_for_name(str) returns 0, 1, or many
+# - data_frames_for_display_name(str) returns 0, 1, or many
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
