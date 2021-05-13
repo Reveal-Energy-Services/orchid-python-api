@@ -82,7 +82,18 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def data_frame_by_object_id(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
+    def all_data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
+        """
+        Return a sequence of data frames for this project.
+
+        Returns:
+            An iterable of data frames.
+        """
+        result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
+                            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
+        return result
+
+    def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
         """
         Return the single data frame from this project identified by `id_to_match`.
         Args:
@@ -94,17 +105,6 @@ class Project(dna.DotNetAdapter):
         candidates = list(toolz.filter(lambda df: df.object_id == id_to_match, self.all_data_frames()))
         assert len(candidates) <= 1, f'More than 1 data frame with object ID, {id_to_match}.'
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
-
-    def all_data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
-        """
-        Return a sequence of data frames for this project.
-
-        Returns:
-            An iterable of data frames.
-        """
-        result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
-                            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
-        return result
 
     def data_frames_by_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
