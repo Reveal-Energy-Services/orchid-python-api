@@ -94,7 +94,7 @@ class TestProject(unittest.TestCase):
                 matching_data_frame_object_id = sut.data_frame_by_object_id(id_to_match).map(lambda df: df.object_id)
                 assert_that(matching_data_frame_object_id, equal_to(expected))
 
-    def test_data_frames(self):
+    def test_all_data_frames(self):
         for data_frame_names in [[],
                                  [{'name': 'circumspectus'}],
                                  [{'name': 'omne'}, {'name': 'grandiloquum'}, {'name': 'gerent'}]]:
@@ -102,7 +102,7 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)
 
-                actual_data_frames = list(sut.data_frames())
+                actual_data_frames = list(sut.all_data_frames())
                 assert_that(len(actual_data_frames), equal_to(len(data_frame_names)))
                 expected_names = toolz.pipe(
                     data_frame_names,

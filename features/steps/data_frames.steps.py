@@ -32,7 +32,7 @@ def step_impl(context, field):
         context (behave.runner.Context): The test context.
         field (str): The name of the field of the loaded project.
     """
-    context.project_data_frames = context.project.data_frames()
+    context.project_data_frames = context.project.all_data_frames()
 
 
 @then("I see a single data frame identified by {object_id}, {name} and {display_name}")

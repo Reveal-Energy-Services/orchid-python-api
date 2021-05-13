@@ -91,11 +91,11 @@ class Project(dna.DotNetAdapter):
         Returns:
             `option.Some`(data frame) if one match; otherwise, `option.NONE`.
         """
-        candidates = list(toolz.filter(lambda df: df.object_id == id_to_match, self.data_frames()))
+        candidates = list(toolz.filter(lambda df: df.object_id == id_to_match, self.all_data_frames()))
         assert len(candidates) <= 1, f'More than 1 data frame with object ID, {id_to_match}.'
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
-    def data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
+    def all_data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return a sequence of data frames for this project.
 
@@ -113,7 +113,7 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_display_name: The display name of the data frame sought.
         """
-        result = toolz.filter(lambda df: df.display_name == data_frame_display_name, self.data_frames())
+        result = toolz.filter(lambda df: df.display_name == data_frame_display_name, self.all_data_frames())
         return result
 
     def data_frames_by_name(self, data_frame_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
@@ -123,7 +123,7 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_name: The name of the data frame sought.
         """
-        result = toolz.filter(lambda df: df.name == data_frame_name, self.data_frames())
+        result = toolz.filter(lambda df: df.name == data_frame_name, self.all_data_frames())
         return result
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
