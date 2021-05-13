@@ -97,6 +97,15 @@ class Project(dna.DotNetAdapter):
         candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
+    def data_frame_display_names(self) -> Iterable[str]:
+        """
+        Calculate all the data frame display names.
+
+        Returns:
+            An iterable over all the display names.
+        """
+        return toolz.map(lambda df: df.display_name, self._data_frames.values())
+
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames with `display_name`, `data_frame_name`.

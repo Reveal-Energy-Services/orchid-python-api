@@ -94,6 +94,23 @@ class TestProject(unittest.TestCase):
         matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
         assert_that(matching_data_frame_object_id, equal_to(option.NONE))
 
+    def test_data_frames_display_name_returns_all_display_names(self):
+        for data_frame_ids, expected_display_names in [
+            ([], []),
+            ([{'display_name': 'tumuerunt', 'object_id': 'dbb92d94-5c91-439c-98c3-f9566321140a'}],
+             ['tumuerunt']),
+            ([{'display_name': 'refuerunt', 'object_id': '2dca4e6b-4149-4e8b-908f-7e9e5f62d38a'},
+              {'display_name': 'crapulam', 'object_id': 'f34673ef-0b27-4bd0-a788-2646ddb78680'},
+              {'display_name': 'refuerunt', 'object_id': 'c9d8f992-fbf7-420e-a65e-a36f7b2f608b'}],
+             ['refuerunt', 'crapulam', 'refuerunt'])
+        ]:
+            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_display_names}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+                sut = create_sut(stub_native_project)
+
+                actual_display_names = sut.data_frame_display_names()
+                assert_that(actual_display_names, contains_inanyorder(*expected_display_names))
+
     def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
         for data_frame_display_names, name_to_match, match_count in [
             ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}], 'restauras', 0),
