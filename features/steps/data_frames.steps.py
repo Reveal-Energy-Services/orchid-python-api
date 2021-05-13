@@ -60,7 +60,7 @@ def step_impl(context, data_frame_name):
         context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
-    candidates = list(context.project.data_frames_by_name(data_frame_name))
+    candidates = list(context.project.find_data_frames_with_name(data_frame_name))
     assert_that(len(candidates), equal_to(1))
 
     context.data_frame = candidates[0]

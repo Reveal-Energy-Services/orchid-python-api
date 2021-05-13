@@ -58,8 +58,8 @@ def make_samples_for_starts(starts, values_for_starts):
 # - all_data_frames_by_object_id returns all data frames indexed by object ID
 # - data_frame(object_id) no match returns option.NONE
 # - data_frame(object_id) match returns Some(matching_df)
-# - data_frames_for_name(str) returns 0, 1, or many
-# - data_frames_for_display_name(str) returns 0, 1, or many
+# - find_data_frames_with_name(str) returns 0, 1, or many
+# - find_data_frames_with_display_name(str) returns 0, 1, or many
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -112,7 +112,7 @@ class TestProject(unittest.TestCase):
                 matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
                 assert_that(matching_data_frame_object_id, equal_to(expected))
 
-    def test_data_frames_by_display_name_returns_matches_with_requested_name(self):
+    def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
         for data_frame_display_names, name_to_match, match_count in [
             ([{'display_name': 'restaurat'}], 'restauras', 0),
             ([{'display_name': 'insuperabile'}], 'insuperabile', 1),
@@ -122,11 +122,11 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_display_names)
                 sut = create_sut(stub_native_project)
 
-                matching_data_frame_display_names = list(toolz.map(lambda df: df.display_name,
-                                                                   sut.data_frames_by_display_name(name_to_match)))
+                matching_data_frame_display_names = list(toolz.map(
+                    lambda df: df.display_name, sut.find_data_frames_with_display_name(name_to_match)))
                 assert_that(matching_data_frame_display_names, equal_to([name_to_match] * match_count))
 
-    def test_data_frames_by_name_returns_matches_with_requested_name(self):
+    def test_find_data_frames_with_name_returns_matches_with_requested_name(self):
         for data_frame_names, name_to_match, match_count in [([{'name': 'vicis'}], 'vici', 0),
                                                              ([{'name': 'rosae'}], 'rosae', 1),
                                                              ([{'name': 'diluit'}] * 2, 'diluit', 2)]:
@@ -135,7 +135,7 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
 
                 matching_data_frame_names = list(toolz.map(lambda df: df.name,
-                                                           sut.data_frames_by_name(name_to_match)))
+                                                           sut.find_data_frames_with_name(name_to_match)))
                 assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
 
     def test_default_well_colors_if_no_default_well_colors(self):
