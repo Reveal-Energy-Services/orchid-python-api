@@ -104,7 +104,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             An iterable over all the object IDs.
         """
-        return toolz.map(lambda df: df.object_id, self._data_frames.values())
+        return self._all_data_frames_attributes(lambda df: df.object_id)
 
     def all_data_frames_display_names(self) -> Iterable[str]:
         """
@@ -113,7 +113,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             An iterable over all the display names.
         """
-        return toolz.map(lambda df: df.display_name, self._data_frames.values())
+        return self._all_data_frames_attributes(lambda df: df.display_name)
 
     def all_data_frames_names(self) -> Iterable[str]:
         """
@@ -122,7 +122,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             An iterable over all the names.
         """
-        return toolz.map(lambda df: df.name, self._data_frames.values())
+        return self._all_data_frames_attributes(lambda df: df.name)
 
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
@@ -214,6 +214,18 @@ class Project(dna.DotNetAdapter):
         :return: A list of all the wells in this project.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
+
+    def _all_data_frames_attributes(self, attribute_func) -> Iterable[str]:
+        """
+        Calculate all the attributes extracted by `attribute_func` from all data frames
+
+        Args:
+            attribute_func: A callable to extract an "attribute" from each data frame.
+
+        Returns:
+            An iterable over all the extracted attributes.
+        """
+        return toolz.map(attribute_func, self._data_frames.values())
 
     def _find_data_frames(self, predicate: Callable[[dfa.NativeDataFrameAdapter], bool])\
             -> Iterable[dfa.NativeDataFrameAdapter]:
