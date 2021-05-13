@@ -22,7 +22,7 @@ import unittest.mock
 import uuid
 
 import deal
-from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
+from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
 import option
 import toolz.curried as toolz
 
@@ -54,9 +54,9 @@ def make_samples_for_starts(starts, values_for_starts):
 
 
 # Test ideas
-# - all_data_frames() raises exception if duplicate object IDs
-# - data_frame(object_id) no match returns option.NONE
-# - data_frame(object_id) match returns Some(matching_df)
+# - data_frame_ids() returns all data frame IDs
+# - data_frame_names() returns all data frame names
+# - data_frame_display_names() returns all data frame display names
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -76,20 +76,23 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
-    def test_data_frames_by_object_id_returns_matches_with_requested_object_id(self):
-        for data_frame_object_ids, id_to_match, expected in [
-            ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],
-             uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42'), option.NONE),
-            ([{'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}],
-             uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb'),
-             option.Some(uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb')))
-        ]:
-            with self.subTest(f'Verify {data_frame_object_ids} returns {expected} for "{id_to_match}"'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_object_ids)
-                sut = create_sut(stub_native_project)
+    def test_data_frame_with_match_returns_some_data_frame_with_object_id(self):
+        data_frame_ids, id_to_match = ([{'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}],
+                                       uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb'))
+        stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+        sut = create_sut(stub_native_project)
 
-                matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
-                assert_that(matching_data_frame_object_id, equal_to(expected))
+        matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
+        assert_that(matching_data_frame_object_id, equal_to(option.Some(id_to_match)))
+
+    def test_data_frame_with_no_match_returns_option_none(self):
+        data_frame_ids, id_to_match = ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],
+                                       uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42'))
+        stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+        sut = create_sut(stub_native_project)
+
+        matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
+        assert_that(matching_data_frame_object_id, equal_to(option.NONE))
 
     def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
         for data_frame_display_names, name_to_match, match_count in [
