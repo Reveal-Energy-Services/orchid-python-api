@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import Dict, Iterable, List, Mapping, Tuple
+from typing import Callable, Dict, Iterable, List, Mapping, Tuple
 import uuid
 
 import deal
@@ -92,6 +92,7 @@ class Project(dna.DotNetAdapter):
         result = self.all_data_frames_by_object_ids().values()
         return result
 
+    # TODO: Expose internal dictionary?
     def all_data_frames_by_object_ids(self) -> Mapping[uuid.UUID, dfa.NativeDataFrameAdapter]:
         """
         Return a mapping between object IDs and data frames.
@@ -123,7 +124,6 @@ class Project(dna.DotNetAdapter):
         assert len(candidates) <= 1, f'More than 1 data frame with object ID, {id_to_match}.'
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
-    # TODO: Extract common code into private method
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames with `display_name`, `data_frame_name`.
@@ -131,12 +131,7 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_display_name: The display name of the data frame sought.
         """
-        result = toolz.pipe(
-            self.all_data_frames_by_object_ids(),
-            toolz.valfilter(lambda df: df.display_name == data_frame_display_name),
-            lambda dfs: dfs.values(),
-        )
-        return result
+        return self._find_data_frames(lambda df: df.display_name == data_frame_display_name)
 
     def find_data_frames_with_name(self, data_frame_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
@@ -145,12 +140,7 @@ class Project(dna.DotNetAdapter):
         Args:
             data_frame_name: The name of the data frame sought.
         """
-        result = toolz.pipe(
-            self.all_data_frames_by_object_ids(),
-            toolz.valfilter(lambda df: df.name == data_frame_name),
-            lambda dfs: dfs.values(),
-        )
-        return result
+        return self._find_data_frames(lambda df: df.name == data_frame_name)
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 
@@ -224,3 +214,18 @@ class Project(dna.DotNetAdapter):
         :return: A list of all the wells in this project.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
+
+    def _find_data_frames(self, predicate: Callable[[dfa.NativeDataFrameAdapter], bool])\
+            -> Iterable[dfa.NativeDataFrameAdapter]:
+        """
+        Return all project data frames for which `predicate` returns `True`.
+
+        Args:
+            predicate: The callable
+        """
+        result = toolz.pipe(
+            self.all_data_frames_by_object_ids(),
+            toolz.valfilter(predicate),
+            lambda dfs: dfs.values(),
+        )
+        return result
