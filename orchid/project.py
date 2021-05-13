@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import List, Tuple, Iterable, Dict
+from typing import Dict, Iterable, List, Mapping, Tuple
 import uuid
 
 import deal
@@ -91,6 +91,24 @@ class Project(dna.DotNetAdapter):
         """
         result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
                             toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
+        return result
+
+    def all_data_frames_by_object_ids(self) -> Mapping[uuid.UUID, dfa.NativeDataFrameAdapter]:
+        """
+        Return a mapping between object IDs and data frames.
+
+        Returns:
+            The mapping between the data frames of this project and their object IDs.
+
+        """
+        def by_id(so_far, df):
+            return toolz.assoc(so_far, df.object_id, df)
+
+        result = toolz.pipe(
+            self._project_loader.native_project().DataFrames.Items,
+            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)),
+            lambda dfs: toolz.reduce(by_id, dfs, {}),
+        )
         return result
 
     def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:

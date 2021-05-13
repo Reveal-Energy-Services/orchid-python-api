@@ -94,6 +94,25 @@ class TestProject(unittest.TestCase):
                 actual_names = [df.name for df in actual_data_frames]
                 assert_that(actual_names, equal_to(expected_names))
 
+    def test_all_data_frames_by_object_ids(self):
+        for data_frame_object_ids in [[],
+                                      [{'object_id': '7305a94a-8495-4cf2-9f1a-3e86f6fe0e1d'}],
+                                      [{'object_id': '382a002b-ef0c-4149-9c83-7bcc5b0ff350'},
+                                       {'object_id': '46abbe84-fce0-49f5-b998-1cab0937a99a'},
+                                       {'object_id': '767c5095-e2e9-4b36-bac8-f931b2e76556'}]]:
+            expected_object_ids = toolz.pipe(
+                data_frame_object_ids,
+                toolz.map(toolz.get('object_id')),
+                toolz.map(uuid.UUID),
+                list,
+            )
+            with self.subTest(f'Verify correct data_frames for IDs: {expected_object_ids}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_object_ids)
+                sut = create_sut(stub_native_project)
+
+                actual_by_object_ids = sut.all_data_frames_by_object_ids()
+                assert_that(list(actual_by_object_ids.keys()), equal_to(expected_object_ids))
+
     def test_data_frames_by_object_id_returns_matches_with_requested_object_id(self):
         for data_frame_object_ids, id_to_match, expected in [
             ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],
