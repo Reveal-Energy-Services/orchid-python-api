@@ -55,8 +55,8 @@ def make_samples_for_starts(starts, values_for_starts):
 
 # Test ideas
 # - data_frame_ids() returns all data frame IDs
-# - data_frame_names() returns all data frame names
-# - data_frame_display_names() returns all data frame display names
+# - all_data_frames_names() returns all data frame names
+# - all_data_frames_display_names() returns all data frame display names
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -94,7 +94,7 @@ class TestProject(unittest.TestCase):
         matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
         assert_that(matching_data_frame_object_id, equal_to(option.NONE))
 
-    def test_data_frames_display_name_returns_all_display_names(self):
+    def test_all_data_frames_display_names_returns_all_display_names(self):
         for data_frame_ids, expected_display_names in [
             ([], []),
             ([{'display_name': 'tumuerunt', 'object_id': 'dbb92d94-5c91-439c-98c3-f9566321140a'}],
@@ -108,10 +108,10 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
                 sut = create_sut(stub_native_project)
 
-                actual_display_names = sut.data_frame_display_names()
+                actual_display_names = sut.all_data_frames_display_names()
                 assert_that(actual_display_names, contains_inanyorder(*expected_display_names))
 
-    def test_data_frames_name_returns_all_names(self):
+    def test_all_data_frames_names_returns_all_names(self):
         for data_frame_ids, expected_names in [
             ([], []),
             ([{'name': 'fulmen', 'object_id': 'ff241498-75ad-499a-b47f-27fd19359ac6'}],
@@ -125,7 +125,7 @@ class TestProject(unittest.TestCase):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
                 sut = create_sut(stub_native_project)
 
-                actual_names = sut.data_frame_names()
+                actual_names = sut.all_data_frames_names()
                 assert_that(actual_names, contains_inanyorder(*expected_names))
 
     def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
