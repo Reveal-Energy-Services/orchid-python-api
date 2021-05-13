@@ -106,6 +106,15 @@ class Project(dna.DotNetAdapter):
         """
         return toolz.map(lambda df: df.display_name, self._data_frames.values())
 
+    def data_frame_names(self) -> Iterable[str]:
+        """
+        Calculate all the data frame names.
+
+        Returns:
+            An iterable over all the names.
+        """
+        return toolz.map(lambda df: df.name, self._data_frames.values())
+
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames with `display_name`, `data_frame_name`.

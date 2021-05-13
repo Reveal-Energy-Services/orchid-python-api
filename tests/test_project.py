@@ -111,6 +111,23 @@ class TestProject(unittest.TestCase):
                 actual_display_names = sut.data_frame_display_names()
                 assert_that(actual_display_names, contains_inanyorder(*expected_display_names))
 
+    def test_data_frames_name_returns_all_names(self):
+        for data_frame_ids, expected_names in [
+            ([], []),
+            ([{'name': 'fulmen', 'object_id': 'ff241498-75ad-499a-b47f-27fd19359ac6'}],
+             ['fulmen']),
+            ([{'name': 'fratris', 'object_id': 'd3d16b87-2171-4147-95f0-c7c67bc2bbe4'},
+              {'name': 'visci', 'object_id': '0df09bec-e389-4211-bf25-3c630f0e47b8'},
+              {'name': 'fratris', 'object_id': 'df9c0943-85a0-4ae7-b40a-f9dec680d9f6'}],
+             ['fratris', 'visci', 'fratris'])
+        ]:
+            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+                sut = create_sut(stub_native_project)
+
+                actual_names = sut.data_frame_names()
+                assert_that(actual_names, contains_inanyorder(*expected_names))
+
     def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
         for data_frame_display_names, name_to_match, match_count in [
             ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}], 'restauras', 0),
