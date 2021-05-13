@@ -76,45 +76,6 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
-    def test_all_data_frames(self):
-        for data_frame_names in [[],
-                                 [{'name': 'circumspectus', 'object_id': '0033f91d-3848-4a4f-aa27-51ec15e5650d'}],
-                                 [{'name': 'omne', 'object_id': '3e1bf7b1-6066-4f7f-9859-c495e5f66689'},
-                                  {'name': 'grandiloquum', 'object_id': '74d6f425-a0d8-438b-99ce-2dca01a94bac'},
-                                  {'name': 'gerent', 'object_id': '77704528-a26d-4066-9ba0-5a5ddb2af4a6'}]]:
-            with self.subTest(f'Verify correct number of data_frames: {data_frame_names}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
-                sut = create_sut(stub_native_project)
-
-                actual_data_frames = list(sut.all_data_frames())
-                assert_that(len(actual_data_frames), equal_to(len(data_frame_names)))
-                expected_names = toolz.pipe(
-                    data_frame_names,
-                    toolz.map(toolz.get('name')),
-                    list,
-                )
-                actual_names = [df.name for df in actual_data_frames]
-                assert_that(actual_names, equal_to(expected_names))
-
-    def test_all_data_frames_by_object_ids(self):
-        for data_frame_object_ids in [[],
-                                      [{'object_id': '7305a94a-8495-4cf2-9f1a-3e86f6fe0e1d'}],
-                                      [{'object_id': '382a002b-ef0c-4149-9c83-7bcc5b0ff350'},
-                                       {'object_id': '46abbe84-fce0-49f5-b998-1cab0937a99a'},
-                                       {'object_id': '767c5095-e2e9-4b36-bac8-f931b2e76556'}]]:
-            expected_object_ids = toolz.pipe(
-                data_frame_object_ids,
-                toolz.map(toolz.get('object_id')),
-                toolz.map(uuid.UUID),
-                list,
-            )
-            with self.subTest(f'Verify correct data_frames for IDs: {expected_object_ids}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_object_ids)
-                sut = create_sut(stub_native_project)
-
-                actual_by_object_ids = sut.all_data_frames_by_object_ids()
-                assert_that(list(actual_by_object_ids.keys()), equal_to(expected_object_ids))
-
     def test_data_frames_by_object_id_returns_matches_with_requested_object_id(self):
         for data_frame_object_ids, id_to_match, expected in [
             ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],

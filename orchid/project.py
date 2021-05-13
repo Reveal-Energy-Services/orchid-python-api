@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import Callable, Dict, Iterable, List, Mapping, Tuple
+from typing import Callable, Dict, Iterable, List, Tuple
 import uuid
 
 import deal
@@ -69,6 +69,9 @@ class Project(dna.DotNetAdapter):
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   nwa.NativeWellAdapter)
 
+    _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
+                                               dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
@@ -82,35 +85,6 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def all_data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
-        """
-        Return a sequence of data frames for this project.
-
-        Returns:
-            An iterable of data frames.
-        """
-        result = self.all_data_frames_by_object_ids().values()
-        return result
-
-    # TODO: Expose internal dictionary?
-    def all_data_frames_by_object_ids(self) -> Mapping[uuid.UUID, dfa.NativeDataFrameAdapter]:
-        """
-        Return a mapping between object IDs and data frames.
-
-        Returns:
-            The mapping between the data frames of this project and their object IDs.
-
-        """
-        def by_id(so_far, df):
-            return toolz.assoc(so_far, df.object_id, df)
-
-        result = toolz.pipe(
-            self._project_loader.native_project().DataFrames.Items,
-            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)),
-            lambda dfs: toolz.reduce(by_id, dfs, {}),
-        )
-        return result
-
     def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
         """
         Return the single data frame from this project identified by `id_to_match`.
@@ -120,8 +94,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             `option.Some`(data frame) if one match; otherwise, `option.NONE`.
         """
-        candidates = list(toolz.filter(lambda df: df.object_id == id_to_match, self.all_data_frames()))
-        assert len(candidates) <= 1, f'More than 1 data frame with object ID, {id_to_match}.'
+        candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
@@ -224,7 +197,7 @@ class Project(dna.DotNetAdapter):
             predicate: The callable
         """
         result = toolz.pipe(
-            self.all_data_frames_by_object_ids(),
+            self._data_frames,
             toolz.valfilter(predicate),
             lambda dfs: dfs.values(),
         )

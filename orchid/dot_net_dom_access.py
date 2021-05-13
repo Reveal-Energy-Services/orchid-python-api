@@ -16,7 +16,7 @@
 #
 
 import uuid
-from typing import Callable, Union
+from typing import Callable, Mapping, Union
 
 import deal
 import option
@@ -95,6 +95,31 @@ def dom_property(attribute_name, docstring):
     """
     def getter(self):
         result = get_dot_net_property_value(attribute_name, self._adaptee)
+        return result
+
+    # Ensure no setter for the DOM properties
+    return property(fget=getter, doc=docstring, fset=None)
+
+
+def map_reduce_dom_property(attribute_name, docstring, mapper, reducer, initial):
+    """
+    Return reduced collection property of the DOM corresponding to `attribute_name` with doc string, `docstring`.
+
+    Args:
+        attribute_name: The name of the transformed attribute.
+        docstring: The doc string to be attached to the resultant property.
+        mapper: A callable that transforms every item of the .NET DOM property.
+        reducer: A callable invoked to reduce the collection.
+        initial: The initial value of the reduction.
+
+    Returns:
+        The Python property wrapping the mapped and reduced DOM (collection) property items.
+    """
+    def getter(self):
+        result = toolz.pipe(get_dot_net_property_value(attribute_name, self._adaptee),
+                            lambda container: container.Items,
+                            toolz.map(mapper),
+                            lambda items: toolz.reduce(reducer, items, initial))
         return result
 
     # Ensure no setter for the DOM properties
@@ -206,3 +231,17 @@ class DotNetAdapter:
         return (option.Some(units.as_unit_system(self._net_project_callable().ProjectUnits))
                 if self._net_project_callable
                 else option.NONE)
+
+
+def dictionary_by_id(accumulator: Mapping[uuid.UUID, DotNetAdapter], mapped_object: DotNetAdapter):
+    """
+    Return a `Mapping` resulting from adding `mapped_object` to `accumulator`.
+
+    Args:
+        accumulator: The accumulated result.
+        mapped_object: The `DotNetAdapter` to be added to `accumulator`.
+
+    Returns:
+        The updated `Mapping`.
+    """
+    return toolz.assoc(accumulator, mapped_object.object_id, mapped_object)
