@@ -57,6 +57,7 @@ def make_samples_for_starts(starts, values_for_starts):
 # - all_data_frames_by_object_id returns all data frames indexed by object ID
 # - data_frame(object_id) no match returns option.NONE
 # - data_frame(object_id) match returns Some(matching_df)
+# - all_data_frames() raises exception if duplicate object IDs
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -78,8 +79,10 @@ class TestProject(unittest.TestCase):
 
     def test_all_data_frames(self):
         for data_frame_names in [[],
-                                 [{'name': 'circumspectus'}],
-                                 [{'name': 'omne'}, {'name': 'grandiloquum'}, {'name': 'gerent'}]]:
+                                 [{'name': 'circumspectus', 'object_id': '0033f91d-3848-4a4f-aa27-51ec15e5650d'}],
+                                 [{'name': 'omne', 'object_id': '3e1bf7b1-6066-4f7f-9859-c495e5f66689'},
+                                  {'name': 'grandiloquum', 'object_id': '74d6f425-a0d8-438b-99ce-2dca01a94bac'},
+                                  {'name': 'gerent', 'object_id': '77704528-a26d-4066-9ba0-5a5ddb2af4a6'}]]:
             with self.subTest(f'Verify correct number of data_frames: {data_frame_names}'):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)
@@ -130,9 +133,11 @@ class TestProject(unittest.TestCase):
 
     def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
         for data_frame_display_names, name_to_match, match_count in [
-            ([{'display_name': 'restaurat'}], 'restauras', 0),
-            ([{'display_name': 'insuperabile'}], 'insuperabile', 1),
-            ([{'display_name': 'diluit'}] * 2, 'diluit', 2)
+            ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}], 'restauras', 0),
+            ([{'display_name': 'insuperabile', 'object_id': '8dc279ed-9d81-4dac-9057-58dd74dcd39b'}], 'insuperabile', 1),
+            ([{'display_name': 'diluit', 'object_id': '371a1443-1089-4080-8e7c-d48c9435b71b'},
+              {'display_name': 'diluit', 'object_id': '4c21a0fd-dc47-4204-95a5-e5a76bf78516'}],
+             'diluit', 2)
         ]:
             with self.subTest(f'Verify {data_frame_display_names} have {match_count} matches of "{name_to_match}"'):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_display_names)
@@ -143,9 +148,13 @@ class TestProject(unittest.TestCase):
                 assert_that(matching_data_frame_display_names, equal_to([name_to_match] * match_count))
 
     def test_find_data_frames_with_name_returns_matches_with_requested_name(self):
-        for data_frame_names, name_to_match, match_count in [([{'name': 'vicis'}], 'vici', 0),
-                                                             ([{'name': 'rosae'}], 'rosae', 1),
-                                                             ([{'name': 'diluit'}] * 2, 'diluit', 2)]:
+        for data_frame_names, name_to_match, match_count in [
+            ([{'name': 'vicis', 'object_id': '01de593e-6f52-4c78-8416-aea7a29349cb'}], 'vici', 0),
+            ([{'name': 'rosae', 'object_id': '5feb74e1-0392-45b8-b194-131d8a0bdef3'}], 'rosae', 1),
+            ([{'name': 'diluit', 'object_id': '4750e22c-25ab-42c8-8b08-81bcc2c86b1b'},
+              {'name': 'diluit', 'object_id': '1e4969ab-2b75-4702-9136-6bd06a5f5b74'}],
+             'diluit', 2),
+        ]:
             with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
                 stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)

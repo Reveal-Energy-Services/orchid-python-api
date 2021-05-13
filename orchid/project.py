@@ -89,8 +89,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             An iterable of data frames.
         """
-        result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
-                            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
+        result = self.all_data_frames_by_object_ids().values()
         return result
 
     def all_data_frames_by_object_ids(self) -> Mapping[uuid.UUID, dfa.NativeDataFrameAdapter]:
