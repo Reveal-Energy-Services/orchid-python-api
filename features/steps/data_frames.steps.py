@@ -132,6 +132,13 @@ def _table_cells_to_data_frame_cells(items):
         'pefz_mean': convert_maybe_number(float),
         'lcal_mean': convert_maybe_number(float),
         'dpo_ls_min': convert_maybe_number(float),
+        # GnG well log set data frame
+        'tvd_ss': convert_maybe_number(float),
+        'rla3': convert_maybe_number(float),
+        'dtco': convert_maybe_number(float),
+        'hdra': convert_maybe_number(float),
+        'rhoz': convert_maybe_number(float),
+        'lcal': convert_maybe_number(float),
     }
     table_column_name, table_cells = items
     # print(f'{table_column_name}')
@@ -173,6 +180,13 @@ def _table_column_to_data_frame_column(table_column_name):
         'pefz_mean': 'PEFZMean',
         'lcal_mean': 'LCALMean',
         'dpo_ls_min': 'DPO_LSMin',
+        # GnG well log set data frame
+        'tvd_ss': 'TVDSS',
+        'rla3': 'RLA3',
+        'dtco': 'DTCO',
+        'hdra': 'HDRA',
+        'rhoz': 'RHOZ',
+        'lcal': 'LCAL',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 

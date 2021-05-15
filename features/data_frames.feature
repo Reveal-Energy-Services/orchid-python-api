@@ -121,19 +121,19 @@ Feature: Adapted IDataFrame DOM API
       | 29     | 11830.5  | 738.3865 | 4695.3057 | 3.800887  |           |            |
       | 32     | 11128.5  | 238.891  | 4563.0464 | 3.73148   |           |            |
 
-#  Scenario: Sampled GnG well log set data frame have the correct cells
-#    Given I have loaded the project for the field, 'GnG'
-#    When I query the loaded project for the data frame named 'Well Log Set Data Frame 01'
-#    Then I see the sampled cells
-#      | sample | tvd_ss      | rla3    | dtco    | hdra    | rhoz   | lcal |
-#      | 0      | 62.494284   |         |         |         |        |      |
-#      | 628    | 158.207645  |         |         |         |        |      |
-#      | 3748   | 633.599359  |         |         |         |        |      |
-#      | 12682  | 1987.537640 | 2.7129  | 70.8107 | -0.0032 | 2.4729 |      |
-#      | 23352  | 3319.966951 | 38.5122 | 73.5543 | -0.0009 | 2.5748 |      |
-#      | 30556  | 3325.316915 | 8.9676  |         |         |        |      |
-#      | 30813  | 3326.166599 | 8.5149  |         |         |        |      |
-#      | 35490  | 3335.688645 |         |         |         |        |      |
+  Scenario: Sampled GnG well log set data frame have the correct cells
+    Given I have loaded the project for the field, 'GnG'
+    When I query the loaded project for the data frame named 'Well Log Set Data Frame 01'
+    Then I see the sampled cells
+      | sample | tvd_ss      | rla3    | dtco    | hdra    | rhoz   | lcal   |
+      | 0      | 62.494284   |         |         |         |        |        |
+      | 628    | 158.207645  |         |         |         |        |        |
+      | 3748   | 633.599359  |         |         |         |        |        |
+      | 12682  | 1987.537640 | 2.7129  | 70.8107 | -0.0032 | 2.4729 |        |
+      | 23352  | 3319.966951 | 38.5122 | 73.5543 | -0.0009 | 2.5748 |        |
+      | 30556  | 3325.316915 |         |         |         |        | 8.9676 |
+      | 30813  | 3326.166599 |         |         |         |        | 8.5149 |
+      | 35490  | 3335.688645 |         |         |         |        |        |
 
 #  Scenario: Sampled GnG horizon marker set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
