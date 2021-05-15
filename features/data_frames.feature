@@ -111,15 +111,15 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'GnG'
     When I query the loaded project for the data frame named 'Stage Data Frame 01'
     Then I see the sampled cells
-      | sample | dept_max | rla4_max  | tend_max  | pefz_mean | lcal_mean | dpo_ls_min |
-      | 0      |          |           |           |           |           |            |
-      | 2      |          |           |           |           |           |            |
-      | 9      | 16620.5  | 4830.145  | 8.486763  | -0.0132   |           |            |
-      | 19     | 14140.0  | 5855.6372 | 8.827104  | 0.0184    |           |            |
-      | 20     | 13904.0  | 6054.6211 | 8.817269  | 0.0406    |           |            |
-      | 25     | 12729.5  | 4131.1743 | 8.602036  | -0.0315   |           |            |
-      | 29     | 11830.5  | 738.3865  | 4695.3057 | 3.800887  |           |            |
-      | 32     | 11128.5  | 238.891   | 4563.0464 | 3.73148   |           |            |
+      | sample | dept_max | rla4_max | tend_max  | pefz_mean | lcal_mean | dpo_ls_min |
+      | 0      |          |          |           |           |           |            |
+      | 2      |          |          |           |           |           |            |
+      | 9      | 16620.5  |          | 4830.145  |           | 8.486763  | -0.0132    |
+      | 19     | 14140.0  |          | 5855.6372 |           | 8.827104  | 0.0184     |
+      | 20     | 13904.0  |          | 6054.6211 |           | 8.817269  | 0.0406     |
+      | 25     | 12729.5  |          | 4131.1743 |           | 8.602036  | -0.0315    |
+      | 29     | 11830.5  | 738.3865 | 4695.3057 | 3.800887  |           |            |
+      | 32     | 11128.5  | 238.891  | 4563.0464 | 3.73148   |           |            |
 
 #  Scenario: Sampled GnG well log set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
