@@ -78,21 +78,18 @@ def step_impl(context):
     sampled_data_frame_cols = sampled_data_frame_rows.loc[:, expected.columns[1:]]
     sampled_data_frame_cols.reset_index(inplace=True)
     sampled_data_frame = sampled_data_frame_cols.rename(columns={'index': 'Sample'})
-    print(sampled_data_frame['Sample'])
-    print(expected['Sample'])
     pd.testing.assert_frame_equal(sampled_data_frame, expected)
 
 
 def _as_data_frame(table):
     def reduce_row(so_far, row_to_reduce):
         row_data = {h: [row_to_reduce[h]] for h in row_to_reduce.headings}
-        result = toolz.merge_with(toolz.concat, so_far, row_data)
-        return result
+        return toolz.merge_with(toolz.concat, so_far, row_data)
 
     # frame_columns = toolz.map(_table_column_to_data_frame_column, table.headings)
     initial_data = {h: [] for h in table.headings}
     raw_frame_data = toolz.reduce(reduce_row, table, initial_data)
-    frame_mapped_data = toolz.keymap(_table_column_to_data_frame_column, raw_frame_data)
+    frame_mapped_data = toolz.itemmap(_table_cells_to_data_frame_cells, raw_frame_data)
     frame_data = toolz.valmap(list, frame_mapped_data)
     return pd.DataFrame(data=frame_data, columns=frame_data.keys())
 
@@ -100,6 +97,34 @@ def _as_data_frame(table):
 # TODO: Adapted from `dot_net_dom_access.py`:
 def _as_object_id(guid_text: str):
     return uuid.UUID(guid_text)
+
+
+def _table_cells_to_data_frame_cells(items):
+    """
+    Map table cell data to data frame cells.
+
+    Args:
+        items(tuple): A tuple of the table column name and an iterable of table cells.
+
+    Returns:
+        A tuple of the transformed table column name and the transformed cells
+    """
+    @toolz.curry
+    def convert_maybe_number(convert_func, v):
+        return convert_func(v) if v else None
+
+    table_data_frame_cells = {
+        'sample': int,
+        'sh_easting': float,
+        'bh_northing': float,
+        'bh_tdv': float,
+        'stage_no': convert_maybe_number(int),
+        'stage_length': convert_maybe_number(float),
+        'p_net': convert_maybe_number(float),
+    }
+    table_column_name, table_cells = items
+    return (_table_column_to_data_frame_column(table_column_name),
+            toolz.map(table_data_frame_cells[table_column_name], table_cells))
 
 
 def _table_column_to_data_frame_column(table_column_name):
