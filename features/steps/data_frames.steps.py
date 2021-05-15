@@ -23,6 +23,7 @@ import uuid
 
 from hamcrest import assert_that, not_none, equal_to, has_length
 import toolz.curried as toolz
+import pandas as pd
 
 
 @when("I query the project data frames identified by '{object_id}'")
@@ -62,7 +63,7 @@ def step_impl(context, data_frame_name):
     candidates = list(context.project.find_data_frames_with_name(data_frame_name))
     assert_that(len(candidates), equal_to(1))
 
-    context.data_frame = candidates[0]
+    context.data_frame_of_interest = candidates[0]
 
 
 @then("I see the sampled cells")
@@ -71,15 +72,32 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context
     """
-    for expected_sample in context.table:
-        sample_no = int(expected_sample['sample'])
-        for table_column in context.table.headings:
-            frame_column = _table_column_to_data_frame_column(table_column)
-            actual_cell = context.data_frame.pandas_data_frame().iloc[sample_no, :][frame_column]
-            assert_that(actual_cell, equal_to(expected_sample[table_column]))
+    expected = _as_data_frame(context.table)
+    actual_data_frame = context.data_frame_of_interest.pandas_data_frame()
+    sampled_data_frame_rows = actual_data_frame.iloc[list(toolz.map(int, expected['Sample'].values)), :]
+    sampled_data_frame_cols = sampled_data_frame_rows.loc[:, expected.columns[1:]]
+    sampled_data_frame_cols.reset_index(inplace=True)
+    sampled_data_frame = sampled_data_frame_cols.rename(columns={'index': 'Sample'})
+    print(sampled_data_frame['Sample'])
+    print(expected['Sample'])
+    pd.testing.assert_frame_equal(sampled_data_frame, expected)
 
 
-# TODO: Adapted from `dot_net_dom_access.py`
+def _as_data_frame(table):
+    def reduce_row(so_far, row_to_reduce):
+        row_data = {h: [row_to_reduce[h]] for h in row_to_reduce.headings}
+        result = toolz.merge_with(toolz.concat, so_far, row_data)
+        return result
+
+    # frame_columns = toolz.map(_table_column_to_data_frame_column, table.headings)
+    initial_data = {h: [] for h in table.headings}
+    raw_frame_data = toolz.reduce(reduce_row, table, initial_data)
+    frame_mapped_data = toolz.keymap(_table_column_to_data_frame_column, raw_frame_data)
+    frame_data = toolz.valmap(list, frame_mapped_data)
+    return pd.DataFrame(data=frame_data, columns=frame_data.keys())
+
+
+# TODO: Adapted from `dot_net_dom_access.py`:
 def _as_object_id(guid_text: str):
     return uuid.UUID(guid_text)
 
@@ -96,7 +114,7 @@ def _table_column_to_data_frame_column(table_column_name):
     """
     table_data_frame_columns = {
         'sample': 'Sample',
-        'sh_easting': 'Surface  Hole Easting',
+        'sh_easting': 'Surface  Hole Easting ',
         'bh_northing': 'Bottom Hole Northing ',
         'bh_tdv': 'Bottom Hole TDV ',
         'stage_no': 'StageNumber',

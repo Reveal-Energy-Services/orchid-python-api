@@ -79,19 +79,19 @@ Feature: Adapted IDataFrame DOM API
 #      | 366    | 11665255.69 | 11465.79     | 7          | 243.671    | 234.874205          | 20.594727 |
 #      | 479    | 11666700.54 | 11395.45     | 16         | 237.502735 | 180.208587          | 47.088867 |
 
-#  Scenario: Sampled GnG project data frame have the correct cells
-#    Given I have loaded the project for the field, 'GnG'
-#    When I query the loaded project for the data frame named 'Project Data Frame 01'
-#    Then I see the sampled cells
-#      | sample | sh_easting | bh_northing  | bh_tdv      | stage_no | stage_length | p_net |
-#      | 0      | 6043583.9  | 6.040989e+06 | 3340.507353 | 1        | 57.0         |       |
-#      | 23     | 6043583.9  | 6.040989e+06 | 3340.507353 | 24       | 57.0         |       |
-#      | 37     | 6043593.0  | 6.040993e+06 | 3294.425439 | 5        | 28.0         |       |
-#      | 58     | 6043593.0  | 6.040993e+06 | 3294.425439 | 26       | 28.0         |       |
-#      | 65     | 6043593.0  | 6.040993e+06 | 3294.425439 | 33       | 29.0         |       |
-#      | 89     | 6043602.2  | 6.040994e+06 | 3335.243499 | 1        | 21.0         |       |
-#      | 170    | 6043611.3  | 6.041006e+06 | 3396.249537 | 39       | 29.0         |       |
-#      | 210    | 6041330.2  | 6.042960e+06 | 3311.431913 |          |              |       |
+  Scenario: Sampled GnG project data frame have the correct cells
+    Given I have loaded the project for the field, 'GnG'
+    When I query the loaded project for the data frame named 'Project Data Frame 01'
+    Then I see the sampled cells
+      | sample | sh_easting | bh_northing  | bh_tdv      | stage_no | stage_length | p_net |
+      | 0      | 6043583.9  | 6.040989e+06 | 3340.507353 | 1        | 57.0         |       |
+      | 23     | 6043583.9  | 6.040989e+06 | 3340.507353 | 24       | 57.0         |       |
+      | 37     | 6043593.0  | 6.040993e+06 | 3294.425439 | 5        | 28.0         |       |
+      | 58     | 6043593.0  | 6.040993e+06 | 3294.425439 | 26       | 28.0         |       |
+      | 65     | 6043593.0  | 6.040993e+06 | 3294.425439 | 33       | 29.0         |       |
+      | 89     | 6043602.2  | 6.040994e+06 | 3335.243499 | 1        | 21.0         |       |
+      | 170    | 6043611.3  | 6.041006e+06 | 3396.249537 | 39       | 29.0         |       |
+      | 210    | 6041330.2  | 6.042960e+06 | 3311.431913 |          |              |       |
 
 #  Scenario: Sampled GnG fault trace set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
