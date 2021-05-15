@@ -93,20 +93,20 @@ Feature: Adapted IDataFrame DOM API
       | 170    | 6043611.3  | 6.041006e+06 | 3396.249537 | 39       | 29.0         |       |
       | 210    | 6041330.2  | 6.042960e+06 | 3311.431913 |          |              |       |
 
-#  Scenario: Sampled GnG fault trace set data frame have the correct cells
-#    Given I have loaded the project for the field, 'GnG'
-#    When I query the loaded project for the data frame named 'Fault Trace Set Data Frame 01'
-#    Then I see the sampled cells
-#      | sample | length     | mean_azimuth |
-#      | 0      | 291.065844 | 35.607995    |
-#      | 6      | 221.386108 | 28.704976    |
-#      | 10     | 588.771423 | 42.394236    |
-#      | 18     | 310.084679 | 16.612221    |
-#      | 19     | 410.819195 | 46.381994    |
-#      | 20     | 133.201626 | 25.686016    |
-#      | 25     | 75.438820  | 14.980341    |
-#      | 29     | 188.149197 | 243.339280   |
-#
+  Scenario: Sampled GnG fault trace set data frame have the correct cells
+    Given I have loaded the project for the field, 'GnG'
+    When I query the loaded project for the data frame named 'Fault Trace Set Data Frame 01'
+    Then I see the sampled cells
+      | sample | length     | mean_azimuth |
+      | 0      | 291.065844 | 35.607995    |
+      | 6      | 221.386108 | 28.704976    |
+      | 10     | 588.771423 | 42.394236    |
+      | 18     | 310.084679 | 16.612221    |
+      | 19     | 410.819195 | 46.381994    |
+      | 20     | 133.201626 | 25.686016    |
+      | 25     | 75.438820  | 14.980341    |
+      | 29     | 188.149197 | 243.339280   |
+
 #  Scenario: Sampled GnG fault trace set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
 #    When I query the loaded project for the data frame named 'Stage Data Frame 01'
@@ -120,7 +120,7 @@ Feature: Adapted IDataFrame DOM API
 #      | 25     | 12729.5  | 4131.1743 | 8.602036  | -0.0315   |           |            |
 #      | 29     | 11830.5  | 738.3865  | 4695.3057 | 3.800887  |           |            |
 #      | 32     | 11128.5  | 238.891   | 4563.0464 | 3.73148   |           |            |
-#
+
 #  Scenario: Sampled GnG fault trace set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
 #    When I query the loaded project for the data frame named 'Well Log Set Data Frame 01'
@@ -134,7 +134,7 @@ Feature: Adapted IDataFrame DOM API
 #      | 30556  | 3325.316915 | 8.9676  |         |         |        |      |
 #      | 30813  | 3326.166599 | 8.5149  |         |         |        |      |
 #      | 35490  | 3335.688645 |         |         |         |        |      |
-#
+
 #  Scenario: Sampled GnG fault trace set data frame have the correct cells
 #    Given I have loaded the project for the field, 'GnG'
 #    When I query the loaded project for the data frame named 'Horizon Marker Set Data Frame01'

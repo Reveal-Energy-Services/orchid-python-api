@@ -74,7 +74,7 @@ def step_impl(context):
     """
     expected = _as_data_frame(context.table)
     actual_data_frame = context.data_frame_of_interest.pandas_data_frame()
-    sampled_data_frame_rows = actual_data_frame.iloc[list(toolz.map(int, expected['Sample'].values)), :]
+    sampled_data_frame_rows = actual_data_frame.iloc[list(expected['Sample'].values), :]
     sampled_data_frame_cols = sampled_data_frame_rows.loc[:, expected.columns[1:]]
     sampled_data_frame_cols.reset_index(inplace=True)
     sampled_data_frame = sampled_data_frame_cols.rename(columns={'index': 'Sample'})
@@ -114,6 +114,7 @@ def _table_cells_to_data_frame_cells(items):
         return convert_func(v) if v else None
 
     table_data_frame_cells = {
+        # GnG project data frame
         'sample': int,
         'sh_easting': float,
         'bh_northing': float,
@@ -121,6 +122,9 @@ def _table_cells_to_data_frame_cells(items):
         'stage_no': convert_maybe_number(int),
         'stage_length': convert_maybe_number(float),
         'p_net': convert_maybe_number(float),
+        # GnG fault trace set data frame
+        'length': float,
+        'mean_azimuth': float,
     }
     table_column_name, table_cells = items
     return (_table_column_to_data_frame_column(table_column_name),
@@ -138,6 +142,7 @@ def _table_column_to_data_frame_column(table_column_name):
         The data frame column name corresponding to `table_column_name`.
     """
     table_data_frame_columns = {
+        # GnG project data frame
         'sample': 'Sample',
         'sh_easting': 'Surface  Hole Easting ',
         'bh_northing': 'Bottom Hole Northing ',
@@ -145,6 +150,9 @@ def _table_column_to_data_frame_column(table_column_name):
         'stage_no': 'StageNumber',
         'stage_length': 'StageLength',
         'p_net': 'Pnet',
+        # GnG fault trace set data frame
+        'length': 'Length',
+        'mean_azimuth': 'MeanAzimuth'
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 
