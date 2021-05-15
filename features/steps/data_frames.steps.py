@@ -25,14 +25,15 @@ from hamcrest import assert_that, not_none, equal_to, has_length
 import toolz.curried as toolz
 
 
-@when("I query the data frames for the project for '{field}'")
-def step_impl(context, field):
+@when("I query the project data frames identified by '{object_id}'")
+def step_impl(context, object_id):
     """
     Args:
         context (behave.runner.Context): The test context.
-        field (str): The name of the field of the loaded project.
+        object_id (str): The string representation of the value identifying the data frame of interest.
     """
-    context.project_data_frames = context.project.all_data_frames()
+    context.data_frame_of_interest = context.project.data_frame(_as_object_id(object_id)).unwrap()
+    assert_that(context.data_frame_of_interest, not_none())
 
 
 @then("I see a single data frame identified by {object_id}, {name} and {display_name}")
@@ -44,11 +45,9 @@ def step_impl(context, object_id, name, display_name):
         name (str): The name of the data frame of interest.
         display_name (str): The name of the data frame of interest used for display purposes.
     """
-    data_frame_object_id = _as_uuid(object_id)
-    data_frame_of_interest = _find_data_frame_by_id(data_frame_object_id, context.project_data_frames)
-    assert_that(data_frame_of_interest, not_none())
+    data_frame_of_interest = context.data_frame_of_interest
+    assert_that(data_frame_of_interest.object_id, equal_to(_as_object_id(object_id)))
 
-    assert_that(data_frame_of_interest.object_id, equal_to(data_frame_object_id))
     assert_that(data_frame_of_interest.name, equal_to(name))
     assert_that(data_frame_of_interest.display_name, equal_to(display_name))
 
@@ -81,7 +80,7 @@ def step_impl(context):
 
 
 # TODO: Adapted from `dot_net_dom_access.py`
-def _as_uuid(guid_text: str):
+def _as_object_id(guid_text: str):
     return uuid.UUID(guid_text)
 
 
