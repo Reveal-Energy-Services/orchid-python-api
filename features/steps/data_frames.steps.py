@@ -125,10 +125,23 @@ def _table_cells_to_data_frame_cells(items):
         # GnG fault trace set data frame
         'length': float,
         'mean_azimuth': float,
+        # GnG stage data frame
+        'dept_max': convert_maybe_number(float),
+        'rla4_max': convert_maybe_number(float),
+        'tend_max': convert_maybe_number(float),
+        'pefz_mean': convert_maybe_number(float),
+        'lcal_mean': convert_maybe_number(float),
+        'dpo_ls_min': convert_maybe_number(float),
     }
     table_column_name, table_cells = items
+    # print(f'{table_column_name}')
     return (_table_column_to_data_frame_column(table_column_name),
-            toolz.map(table_data_frame_cells[table_column_name], table_cells))
+            # toolz.pipe(table_cells,
+            #            toolz.do(lambda c: print(list(c))),
+            #            toolz.map(table_data_frame_cells[table_column_name]),
+            #            ),
+            toolz.map(table_data_frame_cells[table_column_name], table_cells),
+            )
 
 
 def _table_column_to_data_frame_column(table_column_name):
@@ -152,7 +165,14 @@ def _table_column_to_data_frame_column(table_column_name):
         'p_net': 'Pnet',
         # GnG fault trace set data frame
         'length': 'Length',
-        'mean_azimuth': 'MeanAzimuth'
+        'mean_azimuth': 'MeanAzimuth',
+        # GnG stage data frame
+        'dept_max': 'DEPTMax',
+        'rla4_max': 'RLA4Max',
+        'tend_max': 'TENDMax',
+        'pefz_mean': 'PEFZMean',
+        'lcal_mean': 'LCALMean',
+        'dpo_ls_min': 'DPO_LSMin',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 
