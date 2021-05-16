@@ -110,7 +110,7 @@ def _table_cells_to_data_frame_cells(items):
         A tuple of the transformed table column name and the transformed cells
     """
     @toolz.curry
-    def convert_maybe_number(convert_func, v):
+    def convert_maybe_value(convert_func, v):
         return convert_func(v) if v else None
 
     table_data_frame_cells = {
@@ -119,26 +119,33 @@ def _table_cells_to_data_frame_cells(items):
         'sh_easting': float,
         'bh_northing': float,
         'bh_tdv': float,
-        'stage_no': convert_maybe_number(int),
-        'stage_length': convert_maybe_number(float),
-        'p_net': convert_maybe_number(float),
+        'stage_no': convert_maybe_value(int),
+        'stage_length': convert_maybe_value(float),
+        'p_net': convert_maybe_value(float),
         # GnG fault trace set data frame
         'length': float,
         'mean_azimuth': float,
         # GnG stage data frame
-        'dept_max': convert_maybe_number(float),
-        'rla4_max': convert_maybe_number(float),
-        'tend_max': convert_maybe_number(float),
-        'pefz_mean': convert_maybe_number(float),
-        'lcal_mean': convert_maybe_number(float),
-        'dpo_ls_min': convert_maybe_number(float),
+        'dept_max': convert_maybe_value(float),
+        'rla4_max': convert_maybe_value(float),
+        'tend_max': convert_maybe_value(float),
+        'pefz_mean': convert_maybe_value(float),
+        'lcal_mean': convert_maybe_value(float),
+        'dpo_ls_min': convert_maybe_value(float),
         # GnG well log set data frame
-        'tvd_ss': convert_maybe_number(float),
-        'rla3': convert_maybe_number(float),
-        'dtco': convert_maybe_number(float),
-        'hdra': convert_maybe_number(float),
-        'rhoz': convert_maybe_number(float),
-        'lcal': convert_maybe_number(float),
+        'tvd_ss': convert_maybe_value(float),
+        'rla3': convert_maybe_value(float),
+        'dtco': convert_maybe_value(float),
+        'hdra': convert_maybe_value(float),
+        'rhoz': convert_maybe_value(float),
+        'lcal': convert_maybe_value(float),
+        # GnG horizon marker set data frame
+        'marker_description': convert_maybe_value(str),
+        'horizon_marker_set': str,
+        'boundary_type': str,
+        'well': str,
+        'md': convert_maybe_value(float),
+        'tvd': convert_maybe_value(float),
     }
     table_column_name, table_cells = items
     # print(f'{table_column_name}')
@@ -187,6 +194,13 @@ def _table_column_to_data_frame_column(table_column_name):
         'hdra': 'HDRA',
         'rhoz': 'RHOZ',
         'lcal': 'LCAL',
+        # GnG horizon marker set data frame
+        'marker_description': 'Marker Description',
+        'horizon_marker_set': 'Horizon Marker Set',
+        'boundary_type': 'Boundary Type',
+        'well': 'Well',
+        'md': 'MD',
+        'tvd': 'TVD',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 

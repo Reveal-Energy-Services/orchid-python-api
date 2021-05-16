@@ -135,13 +135,13 @@ Feature: Adapted IDataFrame DOM API
       | 30813  | 3326.166599 |         |         |         |        | 8.5149 |
       | 35490  | 3335.688645 |         |         |         |        |        |
 
-#  Scenario: Sampled GnG horizon marker set data frame have the correct cells
-#    Given I have loaded the project for the field, 'GnG'
-#    When I query the loaded project for the data frame named 'Horizon Marker Set Data Frame01'
-#    Then I see the sampled cells
-#      | sample | marker_description | horizon_marker_set | boundary_type | well | md     | tvd         |
-#      | 0      |                    | Bakken             | Top           | #1   | 3300.0 | 3276.823560 |
-#      | 1      |                    | Bakken             | Top           | #4   | 3320.0 | 3296.963144 |
-#      | 2      |                    | Lodgepole          | Top           | #1   | 3250.0 | 3239.071727 |
-#      | 3      |                    | Lodgepole          | Top           | #4   | 3270.0 | 3253.421091 |
-#      | 4      |                    | Three Forks        | Top           | #4   | 3360.0 | 3323.416432 |
+  Scenario: Sampled GnG horizon marker set data frame have the correct cells
+    Given I have loaded the project for the field, 'GnG'
+    When I query the loaded project for the data frame named 'Horizon Marker Set Data Frame01'
+    Then I see the sampled cells
+      | sample | marker_description | horizon_marker_set | boundary_type | well | md     | tvd         |
+      | 0      |                    | Bakken             | Top           | #1   | 3300.0 | 3276.823560 |
+      | 1      |                    | Bakken             | Top           | #4   | 3320.0 | 3296.963144 |
+      | 2      |                    | Lodgepole          | Top           | #1   | 3250.0 | 3239.071727 |
+      | 3      |                    | Lodgepole          | Top           | #4   | 3270.0 | 3253.421091 |
+      | 4      |                    | Three Forks        | Top           | #4   | 3360.0 | 3323.416432 |

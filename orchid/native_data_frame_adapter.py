@@ -97,8 +97,6 @@ def _read_data_table(data_table: DataTable) -> Iterable[dict]:
 
 
 def _table_row_to_dict(reader):
-    seed = {}
-
     def add_to_dict(so_far, to_accumulate):
         column_name, cell_value = to_accumulate
         return toolz.assoc(so_far, column_name, cell_value)
