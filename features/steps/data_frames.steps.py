@@ -148,12 +148,7 @@ def _table_cells_to_data_frame_cells(items):
         'tvd': convert_maybe_value(float),
     }
     table_column_name, table_cells = items
-    # print(f'{table_column_name}')
     return (_table_column_to_data_frame_column(table_column_name),
-            # toolz.pipe(table_cells,
-            #            toolz.do(lambda c: print(list(c))),
-            #            toolz.map(table_data_frame_cells[table_column_name]),
-            #            ),
             toolz.map(table_data_frame_cells[table_column_name], table_cells),
             )
 
