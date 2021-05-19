@@ -112,7 +112,6 @@ def _table_cells_to_data_frame_cells(items):
     """
     @toolz.curry
     def convert_maybe_value(convert_func, v):
-        print(f'v="{v}"')
         return convert_func(v) if v else None
 
     table_data_frame_cells = {
@@ -152,7 +151,7 @@ def _table_cells_to_data_frame_cells(items):
         'bh_easting': convert_maybe_value(float),
         'md_bottom': convert_maybe_value(float),
         'part_end_time': convert_maybe_value(dup.parse),
-        'stage_part_pumped_vol': convert_maybe_value(float),
+        'part_pumped_vol': convert_maybe_value(float),
         'pnet': convert_maybe_value(float),
         'pump_time': convert_maybe_value(int),
     }
@@ -206,12 +205,12 @@ def _table_column_to_data_frame_column(table_column_name):
         'md': 'MD',
         'tvd': 'TVD',
         # Permian project data frame
-        'bh_easting': 'Bottom Hole Easting',
+        'bh_easting': 'Bottom Hole Easting ',
         'md_bottom': 'MDBottom',
-        'part_end_time': 'Part End Time',
-        'stage_part_pumped_vol': 'Stage Part Pumped Volume',
+        'part_end_time': 'PartEndTime',
+        'part_pumped_vol': 'StagePartPumpedVolume',
         'pnet': 'Pnet',
-        'pump_time': 'Pump Time',
+        'pump_time': 'PumpTime',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 
