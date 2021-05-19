@@ -21,6 +21,7 @@ use_step_matcher("parse")
 
 import uuid
 
+from dateutil import parser as dup
 from hamcrest import assert_that, not_none, equal_to, has_length
 import toolz.curried as toolz
 import pandas as pd
@@ -111,6 +112,7 @@ def _table_cells_to_data_frame_cells(items):
     """
     @toolz.curry
     def convert_maybe_value(convert_func, v):
+        print(f'v="{v}"')
         return convert_func(v) if v else None
 
     table_data_frame_cells = {
@@ -146,6 +148,13 @@ def _table_cells_to_data_frame_cells(items):
         'well': str,
         'md': convert_maybe_value(float),
         'tvd': convert_maybe_value(float),
+        # Permian project data frame
+        'bh_easting': convert_maybe_value(float),
+        'md_bottom': convert_maybe_value(float),
+        'part_end_time': convert_maybe_value(dup.parse),
+        'stage_part_pumped_vol': convert_maybe_value(float),
+        'pnet': convert_maybe_value(float),
+        'pump_time': convert_maybe_value(int),
     }
     table_column_name, table_cells = items
     return (_table_column_to_data_frame_column(table_column_name),
@@ -196,6 +205,13 @@ def _table_column_to_data_frame_column(table_column_name):
         'well': 'Well',
         'md': 'MD',
         'tvd': 'TVD',
+        # Permian project data frame
+        'bh_easting': 'Bottom Hole Easting',
+        'md_bottom': 'MDBottom',
+        'part_end_time': 'Part End Time',
+        'stage_part_pumped_vol': 'Stage Part Pumped Volume',
+        'pnet': 'Pnet',
+        'pump_time': 'Pump Time',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 
