@@ -22,7 +22,7 @@ import enum
 from dateutil import tz as duz
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeKind
+from System import DateTime, DateTimeKind, DateTimeOffset
 
 
 class TimePointTimeZoneKind(enum.Enum):
@@ -151,6 +151,22 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     result = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
                       time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
                       DateTimeKind.Utc)
+    return result
+
+
+# TODO: Write unit tests for class
+def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
+    """
+    Convert a `dt.datetime` instance to a .NET `DateTimeOffset` instance.
+
+    Args:
+        time_point: The `dt.datetime` instance to covert.
+
+    Returns:
+        The equivalent .NET `DateTimeOffset` instance.
+    """
+    date_time = as_net_date_time(time_point)
+    result = DateTimeOffset(date_time)
     return result
 
 
