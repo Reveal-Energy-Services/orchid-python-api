@@ -37,19 +37,19 @@ Feature: Adapted IDataFrame DOM API
       | GnG   | a287e63d-fd15-48e8-b5fc-99eb57244f18 | Well Log Set Data Frame 01      | Not set      |
       | GnG   | 1cef6417-acb4-478c-b270-ca7022fc6003 | Horizon Marker Set Data Frame01 | Not set      |
 
-#  Scenario: Sampled Permian project data frame have the correct cells
-#    Given I have loaded the project for the field, 'Permian-a'
-#    When I query the loaded project for the data frame named 'Project Data Frame 01'
-#    Then I see the sampled cells
-#      | sample | bh_easting   | md_bottom | part_end_time             | part_pumped_vol | pnet        | pump_time |
-#      | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40+00:00 | 8423.638083     | 7522.805942 | 135       |
-#      | 31     | 2.141585e+06 | 15865.0   | 2018-11-18T07:17:34+00:00 | 10292.204517    | 8128.011899 | 199       |
-#      | 39     | 2.141585e+06 | 14671.0   | 2018-11-20T22:10:27+00:00 | 10835.269733    | 7546.839462 | 209       |
-#      | 51     | 2.141585e+06 | 13016.0   | 2018-11-26T21:39:09+00:00 | 5337.422217     | 8881.240715 | 117       |
-#      | 52     | 2.141585e+06 | 12862.0   | 2018-11-27T04:39:44+00:00 | 11738.620958    | 8935.191079 | 216       |
-#      | 58     | 2.142179e+06 | 16676.0   | 2018-11-14T06:06:20+00:00 | 10096.559025    | 6573.648542 | 151       |
-#      | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47+00:00 | 10059.747108    | 7555.899247 | 147       |
-#      | 87     | 2.141879e+06 |           |                           |                 |             |           |
+  Scenario: Sampled Permian project data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-a'
+    When I query the loaded project for the data frame named 'Project Data Frame 01'
+    Then I see the sampled cells
+      | sample | bh_easting   | md_bottom | part_end_time             | part_pumped_vol | pnet        | pump_time |
+      | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40+00:00 | 8423.638083     | 7522.805942 | 135       |
+      | 31     | 2.141585e+06 | 15865.0   | 2018-11-18T07:17:34+00:00 | 10292.204517    | 8128.011899 | 199       |
+      | 39     | 2.141585e+06 | 14671.0   | 2018-11-20T22:10:27+00:00 | 10835.269733    | 7546.839462 | 209       |
+      | 51     | 2.141585e+06 | 13016.0   | 2018-11-26T21:39:09+00:00 | 5337.422217     | 8881.240715 | 117       |
+      | 52     | 2.141585e+06 | 12862.0   | 2018-11-27T04:39:44+00:00 | 11738.620958    | 8935.191079 | 216       |
+      | 58     | 2.142179e+06 | 16676.0   | 2018-11-14T06:06:20+00:00 | 10096.559025    | 6573.648542 | 151       |
+      | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47+00:00 | 10059.747108    | 7555.899247 | 147       |
+      | 87     | 2.141879e+06 |           |                           |                 |             |           |
 
 #  Scenario: Sampled Permian FDI data frame have the correct cells
 #    Given I have loaded the project for the field, 'Permian-a'
