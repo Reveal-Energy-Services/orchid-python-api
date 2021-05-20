@@ -154,8 +154,15 @@ def _table_cells_to_data_frame_cells(items):
         'part_pumped_vol': convert_maybe_value(float),
         'pnet': convert_maybe_value(float),
         'pump_time': convert_maybe_value(int),
-        # Permian microseismic data frame
+        # Permian FDI data frame
+        'obs_set_name': str,
+        'mon_well': str,
+        'tr_stg_pt_no': str,
         'timestamp': convert_maybe_value(dup.parse),
+        'delta_p': convert_maybe_value(float),
+        'vol_to_pick': convert_maybe_value(float),
+        # Permian microseismic data frame
+        # 'timestamp': convert_maybe_value(dup.parse),
         'northing': convert_maybe_value(float),
         'depth_tvd_ss': convert_maybe_value(float),
         'dist_3d': convert_maybe_value(float),
@@ -218,8 +225,15 @@ def _table_column_to_data_frame_column(table_column_name):
         'part_pumped_vol': 'StagePartPumpedVolume',
         'pnet': 'Pnet',
         'pump_time': 'PumpTime',
-        # Permian microseismic data frame
+        # Permian FDI data frame
+        'obs_set_name': 'ObservationSetName',
+        'mon_well': 'MonitorWellName',
+        'tr_stg_pt_no': 'TreatmentStagePartNumber',
         'timestamp': 'Timestamp',
+        'delta_p': 'DeltaP',
+        'vol_to_pick': 'VolumeToPick',
+        # Permian microseismic data frame
+        # 'timestamp': 'Timestamp',
         'northing': 'Northing',
         'depth_tvd_ss': 'DepthTvdSs',
         'dist_3d': 'Distance3d',

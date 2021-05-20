@@ -51,19 +51,19 @@ Feature: Adapted IDataFrame DOM API
       | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47+00:00 | 10059.747108    | 7555.899247 | 147       |
       | 87     | 2.141879e+06 |           |                           |                 |             |           |
 
-#  Scenario: Sampled Permian FDI data frame have the correct cells
-#    Given I have loaded the project for the field, 'Permian-a'
-#    When I query the loaded project for the data frame named 'FDI Observations'
-#    Then I see the sampled cells
-#      | sample | obs_set_name     | monitor_well | treatment_well | stage_part_no | delta_p    | vol_to_pick  |
-#      | 0      | FDI Observations | P1           | C1             | Stage-01      | 0.362115   | 4299.649417  |
-#      | 1      | FDI Observations | P1           | C1             | Stage-02      | 0.595053   | 5009.373675  |
-#      | 20     | FDI Observations | P1           | C1             | Stage-19      | 39.059964  | 8056.843667  |
-#      | 28     | FDI Observations | P1           | C2             | Stage-02      | 6.170513   | 9859.784375  |
-#      | 45     | FDI Observations | P1           | C2             | Stage-20      | 98.717645  | 10014.638758 |
-#      | 52     | FDI Observations | P1           | C2             | Stage-29      | 94.454784  | 5920.732675  |
-#      | 53     | FDI Observations | P1           | C3             | Stage-01      | 214.641797 | 11681.990733 |
-#      | 83     | FDI Observations | P1           | C3             | Stage-31      | 31.818509  | 6803.360483  |
+  Scenario: Sampled Permian FDI data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-a'
+    When I query the loaded project for the data frame named 'FDI Observations'
+    Then I see the sampled cells
+      | sample | obs_set_name     | mon_well | tr_stg_pt_no | timestamp                 | delta_p    | vol_to_pick  |
+      | 0      | FDI Observations | P1       | Stage-01     | 2018-11-13T21:45:11+00:00 | 0.362115   | 4299.649417  |
+      | 1      | FDI Observations | P1       | Stage-02     | 2018-11-14T23:46:24+00:00 | 0.595053   | 5009.373675  |
+      | 20     | FDI Observations | P1       | Stage-19     | 2018-11-27T16:14:52+00:00 | 39.059964  | 8056.843667  |
+      | 28     | FDI Observations | P1       | Stage-02     | 2018-11-13T04:20:10+00:00 | 6.170513   | 9859.784375  |
+      | 45     | FDI Observations | P1       | Stage-20     | 2018-11-24T16:39:09+00:00 | 98.717645  | 10014.638758 |
+      | 52     | FDI Observations | P1       | Stage-29     | 2018-11-27T19:13:34+00:00 | 94.454784  | 5920.732675  |
+      | 53     | FDI Observations | P1       | Stage-01     | 2018-11-12T17:07:02+00:00 | 214.641797 | 11681.990733 |
+      | 83     | FDI Observations | P1       | Stage-31     | 2018-11-29T04:02:02+00:00 | 31.818509  | 6803.360483  |
 
   Scenario: Sampled Permian microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
