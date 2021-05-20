@@ -78,7 +78,7 @@ def get_net_unit(net_quantity):
         return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
 
 
-class IsEqualNetDateTime(BaseMatcher):
+class BaseEqualNetDateTime(BaseMatcher):
     def __init__(self, expected):
         """
         Construct an instance for matching another .NET DateTime instance against another instance.
@@ -118,7 +118,6 @@ class IsEqualNetDateTime(BaseMatcher):
                   - Minute
                   - Second
                   - Millisecond
-                  - Kind
         """
         if self._expected.Year != item.Year:
             return False
@@ -141,10 +140,15 @@ class IsEqualNetDateTime(BaseMatcher):
         if self._expected.Millisecond != item.Millisecond:
             return False
 
+        return True
+
+
+class IsEqualNetDateTime(BaseEqualNetDateTime):
+    def _matches(self, item) -> bool:
         if self._expected.Kind != item.Kind:
             return False
 
-        return True
+        return super()._matches(item)
 
 
 def equal_to_net_date_time(expected):
@@ -153,15 +157,6 @@ def equal_to_net_date_time(expected):
 
     Args:
         expected: An instance implementing the .NET DateTime "interface":
-                  - Year
-                  - Month
-                  - Day
-                  - Hour
-                  - Minute
-                  - Second
-                  - Millisecond
-                  - Kind
-                  - ToString
 
     Returns:
         A matcher against `expected`.
@@ -170,73 +165,12 @@ def equal_to_net_date_time(expected):
     return IsEqualNetDateTime(expected)
 
 
-class IsEqualNetDateTimeOffset(BaseMatcher):
-    def __init__(self, expected):
-        """
-        Construct an instance for matching another .NET DateTime instance against another instance.
-        Args:
-            expected: The expected .NET DateTimeOffset instance.
-        """
-        self._expected = expected
-
-    def describe_mismatch(self, item, mismatch_description: Description) -> None:
-        """
-        Describes the mismatch of the actual item.
-        Args:
-            item: The actual value in the test.
-            mismatch_description: The incoming mismatch_description.
-        """
-        mismatch_description.append_text(item.ToString("O"))
-
-    def describe_to(self, description: Description) -> None:
-        """
-        Describe the match failure.
-
-        Args:
-            description: The previous failure description(s).
-        """
-        description.append_text(self._expected.ToString("O"))
-
+class IsEqualNetDateTimeOffset(BaseEqualNetDateTime):
     def _matches(self, item) -> bool:
-        """
-        Determines of one instance with the .NET DateTimeOffset "interface" equals another instance.
-
-        Args:
-            item: An instance with the .NET DateTimeOffset "interface":
-                  - Year
-                  - Month
-                  - Day
-                  - Hour
-                  - Minute
-                  - Second
-                  - Millisecond
-                  - Offset
-        """
-        if self._expected.Year != item.Year:
-            return False
-
-        if self._expected.Month != item.Month:
-            return False
-
-        if self._expected.Day != item.Day:
-            return False
-
-        if self._expected.Hour != item.Hour:
-            return False
-
-        if self._expected.Minute != item.Minute:
-            return False
-
-        if self._expected.Second != item.Second:
-            return False
-
-        if self._expected.Millisecond != item.Millisecond:
-            return False
-
         if self._expected.Offset != item.Offset:
             return False
 
-        return True
+        return super()._matches(item)
 
 
 def equal_to_net_date_time_offset(expected):
@@ -245,15 +179,6 @@ def equal_to_net_date_time_offset(expected):
 
     Args:
         expected: An instance implementing the .NET DateTimeOffset "interface":
-                  - Year
-                  - Month
-                  - Day
-                  - Hour
-                  - Minute
-                  - Second
-                  - Millisecond
-                  - Offset
-                  - ToString
 
     Returns:
         A matcher against `expected`.
