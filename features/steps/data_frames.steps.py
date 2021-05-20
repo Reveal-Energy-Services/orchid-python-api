@@ -154,6 +154,13 @@ def _table_cells_to_data_frame_cells(items):
         'part_pumped_vol': convert_maybe_value(float),
         'pnet': convert_maybe_value(float),
         'pump_time': convert_maybe_value(int),
+        # Permian microseismic data frame
+        'northing': convert_maybe_value(float),
+        'depth_tvd_ss': convert_maybe_value(float),
+        # 'stage_no': convert_maybe_value(int),
+        'dist_3d': convert_maybe_value(float),
+        'planar_dist_azimuth': convert_maybe_value(float),
+        'vert_dist': convert_maybe_value(float),
     }
     table_column_name, table_cells = items
     return (_table_column_to_data_frame_column(table_column_name),
@@ -211,6 +218,13 @@ def _table_column_to_data_frame_column(table_column_name):
         'part_pumped_vol': 'StagePartPumpedVolume',
         'pnet': 'Pnet',
         'pump_time': 'PumpTime',
+        # Permian microseismic data frame
+        'northing': 'Northing',
+        'depth_tvd_ss': 'DepthTvdSs',
+        # 'stage_no': 'StageNumber',
+        'dist_3d': 'Distance3d',
+        'planar_dist_azimuth': 'PlanarDistanceAzimuth',
+        'vert_dist': 'VerticalDistance',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 
