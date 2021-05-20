@@ -37,14 +37,14 @@ class TimePointTimeZoneKind(enum.Enum):
     UNSPECIFIED = DateTimeKind.Unspecified  # Time zone is unspecified
 
 
-class NetQuantityTimeZoneError(ValueError):
+class NetDateTimeError(ValueError):
     """
     Raised when an error occurs accessing the `TimeZoneInfo` of a .NET `DateTime` instance.
     """
     pass
 
 
-class NetQuantityLocalDateTimeKindError(NetQuantityTimeZoneError):
+class NetDateTimeLocalDateTimeKindError(NetDateTimeError):
     """
     Raised when the `DateTime.Kind` property of a .NET `DateTime` instance is `DateTimeKind.Local`.
     """
@@ -58,7 +58,7 @@ class NetQuantityLocalDateTimeKindError(NetQuantityTimeZoneError):
         super().__init__(self, '.NET DateTime.Kind cannot be Local.', net_time_point.ToString("O"))
 
 
-class NetQuantityUnspecifiedDateTimeKindError(NetQuantityTimeZoneError):
+class NetDateTimeUnspecifiedDateTimeKindError(NetDateTimeError):
     """
     Raised when the `DateTime.Kind` property of a .NET `DateTime` instance is not recognized.
     """
@@ -79,11 +79,11 @@ class NetQuantityUnspecifiedDateTimeKindError(NetQuantityTimeZoneError):
         Args:
             net_time_point: A .NET DateTime representing a specific point in time.
         """
-        super().__init__(self, NetQuantityUnspecifiedDateTimeKindError.ERROR_PREFACE,
-                         net_time_point.ToString("O"), NetQuantityUnspecifiedDateTimeKindError.ERROR_SUFFIX)
+        super().__init__(self, NetDateTimeUnspecifiedDateTimeKindError.ERROR_PREFACE,
+                         net_time_point.ToString("O"), NetDateTimeUnspecifiedDateTimeKindError.ERROR_SUFFIX)
 
 
-class NetQuantityNoTzInfoError(NetQuantityTimeZoneError):
+class NetDateTimeNoTzInfoError(NetDateTimeError):
     """
     Raised when the `DateTime.Kind` property of a .NET `DateTime` instance is `DateTimeKind.Unspecified`.
     """
@@ -120,10 +120,10 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
                            net_time_point.Millisecond * 1000, duz.UTC)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
-        raise NetQuantityUnspecifiedDateTimeKindError(net_time_point)
+        raise NetDateTimeUnspecifiedDateTimeKindError(net_time_point)
 
     if net_time_point.Kind == DateTimeKind.Local:
-        raise NetQuantityLocalDateTimeKindError(net_time_point)
+        raise NetDateTimeLocalDateTimeKindError(net_time_point)
 
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
@@ -146,7 +146,7 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
     # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
     if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
-        raise NetQuantityNoTzInfoError(time_point)
+        raise NetDateTimeNoTzInfoError(time_point)
 
     result = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
                       time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),

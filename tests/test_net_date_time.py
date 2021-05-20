@@ -49,7 +49,7 @@ class TestNetDateTime(unittest.TestCase):
         net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}.'
         assert_that(calling(ndt.as_datetime).with_args(net_time_point),
-                    raises(ndt.NetQuantityLocalDateTimeKindError, pattern=expected_error_message))
+                    raises(ndt.NetDateTimeLocalDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
         time_point_dto = stub_dt.TimePointDto(2023, 7, 31, 1, 11, 26, stub_dt.make_milliseconds(216),
@@ -57,7 +57,7 @@ class TestNetDateTime(unittest.TestCase):
         net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}'
         assert_that(calling(ndt.as_datetime).with_args(net_time_point),
-                    raises(ndt.NetQuantityUnspecifiedDateTimeKindError, pattern=expected_error_message))
+                    raises(ndt.NetDateTimeUnspecifiedDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unknown_throws_exception(self):
         net_time_point = stub_dt.StubNetDateTime(2019, 2, 10, 9, 36, 36, 914, stub_dt.StubDateTimeKind.INVALID)
@@ -98,7 +98,7 @@ class TestNetDateTime(unittest.TestCase):
     def test_as_net_date_time_raises_error_if_not_utc(self):
         to_test_datetime = dt.datetime(2025, 12, 21, 9, 15, 7, 896671)
         assert_that(calling(ndt.as_net_date_time).with_args(to_test_datetime),
-                    raises(ndt.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
+                    raises(ndt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
     def test_as_net_date_time_offset(self):
         for time_point in [
@@ -130,7 +130,7 @@ class TestNetDateTime(unittest.TestCase):
     def test_as_net_date_time_offset_raises_error_if_not_utc(self):
         to_test_datetime = dt.datetime(2027, 4, 5, 10, 14, 13, 696066)
         assert_that(calling(ndt.as_net_date_time_offset).with_args(to_test_datetime),
-                    raises(ndt.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
+                    raises(ndt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
 
 if __name__ == '__main__':
