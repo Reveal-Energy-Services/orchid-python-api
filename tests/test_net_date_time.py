@@ -12,7 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
+import datetime as dt
 import unittest
 
 from hamcrest import assert_that, calling, equal_to, raises
@@ -96,8 +96,40 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(ndt.as_net_date_time(parsed_date_time), tcm.equal_to_net_date_time(expected))
 
     def test_as_net_date_time_raises_error_if_not_utc(self):
-        to_test_datetime = datetime.datetime(2025, 12, 21, 9, 15, 7, 896671)
+        to_test_datetime = dt.datetime(2025, 12, 21, 9, 15, 7, 896671)
         assert_that(calling(ndt.as_net_date_time).with_args(to_test_datetime),
+                    raises(ndt.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
+
+    def test_as_net_date_time_offset(self):
+        for time_point in [
+            stub_dt.TimePointDto(2023, 4, 20, 0, 3, 54,
+                                 stub_dt.make_microseconds(500438), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2024, 8, 20, 21, 50, 15,
+                                 stub_dt.make_microseconds(590797), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2010, 10, 14, 6, 56, 11,
+                                 stub_dt.make_microseconds(348562), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2026, 12, 15, 6, 53, 25,
+                                 stub_dt.make_microseconds(301500), ndt.TimePointTimeZoneKind.UTC),
+            stub_dt.TimePointDto(2027, 7, 28, 18, 49, 15,
+                                 stub_dt.make_microseconds(348500), ndt.TimePointTimeZoneKind.UTC),
+        ]:
+            expected = stub_dt.make_net_date_time_offset(time_point)
+            with self.subTest(f'Test as_net_date_time for {expected.ToString("o")}'):
+                actual = ndt.as_net_date_time_offset(stub_dt.make_datetime(time_point))
+                assert_that(actual, tcm.equal_to_net_date_time_offset(expected))
+
+    def test_as_net_date_time_offset_from_parsed_time_is_correct(self):
+        parsed_date_time = dup.parse('2019-06-18T11:14:29.901487Z')
+        expected_dto = stub_dt.TimePointDto(2019, 6, 18, 11, 14, 29,
+                                            901487 * om.registry.microseconds,
+                                            ndt.TimePointTimeZoneKind.UTC)
+
+        expected = stub_dt.make_net_date_time_offset(expected_dto)
+        assert_that(ndt.as_net_date_time_offset(parsed_date_time), tcm.equal_to_net_date_time_offset(expected))
+
+    def test_as_net_date_time_offset_raises_error_if_not_utc(self):
+        to_test_datetime = dt.datetime(2027, 4, 5, 10, 14, 13, 696066)
+        assert_that(calling(ndt.as_net_date_time_offset).with_args(to_test_datetime),
                     raises(ndt.NetQuantityNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
 

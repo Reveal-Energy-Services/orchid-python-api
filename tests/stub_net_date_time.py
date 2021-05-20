@@ -26,7 +26,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import Int32, DateTime, DateTimeKind
+from System import Int32, DateTime, DateTimeKind, DateTimeOffset
 
 
 TimePointDto = namedtuple('TimePointDto', ['year', 'month', 'day',
@@ -128,19 +128,25 @@ def make_net_date_time(time_point_dto: TimePointDto) -> DateTime:
     Returns:
         The .NET `DateTime` equivalent to `time_point_dto`.
     """
-    # Python.NET converts .NET `Enum` members to Python `ints`. Although this conversion works and is
-    # typically convenient, it leads to errors
-    # result = DateTime.Overloads[Int32, Int32, Int32,
-    #                             Int32, Int32, Int32,
-    #                             Int32, DateTimeKind](time_point_dto.year, time_point_dto.month, time_point_dto.day,
-    #                                                  time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
-    #                                                  time_point_dto.fractional.to(om.registry.milliseconds),
-    #                                                  time_point_dto.kind)
     result = DateTime(time_point_dto.year, time_point_dto.month, time_point_dto.day,
                       time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
                       int(round(time_point_dto.fractional.to(om.registry.milliseconds).magnitude)),
                       time_point_dto.kind.value)
 
+    return result
+
+
+def make_net_date_time_offset(time_point_dto: TimePointDto) -> DateTimeOffset:
+    """
+    Construct a .NET `DateTimeOffset` instance from a `TimePointDto` instance.
+
+    Args:
+        time_point_dto: The `TimePointDto` instance used to construct the .NET `DateTimeOffset` instance.
+
+    Returns:
+        The .NET `DateTimeOffset` equivalent to `time_point_dto`.
+    """
+    result = DateTimeOffset(make_net_date_time(time_point_dto))
     return result
 
 
