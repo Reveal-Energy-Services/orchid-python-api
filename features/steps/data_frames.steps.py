@@ -19,8 +19,6 @@
 from behave import *
 use_step_matcher("parse")
 
-import uuid
-
 from dateutil import parser as dup
 from hamcrest import assert_that, not_none, equal_to, has_length
 import toolz.curried as toolz
@@ -164,7 +162,7 @@ def _table_cells_to_data_frame_cells(items):
         'delta_p': convert_maybe_value(float),
         'vol_to_pick': convert_maybe_value(float),
         # Permian microseismic data frame
-        # 'timestamp': convert_maybe_value(dup.parse),
+        # 'timestamp': convert_maybe_value(parsed_date_with_correct_utc),
         'northing': convert_maybe_value(float),
         'depth_tvd_ss': convert_maybe_value(float),
         'dist_3d': convert_maybe_value(float),
