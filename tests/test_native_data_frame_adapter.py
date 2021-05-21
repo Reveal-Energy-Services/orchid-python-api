@@ -169,6 +169,17 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
+    def test_single_cell_data_table_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'obdurabis': dup.isoparse('20260329T054049.228576Z')}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+
+        actual_data_frame = sut.pandas_data_frame()
+        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *table_data_dto.table_data),
+                                           columns=toolz.first(table_data_dto.table_data).keys())
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
     def test_many_columns_many_rows_data_table_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
             [str, float, dt.datetime, int],

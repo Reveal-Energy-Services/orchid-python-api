@@ -20,6 +20,7 @@ import datetime as dt
 import enum
 
 from dateutil import tz as duz
+import toolz.curried as toolz
 
 # noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind, DateTimeOffset
@@ -154,7 +155,6 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     return result
 
 
-# TODO: Write unit tests for class
 def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
     """
     Convert a `dt.datetime` instance to a .NET `DateTimeOffset` instance.
@@ -182,3 +182,22 @@ def microseconds_to_integral_milliseconds(to_convert: int) -> int:
 
     """
     return int(round(to_convert / 1000))
+
+
+def net_date_time_offset_as_datetime(net_time_point: DateTimeOffset) -> dt.datetime:
+    """
+    Convert a .NET `DateTimeOffset` instance to a `dt.datetime` instance.
+
+    Args:
+        net_time_point: A point in time of type .NET `DateTimeOffset`.
+
+    Returns:
+        The `dt.datetime` equivalent to the `net_time_point`.
+    """
+    make_timezone = toolz.compose(dt.timezone,
+                                  lambda s: dt.timedelta(seconds=s),
+                                  round,
+                                  lambda ntp: ntp.Offset.TotalSeconds)
+    return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                       net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                       net_time_point.Millisecond * 1000, make_timezone(net_time_point))

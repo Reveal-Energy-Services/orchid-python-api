@@ -29,6 +29,10 @@ from System import DBNull
 from System.Data import DataTable
 
 
+class NativeDataFrameAdapterDateTimeError(TypeError):
+    pass
+
+
 def transform_display_name(net_display_name):
     maybe_display_name = option.maybe(net_display_name)
     return maybe_display_name.unwrap_or('Not set')
@@ -111,10 +115,18 @@ def _table_row_to_dict(reader):
 
         try:
             if str(value.GetType()) == 'System.DateTime':
-                return ndt.as_datetime(value)
-        except AttributeError:
-            # Not a .NET type so simply return it
-            return value
+                raise NativeDataFrameAdapterDateTimeError(value.GetType())
+
+            if str(value.GetType()) == 'System.DateTimeOffset':
+                return ndt.net_date_time_offset_as_datetime(value)
+
+        except AttributeError as ae:
+            if 'GetType' in str(ae):
+                # Not a .NET type so simply return it
+                return value
+
+            # Re-raise the original error
+            raise
 
     result = toolz.pipe(
         range(reader.FieldCount),

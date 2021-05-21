@@ -178,7 +178,7 @@ def make_data_column_type(python_type):
         return Type.GetType(mapper[python_type])
     except KeyError:
         if python_type == dt.datetime:
-            return Type.GetType('System.DateTime')
+            return Type.GetType('System.DateTimeOffset')
         raise
 
 
@@ -186,8 +186,6 @@ def make_data_table_column(net_column_name, net_column_type):
     new_column = DataColumn()
     new_column.ColumnName = net_column_name
     new_column.DataType = net_column_type
-    if is_net_date_time(new_column):
-        new_column.DateTimeMode = DataSetDateTime.Utc
     new_column.ReadOnly = True
     return new_column
 
@@ -220,7 +218,7 @@ def make_data_table_row(row_data, data_table):
         if not is_net_date_time(data_table.Columns[net_column_name]):
             data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
         else:
-            net_time_point = perhaps_cell_value.map_or(ndt.as_net_date_time, DBNull.Value)
+            net_time_point = perhaps_cell_value.map_or(ndt.as_net_date_time_offset, DBNull.Value)
             data_table_row[net_column_name] = net_time_point
     return data_table_row
 
@@ -233,4 +231,4 @@ def is_net_column_of_type(net_type_name, net_column):
 is_net_int = is_net_column_of_type('System.Int32')
 is_net_double = is_net_column_of_type('System.Double')
 is_net_string = is_net_column_of_type('System.String')
-is_net_date_time = is_net_column_of_type('System.DateTime')
+is_net_date_time = is_net_column_of_type('System.DateTimeOffset')
