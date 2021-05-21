@@ -30,9 +30,20 @@ from tests import (
 )
 
 
+def datetime_to_integral_milliseconds(value):
+    if isinstance(value, type(dt.datetime.utcnow())):
+        return value.replace(microsecond=round(value.microsecond / 1000) * 1000)
+    return value
+
+
+def dateutil_utc_to_datetime_utc(tp):
+    if isinstance(tp, type(dt.datetime.utcnow())):
+        return tp.replace(tzinfo=dt.timezone.utc)
+    return tp
+
+
 # Test ideas
-# - DataTable with DBNull cells produces DataFrame with corresponding cells containing `None`
-# - DataTable with DateTime column raises exception if not UTC time
+# - Actually use DateTimeOffset column
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -174,9 +185,15 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                                           [{'obdurabis': dup.isoparse('20260329T054049.228576Z')}],
                                           toolz.identity)
         sut = _create_sut(table_data_dto)
-
         actual_data_frame = sut.pandas_data_frame()
-        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *table_data_dto.table_data),
+
+        expected_table_data = toolz.pipe(
+            table_data_dto.table_data,
+            toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
+            toolz.map(toolz.valmap(dateutil_utc_to_datetime_utc)),
+            list,
+        )
+        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *expected_table_data),
                                            columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
@@ -210,21 +227,12 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 },
             ],
             toolz.identity)
+
         sut = _create_sut(table_data_dto)
-
         actual_data_frame = sut.pandas_data_frame()
-
-        def datetime_to_milliseconds(value):
-            try:
-                microsecond = value.microsecond
-                millisecond = int(round(microsecond / 1000)) * 1000
-                return value.replace(microsecond=millisecond)
-            except AttributeError:
-                # Assume `value` not a `datetime` instance
-                return value
-
         expected_table_data = toolz.pipe(table_data_dto.table_data,
-                                         toolz.map(toolz.valmap(datetime_to_milliseconds)),
+                                         toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
+                                         toolz.map(toolz.valmap(dateutil_utc_to_datetime_utc)),
                                          list,
                                          )
         expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *expected_table_data),
@@ -239,7 +247,12 @@ def _create_sut(table_data_dto):
 
 
 def _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto):
-    expected_data = toolz.keymap(rename_column_func, toolz.merge_with(toolz.identity, *table_data_dto.table_data))
+    expected_table_data = toolz.pipe(table_data_dto.table_data,
+                                     toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
+                                     toolz.map(toolz.valmap(dateutil_utc_to_datetime_utc)),
+                                     list,
+                                     )
+    expected_data = toolz.keymap(rename_column_func, toolz.merge_with(toolz.identity, *expected_table_data))
     expected_columns = list(toolz.map(rename_column_func, toolz.first(table_data_dto.table_data).keys()))
     expected_data_frame = pd.DataFrame(data=expected_data,
                                        columns=expected_columns)
