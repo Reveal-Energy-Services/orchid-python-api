@@ -98,6 +98,21 @@ class NetDateTimeNoTzInfoError(NetDateTimeError):
         super().__init__(self, f'The Python time point must specify the time zone.', time_point.isoformat())
 
 
+class NetDateTimeOffsetNonZeroOffsetError(NetDateTimeError):
+    """
+    Raised when the `Offset` property of a .NET `DateTimeOffset` is non-zero.
+    """
+    def __init__(self, net_date_time_offset):
+        """
+        Construct an instance from a .NET `DateTimeOffset`.
+
+        Args:
+            net_date_time_offset: A .NET `DateTimeOffset` representing a specific point in time.
+        """
+        super().__init__(self, f'The `Offset` of the .NET `DateTimeOffset`, {net_date_time_offset.ToString("o")},'
+                               ' cannot be non-zero.')
+
+
 def as_datetime(net_time_point: DateTime) -> dt.datetime:
     """
     Convert a .NET `DateTime` instance to a `dt.datetime` instance.
@@ -194,6 +209,9 @@ def net_date_time_offset_as_datetime(net_time_point: DateTimeOffset) -> dt.datet
     Returns:
         The `dt.datetime` equivalent to the `net_time_point`.
     """
+    if net_time_point.Offset.TotalSeconds != 0:
+        raise NetDateTimeOffsetNonZeroOffsetError(net_time_point)
+
     make_timezone = toolz.compose(dt.timezone,
                                   lambda s: dt.timedelta(seconds=s),
                                   round,

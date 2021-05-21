@@ -78,6 +78,57 @@ def get_net_unit(net_quantity):
         return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
 
 
+class IsEqualDateTime(BaseMatcher):
+    def __init__(self, expected):
+        """
+        Construct an instance for matching two `dt.datetime` instances.
+        Args:
+            expected: The expected `dt.datetime` instance.
+        """
+        self._expected = expected
+
+    def describe_mismatch(self, item, mismatch_description: Description) -> None:
+        """
+        Describes the mismatch of the actual item.
+        Args:
+            item: The actual value in the test.
+            mismatch_description: The incoming mismatch_description.
+        """
+        mismatch_description.append_text(item.isoformat())
+
+    def describe_to(self, description: Description) -> None:
+        """
+        Describe the match failure.
+
+        Args:
+            description: The previous failure description(s).
+        """
+        description.append_text(self._expected.isoformat)
+
+    def _matches(self, item) -> bool:
+        """
+        Determines of one `dt.datetime` instance equals another instance.
+
+        Args:
+            item: A `dt.datetime` instance:
+        """
+        return item.timestamp() == self._expected.timestamp()
+
+
+def equal_to_datetime(expected):
+    """
+    Create a matcher verifying another `dt.datetime` is equal to `expected`.
+
+    Args:
+        expected: An `dt.datetime` instance:
+
+    Returns:
+        A matcher against `expected`.
+
+    """
+    return IsEqualDateTime(expected)
+
+
 class BaseEqualNetDateTime(BaseMatcher):
     def __init__(self, expected):
         """

@@ -15,8 +15,11 @@
 import datetime as dt
 import unittest
 
+from dateutil import (
+    parser as dup,
+    tz as duz,
+)
 from hamcrest import assert_that, calling, equal_to, raises
-import dateutil.parser as dup
 
 from orchid import (
     measurement as om,
@@ -29,9 +32,11 @@ from tests import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeKind
+from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
+# Test ideas
+# - Raises exception if converting `DateTimeOffset` with non-zero offset to `dt.datetime`
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -131,6 +136,20 @@ class TestNetDateTime(unittest.TestCase):
         to_test_datetime = dt.datetime(2027, 4, 5, 10, 14, 13, 696066)
         assert_that(calling(ndt.as_net_date_time_offset).with_args(to_test_datetime),
                     raises(ndt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
+
+    def test_net_date_time_offset_as_datetime(self):
+        time_point = stub_dt.TimePointDto(
+            2026, 2, 19, 12, 26, 58, 226 * om.registry.milliseconds, ndt.TimePointTimeZoneKind.UTC
+        )
+        actual = ndt.net_date_time_offset_as_datetime(stub_dt.make_net_date_time_offset(time_point))
+        expected = stub_dt.make_datetime(time_point)
+        assert_that(actual, tcm.equal_to_datetime(expected))
+
+    def test_net_date_time_offset_as_datetime_raises_error_if_non_zero_offset(self):
+        net_date_time_offset = DateTimeOffset(2026, 3, 17, 16, 42, 47, 694, TimeSpan.FromMinutes(1))
+        assert_that(calling(ndt.net_date_time_offset_as_datetime).with_args(net_date_time_offset),
+                    raises(ndt.NetDateTimeOffsetNonZeroOffsetError,
+                           pattern=r'`Offset`.*2026-03-17T16:42:47.6940000\+00:01'))
 
 
 if __name__ == '__main__':
