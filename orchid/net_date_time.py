@@ -185,6 +185,20 @@ def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
     return result
 
 
+def dateutil_utc_to_datetime_utc(time_point):
+    """
+    Convert a UTC timezone from the `dateutil` package to a UTC timezone from the `datetime` package.
+    Args:
+        time_point: The time point whose timezone may need conversion.
+
+    Returns:
+        The converted time point.
+    """
+    if isinstance(time_point, type(dt.datetime.utcnow())):
+        return time_point.replace(tzinfo=dt.timezone.utc)
+    return time_point
+
+
 def microseconds_to_integral_milliseconds(to_convert: int) -> int:
     """
     Convert microseconds to an integral number of milliseconds.

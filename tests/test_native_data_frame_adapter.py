@@ -22,7 +22,10 @@ import pandas as pd
 import pandas.testing as pdt
 import toolz.curried as toolz
 
-from orchid import native_data_frame_adapter as dfa
+from orchid import (
+    net_date_time as net_dt,
+    native_data_frame_adapter as dfa,
+)
 
 from tests import (
     stub_net_date_time as tdt,
@@ -34,12 +37,6 @@ def datetime_to_integral_milliseconds(value):
     if isinstance(value, type(dt.datetime.utcnow())):
         return value.replace(microsecond=round(value.microsecond / 1000) * 1000)
     return value
-
-
-def dateutil_utc_to_datetime_utc(tp):
-    if isinstance(tp, type(dt.datetime.utcnow())):
-        return tp.replace(tzinfo=dt.timezone.utc)
-    return tp
 
 
 # Test ideas
@@ -235,7 +232,7 @@ def _create_sut(table_data_dto):
 def _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto):
     expected_table_data = toolz.pipe(table_data_dto.table_data,
                                      toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
-                                     toolz.map(toolz.valmap(dateutil_utc_to_datetime_utc)),
+                                     toolz.map(toolz.valmap(net_dt.dateutil_utc_to_datetime_utc)),
                                      list,
                                      )
     expected_data = toolz.keymap(rename_column_func, toolz.merge_with(toolz.identity, *expected_table_data))

@@ -160,7 +160,7 @@ def transformed_dom_property_iterator(attribute_name, docstring, transformer):
     return property(fget=getter, doc=docstring, fset=None)
 
 
-def as_uuid(guid: Guid):
+def as_object_id(guid: Guid):
     return uuid.UUID(str(guid))
 
 
@@ -176,7 +176,7 @@ class DotNetAdapter:
         self._adaptee = adaptee
         self._net_project_callable = net_project_callable
 
-    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_uuid)
+    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
     @property
     def dom_object(self):
