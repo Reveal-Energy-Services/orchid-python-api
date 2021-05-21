@@ -17,7 +17,7 @@ import unittest
 import uuid
 
 from dateutil import parser as dup
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, calling, raises
 import pandas as pd
 import pandas.testing as pdt
 import toolz.curried as toolz
@@ -169,17 +169,15 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_cell_data_table_with_date_time_column_produces_correct_pandas_data_frame(self):
+    def test_single_cell_data_table_with_date_time_column_raises_error(self):
         rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
-        table_data_dto = tsn.TableDataDto([dt.datetime],
+        table_data_dto = tsn.TableDataDto(['DateTime'],
                                           [{'pulchritudo': dup.isoparse('2024-03-15T10:09:18Z')}],
                                           rename_column_func)
         sut = _create_sut(table_data_dto)
 
-        actual_data_frame = sut.pandas_data_frame()
-        expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
-        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
-        assert_that(False, equal_to(True), 'Should never get here')
+        assert_that(calling(sut.pandas_data_frame).with_args(),
+                    raises(dfa.NativeDataFrameAdapterDateTimeError, pattern='System.DateTime'))
 
     def test_single_cell_data_table_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([dt.datetime],

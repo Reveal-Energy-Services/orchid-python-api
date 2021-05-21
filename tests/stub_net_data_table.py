@@ -57,7 +57,7 @@ def format_column_width(column):
     if is_net_int(column) or is_net_double(column):
         return 8
 
-    if is_net_string(column) or is_net_date_time(column):
+    if is_net_string(column) or is_net_date_time_offset(column):
         return 32
 
     raise KeyError(f'Cannot determine size of column {column.ColumnName}')
@@ -110,7 +110,7 @@ def format_some_value(column, value):
     if is_net_int(column) or is_net_double(column) or is_net_string(column):
         return value
 
-    if is_net_date_time(column):
+    if is_net_date_time_offset(column):
         return value.ToString('o')
 
     raise TypeError(value)
@@ -179,6 +179,10 @@ def make_data_column_type(python_type):
     except KeyError:
         if python_type == dt.datetime:
             return Type.GetType('System.DateTimeOffset')
+
+        if python_type == 'DateTime':
+            return Type.GetType('System.DateTime')
+
         raise
 
 
@@ -186,6 +190,8 @@ def make_data_table_column(net_column_name, net_column_type):
     new_column = DataColumn()
     new_column.ColumnName = net_column_name
     new_column.DataType = net_column_type
+    if net_column_type.FullName == 'System.DateTime':
+        new_column.DateTimeMode = DataSetDateTime.Utc
     new_column.ReadOnly = True
     return new_column
 
@@ -215,11 +221,14 @@ def add_data_table_rows(data_table_dto, data_table):
 def make_data_table_row(row_data, data_table):
     data_table_row = data_table.NewRow()
     for net_column_name, perhaps_cell_value in row_data.items():
-        if not is_net_date_time(data_table.Columns[net_column_name]):
-            data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
-        else:
+        if is_net_date_time_offset(data_table.Columns[net_column_name]):
             net_time_point = perhaps_cell_value.map_or(ndt.as_net_date_time_offset, DBNull.Value)
             data_table_row[net_column_name] = net_time_point
+        elif is_net_date_time(data_table.Columns[net_column_name]):
+            net_time_point = perhaps_cell_value.map_or(ndt.as_net_date_time, DBNull.Value)
+            data_table_row[net_column_name] = net_time_point
+        else:
+            data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
     return data_table_row
 
 
@@ -231,4 +240,5 @@ def is_net_column_of_type(net_type_name, net_column):
 is_net_int = is_net_column_of_type('System.Int32')
 is_net_double = is_net_column_of_type('System.Double')
 is_net_string = is_net_column_of_type('System.String')
-is_net_date_time = is_net_column_of_type('System.DateTimeOffset')
+is_net_date_time = is_net_column_of_type('System.DateTime')
+is_net_date_time_offset = is_net_column_of_type('System.DateTimeOffset')
