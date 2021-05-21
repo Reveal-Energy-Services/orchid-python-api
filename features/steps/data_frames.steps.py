@@ -160,7 +160,7 @@ def _table_cells_to_data_frame_cells(items):
         'obs_set_name': str,
         'mon_well': str,
         'tr_stg_pt_no': str,
-        'timestamp': convert_maybe_value(dup.parse),
+        'timestamp': convert_maybe_value(parsed_date_with_correct_utc),
         'delta_p': convert_maybe_value(float),
         'vol_to_pick': convert_maybe_value(float),
         # Permian microseismic data frame
