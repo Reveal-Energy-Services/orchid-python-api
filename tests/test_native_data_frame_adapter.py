@@ -43,7 +43,7 @@ def dateutil_utc_to_datetime_utc(tp):
 
 
 # Test ideas
-# - Actually use DateTimeOffset column
+# - DateTime column should raise error - How do I test this behavior?
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -179,6 +179,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         actual_data_frame = sut.pandas_data_frame()
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+        assert_that(False, equal_to(True), 'Should never get here')
 
     def test_single_cell_data_table_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([dt.datetime],
@@ -187,14 +188,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         sut = _create_sut(table_data_dto)
         actual_data_frame = sut.pandas_data_frame()
 
-        expected_table_data = toolz.pipe(
-            table_data_dto.table_data,
-            toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
-            toolz.map(toolz.valmap(dateutil_utc_to_datetime_utc)),
-            list,
-        )
-        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *expected_table_data),
-                                           columns=toolz.first(table_data_dto.table_data).keys())
+        expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
     def test_many_columns_many_rows_data_table_with_db_null_values_produces_correct_pandas_data_frame(self):
@@ -230,13 +224,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         sut = _create_sut(table_data_dto)
         actual_data_frame = sut.pandas_data_frame()
-        expected_table_data = toolz.pipe(table_data_dto.table_data,
-                                         toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
-                                         toolz.map(toolz.valmap(dateutil_utc_to_datetime_utc)),
-                                         list,
-                                         )
-        expected_data_frame = pd.DataFrame(data=toolz.merge_with(toolz.identity, *expected_table_data),
-                                           columns=toolz.first(table_data_dto.table_data).keys())
+        expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
 
