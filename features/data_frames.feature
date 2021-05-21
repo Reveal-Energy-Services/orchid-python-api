@@ -51,33 +51,33 @@ Feature: Adapted IDataFrame DOM API
       | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47+00:00 | 10059.747108    | 7555.899247 | 147       |
       | 87     | 2.141879e+06 |           |                           |                 |             |           |
 
-  Scenario: Sampled Permian FDI data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'FDI Observations'
-    Then I see the sampled cells
-      | sample | obs_set_name     | mon_well | tr_stg_pt_no | timestamp                 | delta_p    | vol_to_pick  |
-      | 0      | FDI Observations | P1       | Stage-01     | 2018-11-13T21:45:11+00:00 | 0.362115   | 4299.649417  |
-      | 1      | FDI Observations | P1       | Stage-02     | 2018-11-14T23:46:24+00:00 | 0.595053   | 5009.373675  |
-      | 20     | FDI Observations | P1       | Stage-19     | 2018-11-27T16:14:52+00:00 | 39.059964  | 8056.843667  |
-      | 28     | FDI Observations | P1       | Stage-02     | 2018-11-13T04:20:10+00:00 | 6.170513   | 9859.784375  |
-      | 45     | FDI Observations | P1       | Stage-20     | 2018-11-24T16:39:09+00:00 | 98.717645  | 10014.638758 |
-      | 52     | FDI Observations | P1       | Stage-29     | 2018-11-27T19:13:34+00:00 | 94.454784  | 5920.732675  |
-      | 53     | FDI Observations | P1       | Stage-01     | 2018-11-12T17:07:02+00:00 | 214.641797 | 11681.990733 |
-      | 83     | FDI Observations | P1       | Stage-31     | 2018-11-29T04:02:02+00:00 | 31.818509  | 6803.360483  |
+#  Scenario: Sampled Permian FDI data frame have the correct cells
+#    Given I have loaded the project for the field, 'Permian-a'
+#    When I query the loaded project for the data frame named 'FDI Observations'
+#    Then I see the sampled cells
+#      | sample | obs_set_name     | mon_well | tr_stg_pt_no | timestamp                 | delta_p    | vol_to_pick  |
+#      | 0      | FDI Observations | P1       | Stage-01     | 2018-11-13T21:45:11+00:00 | 0.362115   | 4299.649417  |
+#      | 1      | FDI Observations | P1       | Stage-02     | 2018-11-14T23:46:24+00:00 | 0.595053   | 5009.373675  |
+#      | 20     | FDI Observations | P1       | Stage-19     | 2018-11-27T16:14:52+00:00 | 39.059964  | 8056.843667  |
+#      | 28     | FDI Observations | P1       | Stage-02     | 2018-11-13T04:20:10+00:00 | 6.170513   | 9859.784375  |
+#      | 45     | FDI Observations | P1       | Stage-20     | 2018-11-24T16:39:09+00:00 | 98.717645  | 10014.638758 |
+#      | 52     | FDI Observations | P1       | Stage-29     | 2018-11-27T19:13:34+00:00 | 94.454784  | 5920.732675  |
+#      | 53     | FDI Observations | P1       | Stage-01     | 2018-11-12T17:07:02+00:00 | 214.641797 | 11681.990733 |
+#      | 83     | FDI Observations | P1       | Stage-31     | 2018-11-29T04:02:02+00:00 | 31.818509  | 6803.360483  |
 
-  Scenario: Sampled Permian microseismic data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01'
-    Then I see the sampled cells
-      | sample | timestamp                 | northing    | depth_tvd_ss | dist_3d    | planar_dist_azm | vert_dist  |
-      | 0      | 2018-11-12T14:14:30+00:00 | 11663896.37 | 11468.62     | 499.111743 |                 |            |
-      | 12     | 2018-11-12T14:41:56+00:00 | 11664068.45 | 11457.64     | 237.902313 |                 |            |
-      | 79     | 2018-11-12T16:53:39+00:00 | 11664385.37 | 11492.23     | 106.474419 | 28.857372       | 45.813477  |
-      | 96     | 2018-11-13T02:32:16+00:00 | 11664433.12 | 11451.57     |            | 365.32802       | 5.15332    |
-      | 99     | 2018-11-13T02:38:59+00:00 | 11664441.39 | 11309.02     |            | 297.033256      | 137.397461 |
-      | 330    | 2018-11-15T03:15:00+00:00 | 11665140.80 | 11486.48     | 372.566085 | 360.100056      | 40.708984  |
-      | 366    | 2018-11-15T10:31:00+00:00 | 11665255.69 | 11465.79     | 243.671    | 234.874205      | 20.594727  |
-      | 479    | 2018-11-19T21:25:23+00:00 | 11666700.54 | 11395.45     | 237.502735 | 180.208587      | 47.088867  |
+#  Scenario: Sampled Permian microseismic data frame have the correct cells
+#    Given I have loaded the project for the field, 'Permian-a'
+#    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01'
+#    Then I see the sampled cells
+#      | sample | timestamp                 | northing    | depth_tvd_ss | dist_3d    | planar_dist_azm | vert_dist  |
+#      | 0      | 2018-11-12T14:14:30+00:00 | 11663896.37 | 11468.62     | 499.111743 |                 |            |
+#      | 12     | 2018-11-12T14:41:56+00:00 | 11664068.45 | 11457.64     | 237.902313 |                 |            |
+#      | 79     | 2018-11-12T16:53:39+00:00 | 11664385.37 | 11492.23     | 106.474419 | 28.857372       | 45.813477  |
+#      | 96     | 2018-11-13T02:32:16+00:00 | 11664433.12 | 11451.57     |            | 365.32802       | 5.15332    |
+#      | 99     | 2018-11-13T02:38:59+00:00 | 11664441.39 | 11309.02     |            | 297.033256      | 137.397461 |
+#      | 330    | 2018-11-15T03:15:00+00:00 | 11665140.80 | 11486.48     | 372.566085 | 360.100056      | 40.708984  |
+#      | 366    | 2018-11-15T10:31:00+00:00 | 11665255.69 | 11465.79     | 243.671    | 234.874205      | 20.594727  |
+#      | 479    | 2018-11-19T21:25:23+00:00 | 11666700.54 | 11395.45     | 237.502735 | 180.208587      | 47.088867  |
 
   Scenario: Sampled GnG project data frame have the correct cells
     Given I have loaded the project for the field, 'GnG'

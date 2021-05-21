@@ -26,6 +26,11 @@ from hamcrest import assert_that, not_none, equal_to, has_length
 import toolz.curried as toolz
 import pandas as pd
 
+from orchid import (
+    dot_net_dom_access as dna,
+    net_date_time as net_dt,
+)
+
 
 @when("I query the project data frames identified by '{object_id}'")
 def step_impl(context, object_id):
@@ -34,7 +39,7 @@ def step_impl(context, object_id):
         context (behave.runner.Context): The test context.
         object_id (str): The string representation of the value identifying the data frame of interest.
     """
-    context.data_frame_of_interest = context.project.data_frame(_as_object_id(object_id)).unwrap()
+    context.data_frame_of_interest = context.project.data_frame(dna.as_object_id(object_id)).unwrap()
     assert_that(context.data_frame_of_interest, not_none())
 
 
@@ -48,7 +53,7 @@ def step_impl(context, object_id, name, display_name):
         display_name (str): The name of the data frame of interest used for display purposes.
     """
     data_frame_of_interest = context.data_frame_of_interest
-    assert_that(data_frame_of_interest.object_id, equal_to(_as_object_id(object_id)))
+    assert_that(data_frame_of_interest.object_id, equal_to(dna.as_object_id(object_id)))
 
     assert_that(data_frame_of_interest.name, equal_to(name))
     assert_that(data_frame_of_interest.display_name, equal_to(display_name))
@@ -87,17 +92,11 @@ def _as_data_frame(table):
         row_data = {h: [row_to_reduce[h]] for h in row_to_reduce.headings}
         return toolz.merge_with(toolz.concat, so_far, row_data)
 
-    # frame_columns = toolz.map(_table_column_to_data_frame_column, table.headings)
     initial_data = {h: [] for h in table.headings}
     raw_frame_data = toolz.reduce(reduce_row, table, initial_data)
     frame_mapped_data = toolz.itemmap(_table_cells_to_data_frame_cells, raw_frame_data)
     frame_data = toolz.valmap(list, frame_mapped_data)
     return pd.DataFrame(data=frame_data, columns=frame_data.keys())
-
-
-# TODO: Adapted from `dot_net_dom_access.py`:
-def _as_object_id(guid_text: str):
-    return uuid.UUID(guid_text)
 
 
 def _table_cells_to_data_frame_cells(items):
@@ -113,6 +112,9 @@ def _table_cells_to_data_frame_cells(items):
     @toolz.curry
     def convert_maybe_value(convert_func, v):
         return convert_func(v) if v else None
+
+    parsed_date_with_correct_utc = toolz.compose(net_dt.dateutil_utc_to_datetime_utc,
+                                                 dup.parse, )
 
     table_data_frame_cells = {
         # GnG project data frame
@@ -150,7 +152,7 @@ def _table_cells_to_data_frame_cells(items):
         # Permian project data frame
         'bh_easting': convert_maybe_value(float),
         'md_bottom': convert_maybe_value(float),
-        'part_end_time': convert_maybe_value(dup.parse),
+        'part_end_time': convert_maybe_value(parsed_date_with_correct_utc),
         'part_pumped_vol': convert_maybe_value(float),
         'pnet': convert_maybe_value(float),
         'pump_time': convert_maybe_value(int),
