@@ -15,7 +15,7 @@
 """
 Functions to convert between .NET `DateTime` instances and Python `datetime.datetime` instances.
 """
-
+import datetime
 import datetime as dt
 import enum
 
@@ -123,6 +123,9 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
     Returns:
         The `dt.datetime` equivalent to the `net_time_point`.
     """
+    if net_time_point == DateTime.MaxValue or net_time_point == DateTimeOffset.MaxValue:
+        return dt.datetime.max
+
     if net_time_point.Kind == DateTimeKind.Utc:
         return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                            net_time_point.Hour, net_time_point.Minute, net_time_point.Second,

@@ -37,8 +37,6 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 # Test ideas
 # - Correctly convert `dt.datetime.max` to `DateTime.MaxValue`
 # - Convert `dt.datetime.max` to `DateTimeOffset.MaxValue`
-# - Correctly convert `DateTime.MaxValue` to `dt.datetime.max`
-# - Correctly convert `DateTimeOffset.MaxValue` to `dt.datetime.max`
 # - Correctly convert `dt.datetime.min` to `DateTime.MinValue`
 # - Convert `dt.datetime.min` to `DateTimeOffset.MinValue`
 # - Correctly convert `DateTime.MinValue` to `dt.datetime.min`
@@ -147,6 +145,15 @@ class TestNetDateTime(unittest.TestCase):
         to_test_datetime = dt.datetime(2027, 4, 5, 10, 14, 13, 696066)
         assert_that(calling(net_dt.as_net_date_time_offset).with_args(to_test_datetime),
                     raises(net_dt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
+
+    def test_max_sentinel(self):
+        for net_sentinel, to_test_func in [
+            (DateTime.MaxValue, net_dt.as_datetime),
+            (DateTimeOffset.MaxValue, net_dt.as_datetime),
+        ]:
+            with self.subTest(f'Verify conversion of {net_sentinel.ToString("o")} to `datetime.max`'):
+                actual = to_test_func(net_sentinel)
+                assert_that(actual, equal_to(dt.datetime.max))
 
     def test_net_date_time_offset_as_datetime(self):
         time_point = stub_dt.TimePointDto(
