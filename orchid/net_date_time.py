@@ -124,13 +124,6 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
         The `dt.datetime` equivalent to the `net_time_point`.
     """
     if net_time_point.Kind == DateTimeKind.Utc:
-        # TODO: Consider using the zulu package
-        # Research using the [zulu package](https://zulu.readthedocs.io/en/latest/). This package is "a drop-in
-        # replacement for native datetimes that embraces UTC."
-        #
-        # Much to my surprise, the `dateutil` and standard Python libraries have two **different** values for a
-        # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
-        # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
         return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                            net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
                            net_time_point.Millisecond * 1000, duz.UTC)
@@ -154,13 +147,6 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     Returns:
         The equivalent .NET `DateTime` instance.
     """
-    # TODO: Consider using the zulu package
-    # Research using the [zulu package](https://zulu.readthedocs.io/en/latest/). This package is "a drop-in
-    # replacement for native datetimes that embraces UTC."
-    #
-    # Much to my surprise, the `dateutil` and standard Python libraries have two **different** values for a
-    # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
-    # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
     if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
         raise NetDateTimeNoTzInfoError(time_point)
 
