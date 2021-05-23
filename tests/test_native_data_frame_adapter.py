@@ -40,7 +40,13 @@ def datetime_to_integral_milliseconds(value):
 
 
 # Test ideas
-# - DateTime column should raise error - How do I test this behavior?
+# - Correctly translate DateTimeOffset.MaxValue to `NaT` in pandas `DataFrame`
+# - Correctly translate DateTimeOffset.MinValue to `NaT` in pandas `DataFrame`
+# - Correctly translate `None` values to
+#   - `None` in string columns
+#   - `NaN` in int columns
+#   - `NaN` in float columns
+#   - 'NaT` in time (DateTimeOffset) columns
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))

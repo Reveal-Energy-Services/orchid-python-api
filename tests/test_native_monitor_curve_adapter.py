@@ -32,6 +32,9 @@ from orchid import (
 import tests.stub_net as tsn
 
 
+# Test ideas
+# - Transform datetime.max to `NaT` in Time Series
+# - Transform datetime.min to `NaT` in Time Series
 class TestNativeMonitorCurveAdapter(unittest.TestCase):
     # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
     # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.

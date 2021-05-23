@@ -34,6 +34,9 @@ from tests import (
 )
 
 
+# Test ideas
+# - Transform datetime.max to `NaT` in Time Series
+# - Transform datetime.min to `NaT` in Time Series
 class TestTreatmentCurveAdapter(unittest.TestCase):
     # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
     # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.

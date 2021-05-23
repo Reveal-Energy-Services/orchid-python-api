@@ -36,7 +36,19 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
-# - Raises exception if converting `DateTimeOffset` with non-zero offset to `dt.datetime`
+# - Correctly convert `dt.datetime.max` to `DateTime.MaxValue`
+# - Convert `dt.datetime.max` to `DateTimeOffset.MaxValue`
+# - Correctly convert `DateTime.MaxValue` to `dt.datetime.max`
+# - Correctly convert `DateTimeOffset.MaxValue` to `dt.datetime.max`
+# - Correctly convert `dt.datetime.min` to `DateTime.MinValue`
+# - Convert `dt.datetime.min` to `DateTimeOffset.MinValue`
+# - Correctly convert `DateTime.MinValue` to `dt.datetime.min`
+# - Correctly convert `DateTimeOffset.MinValue` to `dt.datetime.min`
+# - Correctly handle `microsecond_to_integral_millisecond()` for 999999 microsecond
+#   - 999400 microseconds to 999 milliseconds
+#   - 999500 microseconds to 1 **second**
+#   - 999999 microseconds to 1 **second**
+#   - For both `DateTime` and for `DateTimeOffset`
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
