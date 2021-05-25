@@ -215,20 +215,6 @@ def dateutil_utc_to_datetime_utc(time_point):
     return time_point
 
 
-def microseconds_to_integral_milliseconds(to_convert: int) -> int:
-    """
-    Convert microseconds to an integral number of milliseconds.
-
-    Args:
-        to_convert: The milliseconds to convert.
-
-    Returns:
-        An integral number of milliseconds equivalent to `to_convert` microseconds.
-
-    """
-    return int(round(to_convert / 1000))
-
-
 def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
     """
     Convert microseconds to an integral number of milliseconds with a number of seconds to carry.
