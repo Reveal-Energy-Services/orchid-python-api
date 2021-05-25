@@ -35,12 +35,12 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
+# - Correctly convert `DateTime.MinValue` to `dt.datetime.min`
+# - Correctly convert `DateTimeOffset.MinValue` to `dt.datetime.min`
 # - Correctly convert `dt.datetime.max` to `DateTime.MaxValue`
 # - Convert `dt.datetime.max` to `DateTimeOffset.MaxValue`
 # - Correctly convert `dt.datetime.min` to `DateTime.MinValue`
 # - Convert `dt.datetime.min` to `DateTimeOffset.MinValue`
-# - Correctly convert `DateTime.MinValue` to `dt.datetime.min`
-# - Correctly convert `DateTimeOffset.MinValue` to `dt.datetime.min`
 # - Correctly handle `microsecond_to_integral_millisecond()` for 999999 microsecond
 #   - 999400 microseconds to 999 milliseconds
 #   - 999500 microseconds to 1 **second**
@@ -154,6 +154,15 @@ class TestNetDateTime(unittest.TestCase):
             with self.subTest(f'Verify conversion of {net_sentinel.ToString("o")} to `datetime.max`'):
                 actual = to_test_func(net_sentinel)
                 assert_that(actual, equal_to(dt.datetime.max))
+
+    def test_min_sentinel(self):
+        for net_sentinel, to_test_func in [
+            (DateTime.MinValue, net_dt.as_datetime),
+            (DateTimeOffset.MinValue, net_dt.as_datetime),
+        ]:
+            with self.subTest(f'Verify conversion of {net_sentinel.ToString("o")} to `datetime.min`'):
+                actual = to_test_func(net_sentinel)
+                assert_that(actual, equal_to(dt.datetime.min))
 
     def test_net_date_time_offset_as_datetime(self):
         time_point = stub_dt.TimePointDto(

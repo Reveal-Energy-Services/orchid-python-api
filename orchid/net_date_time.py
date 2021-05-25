@@ -126,6 +126,9 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
     if net_time_point == DateTime.MaxValue or net_time_point == DateTimeOffset.MaxValue:
         return dt.datetime.max
 
+    if net_time_point == DateTime.MinValue or net_time_point == DateTimeOffset.MinValue:
+        return dt.datetime.min
+
     if net_time_point.Kind == DateTimeKind.Utc:
         return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                            net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
