@@ -22,7 +22,7 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    net_date_time as ndt,
+    net_date_time as net_dt,
 )
 
 # noinspection PyUnresolvedReferences
@@ -38,7 +38,7 @@ class TimePointDto:
     minute: int
     second: int
     fractional: om.Quantity = 0 * om.registry.microseconds
-    kind: ndt.TimePointTimeZoneKind = ndt.TimePointTimeZoneKind.UTC
+    kind: net_dt.TimePointTimeZoneKind = net_dt.TimePointTimeZoneKind.UTC
 
 
 # noinspection PyPep8Naming
@@ -184,11 +184,11 @@ def utc_time_zone() -> dt.tzinfo:
 
 
 _KIND_TO_TZINFO = {
-    ndt.TimePointTimeZoneKind.UTC: dt.timezone.utc,
-    ndt.TimePointTimeZoneKind.LOCAL: duz.tzlocal(),
-    ndt.TimePointTimeZoneKind.UNSPECIFIED: None,
+    net_dt.TimePointTimeZoneKind.UTC: dt.timezone.utc,
+    net_dt.TimePointTimeZoneKind.LOCAL: duz.tzlocal(),
+    net_dt.TimePointTimeZoneKind.UNSPECIFIED: None,
 }
 
 
 def _kind_to_tzinfo(to_convert: int) -> dt.tzinfo:
-    return toolz.get(ndt.TimePointTimeZoneKind(to_convert), _KIND_TO_TZINFO)
+    return toolz.get(net_dt.TimePointTimeZoneKind(to_convert), _KIND_TO_TZINFO)
