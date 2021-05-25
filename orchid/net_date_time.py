@@ -130,10 +130,10 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
         If `net_time_point` is `DateTime.MaxValue`, returns `dt.datetime.max`. If `net_time_point` is
         `DateTime.MinValue`, returns `dt.datetime.min`.
     """
-    if net_time_point == DateTime.MaxValue or net_time_point == DateTimeOffset.MaxValue:
+    if net_time_point == DateTime.MaxValue:
         return dt.datetime.max
 
-    if net_time_point == DateTime.MinValue or net_time_point == DateTimeOffset.MinValue:
+    if net_time_point == DateTime.MinValue:
         return dt.datetime.min
 
     if net_time_point.Kind == DateTimeKind.Utc:
@@ -240,6 +240,12 @@ def net_date_time_offset_as_datetime(net_time_point: DateTimeOffset) -> dt.datet
     Returns:
         The `dt.datetime` equivalent to the `net_time_point`.
     """
+    if net_time_point == DateTimeOffset.MaxValue:
+        return dt.datetime.max
+
+    if net_time_point == DateTimeOffset.MinValue:
+        return dt.datetime.min
+
     if net_time_point.Offset.TotalSeconds != 0:
         raise NetDateTimeOffsetNonZeroOffsetError(net_time_point)
 

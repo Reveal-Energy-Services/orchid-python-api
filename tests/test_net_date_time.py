@@ -18,7 +18,7 @@ import unittest
 from dateutil import (
     parser as dup,
 )
-from hamcrest import assert_that, calling, equal_to, raises
+from hamcrest import assert_that, calling, equal_to, raises, is_, same_instance
 
 from orchid import (
     measurement as om,
@@ -140,7 +140,8 @@ class TestNetDateTime(unittest.TestCase):
             (DateTime.MaxValue, net_dt.as_net_date_time),
             (DateTimeOffset.MaxValue, net_dt.as_net_date_time_offset),
         ]:
-            with self.subTest(f'{to_test_func.__name__}(datetime.max) == ({net_sentinel.ToString("o")})'):
+            with self.subTest(f'{to_test_func.__name__}({dt.datetime.max.isoformat()})'
+                              f' == ({net_sentinel.ToString("s")})'):
                 actual = to_test_func(dt.datetime.max)
                 assert_that(actual, equal_to(net_sentinel))
 
@@ -149,9 +150,30 @@ class TestNetDateTime(unittest.TestCase):
             (DateTime.MinValue, net_dt.as_net_date_time),
             (DateTimeOffset.MinValue, net_dt.as_net_date_time_offset),
         ]:
-            with self.subTest(f'{to_test_func.__name__}(datetime.min) == ({net_sentinel.ToString("o")})'):
+            with self.subTest(f'{to_test_func.__name__}({dt.datetime.min.isoformat()})'
+                              f' == ({net_sentinel.ToString("s")})'):
                 actual = to_test_func(dt.datetime.min)
                 assert_that(actual, equal_to(net_sentinel))
+
+    def test_convert_net_max_sentinel_to_datetime_max(self):
+        for net_sentinel, to_test_func in [
+            (DateTime.MaxValue, net_dt.as_datetime),
+            (DateTimeOffset.MaxValue, net_dt.net_date_time_offset_as_datetime),
+        ]:
+            with self.subTest(f'{to_test_func.__name__}({net_sentinel.ToString("s")})'
+                              f' == ({dt.datetime.max.isoformat()})'):
+                actual = to_test_func(net_sentinel)
+                assert_that(actual, equal_to(dt.datetime.max))
+
+    def test_convert_net_min_sentinel_to_datetime_min(self):
+        for net_sentinel, to_test_func in [
+            (DateTime.MinValue, net_dt.as_datetime),
+            (DateTimeOffset.MinValue, net_dt.net_date_time_offset_as_datetime),
+        ]:
+            with self.subTest(f'{to_test_func.__name__}({net_sentinel.ToString("s")})'
+                              f' == ({dt.datetime.min.isoformat()})'):
+                actual = to_test_func(net_sentinel)
+                assert_that(actual, equal_to(dt.datetime.min))
 
     def test_microseconds_to_milliseconds_with_carry(self):
         for to_convert, expected_carry, expected_milliseconds in [
