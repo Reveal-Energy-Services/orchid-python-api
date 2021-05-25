@@ -19,6 +19,7 @@ Functions to convert between .NET `DateTime` instances and Python `datetime.date
 
 import datetime as dt
 import enum
+from typing import Tuple
 
 from dateutil import tz as duz
 import toolz.curried as toolz
@@ -224,6 +225,21 @@ def microseconds_to_integral_milliseconds(to_convert: int) -> int:
 
     """
     return int(round(to_convert / 1000))
+
+
+def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
+    """
+    Convert microseconds to an integral number of milliseconds with a number of seconds to carry.
+
+    Args:
+        to_convert: The microseconds to convert.
+
+    Returns:
+        A tuple of the form, (number of seconds to "carry",  number of the integral milliseconds).
+    """
+
+    raw_milliseconds = round(to_convert / 1000)
+    return divmod(raw_milliseconds, 1000)
 
 
 def net_date_time_offset_as_datetime(net_time_point: DateTimeOffset) -> dt.datetime:

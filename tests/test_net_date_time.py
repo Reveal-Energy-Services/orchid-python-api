@@ -158,6 +158,17 @@ class TestNetDateTime(unittest.TestCase):
                 actual = to_test_func(dt.datetime.min)
                 assert_that(actual, equal_to(net_sentinel))
 
+    def test_microseconds_to_milliseconds_with_carry(self):
+        for to_convert, expected_carry, expected_milliseconds in [
+            (999499, 0, 999),
+            (999599, 1, 0),
+            (999600, 1, 0),
+        ]:
+            with self.subTest(f'{to_convert} microseconds to'
+                              f' {expected_carry} seconds and {expected_milliseconds} milliseconds'):
+                actual = net_dt.microseconds_to_milliseconds_with_carry(to_convert)
+                assert_that(actual, equal_to((expected_carry, expected_milliseconds)))
+
     def test_net_date_time_offset_as_datetime(self):
         time_point = stub_dt.TimePointDto(
             2026, 2, 19, 12, 26, 58, 226 * om.registry.milliseconds, net_dt.TimePointTimeZoneKind.UTC
