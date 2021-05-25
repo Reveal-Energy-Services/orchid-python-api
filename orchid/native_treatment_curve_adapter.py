@@ -17,6 +17,7 @@
 
 import enum
 
+import orchid.base
 from orchid import (
     base_curve_adapter as bca,
     dot_net_dom_access as dna,
@@ -36,7 +37,7 @@ class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
     def __init__(self, net_treatment_curve: IQuantityTimeSeries):
-        super().__init__(net_treatment_curve, dna.constantly(net_treatment_curve.Stage.Well.Project))
+        super().__init__(net_treatment_curve, orchid.base.constantly(net_treatment_curve.Stage.Well.Project))
 
     def quantity_name_unit_map(self, project_units):
         """

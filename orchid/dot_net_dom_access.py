@@ -38,23 +38,6 @@ from System import Guid
 # attribute name at definition time (because `self` was only available at run-time).
 
 
-def constantly(x):
-    """
-    Creates a function that always returns the value, `x`.
-    Args:
-        x: The value to return
-
-    Returns:
-        Returns a function takes any arguments yet always returns `x`.
-    """
-
-    # noinspection PyUnusedLocal
-    def make_constantly(*args, **kwargs):
-        return toolz.identity(x)
-
-    return make_constantly
-
-
 def get_dot_net_property_value(attribute_name, dom_object):
     """
     Return the value of the DOM property whose name corresponds to `attribute_name`.

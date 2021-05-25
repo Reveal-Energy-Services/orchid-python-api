@@ -18,6 +18,7 @@ import option
 import pandas as pd
 import toolz.curried as toolz
 
+import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     net_date_time as ndt,
@@ -40,7 +41,7 @@ def transform_display_name(net_display_name):
 
 class NativeDataFrameAdapter(dna.DotNetAdapter):
     def __init__(self, net_data_frame):
-        super().__init__(net_data_frame, dna.constantly(net_data_frame.Project))
+        super().__init__(net_data_frame, orchid.base.constantly(net_data_frame.Project))
 
     name = dna.dom_property('name', 'The name of this data frame.')
     display_name = dna.transformed_dom_property('display_name', 'The display name of this data frame.',

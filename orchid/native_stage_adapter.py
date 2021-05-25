@@ -22,6 +22,7 @@ from typing import Tuple, Union
 import deal
 import toolz.curried as toolz
 
+import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     measurement as om,
@@ -97,7 +98,7 @@ class NativeStageAdapter(dna.DotNetAdapter):
     """Adapts a .NET IStage to be more Pythonic."""
 
     def __init__(self, adaptee, calculations_factory=None):
-        super().__init__(adaptee, dna.constantly(adaptee.Well.Project))
+        super().__init__(adaptee, orchid.base.constantly(adaptee.Well.Project))
         self.calculations_factory = Calculations.FractureDiagnosticsCalculationsFactory() \
             if not calculations_factory else calculations_factory
 

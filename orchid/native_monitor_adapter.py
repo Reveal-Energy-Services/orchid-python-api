@@ -16,6 +16,7 @@ import datetime as dt
 
 import datetimerange as dtr
 
+import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     net_date_time as ndt,
@@ -38,7 +39,7 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
         Args:
             net_monitor: The .NET monitor to be adapted.
         """
-        super().__init__(net_monitor, dna.constantly(net_monitor.Project))
+        super().__init__(net_monitor, orchid.base.constantly(net_monitor.Project))
 
     display_name = dna.dom_property('display_name', 'The name used by engineers to identify this monitor.')
     name = dna.dom_property('name', 'The name of this monitor.')

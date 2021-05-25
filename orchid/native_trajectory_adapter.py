@@ -19,6 +19,7 @@ import deal
 import numpy as np
 import toolz.curried as toolz
 
+import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     net_quantity as onq,
@@ -41,7 +42,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         Args:
             net_trajectory: The .NET trajectory to be adapted.
         """
-        super().__init__(net_trajectory, dna.constantly(net_trajectory.Well.Project))
+        super().__init__(net_trajectory, orchid.base.constantly(net_trajectory.Well.Project))
 
     @deal.pre(validation.arg_not_none)
     def get_easting_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:

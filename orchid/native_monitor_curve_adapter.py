@@ -17,6 +17,7 @@
 
 import enum
 
+import orchid.base
 from orchid import (
     base_curve_adapter as bca,
     dot_net_dom_access as dna,
@@ -33,7 +34,7 @@ class MonitorCurveTypes(enum.Enum):
 
 class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
     def __init__(self, net_monitor_curve: IQuantityTimeSeries):
-        super().__init__(net_monitor_curve, dna.constantly(net_monitor_curve.Well.Project))
+        super().__init__(net_monitor_curve, orchid.base.constantly(net_monitor_curve.Well.Project))
 
     def quantity_name_unit_map(self, project_units):
         """
