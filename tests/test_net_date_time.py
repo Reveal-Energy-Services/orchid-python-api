@@ -35,11 +35,6 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
-# - Correctly handle `microsecond_to_integral_millisecond()` for 999999 microsecond
-#   - 999400 microseconds to 999 milliseconds
-#   - 999500 microseconds to 1 **second**
-#   - 999999 microseconds to 1 **second**
-#   - For both `DateTime` and for `DateTimeOffset`
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))

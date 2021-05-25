@@ -170,9 +170,10 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
         raise NetDateTimeNoTzInfoError(time_point)
 
-    result = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                      time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
-                      DateTimeKind.Utc)
+    carry_seconds, milliseconds = microseconds_to_milliseconds_with_carry(time_point.microsecond)
+    result = DateTime(time_point.year, time_point.month, time_point.day,
+                      time_point.hour, time_point.minute, time_point.second + carry_seconds,
+                      milliseconds, DateTimeKind.Utc)
     return result
 
 
@@ -194,6 +195,7 @@ def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
 
     if time_point == dt.datetime.min:
         return DateTimeOffset.MinValue
+
     date_time = as_net_date_time(time_point)
     result = DateTimeOffset(date_time)
     return result
