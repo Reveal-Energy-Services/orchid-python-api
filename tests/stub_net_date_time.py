@@ -13,7 +13,7 @@
 #
 
 import enum
-from collections import namedtuple
+import dataclasses as dc
 import datetime as dt
 from numbers import Real
 
@@ -29,13 +29,16 @@ from orchid import (
 from System import Int32, DateTime, DateTimeKind, DateTimeOffset
 
 
-TimePointDto = namedtuple('TimePointDto', ['year', 'month', 'day',
-                                           'hour', 'minute', 'second',
-                                           # The fractional seconds (a `pint` measurement) and the "kind" of
-                                           # time zone (UTC, local or unspecified).
-                                           'fractional', 'kind'],
-                          # Default to 0 microseconds and UTC for time zone.
-                          defaults=[0 * om.registry.microsecond, ndt.TimePointTimeZoneKind.UTC])
+@dc.dataclass
+class TimePointDto:
+    year: int
+    month: int
+    day: int
+    hour: int
+    minute: int
+    second: int
+    fractional: om.Quantity = 0 * om.registry.microseconds
+    kind: ndt.TimePointTimeZoneKind = ndt.TimePointTimeZoneKind.UTC
 
 
 # noinspection PyPep8Naming
