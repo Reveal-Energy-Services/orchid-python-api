@@ -35,12 +35,6 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
-# - Correctly convert `DateTime.MinValue` to `dt.datetime.min`
-# - Correctly convert `DateTimeOffset.MinValue` to `dt.datetime.min`
-# - Correctly convert `dt.datetime.max` to `DateTime.MaxValue`
-# - Convert `dt.datetime.max` to `DateTimeOffset.MaxValue`
-# - Correctly convert `dt.datetime.min` to `DateTime.MinValue`
-# - Convert `dt.datetime.min` to `DateTimeOffset.MinValue`
 # - Correctly handle `microsecond_to_integral_millisecond()` for 999999 microsecond
 #   - 999400 microseconds to 999 milliseconds
 #   - 999500 microseconds to 1 **second**
@@ -51,7 +45,7 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_as_datetime_net_time_point_kind_utc(self):
-        time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, stub_dt.make_milliseconds(726 ),
+        time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, stub_dt.make_milliseconds(726),
                                               net_dt.TimePointTimeZoneKind.UTC)
         actual = net_dt.as_datetime(stub_dt.make_net_date_time(time_point_dto))
 
@@ -146,23 +140,23 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(calling(net_dt.as_net_date_time_offset).with_args(to_test_datetime),
                     raises(net_dt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
-    def test_max_sentinel(self):
+    def test_convert_datetime_max_returns_net_max_sentinel(self):
         for net_sentinel, to_test_func in [
-            (DateTime.MaxValue, net_dt.as_datetime),
-            (DateTimeOffset.MaxValue, net_dt.as_datetime),
+            (DateTime.MaxValue, net_dt.as_net_date_time),
+            (DateTimeOffset.MaxValue, net_dt.as_net_date_time_offset),
         ]:
-            with self.subTest(f'Verify conversion of {net_sentinel.ToString("o")} to `datetime.max`'):
-                actual = to_test_func(net_sentinel)
-                assert_that(actual, equal_to(dt.datetime.max))
+            with self.subTest(f'{to_test_func.__name__}(datetime.max) == ({net_sentinel.ToString("o")})'):
+                actual = to_test_func(dt.datetime.max)
+                assert_that(actual, equal_to(net_sentinel))
 
-    def test_min_sentinel(self):
+    def test_convert_datetime_min_returns_net_min_sentinel(self):
         for net_sentinel, to_test_func in [
-            (DateTime.MinValue, net_dt.as_datetime),
-            (DateTimeOffset.MinValue, net_dt.as_datetime),
+            (DateTime.MinValue, net_dt.as_net_date_time),
+            (DateTimeOffset.MinValue, net_dt.as_net_date_time_offset),
         ]:
-            with self.subTest(f'Verify conversion of {net_sentinel.ToString("o")} to `datetime.min`'):
-                actual = to_test_func(net_sentinel)
-                assert_that(actual, equal_to(dt.datetime.min))
+            with self.subTest(f'{to_test_func.__name__}(datetime.min) == ({net_sentinel.ToString("o")})'):
+                actual = to_test_func(dt.datetime.min)
+                assert_that(actual, equal_to(net_sentinel))
 
     def test_net_date_time_offset_as_datetime(self):
         time_point = stub_dt.TimePointDto(

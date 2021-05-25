@@ -15,7 +15,8 @@
 """
 Functions to convert between .NET `DateTime` instances and Python `datetime.datetime` instances.
 """
-import datetime
+
+
 import datetime as dt
 import enum
 
@@ -123,7 +124,10 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
         net_time_point: A point in time of type .NET `DateTime`.
 
     Returns:
-        The `dt.datetime` equivalent to the `net_time_point`.
+        The `dt.datetime` equivalent to the `to_test`.
+
+        If `net_time_point` is `DateTime.MaxValue`, returns `dt.datetime.max`. If `net_time_point` is
+        `DateTime.MinValue`, returns `dt.datetime.min`.
     """
     if net_time_point == DateTime.MaxValue or net_time_point == DateTimeOffset.MaxValue:
         return dt.datetime.max
@@ -152,7 +156,16 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
 
     Returns:
         The equivalent .NET `DateTime` instance.
+
+        If `time_point` is `dt.datetime.max`, return `DateTime.MaxValue`. If `time_point` is
+        `dt.datetime.min`, return `DateTime.MinValue`.
     """
+    if time_point == dt.datetime.max:
+        return DateTime.MaxValue
+
+    if time_point == dt.datetime.min:
+        return DateTime.MinValue
+
     if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
         raise NetDateTimeNoTzInfoError(time_point)
 
@@ -171,7 +184,15 @@ def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
 
     Returns:
         The equivalent .NET `DateTimeOffset` instance.
+
+        If `time_point` is `dt.datetime.max`, return `DateTime.MaxValue`. If `time_point` is
+        `dt.datetime.min`, return `DateTime.MinValue`.
     """
+    if time_point == dt.datetime.max:
+        return DateTimeOffset.MaxValue
+
+    if time_point == dt.datetime.min:
+        return DateTimeOffset.MinValue
     date_time = as_net_date_time(time_point)
     result = DateTimeOffset(date_time)
     return result
