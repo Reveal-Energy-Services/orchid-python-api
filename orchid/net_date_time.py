@@ -22,6 +22,8 @@ import enum
 from dateutil import tz as duz
 import toolz.curried as toolz
 
+from orchid import base
+
 # noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind, DateTimeOffset
 
@@ -130,9 +132,7 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
         return dt.datetime.min
 
     if net_time_point.Kind == DateTimeKind.Utc:
-        return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                           net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                           net_time_point.Millisecond * 1000, duz.UTC)
+        return _net_time_point_to_datetime(base.constantly(duz.UTC), net_time_point)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
         raise NetDateTimeUnspecifiedDateTimeKindError(net_time_point)
@@ -222,6 +222,10 @@ def net_date_time_offset_as_datetime(net_time_point: DateTimeOffset) -> dt.datet
                                   lambda s: dt.timedelta(seconds=s),
                                   round,
                                   lambda ntp: ntp.Offset.TotalSeconds)
+    return _net_time_point_to_datetime(make_timezone, net_time_point)
+
+
+def _net_time_point_to_datetime(time_zone_func, net_time_point):
     return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                        net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                       net_time_point.Millisecond * 1000, make_timezone(net_time_point))
+                       net_time_point.Millisecond * 1000, time_zone_func(net_time_point))
