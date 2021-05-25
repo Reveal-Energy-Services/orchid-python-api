@@ -16,7 +16,7 @@ from toolz import curried as toolz
 
 def constantly(x):
     """
-    Creates a function that always returns the value, `x`.
+    Creates a function that always returns the value, `x`, independent of **all** arguments passed to it..
     Args:
         x: The value to return
 
