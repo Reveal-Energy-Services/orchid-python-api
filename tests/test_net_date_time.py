@@ -135,45 +135,33 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(calling(net_dt.as_net_date_time_offset).with_args(to_test_datetime),
                     raises(net_dt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
 
-    def test_convert_datetime_max_returns_net_max_sentinel(self):
-        for net_sentinel, to_test_func in [
-            (DateTime.MaxValue, net_dt.as_net_date_time),
-            (DateTimeOffset.MaxValue, net_dt.as_net_date_time_offset),
+    def test_convert_net_sentinel_to_datetime_sentinel(self):
+        for net_sentinel_name, net_sentinel, sut_func, datetime_sentinel_name, datetime_sentinel in [
+            ('DateTime.MinValue', DateTime.MinValue,
+             net_dt.as_datetime, 'dt.datetime.min', dt.datetime.min),
+            ('DateTimeOffset.MinValue', DateTimeOffset.MinValue,
+             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.min', dt.datetime.min),
+            ('DateTime.MaxValue', DateTime.MaxValue,
+             net_dt.as_datetime, 'dt.datetime.max', dt.datetime.max),
+            ('DateTimeOffset.MaxValue', DateTimeOffset.MaxValue,
+             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.max', dt.datetime.max),
         ]:
-            with self.subTest(f'{to_test_func.__name__}({dt.datetime.max.isoformat()})'
-                              f' == ({net_sentinel.ToString("s")})'):
-                actual = to_test_func(dt.datetime.max)
-                assert_that(actual, equal_to(net_sentinel))
+            with self.subTest(f'Convert {net_sentinel_name} to {datetime_sentinel_name}'):
+                assert_that(sut_func(net_sentinel), is_(same_instance(datetime_sentinel)))
 
-    def test_convert_datetime_min_returns_net_min_sentinel(self):
-        for net_sentinel, to_test_func in [
-            (DateTime.MinValue, net_dt.as_net_date_time),
-            (DateTimeOffset.MinValue, net_dt.as_net_date_time_offset),
+    def test_convert_datetime_sentinel_to_net_sentinel(self):
+        for datetime_sentinel_name, datetime_sentinel, sut_func, net_sentinel_name, net_sentinel in [
+            ('dt.datetime.min', dt.datetime.min,
+             net_dt.as_net_date_time, 'DateTime.MinValue', DateTime.MinValue),
+            ('dt.datetime.min', dt.datetime.min,
+             net_dt.as_net_date_time_offset, 'DateTimeOffset.MinValue', DateTimeOffset.MinValue),
+            ('dt.datetime.max', dt.datetime.max,
+             net_dt.as_net_date_time, 'DateTime.MaxValue', DateTime.MaxValue),
+            ('dt.datetime.max', dt.datetime.max,
+             net_dt.as_net_date_time_offset, 'DateTimeOffset.MaxValue', DateTimeOffset.MaxValue),
         ]:
-            with self.subTest(f'{to_test_func.__name__}({dt.datetime.min.isoformat()})'
-                              f' == ({net_sentinel.ToString("s")})'):
-                actual = to_test_func(dt.datetime.min)
-                assert_that(actual, equal_to(net_sentinel))
-
-    def test_convert_net_max_sentinel_to_datetime_max(self):
-        for net_sentinel, to_test_func in [
-            (DateTime.MaxValue, net_dt.as_datetime),
-            (DateTimeOffset.MaxValue, net_dt.net_date_time_offset_as_datetime),
-        ]:
-            with self.subTest(f'{to_test_func.__name__}({net_sentinel.ToString("s")})'
-                              f' == ({dt.datetime.max.isoformat()})'):
-                actual = to_test_func(net_sentinel)
-                assert_that(actual, equal_to(dt.datetime.max))
-
-    def test_convert_net_min_sentinel_to_datetime_min(self):
-        for net_sentinel, to_test_func in [
-            (DateTime.MinValue, net_dt.as_datetime),
-            (DateTimeOffset.MinValue, net_dt.net_date_time_offset_as_datetime),
-        ]:
-            with self.subTest(f'{to_test_func.__name__}({net_sentinel.ToString("s")})'
-                              f' == ({dt.datetime.min.isoformat()})'):
-                actual = to_test_func(net_sentinel)
-                assert_that(actual, equal_to(dt.datetime.min))
+            with self.subTest(f'Convert {datetime_sentinel_name} to {net_sentinel_name}'):
+                assert_that(sut_func(datetime_sentinel), equal_to(net_sentinel))
 
     def test_microseconds_to_milliseconds_with_carry(self):
         for to_convert, expected_carry, expected_milliseconds in [
