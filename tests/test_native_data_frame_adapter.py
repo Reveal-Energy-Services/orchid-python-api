@@ -192,6 +192,16 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
+    def test_single_cell_net_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'dies': dt.datetime.max}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+        actual_data_frame = sut.pandas_data_frame()
+        actual = actual_data_frame.at[0, 'dies']
+
+        assert_that(actual is pd.NaT, equal_to(True))
+
     def test_many_columns_many_rows_net_data_frame_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
             [str, float, dt.datetime, int],

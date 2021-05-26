@@ -18,14 +18,14 @@ import option
 import pandas as pd
 import toolz.curried as toolz
 
-import orchid.base
 from orchid import (
+    base,
     dot_net_dom_access as dna,
     net_date_time as ndt,
 )
 
 # noinspection PyUnresolvedReferences
-from System import DBNull
+from System import DateTimeOffset, DBNull
 # noinspection PyUnresolvedReferences
 from System.Data import DataTable
 
@@ -41,7 +41,7 @@ def transform_display_name(net_display_name):
 
 class NativeDataFrameAdapter(dna.DotNetAdapter):
     def __init__(self, net_data_frame):
-        super().__init__(net_data_frame, orchid.base.constantly(net_data_frame.Project))
+        super().__init__(net_data_frame, base.constantly(net_data_frame.Project))
 
     name = dna.dom_property('name', 'The name of this data frame.')
     display_name = dna.transformed_dom_property('display_name', 'The display name of this data frame.',
@@ -113,6 +113,9 @@ def _table_row_to_dict(reader):
     def net_value_to_python_value(value):
         if value == DBNull.Value:
             return None
+
+        if value == DateTimeOffset.MaxValue:
+            return pd.NaT
 
         try:
             if str(value.GetType()) == 'System.DateTime':
