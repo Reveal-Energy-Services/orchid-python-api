@@ -72,12 +72,12 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         assert_that(sut.object_id, equal_to(uuid.UUID('35582fd2-7499-4259-99b8-04b01876f309')))
 
-    def test_empty_data_table_produces_empty_pandas_data_frame(self):
+    def test_empty_net_data_frame_produces_empty_pandas_data_frame(self):
         sut = _create_sut(tsn.TableDataDto([], [], toolz.identity))
 
         pdt.assert_frame_equal(sut.pandas_data_frame(), pd.DataFrame())
 
-    def test_single_cell_data_table_produces_correct_pandas_data_frame(self):
+    def test_single_cell_net_data_frame_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([float], [{'oratio': 57.89}], toolz.identity)
         sut = _create_sut(table_data_dto)
 
@@ -86,7 +86,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                                            columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_cell_data_table_with_column_mapping_produces_correct_pandas_data_frame(self):
+    def test_single_cell_net_data_frame_with_column_mapping_produces_correct_pandas_data_frame(self):
         rename_column_func = toolz.flip(toolz.get)({'stultus': 'fulmino'})
         table_data_dto = tsn.TableDataDto([str], [{'stultus': 'timeo'}], rename_column_func)
         sut = _create_sut(table_data_dto)
@@ -96,7 +96,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_column_many_rows_data_table_produces_correct_pandas_data_frame(self):
+    def test_single_column_many_rows_net_data_frame_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([str],
                                           [{'rident': 'pauci'},
                                            {'rident': 'sapientes'},
@@ -109,7 +109,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                                            columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_column_many_rows_data_table_with_column_mapping_produces_correct_pandas_data_frame(self):
+    def test_single_column_many_rows_net_data_frame_with_column_mapping_produces_correct_pandas_data_frame(self):
         rename_column_func = toolz.flip(toolz.get)({'rident': 'hic'})
         table_data_dto = tsn.TableDataDto([str],
                                           [{'rident': 'pauci'},
@@ -122,7 +122,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_many_columns_single_row_data_table_produces_correct_pandas_data_frame(self):
+    def test_many_columns_single_row_net_data_frame_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([str, float, int],
                                           [{'nespila': 'pendet', 'scrupum': -23.14, 'nascor': -116}],
                                           toolz.identity)
@@ -133,7 +133,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                                            columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_many_columns_single_row_data_table_with_column_mapping_produces_correct_pandas_data_frame(self):
+    def test_many_columns_single_row_net_data_frame_with_column_mapping_produces_correct_pandas_data_frame(self):
         rename_column_func = toolz.flip(toolz.get)({'Servius': 'calcaverimus',
                                                     'onus': 'Patavium',
                                                     'timoris': 'timoris'})
@@ -146,7 +146,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_many_columns_many_rows_data_table_produces_correct_pandas_data_frame(self):
+    def test_many_columns_many_rows_net_data_frame_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([str, int, float],
                                           [{'cana': 'imbris', 'querula': -203, 'recidebimus': 8.700},
                                            {'cana': 'privat', 'querula': 111, 'recidebimus': 52.02},
@@ -159,7 +159,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                                            columns=toolz.first(table_data_dto.table_data).keys())
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_many_columns_many_rows_data_table_with_column_mapping_produces_correct_pandas_data_frame(self):
+    def test_many_columns_many_rows_net_data_frame_with_column_mapping_produces_correct_pandas_data_frame(self):
         rename_column_func = toolz.flip(toolz.get)({'commoda': 'Manius', 'mutabilis': 'annui', 'lenit': 'lenit'})
         table_data_dto = tsn.TableDataDto([int, str, float],
                                           [{'mutabilis': 6, 'lenit': 'imbris', 'commoda': 31.71},
@@ -172,7 +172,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_cell_data_table_with_date_time_column_raises_error(self):
+    def test_single_cell_net_data_frame_with_date_time_column_raises_error(self):
         rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
         table_data_dto = tsn.TableDataDto(['DateTime'],
                                           [{'pulchritudo': dup.isoparse('2024-03-15T10:09:18Z')}],
@@ -182,7 +182,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         assert_that(calling(sut.pandas_data_frame).with_args(),
                     raises(dfa.NativeDataFrameAdapterDateTimeError, pattern='System.DateTime'))
 
-    def test_single_cell_data_table_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
+    def test_single_cell_net_data_frame_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([dt.datetime],
                                           [{'obdurabis': dup.isoparse('20260329T054049.228576Z')}],
                                           toolz.identity)
@@ -192,7 +192,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_many_columns_many_rows_data_table_with_db_null_values_produces_correct_pandas_data_frame(self):
+    def test_many_columns_many_rows_net_data_frame_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
             [str, float, dt.datetime, int],
             [
