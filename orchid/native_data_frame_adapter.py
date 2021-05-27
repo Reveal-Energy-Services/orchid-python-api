@@ -30,8 +30,15 @@ from System import DateTimeOffset, DBNull
 from System.Data import DataTable
 
 
-class NativeDataFrameAdapterDateTimeError(TypeError):
+class DataFrameAdapterDateTimeError(TypeError):
     pass
+
+
+class DataFrameAdapterDateTimeOffsetMinValueError(ValueError):
+    def __init__(self, row_no, column_name):
+        super(DataFrameAdapterDateTimeOffsetMinValueError, self).__init__(
+            f'Unexpectedly found `DateTimeOffset.MinValue` at'
+            f' row, {row_no}, and column, "{column_name}", of Orchid `DataFrame`.')
 
 
 def transform_display_name(net_display_name):
@@ -67,7 +74,13 @@ def _table_to_data_frame(data_table: DataTable):
     Returns:
         The `pandas` `DataFrame` converted from the .NET `DataTable`.
     """
-    return pd.DataFrame(data=[r for r in _read_data_table(data_table)])
+    result = toolz.pipe(data_table,
+                        _read_data_table,
+                        toolz.map(toolz.keymap(lambda e: e[1])),
+                        list,
+                        lambda rs: pd.DataFrame(data=rs),
+                        )
+    return result
 
 
 def _read_data_table(data_table: DataTable) -> Iterable[dict]:
@@ -102,6 +115,11 @@ def _read_data_table(data_table: DataTable) -> Iterable[dict]:
 
 
 def _table_row_to_dict(reader):
+    @toolz.curry
+    def get_value(dt_reader, cell_location):
+        _, column_name = cell_location
+        return cell_location, dt_reader[column_name]
+
     def add_to_dict(so_far, to_accumulate):
         column_name, cell_value = to_accumulate
         return toolz.assoc(so_far, column_name, cell_value)
@@ -110,33 +128,42 @@ def _table_row_to_dict(reader):
         dict_result = toolz.reduce(add_to_dict, pairs, {})
         return dict_result
 
-    def net_value_to_python_value(value):
+    def net_value_to_python_value(cell_location_value_pair):
+        @toolz.curry
+        def make_cell_result(cell_row_no, cell_column_name, cell_value):
+            return (cell_row_no, cell_column_name), cell_value
+
+        (row_no, column_name), value = cell_location_value_pair
+        make_result = make_cell_result(row_no, column_name)
         if value == DBNull.Value:
-            return None
+            return make_result(None)
 
         if value == DateTimeOffset.MaxValue:
-            return pd.NaT
+            return make_result(pd.NaT)
+
+        if value == DateTimeOffset.MinValue:
+            raise DataFrameAdapterDateTimeOffsetMinValueError(row_no, column_name)
 
         try:
             if str(value.GetType()) == 'System.DateTime':
-                raise NativeDataFrameAdapterDateTimeError(value.GetType())
+                raise DataFrameAdapterDateTimeError(value.GetType())
 
             if str(value.GetType()) == 'System.DateTimeOffset':
-                return ndt.net_date_time_offset_as_datetime(value)
+                return make_result(ndt.net_date_time_offset_as_datetime(value))
 
         except AttributeError as ae:
             if 'GetType' in str(ae):
                 # Not a .NET type so simply return it
-                return value
+                return make_result(value)
 
             # Re-raise the original error
             raise
 
     result = toolz.pipe(
         range(reader.FieldCount),
-        toolz.map(lambda i: reader.GetName(i)),
-        toolz.map(lambda cn: (cn, reader[cn])),
+        toolz.map(lambda row_no: (row_no, reader.GetName(row_no))),
+        toolz.map(get_value(reader)),
         to_dict,
-        toolz.valmap(net_value_to_python_value),
+        toolz.itemmap(net_value_to_python_value),
     )
     return result

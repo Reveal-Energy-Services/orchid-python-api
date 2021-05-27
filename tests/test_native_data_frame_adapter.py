@@ -40,9 +40,8 @@ def datetime_to_integral_milliseconds(value):
 
 
 # Test ideas
-# - Correctly translate DateTimeOffset.MaxValue to `NaT` in pandas `DataFrame`
-# - Correctly translate DateTimeOffset.MinValue to `NaT` in pandas `DataFrame`
-# - Correctly translate `None` values to
+# - DateTimeOffset.MinValue in .NET `DataFrame` raises error
+# - Correctly translate `None` values t
 #   - `None` in string columns
 #   - `NaN` in int columns
 #   - `NaN` in float columns
@@ -180,7 +179,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         sut = _create_sut(table_data_dto)
 
         assert_that(calling(sut.pandas_data_frame).with_args(),
-                    raises(dfa.NativeDataFrameAdapterDateTimeError, pattern='System.DateTime'))
+                    raises(dfa.DataFrameAdapterDateTimeError, pattern='System.DateTime'))
 
     def test_single_cell_net_data_frame_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([dt.datetime],
@@ -192,7 +191,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_cell_net_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
+    def test_net_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([dt.datetime],
                                           [{'dies': dt.datetime.max}],
                                           toolz.identity)
@@ -201,6 +200,20 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         actual = actual_data_frame.at[0, 'dies']
 
         assert_that(actual is pd.NaT, equal_to(True))
+
+    def test_net_data_frame_with_min_date_time_offset_raises_error(self):
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'prius': dt.datetime.min}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+        expect = (f'Unexpectedly found `DateTimeOffset.MinValue`'
+                  f' at row, 0, and column, "prius", of Orchid `DataFrame`.')
+        # I use the `pattern` keyword argument even though `expect` is a "degenerate" pattern; that is, it contains
+        # no (significant) pattern matching characters. (It contains periods.) I use this argument because using the
+        # expression `matching=equal_to(expect)` always fails even though the strings are **identical**. Either I do
+        # not understand the usage of the `matching` keyword or a bug exists in the `hamcrest` package.
+        assert_that(calling(sut.pandas_data_frame).with_args(),
+                    raises(dfa.DataFrameAdapterDateTimeOffsetMinValueError, pattern=expect))
 
     def test_many_columns_many_rows_net_data_frame_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
