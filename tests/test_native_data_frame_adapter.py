@@ -171,50 +171,6 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
-    def test_single_cell_net_data_frame_with_date_time_column_raises_error(self):
-        rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
-        table_data_dto = tsn.TableDataDto(['DateTime'],
-                                          [{'pulchritudo': dup.isoparse('2024-03-15T10:09:18Z')}],
-                                          rename_column_func)
-        sut = _create_sut(table_data_dto)
-
-        assert_that(calling(sut.pandas_data_frame).with_args(),
-                    raises(dfa.DataFrameAdapterDateTimeError, pattern='System.DateTime'))
-
-    def test_single_cell_net_data_frame_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
-        table_data_dto = tsn.TableDataDto([dt.datetime],
-                                          [{'obdurabis': dup.isoparse('20260329T054049.228576Z')}],
-                                          toolz.identity)
-        sut = _create_sut(table_data_dto)
-        actual_data_frame = sut.pandas_data_frame()
-
-        expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
-        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
-
-    def test_net_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
-        table_data_dto = tsn.TableDataDto([dt.datetime],
-                                          [{'dies': dt.datetime.max}],
-                                          toolz.identity)
-        sut = _create_sut(table_data_dto)
-        actual_data_frame = sut.pandas_data_frame()
-        actual = actual_data_frame.at[0, 'dies']
-
-        assert_that(actual is pd.NaT, equal_to(True))
-
-    def test_net_data_frame_with_min_date_time_offset_raises_error(self):
-        table_data_dto = tsn.TableDataDto([dt.datetime],
-                                          [{'prius': dt.datetime.min}],
-                                          toolz.identity)
-        sut = _create_sut(table_data_dto)
-        expect = (f'Unexpectedly found `DateTimeOffset.MinValue`'
-                  f' at row, 0, and column, "prius", of Orchid `DataFrame`.')
-        # I use the `pattern` keyword argument even though `expect` is a "degenerate" pattern; that is, it contains
-        # no (significant) pattern matching characters. (It contains periods.) I use this argument because using the
-        # expression `matching=equal_to(expect)` always fails even though the strings are **identical**. Either I do
-        # not understand the usage of the `matching` keyword or a bug exists in the `hamcrest` package.
-        assert_that(calling(sut.pandas_data_frame).with_args(),
-                    raises(dfa.DataFrameAdapterDateTimeOffsetMinValueError, pattern=expect))
-
     def test_many_columns_many_rows_net_data_frame_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
             [str, float, dt.datetime, int],
@@ -250,6 +206,50 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         actual_data_frame = sut.pandas_data_frame()
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_net_data_frame_with_date_time_column_raises_error(self):
+        rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
+        table_data_dto = tsn.TableDataDto(['DateTime'],
+                                          [{'pulchritudo': dup.isoparse('2024-03-15T10:09:18Z')}],
+                                          rename_column_func)
+        sut = _create_sut(table_data_dto)
+
+        assert_that(calling(sut.pandas_data_frame).with_args(),
+                    raises(dfa.DataFrameAdapterDateTimeError, pattern='System.DateTime'))
+
+    def test_net_data_frame_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'obdurabis': dup.isoparse('20260329T054049.228576Z')}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+        actual_data_frame = sut.pandas_data_frame()
+
+        expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_net_data_frame_with_min_date_time_offset_raises_error(self):
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'prius': dt.datetime.min}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+        expect = (f'Unexpectedly found `DateTimeOffset.MinValue`'
+                  f' at row, 0, and column, "prius", of Orchid `DataFrame`.')
+        # I use the `pattern` keyword argument even though `expect` is a "degenerate" pattern; that is, it contains
+        # no (significant) pattern matching characters. (It contains periods.) I use this argument because using the
+        # expression `matching=equal_to(expect)` always fails even though the strings are **identical**. Either I do
+        # not understand the usage of the `matching` keyword or a bug exists in the `hamcrest` package.
+        assert_that(calling(sut.pandas_data_frame).with_args(),
+                    raises(dfa.DataFrameAdapterDateTimeOffsetMinValueError, pattern=expect))
+
+    def test_net_fdi_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([dt.datetime],
+                                          [{'dies': dt.datetime.max}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+        actual_data_frame = sut.pandas_data_frame()
+        actual = actual_data_frame.at[0, 'dies']
+
+        assert_that(actual is pd.NaT, equal_to(True))
 
 
 def _create_sut(table_data_dto):
