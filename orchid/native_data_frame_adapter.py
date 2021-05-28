@@ -43,7 +43,7 @@ class DataFrameAdapterDateTimeOffsetMinValueError(ValueError):
 
 def transform_display_name(net_display_name):
     maybe_display_name = option.maybe(net_display_name)
-    return maybe_display_name.unwrap_or('Not set')
+    return maybe_display_name.expect('Unexpected value, `None`, for `display_name`.')
 
 
 class NativeDataFrameAdapter(dna.DotNetAdapter):

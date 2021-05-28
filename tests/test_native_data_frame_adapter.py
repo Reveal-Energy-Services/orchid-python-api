@@ -40,7 +40,6 @@ def datetime_to_integral_milliseconds(value):
 
 
 # Test ideas
-# - DateTimeOffset.MinValue in .NET `DataFrame` raises error
 # - Correctly translate `None` values t
 #   - `None` in string columns
 #   - `NaN` in int columns
@@ -50,14 +49,23 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_display_name(self):
-        for net_display_name, expected_display_name in [('lucrum', 'lucrum'), (None, 'Not set')]:
-            with self.subTest(f'Testing .NET display name, "{net_display_name}",'
-                              f' and display name "{expected_display_name}"'):
-                stub_net_data_frame = tsn.create_stub_net_data_frame(display_name=net_display_name)
-                sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+    def test_display_name_if_set(self):
+        expected = 'lucrum'
+        stub_net_data_frame = tsn.create_stub_net_data_frame(display_name=expected)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
 
-                assert_that(sut.display_name, equal_to(expected_display_name))
+        assert_that(sut.display_name, equal_to(expected))
+
+    def test_display_name_if_none(self):
+        net_value = None
+        stub_net_data_frame = tsn.create_stub_net_data_frame(display_name=net_value)
+        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+        # Because `display_name` is a `property` and not simply an attribute, one cannot simply pass
+        # `sut.display_name` to `calling`. (This simple action results in sending the **result** of
+        # invoking the `__get__` method of `sut.display_name` (a property is a descriptor). Consequently, I create a
+        # function of no arguments that simply calls `sut.display_name` to run the test.
+        assert_that(calling(lambda: sut.display_name).with_args(), raises(ValueError, pattern=f'`None`'))
 
     def test_name(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(name='avus')
