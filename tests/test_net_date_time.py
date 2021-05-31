@@ -36,9 +36,6 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 # Test ideas
 # - TimeSpan to timedelta
-#   - Positive TimeSpan to timedelta
-#   - Negative TimeSpan to timedelta
-#   - Zero TimeSpan to timedelta
 #   - Rounding of fractional milliseconds (ticks)
 #     - span + 4999 ticks (from the .NET documentation: 1ms == 10,000 ticks)
 #     - span + 5000 ticks
@@ -132,6 +129,24 @@ class TestNetDateTime(unittest.TestCase):
             with self.subTest(f'Test as_net_date_time for {expected.ToString("o")}'):
                 actual = net_dt.as_net_date_time_offset(stub_dt.make_datetime(time_point))
                 assert_that(actual, tcm.equal_to_net_date_time_offset(expected))
+
+    def test_positive_time_span_as_timedelta(self):
+        net_time_span = TimeSpan(0, 0, 36, 36, 989)
+        actual = net_dt.as_timedelta(net_time_span)
+
+        assert_that(actual, equal_to(dt.timedelta(hours=0, minutes=36, seconds=36, microseconds=989000)))
+
+    def test_zero_time_span_as_timedelta(self):
+        net_time_span = TimeSpan()
+        actual = net_dt.as_timedelta(net_time_span)
+
+        assert_that(actual, equal_to(dt.timedelta()))
+
+    def test_negative_time_span_as_timedelta(self):
+        net_time_span = TimeSpan(0, -15, -15, -42, -144)
+        actual = net_dt.as_timedelta(net_time_span)
+
+        assert_that(actual, equal_to(dt.timedelta(hours=-15, minutes=-15, seconds=-42, microseconds=-144000)))
 
     def test_as_net_date_time_offset_from_parsed_time_is_correct(self):
         parsed_date_time = dup.parse('2019-06-18T11:14:29.901487Z')

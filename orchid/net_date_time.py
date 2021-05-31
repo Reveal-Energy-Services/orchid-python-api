@@ -201,18 +201,18 @@ def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
     return result
 
 
-def as_timedelta(value: TimeSpan) -> dt.timedelta:
+def as_timedelta(to_convert: TimeSpan) -> dt.timedelta:
     """
     Convert a .NET `TimeSpan` to a python `dt.timedelta`
 
     Args:
-        value: The .NET `TimeSpan` to convert.
+        to_convert: The .NET `TimeSpan` to convert.
 
     Returns:
-        The python `dt.timedelta` equivalent to `value`.
+        The python `dt.timedelta` equivalent to `to_convert`.
 
     """
-    return dt.timedelta()
+    return dt.timedelta(seconds=to_convert.TotalSeconds)
 
 
 def dateutil_utc_to_datetime_utc(time_point):
