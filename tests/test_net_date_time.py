@@ -35,6 +35,18 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
+# - TimeSpan to timedelta
+#   - Positive TimeSpan to timedelta
+#   - Negative TimeSpan to timedelta
+#   - Zero TimeSpan to timedelta
+#   - Rounding of fractional milliseconds (ticks)
+#     - span + 4999 ticks (from the .NET documentation: 1ms == 10,000 ticks)
+#     - span + 5000 ticks
+#     - span + 5001 ticks
+# - timedelta ta TimeSpan
+#   - Positive timedelta to TimeSpan
+#   - Negative timedelta to TimeSpan
+#   - Zero timedelta to TimeSpan
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
