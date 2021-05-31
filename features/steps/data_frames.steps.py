@@ -156,9 +156,9 @@ def _table_cells_to_data_frame_cells(items):
         'pump_time': convert_maybe_value(int),
         # Permian FDI data frame
         'obs_set_name': str,
-        'mon_well': str,
-        'tr_stg_pt_no': str,
+        'part_no': str,
         'timestamp': convert_maybe_value(parsed_date_with_correct_utc),
+        'delta_t': convert_maybe_value(str),
         'delta_p': convert_maybe_value(float),
         'vol_to_pick': convert_maybe_value(float),
         # Permian microseismic data frame
@@ -227,9 +227,9 @@ def _table_column_to_data_frame_column(table_column_name):
         'pump_time': 'PumpTime',
         # Permian FDI data frame
         'obs_set_name': 'ObservationSetName',
-        'mon_well': 'MonitorWellName',
-        'tr_stg_pt_no': 'TreatmentStagePartNumber',
+        'part_no': 'TreatmentStagePartNumber',
         'timestamp': 'Timestamp',
+        'delta_t': 'DeltaT',
         'delta_p': 'DeltaP',
         'vol_to_pick': 'VolumeToPick',
         # Permian microseismic data frame

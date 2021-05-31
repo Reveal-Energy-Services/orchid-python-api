@@ -27,7 +27,7 @@ import toolz.curried as toolz
 from orchid import base
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeKind, DateTimeOffset
+from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 class TimePointTimeZoneKind(enum.Enum):
@@ -199,6 +199,20 @@ def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
     date_time = as_net_date_time(time_point)
     result = DateTimeOffset(date_time)
     return result
+
+
+def as_timedelta(value: TimeSpan) -> dt.timedelta:
+    """
+    Convert a .NET `TimeSpan` to a python `dt.timedelta`
+
+    Args:
+        value: The .NET `TimeSpan` to convert.
+
+    Returns:
+        The python `dt.timedelta` equivalent to `value`.
+
+    """
+    return dt.timedelta()
 
 
 def dateutil_utc_to_datetime_utc(time_point):

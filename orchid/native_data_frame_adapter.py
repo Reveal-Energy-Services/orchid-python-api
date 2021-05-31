@@ -151,6 +151,9 @@ def _table_row_to_dict(reader):
             if str(value.GetType()) == 'System.DateTimeOffset':
                 return make_result(ndt.net_date_time_offset_as_datetime(value))
 
+            if str(value.GetType()) == 'System.TimeSpan':
+                return make_result(ndt.as_timedelta(value))
+
         except AttributeError as ae:
             if 'GetType' in str(ae):
                 # Not a .NET type so simply return it
