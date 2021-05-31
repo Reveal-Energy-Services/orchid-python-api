@@ -35,11 +35,6 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
-# - TimeSpan to timedelta
-#   - Rounding of fractional milliseconds (ticks)
-#     - span + 4999 ticks (from the .NET documentation: 1ms == 10,000 ticks)
-#     - span + 5000 ticks
-#     - span + 5001 ticks
 # - timedelta ta TimeSpan
 #   - Positive timedelta to TimeSpan
 #   - Negative timedelta to TimeSpan
@@ -139,6 +134,26 @@ class TestNetDateTime(unittest.TestCase):
                                                             seconds=-42, microseconds=-144000)),
         ]:
             with self.subTest(f'Convert .NET TimeSpan, {str(net_time_span)}'):
+                actual = net_dt.as_timedelta(net_time_span)
+                assert_that(actual, equal_to(expected))
+
+    def test_as_timedelta_from_rounded_net_time_span(self):
+        for net_time_span, expected in [
+            # 346 milliseconds + 714 microseconds + 0.4 microseconds rounded to 346714 microseconds
+            (TimeSpan(0, 6, 59, 18, 346).Add(TimeSpan(7140)).Add(TimeSpan(4)),
+             dt.timedelta(hours=6, minutes=59, seconds=18, microseconds=346714)),
+            # 71 milliseconds + 677 microseconds + 0.6 microseconds rounded to 71578 microseconds
+            (TimeSpan(0, 2, 58, 1, 71).Add(TimeSpan(6770)).Add(TimeSpan(6)),
+             dt.timedelta(hours=2, minutes=58, seconds=1, microseconds=71678)),
+            # Half-even rounding (See https://en.wikipedia.org/wiki/Rounding#Round_half_to_even)
+            # 799 milliseconds + 877 microseconds + 0.5 microseconds rounded to 799878 microseconds
+            (TimeSpan(0, 12, 20, 24, 799).Add(TimeSpan(8770)).Add(TimeSpan(5)),
+             dt.timedelta(hours=12, minutes=20, seconds=24, microseconds=799878)),
+            # 310 milliseconds + 94 microseconds + 0.5 microseconds rounded to 310094 microseconds
+            (TimeSpan(0, 3, 30, 15, 310).Add(TimeSpan(940)).Add(TimeSpan(5)),
+             dt.timedelta(hours=3, minutes=30, seconds=15, microseconds=310094)),
+        ]:
+            with self.subTest(f'Convert .NET TimeSpan, {str(net_time_span)}, to `timedelta` with rounding'):
                 actual = net_dt.as_timedelta(net_time_span)
                 assert_that(actual, equal_to(expected))
 
