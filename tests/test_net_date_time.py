@@ -125,6 +125,34 @@ class TestNetDateTime(unittest.TestCase):
                 actual = net_dt.as_net_date_time_offset(stub_dt.make_datetime(time_point))
                 assert_that(actual, tcm.equal_to_net_date_time_offset(expected))
 
+    def test_as_net_date_time_offset_from_parsed_time_is_correct(self):
+        parsed_date_time = dup.parse('2019-06-18T11:14:29.901487Z')
+        expected_dto = stub_dt.TimePointDto(2019, 6, 18, 11, 14, 29,
+                                            901487 * om.registry.microseconds,
+                                            net_dt.TimePointTimeZoneKind.UTC)
+
+        expected = stub_dt.make_net_date_time_offset(expected_dto)
+        assert_that(net_dt.as_net_date_time_offset(parsed_date_time), tcm.equal_to_net_date_time_offset(expected))
+
+    def test_as_net_date_time_offset_raises_error_if_not_utc(self):
+        to_test_datetime = dt.datetime(2027, 4, 5, 10, 14, 13, 696066)
+        assert_that(calling(net_dt.as_net_date_time_offset).with_args(to_test_datetime),
+                    raises(net_dt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
+
+    def test_convert_net_sentinel_to_datetime_sentinel(self):
+        for net_sentinel_name, net_sentinel, sut_func, datetime_sentinel_name, datetime_sentinel in [
+            ('DateTime.MinValue', DateTime.MinValue,
+             net_dt.as_datetime, 'dt.datetime.min', dt.datetime.min),
+            ('DateTimeOffset.MinValue', DateTimeOffset.MinValue,
+             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.min', dt.datetime.min),
+            ('DateTime.MaxValue', DateTime.MaxValue,
+             net_dt.as_datetime, 'dt.datetime.max', dt.datetime.max),
+            ('DateTimeOffset.MaxValue', DateTimeOffset.MaxValue,
+             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.max', dt.datetime.max),
+        ]:
+            with self.subTest(f'Convert {net_sentinel_name} to {datetime_sentinel_name}'):
+                assert_that(sut_func(net_sentinel), is_(same_instance(datetime_sentinel)))
+
     def test_as_timedelta(self):
         for net_time_span, expected in [
             (TimeSpan(0, 0, 36, 36, 989), dt.timedelta(hours=0, minutes=36, seconds=36, microseconds=989000)),
@@ -156,34 +184,6 @@ class TestNetDateTime(unittest.TestCase):
             with self.subTest(f'Convert .NET TimeSpan, {str(net_time_span)}, to `timedelta` with rounding'):
                 actual = net_dt.as_timedelta(net_time_span)
                 assert_that(actual, equal_to(expected))
-
-    def test_as_net_date_time_offset_from_parsed_time_is_correct(self):
-        parsed_date_time = dup.parse('2019-06-18T11:14:29.901487Z')
-        expected_dto = stub_dt.TimePointDto(2019, 6, 18, 11, 14, 29,
-                                            901487 * om.registry.microseconds,
-                                            net_dt.TimePointTimeZoneKind.UTC)
-
-        expected = stub_dt.make_net_date_time_offset(expected_dto)
-        assert_that(net_dt.as_net_date_time_offset(parsed_date_time), tcm.equal_to_net_date_time_offset(expected))
-
-    def test_as_net_date_time_offset_raises_error_if_not_utc(self):
-        to_test_datetime = dt.datetime(2027, 4, 5, 10, 14, 13, 696066)
-        assert_that(calling(net_dt.as_net_date_time_offset).with_args(to_test_datetime),
-                    raises(net_dt.NetDateTimeNoTzInfoError, pattern=to_test_datetime.isoformat()))
-
-    def test_convert_net_sentinel_to_datetime_sentinel(self):
-        for net_sentinel_name, net_sentinel, sut_func, datetime_sentinel_name, datetime_sentinel in [
-            ('DateTime.MinValue', DateTime.MinValue,
-             net_dt.as_datetime, 'dt.datetime.min', dt.datetime.min),
-            ('DateTimeOffset.MinValue', DateTimeOffset.MinValue,
-             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.min', dt.datetime.min),
-            ('DateTime.MaxValue', DateTime.MaxValue,
-             net_dt.as_datetime, 'dt.datetime.max', dt.datetime.max),
-            ('DateTimeOffset.MaxValue', DateTimeOffset.MaxValue,
-             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.max', dt.datetime.max),
-        ]:
-            with self.subTest(f'Convert {net_sentinel_name} to {datetime_sentinel_name}'):
-                assert_that(sut_func(net_sentinel), is_(same_instance(datetime_sentinel)))
 
     def test_convert_datetime_sentinel_to_net_sentinel(self):
         for datetime_sentinel_name, datetime_sentinel, sut_func, net_sentinel_name, net_sentinel in [
