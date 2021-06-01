@@ -153,6 +153,22 @@ class TestNetDateTime(unittest.TestCase):
             with self.subTest(f'Convert {net_sentinel_name} to {datetime_sentinel_name}'):
                 assert_that(sut_func(net_sentinel), is_(same_instance(datetime_sentinel)))
 
+    def test_as_net_time_span(self):
+        for time_delta, expected in [
+            (dt.timedelta(hours=22, minutes=48, seconds=30, microseconds=756193),
+             TimeSpan(0, 22, 48, 30, 756).Add(TimeSpan(1930))),
+            # Don't think rounding is an issue here, but let's verify.
+            (dt.timedelta(hours=14, minutes=10, seconds=22, microseconds=456499),
+             TimeSpan(0, 14, 10, 22, 456).Add(TimeSpan(4990))),
+            (dt.timedelta(hours=16, minutes=8, seconds=32, microseconds=917500),
+             TimeSpan(0, 16, 8, 32, 917).Add(TimeSpan(5000))),
+            (dt.timedelta(hours=23, minutes=7, seconds=57, microseconds=910600),
+             TimeSpan(0, 23, 7, 57, 910).Add(TimeSpan(6000))),
+        ]:
+            with self.subTest(f'Convert dt.timedelta, {time_delta}'):
+                actual = net_dt.as_net_time_span(time_delta)
+                assert_that(actual, equal_to(expected))
+
     def test_as_timedelta(self):
         for net_time_span, expected in [
             (TimeSpan(0, 0, 36, 36, 989), dt.timedelta(hours=0, minutes=36, seconds=36, microseconds=989000)),
