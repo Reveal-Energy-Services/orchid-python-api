@@ -31,15 +31,15 @@ from System import DateTimeOffset, DBNull
 from System.Data import DataTable
 
 
-class DataFrameAdapterDateTimeError(TypeError):
-    pass
-
-
 @dataclasses.dataclass
 class CellDto:
     row: int
-    column: int
+    column: str
     value: object
+
+
+class DataFrameAdapterDateTimeError(TypeError):
+    pass
 
 
 class DataFrameAdapterDateTimeOffsetMinValueError(ValueError):
@@ -96,7 +96,8 @@ def net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
 
         # noinspection PyUnresolvedReferences
         if str(net_cell.value.GetType()) == 'System.DateTime':
-            raise DataFrameAdapterDateTimeError(net_cell.value.GetType())
+            # noinspection PyUnresolvedReferences
+            raise TypeError(f'{net_cell.value.GetType()}')
 
     except AttributeError as ae:
         if 'GetType' in str(ae):
@@ -172,38 +173,16 @@ def _table_row_to_dict(reader):
         return dict_result
 
     def net_value_to_python_value(cell_location_value_pair):
-        @toolz.curry
-        def make_cell_result(cell_row_no, cell_column_name, cell_value):
-            return (cell_row_no, cell_column_name), cell_value
-
         (row_no, column_name), value = cell_location_value_pair
-        make_result = make_cell_result(row_no, column_name)
-        if value == DBNull.Value:
-            return make_result(None)
-
-        if value == DateTimeOffset.MaxValue:
-            return make_result(pd.NaT)
-
-        if value == DateTimeOffset.MinValue:
-            raise DataFrameAdapterDateTimeOffsetMinValueError(row_no, column_name)
-
         try:
-            if str(value.GetType()) == 'System.DateTime':
+            converted = net_cell_to_pandas_cell(CellDto(row_no, column_name, value))
+            return (converted.row, converted.column), converted.value
+        except ValueError as ve:
+            if 'DateTimeOffset.MinValue' in str(ve):
+                raise DataFrameAdapterDateTimeOffsetMinValueError(row_no, column_name)
+        except TypeError as te:
+            if 'System.DateTime' in str(te):
                 raise DataFrameAdapterDateTimeError(value.GetType())
-
-            if str(value.GetType()) == 'System.DateTimeOffset':
-                return make_result(net_dt.net_date_time_offset_as_datetime(value))
-
-            if str(value.GetType()) == 'System.TimeSpan':
-                return make_result(net_dt.as_timedelta(value))
-
-        except AttributeError as ae:
-            if 'GetType' in str(ae):
-                # Not a .NET type so simply return it
-                return make_result(value)
-
-            # Re-raise the original error
-            raise
 
     result = toolz.pipe(
         range(reader.FieldCount),

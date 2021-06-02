@@ -90,17 +90,17 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_net_cell_to_pandas_cell(self):
         for net_cell, expected_value in [
-            (dfa.CellDto(63329, 898, 108), 108),
-            (dfa.CellDto(424, 802, 49.4775), 49.4775),
-            (dfa.CellDto(13463, 730, 'succurro'), 'succurro'),
-            (dfa.CellDto(86209, 368, DBNull.Value), None),
-            (dfa.CellDto(74821, 1209, DateTimeOffset.MaxValue), pd.NaT),
-            (dfa.CellDto(40371, 373, DateTimeOffset(
+            (dfa.CellDto(63329, 'invidet', 108), 108),
+            (dfa.CellDto(424, 'abominor', 49.4775), 49.4775),
+            (dfa.CellDto(13463, 'condonant', 'succurro'), 'succurro'),
+            (dfa.CellDto(86209, 'acuo', DBNull.Value), None),
+            (dfa.CellDto(74821, 'phoenicis', DateTimeOffset.MaxValue), pd.NaT),
+            (dfa.CellDto(40371, 'lapidarii', DateTimeOffset(
                 DateTime(2021, 1, 31, 20, 52, 52, 766, DateTimeKind.Utc).Add(TimeSpan(5108)))),
              # TODO: converted value is incorrect. See GitHub bug #21.
              # Should be dt.datetime(2021, 1, 31, 20, 52, 52, 766511, tzinfo=dt.timezone.utc),
              dt.datetime(2021, 1, 31, 20, 52, 52, 766000, tzinfo=dt.timezone.utc)),
-            (dfa.CellDto(37223, 63, TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307))),
+            (dfa.CellDto(37223, 'nectes', TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307))),
              dt.timedelta(hours=11, minutes=52, seconds=16, microseconds=444731)),
         ]:
             expected = dataclasses.replace(net_cell, value=expected_value)
@@ -111,7 +111,11 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_net_cell_to_pandas_cell_raises_specified_exception(self):
         for net_cell, expected in [
-            (dfa.CellDto(74821, 1209, DateTimeOffset.MinValue), (ValueError, '`DateTimeOffset.MinValue` unexpected'))
+            (dfa.CellDto(74821, 'nomenclatoris', DateTimeOffset.MinValue),
+             (ValueError, '`DateTimeOffset.MinValue` unexpected')),
+            (dfa.CellDto(74821, 'tenemus',
+                         DateTime(2027, 10, 11, 20, 44, 23, 483, DateTimeKind.Utc).Add(TimeSpan(9350))),
+             (TypeError, 'System.DateTime')),
         ]:
             with self.subTest(f'Convert .NET cell, {net_cell}, raises {expected}'):
                 assert_that(calling(dfa.net_cell_to_pandas_cell).with_args(net_cell),
