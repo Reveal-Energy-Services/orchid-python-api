@@ -109,6 +109,14 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
                 assert_that(actual, equal_to(expected))
 
+    def test_net_cell_to_pandas_cell_raises_specified_exception(self):
+        for net_cell, expected in [
+            (dfa.CellDto(74821, 1209, DateTimeOffset.MinValue), (ValueError, '`DateTimeOffset.MinValue` unexpected'))
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_cell}, raises {expected}'):
+                assert_that(calling(dfa.net_cell_to_pandas_cell).with_args(net_cell),
+                            raises(expected[0], pattern=expected[1]))
+
     def test_object_id(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(object_id='35582fd2-7499-4259-99b8-04b01876f309')
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)

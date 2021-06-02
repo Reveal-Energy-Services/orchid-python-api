@@ -73,25 +73,38 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
 
 
 def net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
+    def convert_date_time_offset(net_date_time_offset):
+        if net_date_time_offset == DateTimeOffset.MaxValue:
+            return dataclasses.replace(net_cell, value=pd.NaT)
+
+        if net_date_time_offset == DateTimeOffset.MinValue:
+            raise ValueError('`DateTimeOffset.MinValue` unexpected.')
+
+        return dataclasses.replace(net_cell, value=net_dt.net_date_time_offset_as_datetime(net_cell.value))
+
     if net_cell.value == DBNull.Value:
         return dataclasses.replace(net_cell, value=None)
-
-    if net_cell.value == DateTimeOffset.MaxValue:
-        return dataclasses.replace(net_cell, value=pd.NaT)
 
     try:
         # noinspection PyUnresolvedReferences
         if str(net_cell.value.GetType()) == 'System.DateTimeOffset':
-            return dataclasses.replace(net_cell, value=net_dt.net_date_time_offset_as_datetime(net_cell.value))
+            return convert_date_time_offset(net_cell.value)
 
         # noinspection PyUnresolvedReferences
         if str(net_cell.value.GetType()) == 'System.TimeSpan':
             return dataclasses.replace(net_cell, value=net_dt.as_timedelta(net_cell.value))
 
-    except AttributeError:
-        pass
+        # noinspection PyUnresolvedReferences
+        if str(net_cell.value.GetType()) == 'System.DateTime':
+            raise DataFrameAdapterDateTimeError(net_cell.value.GetType())
 
-    return dataclasses.replace(net_cell)
+    except AttributeError as ae:
+        if 'GetType' in str(ae):
+            # Not a .NET type so simply return it
+            return dataclasses.replace(net_cell)
+
+        # Re-raise the original error
+        raise
 
 
 def _table_to_data_frame(data_table: DataTable):
