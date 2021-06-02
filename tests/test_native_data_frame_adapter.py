@@ -88,7 +88,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         assert_that(sut.name, equal_to('avus'))
 
-    def test_net_cell_to_pandas_cell(self):
+    def test_old_net_cell_to_pandas_cell(self):
         for net_cell, expected_value in [
             (dfa.CellDto(63329, 'invidet', 108), 108),
             (dfa.CellDto(424, 'abominor', 49.4775), 49.4775),
@@ -105,11 +105,11 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         ]:
             expected = dataclasses.replace(net_cell, value=expected_value)
             with self.subTest(f'Convert .NET cell, {net_cell}, to {expected}'):
-                actual = dfa.net_cell_to_pandas_cell(net_cell)
+                actual = dfa.obs_net_cell_to_pandas_cell(net_cell)
 
                 assert_that(actual, equal_to(expected))
 
-    def test_net_cell_to_pandas_cell_raises_specified_exception(self):
+    def test_obs_net_cell_to_pandas_cell_raises_specified_exception(self):
         for net_cell, expected in [
             (dfa.CellDto(74821, 'nomenclatoris', DateTimeOffset.MinValue),
              (ValueError, '`DateTimeOffset.MinValue` unexpected')),
@@ -118,7 +118,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
              (TypeError, 'System.DateTime')),
         ]:
             with self.subTest(f'Convert .NET cell, {net_cell}, raises {expected}'):
-                assert_that(calling(dfa.net_cell_to_pandas_cell).with_args(net_cell),
+                assert_that(calling(dfa.obs_net_cell_to_pandas_cell).with_args(net_cell),
                             raises(expected[0], pattern=expected[1]))
 
     def test_object_id(self):

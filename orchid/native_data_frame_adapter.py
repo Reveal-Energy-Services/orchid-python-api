@@ -72,7 +72,7 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
         return _table_to_data_frame(self.dom_object.DataTable)
 
 
-def net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
+def obs_net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
     def convert_date_time_offset(net_date_time_offset):
         if net_date_time_offset == DateTimeOffset.MaxValue:
             return dataclasses.replace(net_cell, value=pd.NaT)
@@ -175,7 +175,7 @@ def _table_row_to_dict(reader):
     def net_value_to_python_value(cell_location_value_pair):
         (row_no, column_name), value = cell_location_value_pair
         try:
-            converted = net_cell_to_pandas_cell(CellDto(row_no, column_name, value))
+            converted = obs_net_cell_to_pandas_cell(CellDto(row_no, column_name, value))
             return (converted.row, converted.column), converted.value
         except ValueError as ve:
             if 'DateTimeOffset.MinValue' in str(ve):
