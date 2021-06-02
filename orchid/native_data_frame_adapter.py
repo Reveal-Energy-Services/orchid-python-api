@@ -22,7 +22,7 @@ import toolz.curried as toolz
 from orchid import (
     base,
     dot_net_dom_access as dna,
-    net_date_time as ndt,
+    net_date_time as net_dt,
 )
 
 # noinspection PyUnresolvedReferences
@@ -78,6 +78,18 @@ def net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
 
     if net_cell.value == DateTimeOffset.MaxValue:
         return dataclasses.replace(net_cell, value=pd.NaT)
+
+    try:
+        # noinspection PyUnresolvedReferences
+        if str(net_cell.value.GetType()) == 'System.DateTimeOffset':
+            return dataclasses.replace(net_cell, value=net_dt.net_date_time_offset_as_datetime(net_cell.value))
+
+        # noinspection PyUnresolvedReferences
+        if str(net_cell.value.GetType()) == 'System.TimeSpan':
+            return dataclasses.replace(net_cell, value=net_dt.as_timedelta(net_cell.value))
+
+    except AttributeError:
+        pass
 
     return dataclasses.replace(net_cell)
 
@@ -167,10 +179,10 @@ def _table_row_to_dict(reader):
                 raise DataFrameAdapterDateTimeError(value.GetType())
 
             if str(value.GetType()) == 'System.DateTimeOffset':
-                return make_result(ndt.net_date_time_offset_as_datetime(value))
+                return make_result(net_dt.net_date_time_offset_as_datetime(value))
 
             if str(value.GetType()) == 'System.TimeSpan':
-                return make_result(ndt.as_timedelta(value))
+                return make_result(net_dt.as_timedelta(value))
 
         except AttributeError as ae:
             if 'GetType' in str(ae):

@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import dataclasses
 import datetime as dt
 import unittest
 import uuid
@@ -33,7 +34,7 @@ from tests import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import DateTimeOffset, DBNull
+from System import DateTime, DateTimeKind, DateTimeOffset, DBNull, TimeSpan
 
 
 def datetime_to_integral_milliseconds(value):
@@ -87,26 +88,26 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         assert_that(sut.name, equal_to('avus'))
 
-    def test_net_cell_value_to_pandas_leaves_cell_indices_unchanged(self):
-        expected = dfa.CellDto(21680, 712, 3.14)
-        actual = dfa.net_cell_to_pandas_cell(expected)
+    def test_net_cell_to_pandas_cell(self):
+        for net_cell, expected_value in [
+            (dfa.CellDto(63329, 898, 108), 108),
+            (dfa.CellDto(424, 802, 49.4775), 49.4775),
+            (dfa.CellDto(13463, 730, 'succurro'), 'succurro'),
+            (dfa.CellDto(86209, 368, DBNull.Value), None),
+            (dfa.CellDto(74821, 1209, DateTimeOffset.MaxValue), pd.NaT),
+            (dfa.CellDto(40371, 373, DateTimeOffset(
+                DateTime(2021, 1, 31, 20, 52, 52, 766, DateTimeKind.Utc).Add(TimeSpan(5108)))),
+             # TODO: converted value is incorrect. See GitHub bug #21.
+             # Should be dt.datetime(2021, 1, 31, 20, 52, 52, 766511, tzinfo=dt.timezone.utc),
+             dt.datetime(2021, 1, 31, 20, 52, 52, 766000, tzinfo=dt.timezone.utc)),
+            (dfa.CellDto(37223, 63, TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307))),
+             dt.timedelta(hours=11, minutes=52, seconds=16, microseconds=444731)),
+        ]:
+            expected = dataclasses.replace(net_cell, value=expected_value)
+            with self.subTest(f'Convert .NET cell, {net_cell}, to {expected}'):
+                actual = dfa.net_cell_to_pandas_cell(net_cell)
 
-        assert_that(actual.row, equal_to(expected.row))
-        assert_that(actual.column, equal_to(expected.column))
-
-    def test_net_cell_value_to_pandas_correct_if_db_null_value(self):
-        net_cell = dfa.CellDto(86209, 368, DBNull.Value)
-        expected = dfa.CellDto(86209, 368, None)
-        actual = dfa.net_cell_to_pandas_cell(net_cell)
-
-        assert_that(actual, equal_to(expected))
-
-    def test_net_cell_value_to_pandas_correct_if_date_time_offset_max_value(self):
-        net_cell = dfa.CellDto(86209, 368, DateTimeOffset.MaxValue)
-        expected = dfa.CellDto(86209, 368, pd.NaT)
-        actual = dfa.net_cell_to_pandas_cell(net_cell)
-
-        assert_that(actual, equal_to(expected))
+                assert_that(actual, equal_to(expected))
 
     def test_object_id(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(object_id='35582fd2-7499-4259-99b8-04b01876f309')
