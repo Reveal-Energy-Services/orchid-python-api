@@ -12,7 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-from collections import namedtuple
+import dataclasses
 from typing import Iterable
 
 import option
@@ -35,7 +35,11 @@ class DataFrameAdapterDateTimeError(TypeError):
     pass
 
 
-CellDto = namedtuple('CellDto', ['row', 'column', 'value'])
+@dataclasses.dataclass
+class CellDto:
+    row: int
+    column: int
+    value: object
 
 
 class DataFrameAdapterDateTimeOffsetMinValueError(ValueError):
@@ -68,8 +72,14 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
         return _table_to_data_frame(self.dom_object.DataTable)
 
 
-def net_cell_value_to_pandas(net_cell_value: CellDto) -> CellDto:
-    return CellDto(*net_cell_value)
+def net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
+    if net_cell.value == DBNull.Value:
+        return dataclasses.replace(net_cell, value=None)
+
+    if net_cell.value == DateTimeOffset.MaxValue:
+        return dataclasses.replace(net_cell, value=pd.NaT)
+
+    return dataclasses.replace(net_cell)
 
 
 def _table_to_data_frame(data_table: DataTable):

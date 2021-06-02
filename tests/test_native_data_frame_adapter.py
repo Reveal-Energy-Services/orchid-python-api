@@ -32,6 +32,9 @@ from tests import (
     stub_net as tsn,
 )
 
+# noinspection PyUnresolvedReferences
+from System import DateTimeOffset, DBNull
+
 
 def datetime_to_integral_milliseconds(value):
     if isinstance(value, type(dt.datetime.utcnow())):
@@ -48,7 +51,6 @@ def datetime_to_integral_milliseconds(value):
 # - "3 Mday" (large) work-around
 # - .NET cell values to pandas cell values
 #   - Translate
-#     - DBNull to None
 #     - DateTimeOffset.MaxValue to pd.NaT
 #     - DateTimeOffset to dt.datetime
 #     - TimeSpan to dt.timedelta
@@ -87,10 +89,24 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_net_cell_value_to_pandas_leaves_cell_indices_unchanged(self):
         expected = dfa.CellDto(21680, 712, 3.14)
-        actual = dfa.net_cell_value_to_pandas(expected)
+        actual = dfa.net_cell_to_pandas_cell(expected)
 
         assert_that(actual.row, equal_to(expected.row))
         assert_that(actual.column, equal_to(expected.column))
+
+    def test_net_cell_value_to_pandas_correct_if_db_null_value(self):
+        net_cell = dfa.CellDto(86209, 368, DBNull.Value)
+        expected = dfa.CellDto(86209, 368, None)
+        actual = dfa.net_cell_to_pandas_cell(net_cell)
+
+        assert_that(actual, equal_to(expected))
+
+    def test_net_cell_value_to_pandas_correct_if_date_time_offset_max_value(self):
+        net_cell = dfa.CellDto(86209, 368, DateTimeOffset.MaxValue)
+        expected = dfa.CellDto(86209, 368, pd.NaT)
+        actual = dfa.net_cell_to_pandas_cell(net_cell)
+
+        assert_that(actual, equal_to(expected))
 
     def test_object_id(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(object_id='35582fd2-7499-4259-99b8-04b01876f309')
