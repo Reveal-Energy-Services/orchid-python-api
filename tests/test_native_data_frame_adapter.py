@@ -47,7 +47,6 @@ def datetime_to_integral_milliseconds(value):
 #   - 'NaT` in time (DateTimeOffset) columns
 # - "3 Mday" (large) work-around
 # - .NET cell values to pandas cell values
-#   - Cell location unchanged
 #   - Translate
 #     - DBNull to None
 #     - DateTimeOffset.MaxValue to pd.NaT
@@ -85,6 +84,13 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
 
         assert_that(sut.name, equal_to('avus'))
+
+    def test_net_cell_value_to_pandas_leaves_cell_indices_unchanged(self):
+        expected = dfa.CellDto(21680, 712, 3.14)
+        actual = dfa.net_cell_value_to_pandas(expected)
+
+        assert_that(actual.row, equal_to(expected.row))
+        assert_that(actual.column, equal_to(expected.column))
 
     def test_object_id(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(object_id='35582fd2-7499-4259-99b8-04b01876f309')
