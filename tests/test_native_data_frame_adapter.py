@@ -40,11 +40,24 @@ def datetime_to_integral_milliseconds(value):
 
 
 # Test ideas
-# - Correctly translate `None` values t
+# - Correctly translate `None` values
 #   - `None` in string columns
 #   - `NaN` in int columns
 #   - `NaN` in float columns
 #   - 'NaT` in time (DateTimeOffset) columns
+# - "3 Mday" (large) work-around
+# - .NET cell values to pandas cell values
+#   - Cell location unchanged
+#   - Translate
+#     - DBNull to None
+#     - DateTimeOffset.MaxValue to pd.NaT
+#     - DateTimeOffset to dt.datetime
+#     - TimeSpan to dt.timedelta
+#     - Work around: "large" TimeSpan to dt.timedelta.max
+#   - Raise exceptions
+#     - DateTimeOffset.MinValue
+#     # TimeSpan.MinValue
+#     - DateTime
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
