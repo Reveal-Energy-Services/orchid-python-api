@@ -15,6 +15,7 @@
 import dataclasses
 from typing import Iterable
 
+import functools
 import option
 import pandas as pd
 import toolz.curried as toolz
@@ -26,7 +27,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import DateTimeOffset, DBNull
+from System import DateTime, DateTimeOffset, DBNull, TimeSpan
 # noinspection PyUnresolvedReferences
 from System.Data import DataTable
 
@@ -70,6 +71,49 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
             A `pandas` `DataFrame`.
         """
         return _table_to_data_frame(self.dom_object.DataTable)
+
+
+@functools.singledispatch
+def net_cell_value_to_pandas_cell_value(cell_value):
+    """
+    Convert a .NET `DataFrame` cell value to a `pandas.DataFrame` cell value.
+    Args:
+        cell_value: The cell value to convert.
+    """
+    raise NotImplementedError(f'Unexpected type, {type(cell_value)}, of value, {cell_value}')
+
+
+@net_cell_value_to_pandas_cell_value.register(int)
+@net_cell_value_to_pandas_cell_value.register(float)
+@net_cell_value_to_pandas_cell_value.register(str)
+def _(cell_value):
+    return cell_value
+
+
+@net_cell_value_to_pandas_cell_value.register(DateTime)
+def _(_cell_value):
+    raise TypeError('`System.DateTime` unexpected.')
+
+
+@net_cell_value_to_pandas_cell_value.register(DateTimeOffset)
+def _(cell_value):
+    if cell_value == DateTimeOffset.MaxValue:
+        return pd.NaT
+
+    if cell_value == DateTimeOffset.MinValue:
+        raise ValueError('`DateTimeOffset.MinValue` unexpected.')
+
+    return net_dt.net_date_time_offset_as_datetime(cell_value)
+
+
+@net_cell_value_to_pandas_cell_value.register(DBNull)
+def _(_cell_value):
+    return None
+
+
+@net_cell_value_to_pandas_cell_value.register(TimeSpan)
+def _(cell_value):
+    return net_dt.as_timedelta(cell_value)
 
 
 def obs_net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:

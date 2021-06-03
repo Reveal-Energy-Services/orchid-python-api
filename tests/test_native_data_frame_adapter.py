@@ -88,11 +88,41 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         assert_that(sut.name, equal_to('avus'))
 
+    def test_net_cell_to_pandas_cell(self):
+        for net_value, expected in [
+            (108, 108),
+            (49.4775, 49.4775),
+            ('succurro', 'succurro'),
+            (DBNull.Value, None),
+            (DateTimeOffset.MaxValue, pd.NaT),
+            (DateTimeOffset(DateTime(2021, 1, 31, 20, 52, 52, 766, DateTimeKind.Utc).Add(TimeSpan(5108))),
+             # TODO: converted value is incorrect. See GitHub bug #21.
+             # Should be dt.datetime(2021, 1, 31, 20, 52, 52, 766511, tzinfo=dt.timezone.utc),
+             dt.datetime(2021, 1, 31, 20, 52, 52, 766000, tzinfo=dt.timezone.utc)),
+            (TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307)),
+             dt.timedelta(hours=11, minutes=52, seconds=16, microseconds=444731)),
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_value}, to {expected}'):
+                actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
+
+                if net_value != DateTimeOffset.MaxValue:
+                    assert_that(actual, equal_to(expected))
+                else:
+                    assert_that(pd.isna(actual), equal_to(True))
+
+
+    def test_net_cell_to_pandas_cell_raises_specified_exception(self):
+        for net_cell, expected in [
+            (DateTimeOffset.MinValue, (ValueError, '`DateTimeOffset.MinValue` unexpected')),
+            (DateTime(2027, 10, 11, 20, 44, 23, 483, DateTimeKind.Utc).Add(TimeSpan(9350)),
+             (TypeError, '`System.DateTime` unexpected')),
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_cell}, raises {expected}'):
+                assert_that(calling(dfa.net_cell_value_to_pandas_cell_value).with_args(net_cell),
+                            raises(expected[0], pattern=expected[1]))
+
     def test_old_net_cell_to_pandas_cell(self):
         for net_cell, expected_value in [
-            (dfa.CellDto(63329, 'invidet', 108), 108),
-            (dfa.CellDto(424, 'abominor', 49.4775), 49.4775),
-            (dfa.CellDto(13463, 'condonant', 'succurro'), 'succurro'),
             (dfa.CellDto(86209, 'acuo', DBNull.Value), None),
             (dfa.CellDto(74821, 'phoenicis', DateTimeOffset.MaxValue), pd.NaT),
             (dfa.CellDto(40371, 'lapidarii', DateTimeOffset(
