@@ -138,12 +138,14 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_net_cell_to_pandas_cell_net_max_date_time_offset_sentinel(self):
         for net_value, expected in [
-            # MaxValue minus 1 second + 20 ticks (1 microsecond) => NaT
-            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)).Add(TimeSpan(20)), pd.NaT),
-            # MaxValue minus 1 second => NaT
-            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)), pd.NaT),
-            # MaxValue minus 1 second - 2 ticks => actual date time offset to millisecond precision
-            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)).Subtract(TimeSpan(20)),
+            # TODO: Loss of fractional second work-around
+            # MaxValue minus 9999998 Ticks => NaT
+            (DateTimeOffset.MaxValue.Subtract(TimeSpan(9999998)), pd.NaT),
+            # MaxValue minus 9999999 Ticks => NaT
+            (DateTimeOffset.MaxValue.Subtract(TimeSpan(9999999)), pd.NaT),
+            # MaxValue minus 1 second => actual date time offset to millisecond precision.
+            # Somewhere in my conversions, a millisecond is lost
+            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)),
              dt.datetime(9999, 12, 31, 23, 59, 58, 999000, tzinfo=dt.timezone.utc)),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value.ToString("o")}, to {expected}'

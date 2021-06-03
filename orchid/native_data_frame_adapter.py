@@ -39,6 +39,20 @@ class CellDto:
     value: object
 
 
+@dataclasses.dataclass
+class DateTimeOffsetSentinelRange:
+    lower: DateTimeOffset
+    upper: DateTimeOffset
+
+    def __contains__(self, to_test: DateTimeOffset):
+        return self.lower <= to_test <= self.upper
+
+
+_MAX_SENTINEL_RANGE = DateTimeOffsetSentinelRange(DateTimeOffset.MaxValue.Subtract(TimeSpan(9999999)),
+                                                  DateTimeOffset.MaxValue)
+"""The range used to determine equality to the .NET `DateTimeOffset.MaxValue` sentinel."""
+
+
 class DataFrameAdapterDateTimeError(TypeError):
     pass
 
@@ -98,9 +112,10 @@ def _(_cell_value):
 @net_cell_value_to_pandas_cell_value.register(DateTimeOffset)
 def _(cell_value):
     def is_net_max_sentinel(cv):
+        # TODO: Loss of fractional second work-around
         # Using equality "works-around" the acceptance test error for the Permian FDI Observations data frame. (The
         # "Timestamp" field is not **actually** `DateTimeOffset.MaxValue` but `DateTimeOffset.MaxValue` minus 1 second.)
-        return cv >= DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1))
+        return cv in _MAX_SENTINEL_RANGE
 
     if is_net_max_sentinel(cell_value):
         return pd.NaT
