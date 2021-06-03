@@ -127,11 +127,32 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             # This test considers the situation in which the "Stage Part Start Time" is undefined.
             (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)), TimeSpan()).Subtract(
                 DateTimeOffset.MinValue), pd.NaT),
+            # This test considers the situation in which the "Stage Part Start Time" is undefined.
+            (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)), TimeSpan()).Subtract(
+                DateTimeOffset.MinValue), pd.NaT),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for 3 Mdays work-around'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
 
                 assert_that(pd.isna(actual))
+
+    def test_net_cell_to_pandas_cell_too_large_time_span_boundary(self):
+        too_large_time_span_boundary_in_days = 9125
+        for net_value, expected in [
+            (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0).Add(TimeSpan(10)), pd.NaT),
+            (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0),
+             dt.timedelta(days=too_large_time_span_boundary_in_days)),
+            (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0).Subtract(TimeSpan(10)),
+             dt.timedelta(days=too_large_time_span_boundary_in_days - 1, hours=23, minutes=59,
+                          seconds=59, microseconds=999999)),
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for 3 Mdays work-around'):
+                actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
+
+                if pd.isna(expected):
+                    assert_that(pd.isna(actual))
+                else:
+                    assert_that(actual, equal_to(expected))
 
     def test_net_cell_to_pandas_cell_raises_specified_exception(self):
         for net_cell, expected in [
