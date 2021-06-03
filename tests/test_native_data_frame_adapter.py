@@ -131,12 +131,31 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)), TimeSpan()).Subtract(
                 DateTimeOffset.MinValue), pd.NaT),
         ]:
-            with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for 3 Mdays work-around'):
+            with self.subTest(f'Convert .NET cell, {net_value.ToString()}, to {expected} for too large time span'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
 
                 assert_that(pd.isna(actual))
 
-    def test_net_cell_to_pandas_cell_too_large_time_span_boundary(self):
+    def test_net_cell_to_pandas_cell_net_max_date_time_offset_sentinel(self):
+        for net_value, expected in [
+            # MaxValue minus 1 second + 20 ticks (1 microsecond) => NaT
+            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)).Add(TimeSpan(20)), pd.NaT),
+            # MaxValue minus 1 second => NaT
+            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)), pd.NaT),
+            # MaxValue minus 1 second - 2 ticks => actual date time offset to millisecond precision
+            (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)).Subtract(TimeSpan(20)),
+             dt.datetime(9999, 12, 31, 23, 59, 58, 999000, tzinfo=dt.timezone.utc)),
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_value.ToString("o")}, to {expected}'
+                              f' for max date time offset sentinel'):
+                actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
+
+                if pd.isna(expected):
+                    assert_that(pd.isna(actual))
+                else:
+                    assert_that(actual, equal_to(expected))
+
+    def test_net_cell_to_pandas_cell_too_large_time_span(self):
         too_large_time_span_boundary_in_days = 36525  # Value copied net_cell_value_to_pandas_cell_value(TimeSpan)
         for net_value, expected in [
             (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0).Add(TimeSpan(10)), pd.NaT),
@@ -146,7 +165,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
              dt.timedelta(days=too_large_time_span_boundary_in_days - 1, hours=23, minutes=59,
                           seconds=59, microseconds=999999)),
         ]:
-            with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for 3 Mdays work-around'):
+            with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for too large time span'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
 
                 if pd.isna(expected):

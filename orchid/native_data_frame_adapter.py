@@ -97,7 +97,12 @@ def _(_cell_value):
 
 @net_cell_value_to_pandas_cell_value.register(DateTimeOffset)
 def _(cell_value):
-    if cell_value == DateTimeOffset.MaxValue:
+    def is_net_max_sentinel(cv):
+        # Using equality "works-around" the acceptance test error for the Permian FDI Observations data frame. (The
+        # "Timestamp" field is not **actually** `DateTimeOffset.MaxValue` but `DateTimeOffset.MaxValue` minus 1 second.)
+        return cv >= DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1))
+
+    if is_net_max_sentinel(cell_value):
         return pd.NaT
 
     if cell_value == DateTimeOffset.MinValue:
