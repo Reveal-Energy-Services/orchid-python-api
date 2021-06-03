@@ -122,7 +122,7 @@ def _(cell_value):
     # "Pick Time" of `DateTimeOffset.MaxValue`. Unfortunately, the calculation simply subtracts which results
     # in a very large (<~ 3 million days) but valid value. The work-around I chose to implement is to
     # transform these kinds of values into `pd.NaT`.
-    if cell_value.TotalDays > 1_000_000:
+    if cell_value.TotalDays > 9125:  # ~ 25 years
         return pd.NaT
 
     return net_dt.as_timedelta(cell_value)

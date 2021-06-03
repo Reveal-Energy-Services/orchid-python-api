@@ -121,14 +121,17 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             # in a very large (<~ 3 million days) but valid value. The work-around I chose to implement is to
             # transform these kinds of values into `pd.NaT`.
             #
-            # This specific test considers the situation in which the "Pick Time" is undefined.
+            # This test considers the situation in which the "Pick Time" is undefined.
             (DateTimeOffset.MaxValue.Subtract(
                 DateTimeOffset(DateTime(2022, 8, 17, 10, 39, 4, 470).Add(TimeSpan(6671)), TimeSpan())), pd.NaT),
+            # This test considers the situation in which the "Stage Part Start Time" is undefined.
+            (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)), TimeSpan()).Subtract(
+                DateTimeOffset.MinValue), pd.NaT),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for 3 Mdays work-around'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
 
-                assert_that(pd.isna(actual), equal_to(True))
+                assert_that(pd.isna(actual))
 
     def test_net_cell_to_pandas_cell_raises_specified_exception(self):
         for net_cell, expected in [
