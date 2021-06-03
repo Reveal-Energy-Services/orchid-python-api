@@ -116,6 +116,15 @@ def _(cell_value):
     if cell_value == TimeSpan.MaxValue or cell_value == TimeSpan.MinValue:
         return pd.NaT
 
+    # TODO: TimeSpan 3 Mdays calculation work-around
+    # The Orchid code to create the `ObservationSetDataFrame` calculates a `TimeSpan` from the "Pick Time"
+    # and the stage part start time; however, one item in the .NET `DataFrame` has the corresponding
+    # "Pick Time" of `DateTimeOffset.MaxValue`. Unfortunately, the calculation simply subtracts which results
+    # in a very large (<~ 3 million days) but valid value. The work-around I chose to implement is to
+    # transform these kinds of values into `pd.NaT`.
+    if cell_value.TotalDays > 1_000_000:
+        return pd.NaT
+
     return net_dt.as_timedelta(cell_value)
 
 
