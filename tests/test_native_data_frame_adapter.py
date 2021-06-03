@@ -121,36 +121,6 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 assert_that(calling(dfa.net_cell_value_to_pandas_cell_value).with_args(net_cell),
                             raises(expected[0], pattern=expected[1]))
 
-    def test_old_net_cell_to_pandas_cell(self):
-        for net_cell, expected_value in [
-            (dfa.CellDto(86209, 'acuo', DBNull.Value), None),
-            (dfa.CellDto(74821, 'phoenicis', DateTimeOffset.MaxValue), pd.NaT),
-            (dfa.CellDto(40371, 'lapidarii', DateTimeOffset(
-                DateTime(2021, 1, 31, 20, 52, 52, 766, DateTimeKind.Utc).Add(TimeSpan(5108)))),
-             # TODO: converted value is incorrect. See GitHub bug #21.
-             # Should be dt.datetime(2021, 1, 31, 20, 52, 52, 766511, tzinfo=dt.timezone.utc),
-             dt.datetime(2021, 1, 31, 20, 52, 52, 766000, tzinfo=dt.timezone.utc)),
-            (dfa.CellDto(37223, 'nectes', TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307))),
-             dt.timedelta(hours=11, minutes=52, seconds=16, microseconds=444731)),
-        ]:
-            expected = dataclasses.replace(net_cell, value=expected_value)
-            with self.subTest(f'Convert .NET cell, {net_cell}, to {expected}'):
-                actual = dfa.obs_net_cell_to_pandas_cell(net_cell)
-
-                assert_that(actual, equal_to(expected))
-
-    def test_obs_net_cell_to_pandas_cell_raises_specified_exception(self):
-        for net_cell, expected in [
-            (dfa.CellDto(74821, 'nomenclatoris', DateTimeOffset.MinValue),
-             (ValueError, '`DateTimeOffset.MinValue` unexpected')),
-            (dfa.CellDto(74821, 'tenemus',
-                         DateTime(2027, 10, 11, 20, 44, 23, 483, DateTimeKind.Utc).Add(TimeSpan(9350))),
-             (TypeError, 'System.DateTime')),
-        ]:
-            with self.subTest(f'Convert .NET cell, {net_cell}, raises {expected}'):
-                assert_that(calling(dfa.obs_net_cell_to_pandas_cell).with_args(net_cell),
-                            raises(expected[0], pattern=expected[1]))
-
     def test_object_id(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(object_id='35582fd2-7499-4259-99b8-04b01876f309')
         sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)

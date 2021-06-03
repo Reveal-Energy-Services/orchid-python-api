@@ -116,42 +116,6 @@ def _(cell_value):
     return net_dt.as_timedelta(cell_value)
 
 
-def obs_net_cell_to_pandas_cell(net_cell: CellDto) -> CellDto:
-    def convert_date_time_offset(net_date_time_offset):
-        if net_date_time_offset == DateTimeOffset.MaxValue:
-            return dataclasses.replace(net_cell, value=pd.NaT)
-
-        if net_date_time_offset == DateTimeOffset.MinValue:
-            raise ValueError('`DateTimeOffset.MinValue` unexpected.')
-
-        return dataclasses.replace(net_cell, value=net_dt.net_date_time_offset_as_datetime(net_cell.value))
-
-    if net_cell.value == DBNull.Value:
-        return dataclasses.replace(net_cell, value=None)
-
-    try:
-        # noinspection PyUnresolvedReferences
-        if str(net_cell.value.GetType()) == 'System.DateTimeOffset':
-            return convert_date_time_offset(net_cell.value)
-
-        # noinspection PyUnresolvedReferences
-        if str(net_cell.value.GetType()) == 'System.TimeSpan':
-            return dataclasses.replace(net_cell, value=net_dt.as_timedelta(net_cell.value))
-
-        # noinspection PyUnresolvedReferences
-        if str(net_cell.value.GetType()) == 'System.DateTime':
-            # noinspection PyUnresolvedReferences
-            raise TypeError(f'{net_cell.value.GetType()}')
-
-    except AttributeError as ae:
-        if 'GetType' in str(ae):
-            # Not a .NET type so simply return it
-            return dataclasses.replace(net_cell)
-
-        # Re-raise the original error
-        raise
-
-
 def _table_to_data_frame(data_table: DataTable):
     """
     Converts a .NET `DataTable` to a `pandas` `DataFrame`.
@@ -219,7 +183,8 @@ def _table_row_to_dict(reader):
     def net_value_to_python_value(cell_location_value_pair):
         (row_no, column_name), value = cell_location_value_pair
         try:
-            converted = obs_net_cell_to_pandas_cell(CellDto(row_no, column_name, value))
+            converted = dataclasses.replace(CellDto(row_no, column_name, value),
+                                            value=net_cell_value_to_pandas_cell_value(value))
             return (converted.row, converted.column), converted.value
         except ValueError as ve:
             if 'DateTimeOffset.MinValue' in str(ve):
