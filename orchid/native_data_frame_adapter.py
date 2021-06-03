@@ -113,6 +113,9 @@ def _(_cell_value):
 
 @net_cell_value_to_pandas_cell_value.register(TimeSpan)
 def _(cell_value):
+    if cell_value == TimeSpan.MaxValue or cell_value == TimeSpan.MinValue:
+        return pd.NaT
+
     return net_dt.as_timedelta(cell_value)
 
 

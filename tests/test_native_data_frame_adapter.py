@@ -101,15 +101,17 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
              dt.datetime(2021, 1, 31, 20, 52, 52, 766000, tzinfo=dt.timezone.utc)),
             (TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307)),
              dt.timedelta(hours=11, minutes=52, seconds=16, microseconds=444731)),
+            (TimeSpan.MaxValue, pd.NaT),
+            (TimeSpan.MinValue, pd.NaT),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value}, to {expected}'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
 
-                if net_value != DateTimeOffset.MaxValue:
-                    assert_that(actual, equal_to(expected))
-                else:
+                if (net_value == DateTimeOffset.MaxValue or net_value == TimeSpan.MaxValue or
+                        net_value == TimeSpan.MinValue):
                     assert_that(pd.isna(actual), equal_to(True))
-
+                else:
+                    assert_that(actual, equal_to(expected))
 
     def test_net_cell_to_pandas_cell_raises_specified_exception(self):
         for net_cell, expected in [
