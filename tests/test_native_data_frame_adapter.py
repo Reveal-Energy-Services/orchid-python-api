@@ -137,7 +137,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 assert_that(pd.isna(actual))
 
     def test_net_cell_to_pandas_cell_too_large_time_span_boundary(self):
-        too_large_time_span_boundary_in_days = 9125
+        too_large_time_span_boundary_in_days = 36525  # Value copied net_cell_value_to_pandas_cell_value(TimeSpan)
         for net_value, expected in [
             (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0).Add(TimeSpan(10)), pd.NaT),
             (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0),
