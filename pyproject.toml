@@ -80,6 +80,7 @@ wheel = "^0.34.2"
 invoke = "^1.4.1"
 toml = "^0.10.1"
 grip = "^4.5.2"
+parsy = "^1.3.0"
 
 [tool.poetry.scripts]
 copy_orchid_examples = "copy_orchid_examples:main"

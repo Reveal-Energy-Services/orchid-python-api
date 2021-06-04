@@ -942,6 +942,14 @@ testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
 category = "dev"
+description = "easy-to-use parser combinators, for parsing in pure Python"
+name = "parsy"
+optional = false
+python-versions = "*"
+version = "1.3.0"
+
+[[package]]
+category = "dev"
 description = "Functions for server command-line arguments used by humans."
 name = "path-and-address"
 optional = false
@@ -1715,7 +1723,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "a050633f1268cab9890312ddd311f2efcff93d71b05c17f84d512d0f3d081305"
+content-hash = "e02d10c17280fac6209e7d3991b6ff684894876a409ce7035c69912e0c3fe661"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -2187,6 +2195,10 @@ parse-type = [
 parso = [
     {file = "parso-0.8.2-py2.py3-none-any.whl", hash = "sha256:a8c4922db71e4fdb90e0d0bc6e50f9b273d3397925e5e60a717e719201778d22"},
     {file = "parso-0.8.2.tar.gz", hash = "sha256:12b83492c6239ce32ff5eed6d3639d6a536170723c6f3f1506869f1ace413398"},
+]
+parsy = [
+    {file = "parsy-1.3.0-py2.py3-none-any.whl", hash = "sha256:bea54186c3da470944dafe2314b57ac53d0dc2b0a168dc32f644b1b93dc6ca64"},
+    {file = "parsy-1.3.0.tar.gz", hash = "sha256:bfc941ea5a69e6ac16bd4f7d9f807bbc17e35edd8b95bcd2499a25b059359012"},
 ]
 path-and-address = [
     {file = "path-and-address-2.0.1.zip", hash = "sha256:e96363d982b3a2de8531f4cd5f086b51d0248b58527227d43cf5014d045371b7"},
