@@ -19,8 +19,12 @@
 from behave import *
 use_step_matcher("parse")
 
+import datetime as dt
+
 from dateutil import parser as dup
 from hamcrest import assert_that, not_none, equal_to, has_length
+import option
+import parsy
 import toolz.curried as toolz
 import pandas as pd
 
@@ -97,6 +101,38 @@ def _as_data_frame(table):
     return pd.DataFrame(data=frame_data, columns=frame_data.keys())
 
 
+_hours = parsy.regex(r'[0-9]{2}').map(int).desc('hours')
+_minutes = parsy.regex(r'[0-9]{2}').map(int).desc('minutes')
+_seconds = parsy.regex(r'[0-9]{2}').map(int).desc('seconds')
+_hms_sep = parsy.string(':')
+
+_fractional_seconds = parsy.regex(r'[0-9]{1,7}').map(int).desc('fractional_seconds')
+_decimal_sep = parsy.string('.')
+_fractional = _decimal_sep >> _fractional_seconds
+_optional_fractional = _fractional.optional().map(option.maybe)
+
+
+@parsy.generate
+def _parse_hms():
+    hours = yield _hours
+    yield _hms_sep
+    minutes = yield _minutes
+    yield _hms_sep
+    seconds = yield _seconds
+    fractional_seconds = yield _optional_fractional
+    # fractional_seconds, if present, contains 7 digits; that is, tenths of microseconds. The following code rounds
+    # those seven digits to six to fit in microseconds. Note that this calculation involves half-even rounding.
+    microseconds = fractional_seconds.map(lambda fs: round(fs, -1) / 10)
+    return microseconds.map_or_else(lambda us: dt.timedelta(hours=hours, minutes=minutes, seconds=seconds,
+                                                            microseconds=us),
+                                    lambda: dt.timedelta(hours=hours, minutes=minutes, seconds=seconds))
+
+
+def hms(t):
+    result = _parse_hms.parse(t)
+    return result
+
+
 def _table_cells_to_data_frame_cells(items):
     """
     Map table cell data to data frame cells.
@@ -158,11 +194,11 @@ def _table_cells_to_data_frame_cells(items):
         'obs_set_name': str,
         'part_no': str,
         'timestamp': convert_maybe_value(parsed_date_with_correct_utc),
-        'delta_t': convert_maybe_value(str),
+        'delta_t': convert_maybe_value(hms),
         'delta_p': convert_maybe_value(float),
         'vol_to_pick': convert_maybe_value(float),
         # Permian microseismic data frame
-        # 'timestamp': convert_maybe_value(parsed_date_with_correct_utc),
+        # 'timestamp': convert_maybe_value(hms),
         'northing': convert_maybe_value(float),
         'depth_tvd_ss': convert_maybe_value(float),
         'dist_3d': convert_maybe_value(float),
