@@ -112,7 +112,7 @@ def _table_cells_to_data_frame_cells(items):
         return convert_func(v) if v else None
 
     parsed_date_with_correct_utc = toolz.compose(net_dt.dateutil_utc_to_datetime_utc,
-                                                 dup.parse, )
+                                                 dup.parse)
 
     table_data_frame_cells = {
         # GnG project data frame
