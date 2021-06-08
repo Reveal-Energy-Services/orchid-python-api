@@ -36,7 +36,7 @@ def increment(n):
 
 class StubDomObject(dna.DotNetAdapter):
     stub_property = dna.dom_property('stub_property', '')
-    stub_date_time = dna.transformed_dom_property('stub_date_time', '', ndt.as_datetime)
+    stub_date_time = dna.transformed_dom_property('stub_date_time', '', ndt.as_date_time)
     stub_transformed_iterator = dna.transformed_dom_property_iterator('stub_transformed_iterator', '', increment)
 
 

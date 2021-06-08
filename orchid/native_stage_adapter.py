@@ -115,9 +115,9 @@ class NativeStageAdapter(dna.DotNetAdapter):
     stage_type = dna.transformed_dom_property('stage_type', 'The formation connection type of this stage',
                                               as_connection_type)
     start_time = dna.transformed_dom_property('start_time', 'The start time of the stage treatment',
-                                              ndt.as_datetime)
+                                              ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment',
-                                             ndt.as_datetime)
+                                             ndt.as_date_time)
 
     @property
     def isip(self) -> om.Quantity:

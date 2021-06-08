@@ -44,7 +44,7 @@ class TestNetDateTime(unittest.TestCase):
     def test_as_datetime_net_time_point_kind_utc(self):
         time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, stub_dt.make_milliseconds(726),
                                               net_dt.TimePointTimeZoneKind.UTC)
-        actual = net_dt.as_datetime(stub_dt.make_net_date_time(time_point_dto))
+        actual = net_dt.as_date_time(stub_dt.make_net_date_time(time_point_dto))
 
         assert_that(actual, equal_to(stub_dt.make_datetime(time_point_dto)))
 
@@ -53,7 +53,7 @@ class TestNetDateTime(unittest.TestCase):
                                               net_dt.TimePointTimeZoneKind.LOCAL)
         net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}.'
-        assert_that(calling(net_dt.as_datetime).with_args(net_time_point),
+        assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
                     raises(net_dt.NetDateTimeLocalDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unspecified_throws_exception(self):
@@ -61,13 +61,13 @@ class TestNetDateTime(unittest.TestCase):
                                               net_dt.TimePointTimeZoneKind.UNSPECIFIED)
         net_time_point = stub_dt.make_net_date_time(time_point_dto)
         expected_error_message = f'{net_time_point.ToString("O")}'
-        assert_that(calling(net_dt.as_datetime).with_args(net_time_point),
+        assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
                     raises(net_dt.NetDateTimeUnspecifiedDateTimeKindError, pattern=expected_error_message))
 
     def test_as_datetime_net_time_point_kind_unknown_throws_exception(self):
         net_time_point = stub_dt.StubNetDateTime(2019, 2, 10, 9, 36, 36, 914, stub_dt.StubDateTimeKind.INVALID)
         expected_error_pattern = f'Unknown .NET DateTime.Kind, {stub_dt.StubDateTimeKind.INVALID}.'
-        assert_that(calling(net_dt.as_datetime).with_args(net_time_point),
+        assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
                     raises(ValueError, pattern=expected_error_pattern))
 
     def test_as_net_date_time(self):
@@ -140,13 +140,13 @@ class TestNetDateTime(unittest.TestCase):
     def test_convert_net_sentinel_to_datetime_sentinel(self):
         for net_sentinel_name, net_sentinel, sut_func, datetime_sentinel_name, datetime_sentinel in [
             ('DateTime.MinValue', DateTime.MinValue,
-             net_dt.as_datetime, 'dt.datetime.min', dt.datetime.min),
+             net_dt.as_date_time, 'dt.datetime.min', dt.datetime.min),
             ('DateTimeOffset.MinValue', DateTimeOffset.MinValue,
-             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.min', dt.datetime.min),
+             net_dt.net_date_time_offset_as_date_time, 'dt.datetime.min', dt.datetime.min),
             ('DateTime.MaxValue', DateTime.MaxValue,
-             net_dt.as_datetime, 'dt.datetime.max', dt.datetime.max),
+             net_dt.as_date_time, 'dt.datetime.max', dt.datetime.max),
             ('DateTimeOffset.MaxValue', DateTimeOffset.MaxValue,
-             net_dt.net_date_time_offset_as_datetime, 'dt.datetime.max', dt.datetime.max),
+             net_dt.net_date_time_offset_as_date_time, 'dt.datetime.max', dt.datetime.max),
         ]:
             with self.subTest(f'Convert {net_sentinel_name} to {datetime_sentinel_name}'):
                 assert_that(sut_func(net_sentinel), is_(same_instance(datetime_sentinel)))
@@ -176,7 +176,7 @@ class TestNetDateTime(unittest.TestCase):
                                                             seconds=-42, microseconds=-144000)),
         ]:
             with self.subTest(f'Convert .NET TimeSpan, {str(net_time_span)}'):
-                actual = net_dt.as_timedelta(net_time_span)
+                actual = net_dt.as_duration(net_time_span)
                 assert_that(actual, equal_to(expected))
 
     def test_as_timedelta_from_rounded_net_time_span(self):
@@ -196,7 +196,7 @@ class TestNetDateTime(unittest.TestCase):
              dt.timedelta(hours=3, minutes=30, seconds=15, microseconds=310094)),
         ]:
             with self.subTest(f'Convert .NET TimeSpan, {str(net_time_span)}, to `timedelta` with rounding'):
-                actual = net_dt.as_timedelta(net_time_span)
+                actual = net_dt.as_duration(net_time_span)
                 assert_that(actual, equal_to(expected))
 
     def test_convert_datetime_sentinel_to_net_sentinel(self):
@@ -228,13 +228,13 @@ class TestNetDateTime(unittest.TestCase):
         time_point = stub_dt.TimePointDto(
             2026, 2, 19, 12, 26, 58, 226 * om.registry.milliseconds, net_dt.TimePointTimeZoneKind.UTC
         )
-        actual = net_dt.net_date_time_offset_as_datetime(stub_dt.make_net_date_time_offset(time_point))
+        actual = net_dt.net_date_time_offset_as_date_time(stub_dt.make_net_date_time_offset(time_point))
         expected = stub_dt.make_datetime(time_point)
         assert_that(actual, tcm.equal_to_datetime(expected))
 
     def test_net_date_time_offset_as_datetime_raises_error_if_non_zero_offset(self):
         net_date_time_offset = DateTimeOffset(2026, 3, 17, 16, 42, 47, 694, TimeSpan.FromMinutes(1))
-        assert_that(calling(net_dt.net_date_time_offset_as_datetime).with_args(net_date_time_offset),
+        assert_that(calling(net_dt.net_date_time_offset_as_date_time).with_args(net_date_time_offset),
                     raises(net_dt.NetDateTimeOffsetNonZeroOffsetError,
                            pattern=r'`Offset`.*2026-03-17T16:42:47.6940000\+00:01'))
 

@@ -22,6 +22,8 @@ import enum
 from typing import Tuple
 
 from dateutil import tz as duz
+import pendulum
+import pendulum.tz as ptz
 import toolz.curried as toolz
 
 from orchid import base
@@ -117,24 +119,24 @@ class NetDateTimeOffsetNonZeroOffsetError(NetDateTimeError):
                                ' cannot be non-zero.')
 
 
-def as_datetime(net_time_point: DateTime) -> dt.datetime:
+def as_date_time(net_time_point: DateTime) -> pendulum.DateTime:
     """
-    Convert a .NET `DateTime` instance to a `dt.datetime` instance.
+    Convert a .NET `DateTime` instance to a `pendulum.DateTime` instance.
 
     Args:
         net_time_point: A point in time of type .NET `DateTime`.
 
     Returns:
-        The `dt.datetime` equivalent to the `to_test`.
+        The `pendulum.DateTime` equivalent to the `to_test`.
 
-        If `net_time_point` is `DateTime.MaxValue`, returns `dt.datetime.max`. If `net_time_point` is
-        `DateTime.MinValue`, returns `dt.datetime.min`.
+        If `net_time_point` is `DateTime.MaxValue`, returns `pendulum.DateTime.max`. If `net_time_point` is
+        `DateTime.MinValue`, returns `pendulum.DateTime.min`.
     """
     if net_time_point == DateTime.MaxValue:
-        return dt.datetime.max
+        return pendulum.DateTime.max
 
     if net_time_point == DateTime.MinValue:
-        return dt.datetime.min
+        return pendulum.DateTime.min
 
     if net_time_point.Kind == DateTimeKind.Utc:
         return _net_time_point_to_datetime(base.constantly(duz.UTC), net_time_point)
@@ -148,23 +150,23 @@ def as_datetime(net_time_point: DateTime) -> dt.datetime:
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
 
-def as_net_date_time(time_point: dt.datetime) -> DateTime:
+def as_net_date_time(time_point: pendulum.DateTime) -> DateTime:
     """
-    Convert a `dt.datetime` instance to a .NET `DateTime` instance.
+    Convert a `pendulum.DateTime` instance to a .NET `DateTime` instance.
 
     Args:
-        time_point: The `dt.datetime` instance to covert.
+        time_point: The `pendulum.DateTime` instance to covert.
 
     Returns:
         The equivalent .NET `DateTime` instance.
 
-        If `time_point` is `dt.datetime.max`, return `DateTime.MaxValue`. If `time_point` is
-        `dt.datetime.min`, return `DateTime.MinValue`.
+        If `time_point` is `pendulum.DateTime.max`, return `DateTime.MaxValue`. If `time_point` is
+        `pendulum.DateTime.min`, return `DateTime.MinValue`.
     """
-    if time_point == dt.datetime.max:
+    if time_point == pendulum.DateTime.max:
         return DateTime.MaxValue
 
-    if time_point == dt.datetime.min:
+    if time_point == pendulum.DateTime.min:
         return DateTime.MinValue
 
     if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
@@ -177,23 +179,23 @@ def as_net_date_time(time_point: dt.datetime) -> DateTime:
     return result
 
 
-def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
+def as_net_date_time_offset(time_point: pendulum.DateTime) -> DateTimeOffset:
     """
-    Convert a `dt.datetime` instance to a .NET `DateTimeOffset` instance.
+    Convert a `pendulum.DateTime` instance to a .NET `DateTimeOffset` instance.
 
     Args:
-        time_point: The `dt.datetime` instance to covert.
+        time_point: The `pendulum.DateTime` instance to covert.
 
     Returns:
         The equivalent .NET `DateTimeOffset` instance.
 
-        If `time_point` is `dt.datetime.max`, return `DateTime.MaxValue`. If `time_point` is
-        `dt.datetime.min`, return `DateTime.MinValue`.
+        If `time_point` is `pendulum.DateTime.max`, return `DateTime.MaxValue`. If `time_point` is
+        `pendulum.DateTime.min`, return `DateTime.MinValue`.
     """
-    if time_point == dt.datetime.max:
+    if time_point == pendulum.DateTime.max:
         return DateTimeOffset.MaxValue
 
-    if time_point == dt.datetime.min:
+    if time_point == pendulum.DateTime.min:
         return DateTimeOffset.MinValue
 
     date_time = as_net_date_time(time_point)
@@ -201,11 +203,12 @@ def as_net_date_time_offset(time_point: dt.datetime) -> DateTimeOffset:
     return result
 
 
-def as_net_time_span(to_convert):
+def as_net_time_span(to_convert: pendulum.Duration):
     """
-    Convert a `dt.timedelta` instance to a .NET `TimeSpan`
+    Convert a `pendulum.Duration` instance to a .NET `TimeSpan`.
+
     Args:
-        to_convert: The `dt.timedelta` instance to convert.
+        to_convert: The `pendulum.Duration` instance to convert.
 
     Returns:
         The .NET `TimeSpan` equivalent to `to_convert`.
@@ -213,18 +216,18 @@ def as_net_time_span(to_convert):
     return TimeSpan(round(to_convert.total_seconds() * TimeSpan.TicksPerSecond))
 
 
-def as_timedelta(to_convert: TimeSpan) -> dt.timedelta:
+def as_duration(to_convert: TimeSpan) -> pendulum.Duration:
     """
-    Convert a .NET `TimeSpan` to a python `dt.timedelta`
+    Convert a .NET `TimeSpan` to a python `pendulum.Duration`
 
     Args:
         to_convert: The .NET `TimeSpan` to convert.
 
     Returns:
-        The python `dt.timedelta` equivalent to `to_convert`.
+        The `pendulum.Duration` equivalent to `to_convert`.
 
     """
-    return dt.timedelta(seconds=to_convert.TotalSeconds)
+    return pendulum.Duration(seconds=to_convert.TotalSeconds)
 
 
 def dateutil_utc_to_datetime_utc(time_point):
@@ -256,33 +259,33 @@ def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
     return divmod(raw_milliseconds, 1000)
 
 
-def net_date_time_offset_as_datetime(net_time_point: DateTimeOffset) -> dt.datetime:
+def net_date_time_offset_as_date_time(net_time_point: DateTimeOffset) -> pendulum.DateTime:
     """
-    Convert a .NET `DateTimeOffset` instance to a `dt.datetime` instance.
+    Convert a .NET `DateTimeOffset` instance to a `pendulum.DateTime` instance.
 
     Args:
         net_time_point: A point in time of type .NET `DateTimeOffset`.
 
     Returns:
-        The `dt.datetime` equivalent to the `net_time_point`.
+        The `pendulum.DateTime` equivalent to the `net_time_point`.
     """
     if net_time_point == DateTimeOffset.MaxValue:
-        return dt.datetime.max
+        return pendulum.DateTime.max
 
     if net_time_point == DateTimeOffset.MinValue:
-        return dt.datetime.min
+        return pendulum.DateTime.min
 
     if net_time_point.Offset.TotalSeconds != 0:
         raise NetDateTimeOffsetNonZeroOffsetError(net_time_point)
 
-    make_timezone = toolz.compose(dt.timezone,
-                                  lambda s: dt.timedelta(seconds=s),
+    make_timezone = toolz.compose(ptz.fixed_timezone,
+                                  lambda s: pendulum.Duration(seconds=s),
                                   round,
                                   lambda ntp: ntp.Offset.TotalSeconds)
     return _net_time_point_to_datetime(make_timezone, net_time_point)
 
 
 def _net_time_point_to_datetime(time_zone_func, net_time_point):
-    return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                       net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                       net_time_point.Millisecond * 1000, time_zone_func(net_time_point))
+    return pendulum.DateTime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                             net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                             net_time_point.Millisecond * 1000, time_zone_func(net_time_point))

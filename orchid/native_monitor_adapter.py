@@ -44,9 +44,9 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
     display_name = dna.dom_property('display_name', 'The name used by engineers to identify this monitor.')
     name = dna.dom_property('name', 'The name of this monitor.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of this monitor.',
-                                              ndt.as_datetime)
+                                              ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of this monitor.',
-                                             ndt.as_datetime)
+                                             ndt.as_date_time)
 
     @property
     def time_range(self):

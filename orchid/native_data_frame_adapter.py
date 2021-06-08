@@ -123,7 +123,7 @@ def _(cell_value):
     if cell_value == DateTimeOffset.MinValue:
         raise ValueError('`DateTimeOffset.MinValue` unexpected.')
 
-    return net_dt.net_date_time_offset_as_datetime(cell_value)
+    return net_dt.net_date_time_offset_as_date_time(cell_value)
 
 
 @net_cell_value_to_pandas_cell_value.register(DBNull)
@@ -145,7 +145,7 @@ def _(cell_value):
     if cell_value.TotalDays > 36525:  # ~ 100 years
         return pd.NaT
 
-    return net_dt.as_timedelta(cell_value)
+    return net_dt.as_duration(cell_value)
 
 
 def _table_to_data_frame(data_table: DataTable):
