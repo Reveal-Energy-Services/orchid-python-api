@@ -17,7 +17,8 @@ import dataclasses as dc
 import datetime as dt
 from numbers import Real
 
-import dateutil.tz as duz
+import pendulum
+import pendulum.tz as ptz
 import toolz.curried as toolz
 
 from orchid import (
@@ -153,23 +154,23 @@ def make_net_date_time_offset(time_point_dto: TimePointDto) -> DateTimeOffset:
     return result
 
 
-def make_datetime(time_point_dto: TimePointDto) -> dt.datetime:
+def make_date_time(time_point_dto: TimePointDto) -> pendulum.DateTime:
     """
-    Constructs a `datetime` instance from a `TimePointDto` instance.
+    Constructs a `pendulum.DateTime` instance from a `TimePointDto` instance.
 
     This method is mostly for convenience.
 
     Args:
-        time_point_dto: The instance from which to construct the `datetime` instance.
+        time_point_dto: The instance from which to construct the `pendulum.Datetime` instance.
 
     Returns:
-        The `datetime` instance equivalent to `time_point_dto`.
+        The `pendulum.Datetime` instance equivalent to `time_point_dto`.
     """
 
-    result = dt.datetime(time_point_dto.year, time_point_dto.month, time_point_dto.day,
-                         time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
-                         int(time_point_dto.fractional.to(om.registry.microseconds).magnitude),
-                         _kind_to_tzinfo(time_point_dto.kind.value))
+    result = pendulum.datetime(time_point_dto.year, time_point_dto.month, time_point_dto.day,
+                               time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
+                               int(time_point_dto.fractional.to(om.registry.microseconds).magnitude),
+                               tz=_kind_to_tzinfo(time_point_dto.kind.value))
     return result
 
 
@@ -180,15 +181,15 @@ def utc_time_zone() -> dt.tzinfo:
     Returns:
         The single instance of the UTC time zone.
     """
-    return duz.UTC
+    return ptz.UTC
 
 
 _KIND_TO_TZINFO = {
-    net_dt.TimePointTimeZoneKind.UTC: dt.timezone.utc,
-    net_dt.TimePointTimeZoneKind.LOCAL: duz.tzlocal(),
-    net_dt.TimePointTimeZoneKind.UNSPECIFIED: None,
+    net_dt.TimePointTimeZoneKind.UTC: ptz.UTC,
+    net_dt.TimePointTimeZoneKind.LOCAL: ptz.local_timezone(),
+    net_dt.TimePointTimeZoneKind.UNSPECIFIED: '',
 }
 
 
-def _kind_to_tzinfo(to_convert: int) -> dt.tzinfo:
+def _kind_to_tzinfo(to_convert: int) -> str:
     return toolz.get(net_dt.TimePointTimeZoneKind(to_convert), _KIND_TO_TZINFO)
