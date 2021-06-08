@@ -68,6 +68,7 @@ pint = "^0.16.1"
 packaging = "^20.9"
 DateTimeRange = "^1.0.0"
 option = "^1.0.3"
+pendulum = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^3.1.2"
