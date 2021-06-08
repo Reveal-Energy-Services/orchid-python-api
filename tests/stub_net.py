@@ -22,12 +22,11 @@ properties required during testing but do not actually implement the .NET class 
 """
 
 from collections import namedtuple
-from datetime import datetime, timedelta
 import itertools
 import unittest.mock
 from typing import Sequence
 
-import dateutil.tz
+import pendulum
 import toolz.curried as toolz
 
 from orchid import (
@@ -80,9 +79,9 @@ argument and providing the magnitude later."""
 
 
 class StubNetSample:
-    def __init__(self, time_point: datetime, value: float):
+    def __init__(self, time_point: pendulum.DateTime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        if time_point.tzinfo != dateutil.tz.UTC:
+        if time_point.tzinfo != pendulum.tz.UTC:
             raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
 
         carry_seconds, milliseconds = net_dt.microseconds_to_milliseconds_with_carry(time_point.microsecond)
@@ -92,7 +91,7 @@ class StubNetSample:
         self.Value = value
 
 
-def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Sequence[StubNetSample]:
+def create_stub_net_time_series(start_time_point: pendulum.DateTime, sample_values) -> Sequence[StubNetSample]:
     """
     Create a stub .NET time series.
 
@@ -107,14 +106,22 @@ def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Se
     return samples
 
 
-def create_30_second_time_points(start_time_point: datetime, count: int):
+def create_30_second_time_points(start_time_point: pendulum.DateTime, count: int):
     """
     Create a sequence of `count` time points, 30-seconds apart.
-    :param start_time_point: The starting time point of the sequence.
-    :param count: The number of time points in the sequence.
-    :return: The sequence of time points.
+
+    Args:
+        start_time_point: The starting time point of the sequence.
+        count: The number of time points in the sequence.
+
+    Returns:
+        The sequence of time points.
     """
-    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
+    # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
+    # I create these series so my end point must be `count - 1`.
+    end_time_point = start_time_point + pendulum.Duration(seconds=30 * count - 1)
+    result = pendulum.period(start_time_point, end_time_point).range('seconds', 30)
+    return result
 
 
 class StubNetTreatmentCurve:
@@ -328,7 +335,7 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
         stub_net_treatment_curve.Suffix = suffix
     if values_starting_at is not None:
         values, start_time_point = values_starting_at
-        time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
+        time_points = create_30_second_time_points(start_time_point, len(values))
         samples = [StubSample(t, v) for (t, v) in zip(map(net_dt.as_net_date_time, time_points), values)]
         stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
                                                                                        return_value=samples)

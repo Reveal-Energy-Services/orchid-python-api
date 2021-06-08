@@ -15,14 +15,15 @@
 # This file is part of Orchid and related technologies.
 #
 
-import datetime
 import unittest.mock
 
-import dateutil.tz
 from hamcrest import assert_that, equal_to, has_entries
+import pendulum
+
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
+
 
 from orchid import (
     native_monitor_curve_adapter as mca,
@@ -33,8 +34,8 @@ import tests.stub_net as tsn
 
 
 # Test ideas
-# - Transform datetime.max to `NaT` in Time Series
-# - Transform datetime.min to `NaT` in Time Series
+# - Transform pendulum.DateTime.max to `NaT` in Time Series
+# - Transform pendulum.DateTime.min to `NaT` in Time Series
 class TestNativeMonitorCurveAdapter(unittest.TestCase):
     # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
     # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.
@@ -75,7 +76,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_empty_time_series_if_no_samples(self):
         name = 'trucem'
         values = []
-        start_time_point = datetime.datetime(2021, 4, 2, 15, 17, 57)
+        start_time_point = pendulum.datetime(2021, 4, 2, 15, 17, 57)
         samples = tsn.create_stub_net_time_series(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
 
@@ -85,7 +86,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
         values = [26.3945]
-        start_time_point = datetime.datetime(2016, 2, 9, 4, 50, 39, tzinfo=dateutil.tz.UTC)
+        start_time_point = pendulum.datetime(2016, 2, 9, 4, 50, 39, tz='UTC')
         self.assert_equal_time_series(name, start_time_point, values)
 
     @staticmethod
@@ -99,7 +100,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
         values = [75.75, 62.36, 62.69]
-        start_time_point = datetime.datetime(2016, 11, 25, 12, 8, 15, tzinfo=dateutil.tz.UTC)
+        start_time_point = pendulum.datetime(2016, 11, 25, 12, 8, 15, tz='UTC')
 
         self.assert_equal_time_series(name, start_time_point, values)
 
