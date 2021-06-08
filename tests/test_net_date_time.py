@@ -35,10 +35,8 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 # Test ideas
-# - timedelta ta TimeSpan
-#   - Positive timedelta to TimeSpan
-#   - Negative timedelta to TimeSpan
-#   - Zero timedelta to TimeSpan
+# - is_max_value() for values below, at and above boundary
+# - is_min_value() for values below, at and above boundary
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
