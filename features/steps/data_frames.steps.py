@@ -21,11 +21,12 @@ use_step_matcher("parse")
 
 import datetime as dt
 
-from dateutil import parser as dup
 from hamcrest import assert_that, not_none, equal_to, has_length
 import option
 import parsy
+import pendulum
 import toolz.curried as toolz
+
 import pandas as pd
 
 from orchid import (
@@ -148,7 +149,7 @@ def _table_cells_to_data_frame_cells(items):
         return convert_func(v) if v else None
 
     parsed_date_with_correct_utc = toolz.compose(net_dt.dateutil_utc_to_datetime_utc,
-                                                 dup.parse)
+                                                 pendulum.parse)
 
     table_data_frame_cells = {
         # GnG project data frame
