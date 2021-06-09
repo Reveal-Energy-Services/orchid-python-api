@@ -13,10 +13,10 @@
 #
 
 from collections import namedtuple
-import datetime
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
+import pendulum
 
 from orchid import (
     project_loader as loader,
@@ -24,8 +24,6 @@ from orchid import (
     native_treatment_calculations as ntc,
     unit_system as units,
 )
-
-from tests import stub_net_date_time as tdt
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations
@@ -61,10 +59,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             expected_measurement = tsn.make_measurement(expected_measurement_dto)
             self.assert_expected_calculation_result(ntc.median_treating_pressure,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 7, 2, 3, 57, 19,
-                                                                      tzinfo=tdt.utc_time_zone()),
-                                                    datetime.datetime(2023, 7, 2, 5, 30, 2,
-                                                                      tzinfo=tdt.utc_time_zone()),
+                                                    pendulum.datetime(2023, 7, 2, 3, 57, 19),
+                                                    pendulum.datetime(2023, 7, 2, 5, 30, 2),
                                                     expected_measurement=expected_measurement)
 
     def assert_expected_calculation_result(self, sut, stub_treatment_calculations, start_time, stop_time,
@@ -91,10 +87,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.median_treating_pressure,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 7, 2, 3, 57, 19,
-                                                                      tzinfo=tdt.utc_time_zone()),
-                                                    datetime.datetime(2023, 7, 2, 5, 30, 2,
-                                                                      tzinfo=tdt.utc_time_zone()),
+                                                    pendulum.datetime(2023, 7, 2, 3, 57, 19),
+                                                    pendulum.datetime(2023, 7, 2, 5, 30, 2),
                                                     expected_warnings=expected_warnings)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
@@ -108,10 +102,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             expected_measurement = tsn.make_measurement(expected_measurement_dto)
             self.assert_expected_calculation_result(ntc.pumped_fluid_volume,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 8, 6, 3, 52, 4,
-                                                                      tzinfo=tdt.utc_time_zone()),
-                                                    datetime.datetime(2023, 8, 6, 5, 8, 20,
-                                                                      tzinfo=tdt.utc_time_zone()),
+                                                    pendulum.datetime(2023, 8, 6, 3, 52, 4),
+                                                    pendulum.datetime(2023, 8, 6, 5, 8, 20),
                                                     expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
@@ -122,10 +114,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.pumped_fluid_volume,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2023, 8, 6, 3, 52, 4,
-                                                                      tzinfo=tdt.utc_time_zone()),
-                                                    datetime.datetime(2023, 8, 6, 5, 8, 20,
-                                                                      tzinfo=tdt.utc_time_zone()),
+                                                    pendulum.datetime(2023, 8, 6, 3, 52, 4),
+                                                    pendulum.datetime(2023, 8, 6, 5, 8, 20),
                                                     expected_warnings=expected_warnings)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
@@ -139,10 +129,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             expected_measurement = tsn.make_measurement(expected_measurement_dto)
             self.assert_expected_calculation_result(ntc.total_proppant_mass,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2020, 1, 29, 7, 35, 2,
-                                                                      tzinfo=tdt.utc_time_zone()),
-                                                    datetime.datetime(2020, 1, 29, 9, 13, 30,
-                                                                      tzinfo=tdt.utc_time_zone()),
+                                                    pendulum.datetime(2020, 1, 29, 7, 35, 2),
+                                                    pendulum.datetime(2020, 1, 29, 9, 13, 30),
                                                     expected_measurement=expected_measurement)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
@@ -153,10 +141,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
             self.assert_expected_calculation_result(ntc.total_proppant_mass,
                                                     stub_treatment_calculations,
-                                                    datetime.datetime(2020, 1, 29, 7, 35, 2,
-                                                                      tzinfo=tdt.utc_time_zone()),
-                                                    datetime.datetime(2020, 1, 29, 9, 13, 30,
-                                                                      tzinfo=tdt.utc_time_zone()),
+                                                    pendulum.datetime(2020, 1, 29, 7, 35, 2),
+                                                    pendulum.datetime(2020, 1, 29, 9, 13, 30),
                                                     expected_warnings=expected_warnings)
 
 

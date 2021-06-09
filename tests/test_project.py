@@ -16,7 +16,6 @@
 #
 
 import decimal
-import datetime
 import unittest
 import unittest.mock
 import uuid
@@ -24,6 +23,7 @@ import uuid
 import deal
 from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
 import option
+import pendulum
 import toolz.curried as toolz
 
 from orchid import (
@@ -149,8 +149,10 @@ class TestProject(unittest.TestCase):
 
     def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
         for data_frame_display_names, name_to_match, match_count in [
-            ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}], 'restauras', 0),
-            ([{'display_name': 'insuperabile', 'object_id': '8dc279ed-9d81-4dac-9057-58dd74dcd39b'}], 'insuperabile', 1),
+            ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}],
+             'restauras', 0),
+            ([{'display_name': 'insuperabile', 'object_id': '8dc279ed-9d81-4dac-9057-58dd74dcd39b'}],
+             'insuperabile', 1),
             ([{'display_name': 'diluit', 'object_id': '371a1443-1089-4080-8e7c-d48c9435b71b'},
               {'display_name': 'diluit', 'object_id': '4c21a0fd-dc47-4204-95a5-e5a76bf78516'}],
              'diluit', 2)
@@ -423,7 +425,7 @@ class TestProject(unittest.TestCase):
     def test_well_time_series_returns_one_if_one_well_time_series(self):
         curve_name = 'gestum'
         curve_quantity = 'pressure'
-        sample_start = datetime.datetime(2018, 11, 14, 0, 58, 32, 136000)
+        sample_start = pendulum.datetime(2018, 11, 14, 0, 58, 32, 136000)
         sample_values = [0.617, 0.408, 2.806]
 
         samples = make_samples(sample_start, sample_values)
@@ -437,9 +439,9 @@ class TestProject(unittest.TestCase):
     def test_well_time_series_returns_many_if_many_well_time_series(self):
         curve_names = ['superseduisti', 'mulctaverim', 'veniae']
         curve_quantity_names = ['temperature', 'pressure', 'pressure']
-        sample_starts = [datetime.datetime(2019, 3, 7, 10, 2, 13, 131000),
-                         datetime.datetime(2019, 8, 1, 16, 50, 45, 500000),
-                         datetime.datetime(2016, 3, 21, 20, 15, 19, 54000)]
+        sample_starts = [pendulum.datetime(2019, 3, 7, 10, 2, 13, 131000),
+                         pendulum.datetime(2019, 8, 1, 16, 50, 45, 500000),
+                         pendulum.datetime(2016, 3, 21, 20, 15, 19, 54000)]
         samples_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
 
         samples = list(make_samples_for_starts(sample_starts, samples_values))

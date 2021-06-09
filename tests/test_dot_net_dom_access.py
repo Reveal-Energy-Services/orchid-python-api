@@ -12,13 +12,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
 import unittest.mock
 import uuid
 
-import dateutil.tz
 import deal
-from hamcrest import assert_that, equal_to, calling, raises, close_to, is_
+from hamcrest import assert_that, equal_to, calling, raises, close_to
+import pendulum
 
 from orchid import (
     dot_net_dom_access as dna,
@@ -103,8 +102,8 @@ class DomPropertyTest(unittest.TestCase):
                 assert_that(sut.stub_property, equal_to(expected))
 
     @staticmethod
-    def test_transformed_dom_property_returns_datetime():
-        expected = datetime.datetime(2016, 10, 16, 1, 44, 56, 305000, tzinfo=dateutil.tz.UTC)
+    def test_transformed_dom_property_returns_date_time():
+        expected = pendulum.datetime(2016, 10, 16, 1, 44, 56, 305000)
         actual = DateTime(2016, 10, 16, 1, 44, 56, 305, DateTimeKind.Utc)
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         stub_adaptee.StubDateTime = actual

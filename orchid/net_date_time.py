@@ -13,7 +13,7 @@
 #
 
 """
-Functions to convert between .NET `DateTime` instances and Python `datetime.datetime` instances.
+Functions to convert between .NET `DateTime` instances and Python `pendulum.datetime` instances.
 """
 
 
@@ -97,7 +97,7 @@ class NetDateTimeNoTzInfoError(NetDateTimeError):
         Construct an instance from a Python point in time.
 
         Args:
-            time_point: A Python `dt.datetime` representing a specific point in time.
+            time_point: A `pendulum.datetime` representing a specific point in time.
         """
         super().__init__(self, f'The Python time point must specify the time zone.', time_point.isoformat())
 
