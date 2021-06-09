@@ -12,12 +12,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime as dt
 import unittest
 import uuid
 
-from dateutil import parser as dup
 from hamcrest import assert_that, equal_to, calling, raises
+import pendulum
+
 import pandas as pd
 import pandas.testing as pdt
 import toolz.curried as toolz
@@ -27,17 +27,14 @@ from orchid import (
     native_data_frame_adapter as dfa,
 )
 
-from tests import (
-    stub_net_date_time as tdt,
-    stub_net as tsn,
-)
+from tests import stub_net as tsn
 
 # noinspection PyUnresolvedReferences
 from System import DateTime, DateTimeKind, DateTimeOffset, DBNull, TimeSpan
 
 
-def datetime_to_integral_milliseconds(value):
-    if isinstance(value, type(dt.datetime.utcnow())):
+def date_time_to_integral_milliseconds(value):
+    if isinstance(value, type(pendulum.now())):
         return value.replace(microsecond=round(value.microsecond / 1000) * 1000)
     return value
 
@@ -48,17 +45,6 @@ def datetime_to_integral_milliseconds(value):
 #   - `NaN` in int columns
 #   - `NaN` in float columns
 #   - 'NaT` in time (DateTimeOffset) columns
-# - "3 Mday" (large) work-around
-# - .NET cell values to pandas cell values
-#   - Translate
-#     - DateTimeOffset.MaxValue to pd.NaT
-#     - DateTimeOffset to dt.datetime
-#     - TimeSpan to dt.timedelta
-#     - Work around: "large" TimeSpan to dt.timedelta.max
-#   - Raise exceptions
-#     - DateTimeOffset.MinValue
-#     # TimeSpan.MinValue
-#     - DateTime
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -96,10 +82,10 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             (DateTimeOffset.MaxValue, pd.NaT),
             (DateTimeOffset(DateTime(2021, 1, 31, 20, 52, 52, 766, DateTimeKind.Utc).Add(TimeSpan(5108))),
              # TODO: converted value is incorrect. See GitHub bug #21.
-             # Should be dt.datetime(2021, 1, 31, 20, 52, 52, 766511, tzinfo=dt.timezone.utc),
-             dt.datetime(2021, 1, 31, 20, 52, 52, 766000, tzinfo=dt.timezone.utc)),
+             # Should be pendulum.datetime(2021, 1, 31, 20, 52, 52, 766511),
+             pendulum.datetime(2021, 1, 31, 20, 52, 52, 766000)),
             (TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307)),
-             dt.timedelta(hours=11, minutes=52, seconds=16, microseconds=444731)),
+             pendulum.duration(hours=11, minutes=52, seconds=16, microseconds=444731)),
             (TimeSpan.MaxValue, pd.NaT),
             (TimeSpan.MinValue, pd.NaT),
         ]:
@@ -146,7 +132,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             # MaxValue minus 1 second => actual date time offset to millisecond precision.
             # Somewhere in my conversions, a millisecond is lost
             (DateTimeOffset.MaxValue.Subtract(TimeSpan(0, 0, 1)),
-             dt.datetime(9999, 12, 31, 23, 59, 58, 999000, tzinfo=dt.timezone.utc)),
+             pendulum.datetime(9999, 12, 31, 23, 59, 58, 999000)),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value.ToString("o")}, to {expected}'
                               f' for max date time offset sentinel'):
@@ -162,10 +148,10 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         for net_value, expected in [
             (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0).Add(TimeSpan(10)), pd.NaT),
             (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0),
-             dt.timedelta(days=too_large_time_span_boundary_in_days)),
+             pendulum.duration(days=too_large_time_span_boundary_in_days)),
             (TimeSpan(too_large_time_span_boundary_in_days, 0, 0, 0).Subtract(TimeSpan(10)),
-             dt.timedelta(days=too_large_time_span_boundary_in_days - 1, hours=23, minutes=59,
-                          seconds=59, microseconds=999999)),
+             pendulum.duration(days=too_large_time_span_boundary_in_days - 1, hours=23, minutes=59,
+                               seconds=59, microseconds=999999)),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value}, to {expected} for too large time span'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
@@ -293,18 +279,18 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_many_columns_many_rows_net_data_frame_with_db_null_values_produces_correct_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto(
-            [str, float, dt.datetime, int],
+            [str, float, pendulum.DateTime, int],
             [
                 {
                     'vitis': None,
                     'controversum': -14.52,
-                    'indicis': dt.datetime(2018, 11, 20, 13, 36, 0, 331602, tdt.utc_time_zone()),
+                    'indicis': pendulum.datetime(2018, 11, 20, 13, 36, 0, 331602),
                     'inane': -92,
                 },
                 {
                     'vitis': 'magistri',
                     'controversum': None,
-                    'indicis': dt.datetime(2021, 5, 2, 14, 21, 11, 0, tdt.utc_time_zone()),
+                    'indicis': pendulum.datetime(2021, 5, 2, 14, 21, 11, 0),
                     'inane': 169,
                 },
                 {
@@ -316,7 +302,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                 {
                     'vitis': 'profuit',
                     'controversum': -40.88,
-                    'indicis': dt.datetime(2021, 11, 13, 4, 2, 46, 651626, tdt.utc_time_zone()),
+                    'indicis': pendulum.datetime(2021, 11, 13, 4, 2, 46, 651626),
                     'inane': None,
                 },
             ],
@@ -330,7 +316,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_net_data_frame_with_date_time_column_raises_error(self):
         rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
         table_data_dto = tsn.TableDataDto(['DateTime'],
-                                          [{'pulchritudo': dup.isoparse('2024-03-15T10:09:18Z')}],
+                                          [{'pulchritudo': pendulum.parse('2024-03-15T10:09:18Z')}],
                                           rename_column_func)
         sut = _create_sut(table_data_dto)
 
@@ -338,8 +324,8 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                     raises(dfa.DataFrameAdapterDateTimeError, pattern='System.DateTime'))
 
     def test_net_data_frame_with_date_time_offset_column_produces_correct_pandas_data_frame(self):
-        table_data_dto = tsn.TableDataDto([dt.datetime],
-                                          [{'obdurabis': dup.isoparse('20260329T054049.228576Z')}],
+        table_data_dto = tsn.TableDataDto([pendulum.DateTime],
+                                          [{'obdurabis': pendulum.parse('20260329T054049.228576Z')}],
                                           toolz.identity)
         sut = _create_sut(table_data_dto)
         actual_data_frame = sut.pandas_data_frame()
@@ -348,8 +334,8 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
     def test_net_data_frame_with_min_date_time_offset_raises_error(self):
-        table_data_dto = tsn.TableDataDto([dt.datetime],
-                                          [{'prius': dt.datetime.min}],
+        table_data_dto = tsn.TableDataDto([pendulum.DateTime],
+                                          [{'prius': pendulum.DateTime.min}],
                                           toolz.identity)
         sut = _create_sut(table_data_dto)
         expect = (f'Unexpectedly found `DateTimeOffset.MinValue`'
@@ -362,8 +348,8 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
                     raises(dfa.DataFrameAdapterDateTimeOffsetMinValueError, pattern=expect))
 
     def test_net_fdi_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
-        table_data_dto = tsn.TableDataDto([dt.datetime],
-                                          [{'dies': dt.datetime.max}],
+        table_data_dto = tsn.TableDataDto([pendulum.DateTime],
+                                          [{'dies': pendulum.DateTime.max}],
                                           toolz.identity)
         sut = _create_sut(table_data_dto)
         actual_data_frame = sut.pandas_data_frame()
@@ -380,7 +366,7 @@ def _create_sut(table_data_dto):
 
 def _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto):
     expected_table_data = toolz.pipe(table_data_dto.table_data,
-                                     toolz.map(toolz.valmap(datetime_to_integral_milliseconds)),
+                                     toolz.map(toolz.valmap(date_time_to_integral_milliseconds)),
                                      toolz.map(toolz.valmap(net_dt.dateutil_utc_to_datetime_utc)),
                                      list,
                                      )

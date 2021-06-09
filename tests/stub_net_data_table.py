@@ -13,9 +13,8 @@
 #
 
 
-import datetime as dt
-
 import option
+import pendulum
 import toolz.curried as toolz
 
 from orchid import net_date_time as ndt
@@ -177,7 +176,7 @@ def make_data_column_type(python_type):
     try:
         return Type.GetType(mapper[python_type])
     except KeyError:
-        if python_type == dt.datetime:
+        if python_type == pendulum.DateTime:
             return Type.GetType('System.DateTimeOffset')
 
         if python_type == 'DateTime':
