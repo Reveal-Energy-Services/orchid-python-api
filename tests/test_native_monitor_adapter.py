@@ -12,18 +12,16 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime
 import unittest
 
 from hamcrest import assert_that, equal_to
-import datetimerange as dtr
-import dateutil.tz as dtz
+import pendulum
 
-from orchid import native_monitor_adapter as nma
-from tests import (
-    custom_matchers as tcm,
-    stub_net as tsn,
+from orchid import (
+    native_monitor_adapter as nma,
+    net_date_time as net_dt,
 )
+from tests import stub_net as tsn
 
 
 class TestNativeMonitorAdapter(unittest.TestCase):
@@ -43,14 +41,20 @@ class TestNativeMonitorAdapter(unittest.TestCase):
         assert_that(sut.name, equal_to('credula'))
 
     def test_time_range(self):
-        expected_start = datetime.datetime(2027, 7, 3, 7, 9, 37, 54174, tzinfo=dtz.tzutc())
-        expected_stop = datetime.datetime(2027, 7, 12, 8, 55, 56, 628905, tzinfo=dtz.tzutc())
+        def microseconds_to_milliseconds(tp):
+            carry, milliseconds = net_dt.microseconds_to_milliseconds_with_carry(tp.microsecond)
+            return tp.set(second=tp.second + carry, microsecond=milliseconds * 1000)
+
+        expected_start = pendulum.datetime(2027, 7, 3, 7, 9, 37, 54174)
+        expected_stop = pendulum.datetime(2027, 7, 12, 8, 55, 56, 628905)
         stub_net_monitor = tsn.create_stub_net_monitor(start=expected_start, stop=expected_stop)
         sut = nma.NativeMonitorAdapter(stub_net_monitor)
 
         actual_time_range = sut.time_range
 
-        assert_that(actual_time_range, tcm.equal_to_time_range(dtr.DateTimeRange(expected_start, expected_stop)))
+        assert_that(actual_time_range,
+                    equal_to(pendulum.period(microseconds_to_milliseconds(expected_start),
+                                             microseconds_to_milliseconds(expected_stop))))
 
 
 if __name__ == '__main__':

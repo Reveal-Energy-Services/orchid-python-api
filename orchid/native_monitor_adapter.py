@@ -12,9 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime as dt
-
-import datetimerange as dtr
+import pendulum
 
 import orchid.base
 from orchid import (
@@ -24,10 +22,6 @@ from orchid import (
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IMonitor
-
-
-def make_time_range(start: dt.datetime, stop: dt.datetime) -> dtr.DateTimeRange:
-    pass
 
 
 class NativeMonitorAdapter(dna.DotNetAdapter):
@@ -50,4 +44,4 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
 
     @property
     def time_range(self):
-        return dtr.DateTimeRange(self.start_time, self.stop_time)
+        return pendulum.Period(self.start_time, self.stop_time)
