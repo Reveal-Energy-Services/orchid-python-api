@@ -12,15 +12,13 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime as dt
 import decimal
 from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
 from hamcrest.core.base_matcher import BaseMatcher, T
 from hamcrest.core.description import Description
-import dateutil.utils as duu
-import datetimerange as dtr
+import pendulum
 
 import packaging.version as pv
 
@@ -320,12 +318,12 @@ def equal_to_version(expected):
 
 
 class IsEqualTimeRange(BaseMatcher):
-    def __init__(self, expected: dtr.DateTimeRange):
+    def __init__(self, expected: pendulum.Period):
         """
         Construct an instance for matching `expected`.
 
         Args:
-            expected: The expected `DateTimeRange` instance to be matched.
+            expected: The expected `pendulum.Duration` instance to be matched.
         """
         self._expected = expected
 
@@ -350,23 +348,24 @@ class IsEqualTimeRange(BaseMatcher):
 
     def _matches(self, item: T) -> bool:
         """
-        Determine if `item`, an instance of `dtr.DateTimeRange`, equals an expected instance.
+        Determine if `item`, an instance of `pendulum.Duration`, equals an expected instance.
+
         Args:
-            item: The actual `dtr.DateTimeRange` instance.
+            item: The actual `Duration` instance.
         """
         def within_1_second(left_time, right_time):
-            return duu.within_delta(left_time, right_time, dt.timedelta(seconds=1))
+            return left_time.diff(right_time) < pendulum.Duration(seconds=1)
 
-        return (within_1_second(self._expected.start_datetime, item.start_datetime) and
-                within_1_second(self._expected.end_datetime, item.end_datetime))
+        return (within_1_second(self._expected.start, item.start) and
+                within_1_second(self._expected.end, item.end))
 
 
-def equal_to_time_range(expected: dtr.DateTimeRange):
+def equal_to_time_range(expected: pendulum.Period):
     """
-    Create a matcher to determine if another object equals an `expected` `dtr.DateTimeRange`.
+    Create a matcher to determine if another object equals an `expected` `pendulum.Period`.
 
     Args:
-        expected: The expected `dtr.DateTimeRange` instance.
+        expected: The expected `pendulum.Period` instance.
 
     Returns:
         A matcher against `expected`.
