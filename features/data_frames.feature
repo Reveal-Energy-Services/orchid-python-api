@@ -41,30 +41,30 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'Permian-a'
     When I query the loaded project for the data frame named 'Project Data Frame 01'
     Then I see the sampled cells
-      | sample | bh_easting   | md_bottom | part_end_time             | part_pumped_vol | pnet        | pump_time |
-      | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40+00:00 | 8423.638083     | 7522.805942 | 135       |
-      | 31     | 2.141585e+06 | 15865.0   | 2018-11-18T07:17:34+00:00 | 10292.204517    | 8128.011899 | 199       |
-      | 39     | 2.141585e+06 | 14671.0   | 2018-11-20T22:10:27+00:00 | 10835.269733    | 7546.839462 | 209       |
-      | 51     | 2.141585e+06 | 13016.0   | 2018-11-26T21:39:09+00:00 | 5337.422217     | 8881.240715 | 117       |
-      | 52     | 2.141585e+06 | 12862.0   | 2018-11-27T04:39:44+00:00 | 11738.620958    | 8935.191079 | 216       |
-      | 58     | 2.142179e+06 | 16676.0   | 2018-11-14T06:06:20+00:00 | 10096.559025    | 6573.648542 | 151       |
-      | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47+00:00 | 10059.747108    | 7555.899247 | 147       |
-      | 87     | 2.141879e+06 |           |                           |                 |             |           |
+      | sample | bh_easting   | md_bottom | part_end_time               | part_pumped_vol | pnet        | pump_time |
+      | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40.000000Z | 8423.638083     | 7522.805942 | 135       |
+      | 31     | 2.141585e+06 | 15865.0   | 2018-11-18T07:17:34.942000Z | 10292.204517    | 8128.011899 | 199       |
+      | 39     | 2.141585e+06 | 14671.0   | 2018-11-20T22:10:27.000000Z | 10835.269733    | 7546.839462 | 209       |
+      | 51     | 2.141585e+06 | 13016.0   | 2018-11-26T21:39:09.000000Z | 5337.422217     | 8881.240715 | 117       |
+      | 52     | 2.141585e+06 | 12862.0   | 2018-11-27T04:39:44.000000Z | 11738.620958    | 8935.191079 | 216       |
+      | 58     | 2.142179e+06 | 16676.0   | 2018-11-14T06:06:20.000000Z | 10096.559025    | 6573.648542 | 151       |
+      | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47.000000Z | 10059.747108    | 7555.899247 | 147       |
+      | 87     | 2.141879e+06 |           |                             |                 |             |           |
 
   Scenario: Sampled Permian FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
     When I query the loaded project for the data frame named 'FDI Observations'
     Then I see the sampled cells
-      | sample | obs_set_name     | part_no  | timestamp                 | delta_t          | delta_p    | vol_to_pick  |
-      | 0      | FDI Observations | Stage-01 | 2018-11-13T21:45:11+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
-      | 1      | FDI Observations | Stage-02 | 2018-11-14T23:46:24+00:00 | 01:49:01.4282880 | 0.595053   | 5009.373675  |
-      | 20     | FDI Observations | Stage-19 | 2018-11-27T16:14:52+00:00 | 02:42:24.3412096 | 39.059964  | 8056.843667  |
-      | 26     | FDI Observations | Stage-25 |                           |                  |            | 8532.661850  |
-      | 28     | FDI Observations | Stage-02 | 2018-11-13T04:20:10+00:00 | 02:20:11         | 6.170513   | 9859.784375  |
-      | 45     | FDI Observations | Stage-20 | 2018-11-24T16:39:09+00:00 | 02:55:26         | 98.717645  | 10014.638758 |
-      | 52     | FDI Observations | Stage-29 | 2018-11-27T19:13:34+00:00 | 02:01:22.1109888 | 94.454784  | 5920.732675  |
-      | 53     | FDI Observations | Stage-01 | 2018-11-12T17:07:02+00:00 | 02:52:32.3021312 | 214.641797 | 11681.990733 |
-      | 83     | FDI Observations | Stage-31 | 2018-11-29T04:02:02+00:00 | 01:55:11.8648576 | 31.818509  | 6803.360483  |
+      | sample | obs_set_name     | part_no  | timestamp                   | delta_t          | delta_p    | vol_to_pick  |
+      | 0      | FDI Observations | Stage-01 | 2018-11-13T21:45:11.987000Z | 01:22:18.9873152 | 0.362115   | 4299.649417  |
+      | 1      | FDI Observations | Stage-02 | 2018-11-14T23:46:24.428000Z | 01:49:01.4282880 | 0.595053   | 5009.373675  |
+      | 20     | FDI Observations | Stage-19 | 2018-11-27T16:14:52.341000Z | 02:42:24.3412096 | 39.059964  | 8056.843667  |
+      | 26     | FDI Observations | Stage-25 |                             |                  |            | 8532.661850  |
+      | 28     | FDI Observations | Stage-02 | 2018-11-13T04:20:10.000000Z | 02:20:11         | 6.170513   | 9859.784375  |
+      | 45     | FDI Observations | Stage-20 | 2018-11-24T16:39:09.000000Z | 02:55:26         | 98.717645  | 10014.638758 |
+      | 52     | FDI Observations | Stage-29 | 2018-11-27T19:13:34.110000Z | 02:01:22.1109888 | 94.454784  | 5920.732675  |
+      | 53     | FDI Observations | Stage-01 | 2018-11-12T17:07:02.302000Z | 02:52:32.3021312 | 214.641797 | 11681.990733 |
+      | 83     | FDI Observations | Stage-31 | 2018-11-29T04:02:02.864000Z | 01:55:11.8648576 | 31.818509  | 6803.360483  |
 
   Scenario: Sampled Permian microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
