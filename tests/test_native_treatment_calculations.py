@@ -154,19 +154,20 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     expected_warnings=expected_warnings)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
-        for expected_measurement_dto in [
-            tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6970.20),
-            tsn.make_measurement_dto(units.Metric.VOLUME, 707.82),
+        for expected_measurement_dto, start, stop in [
+            (tsn.make_measurement_dto(units.Metric.VOLUME, 707.82),
+             pendulum.datetime(2023, 8, 6, 3, 52, 4),
+             pendulum.datetime(2023, 8, 6, 5, 8, 20)),
+            (tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6970.20),
+             pendulum.datetime(2022, 4, 6, 5, 41, 20),
+             pendulum.datetime(2022, 4, 6, 10, 41, 23)),
         ]:
             stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_pumped_volume_calculation(stub_calculation_result)
 
             expected_measurement = tsn.make_measurement(expected_measurement_dto)
-            self.assert_expected_calculation_result(ntc.pumped_fluid_volume,
-                                                    stub_treatment_calculations,
-                                                    pendulum.datetime(2023, 8, 6, 3, 52, 4),
-                                                    pendulum.datetime(2023, 8, 6, 5, 8, 20),
-                                                    expected_measurement=expected_measurement)
+            self.assert_expected_calculation_result(ntc.pumped_fluid_volume, stub_treatment_calculations,
+                                                    start, stop, expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
