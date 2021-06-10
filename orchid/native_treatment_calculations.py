@@ -14,7 +14,10 @@
 
 
 from collections import namedtuple
-from typing import Callable
+import datetime as dt
+from typing import Callable, Union
+
+import pendulum
 
 from orchid import (
     project_loader as loader,
@@ -59,7 +62,9 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     return CalculationResult(calculation_measurement, warnings)
 
 
-def median_treating_pressure(stage: IStage, start: DateTime, stop: DateTime):
+def median_treating_pressure(stage: IStage,
+                             start: Union[pendulum.DateTime, dt.datetime],
+                             stop: Union[pendulum.DateTime, dt.datetime]):
     """
     Return the median treating pressure for stage from start to (and including) stop.
 
@@ -82,7 +87,9 @@ def median_treating_pressure(stage: IStage, start: DateTime, stop: DateTime):
     return result
 
 
-def pumped_fluid_volume(stage: IStage, start: DateTime, stop: DateTime):
+def pumped_fluid_volume(stage: IStage,
+                        start: Union[pendulum.DateTime, dt.datetime],
+                        stop: Union[pendulum.DateTime, dt.datetime]):
     """
     Return the pumped (fluid) volume for stage from start to (and including) stop.
 
@@ -104,7 +111,9 @@ def pumped_fluid_volume(stage: IStage, start: DateTime, stop: DateTime):
     return result
 
 
-def total_proppant_mass(stage: IStage, start: DateTime, stop: DateTime):
+def total_proppant_mass(stage: IStage,
+                        start: Union[pendulum.DateTime, dt.datetime],
+                        stop: Union[pendulum.DateTime, dt.datetime]):
     """
     Return the pumped (fluid) volume for stage from start to (and including) stop.
 
