@@ -108,11 +108,14 @@ def pumped_fluid_volume(stage: IStage,
     """
 
     def pumped_fluid_volume_calculation(calculations, for_stage, start_time, stop_time):
-        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object, net_dt.as_net_date_time(start_time),
+        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object,
+                                                          net_dt.as_net_date_time(start_time),
                                                           net_dt.as_net_date_time(stop_time))
         return calculation_result
 
-    result = perform_calculation(pumped_fluid_volume_calculation, stage, start, stop, opq.PhysicalQuantity.VOLUME)
+    result = perform_calculation(pumped_fluid_volume_calculation, stage,
+                                 _datetime_to_pendulum(start), _datetime_to_pendulum(stop),
+                                 opq.PhysicalQuantity.VOLUME)
     return result
 
 
