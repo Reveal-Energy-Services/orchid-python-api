@@ -188,6 +188,35 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             self.assert_expected_calculation_result(ntc.pumped_fluid_volume, stub_treatment_calculations,
                                                     start, stop, expected_measurement=expected_measurement)
 
+    def test_pumped_fluid_volume_raises_error_if_timezone_not_utc(self):
+        for expected_measurement_dto, start, stop, message_parameter in [
+            (tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6055.),
+             dt.datetime(2025, 4, 21, 2, 26, 14, tzinfo=UTC),
+             dt.datetime(2025, 4, 21, 12, 52, 34, tzinfo=pendulum.timezone('Etc/GMT-14')),
+             'stop'),
+            (tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6978.),
+             dt.datetime(2019, 9, 9, 8, 0, 33, tzinfo=pendulum.timezone('America/Tijuana')),
+             dt.datetime(2019, 9, 9, 11, 1, 19, tzinfo=UTC),
+             'start'),
+            (tsn.make_measurement_dto(units.Metric.VOLUME, 1332.),
+             dt.datetime(2018, 2, 8, 13, 1, 58, tzinfo=pendulum.timezone(32017)),
+             dt.datetime(2018, 2, 8, 19, 37, 26, tzinfo=pendulum.timezone(32017)),
+             'start'),  # `start` detected first
+        ]:
+            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
+            result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+            result.GetPumpedVolume = stub_calculation_result
+            stub_treatment_calculations = result
+
+            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
+                                     spec=loader.native_treatment_calculations,
+                                     return_value=stub_treatment_calculations):
+                with self.subTest(f'Calculating pumped fluid volume with start, {start.isoformat()},'
+                                  f'and stop, {stop.isoformat()}, raises PreContractError'):
+                    assert_that(calling(ntc.pumped_fluid_volume).with_args(
+                        create_stub_stage_adapter(), start, stop),
+                        raises(deal.PreContractError, pattern=message_parameter))
+
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
             dont_care_measurement = tsn.make_measurement_dto(units.UsOilfield.VOLUME, DONT_CARE_MEASUREMENT_MAGNITUDE)

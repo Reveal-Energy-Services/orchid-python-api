@@ -92,6 +92,8 @@ def median_treating_pressure(stage: IStage,
     return result
 
 
+@deal.require(lambda _stage, start, _stop: _is_utc_time_point(start), message='Expected UTC for start time zone.')
+@deal.require(lambda _stage, _start, stop: _is_utc_time_point(stop), message='Expected UTC for stop time zone.')
 def pumped_fluid_volume(stage: IStage,
                         start: Union[pendulum.DateTime, dt.datetime],
                         stop: Union[pendulum.DateTime, dt.datetime]):
