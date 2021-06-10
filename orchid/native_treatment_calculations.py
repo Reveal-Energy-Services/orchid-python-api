@@ -82,8 +82,9 @@ def median_treating_pressure(stage: IStage,
                                                                      ndt.as_net_date_time(stop_time))
         return calculation_result
 
-    result = perform_calculation(median_treatment_pressure_calculation,
-                                 stage, start, stop, opq.PhysicalQuantity.PRESSURE)
+    result = perform_calculation(median_treatment_pressure_calculation, stage,
+                                 _datetime_to_pendulum(start), _datetime_to_pendulum(stop),
+                                 opq.PhysicalQuantity.PRESSURE)
     return result
 
 
@@ -133,3 +134,7 @@ def total_proppant_mass(stage: IStage,
 
     result = perform_calculation(total_proppant_mass_calculation, stage, start, stop, opq.PhysicalQuantity.MASS)
     return result
+
+
+def _datetime_to_pendulum(source: dt.datetime) -> pendulum.DateTime:
+    return pendulum.instance(source).set(tz=pendulum.UTC)

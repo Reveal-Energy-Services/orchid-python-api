@@ -17,6 +17,7 @@ import datetime as dt
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
+import dateutil.tz
 import pendulum
 
 from orchid import (
@@ -46,6 +47,15 @@ DONT_CARE_WARNINGS = []
 NetCalculationResult = namedtuple('NetCalculationResult', ['Result', 'Warnings'])
 
 
+# Test ideas
+# - Accept datetime with (UTC, dt.timezone.utc, dateutil.tz.UTC)
+#   - Median treating pressure
+#   - Pumped fluid volume
+#   - Total proppant mass
+# - Raise error if timezone not UTC or equivalent (pendulum, dt.datetime)
+#   - Median treating pressure
+#   - Pumped fluid volume
+#   - Total proppant mass
 class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -58,12 +68,6 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 74.19),
              pendulum.datetime(2023, 7, 2, 3, 57, 19),
              pendulum.datetime(2023, 7, 2, 5, 30, 2)),
-            (tsn.make_measurement_dto(units.Metric.PRESSURE, 75.46),
-             dt.datetime(2023, 8, 28, 0, 0, 24, tzinfo=UTC),
-             dt.datetime(2023, 8, 28, 14, 47, 10, tzinfo=UTC)),
-            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 10.94),
-             dt.datetime(2023, 8, 28, 0, 0, 24, tzinfo=UTC),
-             dt.datetime(2023, 8, 28, 14, 47, 10, tzinfo=UTC)),
         ]:
             stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
@@ -86,6 +90,25 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                           tolerance=6e-2)
                 if expected_warnings is not None:
                     assert_that(expected_warnings, equal_to(actual_result.warnings))
+
+    def test_median_treating_pressure_correctly_handles_datetime_with_different_utc(self):
+        for expected_measurement_dto, start, stop in [
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 8.76),
+             dt.datetime(2023, 8, 28, 0, 0, 24, tzinfo=UTC),
+             dt.datetime(2023, 8, 28, 14, 47, 10, tzinfo=UTC)),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 10.94),
+             dt.datetime(2024, 10, 7, 6, 49, 44, tzinfo=dt.timezone.utc),
+             dt.datetime(2024, 10, 7, 19, 35, 41, tzinfo=dt.timezone.utc)),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 52.07),
+             dt.datetime(2021, 6, 9, 3, 25, 40,  tzinfo=dateutil.tz.UTC),
+             dt.datetime(2021, 6, 9, 9, 50, 49, tzinfo=dateutil.tz.UTC)),
+        ]:
+            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
+            stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
+
+            expected_measurement = tsn.make_measurement(expected_measurement_dto)
+            self.assert_expected_calculation_result(ntc.median_treating_pressure, stub_treatment_calculations,
+                                                    start, stop, expected_measurement=expected_measurement)
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
