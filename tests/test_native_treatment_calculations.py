@@ -13,6 +13,7 @@
 #
 
 from collections import namedtuple
+import datetime as dt
 import unittest.mock
 
 from hamcrest import assert_that, equal_to
@@ -23,6 +24,7 @@ from orchid import (
     native_stage_adapter as nsa,
     native_treatment_calculations as ntc,
     unit_system as units,
+    UTC,
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -49,19 +51,26 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_result(self):
-        for expected_measurement_dto in [
-            tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 7396.93),
-            tsn.make_measurement_dto(units.Metric.PRESSURE, 74.19),
+        for expected_measurement_dto, start, stop in [
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 7396.93),
+             pendulum.datetime(2023, 7, 2, 3, 57, 19),
+             pendulum.datetime(2023, 7, 2, 5, 30, 2)),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 74.19),
+             pendulum.datetime(2023, 7, 2, 3, 57, 19),
+             pendulum.datetime(2023, 7, 2, 5, 30, 2)),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 75.46),
+             dt.datetime(2023, 8, 28, 0, 0, 24, tzinfo=UTC),
+             dt.datetime(2023, 8, 28, 14, 47, 10, tzinfo=UTC)),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 10.94),
+             dt.datetime(2023, 8, 28, 0, 0, 24, tzinfo=UTC),
+             dt.datetime(2023, 8, 28, 14, 47, 10, tzinfo=UTC)),
         ]:
             stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
 
             expected_measurement = tsn.make_measurement(expected_measurement_dto)
-            self.assert_expected_calculation_result(ntc.median_treating_pressure,
-                                                    stub_treatment_calculations,
-                                                    pendulum.datetime(2023, 7, 2, 3, 57, 19),
-                                                    pendulum.datetime(2023, 7, 2, 5, 30, 2),
-                                                    expected_measurement=expected_measurement)
+            self.assert_expected_calculation_result(ntc.median_treating_pressure, stub_treatment_calculations,
+                                                    start, stop, expected_measurement=expected_measurement)
 
     def assert_expected_calculation_result(self, sut, stub_treatment_calculations, start_time, stop_time,
                                            expected_measurement=None, expected_warnings=None):
