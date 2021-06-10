@@ -248,6 +248,25 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     pendulum.datetime(2020, 1, 29, 9, 13, 30),
                                                     expected_measurement=expected_measurement)
 
+    def test_total_proppant_mass_correctly_handles_datetime_with_different_utc(self):
+        for expected_measurement_dto, start, stop in [
+            (tsn.make_measurement_dto(units.UsOilfield.MASS, 6580.),
+             dt.datetime(2020, 2, 28, 7, 52, 44, tzinfo=dateutil.tz.UTC),
+             dt.datetime(2020, 2, 28, 8, 10, 36, tzinfo=dateutil.tz.UTC)),
+            (tsn.make_measurement_dto(units.UsOilfield.MASS_datetime_to_pendulum, 3829.),
+             dt.datetime(2020, 2, 7, 0, 1, 37, tzinfo=UTC),
+             dt.datetime(2020, 2, 7, 3, 55, 22, tzinfo=UTC)),
+            (tsn.make_measurement_dto(units.Metric.MASS, 134300),
+             dt.datetime(2024, 2, 21, 16, 53, 37, tzinfo=dt.timezone.utc),
+             dt.datetime(2024, 2, 21, 17, 38, 16, tzinfo=dt.timezone.utc)),
+        ]:
+            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
+            stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
+
+            expected_measurement = tsn.make_measurement(expected_measurement_dto)
+            self.assert_expected_calculation_result(ntc.total_proppant_mass, stub_treatment_calculations,
+                                                    start, stop, expected_measurement=expected_measurement)
+
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
             dont_care_measurement = tsn.make_measurement_dto(units.UsOilfield.MASS, DONT_CARE_MEASUREMENT_MAGNITUDE)

@@ -141,7 +141,9 @@ def total_proppant_mass(stage: IStage,
                                                                net_dt.as_net_date_time(stop_time))
         return calculation_result
 
-    result = perform_calculation(total_proppant_mass_calculation, stage, start, stop, opq.PhysicalQuantity.MASS)
+    result = perform_calculation(total_proppant_mass_calculation, stage,
+                                 _datetime_to_pendulum(start), _datetime_to_pendulum(stop),
+                                 opq.PhysicalQuantity.MASS)
     return result
 
 
