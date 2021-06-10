@@ -16,7 +16,8 @@ from collections import namedtuple
 import datetime as dt
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+import deal
+from hamcrest import assert_that, equal_to, calling, raises
 import dateutil.tz
 import pendulum
 
@@ -110,6 +111,35 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             self.assert_expected_calculation_result(ntc.median_treating_pressure, stub_treatment_calculations,
                                                     start, stop, expected_measurement=expected_measurement)
 
+    def test_median_treating_pressure_raises_error_if_timezone_not_utc(self):
+        for expected_measurement_dto, start, stop, message_parameter in [
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 57.74),
+             dt.datetime(2019, 11, 15, 5, 16, 26, tzinfo=UTC),
+             dt.datetime(2019, 11, 15, 20, 46, 11, tzinfo=pendulum.timezone('Australia/Queensland')),
+             'stop'),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 63.36),
+             dt.datetime(2021, 9, 24, 12, 24, 1, tzinfo=pendulum.timezone('America/Pangnirtung')),
+             dt.datetime(2019, 11, 15, 20, 46, 11, tzinfo=UTC),
+             'start'),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 7302.85),
+             dt.datetime(2018, 10, 10, 0, 17, 41, tzinfo=pendulum.timezone(-54286)),
+             dt.datetime(2018, 10, 10, 7, 10, 5, tzinfo=pendulum.timezone(-54286)),
+             'start'),  # `start` detected first
+        ]:
+            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
+            result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+            result.GetMedianTreatmentPressure = stub_calculation_result
+            stub_treatment_calculations = result
+
+            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
+                                     spec=loader.native_treatment_calculations,
+                                     return_value=stub_treatment_calculations):
+                with self.subTest(f'Calculating median treating pressure with start, {start.isoformat()},'
+                                  f'and stop, {stop.isoformat()}, raises PreContractError'):
+                    assert_that(calling(ntc.median_treating_pressure).with_args(
+                        create_stub_stage_adapter(), start, stop),
+                        raises(deal.PreContractError, pattern=message_parameter))
+
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
             dont_care_measurement = tsn.make_measurement_dto(units.UsOilfield.PRESSURE,
@@ -125,7 +155,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_result(self):
         for expected_measurement_dto in [
-            tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6969.20),
+            tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6970.20),
             tsn.make_measurement_dto(units.Metric.VOLUME, 707.82),
         ]:
             stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
