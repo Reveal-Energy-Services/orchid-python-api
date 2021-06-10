@@ -30,6 +30,10 @@ from orchid import base
 from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
+UTC = pendulum.UTC
+"""Encapsulate the use of pendulum."""
+
+
 class TimePointTimeZoneKind(enum.Enum):
     """Models the kind of time point.
 
