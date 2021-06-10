@@ -230,9 +230,13 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     expected_warnings=expected_warnings)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_result(self):
-        for expected_measurement_dto in [
-            tsn.make_measurement_dto(units.UsOilfield.MASS, 5414.58),
-            tsn.make_measurement_dto(units.Metric.MASS, 138262.86),
+        for expected_measurement_dto, start, stop in [
+            (tsn.make_measurement_dto(units.UsOilfield.MASS, 5414.58),
+             pendulum.datetime(2020, 1, 29, 7, 35, 2),
+             pendulum.datetime(2020, 1, 29, 9, 13, 30)),
+            (tsn.make_measurement_dto(units.Metric.MASS, 138262.86),
+             pendulum.datetime(2018, 1, 15, 0, 24, 4),
+             pendulum.datetime(2018, 1, 15, 18, 8, 32)),
         ]:
             stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_proppant_mass_calculation(stub_calculation_result)
