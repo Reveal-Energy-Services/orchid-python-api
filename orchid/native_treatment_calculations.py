@@ -21,8 +21,8 @@ import pendulum
 
 from orchid import (
     project_loader as loader,
-    net_date_time as ndt,
-    net_quantity as onq,
+    net_date_time as net_dt,
+    net_quantity as net_qty,
     physical_quantity as opq,
 )
 
@@ -57,7 +57,7 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     """
     native_treatment_calculations = loader.native_treatment_calculations()
     native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
-    calculation_measurement = onq.as_measurement(physical_quantity, native_calculation_result.Result)
+    calculation_measurement = net_qty.as_measurement(physical_quantity, native_calculation_result.Result)
     warnings = native_calculation_result.Warnings
     return CalculationResult(calculation_measurement, warnings)
 
@@ -78,8 +78,8 @@ def median_treating_pressure(stage: IStage,
     """
     def median_treatment_pressure_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetMedianTreatmentPressure(for_stage.dom_object,
-                                                                     ndt.as_net_date_time(start_time),
-                                                                     ndt.as_net_date_time(stop_time))
+                                                                     net_dt.as_net_date_time(start_time),
+                                                                     net_dt.as_net_date_time(stop_time))
         return calculation_result
 
     result = perform_calculation(median_treatment_pressure_calculation, stage,
@@ -104,8 +104,8 @@ def pumped_fluid_volume(stage: IStage,
     """
 
     def pumped_fluid_volume_calculation(calculations, for_stage, start_time, stop_time):
-        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object, ndt.as_net_date_time(start_time),
-                                                          ndt.as_net_date_time(stop_time))
+        calculation_result = calculations.GetPumpedVolume(for_stage.dom_object, net_dt.as_net_date_time(start_time),
+                                                          net_dt.as_net_date_time(stop_time))
         return calculation_result
 
     result = perform_calculation(pumped_fluid_volume_calculation, stage, start, stop, opq.PhysicalQuantity.VOLUME)
@@ -128,8 +128,8 @@ def total_proppant_mass(stage: IStage,
     """
     def total_proppant_mass_calculation(calculations, for_stage, start_time, stop_time):
         calculation_result = calculations.GetTotalProppantMass(for_stage.dom_object,
-                                                               ndt.as_net_date_time(start_time),
-                                                               ndt.as_net_date_time(stop_time))
+                                                               net_dt.as_net_date_time(start_time),
+                                                               net_dt.as_net_date_time(stop_time))
         return calculation_result
 
     result = perform_calculation(total_proppant_mass_calculation, stage, start, stop, opq.PhysicalQuantity.MASS)
