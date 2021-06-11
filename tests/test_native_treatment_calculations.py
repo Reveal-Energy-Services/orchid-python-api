@@ -253,7 +253,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             (tsn.make_measurement_dto(units.UsOilfield.MASS, 6580.),
              dt.datetime(2020, 2, 28, 7, 52, 44, tzinfo=dateutil.tz.UTC),
              dt.datetime(2020, 2, 28, 8, 10, 36, tzinfo=dateutil.tz.UTC)),
-            (tsn.make_measurement_dto(units.UsOilfield.MASS_datetime_to_pendulum, 3829.),
+            (tsn.make_measurement_dto(units.UsOilfield.MASS, 3829.),
              dt.datetime(2020, 2, 7, 0, 1, 37, tzinfo=UTC),
              dt.datetime(2020, 2, 7, 3, 55, 22, tzinfo=UTC)),
             (tsn.make_measurement_dto(units.Metric.MASS, 134300),
@@ -266,6 +266,35 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
             expected_measurement = tsn.make_measurement(expected_measurement_dto)
             self.assert_expected_calculation_result(ntc.total_proppant_mass, stub_treatment_calculations,
                                                     start, stop, expected_measurement=expected_measurement)
+
+    def test_total_proppant_mass_raises_error_if_timezone_not_utc(self):
+        for expected_measurement_dto, start, stop, message_parameter in [
+            (tsn.make_measurement_dto(units.UsOilfield.MASS, 7653.),
+             dt.datetime(2025, 6, 9, 2, 28, 48, tzinfo=UTC),
+             dt.datetime(2025, 6, 9, 5, 25, 8, tzinfo=pendulum.timezone('Asia/Irkutsk')),
+             'stop'),
+            (tsn.make_measurement_dto(units.Metric.MASS, 2882.),
+             dt.datetime(2018, 1, 24, 1, 11, 10, tzinfo=pendulum.timezone('America/Recife')),
+             dt.datetime(2018, 1, 24, 12, 25, 20, tzinfo=UTC),
+             'start'),
+            (tsn.make_measurement_dto(units.Metric.MASS, 152900),
+             dt.datetime(2027, 5, 9, 5, 3, 18, tzinfo=pendulum.timezone(-1916)),
+             dt.datetime(2027, 5, 9, 16, 36, 39, tzinfo=pendulum.timezone(-1916)),
+             'start'),  # `start` detected first
+        ]:
+            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
+            result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+            result.GetTotalProppantMass = stub_calculation_result
+            stub_treatment_calculations = result
+
+            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
+                                     spec=loader.native_treatment_calculations,
+                                     return_value=stub_treatment_calculations):
+                with self.subTest(f'Calculating total proppant mass with start, {start.isoformat()},'
+                                  f'and stop, {stop.isoformat()}, raises PreContractError'):
+                    assert_that(calling(ntc.total_proppant_mass).with_args(
+                        create_stub_stage_adapter(), start, stop),
+                        raises(deal.PreContractError, pattern=message_parameter))
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
