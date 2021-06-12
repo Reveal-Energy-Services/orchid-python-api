@@ -126,19 +126,21 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
              dt.datetime(2018, 10, 10, 7, 10, 5, tzinfo=pendulum.timezone(-54286)),
              'start'),  # `start` detected first
         ]:
-            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
-            result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
-            result.GetMedianTreatmentPressure = stub_calculation_result
-            stub_treatment_calculations = result
+            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter, start, stop)
 
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(f'Calculating median treating pressure with start, {start.isoformat()},'
-                                  f'and stop, {stop.isoformat()}, raises PreContractError'):
-                    assert_that(calling(ntc.median_treating_pressure).with_args(
-                        create_stub_stage_adapter(), start, stop),
-                        raises(deal.PreContractError, pattern=message_parameter))
+    def assert_raises_if_not_utc_time_zone(self, expected_measurement_dto, message_parameter, start, stop):
+        stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
+        result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
+        result.GetMedianTreatmentPressure = stub_calculation_result
+        stub_treatment_calculations = result
+        with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
+                                 spec=loader.native_treatment_calculations,
+                                 return_value=stub_treatment_calculations):
+            with self.subTest(f'Calculating median treating pressure with start, {start.isoformat()},'
+                              f'and stop, {stop.isoformat()}, raises PreContractError'):
+                assert_that(calling(ntc.median_treating_pressure).with_args(
+                    create_stub_stage_adapter(), start, stop),
+                    raises(deal.PreContractError, pattern=message_parameter))
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_warnings(self):
         for expected_warnings in [[], ['lente vetustas lupam vicit'], ['clunis', 'nobile', 'complacuit']]:
@@ -203,19 +205,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
              dt.datetime(2018, 2, 8, 19, 37, 26, tzinfo=pendulum.timezone(32017)),
              'start'),  # `start` detected first
         ]:
-            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
-            result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
-            result.GetPumpedVolume = stub_calculation_result
-            stub_treatment_calculations = result
-
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(f'Calculating pumped fluid volume with start, {start.isoformat()},'
-                                  f'and stop, {stop.isoformat()}, raises PreContractError'):
-                    assert_that(calling(ntc.pumped_fluid_volume).with_args(
-                        create_stub_stage_adapter(), start, stop),
-                        raises(deal.PreContractError, pattern=message_parameter))
+            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter, start, stop)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
@@ -282,19 +272,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
              dt.datetime(2027, 5, 9, 16, 36, 39, tzinfo=pendulum.timezone(-1916)),
              'start'),  # `start` detected first
         ]:
-            stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
-            result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
-            result.GetTotalProppantMass = stub_calculation_result
-            stub_treatment_calculations = result
-
-            with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
-                                     spec=loader.native_treatment_calculations,
-                                     return_value=stub_treatment_calculations):
-                with self.subTest(f'Calculating total proppant mass with start, {start.isoformat()},'
-                                  f'and stop, {stop.isoformat()}, raises PreContractError'):
-                    assert_that(calling(ntc.total_proppant_mass).with_args(
-                        create_stub_stage_adapter(), start, stop),
-                        raises(deal.PreContractError, pattern=message_parameter))
+            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter, start, stop)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
