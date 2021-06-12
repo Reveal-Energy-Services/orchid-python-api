@@ -82,12 +82,28 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context
     """
+
+    def _fix_gng_project_data_frame_pnet_column_data_type(source, name):
+        if 'GnG project data frame' not in name:
+            return source
+
+        # TODO: Consider moving "fix" to `native_frame_adapter.data_frame` to correctly handle other similar problems.
+        # The `Pnet` column of the GnG project data frame is unusual. In general, the net pressure is a floating point
+        # value; however, for this specific data frame, **all** the values in the actual `Pnet` column of the .NET
+        # `DataFrame` are `null/DBNull.Value` so all the values in my expected sample table are `NaN`. Because `pandas`
+        # **only** knows that all the values are `NaN` values, it determines the data type of the column to be `object`
+        # instead of the expected `float64`.
+        source["Pnet"] = pd.to_numeric(source["Pnet"])
+        return source
+
     expected = _as_data_frame(context.table)
     actual_data_frame = context.data_frame_of_interest.pandas_data_frame()
     sampled_data_frame_rows = actual_data_frame.iloc[list(expected['Sample'].values), :]
     sampled_data_frame_cols = sampled_data_frame_rows.loc[:, expected.columns[1:]]
     sampled_data_frame_cols.reset_index(inplace=True)
-    sampled_data_frame = sampled_data_frame_cols.rename(columns={'index': 'Sample'})
+    raw_sampled_data_frame = sampled_data_frame_cols.rename(columns={'index': 'Sample'})
+    sampled_data_frame = _fix_gng_project_data_frame_pnet_column_data_type(raw_sampled_data_frame,
+                                                                           context.scenario.name)
     pd.testing.assert_frame_equal(sampled_data_frame, expected)
 
 
@@ -100,7 +116,11 @@ def _as_data_frame(table):
     raw_frame_data = toolz.reduce(reduce_row, table, initial_data)
     frame_mapped_data = toolz.itemmap(_table_cells_to_data_frame_cells, raw_frame_data)
     frame_data = toolz.valmap(list, frame_mapped_data)
-    return pd.DataFrame(data=frame_data, columns=frame_data.keys())
+    raw_result = pd.DataFrame(data=frame_data, columns=frame_data.keys())
+
+    # result = _fix_gng_project_data_frame_pnet_column_data_type(raw_result, scenario_name)
+    result = raw_result
+    return result
 
 
 _hours = parsy.regex(r'[0-9]{2}').map(int).desc('hours')
