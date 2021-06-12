@@ -23,6 +23,7 @@ import toolz.curried as toolz
 from orchid import (
     base,
     dot_net_dom_access as dna,
+    dot_net_displosable as dnd,
     net_date_time as net_dt,
 )
 
@@ -180,10 +181,7 @@ def _read_data_table(data_table: DataTable) -> Iterable[dict]:
     # Adapted from code at
     # https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/dataset-datatable-dataview/creating-a-datareader
     # retrieved on 18-Apr-2021.
-
-    # TODO: Use `disposable` function from https://github.com/pythonnet/pythonnet/issues/79#issuecomment-187107566
-    reader = data_table.CreateDataReader()
-    try:
+    with dnd.disposable(data_table.CreateDataReader()) as reader:
         while True:
             if reader.HasRows:
                 has_row = reader.Read()
@@ -194,8 +192,6 @@ def _read_data_table(data_table: DataTable) -> Iterable[dict]:
                 return
             if not reader.NextResult():
                 break
-    finally:
-        reader.Dispose()
 
 
 def _table_row_to_dict(reader):

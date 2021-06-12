@@ -14,7 +14,7 @@
 """Wrapper function to help dealing with IDisposable classes.
 
 This implementation is based on code in the discussion of
-[Python.NET issue 79]( https://github.com/pythonnet/pythonnet/issues/79).
+[Python.NET issue 79](https://github.com/pythonnet/pythonnet/issues/79#issuecomment-187107566).
 """
 
 from inspect import isclass, isfunction
