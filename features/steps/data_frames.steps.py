@@ -27,6 +27,7 @@ import parsy
 import pendulum
 import toolz.curried as toolz
 
+import numpy as np
 import pandas as pd
 
 from orchid import (
@@ -134,6 +135,13 @@ def hms(t):
     return result
 
 
+_EMPTY_CONVERTER = {
+    'None': None,
+    'NaN': np.NaN,
+    'NaT': pd.NaT,
+}
+
+
 def _table_cells_to_data_frame_cells(items):
     """
     Map table cell data to data frame cells.
@@ -144,10 +152,15 @@ def _table_cells_to_data_frame_cells(items):
     Returns:
         A tuple of the transformed table column name and the transformed cells
     """
+
     @toolz.curry
     def convert_maybe_value(convert_func, v):
-        return convert_func(v) if v else None
+        if v in _EMPTY_CONVERTER:
+            return _EMPTY_CONVERTER[v]
 
+        return convert_func(v)
+
+    # TODO: Remove utc conversion
     parsed_date_with_correct_utc = toolz.compose(net_dt.dateutil_utc_to_datetime_utc,
                                                  pendulum.parse)
 
