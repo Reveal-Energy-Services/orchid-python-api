@@ -22,10 +22,29 @@ from contextlib import contextmanager
 
 __all__ = ['disposable']
 
+"""Contextmanager wrapper around IDisposables."""
+
 
 @contextmanager
 def disposable(obj_or_class, *args, **kwargs):
-    """Contextmanager wrapper around IDisposables."""
+    """
+    Contextmanager wrapper around IDisposables.
+
+    One uses this method using code like:
+
+    ```
+    with disposable(dbConnection):
+        blah()
+    ```
+
+    Args:
+        obj_or_class: The .NET object or class with a `Dispose` method.
+        *args: Positional arguments needed to manage the context managed by `__enter__/__exit__`.
+        **kwargs: Keyword arguments needed to manage the context managed by `__exit__/__exit_-`.
+
+    Returns:
+        The instance of the object or class implementing `IDispose`.
+    """
     if isclass(obj_or_class) or isfunction(obj_or_class):
         obj = obj_or_class(*args, **kwargs)
     else:
