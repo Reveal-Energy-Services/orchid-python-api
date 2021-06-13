@@ -179,6 +179,9 @@ def make_data_column_type(python_type):
         if python_type == pendulum.DateTime:
             return Type.GetType('System.DateTimeOffset')
 
+        if python_type == pendulum.Duration:
+            return Type.GetType('System.TimeSpan')
+
         if python_type == 'DateTime':
             return Type.GetType('System.DateTime')
 
@@ -226,6 +229,9 @@ def make_data_table_row(row_data, data_table):
         elif is_net_date_time(data_table.Columns[net_column_name]):
             net_time_point = perhaps_cell_value.map_or(ndt.as_net_date_time, DBNull.Value)
             data_table_row[net_column_name] = net_time_point
+        elif is_net_time_span(data_table.Columns[net_column_name]):
+            net_time_point = perhaps_cell_value.map_or(ndt.as_net_time_span, DBNull.Value)
+            data_table_row[net_column_name] = net_time_point
         else:
             data_table_row[net_column_name] = perhaps_cell_value.unwrap_or(DBNull.Value)
     return data_table_row
@@ -241,3 +247,4 @@ is_net_double = is_net_column_of_type('System.Double')
 is_net_string = is_net_column_of_type('System.String')
 is_net_date_time = is_net_column_of_type('System.DateTime')
 is_net_date_time_offset = is_net_column_of_type('System.DateTimeOffset')
+is_net_time_span = is_net_column_of_type('System.TimeSpan')

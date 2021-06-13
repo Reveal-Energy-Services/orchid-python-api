@@ -34,12 +34,22 @@ from System import DateTime, DateTimeKind, DateTimeOffset, DBNull, TimeSpan
 
 
 def date_time_to_integral_milliseconds(value):
-    if isinstance(value, type(pendulum.now())):
-        return value.replace(microsecond=round(value.microsecond / 1000) * 1000)
+    if isinstance(value, pendulum.DateTime):
+        result = value.replace(microsecond=microseconds_to_integral_milliseconds(value.microsecond))
+        return result
+
     return value
 
 
+def microseconds_to_integral_milliseconds(microseconds):
+    result = round(microseconds / 1000) * 1000
+    return result
+
+
 # Test ideas
+# - Correct translate
+#   - DateTimeOffset
+#   - TimeSpan
 # - Correctly translate `None` values
 #   - `None` in string columns
 #   - `NaN` in int columns
@@ -347,7 +357,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         assert_that(calling(sut.pandas_data_frame).with_args(),
                     raises(dfa.DataFrameAdapterDateTimeOffsetMinValueError, pattern=expect))
 
-    def test_net_fdi_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
+    def test_net_data_frame_with_max_date_time_offset_produces_nat_cell_in_pandas_data_frame(self):
         table_data_dto = tsn.TableDataDto([pendulum.DateTime],
                                           [{'dies': pendulum.DateTime.max}],
                                           toolz.identity)
@@ -356,6 +366,17 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         actual = actual_data_frame.at[0, 'dies']
 
         assert_that(actual is pd.NaT, equal_to(True))
+
+    def test_net_data_frame_with_time_span_produces_correct_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([pendulum.Duration],
+                                          [{'strinxemus': pendulum.duration(hours=12, minutes=16,
+                                                                            seconds=37, microseconds=939613)}],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+        actual_data_frame = sut.pandas_data_frame()
+
+        expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
 
 def _create_sut(table_data_dto):
