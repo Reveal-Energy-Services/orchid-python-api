@@ -47,14 +47,6 @@ def microseconds_to_integral_milliseconds(microseconds):
 
 
 # Test ideas
-# - Correct translate
-#   - DateTimeOffset
-#   - TimeSpan
-# - Correctly translate `None` values
-#   - `None` in string columns
-#   - `NaN` in int columns
-#   - `NaN` in float columns
-#   - 'NaT` in time (DateTimeOffset) columns
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
