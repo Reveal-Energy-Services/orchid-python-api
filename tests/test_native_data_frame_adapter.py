@@ -431,7 +431,6 @@ def _create_sut(table_data_dto):
 def _create_expected_data_frame_with_renamed_columns(rename_column_func, table_data_dto):
     expected_table_data = toolz.pipe(table_data_dto.table_data,
                                      toolz.map(toolz.valmap(date_time_to_integral_milliseconds)),
-                                     toolz.map(toolz.valmap(net_dt.dateutil_utc_to_datetime_utc)),
                                      list,
                                      )
     expected_data = toolz.keymap(rename_column_func, toolz.merge_with(toolz.identity, *expected_table_data))
