@@ -180,9 +180,12 @@ def _table_cells_to_data_frame_cells(items):
 
         return convert_func(v)
 
-    # TODO: Remove utc conversion
-    parsed_date_with_correct_utc = toolz.compose(net_dt.dateutil_utc_to_datetime_utc,
-                                                 pendulum.parse)
+    def parsed_date_with_correct_utc(text_time_point):
+        parsed_time_point = pendulum.parse(text_time_point)
+        if parsed_time_point.timezone_name != '+00:00':
+            return parsed_time_point
+
+        return parsed_time_point.set(tz=pendulum.UTC)
 
     table_data_frame_cells = {
         # GnG project data frame

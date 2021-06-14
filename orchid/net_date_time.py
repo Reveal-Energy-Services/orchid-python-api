@@ -234,20 +234,6 @@ def as_duration(to_convert: TimeSpan) -> pendulum.Duration:
     return pendulum.duration(seconds=to_convert.TotalSeconds)
 
 
-def dateutil_utc_to_datetime_utc(time_point):
-    """
-    Convert a UTC timezone from the `dateutil` package to a UTC timezone from the `datetime` package.
-    Args:
-        time_point: The time point whose timezone may need conversion.
-
-    Returns:
-        The converted time point.
-    """
-    if isinstance(time_point, type(dt.datetime.utcnow())):
-        return time_point.replace(tzinfo=dt.timezone.utc)
-    return time_point
-
-
 def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
     """
     Convert microseconds to an integral number of milliseconds with a number of seconds to carry.
