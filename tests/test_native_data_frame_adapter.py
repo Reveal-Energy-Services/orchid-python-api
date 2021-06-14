@@ -315,6 +315,57 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
 
+    def test_many_columns_many_rows_not_square_net_data_frame_produces_correct_pandas_data_frame(self):
+        table_data_dto = tsn.TableDataDto([int, pendulum.Duration, str, float, pendulum.DateTime],
+                                          [
+                                              {
+                                                  'fundo': 174,
+                                                  'satias': pendulum.duration(hours=5, minutes=20, seconds=0,
+                                                                              microseconds=492296),
+                                                  'subtile': 'moribunda',
+                                                  'incumbet': 37.57,
+                                                  'manemus': pendulum.datetime(year=2023, month=8, day=24,
+                                                                               hour=7, minute=38, second=50,
+                                                                               microsecond=10058),
+                                              },
+                                              {
+                                                  'fundo': -304,
+                                                  'satias': pendulum.duration(hours=14, minutes=39, seconds=36,
+                                                                              microseconds=568450),
+                                                  'subtile': 'ubique',
+                                                  'incumbet': -29.82,
+                                                  'manemus': pendulum.datetime(year=2026, month=12, day=22,
+                                                                               hour=8, minute=54, second=55,
+                                                                               microsecond=277107),
+                                              },
+                                              {
+                                                  'fundo': 122,
+                                                  'satias': pendulum.duration(hours=19, minutes=20, seconds=39,
+                                                                              microseconds=232291),
+                                                  'subtile': 'liminis',
+                                                  'incumbet': -14.07,
+                                                  'manemus': pendulum.datetime(year=2022, month=2, day=15,
+                                                                               hour=13, minute=20, second=8,
+                                                                               microsecond=161748),
+                                              },
+                                              {
+                                                  'fundo': 183,
+                                                  'satias': pendulum.duration(hours=10, minutes=44, seconds=8,
+                                                                              microseconds=437037),
+                                                  'subtile': 'trudetis',
+                                                  'incumbet': 3.112,
+                                                  'manemus': pendulum.datetime(year=2021, month=8, day=10,
+                                                                               hour=5, minute=58, second=35,
+                                                                               microsecond=277734),
+                                              },
+                                          ],
+                                          toolz.identity)
+        sut = _create_sut(table_data_dto)
+
+        actual_data_frame = sut.pandas_data_frame()
+        expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
+        pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
     def test_net_data_frame_with_date_time_column_raises_error(self):
         rename_column_func = toolz.flip(toolz.get)({'pulchritudo': 'probum'})
         table_data_dto = tsn.TableDataDto(['DateTime'],
