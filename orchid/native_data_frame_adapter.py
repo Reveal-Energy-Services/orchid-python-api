@@ -209,21 +209,22 @@ def _table_row_to_dict(reader):
         return dict_result
 
     def net_value_to_python_value(cell_location_value_pair):
-        (row_no, column_name), value = cell_location_value_pair
+        (column_no, column_name), value = cell_location_value_pair
         try:
-            converted = dataclasses.replace(CellDto(row_no, column_name, value),
+            converted = dataclasses.replace(CellDto(column_no, column_name, value),
                                             value=net_cell_value_to_pandas_cell_value(value))
             return (converted.row, converted.column), converted.value
         except ValueError as ve:
             if 'DateTimeOffset.MinValue' in str(ve):
-                raise DataFrameAdapterDateTimeOffsetMinValueError(row_no, column_name)
+                raise DataFrameAdapterDateTimeOffsetMinValueError(column_no, column_name)
         except TypeError as te:
             if 'System.DateTime' in str(te):
                 raise DataFrameAdapterDateTimeError(value.GetType())
 
     result = toolz.pipe(
-        range(reader.FieldCount),
-        toolz.map(lambda row_no: (row_no, reader.GetName(row_no))),
+        reader.FieldCount,
+        range,
+        toolz.map(lambda column_no: (column_no, reader.GetName(column_no))),
         toolz.map(get_value(reader)),
         to_dict,
         toolz.itemmap(net_value_to_python_value),
