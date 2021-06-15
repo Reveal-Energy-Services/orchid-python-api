@@ -78,6 +78,10 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
     display_name = dna.transformed_dom_property('display_name', 'The display name of this data frame.',
                                                 transform_display_name)
 
+    @property
+    def is_potentially_corrupt(self):
+        return False
+
     def pandas_data_frame(self) -> pd.DataFrame:
         """
         Return the `pandas` `DataFrame` built from the native `IStaticDataFrame`.

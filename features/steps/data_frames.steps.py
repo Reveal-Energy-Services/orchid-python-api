@@ -61,6 +61,19 @@ def step_impl(context, name, display_name):
     }
 
 
+@when("I query the loaded project for the data frame named '{data_frame_name}'")
+def step_impl(context, data_frame_name):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        data_frame_name (str): The name of the data frame of interest.
+    """
+    candidates = list(context.project.find_data_frames_with_name(data_frame_name))
+    assert_that(len(candidates), equal_to(1))
+
+    context.data_frame_of_interest = candidates[0]
+
+
 @then("I see a single data frame identified by {object_id}")
 def step_impl(context, object_id):
     """
@@ -85,17 +98,17 @@ def step_impl(context, name, display_name):
     assert_that(context.data_frames_by_names[name] is context.data_frames_by_names[display_name])
 
 
-@when("I query the loaded project for the data frame named '{data_frame_name}'")
-def step_impl(context, data_frame_name):
+@then("I see the specified data frame {is_potentially_corrupt}")
+def step_impl(context, is_potentially_corrupt):
     """
     Args:
         context (behave.runner.Context): The test context.
-        data_frame_name (str): The name of the data frame of interest.
+        is_potentially_corrupt (str): Indicates if the data frame of interest is potentially corrupt.
+        corrupt.
     """
-    candidates = list(context.project.find_data_frames_with_name(data_frame_name))
-    assert_that(len(candidates), equal_to(1))
-
-    context.data_frame_of_interest = candidates[0]
+    data_frame_of_interest = context.data_frame_of_interest
+    assert_that(str(data_frame_of_interest.is_potentially_corrupt), equal_to(is_potentially_corrupt),
+                f'Data frame, "{data_frame_of_interest.name}", is potentially corrupt.')
 
 
 @then("I see the sampled cells")

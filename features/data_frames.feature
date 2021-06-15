@@ -50,6 +50,23 @@ Feature: Adapted IDataFrame DOM API
       | GnG       | Well Log Set Data Frame 01                            | Well Log Set Data Frame 01                            |
       | GnG       | Horizon Marker Set Data Frame01                       | Horizon Marker Set Data Frame01                       |
 
+
+  Scenario Outline: Identify potentially corrupted data frames
+    Given I have loaded the project for the field, '<field>'
+    When I query the project data frames identified by '<object_id>'
+    Then I see the specified data frame <is_potentially_corrupt>
+
+    Examples: Object ID
+      | field     | object_id                            | is_potentially_corrupt |
+      | Permian-a | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
+      | Permian-a | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
+      | Permian-a | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | True                   |
+      | GnG       | 9acfc88f-44f3-4f23-ac78-6ca94bae2d84 | False                  |
+      | GnG       | db5dc0c7-9132-4270-9bff-2bbf32ed93e3 | False                  |
+      | GnG       | e16f00ad-4c42-4726-8996-22a4632beaa9 | False                  |
+      | GnG       | a287e63d-fd15-48e8-b5fc-99eb57244f18 | False                  |
+      | GnG       | 1cef6417-acb4-478c-b270-ca7022fc6003 | False                  |
+
   Scenario: Sampled Permian project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
