@@ -47,20 +47,42 @@ def step_impl(context, object_id):
     assert_that(context.data_frame_of_interest, not_none())
 
 
-@then("I see a single data frame identified by {object_id}, {name} and {display_name}")
-def step_impl(context, object_id, name, display_name):
+@when("I query all the project data frames by {name} and by {display_name}")
+def step_impl(context, name, display_name):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        name (str): The name of the data frame of interest.
+        display_name (str): The display name of the data frame of interest.
+    """
+    context.data_frames_by_names = {
+        name: list(context.project.find_data_frames_with_name(name)),
+        display_name: list(context.project.find_data_frames_with_display_name(display_name)),
+    }
+
+
+@then("I see a single data frame identified by {object_id}")
+def step_impl(context, object_id):
     """
     Args:
         context (behave.runner.Context): The test context.
         object_id (str): The textual representation of the UUID identifying the data frame of interest.
-        name (str): The name of the data frame of interest.
-        display_name (str): The name of the data frame of interest used for display purposes.
     """
     data_frame_of_interest = context.data_frame_of_interest
     assert_that(data_frame_of_interest.object_id, equal_to(dna.as_object_id(object_id)))
 
-    assert_that(data_frame_of_interest.name, equal_to(name))
-    assert_that(data_frame_of_interest.display_name, equal_to(display_name))
+
+@then("I see a single data frame alternatively identified by {name} and {display_name}")
+def step_impl(context, name, display_name):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        name (str): The name of the data frame of interest.
+        display_name (str): The name of the data frame of interest used for display purposes.
+    """
+    assert_that(len(context.data_frames_by_names[name]), equal_to(1))
+    assert_that(len(context.data_frames_by_names[display_name]), equal_to(1))
+    assert_that(context.data_frames_by_names[name] is context.data_frames_by_names[display_name])
 
 
 @when("I query the loaded project for the data frame named '{data_frame_name}'")
