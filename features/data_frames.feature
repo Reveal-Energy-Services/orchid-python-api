@@ -40,19 +40,19 @@ Feature: Adapted IDataFrame DOM API
     Then I see a single data frame alternatively identified by <name> and <display_name>
 
     Examples: Names
-      | field     | name                            | display_name                    |
-      | Permian-a | Project Data Frame 01           | Project Data Frame 01           |
-      | Permian-a | FDI Observations                | FDI Observations                |
-      | Permian-a | C3-Microseismic Data Frame 01   | C3-Microseismic Data Frame 01   |
-      | GnG       | Project Data Frame 01           | Project Data Frame 01           |
-      | GnG       | Fault Trace Set Data Frame 01   | Fault Trace Set Data Frame 01   |
-      | GnG       | Stage Data Frame 01             | Stage Data Frame 01             |
-      | GnG       | Well Log Set Data Frame 01      | Well Log Set Data Frame 01      |
-      | GnG       | Horizon Marker Set Data Frame01 | Horizon Marker Set Data Frame01 |
+      | field     | name                                                  | display_name                                          |
+      | Permian-a | Project Data Frame 01 (Potentially Corrupted)         | Project Data Frame 01 (Potentially Corrupted)         |
+      | Permian-a | FDI Observations (Potentially Corrupted)              | FDI Observations (Potentially Corrupted)              |
+      | Permian-a | C3-Microseismic Data Frame 01 (Potentially Corrupted) | C3-Microseismic Data Frame 01 (Potentially Corrupted) |
+      | GnG       | Project Data Frame 01                                 | Project Data Frame 01                                 |
+      | GnG       | Fault Trace Set Data Frame 01                         | Fault Trace Set Data Frame 01                         |
+      | GnG       | Stage Data Frame 01                                   | Stage Data Frame 01                                   |
+      | GnG       | Well Log Set Data Frame 01                            | Well Log Set Data Frame 01                            |
+      | GnG       | Horizon Marker Set Data Frame01                       | Horizon Marker Set Data Frame01                       |
 
   Scenario: Sampled Permian project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'Project Data Frame 01'
+    When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
       | sample | bh_easting   | md_bottom | part_end_time                 | part_pumped_vol | pnet        | pump_time |
       | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40.000+00:00 | 8423.638083     | 7522.805942 | 135       |
@@ -66,7 +66,7 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Permian FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'FDI Observations'
+    When I query the loaded project for the data frame named 'FDI Observations (Potentially Corrupted)'
     Then I see the sampled cells
       | sample | obs_set_name     | part_no  | timestamp                     | delta_t          | delta_p    | vol_to_pick  |
       | 0      | FDI Observations | Stage-01 | 2018-11-13T21:45:11.987+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
@@ -81,7 +81,7 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Permian microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01'
+    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
       | sample | timestamp                     | northing    | depth_tvd_ss | dist_3d    | planar_dist_azm | vert_dist  |
       | 0      | 2018-11-12T14:14:30.000+00:00 | 11663896.37 | 11468.62     | 499.111743 | NaN             | NaN        |
