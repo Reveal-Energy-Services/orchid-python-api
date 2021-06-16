@@ -80,7 +80,7 @@ class NativeDataFrameAdapter(dna.DotNetAdapter):
 
     @property
     def is_potentially_corrupt(self):
-        return False
+        return self.name.endswith(' (Potentially Corrupted)')
 
     def pandas_data_frame(self) -> pd.DataFrame:
         """

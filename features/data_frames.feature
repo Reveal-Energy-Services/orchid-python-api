@@ -25,9 +25,12 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Object ID
       | field     | object_id                            |
-      | Permian-a | 0d2ec4b2-5766-461a-b57d-cc711576f46f |
-      | Permian-a | 0339e49a-a534-4d6f-b218-9862eeb73019 |
-      | Permian-a | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 |
+      | Permian-u | 61e4f1be-18af-481c-883f-7b2503e73667 |
+      | Permian-u | 5e892b13-34aa-42df-95fd-dc3dc1632c1b |
+      | Permian-u | c2f4e1ed-fd37-4863-bff7-21327ad8c886 |
+      | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f |
+      | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 |
+      | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 |
       | GnG       | 9acfc88f-44f3-4f23-ac78-6ca94bae2d84 |
       | GnG       | db5dc0c7-9132-4270-9bff-2bbf32ed93e3 |
       | GnG       | e16f00ad-4c42-4726-8996-22a4632beaa9 |
@@ -41,9 +44,12 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Names
       | field     | name                                                  | display_name                                          |
-      | Permian-a | Project Data Frame 01 (Potentially Corrupted)         | Project Data Frame 01 (Potentially Corrupted)         |
-      | Permian-a | FDI Observations (Potentially Corrupted)              | FDI Observations (Potentially Corrupted)              |
-      | Permian-a | C3-Microseismic Data Frame 01 (Potentially Corrupted) | C3-Microseismic Data Frame 01 (Potentially Corrupted) |
+      | Permian-u | Project Data Frame 01                                 | Project Data Frame 01                                 |
+      | Permian-u | FDI Observations                                      | FDI Observations                                      |
+      | Permian-u | C3-Microseismic Data Frame 01                         | C3-Microseismic Data Frame 01                         |
+      | Permian-c | Project Data Frame 01 (Potentially Corrupted)         | Project Data Frame 01 (Potentially Corrupted)         |
+      | Permian-c | FDI Observations (Potentially Corrupted)              | FDI Observations (Potentially Corrupted)              |
+      | Permian-c | C3-Microseismic Data Frame 01 (Potentially Corrupted) | C3-Microseismic Data Frame 01 (Potentially Corrupted) |
       | GnG       | Project Data Frame 01                                 | Project Data Frame 01                                 |
       | GnG       | Fault Trace Set Data Frame 01                         | Fault Trace Set Data Frame 01                         |
       | GnG       | Stage Data Frame 01                                   | Stage Data Frame 01                                   |
@@ -58,9 +64,12 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Object ID
       | field     | object_id                            | is_potentially_corrupt |
-      | Permian-a | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
-      | Permian-a | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
-      | Permian-a | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | True                   |
+      | Permian-u | 61e4f1be-18af-481c-883f-7b2503e73667 | False                  |
+      | Permian-u | 5e892b13-34aa-42df-95fd-dc3dc1632c1b | False                  |
+      | Permian-u | c2f4e1ed-fd37-4863-bff7-21327ad8c886 | False                  |
+      | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
+      | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
+      | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | True                   |
       | GnG       | 9acfc88f-44f3-4f23-ac78-6ca94bae2d84 | False                  |
       | GnG       | db5dc0c7-9132-4270-9bff-2bbf32ed93e3 | False                  |
       | GnG       | e16f00ad-4c42-4726-8996-22a4632beaa9 | False                  |
@@ -68,8 +77,8 @@ Feature: Adapted IDataFrame DOM API
       | GnG       | 1cef6417-acb4-478c-b270-ca7022fc6003 | False                  |
 
   Scenario: Sampled Permian project data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'Project Data Frame 01'
     Then I see the sampled cells
       | sample | bh_easting   | md_bottom | part_end_time                 | part_pumped_vol | pnet        | pump_time |
       | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40.000+00:00 | 8423.638083     | 7522.805942 | 135       |
@@ -82,8 +91,8 @@ Feature: Adapted IDataFrame DOM API
       | 87     | 2.141879e+06 | NaN       | NaT                           | NaN             | NaN         | NaN       |
 
   Scenario: Sampled Permian FDI data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'FDI Observations (Potentially Corrupted)'
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'FDI Observations'
     Then I see the sampled cells
       | sample | obs_set_name     | part_no  | timestamp                     | delta_t          | delta_p    | vol_to_pick  |
       | 0      | FDI Observations | Stage-01 | 2018-11-13T21:45:11.987+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
@@ -97,8 +106,8 @@ Feature: Adapted IDataFrame DOM API
       | 83     | FDI Observations | Stage-31 | 2018-11-29T04:02:02.864+00:00 | 01:55:11.8648576 | 31.818509  | 6803.360483  |
 
   Scenario: Sampled Permian microseismic data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-a'
-    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01 (Potentially Corrupted)'
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01'
     Then I see the sampled cells
       | sample | timestamp                     | northing    | depth_tvd_ss | dist_3d    | planar_dist_azm | vert_dist  |
       | 0      | 2018-11-12T14:14:30.000+00:00 | 11663896.37 | 11468.62     | 499.111743 | NaN             | NaN        |
