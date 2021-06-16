@@ -25,9 +25,9 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Object ID
       | field     | object_id                            |
-      | Permian-u | 61e4f1be-18af-481c-883f-7b2503e73667 |
-      | Permian-u | 5e892b13-34aa-42df-95fd-dc3dc1632c1b |
-      | Permian-u | c2f4e1ed-fd37-4863-bff7-21327ad8c886 |
+      | Permian-u | c08e6988-d8f5-4d7b-bccd-de968a5b398b |
+      | Permian-u | 08bea47e-5160-4f32-b8c4-3b3efa3d512b |
+      | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 |
       | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f |
       | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 |
       | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 |
@@ -64,9 +64,9 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Object ID
       | field     | object_id                            | is_potentially_corrupt |
-      | Permian-u | 61e4f1be-18af-481c-883f-7b2503e73667 | False                  |
-      | Permian-u | 5e892b13-34aa-42df-95fd-dc3dc1632c1b | False                  |
-      | Permian-u | c2f4e1ed-fd37-4863-bff7-21327ad8c886 | False                  |
+      | Permian-u | c08e6988-d8f5-4d7b-bccd-de968a5b398b | False                  |
+      | Permian-u | 08bea47e-5160-4f32-b8c4-3b3efa3d512b | False                  |
+      | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 | False                  |
       | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
       | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
       | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | True                   |

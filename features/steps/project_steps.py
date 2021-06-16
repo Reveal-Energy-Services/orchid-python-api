@@ -33,7 +33,7 @@ FIELD_NAME_PATHNAME_MAP = {
     'Permian': str(orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')),
     'Montney': str(orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')),
     'Permian-u': str(orchid.training_data_path().joinpath(
-        'Project-frankNstein_Permian_UTM13FT_0412_Uncorrupted_PjtDataFrame.ifrac')),
+        'Project-frankNstein_Permian_UTM13FT_DF_PR2298_vs263.ifrac')),
     'Permian-c': str(orchid.training_data_path().joinpath(
         'Project-frankNstein_Permian_UTM13FT_0412_PjtDataFrame.ifrac')),
     'GnG': str(orchid.training_data_path().joinpath('GnG_DemoProject_wDataFrames.ifrac')),
