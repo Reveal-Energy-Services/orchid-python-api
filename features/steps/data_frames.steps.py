@@ -256,6 +256,12 @@ about_data_frame_columns = [
     AboutDataFrameColumn('stage_start_time', 'StageStartTime', _convert_maybe_value(_parsed_date_with_correct_utc)),
     AboutDataFrameColumn('stage_pumped_vol', 'StagePumpedVolume', _convert_maybe_value(float)),
     AboutDataFrameColumn('well_name', 'WellName', _convert_maybe_value(str)),
+    AboutDataFrameColumn('obs_set_name', 'ObservationSetName', str),
+    AboutDataFrameColumn('part_no', 'TreatmentStagePartNumber', str),
+    AboutDataFrameColumn('timestamp', 'Timestamp', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('delta_t', 'DeltaT', _convert_maybe_value(hms)),
+    AboutDataFrameColumn('delta_p', 'DeltaP', _convert_maybe_value(float)),
+    AboutDataFrameColumn('vol_to_pick', 'VolumeToPick', _convert_maybe_value(float)),
 ]
 
 short_column_names = {about.short_name: about for about in about_data_frame_columns}
@@ -273,13 +279,6 @@ def _table_cells_to_data_frame_cells(items):
     """
 
     table_data_frame_cells = {
-        # Permian FDI data frame
-        'obs_set_name': str,
-        'part_no': str,
-        'timestamp': _convert_maybe_value(_parsed_date_with_correct_utc),
-        'delta_t': _convert_maybe_value(hms),
-        'delta_p': _convert_maybe_value(float),
-        'vol_to_pick': _convert_maybe_value(float),
         # Permian microseismic data frame
         # 'timestamp': _convert_maybe_value(hms),
         'northing': _convert_maybe_value(float),
@@ -308,13 +307,6 @@ def _table_column_to_data_frame_column(table_column_name):
         The data frame column name corresponding to `table_column_name`.
     """
     table_data_frame_columns = {
-        # Permian FDI data frame
-        'obs_set_name': 'ObservationSetName',
-        'part_no': 'TreatmentStagePartNumber',
-        'timestamp': 'Timestamp',
-        'delta_t': 'DeltaT',
-        'delta_p': 'DeltaP',
-        'vol_to_pick': 'VolumeToPick',
         # Permian microseismic data frame
         # 'timestamp': 'Timestamp',
         'northing': 'Northing',
