@@ -262,6 +262,11 @@ about_data_frame_columns = [
     AboutDataFrameColumn('delta_t', 'DeltaT', _convert_maybe_value(hms)),
     AboutDataFrameColumn('delta_p', 'DeltaP', _convert_maybe_value(float)),
     AboutDataFrameColumn('vol_to_pick', 'VolumeToPick', _convert_maybe_value(float)),
+    AboutDataFrameColumn('northing', 'Northing', _convert_maybe_value(float)),
+    AboutDataFrameColumn('depth_tvd_ss', 'DepthTvdSs', _convert_maybe_value(float)),
+    AboutDataFrameColumn('dist_3d', 'Distance3d', _convert_maybe_value(float)),
+    AboutDataFrameColumn('planar_dist_azm', 'PlanarDistanceAzimuth', _convert_maybe_value(float)),
+    AboutDataFrameColumn('vert_dist', 'VerticalDistance', _convert_maybe_value(float)),
 ]
 
 short_column_names = {about.short_name: about for about in about_data_frame_columns}
@@ -279,13 +284,6 @@ def _table_cells_to_data_frame_cells(items):
     """
 
     table_data_frame_cells = {
-        # Permian microseismic data frame
-        # 'timestamp': _convert_maybe_value(hms),
-        'northing': _convert_maybe_value(float),
-        'depth_tvd_ss': _convert_maybe_value(float),
-        'dist_3d': _convert_maybe_value(float),
-        'planar_dist_azm': _convert_maybe_value(float),
-        'vert_dist': _convert_maybe_value(float),
     }
     table_column_name, table_cells = items
     about_column = short_column_names.get(table_column_name)
@@ -307,13 +305,6 @@ def _table_column_to_data_frame_column(table_column_name):
         The data frame column name corresponding to `table_column_name`.
     """
     table_data_frame_columns = {
-        # Permian microseismic data frame
-        # 'timestamp': 'Timestamp',
-        'northing': 'Northing',
-        'depth_tvd_ss': 'DepthTvdSs',
-        'dist_3d': 'Distance3d',
-        'planar_dist_azm': 'PlanarDistanceAzimuth',
-        'vert_dist': 'VerticalDistance',
     }
     return toolz.get(table_column_name, table_data_frame_columns)
 
