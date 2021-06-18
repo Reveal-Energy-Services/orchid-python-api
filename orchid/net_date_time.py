@@ -21,6 +21,7 @@ import datetime as dt
 import enum
 from typing import Tuple
 
+import dateutil.tz as duz
 import pendulum
 import pendulum.tz as ptz
 
@@ -269,6 +270,12 @@ def net_date_time_offset_as_date_time(net_time_point: DateTimeOffset) -> pendulu
         raise NetDateTimeOffsetNonZeroOffsetError(net_time_point)
 
     return _net_time_point_to_datetime(base.constantly(ptz.UTC), net_time_point)
+
+
+def is_utc(time_point):
+    return (time_point.tzinfo == pendulum.UTC or
+            time_point.tzinfo == dt.timezone.utc or
+            time_point.tzinfo == duz.UTC)
 
 
 def _net_time_point_to_datetime(time_zone_func, net_time_point):

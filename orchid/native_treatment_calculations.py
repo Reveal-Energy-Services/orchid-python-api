@@ -17,7 +17,6 @@ from collections import namedtuple
 import datetime as dt
 from typing import Callable, Union
 
-import dateutil.tz
 import deal
 import pendulum
 
@@ -64,8 +63,8 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     return CalculationResult(calculation_measurement, warnings)
 
 
-@deal.require(lambda _stage, start, _stop: _is_utc_time_point(start), message='Expected UTC for start time zone.')
-@deal.require(lambda _stage, _start, stop: _is_utc_time_point(stop), message='Expected UTC for stop time zone.')
+@deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
+@deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
 def median_treating_pressure(stage: IStage,
                              start: Union[pendulum.DateTime, dt.datetime],
                              stop: Union[pendulum.DateTime, dt.datetime]):
@@ -92,8 +91,8 @@ def median_treating_pressure(stage: IStage,
     return result
 
 
-@deal.require(lambda _stage, start, _stop: _is_utc_time_point(start), message='Expected UTC for start time zone.')
-@deal.require(lambda _stage, _start, stop: _is_utc_time_point(stop), message='Expected UTC for stop time zone.')
+@deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
+@deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
 def pumped_fluid_volume(stage: IStage,
                         start: Union[pendulum.DateTime, dt.datetime],
                         stop: Union[pendulum.DateTime, dt.datetime]):
@@ -121,8 +120,8 @@ def pumped_fluid_volume(stage: IStage,
     return result
 
 
-@deal.require(lambda _stage, start, _stop: _is_utc_time_point(start), message='Expected UTC for start time zone.')
-@deal.require(lambda _stage, _start, stop: _is_utc_time_point(stop), message='Expected UTC for stop time zone.')
+@deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
+@deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
 def total_proppant_mass(stage: IStage,
                         start: Union[pendulum.DateTime, dt.datetime],
                         stop: Union[pendulum.DateTime, dt.datetime]):
@@ -151,9 +150,3 @@ def total_proppant_mass(stage: IStage,
 
 def _datetime_to_pendulum(source: dt.datetime) -> pendulum.DateTime:
     return pendulum.instance(source).set(tz=pendulum.UTC)
-
-
-def _is_utc_time_point(time_point):
-    return (time_point.tzinfo == pendulum.UTC or
-            time_point.tzinfo == dt.timezone.utc or
-            time_point.tzinfo == dateutil.tz.UTC)

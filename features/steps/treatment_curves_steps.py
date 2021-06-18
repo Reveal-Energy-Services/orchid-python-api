@@ -21,7 +21,7 @@ use_step_matcher("parse")
 import decimal
 
 from hamcrest import assert_that, equal_to
-import dateutil.parser
+import pendulum
 
 from orchid import (native_treatment_curve_adapter as tca,
                     unit_system as units)
@@ -49,7 +49,7 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
                   'slurry': tca.TreatmentCurveTypes.SLURRY_RATE}[curve_type]
     actual_treatment_curve = treatment_curves[curve_name]
     actual_time_stamp = actual_treatment_curve.time_series().index[index].to_pydatetime()
-    expected_time_stamp = dateutil.parser.parse(timestamp)
+    expected_time_stamp = pendulum.parse(timestamp)
     assert_that(actual_time_stamp, equal_to(expected_time_stamp))
     actual_time_series_value = actual_treatment_curve.time_series()[index]
     actual_value_magnitude = decimal.Decimal(actual_time_series_value)

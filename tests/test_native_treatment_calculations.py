@@ -16,9 +16,9 @@ from collections import namedtuple
 import datetime as dt
 import unittest.mock
 
+import dateutil.tz as duz
 import deal
 from hamcrest import assert_that, equal_to, calling, raises
-import dateutil.tz
 import pendulum
 
 from orchid import (
@@ -101,8 +101,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
              dt.datetime(2024, 10, 7, 6, 49, 44, tzinfo=dt.timezone.utc),
              dt.datetime(2024, 10, 7, 19, 35, 41, tzinfo=dt.timezone.utc)),
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 52.07),
-             dt.datetime(2021, 6, 9, 3, 25, 40,  tzinfo=dateutil.tz.UTC),
-             dt.datetime(2021, 6, 9, 9, 50, 49, tzinfo=dateutil.tz.UTC)),
+             dt.datetime(2021, 6, 9, 3, 25, 40,  tzinfo=duz.UTC),
+             dt.datetime(2021, 6, 9, 9, 50, 49, tzinfo=duz.UTC)),
         ]:
             stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
             stub_treatment_calculations = create_stub_treatment_pressure_calculation(stub_calculation_result)
@@ -174,8 +174,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
     def test_pumped_fluid_volume_correctly_handles_datetime_with_different_utc(self):
         for expected_measurement_dto, start, stop in [
             (tsn.make_measurement_dto(units.UsOilfield.VOLUME, 8658.),
-             dt.datetime(2024, 6, 23, 8, 23, 26, tzinfo=dateutil.tz.UTC),
-             dt.datetime(2024, 6, 23, 17, 58, 49, tzinfo=dateutil.tz.UTC)),
+             dt.datetime(2024, 6, 23, 8, 23, 26, tzinfo=duz.UTC),
+             dt.datetime(2024, 6, 23, 17, 58, 49, tzinfo=duz.UTC)),
             (tsn.make_measurement_dto(units.Metric.VOLUME, 1026.),
              dt.datetime(2018, 4, 16, 13, 44, 26, tzinfo=UTC),
              dt.datetime(2018, 4, 16, 22, 31, 23, tzinfo=UTC)),
@@ -241,8 +241,8 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
     def test_total_proppant_mass_correctly_handles_datetime_with_different_utc(self):
         for expected_measurement_dto, start, stop in [
             (tsn.make_measurement_dto(units.UsOilfield.MASS, 6580.),
-             dt.datetime(2020, 2, 28, 7, 52, 44, tzinfo=dateutil.tz.UTC),
-             dt.datetime(2020, 2, 28, 8, 10, 36, tzinfo=dateutil.tz.UTC)),
+             dt.datetime(2020, 2, 28, 7, 52, 44, tzinfo=duz.UTC),
+             dt.datetime(2020, 2, 28, 8, 10, 36, tzinfo=duz.UTC)),
             (tsn.make_measurement_dto(units.UsOilfield.MASS, 3829.),
              dt.datetime(2020, 2, 7, 0, 1, 37, tzinfo=UTC),
              dt.datetime(2020, 2, 7, 3, 55, 22, tzinfo=UTC)),

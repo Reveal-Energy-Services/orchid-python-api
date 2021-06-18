@@ -19,8 +19,8 @@
 from behave import *
 use_step_matcher("parse")
 
-from dateutil import parser as dup
 from hamcrest import assert_that, equal_to, is_, not_none
+import pendulum
 import toolz.curried as toolz
 
 import orchid
@@ -248,7 +248,7 @@ def step_impl(context, index, qty_name, time, value, name):
     samples = curve.time_series()
 
     actual_sample_time = samples.index[index]
-    expected_sample_time = dup.parse(time)
+    expected_sample_time = pendulum.parse(time)
     assert_that(actual_sample_time, equal_to(expected_sample_time))
 
     actual_sample_magnitude = samples[actual_sample_time]
