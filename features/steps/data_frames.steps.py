@@ -19,6 +19,7 @@
 from behave import *
 use_step_matcher("parse")
 
+from collections import namedtuple
 import datetime as dt
 
 from hamcrest import assert_that, not_none, equal_to, has_length
@@ -34,6 +35,9 @@ from orchid import (
     dot_net_dom_access as dna,
     net_date_time as net_dt,
 )
+
+
+AboutDataFrameColumn = namedtuple('AboutDataFrameColumn', ['short_name', 'full_name', 'convert_func'])
 
 
 @when("I query the project data frames identified by '{object_id}'")
@@ -197,6 +201,27 @@ _EMPTY_CONVERTER = {
 }
 
 
+@toolz.curry
+def convert_maybe_value(convert_func, v):
+    if v in _EMPTY_CONVERTER:
+        return _EMPTY_CONVERTER[v]
+
+    return convert_func(v)
+
+
+about_data_frame_columns = [
+    AboutDataFrameColumn('sample', 'Sample', int),
+    AboutDataFrameColumn('sh_easting', 'Surface  Hole Easting ', float),
+    AboutDataFrameColumn('bh_northing', 'Bottom Hole Northing ', float),
+    AboutDataFrameColumn('bh_tdv', 'Bottom Hole TDV ', float),
+    AboutDataFrameColumn('stage_no', 'StageNumber', convert_maybe_value(int)),
+    AboutDataFrameColumn('stage_length', 'StageLength', convert_maybe_value(float)),
+    AboutDataFrameColumn('p_net', 'Pnet', convert_maybe_value(float)),
+]
+
+short_column_names = {about.short_name: about for about in about_data_frame_columns}
+
+
 def _table_cells_to_data_frame_cells(items):
     """
     Map table cell data to data frame cells.
@@ -208,13 +233,6 @@ def _table_cells_to_data_frame_cells(items):
         A tuple of the transformed table column name and the transformed cells
     """
 
-    @toolz.curry
-    def convert_maybe_value(convert_func, v):
-        if v in _EMPTY_CONVERTER:
-            return _EMPTY_CONVERTER[v]
-
-        return convert_func(v)
-
     def parsed_date_with_correct_utc(text_time_point):
         parsed_time_point = pendulum.parse(text_time_point)
         if parsed_time_point.timezone_name != '+00:00':
@@ -223,14 +241,6 @@ def _table_cells_to_data_frame_cells(items):
         return parsed_time_point.set(tz=pendulum.UTC)
 
     table_data_frame_cells = {
-        # GnG project data frame
-        'sample': int,
-        'sh_easting': float,
-        'bh_northing': float,
-        'bh_tdv': float,
-        'stage_no': convert_maybe_value(int),
-        'stage_length': convert_maybe_value(float),
-        'p_net': convert_maybe_value(float),
         # GnG fault trace set data frame
         'length': float,
         'mean_azimuth': float,
@@ -284,9 +294,13 @@ def _table_cells_to_data_frame_cells(items):
         'vert_dist': convert_maybe_value(float),
     }
     table_column_name, table_cells = items
-    return (_table_column_to_data_frame_column(table_column_name),
-            toolz.map(table_data_frame_cells[table_column_name], table_cells),
-            )
+    about_column = short_column_names.get(table_column_name)
+    if about_column is not None:
+        return about_column.full_name, toolz.map(about_column.convert_func, table_cells)
+    else:
+        print('None')
+        return (_table_column_to_data_frame_column(table_column_name),
+                toolz.map(table_data_frame_cells.get(table_column_name), table_cells))
 
 
 def _table_column_to_data_frame_column(table_column_name):
@@ -300,14 +314,6 @@ def _table_column_to_data_frame_column(table_column_name):
         The data frame column name corresponding to `table_column_name`.
     """
     table_data_frame_columns = {
-        # GnG project data frame
-        'sample': 'Sample',
-        'sh_easting': 'Surface  Hole Easting ',
-        'bh_northing': 'Bottom Hole Northing ',
-        'bh_tdv': 'Bottom Hole TDV ',
-        'stage_no': 'StageNumber',
-        'stage_length': 'StageLength',
-        'p_net': 'Pnet',
         # GnG fault trace set data frame
         'length': 'Length',
         'mean_azimuth': 'MeanAzimuth',
