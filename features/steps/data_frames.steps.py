@@ -217,6 +217,26 @@ about_data_frame_columns = [
     AboutDataFrameColumn('stage_no', 'StageNumber', convert_maybe_value(int)),
     AboutDataFrameColumn('stage_length', 'StageLength', convert_maybe_value(float)),
     AboutDataFrameColumn('p_net', 'Pnet', convert_maybe_value(float)),
+    AboutDataFrameColumn('length', 'Length', float),
+    AboutDataFrameColumn('mean_azimuth', 'MeanAzimuth', float),
+    AboutDataFrameColumn('dept_max', 'DEPTMax', convert_maybe_value(float)),
+    AboutDataFrameColumn('rla4_max', 'RLA4Max', convert_maybe_value(float)),
+    AboutDataFrameColumn('tend_max', 'TENDMax', convert_maybe_value(float)),
+    AboutDataFrameColumn('pefz_mean', 'PEFZMean', convert_maybe_value(float)),
+    AboutDataFrameColumn('lcal_mean', 'LCALMean', convert_maybe_value(float)),
+    AboutDataFrameColumn('dpo_ls_min', 'DPO_LSMin', convert_maybe_value(float)),
+    AboutDataFrameColumn('tvd_ss', 'TVDSS', convert_maybe_value(float)),
+    AboutDataFrameColumn('rla3', 'RLA3', convert_maybe_value(float)),
+    AboutDataFrameColumn('dtco', 'DTCO', convert_maybe_value(float)),
+    AboutDataFrameColumn('hdra', 'HDRA', convert_maybe_value(float)),
+    AboutDataFrameColumn('rhoz', 'RHOZ', convert_maybe_value(float)),
+    AboutDataFrameColumn('lcal', 'LCAL', convert_maybe_value(float)),
+    AboutDataFrameColumn('marker_description', 'Marker Description', convert_maybe_value(str)),
+    AboutDataFrameColumn('horizon_marker_set', 'Horizon Marker Set', str),
+    AboutDataFrameColumn('boundary_type', 'Boundary Type', str),
+    AboutDataFrameColumn('well', 'Well', str),
+    AboutDataFrameColumn('md', 'MD', convert_maybe_value(float)),
+    AboutDataFrameColumn('tvd', 'TVD', convert_maybe_value(float)),
 ]
 
 short_column_names = {about.short_name: about for about in about_data_frame_columns}
@@ -241,30 +261,6 @@ def _table_cells_to_data_frame_cells(items):
         return parsed_time_point.set(tz=pendulum.UTC)
 
     table_data_frame_cells = {
-        # GnG fault trace set data frame
-        'length': float,
-        'mean_azimuth': float,
-        # GnG stage data frame
-        'dept_max': convert_maybe_value(float),
-        'rla4_max': convert_maybe_value(float),
-        'tend_max': convert_maybe_value(float),
-        'pefz_mean': convert_maybe_value(float),
-        'lcal_mean': convert_maybe_value(float),
-        'dpo_ls_min': convert_maybe_value(float),
-        # GnG well log set data frame
-        'tvd_ss': convert_maybe_value(float),
-        'rla3': convert_maybe_value(float),
-        'dtco': convert_maybe_value(float),
-        'hdra': convert_maybe_value(float),
-        'rhoz': convert_maybe_value(float),
-        'lcal': convert_maybe_value(float),
-        # GnG horizon marker set data frame
-        'marker_description': convert_maybe_value(str),
-        'horizon_marker_set': str,
-        'boundary_type': str,
-        'well': str,
-        'md': convert_maybe_value(float),
-        'tvd': convert_maybe_value(float),
         # Permian project data frame
         'bh_easting': convert_maybe_value(float),
         'md_bottom': convert_maybe_value(float),
@@ -314,30 +310,6 @@ def _table_column_to_data_frame_column(table_column_name):
         The data frame column name corresponding to `table_column_name`.
     """
     table_data_frame_columns = {
-        # GnG fault trace set data frame
-        'length': 'Length',
-        'mean_azimuth': 'MeanAzimuth',
-        # GnG stage data frame
-        'dept_max': 'DEPTMax',
-        'rla4_max': 'RLA4Max',
-        'tend_max': 'TENDMax',
-        'pefz_mean': 'PEFZMean',
-        'lcal_mean': 'LCALMean',
-        'dpo_ls_min': 'DPO_LSMin',
-        # GnG well log set data frame
-        'tvd_ss': 'TVDSS',
-        'rla3': 'RLA3',
-        'dtco': 'DTCO',
-        'hdra': 'HDRA',
-        'rhoz': 'RHOZ',
-        'lcal': 'LCAL',
-        # GnG horizon marker set data frame
-        'marker_description': 'Marker Description',
-        'horizon_marker_set': 'Horizon Marker Set',
-        'boundary_type': 'Boundary Type',
-        'well': 'Well',
-        'md': 'MD',
-        'tvd': 'TVD',
         # Permian project data frame
         'bh_easting': 'Bottom Hole Easting ',
         'md_top': 'MDTop',
