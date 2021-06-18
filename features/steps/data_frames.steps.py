@@ -202,11 +202,19 @@ _EMPTY_CONVERTER = {
 
 
 @toolz.curry
-def convert_maybe_value(convert_func, v):
+def _convert_maybe_value(convert_func, v):
     if v in _EMPTY_CONVERTER:
         return _EMPTY_CONVERTER[v]
 
     return convert_func(v)
+
+
+def _parsed_date_with_correct_utc(text_time_point):
+    parsed_time_point = pendulum.parse(text_time_point)
+    if parsed_time_point.timezone_name != '+00:00':
+        return parsed_time_point
+
+    return parsed_time_point.set(tz=pendulum.UTC)
 
 
 about_data_frame_columns = [
@@ -214,29 +222,40 @@ about_data_frame_columns = [
     AboutDataFrameColumn('sh_easting', 'Surface  Hole Easting ', float),
     AboutDataFrameColumn('bh_northing', 'Bottom Hole Northing ', float),
     AboutDataFrameColumn('bh_tdv', 'Bottom Hole TDV ', float),
-    AboutDataFrameColumn('stage_no', 'StageNumber', convert_maybe_value(int)),
-    AboutDataFrameColumn('stage_length', 'StageLength', convert_maybe_value(float)),
-    AboutDataFrameColumn('p_net', 'Pnet', convert_maybe_value(float)),
+    AboutDataFrameColumn('stage_no', 'StageNumber', _convert_maybe_value(int)),
+    AboutDataFrameColumn('stage_length', 'StageLength', _convert_maybe_value(float)),
+    AboutDataFrameColumn('p_net', 'Pnet', _convert_maybe_value(float)),
     AboutDataFrameColumn('length', 'Length', float),
     AboutDataFrameColumn('mean_azimuth', 'MeanAzimuth', float),
-    AboutDataFrameColumn('dept_max', 'DEPTMax', convert_maybe_value(float)),
-    AboutDataFrameColumn('rla4_max', 'RLA4Max', convert_maybe_value(float)),
-    AboutDataFrameColumn('tend_max', 'TENDMax', convert_maybe_value(float)),
-    AboutDataFrameColumn('pefz_mean', 'PEFZMean', convert_maybe_value(float)),
-    AboutDataFrameColumn('lcal_mean', 'LCALMean', convert_maybe_value(float)),
-    AboutDataFrameColumn('dpo_ls_min', 'DPO_LSMin', convert_maybe_value(float)),
-    AboutDataFrameColumn('tvd_ss', 'TVDSS', convert_maybe_value(float)),
-    AboutDataFrameColumn('rla3', 'RLA3', convert_maybe_value(float)),
-    AboutDataFrameColumn('dtco', 'DTCO', convert_maybe_value(float)),
-    AboutDataFrameColumn('hdra', 'HDRA', convert_maybe_value(float)),
-    AboutDataFrameColumn('rhoz', 'RHOZ', convert_maybe_value(float)),
-    AboutDataFrameColumn('lcal', 'LCAL', convert_maybe_value(float)),
-    AboutDataFrameColumn('marker_description', 'Marker Description', convert_maybe_value(str)),
+    AboutDataFrameColumn('dept_max', 'DEPTMax', _convert_maybe_value(float)),
+    AboutDataFrameColumn('rla4_max', 'RLA4Max', _convert_maybe_value(float)),
+    AboutDataFrameColumn('tend_max', 'TENDMax', _convert_maybe_value(float)),
+    AboutDataFrameColumn('pefz_mean', 'PEFZMean', _convert_maybe_value(float)),
+    AboutDataFrameColumn('lcal_mean', 'LCALMean', _convert_maybe_value(float)),
+    AboutDataFrameColumn('dpo_ls_min', 'DPO_LSMin', _convert_maybe_value(float)),
+    AboutDataFrameColumn('tvd_ss', 'TVDSS', _convert_maybe_value(float)),
+    AboutDataFrameColumn('rla3', 'RLA3', _convert_maybe_value(float)),
+    AboutDataFrameColumn('dtco', 'DTCO', _convert_maybe_value(float)),
+    AboutDataFrameColumn('hdra', 'HDRA', _convert_maybe_value(float)),
+    AboutDataFrameColumn('rhoz', 'RHOZ', _convert_maybe_value(float)),
+    AboutDataFrameColumn('lcal', 'LCAL', _convert_maybe_value(float)),
+    AboutDataFrameColumn('marker_description', 'Marker Description', _convert_maybe_value(str)),
     AboutDataFrameColumn('horizon_marker_set', 'Horizon Marker Set', str),
     AboutDataFrameColumn('boundary_type', 'Boundary Type', str),
     AboutDataFrameColumn('well', 'Well', str),
-    AboutDataFrameColumn('md', 'MD', convert_maybe_value(float)),
-    AboutDataFrameColumn('tvd', 'TVD', convert_maybe_value(float)),
+    AboutDataFrameColumn('md', 'MD', _convert_maybe_value(float)),
+    AboutDataFrameColumn('tvd', 'TVD', _convert_maybe_value(float)),
+    AboutDataFrameColumn('bh_easting', 'Bottom Hole Easting ', _convert_maybe_value(float)),
+    AboutDataFrameColumn('md_bottom', 'MDBottom', _convert_maybe_value(float)),
+    AboutDataFrameColumn('md_top', 'MDTop', _convert_maybe_value(float)),
+    AboutDataFrameColumn('part_start_time', 'PartStartTime', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('part_end_time', 'PartEndTime', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('part_pumped_vol', 'StagePartPumpedVolume', _convert_maybe_value(float)),
+    AboutDataFrameColumn('pnet', 'Pnet', _convert_maybe_value(float)),
+    AboutDataFrameColumn('pump_time', 'PumpTime', _convert_maybe_value(int)),
+    AboutDataFrameColumn('stage_start_time', 'StageStartTime', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('stage_pumped_vol', 'StagePumpedVolume', _convert_maybe_value(float)),
+    AboutDataFrameColumn('well_name', 'WellName', _convert_maybe_value(str)),
 ]
 
 short_column_names = {about.short_name: about for about in about_data_frame_columns}
@@ -253,41 +272,21 @@ def _table_cells_to_data_frame_cells(items):
         A tuple of the transformed table column name and the transformed cells
     """
 
-    def parsed_date_with_correct_utc(text_time_point):
-        parsed_time_point = pendulum.parse(text_time_point)
-        if parsed_time_point.timezone_name != '+00:00':
-            return parsed_time_point
-
-        return parsed_time_point.set(tz=pendulum.UTC)
-
     table_data_frame_cells = {
-        # Permian project data frame
-        'bh_easting': convert_maybe_value(float),
-        'md_bottom': convert_maybe_value(float),
-        'md_top': convert_maybe_value(float),
-        'part_start_time': convert_maybe_value(parsed_date_with_correct_utc),
-        'part_end_time': convert_maybe_value(parsed_date_with_correct_utc),
-        'part_pumped_vol': convert_maybe_value(float),
-        'pnet': convert_maybe_value(float),
-        'pump_time': convert_maybe_value(int),
-        # 'sh_easting': float,
-        'stage_start_time': convert_maybe_value(parsed_date_with_correct_utc),
-        'stage_pumped_vol': convert_maybe_value(float),
-        'well_name': convert_maybe_value(str),
         # Permian FDI data frame
         'obs_set_name': str,
         'part_no': str,
-        'timestamp': convert_maybe_value(parsed_date_with_correct_utc),
-        'delta_t': convert_maybe_value(hms),
-        'delta_p': convert_maybe_value(float),
-        'vol_to_pick': convert_maybe_value(float),
+        'timestamp': _convert_maybe_value(_parsed_date_with_correct_utc),
+        'delta_t': _convert_maybe_value(hms),
+        'delta_p': _convert_maybe_value(float),
+        'vol_to_pick': _convert_maybe_value(float),
         # Permian microseismic data frame
-        # 'timestamp': convert_maybe_value(hms),
-        'northing': convert_maybe_value(float),
-        'depth_tvd_ss': convert_maybe_value(float),
-        'dist_3d': convert_maybe_value(float),
-        'planar_dist_azm': convert_maybe_value(float),
-        'vert_dist': convert_maybe_value(float),
+        # 'timestamp': _convert_maybe_value(hms),
+        'northing': _convert_maybe_value(float),
+        'depth_tvd_ss': _convert_maybe_value(float),
+        'dist_3d': _convert_maybe_value(float),
+        'planar_dist_azm': _convert_maybe_value(float),
+        'vert_dist': _convert_maybe_value(float),
     }
     table_column_name, table_cells = items
     about_column = short_column_names.get(table_column_name)
@@ -310,18 +309,6 @@ def _table_column_to_data_frame_column(table_column_name):
         The data frame column name corresponding to `table_column_name`.
     """
     table_data_frame_columns = {
-        # Permian project data frame
-        'bh_easting': 'Bottom Hole Easting ',
-        'md_top': 'MDTop',
-        'md_bottom': 'MDBottom',
-        'part_end_time': 'PartEndTime',
-        'part_start_time': 'PartStartTime',
-        'part_pumped_vol': 'StagePartPumpedVolume',
-        'pnet': 'Pnet',
-        'pump_time': 'PumpTime',
-        'stage_start_time': 'StageStartTime',
-        'stage_pumped_vol': 'StagePumpedVolume',
-        'well_name': 'WellName',
         # Permian FDI data frame
         'obs_set_name': 'ObservationSetName',
         'part_no': 'TreatmentStagePartNumber',
