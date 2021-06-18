@@ -23,14 +23,25 @@ Feature: Adapted IDataFrame DOM API
     When I query the project data frames identified by '<object_id>'
     Then I see a single data frame identified by <object_id>
 
-    Examples: Object ID
+    Examples: Permian Uncorrupted
       | field     | object_id                            |
       | Permian-u | c08e6988-d8f5-4d7b-bccd-de968a5b398b |
       | Permian-u | 08bea47e-5160-4f32-b8c4-3b3efa3d512b |
       | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 |
+      | Permian-u | ce279d16-355c-4868-bbe7-21a8cb69cbc0 |
+      | Permian-u | f1d406e6-c264-4d10-9fd5-b47a7be04aa9 |
+      | Permian-u | 5304d2ac-dbf8-44db-8dd8-c2203714c456 |
+      | Permian-u | 2b482b37-964e-4a54-89d3-8a28c24fe0c0 |
+      | Permian-u | 34ec8d14-96b2-4156-abfd-18fe58e978e2 |
+
+    Examples: Permian Corrupted
+      | field     | object_id                            |
       | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f |
       | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 |
       | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 |
+
+    Examples: GnG
+      | field     | object_id                            |
       | GnG       | 9acfc88f-44f3-4f23-ac78-6ca94bae2d84 |
       | GnG       | db5dc0c7-9132-4270-9bff-2bbf32ed93e3 |
       | GnG       | e16f00ad-4c42-4726-8996-22a4632beaa9 |
@@ -42,14 +53,25 @@ Feature: Adapted IDataFrame DOM API
     When I query all the project data frames by <name> and by <display_name>
     Then I see a single data frame alternatively identified by <name> and <display_name>
 
-    Examples: Names
+    Examples: Permian Uncorrupted
       | field     | name                                                  | display_name                                          |
       | Permian-u | Project Data Frame 01                                 | Project Data Frame 01                                 |
       | Permian-u | FDI Observations                                      | FDI Observations                                      |
-      | Permian-u | C3-Microseismic Data Frame 01                         | C3-Microseismic Data Frame 01                         |
+      | Permian-u | Microseismic Data Frame 01 (Potentially Corrupted)    | Microseismic Data Frame 01 (Potentially Corrupted)    |
+      | Permian-u | Stage Data Frame 01                                   | Stage Data Frame 01                                   |
+      | Permian-u | Well Log Set Data Frame 01                            | Well Log Set Data Frame 01                            |
+      | Permian-u | C2-stg12_Xft_Permian_Edited_19-Nov-2018               | C2-stg12_Xft_Permian_Edited_19-Nov-2018               |
+      | Permian-u | Fault Trace Set Data Frame 01                         | Fault Trace Set Data Frame 01                         |
+      | Permian-u | Fault Set Data Frame 01                               | Fault Set Data Frame 01                               |
+
+    Examples: Permian Corrupted
+      | field     | name                                                  | display_name                                          |
       | Permian-c | Project Data Frame 01 (Potentially Corrupted)         | Project Data Frame 01 (Potentially Corrupted)         |
       | Permian-c | FDI Observations (Potentially Corrupted)              | FDI Observations (Potentially Corrupted)              |
       | Permian-c | C3-Microseismic Data Frame 01 (Potentially Corrupted) | C3-Microseismic Data Frame 01 (Potentially Corrupted) |
+
+    Examples: GnG
+      | field     | name                                                  | display_name                                          |
       | GnG       | Project Data Frame 01                                 | Project Data Frame 01                                 |
       | GnG       | Fault Trace Set Data Frame 01                         | Fault Trace Set Data Frame 01                         |
       | GnG       | Stage Data Frame 01                                   | Stage Data Frame 01                                   |
@@ -62,23 +84,48 @@ Feature: Adapted IDataFrame DOM API
     When I query the project data frames identified by '<object_id>'
     Then I see the specified data frame <is_potentially_corrupt>
 
-    Examples: Object ID
+    Examples: Permian Uncorrupted
       | field     | object_id                            | is_potentially_corrupt |
       | Permian-u | c08e6988-d8f5-4d7b-bccd-de968a5b398b | False                  |
       | Permian-u | 08bea47e-5160-4f32-b8c4-3b3efa3d512b | False                  |
-      | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 | False                  |
+      | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 | True                   |
+      | Permian-u | ce279d16-355c-4868-bbe7-21a8cb69cbc0 | False                  |
+      | Permian-u | f1d406e6-c264-4d10-9fd5-b47a7be04aa9 | False                  |
+      | Permian-u | 5304d2ac-dbf8-44db-8dd8-c2203714c456 | False                  |
+      | Permian-u | 2b482b37-964e-4a54-89d3-8a28c24fe0c0 | False                  |
+      | Permian-u | 34ec8d14-96b2-4156-abfd-18fe58e978e2 | False                  |
+
+    Examples: Permian Corrupted
+      | field     | object_id                            | is_potentially_corrupt |
       | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
       | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
       | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | True                   |
+
+    Examples: GnG
+      | field     | object_id                            | is_potentially_corrupt |
       | GnG       | 9acfc88f-44f3-4f23-ac78-6ca94bae2d84 | False                  |
       | GnG       | db5dc0c7-9132-4270-9bff-2bbf32ed93e3 | False                  |
       | GnG       | e16f00ad-4c42-4726-8996-22a4632beaa9 | False                  |
       | GnG       | a287e63d-fd15-48e8-b5fc-99eb57244f18 | False                  |
       | GnG       | 1cef6417-acb4-478c-b270-ca7022fc6003 | False                  |
 
-  Scenario: Sampled Permian project data frame have the correct cells
+  Scenario: Sampled, uncorrupted Permian project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Project Data Frame 01'
+    Then I see the sampled cells
+      | sample | well_name | sh_easting  | md_top  | stage_start_time             | part_start_time              | stage_pumped_vol |
+      | 0      | C1        | 11669250.21 | 16573.0 | 2018-11-13T20:22:53.0000000Z | 2018-11-13T20:22:53.0000000Z | 8423.638083      |
+      | 13     | C1        | 11669250.21 | 14113.0 | 2018-11-26T01:24:01.0000000Z | 2018-11-26T01:24:01.0000000Z | 8959.202375      |
+      | 17     | C1        | 11669250.21 | 13633.0 | 2018-11-27T08:11:02.0000000Z | 2018-11-27T08:11:02.0000000Z | 8741.879058      |
+      | 36     | C2        | 11669250.83 | 14989.0 | 2018-11-19T22:33:33.0000000Z | 2018-11-19T22:33:33.0000000Z | 9852.505017      |
+      | 48     | C2        | 11669250.83 | 13189.0 | 2018-11-26T04:33:33.0000000Z | 2018-11-26T04:33:33.0000000Z | 9430.669033      |
+      | 78     | C3        | 11669252.01 | 13688.0 | 2018-11-24T03:56:51.0000000Z | 2018-11-24T03:56:51.0000000Z | 6687.335867      |
+      | 85     | C3        | 11669252.01 | 12638.0 | 2018-11-28T20:29:26.0000000Z | 2018-11-28T20:29:26.0000000Z | 7459.488292      |
+      | 87     | P1        | 11669251.42 | NaN     | NaT                          | NaT                          | NaN              |
+
+  Scenario: Sampled, corrupted Permian project data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-c'
+    When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
       | sample | bh_easting   | md_bottom | part_end_time                 | part_pumped_vol | pnet        | pump_time |
       | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40.000+00:00 | 8423.638083     | 7522.805942 | 135       |
@@ -90,9 +137,9 @@ Feature: Adapted IDataFrame DOM API
       | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47.000+00:00 | 10059.747108    | 7555.899247 | 147       |
       | 87     | 2.141879e+06 | NaN       | NaT                           | NaN             | NaN         | NaN       |
 
-  Scenario: Sampled Permian FDI data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-u'
-    When I query the loaded project for the data frame named 'FDI Observations'
+  Scenario: Sampled, corrupted Permian FDI data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-c'
+    When I query the loaded project for the data frame named 'FDI Observations (Potentially Corrupted)'
     Then I see the sampled cells
       | sample | obs_set_name     | part_no  | timestamp                     | delta_t          | delta_p    | vol_to_pick  |
       | 0      | FDI Observations | Stage-01 | 2018-11-13T21:45:11.987+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
@@ -105,9 +152,9 @@ Feature: Adapted IDataFrame DOM API
       | 53     | FDI Observations | Stage-01 | 2018-11-12T17:07:02.302+00:00 | 02:52:32.3021312 | 214.641797 | 11681.990733 |
       | 83     | FDI Observations | Stage-31 | 2018-11-29T04:02:02.864+00:00 | 01:55:11.8648576 | 31.818509  | 6803.360483  |
 
-  Scenario: Sampled Permian microseismic data frame have the correct cells
-    Given I have loaded the project for the field, 'Permian-u'
-    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01'
+  Scenario: Sampled, corrupted Permian microseismic data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-c'
+    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
       | sample | timestamp                     | northing    | depth_tvd_ss | dist_3d    | planar_dist_azm | vert_dist  |
       | 0      | 2018-11-12T14:14:30.000+00:00 | 11663896.37 | 11468.62     | 499.111743 | NaN             | NaN        |

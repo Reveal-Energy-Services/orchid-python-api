@@ -258,10 +258,16 @@ def _table_cells_to_data_frame_cells(items):
         # Permian project data frame
         'bh_easting': convert_maybe_value(float),
         'md_bottom': convert_maybe_value(float),
+        'md_top': convert_maybe_value(float),
+        'part_start_time': convert_maybe_value(parsed_date_with_correct_utc),
         'part_end_time': convert_maybe_value(parsed_date_with_correct_utc),
         'part_pumped_vol': convert_maybe_value(float),
         'pnet': convert_maybe_value(float),
         'pump_time': convert_maybe_value(int),
+        # 'sh_easting': float,
+        'stage_start_time': convert_maybe_value(parsed_date_with_correct_utc),
+        'stage_pumped_vol': convert_maybe_value(float),
+        'well_name': convert_maybe_value(str),
         # Permian FDI data frame
         'obs_set_name': str,
         'part_no': str,
@@ -328,11 +334,16 @@ def _table_column_to_data_frame_column(table_column_name):
         'tvd': 'TVD',
         # Permian project data frame
         'bh_easting': 'Bottom Hole Easting ',
+        'md_top': 'MDTop',
         'md_bottom': 'MDBottom',
         'part_end_time': 'PartEndTime',
+        'part_start_time': 'PartStartTime',
         'part_pumped_vol': 'StagePartPumpedVolume',
         'pnet': 'Pnet',
         'pump_time': 'PumpTime',
+        'stage_start_time': 'StageStartTime',
+        'stage_pumped_vol': 'StagePumpedVolume',
+        'well_name': 'WellName',
         # Permian FDI data frame
         'obs_set_name': 'ObservationSetName',
         'part_no': 'TreatmentStagePartNumber',
