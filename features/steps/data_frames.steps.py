@@ -293,7 +293,6 @@ def _table_cells_to_data_frame_cells(items):
     if about_column is not None:
         return about_column.full_name, toolz.map(about_column.convert_func, table_cells)
     else:
-        print('None')
         return (_table_column_to_data_frame_column(table_column_name),
                 toolz.map(table_data_frame_cells.get(table_column_name), table_cells))
 
