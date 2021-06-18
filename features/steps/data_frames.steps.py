@@ -283,30 +283,9 @@ def _table_cells_to_data_frame_cells(items):
         A tuple of the transformed table column name and the transformed cells
     """
 
-    table_data_frame_cells = {
-    }
     table_column_name, table_cells = items
     about_column = short_column_names.get(table_column_name)
-    if about_column is not None:
-        return about_column.full_name, toolz.map(about_column.convert_func, table_cells)
-    else:
-        return (_table_column_to_data_frame_column(table_column_name),
-                toolz.map(table_data_frame_cells.get(table_column_name), table_cells))
-
-
-def _table_column_to_data_frame_column(table_column_name):
-    """
-    Convert a table column heading ta a data frame column heading.
-
-    Args:
-        table_column_name: The expected table column heading.
-
-    Returns:
-        The data frame column name corresponding to `table_column_name`.
-    """
-    table_data_frame_columns = {
-    }
-    return toolz.get(table_column_name, table_data_frame_columns)
+    return about_column.full_name, toolz.map(about_column.convert_func, table_cells)
 
 
 def _find_data_frame_by_id(object_id, data_frames):
