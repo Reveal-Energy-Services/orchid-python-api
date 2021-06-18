@@ -209,6 +209,13 @@ def _convert_maybe_value(convert_func, v):
     return convert_func(v)
 
 
+def _convert_signal_quality(signal_quality_text):
+    if signal_quality_text == 'Undrained Rock Deformation':
+        return 'Undrained Rock Deformation - Compressive Interaction'
+
+    return signal_quality_text
+
+
 def _parsed_date_with_correct_utc(text_time_point):
     parsed_time_point = pendulum.parse(text_time_point)
     if parsed_time_point.timezone_name != '+00:00':
@@ -248,12 +255,15 @@ about_data_frame_columns = [
     AboutDataFrameColumn('pefz_mean', 'PEFZMean', _convert_maybe_value(float)),
     AboutDataFrameColumn('planar_dist_azm', 'PlanarDistanceAzimuth', _convert_maybe_value(float)),
     AboutDataFrameColumn('p_net', 'Pnet', _convert_maybe_value(float)),
+    AboutDataFrameColumn('proppant_mass', 'ProppantMass', _convert_maybe_value(float)),
     AboutDataFrameColumn('pump_time', 'PumpTime', _convert_maybe_value(int)),
     AboutDataFrameColumn('rhoz', 'RHOZ', _convert_maybe_value(float)),
     AboutDataFrameColumn('rla3', 'RLA3', _convert_maybe_value(float)),
     AboutDataFrameColumn('rla4_max', 'RLA4Max', _convert_maybe_value(float)),
     AboutDataFrameColumn('sample', 'Sample', int),
     AboutDataFrameColumn('sh_easting', 'Surface  Hole Easting ', float),
+    AboutDataFrameColumn('shortest_distance', 'Shortest distance', _convert_maybe_value(float)),
+    AboutDataFrameColumn('signal_quality', 'SignalQuality', _convert_maybe_value(_convert_signal_quality)),
     AboutDataFrameColumn('stage_length', 'StageLength', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_no', 'StageNumber', _convert_maybe_value(int)),
     AboutDataFrameColumn('stage_pumped_vol', 'StagePumpedVolume', _convert_maybe_value(float)),
@@ -283,7 +293,7 @@ def _table_cells_to_data_frame_cells(items):
     """
 
     table_column_name, table_cells = items
-    about_column = short_column_names.get(table_column_name)
+    about_column = short_column_names[table_column_name]
     return about_column.full_name, toolz.map(about_column.convert_func, table_cells)
 
 

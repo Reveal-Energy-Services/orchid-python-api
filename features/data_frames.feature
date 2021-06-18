@@ -123,6 +123,20 @@ Feature: Adapted IDataFrame DOM API
       | 85     | C3        | 11669252.01 | 12638.0 | 2018-11-28T20:29:26.0000000Z | 2018-11-28T20:29:26.0000000Z | 7459.488292      |
       | 87     | P1        | 11669251.42 | NaN     | NaT                          | NaT                          | NaN              |
 
+  Scenario: Sampled, uncorrupted Permian FDI data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'FDI Observations'
+    Then I see the sampled cells
+      | sample | part_no  | signal_quality              | delta_p    | vol_to_pick  | proppant_mass | shortest_distance |
+      | 0      | Stage-01 | Undrained Rock Deformation  | 0.362115   | 4299.649417  | 135495.624893 | 628.092773        |
+      | 10     | Stage-17 | Fluid Migration Interaction | 46.838932  | NaN          | NaN           | 663.717590        |
+      | 27     | Stage-01 | Undrained Rock Deformation  | 3.892947   | 8563.758042  | 351419.283977 | 354.507355        |
+      | 53     | Stage-01 | Direct Fluid Interaction    | 214.641797 | 11681.990733 | 423145.607052 | 362.139343        |
+      | 60     | Stage-08 | Direct Fluid Interaction    | 253.457265 | 4356.223542  | 146322.501939 | 341.178040        |
+      | 61     | Stage-09 | Direct Fluid Interaction    | 214.359331 | 10053.929217 | 401512.369764 | 343.623596        |
+      | 74     | Stage-22 | Undrained Rock Deformation  | 88.868507  | 7002.337483  | 264706.742102 | 344.454193        |
+      | 83     | Stage-31 | Undrained Rock Deformation  | 31.818509  | 6803.360483  | 258659.430068 | 318.085876        |
+
   Scenario: Sampled, corrupted Permian project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
