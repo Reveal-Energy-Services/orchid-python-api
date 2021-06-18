@@ -137,6 +137,20 @@ Feature: Adapted IDataFrame DOM API
       | 74     | Stage-22 | Undrained Rock Deformation  | 88.868507  | 7002.337483  | 264706.742102 | 344.454193        |
       | 83     | Stage-31 | Undrained Rock Deformation  | 31.818509  | 6803.360483  | 258659.430068 | 318.085876        |
 
+  Scenario: Sampled, uncorrupted Permian FDI data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'Microseismic Data Frame 01 (Potentially Corrupted)'
+    Then I see the sampled cells
+      | sample | timestamp                    | depth_tvd_ss                | stage_no   | planar_dist_azm | distance_azm  | distance_90       |
+      | 0      | 2018-11-12T14:14:30.0000000Z | 11468.62                    | 1.0        | NaN             | NaN           | NaN               |
+      | 19     | 2018-11-12T14:58:24.4000000Z | 11433.23                    | 1.0        | 178.730000      | 179.252781    | 179.272690        |
+      | 22     | 2018-11-24T21:08:00.0000000Z | 11478.89                    | 25.0       | 638.648125      | 640.391847    | 640.493408        |
+      | 160    | 2018-11-28T13:18:43.6360000Z | 11354.53                    | 29.0       | 80.664159       | 117.771116    | 117.829727        |
+      | 310    | 2018-11-15T02:33:00.0000000Z | 11357.80                    | 6.0        | 2.983287        | 88.369512     | 88.370270         |
+      | 327    | 2018-11-21T07:48:18.4620000Z | 11464.12                    | 21.0       | 360.153257      | 360.529990    | 360.626648        |
+      | 438    | 2018-11-18T19:36:46.6670000Z | 11462.53                    | 13.0       | 184.259261      | 186.263173    | 186.254044        |
+      | 479    | 2018-11-19T21:25:23.0770000Z | 11395.45                    | 16.0       | 180.208587      | 186.259267    | 186.299286        |
+
   Scenario: Sampled, corrupted Permian project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
