@@ -127,7 +127,7 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
-      | sample | bh_easting   | md_bottom | part_end_time                 | part_pumped_vol | pnet        | pump_time |
+      | sample | bh_easting   | md_bottom | part_end_time                 | part_pumped_vol | p_net       | pump_time |
       | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40.000+00:00 | 8423.638083     | 7522.805942 | 135       |
       | 31     | 2.141585e+06 | 15865.0   | 2018-11-18T07:17:34.942+00:00 | 10292.204517    | 8128.011899 | 199       |
       | 39     | 2.141585e+06 | 14671.0   | 2018-11-20T22:10:27.000+00:00 | 10835.269733    | 7546.839462 | 209       |
