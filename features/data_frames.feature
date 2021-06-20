@@ -151,7 +151,7 @@ Feature: Adapted IDataFrame DOM API
       | 405    | 11667844.41 | 0.009308    | 254.010571 | 253.549584 | 235.283835 | 235.172806 | 17.776367  |
       | 479    | 11666700.54 | 0.003202    | 237.502735 | 233.605190 | 186.259267 | 186.299286 | 47.088867  |
 
-  Scenario: Sampled Permian 06-16 FDI data frame have the correct cells
+  Scenario: Sampled Permian 06-16 stage data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Stage Data Frame 01'
     Then I see the sampled cells
@@ -164,6 +164,20 @@ Feature: Adapted IDataFrame DOM API
       | 20     | 13273.0  | None     | 3556.1211 | None      | None     | None     | 2.6642   |
       | 22     | 13033.0  | None     | 3349.8164 | None      | None     | None     | 2.6150   |
       | 24     | 12793.0  | None     | 3425.6147 | None      | None     | None     | 2.6258   |
+
+  Scenario: Sampled Permian 06-16 well log set data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'Well Log Set Data Frame 01'
+    Then I see the sampled cells
+      | sample | dtco    | tnph_ls | rhoz   | hsgrd   | aplc_ls | dpo_ls | rhom   |
+      | 0      | NaN     | 0.5430  | NaN    | NaN     | NaN     | NaN    | NaN    |
+      | 5505   | 79.3469 | 0.2002  | 2.3959 | NaN     | NaN     | NaN    | NaN    |
+      | 5570   | 75.2105 | 0.2342  | 2.4360 | NaN     | NaN     | NaN    | NaN    |
+      | 7211   | 70.3145 | 0.1728  | 2.5795 | NaN     | NaN     | NaN    | NaN    |
+      | 7435   | 63.1550 | 0.0895  | 2.5584 | NaN     | NaN     | NaN    | NaN    |
+      | 8164   | 65.9307 | 0.1062  | 2.5278 | NaN     | NaN     | NaN    | NaN    |
+      | 15242  | NaN     | NaN     | NaN    | 84.7616 | 0.0613  | 0.0209 | 2.6723 |
+      | 17745  | NaN     | NaN     | NaN    | NaN     | NaN     | NaN    | NaN    |
 
   Scenario: Sampled Permian 04-12 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'

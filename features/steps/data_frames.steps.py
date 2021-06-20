@@ -225,6 +225,7 @@ def _parsed_date_with_correct_utc(text_time_point):
 
 
 about_data_frame_columns = [
+    AboutDataFrameColumn('aplc_ls', 'APLC_LS', _convert_maybe_value(float)),
     AboutDataFrameColumn('bh_easting', 'Bottom Hole Easting ', _convert_maybe_value(float)),
     AboutDataFrameColumn('bh_northing', 'Bottom Hole Northing ', float),
     AboutDataFrameColumn('bh_tdv', 'Bottom Hole TDV ', float),
@@ -239,6 +240,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('dist_along_azm', 'Distance along the Azimuth', _convert_maybe_value(float)),
     AboutDataFrameColumn('dist_azm', 'DistanceAzimuth', _convert_maybe_value(float)),
     AboutDataFrameColumn('dist_90', 'Distance90', _convert_maybe_value(float)),
+    AboutDataFrameColumn('dpo_ls', 'DPO_LS', _convert_maybe_value(float)),
     AboutDataFrameColumn('dpo_ls_min', 'DPO_LSMin', _convert_maybe_value(float)),
     AboutDataFrameColumn('dtco', 'DTCO', _convert_maybe_value(float)),
     AboutDataFrameColumn('dtco_min', 'DTCOMin', _convert_maybe_value(float)),
@@ -246,6 +248,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('hdra', 'HDRA', _convert_maybe_value(float)),
     AboutDataFrameColumn('hdra_min', 'HDRAMin', _convert_maybe_value(float)),
     AboutDataFrameColumn('horizon_marker_set', 'Horizon Marker Set', str),
+    AboutDataFrameColumn('hsgrd', 'HSGRD', _convert_maybe_value(float)),
     AboutDataFrameColumn('lcal', 'LCAL', _convert_maybe_value(float)),
     AboutDataFrameColumn('lcal_mean', 'LCALMean', _convert_maybe_value(float)),
     AboutDataFrameColumn('length', 'Length', float),
@@ -266,6 +269,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('p_net', 'Pnet', _convert_maybe_value(float)),
     AboutDataFrameColumn('proppant_mass', 'ProppantMass', _convert_maybe_value(float)),
     AboutDataFrameColumn('pump_time', 'PumpTime', _convert_maybe_value(int)),
+    AboutDataFrameColumn('rhom', 'RHOM', _convert_maybe_value(float)),
     AboutDataFrameColumn('rhom_max', 'RHOMMax', _convert_maybe_value(float)),
     AboutDataFrameColumn('rhoz', 'RHOZ', _convert_maybe_value(float)),
     AboutDataFrameColumn('rla3', 'RLA3', _convert_maybe_value(float)),
@@ -282,6 +286,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('ten_min', 'TENMin', _convert_maybe_value(float)),
     AboutDataFrameColumn('tend_max', 'TENDMax', _convert_maybe_value(float)),
     AboutDataFrameColumn('timestamp', 'Timestamp', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('tnph_ls', 'TNPH_LS', _convert_maybe_value(float)),
     AboutDataFrameColumn('tr_stg_part_no', 'TreatmentStagePartNumber', _convert_maybe_value(str)),
     AboutDataFrameColumn('tr_well', 'TreatmentWellName', _convert_maybe_value(str)),
     AboutDataFrameColumn('tvd', 'TVD', _convert_maybe_value(float)),
