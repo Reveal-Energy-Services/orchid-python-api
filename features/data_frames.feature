@@ -137,19 +137,19 @@ Feature: Adapted IDataFrame DOM API
       | 82     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 129.501522  | 7283.534992  | 358.738800     |
       | 83     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 115.197748  | 6803.360483  | 321.932404     |
 
-  Scenario: Sampled, uncorrupted Permian FDI data frame have the correct cells
+  Scenario: Sampled, uncorrupted Permian microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Microseismic Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
-      | sample | timestamp                    | depth_tvd_ss                | stage_no   | planar_dist_azm | distance_azm  | distance_90       |
-      | 0      | 2018-11-12T14:14:30.0000000Z | 11468.62                    | 1.0        | NaN             | NaN           | NaN               |
-      | 19     | 2018-11-12T14:58:24.4000000Z | 11433.23                    | 1.0        | 178.730000      | 179.252781    | 179.272690        |
-      | 22     | 2018-11-24T21:08:00.0000000Z | 11478.89                    | 25.0       | 638.648125      | 640.391847    | 640.493408        |
-      | 160    | 2018-11-28T13:18:43.6360000Z | 11354.53                    | 29.0       | 80.664159       | 117.771116    | 117.829727        |
-      | 310    | 2018-11-15T02:33:00.0000000Z | 11357.80                    | 6.0        | 2.983287        | 88.369512     | 88.370270         |
-      | 327    | 2018-11-21T07:48:18.4620000Z | 11464.12                    | 21.0       | 360.153257      | 360.529990    | 360.626648        |
-      | 438    | 2018-11-18T19:36:46.6670000Z | 11462.53                    | 13.0       | 184.259261      | 186.263173    | 186.254044        |
-      | 479    | 2018-11-19T21:25:23.0770000Z | 11395.45                    | 16.0       | 180.208587      | 186.259267    | 186.299286        |
+      | sample | northing    | p_amplitude | dist_3d    | hor_dist   | dist_azm   | dist_90    | vert_dist  |
+      | 0      | 11663896.37 | 0.003326    | 499.111743 | 498.619689 | NaN        | NaN        | NaN        |
+      | 125    | 11664521.24 | 0.009633    | NaN        | NaN        | 212.847744 | 212.813919 | 139.748047 |
+      | 218    | 11668658.41 | 0.003350    | 160.460792 | 159.241187 | 24.074542  | 24.000208  | 17.428711  |
+      | 221    | 11668660.34 | 0.006479    | 676.201188 | 671.302824 | 678.503481 | 678.413086 | 83.539062  |
+      | 269    | 11667224.22 | 0.006231    | 449.637745 | 449.446398 | 440.568094 | 440.689972 | 12.938477  |
+      | 284    | 11665719.88 | 0.000785    | 489.848493 | 470.937401 | 486.483152 | 486.400513 | 133.399414 |
+      | 405    | 11667844.41 | 0.009308    | 254.010571 | 253.549584 | 235.283835 | 235.172806 | 17.776367  |
+      | 479    | 11666700.54 | 0.003202    | 237.502735 | 233.605190 | 186.259267 | 186.299286 | 47.088867  |
 
   Scenario: Sampled, corrupted Permian project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
