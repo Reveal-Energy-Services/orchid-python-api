@@ -23,7 +23,6 @@ import pandas.testing as pdt
 import toolz.curried as toolz
 
 from orchid import (
-    net_date_time as net_dt,
     native_data_frame_adapter as dfa,
 )
 
@@ -47,6 +46,8 @@ def microseconds_to_integral_milliseconds(microseconds):
 
 
 # Test ideas
+# - Report potentially corrupt if data frame name has tag
+# - Report not potentially corrupt if data frame name no tag
 class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -420,6 +421,19 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
         expected_data_frame = _create_expected_data_frame_with_renamed_columns(toolz.identity, table_data_dto)
         pdt.assert_frame_equal(actual_data_frame, expected_data_frame)
+
+    def test_potentially_corrupted(self):
+        tag = ' (Potentially Corrupted)'
+        for name, expected in [
+            ('aequus eram' + tag, True),
+            ('praenomen perspecio' + tag.replace(')', ''), False),  # no closing parenthesis (')')
+            ('silis' + tag[1:], False),  # remove leading space in tag
+        ]:
+            with self.subTest(f'{name} is {"" if expected else " not"} potentially corrupt'):
+                stub_net_data_frame = tsn.create_stub_net_data_frame(name=name)
+                sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+
+                assert_that(sut.is_potentially_corrupt, equal_to(expected))
 
 
 def _create_sut(table_data_dto):
