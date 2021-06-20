@@ -201,6 +201,11 @@ Feature: Adapted IDataFrame DOM API
       | 0      | 1        | 21981.651123 | 117.139913 |
       | 1      | 2        | 26871.854248 | 106.933235 |
 
+  Scenario: Sampled Permian 06-16 fault set data frame is empty
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'Fault Set Data Frame 01'
+    Then I see an empty data frame
+
   Scenario: Sampled Permian 04-12 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'

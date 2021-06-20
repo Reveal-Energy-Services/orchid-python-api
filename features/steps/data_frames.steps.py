@@ -164,8 +164,16 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): Test test context
     """
-    print(context.data_frame_of_interest.pandas_data_frame().values)
     assert_that(context.data_frame_of_interest.pandas_data_frame().values.size, equal_to(0))
+
+
+@then("I see an empty data frame")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    assert_that(context.data_frame_of_interest.pandas_data_frame().empty)
 
 
 def _as_data_frame(table):
