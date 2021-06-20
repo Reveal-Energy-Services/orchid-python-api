@@ -22,7 +22,7 @@ use_step_matcher("parse")
 from collections import namedtuple
 import datetime as dt
 
-from hamcrest import assert_that, not_none, equal_to, has_length
+from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly
 import option
 import parsy
 import pendulum
@@ -146,6 +146,28 @@ def step_impl(context):
     pd.testing.assert_frame_equal(sampled_data_frame, expected)
 
 
+@then("I see the columns")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    expected_column_names = [row['column_name'] for row in context.table.rows]
+    actual_column_names = context.data_frame_of_interest.pandas_data_frame().columns
+
+    assert_that(actual_column_names, contains_exactly(*expected_column_names))
+
+
+@step("I see no rows")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): Test test context
+    """
+    print(context.data_frame_of_interest.pandas_data_frame().values)
+    assert_that(context.data_frame_of_interest.pandas_data_frame().values.size, equal_to(0))
+
+
 def _as_data_frame(table):
     def reduce_row(so_far, row_to_reduce):
         row_data = {h: [row_to_reduce[h]] for h in row_to_reduce.headings}
@@ -245,6 +267,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('dpo_ls_min', 'DPO_LSMin', _convert_maybe_value(float)),
     AboutDataFrameColumn('dtco', 'DTCO', _convert_maybe_value(float)),
     AboutDataFrameColumn('dtco_min', 'DTCOMin', _convert_maybe_value(float)),
+    AboutDataFrameColumn('fault_no', 'FaultNr', int),
     AboutDataFrameColumn('hcal_mean', 'HCALMean', _convert_maybe_value(float)),
     AboutDataFrameColumn('hdra', 'HDRA', _convert_maybe_value(float)),
     AboutDataFrameColumn('hdra_min', 'HDRAMin', _convert_maybe_value(float)),
@@ -256,7 +279,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('marker_description', 'Marker Description', _convert_maybe_value(str)),
     AboutDataFrameColumn('md', 'MD', _convert_maybe_value(float)),
     AboutDataFrameColumn('md_bottom', 'MDBottom', _convert_maybe_value(float)),
-    AboutDataFrameColumn('mean_azimuth', 'MeanAzimuth', float),
+    AboutDataFrameColumn('mean_azm', 'MeanAzimuth', _convert_maybe_value(float)),
     AboutDataFrameColumn('monitor_name', 'MonitorName', _convert_maybe_value(str)),
     AboutDataFrameColumn('northing', 'Northing', _convert_maybe_value(float)),
     AboutDataFrameColumn('obs_set_name', 'ObservationSetName', _convert_maybe_value(str)),

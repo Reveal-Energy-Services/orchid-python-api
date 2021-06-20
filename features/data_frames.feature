@@ -193,6 +193,14 @@ Feature: Adapted IDataFrame DOM API
       | 3574   | 0.00        | 0.00        | 0.00          | 4756.123000 | NaN        |
       | 3600   | 0.00        | 0.00        | 0.00          | 4756.123000 | NaN        |
 
+  Scenario: Sampled Permian 06-16 fault trace set data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'Fault Trace Set Data Frame 01'
+    Then I see the sampled cells
+      | sample | fault_no | length       | mean_azm   |
+      | 0      | 1        | 21981.651123 | 117.139913 |
+      | 1      | 2        | 26871.854248 | 106.933235 |
+
   Scenario: Sampled Permian 04-12 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
@@ -254,15 +262,15 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'GnG'
     When I query the loaded project for the data frame named 'Fault Trace Set Data Frame 01'
     Then I see the sampled cells
-      | sample | length     | mean_azimuth |
-      | 0      | 291.065844 | 35.607995    |
-      | 6      | 221.386108 | 28.704976    |
-      | 10     | 588.771423 | 42.394236    |
-      | 18     | 310.084679 | 16.612221    |
-      | 19     | 410.819195 | 46.381994    |
-      | 20     | 133.201626 | 25.686016    |
-      | 25     | 75.438820  | 14.980341    |
-      | 29     | 188.149197 | 243.339280   |
+      | sample | length     | mean_azm   |
+      | 0      | 291.065844 | 35.607995  |
+      | 6      | 221.386108 | 28.704976  |
+      | 10     | 588.771423 | 42.394236  |
+      | 18     | 310.084679 | 16.612221  |
+      | 19     | 410.819195 | 46.381994  |
+      | 20     | 133.201626 | 25.686016  |
+      | 25     | 75.438820  | 14.980341  |
+      | 29     | 188.149197 | 243.339280 |
 
   Scenario: Sampled GnG stage data frame have the correct cells
     Given I have loaded the project for the field, 'GnG'
