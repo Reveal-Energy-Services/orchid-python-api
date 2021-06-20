@@ -127,15 +127,15 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'FDI Observations'
     Then I see the sampled cells
-      | sample | part_no  | signal_quality              | delta_p    | vol_to_pick  | proppant_mass | shortest_distance |
-      | 0      | Stage-01 | Undrained Rock Deformation  | 0.362115   | 4299.649417  | 135495.624893 | 628.092773        |
-      | 10     | Stage-17 | Fluid Migration Interaction | 46.838932  | NaN          | NaN           | 663.717590        |
-      | 27     | Stage-01 | Undrained Rock Deformation  | 3.892947   | 8563.758042  | 351419.283977 | 354.507355        |
-      | 53     | Stage-01 | Direct Fluid Interaction    | 214.641797 | 11681.990733 | 423145.607052 | 362.139343        |
-      | 60     | Stage-08 | Direct Fluid Interaction    | 253.457265 | 4356.223542  | 146322.501939 | 341.178040        |
-      | 61     | Stage-09 | Direct Fluid Interaction    | 214.359331 | 10053.929217 | 401512.369764 | 343.623596        |
-      | 74     | Stage-22 | Undrained Rock Deformation  | 88.868507  | 7002.337483  | 264706.742102 | 344.454193        |
-      | 83     | Stage-31 | Undrained Rock Deformation  | 31.818509  | 6803.360483  | 258659.430068 | 318.085876        |
+      | sample | obs_set_name     | monitor_name             | tr_well | signal_quality              | delta_t_263 | vol_to_pick  | dist_along_azm |
+      | 0      | FDI Observations | P1 - 12555 - MonitorWell | C1      | Undrained Rock Deformation  | 82.316455   | 4299.649417  | 627.625427     |
+      | 4      | FDI Observations | P1 - 12555 - MonitorWell | C1      | Fluid Migration Interaction | 165.366667  | 8083.696100  | 629.201111     |
+      | 24     | FDI Observations | P1 - 12555 - MonitorWell | C1      | Fluid Migration Interaction | 161.539663  | 7812.571525  | 651.677185     |
+      | 37     | FDI Observations | P1 - 12555 - MonitorWell | C2      | Fluid Migration Interaction | 185.866667  | 9852.505017  | 383.421539     |
+      | 45     | FDI Observations | P1 - 12555 - MonitorWell | C2      | Undrained Rock Deformation  | 175.433333  | 10014.638758 | 374.613373     |
+      | 60     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Direct Fluid Interaction    | 75.147263   | 4356.223542  | 339.606445     |
+      | 82     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 129.501522  | 7283.534992  | 358.738800     |
+      | 83     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 115.197748  | 6803.360483  | 321.932404     |
 
   Scenario: Sampled, uncorrupted Permian FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
@@ -169,16 +169,16 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'FDI Observations (Potentially Corrupted)'
     Then I see the sampled cells
-      | sample | obs_set_name     | part_no  | timestamp                     | delta_t          | delta_p    | vol_to_pick  |
-      | 0      | FDI Observations | Stage-01 | 2018-11-13T21:45:11.987+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
-      | 1      | FDI Observations | Stage-02 | 2018-11-14T23:46:24.428+00:00 | 01:49:01.4282880 | 0.595053   | 5009.373675  |
-      | 20     | FDI Observations | Stage-19 | 2018-11-27T16:14:52.341+00:00 | 02:42:24.3412096 | 39.059964  | 8056.843667  |
-      | 26     | FDI Observations | Stage-25 | NaT                           | NaT              | NaN        | 8532.661850  |
-      | 28     | FDI Observations | Stage-02 | 2018-11-13T04:20:10.000+00:00 | 02:20:11         | 6.170513   | 9859.784375  |
-      | 45     | FDI Observations | Stage-20 | 2018-11-24T16:39:09.000+00:00 | 02:55:26         | 98.717645  | 10014.638758 |
-      | 52     | FDI Observations | Stage-29 | 2018-11-27T19:13:34.110+00:00 | 02:01:22.1109888 | 94.454784  | 5920.732675  |
-      | 53     | FDI Observations | Stage-01 | 2018-11-12T17:07:02.302+00:00 | 02:52:32.3021312 | 214.641797 | 11681.990733 |
-      | 83     | FDI Observations | Stage-31 | 2018-11-29T04:02:02.864+00:00 | 01:55:11.8648576 | 31.818509  | 6803.360483  |
+      | sample | obs_set_name     | tr_stg_part_no | timestamp                     | delta_t          | delta_p    | vol_to_pick  |
+      | 0      | FDI Observations | Stage-01       | 2018-11-13T21:45:11.987+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
+      | 1      | FDI Observations | Stage-02       | 2018-11-14T23:46:24.428+00:00 | 01:49:01.4282880 | 0.595053   | 5009.373675  |
+      | 20     | FDI Observations | Stage-19       | 2018-11-27T16:14:52.341+00:00 | 02:42:24.3412096 | 39.059964  | 8056.843667  |
+      | 26     | FDI Observations | Stage-25       | NaT                           | NaT              | NaN        | 8532.661850  |
+      | 28     | FDI Observations | Stage-02       | 2018-11-13T04:20:10.000+00:00 | 02:20:11         | 6.170513   | 9859.784375  |
+      | 45     | FDI Observations | Stage-20       | 2018-11-24T16:39:09.000+00:00 | 02:55:26         | 98.717645  | 10014.638758 |
+      | 52     | FDI Observations | Stage-29       | 2018-11-27T19:13:34.110+00:00 | 02:01:22.1109888 | 94.454784  | 5920.732675  |
+      | 53     | FDI Observations | Stage-01       | 2018-11-12T17:07:02.302+00:00 | 02:52:32.3021312 | 214.641797 | 11681.990733 |
+      | 83     | FDI Observations | Stage-31       | 2018-11-29T04:02:02.864+00:00 | 01:55:11.8648576 | 31.818509  | 6803.360483  |
 
   Scenario: Sampled, corrupted Permian microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
