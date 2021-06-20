@@ -179,6 +179,20 @@ Feature: Adapted IDataFrame DOM API
       | 15242  | NaN     | NaN     | NaN    | 84.7616 | 0.0613  | 0.0209 | 2.6723 |
       | 17745  | NaN     | NaN     | NaN    | NaN     | NaN     | NaN    | NaN    |
 
+  Scenario: Sampled Permian 06-16 C2 Stage 12 Xft data frame
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'C2-stg12_Xft_Permian_Edited_19-Nov-2018'
+    Then I see the sampled cells
+      | sample | tr_pressure | slurry_rate | proppant_conc | cum_slurry  | xf         |
+      | 0      | 7.50        | 0.00        | 0.00          | 0.000000    | NaN        |
+      | 616    | 8523.66     | 30.63       | 0.00          | 221.605167  | NaN        |
+      | 708    | 8872.18     | 28.71       | 0.00          | 311.449500  | NaN        |
+      | 1166   | 8302.97     | 53.32       | 0.00          | 752.475667  | 267.281922 |
+      | 2146   | 8179.10     | 72.04       | 0.56          | 2977.429333 | 619.506580 |
+      | 3104   | 7.08        | 0.00        | 0.00          | 4756.123000 | NaN        |
+      | 3574   | 0.00        | 0.00        | 0.00          | 4756.123000 | NaN        |
+      | 3600   | 0.00        | 0.00        | 0.00          | 4756.123000 | NaN        |
+
   Scenario: Sampled Permian 04-12 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'

@@ -230,6 +230,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('bh_northing', 'Bottom Hole Northing ', float),
     AboutDataFrameColumn('bh_tdv', 'Bottom Hole TDV ', float),
     AboutDataFrameColumn('boundary_type', 'Boundary Type', str),
+    AboutDataFrameColumn('cum_slurry', ' cum slurry [bll]', _convert_maybe_value(float)),
     AboutDataFrameColumn('delta_t', 'DeltaT', _convert_maybe_value(hms)),
     AboutDataFrameColumn('delta_t_263', 'DeltaT', _convert_maybe_value(float)),
     AboutDataFrameColumn('delta_p', 'DeltaP', _convert_maybe_value(float)),
@@ -267,6 +268,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('pefz_mean', 'PEFZMean', _convert_maybe_value(float)),
     AboutDataFrameColumn('planar_dist_azm', 'PlanarDistanceAzimuth', _convert_maybe_value(float)),
     AboutDataFrameColumn('p_net', 'Pnet', _convert_maybe_value(float)),
+    AboutDataFrameColumn('proppant_conc', ' proppant concentration [ppg]', _convert_maybe_value(float)),
     AboutDataFrameColumn('proppant_mass', 'ProppantMass', _convert_maybe_value(float)),
     AboutDataFrameColumn('pump_time', 'PumpTime', _convert_maybe_value(int)),
     AboutDataFrameColumn('rhom', 'RHOM', _convert_maybe_value(float)),
@@ -280,6 +282,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('sh_elev_msl', 'Surface Hole Elevation above MSL', _convert_maybe_value(float)),
     AboutDataFrameColumn('shortest_distance', 'Shortest distance', _convert_maybe_value(float)),
     AboutDataFrameColumn('signal_quality', 'SignalQuality', _convert_maybe_value(_convert_signal_quality)),
+    AboutDataFrameColumn('slurry_rate', ' slurry rate [bpm]', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_length', 'StageLength', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_pumped_vol', 'StagePumpedVolume', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_no', 'StageNumber', _convert_maybe_value(float)),
@@ -287,6 +290,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('tend_max', 'TENDMax', _convert_maybe_value(float)),
     AboutDataFrameColumn('timestamp', 'Timestamp', _convert_maybe_value(_parsed_date_with_correct_utc)),
     AboutDataFrameColumn('tnph_ls', 'TNPH_LS', _convert_maybe_value(float)),
+    AboutDataFrameColumn('tr_pressure', ' treatment pressure [psi]', _convert_maybe_value(float)),
     AboutDataFrameColumn('tr_stg_part_no', 'TreatmentStagePartNumber', _convert_maybe_value(str)),
     AboutDataFrameColumn('tr_well', 'TreatmentWellName', _convert_maybe_value(str)),
     AboutDataFrameColumn('tvd', 'TVD', _convert_maybe_value(float)),
@@ -295,6 +299,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('vol_to_pick', 'VolumeToPick', _convert_maybe_value(float)),
     AboutDataFrameColumn('well', 'Well', str),
     AboutDataFrameColumn('well_name', 'WellName', _convert_maybe_value(str)),
+    AboutDataFrameColumn('xf', ' Xf [ft] (Monitor: Crane-3B - stage 22)', _convert_maybe_value(float)),
 ]
 
 short_column_names = {about.short_name: about for about in about_data_frame_columns}
