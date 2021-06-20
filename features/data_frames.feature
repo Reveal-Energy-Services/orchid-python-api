@@ -53,7 +53,7 @@ Feature: Adapted IDataFrame DOM API
     When I query all the project data frames by <name> and by <display_name>
     Then I see a single data frame alternatively identified by <name> and <display_name>
 
-    Examples: Permian Uncorrupted
+    Examples: Permian 06-16
       | field     | name                                                  | display_name                                          |
       | Permian-u | Project Data Frame 01                                 | Project Data Frame 01                                 |
       | Permian-u | FDI Observations                                      | FDI Observations                                      |
@@ -64,7 +64,7 @@ Feature: Adapted IDataFrame DOM API
       | Permian-u | Fault Trace Set Data Frame 01                         | Fault Trace Set Data Frame 01                         |
       | Permian-u | Fault Set Data Frame 01                               | Fault Set Data Frame 01                               |
 
-    Examples: Permian Corrupted
+    Examples: Permian 04-12
       | field     | name                                                  | display_name                                          |
       | Permian-c | Project Data Frame 01 (Potentially Corrupted)         | Project Data Frame 01 (Potentially Corrupted)         |
       | Permian-c | FDI Observations (Potentially Corrupted)              | FDI Observations (Potentially Corrupted)              |
@@ -84,7 +84,7 @@ Feature: Adapted IDataFrame DOM API
     When I query the project data frames identified by '<object_id>'
     Then I see the specified data frame <is_potentially_corrupt>
 
-    Examples: Permian Uncorrupted
+    Examples: Permian 06-16
       | field     | object_id                            | is_potentially_corrupt |
       | Permian-u | c08e6988-d8f5-4d7b-bccd-de968a5b398b | False                  |
       | Permian-u | 08bea47e-5160-4f32-b8c4-3b3efa3d512b | False                  |
@@ -95,7 +95,7 @@ Feature: Adapted IDataFrame DOM API
       | Permian-u | 2b482b37-964e-4a54-89d3-8a28c24fe0c0 | False                  |
       | Permian-u | 34ec8d14-96b2-4156-abfd-18fe58e978e2 | False                  |
 
-    Examples: Permian Corrupted
+    Examples: Permian 04-12
       | field     | object_id                            | is_potentially_corrupt |
       | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
       | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
@@ -109,7 +109,7 @@ Feature: Adapted IDataFrame DOM API
       | GnG       | a287e63d-fd15-48e8-b5fc-99eb57244f18 | False                  |
       | GnG       | 1cef6417-acb4-478c-b270-ca7022fc6003 | False                  |
 
-  Scenario: Sampled, uncorrupted Permian project data frame have the correct cells
+  Scenario: Sampled Permian 06-16 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Project Data Frame 01'
     Then I see the sampled cells
@@ -123,7 +123,7 @@ Feature: Adapted IDataFrame DOM API
       | 70     | C3        | 11669252.01 | -2872.0     | 2018-11-19T13:01:12.0000000Z | 1.0      | 10209.304483     | 138.0          |
       | 87     | P1        | 11669251.42 | -2872.0     | None                         | NaN      | NaN              | NaN            |
 
-  Scenario: Sampled, uncorrupted Permian FDI data frame have the correct cells
+  Scenario: Sampled Permian 06-16 FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'FDI Observations'
     Then I see the sampled cells
@@ -137,7 +137,7 @@ Feature: Adapted IDataFrame DOM API
       | 82     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 129.501522  | 7283.534992  | 358.738800     |
       | 83     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 115.197748  | 6803.360483  | 321.932404     |
 
-  Scenario: Sampled, uncorrupted Permian microseismic data frame have the correct cells
+  Scenario: Sampled Permian 06-16 microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Microseismic Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
@@ -151,7 +151,21 @@ Feature: Adapted IDataFrame DOM API
       | 405    | 11667844.41 | 0.009308    | 254.010571 | 253.549584 | 235.283835 | 235.172806 | 17.776367  |
       | 479    | 11666700.54 | 0.003202    | 237.502735 | 233.605190 | 186.259267 | 186.299286 | 47.088867  |
 
-  Scenario: Sampled, corrupted Permian project data frame have the correct cells
+  Scenario: Sampled Permian 06-16 FDI data frame have the correct cells
+    Given I have loaded the project for the field, 'Permian-u'
+    When I query the loaded project for the data frame named 'Stage Data Frame 01'
+    Then I see the sampled cells
+      | sample | dept_min | rla5_max | ten_min   | hcal_mean | dtco_min | hdra_min | rhom_max |
+      | 0      | 16573.0  | None     | 4294.3218 | None      | None     | None     | 2.7224   |
+      | 3      | 15913.0  | None     | 4129.5107 | None      | None     | None     | 2.6397   |
+      | 11     | 14353.0  | None     | 3748.5232 | None      | None     | None     | 2.7100   |
+      | 12     | 14233.0  | None     | 3694.9180 | None      | None     | None     | 2.7688   |
+      | 13     | 14113.0  | None     | 3765.8110 | None      | None     | None     | 2.7330   |
+      | 20     | 13273.0  | None     | 3556.1211 | None      | None     | None     | 2.6642   |
+      | 22     | 13033.0  | None     | 3349.8164 | None      | None     | None     | 2.6150   |
+      | 24     | 12793.0  | None     | 3425.6147 | None      | None     | None     | 2.6258   |
+
+  Scenario: Sampled Permian 04-12 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
@@ -165,7 +179,7 @@ Feature: Adapted IDataFrame DOM API
       | 62     | 2.142179e+06 | 16080.0   | 2018-11-15T19:43:47.000+00:00 | 10059.747108    | 7555.899247 | 147       |
       | 87     | 2.141879e+06 | NaN       | NaT                           | NaN             | NaN         | NaN       |
 
-  Scenario: Sampled, corrupted Permian FDI data frame have the correct cells
+  Scenario: Sampled Permian 04-12 FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'FDI Observations (Potentially Corrupted)'
     Then I see the sampled cells
@@ -180,7 +194,7 @@ Feature: Adapted IDataFrame DOM API
       | 53     | FDI Observations | Stage-01       | 2018-11-12T17:07:02.302+00:00 | 02:52:32.3021312 | 214.641797 | 11681.990733 |
       | 83     | FDI Observations | Stage-31       | 2018-11-29T04:02:02.864+00:00 | 01:55:11.8648576 | 31.818509  | 6803.360483  |
 
-  Scenario: Sampled, corrupted Permian microseismic data frame have the correct cells
+  Scenario: Sampled Permian 04-12 microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
     When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
