@@ -113,71 +113,71 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Project Data Frame 01'
     Then I see the sampled cells
-      | sample | well_name | sh_easting  | sh_elev_msl | part_end_time                | part_num | stage_pumped_vol | part_pump_time |
-      | 0      | C1        | 11669250.21 | -2872.0     | 2018-11-13T22:37:40.0000000Z | 1.0      | 8423.638083      | 135.0          |
-      | 1      | C1        | 11669250.21 | -2872.0     | 2018-11-15T00:31:44.0000000Z | 1.0      | 7643.193050      | 154.0          |
-      | 2      | C1        | 11669250.21 | -2872.0     | 2018-11-15T07:06:48.0000000Z | 1.0      | 7981.894542      | 151.0          |
-      | 6      | C1        | 11669250.21 | -2872.0     | 2018-11-16T17:57:14.0000000Z | 1.0      | 8658.708958      | 163.0          |
-      | 44     | C2        | 11669250.83 | -2872.0     | 2018-11-24T16:39:09.0000000Z | 1.0      | 10014.638758     | 175.0          |
-      | 64     | C3        | 11669252.01 | -2872.0     | 2018-11-16T09:43:43.0000000Z | 1.0      | 10722.694383     | 158.0          |
-      | 70     | C3        | 11669252.01 | -2872.0     | 2018-11-19T13:01:12.0000000Z | 1.0      | 10209.304483     | 138.0          |
-      | 87     | P1        | 11669251.42 | -2872.0     | None                         | NaN      | NaN              | NaN            |
+      | sample | well_name | sh_easting  | sh_elev_msl | part_num | stage_pumped_vol | part_pump_time |
+      | 0      | C1        | 11669250.21 | -2872.0     | 1.0      | 8423.638083      | 135.0          |
+      | 1      | C1        | 11669250.21 | -2872.0     | 1.0      | 7643.193050      | 154.0          |
+      | 2      | C1        | 11669250.21 | -2872.0     | 1.0      | 7981.894542      | 151.0          |
+      | 6      | C1        | 11669250.21 | -2872.0     | 1.0      | 8658.708958      | 163.0          |
+      | 44     | C2        | 11669250.83 | -2872.0     | 1.0      | 10014.638758     | 175.0          |
+      | 64     | C3        | 11669252.01 | -2872.0     | 1.0      | 10722.694383     | 158.0          |
+      | 70     | C3        | 11669252.01 | -2872.0     | 1.0      | 10209.304483     | 138.0          |
+      | 87     | P1        | 11669251.42 | -2872.0     | NaN      | NaN              | NaN            |
 
   Scenario: Sampled Permian 06-16 FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'FDI Observations'
     Then I see the sampled cells
-      | sample | obs_set_name     | monitor_name             | tr_well | signal_quality              | delta_t_263 | vol_to_pick  | dist_along_azm |
-      | 0      | FDI Observations | P1 - 12555 - MonitorWell | C1      | Undrained Rock Deformation  | 82.316455   | 4299.649417  | 627.625427     |
-      | 4      | FDI Observations | P1 - 12555 - MonitorWell | C1      | Fluid Migration Interaction | 165.366667  | 8083.696100  | 629.201111     |
-      | 24     | FDI Observations | P1 - 12555 - MonitorWell | C1      | Fluid Migration Interaction | 161.539663  | 7812.571525  | 651.677185     |
-      | 37     | FDI Observations | P1 - 12555 - MonitorWell | C2      | Fluid Migration Interaction | 185.866667  | 9852.505017  | 383.421539     |
-      | 45     | FDI Observations | P1 - 12555 - MonitorWell | C2      | Undrained Rock Deformation  | 175.433333  | 10014.638758 | 374.613373     |
-      | 60     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Direct Fluid Interaction    | 75.147263   | 4356.223542  | 339.606445     |
-      | 82     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 129.501522  | 7283.534992  | 358.738800     |
-      | 83     | FDI Observations | P1 - 12555 - MonitorWell | C3      | Undrained Rock Deformation  | 115.197748  | 6803.360483  | 321.932404     |
+      | sample | obs_set_name     | monitor_name             | signal_quality              | delta_t_263 | vol_to_pick  | dist_along_azm |
+      | 0      | FDI Observations | P1 - 12555 - MonitorWell | Undrained Rock Deformation  | 82.316455   | 4299.649417  | 627.625427     |
+      | 4      | FDI Observations | P1 - 12555 - MonitorWell | Fluid Migration Interaction | 165.366667  | 8083.696100  | 629.201111     |
+      | 24     | FDI Observations | P1 - 12555 - MonitorWell | Fluid Migration Interaction | 161.539663  | 7812.571525  | 651.677185     |
+      | 37     | FDI Observations | P1 - 12555 - MonitorWell | Fluid Migration Interaction | 185.866667  | 9852.505017  | 383.421539     |
+      | 45     | FDI Observations | P1 - 12555 - MonitorWell | Undrained Rock Deformation  | 175.433333  | 10014.638758 | 374.613373     |
+      | 60     | FDI Observations | P1 - 12555 - MonitorWell | Direct Fluid Interaction    | 75.147263   | 4356.223542  | 339.606445     |
+      | 82     | FDI Observations | P1 - 12555 - MonitorWell | Undrained Rock Deformation  | 129.501522  | 7283.534992  | 358.738800     |
+      | 83     | FDI Observations | P1 - 12555 - MonitorWell | Undrained Rock Deformation  | 115.197748  | 6803.360483  | 321.932404     |
 
   Scenario: Sampled Permian 06-16 microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Microseismic Data Frame 01 (Potentially Corrupted)'
     Then I see the sampled cells
-      | sample | northing    | p_amplitude | dist_3d    | hor_dist   | dist_azm   | dist_90    | vert_dist  |
-      | 0      | 11663896.37 | 0.003326    | 499.111743 | 498.619689 | NaN        | NaN        | NaN        |
-      | 125    | 11664521.24 | 0.009633    | NaN        | NaN        | 212.847744 | 212.813919 | 139.748047 |
-      | 218    | 11668658.41 | 0.003350    | 160.460792 | 159.241187 | 24.074542  | 24.000208  | 17.428711  |
-      | 221    | 11668660.34 | 0.006479    | 676.201188 | 671.302824 | 678.503481 | 678.413086 | 83.539062  |
-      | 269    | 11667224.22 | 0.006231    | 449.637745 | 449.446398 | 440.568094 | 440.689972 | 12.938477  |
-      | 284    | 11665719.88 | 0.000785    | 489.848493 | 470.937401 | 486.483152 | 486.400513 | 133.399414 |
-      | 405    | 11667844.41 | 0.009308    | 254.010571 | 253.549584 | 235.283835 | 235.172806 | 17.776367  |
-      | 479    | 11666700.54 | 0.003202    | 237.502735 | 233.605190 | 186.259267 | 186.299286 | 47.088867  |
+      | sample | northing    | p_amplitude | dist_3d    | hor_dist   | dist_azm   | dist_90    |
+      | 0      | 11663896.37 | 0.003326    | 499.111743 | 498.619689 | NaN        | NaN        |
+      | 125    | 11664521.24 | 0.009633    | NaN        | NaN        | 212.847744 | 212.813919 |
+      | 218    | 11668658.41 | 0.003350    | 160.460792 | 159.241187 | 24.074542  | 24.000208  |
+      | 221    | 11668660.34 | 0.006479    | 676.201188 | 671.302824 | 678.503481 | 678.413086 |
+      | 269    | 11667224.22 | 0.006231    | 449.637745 | 449.446398 | 440.568094 | 440.689972 |
+      | 284    | 11665719.88 | 0.000785    | 489.848493 | 470.937401 | 486.483152 | 486.400513 |
+      | 405    | 11667844.41 | 0.009308    | 254.010571 | 253.549584 | 235.283835 | 235.172806 |
+      | 479    | 11666700.54 | 0.003202    | 237.502735 | 233.605190 | 186.259267 | 186.299286 |
 
   Scenario: Sampled Permian 06-16 stage data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Stage Data Frame 01'
     Then I see the sampled cells
-      | sample | dept_min | rla5_max | ten_min   | hcal_mean | dtco_min | hdra_min | rhom_max |
-      | 0      | 16573.0  | None     | 4294.3218 | None      | None     | None     | 2.7224   |
-      | 3      | 15913.0  | None     | 4129.5107 | None      | None     | None     | 2.6397   |
-      | 11     | 14353.0  | None     | 3748.5232 | None      | None     | None     | 2.7100   |
-      | 12     | 14233.0  | None     | 3694.9180 | None      | None     | None     | 2.7688   |
-      | 13     | 14113.0  | None     | 3765.8110 | None      | None     | None     | 2.7330   |
-      | 20     | 13273.0  | None     | 3556.1211 | None      | None     | None     | 2.6642   |
-      | 22     | 13033.0  | None     | 3349.8164 | None      | None     | None     | 2.6150   |
-      | 24     | 12793.0  | None     | 3425.6147 | None      | None     | None     | 2.6258   |
+      | sample | dept_min | rla5_max | hcal_mean | dtco_min | hdra_min | rhom_max |
+      | 0      | 16573.0  | None     | None      | None     | None     | 2.7224   |
+      | 3      | 15913.0  | None     | None      | None     | None     | 2.6397   |
+      | 11     | 14353.0  | None     | None      | None     | None     | 2.7100   |
+      | 12     | 14233.0  | None     | None      | None     | None     | 2.7688   |
+      | 13     | 14113.0  | None     | None      | None     | None     | 2.7330   |
+      | 20     | 13273.0  | None     | None      | None     | None     | 2.6642   |
+      | 22     | 13033.0  | None     | None      | None     | None     | 2.6150   |
+      | 24     | 12793.0  | None     | None      | None     | None     | 2.6258   |
 
   Scenario: Sampled Permian 06-16 well log set data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
     When I query the loaded project for the data frame named 'Well Log Set Data Frame 01'
     Then I see the sampled cells
-      | sample | dtco    | tnph_ls | rhoz   | hsgrd   | aplc_ls | dpo_ls | rhom   |
-      | 0      | NaN     | 0.5430  | NaN    | NaN     | NaN     | NaN    | NaN    |
-      | 5505   | 79.3469 | 0.2002  | 2.3959 | NaN     | NaN     | NaN    | NaN    |
-      | 5570   | 75.2105 | 0.2342  | 2.4360 | NaN     | NaN     | NaN    | NaN    |
-      | 7211   | 70.3145 | 0.1728  | 2.5795 | NaN     | NaN     | NaN    | NaN    |
-      | 7435   | 63.1550 | 0.0895  | 2.5584 | NaN     | NaN     | NaN    | NaN    |
-      | 8164   | 65.9307 | 0.1062  | 2.5278 | NaN     | NaN     | NaN    | NaN    |
-      | 15242  | NaN     | NaN     | NaN    | 84.7616 | 0.0613  | 0.0209 | 2.6723 |
-      | 17745  | NaN     | NaN     | NaN    | NaN     | NaN     | NaN    | NaN    |
+      | sample | dtco    | tnph_ls | rhoz   | hsgrd   | aplc_ls | rhom   |
+      | 0      | NaN     | 0.5430  | NaN    | NaN     | NaN     | NaN    |
+      | 5505   | 79.3469 | 0.2002  | 2.3959 | NaN     | NaN     | NaN    |
+      | 5570   | 75.2105 | 0.2342  | 2.4360 | NaN     | NaN     | NaN    |
+      | 7211   | 70.3145 | 0.1728  | 2.5795 | NaN     | NaN     | NaN    |
+      | 7435   | 63.1550 | 0.0895  | 2.5584 | NaN     | NaN     | NaN    |
+      | 8164   | 65.9307 | 0.1062  | 2.5278 | NaN     | NaN     | NaN    |
+      | 15242  | NaN     | NaN     | NaN    | 84.7616 | 0.0613  | 2.6723 |
+      | 17745  | NaN     | NaN     | NaN    | NaN     | NaN     | NaN    |
 
   Scenario: Sampled Permian 06-16 C2 Stage 12 Xft data frame
     Given I have loaded the project for the field, 'Permian-u'
