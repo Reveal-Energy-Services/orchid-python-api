@@ -13,16 +13,26 @@
 #
 
 """
-Functions to convert between .NET `DateTime` instances and Python `datetime.datetime` instances.
+Functions to convert between .NET `DateTime` instances and Python `pendulum.datetime` instances.
 """
+
 
 import datetime as dt
 import enum
+from typing import Tuple
 
-from dateutil import tz as duz
+import dateutil.tz as duz
+import pendulum
+import pendulum.tz as ptz
+
+from orchid import base
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeKind
+from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
+
+
+UTC = pendulum.UTC
+"""Encapsulate the use of pendulum."""
 
 
 class TimePointTimeZoneKind(enum.Enum):
@@ -37,14 +47,14 @@ class TimePointTimeZoneKind(enum.Enum):
     UNSPECIFIED = DateTimeKind.Unspecified  # Time zone is unspecified
 
 
-class NetQuantityTimeZoneError(ValueError):
+class NetDateTimeError(ValueError):
     """
     Raised when an error occurs accessing the `TimeZoneInfo` of a .NET `DateTime` instance.
     """
     pass
 
 
-class NetQuantityLocalDateTimeKindError(NetQuantityTimeZoneError):
+class NetDateTimeLocalDateTimeKindError(NetDateTimeError):
     """
     Raised when the `DateTime.Kind` property of a .NET `DateTime` instance is `DateTimeKind.Local`.
     """
@@ -58,7 +68,7 @@ class NetQuantityLocalDateTimeKindError(NetQuantityTimeZoneError):
         super().__init__(self, '.NET DateTime.Kind cannot be Local.', net_time_point.ToString("O"))
 
 
-class NetQuantityUnspecifiedDateTimeKindError(NetQuantityTimeZoneError):
+class NetDateTimeUnspecifiedDateTimeKindError(NetDateTimeError):
     """
     Raised when the `DateTime.Kind` property of a .NET `DateTime` instance is not recognized.
     """
@@ -79,11 +89,11 @@ class NetQuantityUnspecifiedDateTimeKindError(NetQuantityTimeZoneError):
         Args:
             net_time_point: A .NET DateTime representing a specific point in time.
         """
-        super().__init__(self, NetQuantityUnspecifiedDateTimeKindError.ERROR_PREFACE,
-                         net_time_point.ToString("O"), NetQuantityUnspecifiedDateTimeKindError.ERROR_SUFFIX)
+        super().__init__(self, NetDateTimeUnspecifiedDateTimeKindError.ERROR_PREFACE,
+                         net_time_point.ToString("O"), NetDateTimeUnspecifiedDateTimeKindError.ERROR_SUFFIX)
 
 
-class NetQuantityNoTzInfoError(NetQuantityTimeZoneError):
+class NetDateTimeNoTzInfoError(NetDateTimeError):
     """
     Raised when the `DateTime.Kind` property of a .NET `DateTime` instance is `DateTimeKind.Unspecified`.
     """
@@ -92,77 +102,183 @@ class NetQuantityNoTzInfoError(NetQuantityTimeZoneError):
         Construct an instance from a Python point in time.
 
         Args:
-            time_point: A Python `dt.datetime` representing a specific point in time.
+            time_point: A `pendulum.datetime` representing a specific point in time.
         """
         super().__init__(self, f'The Python time point must specify the time zone.', time_point.isoformat())
 
 
-def as_datetime(net_time_point: DateTime) -> dt.datetime:
+class NetDateTimeOffsetNonZeroOffsetError(NetDateTimeError):
     """
-    Convert a .NET `DateTime` instance to a `dt.datetime` instance.
+    Raised when the `Offset` property of a .NET `DateTimeOffset` is non-zero.
+    """
+    def __init__(self, net_date_time_offset):
+        """
+        Construct an instance from a .NET `DateTimeOffset`.
+
+        Args:
+            net_date_time_offset: A .NET `DateTimeOffset` representing a specific point in time.
+        """
+        super().__init__(self, f'The `Offset` of the .NET `DateTimeOffset`, {net_date_time_offset.ToString("o")},'
+                               ' cannot be non-zero.')
+
+
+# TODO: Consider changing this implementation to single dispatch
+# Note that this change might require more work than is obvious. Two .NET types: `DateTime` and `DateTimeOffset`
+def as_date_time(net_time_point: DateTime) -> pendulum.DateTime:
+    """
+    Convert a .NET `DateTime` instance to a `pendulum.DateTime` instance.
 
     Args:
         net_time_point: A point in time of type .NET `DateTime`.
 
     Returns:
-        The `dt.datetime` equivalent to the `net_time_point`.
+        The `pendulum.DateTime` equivalent to the `to_test`.
+
+        If `net_time_point` is `DateTime.MaxValue`, returns `pendulum.DateTime.max`. If `net_time_point` is
+        `DateTime.MinValue`, returns `pendulum.DateTime.min`.
     """
+    if net_time_point == DateTime.MaxValue:
+        return pendulum.DateTime.max
+
+    if net_time_point == DateTime.MinValue:
+        return pendulum.DateTime.min
+
     if net_time_point.Kind == DateTimeKind.Utc:
-        # TODO: Consider using the zulu package
-        # Research using the [zulu package](https://zulu.readthedocs.io/en/latest/). This package is "a drop-in
-        # replacement for native datetimes that embraces UTC."
-        #
-        # Much to my surprise, the `dateutil` and standard Python libraries have two **different** values for a
-        # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
-        # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
-        return dt.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
-                           net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                           net_time_point.Millisecond * 1000, duz.UTC)
+        return _net_time_point_to_datetime(base.constantly(ptz.UTC), net_time_point)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
-        raise NetQuantityUnspecifiedDateTimeKindError(net_time_point)
+        raise NetDateTimeUnspecifiedDateTimeKindError(net_time_point)
 
     if net_time_point.Kind == DateTimeKind.Local:
-        raise NetQuantityLocalDateTimeKindError(net_time_point)
+        raise NetDateTimeLocalDateTimeKindError(net_time_point)
 
     raise ValueError(f'Unknown .NET DateTime.Kind, {net_time_point.Kind}.')
 
 
-def as_net_date_time(time_point: dt.datetime) -> DateTime:
+def as_net_date_time(time_point: pendulum.DateTime) -> DateTime:
     """
-    Convert a `dt.datetime` instance to a .NET `DateTime` instance.
+    Convert a `pendulum.DateTime` instance to a .NET `DateTime` instance.
 
     Args:
-        time_point: The `dt.datetime` instance to covert.
+        time_point: The `pendulum.DateTime` instance to covert.
 
     Returns:
         The equivalent .NET `DateTime` instance.
-    """
-    # TODO: Consider using the zulu package
-    # Research using the [zulu package](https://zulu.readthedocs.io/en/latest/). This package is "a drop-in
-    # replacement for native datetimes that embraces UTC."
-    #
-    # Much to my surprise, the `dateutil` and standard Python libraries have two **different** values for a
-    # `tzinfo` instance identifying a UTC time. The `dateutil` library uses the value `dateutil.tz.tzutc()`
-    # and its synonym: `dateutil.tz.UTC`. The standard library uses `timezone.utc`.
-    if (time_point.tzinfo != duz.UTC) and (time_point.tzinfo != dt.timezone.utc):
-        raise NetQuantityNoTzInfoError(time_point)
 
-    result = DateTime(time_point.year, time_point.month, time_point.day, time_point.hour, time_point.minute,
-                      time_point.second, microseconds_to_integral_milliseconds(time_point.microsecond),
-                      DateTimeKind.Utc)
+        If `time_point` is `pendulum.DateTime.max`, return `DateTime.MaxValue`. If `time_point` is
+        `pendulum.DateTime.min`, return `DateTime.MinValue`.
+    """
+    if time_point == pendulum.DateTime.max:
+        return DateTime.MaxValue
+
+    if time_point == pendulum.DateTime.min:
+        return DateTime.MinValue
+
+    if not time_point.tzinfo == ptz.UTC:
+        raise NetDateTimeNoTzInfoError(time_point)
+
+    carry_seconds, milliseconds = microseconds_to_milliseconds_with_carry(time_point.microsecond)
+    result = DateTime(time_point.year, time_point.month, time_point.day,
+                      time_point.hour, time_point.minute, time_point.second + carry_seconds,
+                      milliseconds, DateTimeKind.Utc)
     return result
 
 
-def microseconds_to_integral_milliseconds(to_convert: int) -> int:
+def as_net_date_time_offset(time_point: pendulum.DateTime) -> DateTimeOffset:
     """
-    Convert microseconds to an integral number of milliseconds.
+    Convert a `pendulum.DateTime` instance to a .NET `DateTimeOffset` instance.
 
     Args:
-        to_convert: The milliseconds to convert.
+        time_point: The `pendulum.DateTime` instance to covert.
 
     Returns:
-        An integral number of milliseconds equivalent to `to_convert` microseconds.
+        The equivalent .NET `DateTimeOffset` instance.
+
+        If `time_point` is `pendulum.DateTime.max`, return `DateTime.MaxValue`. If `time_point` is
+        `pendulum.DateTime.min`, return `DateTime.MinValue`.
+    """
+    if time_point == pendulum.DateTime.max:
+        return DateTimeOffset.MaxValue
+
+    if time_point == pendulum.DateTime.min:
+        return DateTimeOffset.MinValue
+
+    date_time = as_net_date_time(time_point)
+    result = DateTimeOffset(date_time)
+    return result
+
+
+def as_net_time_span(to_convert: pendulum.Duration):
+    """
+    Convert a `pendulum.Duration` instance to a .NET `TimeSpan`.
+
+    Args:
+        to_convert: The `pendulum.Duration` instance to convert.
+
+    Returns:
+        The .NET `TimeSpan` equivalent to `to_convert`.
+    """
+    return TimeSpan(round(to_convert.total_seconds() * TimeSpan.TicksPerSecond))
+
+
+def as_duration(to_convert: TimeSpan) -> pendulum.Duration:
+    """
+    Convert a .NET `TimeSpan` to a python `pendulum.Duration`
+
+    Args:
+        to_convert: The .NET `TimeSpan` to convert.
+
+    Returns:
+        The `pendulum.Duration` equivalent to `to_convert`.
 
     """
-    return int(round(to_convert / 1000))
+    return pendulum.duration(seconds=to_convert.TotalSeconds)
+
+
+def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
+    """
+    Convert microseconds to an integral number of milliseconds with a number of seconds to carry.
+
+    Args:
+        to_convert: The microseconds to convert.
+
+    Returns:
+        A tuple of the form, (number of seconds to "carry",  number of the integral milliseconds).
+    """
+
+    raw_milliseconds = round(to_convert / 1000)
+    return divmod(raw_milliseconds, 1000)
+
+
+def net_date_time_offset_as_date_time(net_time_point: DateTimeOffset) -> pendulum.DateTime:
+    """
+    Convert a .NET `DateTimeOffset` instance to a `pendulum.DateTime` instance.
+
+    Args:
+        net_time_point: A point in time of type .NET `DateTimeOffset`.
+
+    Returns:
+        The `pendulum.DateTime` equivalent to the `net_time_point`.
+    """
+    if net_time_point == DateTimeOffset.MaxValue:
+        return pendulum.DateTime.max
+
+    if net_time_point == DateTimeOffset.MinValue:
+        return pendulum.DateTime.min
+
+    if net_time_point.Offset.TotalSeconds != 0:
+        raise NetDateTimeOffsetNonZeroOffsetError(net_time_point)
+
+    return _net_time_point_to_datetime(base.constantly(ptz.UTC), net_time_point)
+
+
+def is_utc(time_point):
+    return (time_point.tzinfo == pendulum.UTC or
+            time_point.tzinfo == dt.timezone.utc or
+            time_point.tzinfo == duz.UTC)
+
+
+def _net_time_point_to_datetime(time_zone_func, net_time_point):
+    return pendulum.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
+                             net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
+                             net_time_point.Millisecond * 1000, time_zone_func(net_time_point))

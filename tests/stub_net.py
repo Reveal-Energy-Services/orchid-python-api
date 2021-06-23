@@ -22,17 +22,16 @@ properties required during testing but do not actually implement the .NET class 
 """
 
 from collections import namedtuple
-from datetime import datetime, timedelta
 import itertools
 import unittest.mock
 from typing import Sequence
 
-import dateutil.tz
+import pendulum
 import toolz.curried as toolz
 
 from orchid import (
     native_treatment_curve_adapter as ontc,
-    net_date_time as ndt,
+    net_date_time as net_dt,
     net_quantity as onq,
     unit_system as units,
 )
@@ -80,19 +79,19 @@ argument and providing the magnitude later."""
 
 
 class StubNetSample:
-    def __init__(self, time_point: datetime, value: float):
+    def __init__(self, time_point: pendulum.DateTime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        if time_point.tzinfo != dateutil.tz.UTC:
+        if time_point.tzinfo != pendulum.tz.UTC:
             raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
 
-        self.Timestamp = stub_dt.StubNetDateTime(time_point.year, time_point.month, time_point.day, time_point.hour,
-                                                 time_point.minute, time_point.second,
-                                                 ndt.microseconds_to_integral_milliseconds(time_point.microsecond),
-                                                 stub_dt.StubDateTimeKind.UTC)
+        carry_seconds, milliseconds = net_dt.microseconds_to_milliseconds_with_carry(time_point.microsecond)
+        self.Timestamp = stub_dt.StubNetDateTime(time_point.year, time_point.month, time_point.day,
+                                                 time_point.hour, time_point.minute, time_point.second + carry_seconds,
+                                                 milliseconds, stub_dt.StubDateTimeKind.UTC)
         self.Value = value
 
 
-def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Sequence[StubNetSample]:
+def create_stub_net_time_series(start_time_point: pendulum.DateTime, sample_values) -> Sequence[StubNetSample]:
     """
     Create a stub .NET time series.
 
@@ -107,14 +106,22 @@ def create_stub_net_time_series(start_time_point: datetime, sample_values) -> Se
     return samples
 
 
-def create_30_second_time_points(start_time_point: datetime, count: int):
+def create_30_second_time_points(start_time_point: pendulum.DateTime, count: int):
     """
     Create a sequence of `count` time points, 30-seconds apart.
-    :param start_time_point: The starting time point of the sequence.
-    :param count: The number of time points in the sequence.
-    :return: The sequence of time points.
+
+    Args:
+        start_time_point: The starting time point of the sequence.
+        count: The number of time points in the sequence.
+
+    Returns:
+        The sequence of time points.
     """
-    return [start_time_point + i * timedelta(seconds=30) for i in range(count)]
+    # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
+    # I create these series so my end point must be `count - 1`.
+    end_time_point = start_time_point + pendulum.Duration(seconds=30 * count - 1)
+    result = pendulum.period(start_time_point, end_time_point).range('seconds', 30)
+    return result
 
 
 class StubNetTreatmentCurve:
@@ -241,9 +248,9 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
             result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',
                                                                  side_effect=stage_location_top)
     if start_time is not None:
-        result.StartTime = ndt.as_net_date_time(start_time)
+        result.StartTime = net_dt.as_net_date_time(start_time)
     if stop_time is not None:
-        result.StopTime = ndt.as_net_date_time(stop_time)
+        result.StopTime = net_dt.as_net_date_time(stop_time)
 
     if treatment_curve_names is not None:
         result.TreatmentCurves.Items = list(toolz.map(
@@ -328,8 +335,8 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
         stub_net_treatment_curve.Suffix = suffix
     if values_starting_at is not None:
         values, start_time_point = values_starting_at
-        time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        samples = [StubSample(t, v) for (t, v) in zip(map(ndt.as_net_date_time, time_points), values)]
+        time_points = create_30_second_time_points(start_time_point, len(values))
+        samples = [StubSample(t, v) for (t, v) in zip(map(net_dt.as_net_date_time, time_points), values)]
         stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
                                                                                        return_value=samples)
     if project is not None:
@@ -352,10 +359,10 @@ def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None)
         result.Name = name
 
     if start is not None:
-        result.StartTime = ndt.as_net_date_time(start)
+        result.StartTime = net_dt.as_net_date_time(start)
 
     if stop is not None:
-        result.StopTime = ndt.as_net_date_time(stop)
+        result.StopTime = net_dt.as_net_date_time(stop)
 
     return result
 
@@ -520,7 +527,7 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_display_names=(), data_frame_names=()):
+                            curves_physical_quantities=None, monitor_display_names=(), data_frame_ids=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -548,8 +555,8 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
                                        monitor_display_name in monitor_display_names]
 
-    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(name=data_frame_name) for
-                                         data_frame_name in data_frame_names]
+    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_id) for
+                                         data_frame_id in data_frame_ids]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)

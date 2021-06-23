@@ -20,8 +20,7 @@ from behave import *
 use_step_matcher("parse")
 
 from hamcrest import assert_that, equal_to, is_, not_none
-import dateutil.parser as dt_parser
-import datetimerange as dtr
+import pendulum
 import toolz.curried as toolz
 
 from tests import custom_matchers as tcm
@@ -51,7 +50,7 @@ def step_impl(context, name, start_time, stop_time):
     """
     assert_that(context.monitor.name, equal_to(name))
     monitor_time_range = context.monitor.time_range
-    expected_start = dt_parser.parse(start_time)
-    expected_stop = dt_parser.parse(stop_time)
-    expected_time_range = dtr.DateTimeRange(expected_start, expected_stop)
+    expected_start = pendulum.parse(start_time)
+    expected_stop = pendulum.parse(stop_time)
+    expected_time_range = pendulum.Period(expected_start, expected_stop)
     assert_that(monitor_time_range, tcm.equal_to_time_range(expected_time_range))

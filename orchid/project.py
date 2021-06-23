@@ -16,10 +16,11 @@
 #
 
 from collections import namedtuple
-from typing import List, Tuple, Iterable, Dict
+from typing import Callable, Dict, Iterable, List, Tuple
+import uuid
 
 import deal
-import pandas as pd
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -68,6 +69,9 @@ class Project(dna.DotNetAdapter):
     wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
                                                   nwa.NativeWellAdapter)
 
+    _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
+                                               dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
@@ -81,26 +85,62 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def data_frames(self) -> Iterable[dfa.NativeDataFrameAdapter]:
+    def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
         """
-        Return a sequence of data frames for this project.
+        Return the single data frame from this project identified by `id_to_match`.
+        Args:
+            id_to_match: The `uuid.UUID` sought.
 
         Returns:
-            An iterable of data frames.
+            `option.Some`(data frame) if one match; otherwise, `option.NONE`.
         """
-        result = toolz.pipe(self._project_loader.native_project().DataFrames.Items,
-                            toolz.map(lambda net_df: dfa.NativeDataFrameAdapter(net_df)))
-        return result
+        candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
+        return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
-    def data_frames_by_name(self, data_frame_name):
+    def all_data_frames_object_ids(self) -> Iterable[str]:
+        """
+        Calculate all the data frame object IDs.
+
+        Returns:
+            An iterable over all the object IDs.
+        """
+        return self._all_data_frames_attributes(lambda df: df.object_id)
+
+    def all_data_frames_display_names(self) -> Iterable[str]:
+        """
+        Calculate all the data frame display names.
+
+        Returns:
+            An iterable over all the display names.
+        """
+        return self._all_data_frames_attributes(lambda df: df.display_name)
+
+    def all_data_frames_names(self) -> Iterable[str]:
+        """
+        Calculate all the data frame names.
+
+        Returns:
+            An iterable over all the names.
+        """
+        return self._all_data_frames_attributes(lambda df: df.name)
+
+    def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
+        """
+        Return all project data frames with `display_name`, `data_frame_name`.
+
+        Args:
+            data_frame_display_name: The display name of the data frame sought.
+        """
+        return self._find_data_frames(lambda df: df.display_name == data_frame_display_name)
+
+    def find_data_frames_with_name(self, data_frame_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames named `data_frame_name`.
 
         Args:
             data_frame_name: The name of the data frame sought.
         """
-        result = list(toolz.filter(lambda df: df.name == data_frame_name, self.data_frames()))
-        return result
+        return self._find_data_frames(lambda df: df.name == data_frame_name)
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 
@@ -174,3 +214,30 @@ class Project(dna.DotNetAdapter):
         :return: A list of all the wells in this project.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
+
+    def _all_data_frames_attributes(self, attribute_func) -> Iterable[str]:
+        """
+        Calculate all the attributes extracted by `attribute_func` from all data frames
+
+        Args:
+            attribute_func: A callable to extract an "attribute" from each data frame.
+
+        Returns:
+            An iterable over all the extracted attributes.
+        """
+        return toolz.map(attribute_func, self._data_frames.values())
+
+    def _find_data_frames(self, predicate: Callable[[dfa.NativeDataFrameAdapter], bool])\
+            -> Iterable[dfa.NativeDataFrameAdapter]:
+        """
+        Return all project data frames for which `predicate` returns `True`.
+
+        Args:
+            predicate: The callable
+        """
+        result = toolz.pipe(
+            self._data_frames,
+            toolz.valfilter(predicate),
+            lambda dfs: dfs.values(),
+        )
+        return result

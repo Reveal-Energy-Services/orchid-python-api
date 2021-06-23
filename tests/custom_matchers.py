@@ -12,15 +12,13 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime as dt
 import decimal
 from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
 from hamcrest.core.base_matcher import BaseMatcher, T
 from hamcrest.core.description import Description
-import dateutil.utils as duu
-import datetimerange as dtr
+import pendulum
 
 import packaging.version as pv
 
@@ -78,10 +76,61 @@ def get_net_unit(net_quantity):
         return net_quantity.NumeratorUnit, net_quantity.DenominatorUnit
 
 
-class IsEqualNetDateTime(BaseMatcher):
+class IsEqualDateTime(BaseMatcher):
     def __init__(self, expected):
         """
-        Construct an instance for matching another .NET DateTime instance against
+        Construct an instance for matching two `dt.datetime` instances.
+        Args:
+            expected: The expected `dt.datetime` instance.
+        """
+        self._expected = expected
+
+    def describe_mismatch(self, item, mismatch_description: Description) -> None:
+        """
+        Describes the mismatch of the actual item.
+        Args:
+            item: The actual value in the test.
+            mismatch_description: The incoming mismatch_description.
+        """
+        mismatch_description.append_text(item.isoformat())
+
+    def describe_to(self, description: Description) -> None:
+        """
+        Describe the match failure.
+
+        Args:
+            description: The previous failure description(s).
+        """
+        description.append_text(self._expected.isoformat)
+
+    def _matches(self, item) -> bool:
+        """
+        Determines of one `dt.datetime` instance equals another instance.
+
+        Args:
+            item: A `dt.datetime` instance:
+        """
+        return item.timestamp() == self._expected.timestamp()
+
+
+def equal_to_datetime(expected):
+    """
+    Create a matcher verifying another `dt.datetime` is equal to `expected`.
+
+    Args:
+        expected: An `dt.datetime` instance:
+
+    Returns:
+        A matcher against `expected`.
+
+    """
+    return IsEqualDateTime(expected)
+
+
+class BaseEqualNetDateTime(BaseMatcher):
+    def __init__(self, expected):
+        """
+        Construct an instance for matching another .NET DateTime instance against another instance.
         Args:
             expected: The expected .NET DateTime instance.
         """
@@ -118,7 +167,6 @@ class IsEqualNetDateTime(BaseMatcher):
                   - Minute
                   - Second
                   - Millisecond
-                  - Kind
         """
         if self._expected.Year != item.Year:
             return False
@@ -141,10 +189,15 @@ class IsEqualNetDateTime(BaseMatcher):
         if self._expected.Millisecond != item.Millisecond:
             return False
 
+        return True
+
+
+class IsEqualNetDateTime(BaseEqualNetDateTime):
+    def _matches(self, item) -> bool:
         if self._expected.Kind != item.Kind:
             return False
 
-        return True
+        return super()._matches(item)
 
 
 def equal_to_net_date_time(expected):
@@ -153,21 +206,34 @@ def equal_to_net_date_time(expected):
 
     Args:
         expected: An instance implementing the .NET DateTime "interface":
-                  - Year
-                  - Month
-                  - Day
-                  - Hour
-                  - Minute
-                  - Second
-                  - Millisecond
-                  - Kind
-                  - ToString
 
     Returns:
         A matcher against `expected`.
 
     """
     return IsEqualNetDateTime(expected)
+
+
+class IsEqualNetDateTimeOffset(BaseEqualNetDateTime):
+    def _matches(self, item) -> bool:
+        if self._expected.Offset != item.Offset:
+            return False
+
+        return super()._matches(item)
+
+
+def equal_to_net_date_time_offset(expected):
+    """
+    Create a matcher verifying another .NET DateTimeOffset equal to `expected`.
+
+    Args:
+        expected: An instance implementing the .NET DateTimeOffset "interface":
+
+    Returns:
+        A matcher against `expected`.
+
+    """
+    return IsEqualNetDateTimeOffset(expected)
 
 
 class IsEqualVersion(BaseMatcher):
@@ -252,12 +318,12 @@ def equal_to_version(expected):
 
 
 class IsEqualTimeRange(BaseMatcher):
-    def __init__(self, expected: dtr.DateTimeRange):
+    def __init__(self, expected: pendulum.Period):
         """
         Construct an instance for matching `expected`.
 
         Args:
-            expected: The expected `DateTimeRange` instance to be matched.
+            expected: The expected `pendulum.Duration` instance to be matched.
         """
         self._expected = expected
 
@@ -282,23 +348,24 @@ class IsEqualTimeRange(BaseMatcher):
 
     def _matches(self, item: T) -> bool:
         """
-        Determine if `item`, an instance of `dtr.DateTimeRange`, equals an expected instance.
+        Determine if `item`, an instance of `pendulum.Duration`, equals an expected instance.
+
         Args:
-            item: The actual `dtr.DateTimeRange` instance.
+            item: The actual `Duration` instance.
         """
         def within_1_second(left_time, right_time):
-            return duu.within_delta(left_time, right_time, dt.timedelta(seconds=1))
+            return left_time.diff(right_time) < pendulum.Duration(seconds=1)
 
-        return (within_1_second(self._expected.start_datetime, item.start_datetime) and
-                within_1_second(self._expected.end_datetime, item.end_datetime))
+        return (within_1_second(self._expected.start, item.start) and
+                within_1_second(self._expected.end, item.end))
 
 
-def equal_to_time_range(expected: dtr.DateTimeRange):
+def equal_to_time_range(expected: pendulum.Period):
     """
-    Create a matcher to determine if another object equals an `expected` `dtr.DateTimeRange`.
+    Create a matcher to determine if another object equals an `expected` `pendulum.Period`.
 
     Args:
-        expected: The expected `dtr.DateTimeRange` instance.
+        expected: The expected `pendulum.Period` instance.
 
     Returns:
         A matcher against `expected`.

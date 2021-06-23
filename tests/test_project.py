@@ -16,12 +16,14 @@
 #
 
 import decimal
-import datetime
 import unittest
 import unittest.mock
+import uuid
 
 import deal
-from hamcrest import assert_that, equal_to, contains_exactly, is_, empty, calling, raises
+from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
+import option
+import pendulum
 import toolz.curried as toolz
 
 from orchid import (
@@ -52,6 +54,9 @@ def make_samples_for_starts(starts, values_for_starts):
 
 
 # Test ideas
+# - data_frame_ids() returns all data frame IDs
+# - all_data_frames_names() returns all data frame names
+# - all_data_frames_display_names() returns all data frame display names
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -71,26 +76,109 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
-    def test_data_frames(self):
-        for data_frame_names in [[], ['circumspectus'], ['omne', 'grandiloquum', 'gerent']]:
-            with self.subTest(f'Verify correct number of data_frames: {data_frame_names}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+    def test_data_frame_with_match_returns_some_data_frame_with_object_id(self):
+        data_frame_ids, id_to_match = ([{'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}],
+                                       uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb'))
+        stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+        sut = create_sut(stub_native_project)
+
+        matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
+        assert_that(matching_data_frame_object_id, equal_to(option.Some(id_to_match)))
+
+    def test_data_frame_with_no_match_returns_option_none(self):
+        data_frame_ids, id_to_match = ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],
+                                       uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42'))
+        stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+        sut = create_sut(stub_native_project)
+
+        matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
+        assert_that(matching_data_frame_object_id, equal_to(option.NONE))
+
+    def test_all_data_frames_object_ids_returns_all_object_ids(self):
+        for data_frame_ids, expected_object_ids in [
+            ([], []),
+            ([{'object_id': '745fefae-b757-4295-8067-8dc83e2b6c53'}],
+             [uuid.UUID('745fefae-b757-4295-8067-8dc83e2b6c53')]),
+            ([{'object_id': '2dca4e6b-4149-4e8b-908f-7e9e5f62d38a'},
+              {'object_id': '2a64351c-24ba-4db3-beaf-ce7f32706a4e'},
+              {'object_id': 'eb6ea8fb-b592-4f9b-b515-3ba63fb3541e'}],
+             toolz.map(uuid.UUID, ['2dca4e6b-4149-4e8b-908f-7e9e5f62d38a',
+                                   '2a64351c-24ba-4db3-beaf-ce7f32706a4e',
+                                   'eb6ea8fb-b592-4f9b-b515-3ba63fb3541e']))
+        ]:
+            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_object_ids}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
                 sut = create_sut(stub_native_project)
 
-                assert_that(len(list(sut.data_frames())), equal_to(len(data_frame_names)))
-                to_test_names = set(toolz.map(lambda df: df.name, sut.data_frames()))
-                assert_that(to_test_names, equal_to(set(data_frame_names)))
+                actual_object_ids = sut.all_data_frames_object_ids()
+                assert_that(actual_object_ids, contains_inanyorder(*expected_object_ids))
 
-    def test_data_frames_by_name_returns_matches_with_requested_name(self):
-        for data_frame_names, name_to_match, match_count in [(['vicis'], 'vici', 0),
-                                                             (['rosae'], 'rosae', 1),
-                                                             (['diluit'] * 2, 'diluit', 2)]:
+    def test_all_data_frames_display_names_returns_all_display_names(self):
+        for data_frame_ids, expected_display_names in [
+            ([], []),
+            ([{'display_name': 'tumuerunt', 'object_id': 'dbb92d94-5c91-439c-98c3-f9566321140a'}],
+             ['tumuerunt']),
+            ([{'display_name': 'refuerunt', 'object_id': '2dca4e6b-4149-4e8b-908f-7e9e5f62d38a'},
+              {'display_name': 'crapulam', 'object_id': 'f34673ef-0b27-4bd0-a788-2646ddb78680'},
+              {'display_name': 'refuerunt', 'object_id': 'c9d8f992-fbf7-420e-a65e-a36f7b2f608b'}],
+             ['refuerunt', 'crapulam', 'refuerunt'])
+        ]:
+            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_display_names}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+                sut = create_sut(stub_native_project)
+
+                actual_display_names = sut.all_data_frames_display_names()
+                assert_that(actual_display_names, contains_inanyorder(*expected_display_names))
+
+    def test_all_data_frames_names_returns_all_names(self):
+        for data_frame_ids, expected_names in [
+            ([], []),
+            ([{'name': 'fulmen', 'object_id': 'ff241498-75ad-499a-b47f-27fd19359ac6'}],
+             ['fulmen']),
+            ([{'name': 'fratris', 'object_id': 'd3d16b87-2171-4147-95f0-c7c67bc2bbe4'},
+              {'name': 'visci', 'object_id': '0df09bec-e389-4211-bf25-3c630f0e47b8'},
+              {'name': 'fratris', 'object_id': 'df9c0943-85a0-4ae7-b40a-f9dec680d9f6'}],
+             ['fratris', 'visci', 'fratris'])
+        ]:
+            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+                sut = create_sut(stub_native_project)
+
+                actual_names = sut.all_data_frames_names()
+                assert_that(actual_names, contains_inanyorder(*expected_names))
+
+    def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
+        for data_frame_display_names, name_to_match, match_count in [
+            ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}],
+             'restauras', 0),
+            ([{'display_name': 'insuperabile', 'object_id': '8dc279ed-9d81-4dac-9057-58dd74dcd39b'}],
+             'insuperabile', 1),
+            ([{'display_name': 'diluit', 'object_id': '371a1443-1089-4080-8e7c-d48c9435b71b'},
+              {'display_name': 'diluit', 'object_id': '4c21a0fd-dc47-4204-95a5-e5a76bf78516'}],
+             'diluit', 2)
+        ]:
+            with self.subTest(f'Verify {data_frame_display_names} have {match_count} matches of "{name_to_match}"'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_display_names)
+                sut = create_sut(stub_native_project)
+
+                matching_data_frame_display_names = list(toolz.map(
+                    lambda df: df.display_name, sut.find_data_frames_with_display_name(name_to_match)))
+                assert_that(matching_data_frame_display_names, equal_to([name_to_match] * match_count))
+
+    def test_find_data_frames_with_name_returns_matches_with_requested_name(self):
+        for data_frame_names, name_to_match, match_count in [
+            ([{'name': 'vicis', 'object_id': '01de593e-6f52-4c78-8416-aea7a29349cb'}], 'vici', 0),
+            ([{'name': 'rosae', 'object_id': '5feb74e1-0392-45b8-b194-131d8a0bdef3'}], 'rosae', 1),
+            ([{'name': 'diluit', 'object_id': '4750e22c-25ab-42c8-8b08-81bcc2c86b1b'},
+              {'name': 'diluit', 'object_id': '1e4969ab-2b75-4702-9136-6bd06a5f5b74'}],
+             'diluit', 2),
+        ]:
             with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_names=data_frame_names)
+                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
                 sut = create_sut(stub_native_project)
 
                 matching_data_frame_names = list(toolz.map(lambda df: df.name,
-                                                           sut.data_frames_by_name(name_to_match)))
+                                                           sut.find_data_frames_with_name(name_to_match)))
                 assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
 
     def test_default_well_colors_if_no_default_well_colors(self):
@@ -337,7 +425,7 @@ class TestProject(unittest.TestCase):
     def test_well_time_series_returns_one_if_one_well_time_series(self):
         curve_name = 'gestum'
         curve_quantity = 'pressure'
-        sample_start = datetime.datetime(2018, 11, 14, 0, 58, 32, 136000)
+        sample_start = pendulum.datetime(2018, 11, 14, 0, 58, 32, 136000)
         sample_values = [0.617, 0.408, 2.806]
 
         samples = make_samples(sample_start, sample_values)
@@ -351,9 +439,9 @@ class TestProject(unittest.TestCase):
     def test_well_time_series_returns_many_if_many_well_time_series(self):
         curve_names = ['superseduisti', 'mulctaverim', 'veniae']
         curve_quantity_names = ['temperature', 'pressure', 'pressure']
-        sample_starts = [datetime.datetime(2019, 3, 7, 10, 2, 13, 131000),
-                         datetime.datetime(2019, 8, 1, 16, 50, 45, 500000),
-                         datetime.datetime(2016, 3, 21, 20, 15, 19, 54000)]
+        sample_starts = [pendulum.datetime(2019, 3, 7, 10, 2, 13, 131000),
+                         pendulum.datetime(2019, 8, 1, 16, 50, 45, 500000),
+                         pendulum.datetime(2016, 3, 21, 20, 15, 19, 54000)]
         samples_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
 
         samples = list(make_samples_for_starts(sample_starts, samples_values))

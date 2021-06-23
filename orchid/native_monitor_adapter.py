@@ -12,10 +12,9 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import datetime as dt
+import pendulum
 
-import datetimerange as dtr
-
+import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     net_date_time as ndt,
@@ -23,10 +22,6 @@ from orchid import (
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IMonitor
-
-
-def make_time_range(start: dt.datetime, stop: dt.datetime) -> dtr.DateTimeRange:
-    pass
 
 
 class NativeMonitorAdapter(dna.DotNetAdapter):
@@ -38,15 +33,15 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
         Args:
             net_monitor: The .NET monitor to be adapted.
         """
-        super().__init__(net_monitor, dna.constantly(net_monitor.Project))
+        super().__init__(net_monitor, orchid.base.constantly(net_monitor.Project))
 
     display_name = dna.dom_property('display_name', 'The name used by engineers to identify this monitor.')
     name = dna.dom_property('name', 'The name of this monitor.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of this monitor.',
-                                              ndt.as_datetime)
+                                              ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of this monitor.',
-                                             ndt.as_datetime)
+                                             ndt.as_date_time)
 
     @property
     def time_range(self):
-        return dtr.DateTimeRange(self.start_time, self.stop_time)
+        return pendulum.Period(self.start_time, self.stop_time)

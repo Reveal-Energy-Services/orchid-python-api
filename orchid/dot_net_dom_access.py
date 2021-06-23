@@ -16,7 +16,7 @@
 #
 
 import uuid
-from typing import Callable, Union
+from typing import Callable, Mapping, Union
 
 import deal
 import option
@@ -36,23 +36,6 @@ from System import Guid
 # in the class definition, PyCharm reported "Property 'xyz' could not be read. I think it might have been
 # than I needed to apply `curry` to the "getter method" I also defined in the class in order to pass he
 # attribute name at definition time (because `self` was only available at run-time).
-
-
-def constantly(x):
-    """
-    Creates a function that always returns the value, `x`.
-    Args:
-        x: The value to return
-
-    Returns:
-        Returns a function takes any arguments yet always returns `x`.
-    """
-
-    # noinspection PyUnusedLocal
-    def make_constantly(*args, **kwargs):
-        return toolz.identity(x)
-
-    return make_constantly
 
 
 def get_dot_net_property_value(attribute_name, dom_object):
@@ -101,6 +84,31 @@ def dom_property(attribute_name, docstring):
     return property(fget=getter, doc=docstring, fset=None)
 
 
+def map_reduce_dom_property(attribute_name, docstring, mapper, reducer, initial):
+    """
+    Return reduced collection property of the DOM corresponding to `attribute_name` with doc string, `docstring`.
+
+    Args:
+        attribute_name: The name of the transformed attribute.
+        docstring: The doc string to be attached to the resultant property.
+        mapper: A callable that transforms every item of the .NET DOM property.
+        reducer: A callable invoked to reduce the collection.
+        initial: The initial value of the reduction.
+
+    Returns:
+        The Python property wrapping the mapped and reduced DOM (collection) property items.
+    """
+    def getter(self):
+        result = toolz.pipe(get_dot_net_property_value(attribute_name, self._adaptee),
+                            lambda container: container.Items,
+                            toolz.map(mapper),
+                            lambda items: toolz.reduce(reducer, items, initial))
+        return result
+
+    # Ensure no setter for the DOM properties
+    return property(fget=getter, doc=docstring, fset=None)
+
+
 def transformed_dom_property(attribute_name, docstring, transformer):
     """
     Return the transformed property of the DOM corresponding to `attribute_name`.
@@ -135,7 +143,7 @@ def transformed_dom_property_iterator(attribute_name, docstring, transformer):
     return property(fget=getter, doc=docstring, fset=None)
 
 
-def as_uuid(guid: Guid):
+def as_object_id(guid: Guid):
     return uuid.UUID(str(guid))
 
 
@@ -151,7 +159,7 @@ class DotNetAdapter:
         self._adaptee = adaptee
         self._net_project_callable = net_project_callable
 
-    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_uuid)
+    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
     @property
     def dom_object(self):
@@ -206,3 +214,17 @@ class DotNetAdapter:
         return (option.Some(units.as_unit_system(self._net_project_callable().ProjectUnits))
                 if self._net_project_callable
                 else option.NONE)
+
+
+def dictionary_by_id(accumulator: Mapping[uuid.UUID, DotNetAdapter], mapped_object: DotNetAdapter):
+    """
+    Return a `Mapping` resulting from adding `mapped_object` to `accumulator`.
+
+    Args:
+        accumulator: The accumulated result.
+        mapped_object: The `DotNetAdapter` to be added to `accumulator`.
+
+    Returns:
+        The updated `Mapping`.
+    """
+    return toolz.assoc(accumulator, mapped_object.object_id, mapped_object)
