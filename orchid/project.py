@@ -71,31 +71,13 @@ class Project(dna.DotNetAdapter):
 
     _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
                                                dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+    _monitors = dna.map_reduce_dom_property('monitors', 'The project monitors.',
+                                            nma.NativeMonitorAdapter, dna.dictionary_by_id, {})
 
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
         return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
-
-    def default_well_colors(self) -> List[Tuple[float, float, float]]:
-        """
-        Calculate the default well colors for this project.
-        :return: A list of RGB tuples.
-        """
-        result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
-        return result
-
-    def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
-        """
-        Return the single data frame from this project identified by `id_to_match`.
-        Args:
-            id_to_match: The `uuid.UUID` sought.
-
-        Returns:
-            `option.Some`(data frame) if one match; otherwise, `option.NONE`.
-        """
-        candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
-        return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
     def all_data_frames_object_ids(self) -> Iterable[str]:
         """
@@ -124,6 +106,26 @@ class Project(dna.DotNetAdapter):
         """
         return self._all_data_frames_attributes(lambda df: df.name)
 
+    def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
+        """
+        Return the single data frame from this project identified by `id_to_match`.
+        Args:
+            id_to_match: The `uuid.UUID` sought.
+
+        Returns:
+            `option.Some`(data frame) if one match; otherwise, `option.NONE`.
+        """
+        candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
+        return option.maybe(candidates[0] if len(candidates) == 1 else None)
+
+    def default_well_colors(self) -> List[Tuple[float, float, float]]:
+        """
+        Calculate the default well colors for this project.
+        :return: A list of RGB tuples.
+        """
+        result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
+        return result
+
     def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames with `display_name`, `data_frame_name`.
@@ -141,6 +143,18 @@ class Project(dna.DotNetAdapter):
             data_frame_name: The name of the data frame sought.
         """
         return self._find_data_frames(lambda df: df.name == data_frame_name)
+
+    def monitor(self, id_to_match: uuid.UUID) -> option.Option[nma.NativeMonitorAdapter]:
+        """
+        Return the single monitor from this project identified by `id_to_match`.
+        Args:
+            id_to_match: The `uuid.UUID` sought.
+
+        Returns:
+            `option.Some`(monitor) if one match; otherwise, `option.NONE`.
+        """
+        candidates = list(self._find_monitors(lambda monitor: monitor.object_id == id_to_match))
+        return option.maybe(candidates[0] if len(candidates) == 1 else None)
 
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 
@@ -227,17 +241,32 @@ class Project(dna.DotNetAdapter):
         """
         return toolz.map(attribute_func, self._data_frames.values())
 
-    def _find_data_frames(self, predicate: Callable[[dfa.NativeDataFrameAdapter], bool])\
+    def _find_data_frames(self, predicate: Callable[[dfa.NativeDataFrameAdapter], bool]) \
             -> Iterable[dfa.NativeDataFrameAdapter]:
         """
         Return all project data frames for which `predicate` returns `True`.
 
         Args:
-            predicate: The callable
+            predicate: The callable used to find data frames of interest
         """
         result = toolz.pipe(
             self._data_frames,
             toolz.valfilter(predicate),
             lambda dfs: dfs.values(),
+        )
+        return result
+
+    def _find_monitors(self, predicate: Callable[[nma.NativeMonitorAdapter], bool]) \
+            -> Iterable[nma.NativeMonitorAdapter]:
+        """
+        Return all project monitors for which `predicate` returns `True`.
+
+        Args:
+            predicate: The callable used to find monitors of interest.
+        """
+        result = toolz.pipe(
+            self._monitors,
+            toolz.valfilter(predicate),
+            lambda monitors: monitors.values(),
         )
         return result
