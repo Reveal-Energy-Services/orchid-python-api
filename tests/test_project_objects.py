@@ -65,7 +65,7 @@ class TestProjectObjects(unittest.TestCase):
 
                 assert_that(len(sut), equal_to(len(net_items)))
 
-    def test_query_all_object_ids_from_collection(self):
+    def test_query_object_ids_from_collection(self):
         for net_items, item_callable in [
             ([], tsn.create_stub_project_object()),
             ([{'object_id': 'fbb6edad-2379-4bde-8eac-e42bf472c8f8'}], tsn.create_stub_project_object),
