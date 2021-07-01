@@ -26,12 +26,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Query all names from collection of no .NET DOM objects returns empty sequence
-# - Query all names from single-item .NET DOM object collection returns single name
-# - Query all names from many-item .NET DOM object collection returns many names
-# - Query all display names from collection of no .NET DOM objects returns empty sequence
-# - Query all display names from single-item .NET DOM object collection returns single name
-# - Query all display names from many-item .NET DOM object collection returns many names
 # - Search by id for item in collection returns item with id
 # - Search by id for item not in collection returns no item
 # - Search collection by name with no match returns empty sequence
@@ -99,6 +93,23 @@ class TestProjectObjects(unittest.TestCase):
 
                 # noinspection PyTypeChecker
                 assert_that(list(sut.all_names()), contains_exactly(*expected))
+
+    def test_query_all_display_names_from_collection(self):
+        for net_items, item_callable in [
+            ([], tsn.create_stub_project_object()),
+            ([{'display_name': 'assidui'}], tsn.create_stub_project_object),
+            ([{'display_name': 'mutabilibus'},
+              {'display_name': 'anno'},
+              {'display_name': 'vestustas'}], tsn.create_stub_project_object),
+        ]:
+            expected = toolz.pipe(net_items,
+                                  toolz.map(toolz.get('display_name')),
+                                  list)
+            with self.subTest(f'Verify {expected} in collection'):
+                sut = create_sut(net_items, item_callable)
+
+                # noinspection PyTypeChecker
+                assert_that(list(sut.all_display_names()), contains_exactly(*expected))
 
 
 def create_sut(net_items, create_func):
