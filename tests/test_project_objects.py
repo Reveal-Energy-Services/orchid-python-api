@@ -15,7 +15,7 @@
 import unittest
 import uuid
 
-from hamcrest import assert_that, equal_to, contains_exactly
+from hamcrest import assert_that, equal_to, contains_exactly, is_, none
 import toolz.curried as toolz
 
 from orchid import (
@@ -26,8 +26,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Search by id for item in collection returns item with id
-# - Search by id for item not in collection returns no item
 # - Search collection by name with no match returns empty sequence
 # - Search collection by name with only one match returns single DOM object with name
 # - Search collection by name with many matching names returns many DOM objects with name
@@ -110,6 +108,22 @@ class TestProjectObjects(unittest.TestCase):
 
                 # noinspection PyTypeChecker
                 assert_that(list(sut.all_display_names()), contains_exactly(*expected))
+
+    def test_collection_with_match_returns_project_object_with_object_id(self):
+        net_id = {'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}
+        sought_id = uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb')
+        sut = create_sut([net_id], tsn.create_stub_project_object)
+
+        actual_project_object = sut.object_id(sought_id)
+        assert_that(actual_project_object.object_id, equal_to(sought_id))
+
+    def test_collection_with_no_match_returns_project_object_with_object_id(self):
+        net_id = {'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}
+        sought_id = uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42')
+        sut = create_sut([net_id], tsn.create_stub_project_object)
+
+        actual_project_object = sut.object_id(sought_id)
+        assert_that(actual_project_object, is_(none()))
 
 
 def create_sut(net_items, create_func):

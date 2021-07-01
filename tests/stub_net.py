@@ -632,7 +632,6 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
 
 def create_stub_project_object(object_id=None, name=None, display_name=None):
     """Create a stub wrapper for an IProjectObject."""
-
     stub_project_object_name = 'stub_project_object'
     try:
         result = unittest.mock.MagicMock(name=stub_project_object_name, spec=IProjectObject)
