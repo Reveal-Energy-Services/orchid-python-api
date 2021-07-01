@@ -18,7 +18,6 @@ from hamcrest import assert_that, equal_to
 
 from orchid import (
     project_objects as poc,
-    native_data_frame_adapter as nfa,
 )
 
 from tests import stub_net as tsn
@@ -55,7 +54,7 @@ class TestProjectObjects(unittest.TestCase):
 
     def test_constructed_collection_has_correct_number_of_elements(self):
         for net_items, item_callable in [
-            ([], nfa.NativeDataFrameAdapter),
+            ([], tsn.create_stub_net_data_frame),
             ([{}], tsn.create_stub_net_well_trajectory),
             ([{}, {}, {}], tsn.create_stub_net_well),
         ]:
