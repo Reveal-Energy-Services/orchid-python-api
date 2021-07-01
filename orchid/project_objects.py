@@ -28,8 +28,16 @@ import toolz.curried as toolz
 
 
 class ProjectObjects:
-    def __init__(self, create_callable, net_project_objects):
-        self._collection = toolz.map(lambda kwargs: create_callable(**kwargs), net_project_objects)
+    def __init__(self, make_adapter, net_project_objects):
+        self._collection = toolz.pipe(
+            net_project_objects,
+            toolz.map(lambda kwargs: make_adapter(**kwargs)),
+            toolz.map(lambda dom_object: (dom_object.object_id, dom_object)),
+            dict,
+        )
 
     def __len__(self):
-        return toolz.count(self._collection)
+        return len(self._collection)
+
+    def object_ids(self):
+        return self._collection.keys()

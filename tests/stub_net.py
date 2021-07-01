@@ -44,6 +44,7 @@ from tests import (
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IMonitor,
                                         IProject,
+                                        IProjectObject,
                                         IPlottingSettings,
                                         IStage,
                                         ISubsurfacePoint,
@@ -211,6 +212,27 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
 
     if table_data_dto is not None:
         result.DataTable = stub_ndt.populate_data_table(table_data_dto)
+
+    return result
+
+
+def create_stub_net_project_object(object_id=None, name=None, display_name=None):
+    """Create a stub .NET IProjectObject."""
+
+    stub_net_project_object_name = 'stub_net_project_object'
+    try:
+        result = unittest.mock.MagicMock(name=stub_net_project_object_name, spec=IProjectObject)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_net_project_object_name)
+
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
+
+    if name is not None:
+        result.Name = Guid(name)
+
+    if display_name is not None:
+        result.DisplayName = Guid(display_name)
 
     return result
 
@@ -386,13 +408,18 @@ def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sam
     return stub_net_monitor_curve
 
 
-def create_stub_net_well_trajectory(project=None,
-                                    easting_magnitudes=None,
-                                    northing_magnitudes=None):
+def create_stub_net_well_trajectory(easting_magnitudes=None,
+                                    northing_magnitudes=None,
+                                    object_id=None,
+                                    project=None,
+                                    ):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
+    if object_id is not None:
+        stub_trajectory.ObjectId = object_id
+
     if project is not None:
         stub_trajectory.Well.Project = project
 
