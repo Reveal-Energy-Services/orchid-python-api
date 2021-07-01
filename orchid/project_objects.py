@@ -39,5 +39,8 @@ class ProjectObjects:
     def __len__(self):
         return len(self._collection)
 
+    def all_names(self):
+        return toolz.map(lambda po: po.name, self._collection.values())
+
     def object_ids(self):
         return self._collection.keys()

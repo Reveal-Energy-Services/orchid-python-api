@@ -73,16 +73,32 @@ class TestProjectObjects(unittest.TestCase):
               {'object_id': '83462051-6fb0-4810-92b2-3802fbd55e19'},
               {'object_id': '154af216-6e13-4a10-85ab-24085a674550'}], tsn.create_stub_project_object),
         ]:
-            with self.subTest(f'Verify {len(net_items)} in collection'):
+            expected = toolz.pipe(net_items,
+                                  toolz.map(toolz.get('object_id')),
+                                  toolz.map(uuid.UUID),
+                                  list)
+            with self.subTest(f'Verify object ids, {expected}, in collection'):
                 sut = create_sut(net_items, item_callable)
 
                 # noinspection PyTypeChecker
-                expected = toolz.pipe(net_items,
-                                      toolz.map(toolz.get('object_id')),
-                                      toolz.map(uuid.UUID),
-                                      list)
-                # noinspection PyTypeChecker
                 assert_that(list(sut.object_ids()), contains_exactly(*expected))
+
+    def test_query_all_names_from_collection(self):
+        for net_items, item_callable in [
+            ([], tsn.create_stub_project_object()),
+            ([{'name': 'per'}], tsn.create_stub_project_object),
+            ([{'name': 'caponis'},
+              {'name': 'probis'},
+              {'name': 'aversis'}], tsn.create_stub_project_object),
+        ]:
+            expected = toolz.pipe(net_items,
+                                  toolz.map(toolz.get('name')),
+                                  list)
+            with self.subTest(f'Verify {expected} in collection'):
+                sut = create_sut(net_items, item_callable)
+
+                # noinspection PyTypeChecker
+                assert_that(list(sut.all_names()), contains_exactly(*expected))
 
 
 def create_sut(net_items, create_func):
