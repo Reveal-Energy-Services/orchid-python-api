@@ -19,8 +19,6 @@ from hamcrest import assert_that, equal_to, contains_exactly
 import toolz.curried as toolz
 
 from orchid import (
-    native_data_frame_adapter as dfa,
-    native_trajectory_adapter as nta,
     project_objects as poc,
 )
 
@@ -54,10 +52,13 @@ class TestProjectObjects(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_constructed_collection_has_correct_number_of_elements(self):
+        # All the tests use a stub object returned by `tsn.create_stub_project_object`. The `mock.MagicMock`
+        # returned by this method only supports `object_id`, `name` and `display_name`. This approach assumes that
+        # the unit tests for the `Native...Adapter` ensure that these properties work for the actual wrapper objects.
         for net_items, item_callable in [
-            ([], tsn.create_stub_net_data_frame),
-            ([{}], tsn.create_stub_net_well_trajectory),
-            ([{}, {}, {}], tsn.create_stub_net_well),
+            ([], tsn.create_stub_project_object),
+            ([{}], tsn.create_stub_project_object),
+            ([{}, {}, {}], tsn.create_stub_project_object),
         ]:
             with self.subTest(f'Verify {len(net_items)} in collection'):
                 sut = create_sut(net_items, item_callable)
@@ -66,13 +67,11 @@ class TestProjectObjects(unittest.TestCase):
 
     def test_query_all_object_ids_from_collection(self):
         for net_items, item_callable in [
-            ([], tsn.create_stub_net_monitor),
-            ([{'object_id': 'fbb6edad-2379-4bde-8eac-e42bf472c8f8'}],
-             toolz.compose(dfa.NativeDataFrameAdapter, tsn.create_stub_net_data_frame)),
+            ([], tsn.create_stub_project_object()),
+            ([{'object_id': 'fbb6edad-2379-4bde-8eac-e42bf472c8f8'}], tsn.create_stub_project_object),
             ([{'object_id': 'a5f8ebd1-d6f2-49c2-aeb5-a8646857f1b7'},
               {'object_id': '83462051-6fb0-4810-92b2-3802fbd55e19'},
-              {'object_id': '154af216-6e13-4a10-85ab-24085a674550'}],
-             toolz.compose(nta.NativeTrajectoryAdapter, tsn.create_stub_net_well_trajectory)),
+              {'object_id': '154af216-6e13-4a10-85ab-24085a674550'}], tsn.create_stub_project_object),
         ]:
             with self.subTest(f'Verify {len(net_items)} in collection'):
                 sut = create_sut(net_items, item_callable)
@@ -82,9 +81,8 @@ class TestProjectObjects(unittest.TestCase):
                                       toolz.map(toolz.get('object_id')),
                                       toolz.map(uuid.UUID),
                                       list)
-                actual = list(sut.object_ids())
                 # noinspection PyTypeChecker
-                assert_that(actual, contains_exactly(*expected))
+                assert_that(list(sut.object_ids()), contains_exactly(*expected))
 
 
 def create_sut(net_items, create_func):

@@ -24,8 +24,10 @@ properties required during testing but do not actually implement the .NET class 
 from collections import namedtuple
 import itertools
 import unittest.mock
+import uuid
 from typing import Sequence
 
+import option
 import pendulum
 import toolz.curried as toolz
 
@@ -212,27 +214,6 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
 
     if table_data_dto is not None:
         result.DataTable = stub_ndt.populate_data_table(table_data_dto)
-
-    return result
-
-
-def create_stub_net_project_object(object_id=None, name=None, display_name=None):
-    """Create a stub .NET IProjectObject."""
-
-    stub_net_project_object_name = 'stub_net_project_object'
-    try:
-        result = unittest.mock.MagicMock(name=stub_net_project_object_name, spec=IProjectObject)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        result = unittest.mock.MagicMock(name=stub_net_project_object_name)
-
-    if object_id is not None:
-        result.ObjectId = Guid(object_id)
-
-    if name is not None:
-        result.Name = Guid(name)
-
-    if display_name is not None:
-        result.DisplayName = Guid(display_name)
 
     return result
 
@@ -647,3 +628,24 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
         stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
 
     return stub_net_project
+
+
+def create_stub_project_object(object_id=None, name=None, display_name=None):
+    """Create a stub wrapper for an IProjectObject."""
+
+    stub_project_object_name = 'stub_project_object'
+    try:
+        result = unittest.mock.MagicMock(name=stub_project_object_name, spec=IProjectObject)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_project_object_name)
+
+    if object_id is not None:
+        result.object_id = uuid.UUID(object_id)
+
+    if name is not None:
+        result.name = name
+
+    if display_name is not None:
+        result.display_name = display_name
+
+    return result
