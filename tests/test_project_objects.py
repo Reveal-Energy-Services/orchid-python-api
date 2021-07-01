@@ -25,9 +25,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Construct collection from no .NET DOM objects creates empty collection
-# - Construct collection from one .NET DOM object creates single item collection
-# - Construct collection from many .NET DOM objects creates many item collection
 # - Query all object IDs from collection of no .NET DOM objects returns empty sequence
 # - Query all object IDs from single-item collection of .NET DOM objects returns single object ID
 # - Query all object IDs from many-item collection of .NET DOM objects returns many object IDs
