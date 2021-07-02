@@ -75,23 +75,6 @@ class TestProjectObjects(unittest.TestCase):
                 # noinspection PyTypeChecker
                 assert_that(list(sut.object_ids()), contains_exactly(*expected))
 
-    def test_query_all_names_from_collection(self):
-        for net_items, item_callable in [
-            ([], tsn.create_stub_project_object()),
-            ([{'name': 'per'}], tsn.create_stub_project_object),
-            ([{'name': 'caponis'},
-              {'name': 'probis'},
-              {'name': 'aversis'}], tsn.create_stub_project_object),
-        ]:
-            expected = toolz.pipe(net_items,
-                                  toolz.map(toolz.get('name')),
-                                  list)
-            with self.subTest(f'Verify {expected} in collection'):
-                sut = create_sut(net_items, item_callable)
-
-                # noinspection PyTypeChecker
-                assert_that(list(sut.all_names()), contains_exactly(*expected))
-
     def test_query_all_display_names_from_collection(self):
         for net_items, item_callable in [
             ([], tsn.create_stub_project_object()),
@@ -109,20 +92,37 @@ class TestProjectObjects(unittest.TestCase):
                 # noinspection PyTypeChecker
                 assert_that(list(sut.all_display_names()), contains_exactly(*expected))
 
-    def test_collection_with_match_returns_project_object_with_object_id(self):
+    def test_query_all_names_from_collection(self):
+        for net_items, item_callable in [
+            ([], tsn.create_stub_project_object()),
+            ([{'name': 'per'}], tsn.create_stub_project_object),
+            ([{'name': 'caponis'},
+              {'name': 'probis'},
+              {'name': 'aversis'}], tsn.create_stub_project_object),
+        ]:
+            expected = toolz.pipe(net_items,
+                                  toolz.map(toolz.get('name')),
+                                  list)
+            with self.subTest(f'Verify {expected} in collection'):
+                sut = create_sut(net_items, item_callable)
+
+                # noinspection PyTypeChecker
+                assert_that(list(sut.all_names()), contains_exactly(*expected))
+
+    def test_find_by_object_id_with_match_returns_project_object_with_object_id(self):
         net_id = {'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}
         sought_id = uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb')
         sut = create_sut([net_id], tsn.create_stub_project_object)
 
-        actual_project_object = sut.object_id(sought_id)
+        actual_project_object = sut.find_by_object_id(sought_id)
         assert_that(actual_project_object.object_id, equal_to(sought_id))
 
-    def test_collection_with_no_match_returns_project_object_with_object_id(self):
+    def test_find_by_object_id_with_no_match_returns_project_object_with_object_id(self):
         net_id = {'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}
         sought_id = uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42')
         sut = create_sut([net_id], tsn.create_stub_project_object)
 
-        actual_project_object = sut.object_id(sought_id)
+        actual_project_object = sut.find_by_object_id(sought_id)
         assert_that(actual_project_object, is_(none()))
 
 

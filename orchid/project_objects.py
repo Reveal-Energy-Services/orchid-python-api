@@ -45,7 +45,7 @@ class ProjectObjects:
     def all_names(self):
         return toolz.map(lambda po: po.name, self._collection.values())
 
-    def object_id(self, id_sought):
+    def find_by_object_id(self, id_sought):
         return toolz.get(id_sought, self._collection, default=None)
 
     def object_ids(self):
