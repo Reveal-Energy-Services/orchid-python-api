@@ -124,17 +124,21 @@ class TestProjectObjects(unittest.TestCase):
                 assert_that(matching_data_frame_display_names, equal_to([sought_display_name] * match_count))
 
     def test_find_by_object_id_with_match_returns_project_object_with_object_id(self):
-        net_id = {'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}
+        net_ids = [{'object_id': '78999fda-2998-42cb-98df-13a064b3c16f'},
+                   {'object_id': '1185f8ed-2dbb-4cb9-8614-95d2eda6f02b'},
+                   {'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}]
         sought_id = uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb')
-        sut = create_sut([net_id], tsn.create_stub_project_object)
+        sut = create_sut(net_ids, tsn.create_stub_project_object)
 
         actual_project_object = sut.find_by_object_id(sought_id)
         assert_that(actual_project_object.object_id, equal_to(sought_id))
 
     def test_find_by_object_id_with_no_match_returns_project_object_with_object_id(self):
-        net_id = {'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}
+        net_id = [{'object_id': '736b6850-6b13-4657-aca2-3efa9629da42'},
+                  {'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'},
+                  {'object_id': 'b40ef09b-fe59-414f-bc00-4bd8a82b0990'}]
         sought_id = uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42')
-        sut = create_sut([net_id], tsn.create_stub_project_object)
+        sut = create_sut(net_id, tsn.create_stub_project_object)
 
         actual_project_object = sut.find_by_object_id(sought_id)
         assert_that(actual_project_object, is_(none()))
