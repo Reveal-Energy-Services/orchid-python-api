@@ -649,7 +649,7 @@ def create_stub_net_project_object(object_id=None, name=None, display_name=None)
     return result
 
 
-def create_stub_project_object(object_id=None, name=None, display_name=None):
+def create_stub_dom_project_object(object_id=None, name=None, display_name=None):
     """Create a stub wrapper for an IProjectObject."""
     stub_project_object_name = 'stub_project_object'
     try:
