@@ -43,7 +43,7 @@ This objects are all derived from `IProjectObject`. The corresponding instances 
 import toolz.curried as toolz
 
 
-class DomProjectObjects:
+class DomSearchableProjectObjects:
     def __init__(self, make_adapter: Callable, net_project_objects: Iterator[IProjectObject]):
         """
         Construct a collection of project objects created my `make_adapter` using the arguments, `net_project_objects`.

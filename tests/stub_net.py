@@ -27,7 +27,6 @@ import unittest.mock
 import uuid
 from typing import Sequence
 
-import option
 import pendulum
 import toolz.curried as toolz
 

@@ -19,14 +19,14 @@ from hamcrest import assert_that, equal_to, contains_exactly, is_, none
 import toolz.curried as toolz
 
 from orchid import (
-    dom_project_objects as poc,
+    dom_searchable_project_objects as poc,
 )
 
 from tests import stub_net as tsn
 
 
 # Test ideas
-class TestDomProjectObjects(unittest.TestCase):
+class TestDomSearchableProjectObjects(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -145,7 +145,7 @@ class TestDomProjectObjects(unittest.TestCase):
 
 
 def create_sut(net_items, create_func):
-    return poc.DomProjectObjects(create_func, net_items)
+    return poc.DomSearchableProjectObjects(create_func, net_items)
 
 
 if __name__ == '__main__':
