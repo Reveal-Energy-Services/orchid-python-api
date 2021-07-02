@@ -22,6 +22,7 @@ import uuid
 
 import deal
 from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
+import icecream
 import option
 import pendulum
 import toolz.curried as toolz
@@ -215,15 +216,20 @@ class TestProject(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(sut.fluid_density, expected_density, tolerance)
 
     def test_monitors(self):
-        for monitor_display_names in [[], ['congruent'], ['histrio', 'principis', 'quaesivuisti']]:
-            with self.subTest(f'Verify correct number of monitors: {monitor_display_names}'):
-                stub_native_project = tsn.create_stub_net_project(monitor_display_names=monitor_display_names)
+        for monitor_dtos in (
+            (),
+            ({'display_name': 'congruent'},),  # need trailing comma to retain tuple
+            ({'display_name': 'histrio'}, {'display_name': 'principis'}, {'display_name': 'quaesivuisti'})
+        ):
+            expected = toolz.map(toolz.get('display_name'), monitor_dtos)
+            with self.subTest(f'Verify correct number of monitors: {expected}'):
+                stub_native_project = tsn.create_stub_net_project(monitor_dtos=monitor_dtos)
                 sut = create_sut(stub_native_project)
 
-                assert_that(len(list(sut.monitors())), equal_to(len(monitor_display_names)))
-                for monitor_display_name in monitor_display_names:
-                    assert_that(toolz.get(monitor_display_name, sut.monitors()).display_name,
-                                equal_to(monitor_display_name))
+                assert_that(len(list(sut.monitors())), equal_to(len(monitor_dtos)))
+                for monitor_dto in monitor_dtos:
+                    assert_that(toolz.get(monitor_dto['display_name'], sut.monitors()).display_name,
+                                equal_to(monitor_dto['display_name']))
 
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')

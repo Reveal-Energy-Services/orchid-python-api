@@ -27,6 +27,7 @@ import unittest.mock
 import uuid
 from typing import Sequence
 
+import icecream
 import pendulum
 import toolz.curried as toolz
 
@@ -534,7 +535,7 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_display_names=(), data_frame_ids=()):
+                            curves_physical_quantities=None, monitor_dtos=(), data_frame_ids=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -559,8 +560,8 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     if fluid_density is not None:
         stub_net_project.FluidDensity = make_net_measurement(fluid_density)
 
-    stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
-                                       monitor_display_name in monitor_display_names]
+    stub_net_project.Monitors.Items = [create_stub_net_monitor(**monitor_dto) for
+                                       monitor_dto in monitor_dtos]
 
     stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_id) for
                                          data_frame_id in data_frame_ids]
