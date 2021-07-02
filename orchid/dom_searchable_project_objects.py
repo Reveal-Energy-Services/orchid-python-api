@@ -15,11 +15,13 @@
 from typing import Callable, Iterator, Optional
 import uuid
 
+from orchid import dom_project_object as dpo
+
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IProjectObject
 
 """
-Provides a common interface to collections of `IProjectObject` instances. These collections provide methods to:
+Provides a searchable collection of `DomProjectObject` instances. This searchable collection provide methods to:
 
 - Query for all object IDs identifying instances in this collection
 - Query for the name of all instances in this collection
@@ -28,7 +30,7 @@ Provides a common interface to collections of `IProjectObject` instances. These 
 - Search for all instances with a specified name
 - Search for all instances with a specified display name
 
-Here are the DOM objects that may be collections:
+Here are the DOM objects that currently may be collections:
 - Data frames
 - Monitors
 - Stages
@@ -36,7 +38,7 @@ Here are the DOM objects that may be collections:
 - Wells
 
 This objects are all derived from `IProjectObject`. The corresponding instances in the Python API all derive from 
-`poa.NativeProjectObjectAdapter` (TODO: to be created).
+`dpo.DomProjectObject` which implements the attributes `object_id`, `name` and `display_name`.
 """
 
 
@@ -94,7 +96,7 @@ class DomSearchableProjectObjects:
         """
         return self._collection.keys()
 
-    def find_by_display_name(self, display_name_to_find: str) -> Iterator:
+    def find_by_display_name(self, display_name_to_find: str) -> Iterator[dpo.DomProjectObject]:
         """
         Return an iterator over all project objects whose `display_name` is the `display_name_to_find`.
 
@@ -106,7 +108,7 @@ class DomSearchableProjectObjects:
         """
         return toolz.filter(lambda po: po.display_name == display_name_to_find, self._collection.values())
 
-    def find_by_name(self, name_to_find: str) -> Iterator:
+    def find_by_name(self, name_to_find: str) -> Iterator[dpo.DomProjectObject]:
         """
         Return an iterator over all project objects whose `name` is the `name_to_find`.
 
@@ -118,7 +120,7 @@ class DomSearchableProjectObjects:
         """
         return toolz.filter(lambda po: po.name == name_to_find, self._collection.values())
 
-    def find_by_object_id(self, object_id_to_find: uuid.UUID) -> Optional:
+    def find_by_object_id(self, object_id_to_find: uuid.UUID) -> Optional[dpo.DomProjectObject]:
         """
         Return the project object whose `object_id` is the `object_id_to_find` if available; otherwise, `None`.
 
