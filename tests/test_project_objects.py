@@ -60,7 +60,7 @@ class TestProjectObjects(unittest.TestCase):
                 sut = create_sut(net_items, item_callable)
 
                 # noinspection PyTypeChecker
-                assert_that(list(sut.object_ids()), contains_exactly(*expected))
+                assert_that(list(sut.all_object_ids()), contains_exactly(*expected))
 
     def test_query_all_display_names_from_collection(self):
         for net_items, item_callable in [
