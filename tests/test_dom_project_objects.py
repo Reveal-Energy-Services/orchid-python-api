@@ -19,7 +19,7 @@ from hamcrest import assert_that, equal_to, contains_exactly, is_, none
 import toolz.curried as toolz
 
 from orchid import (
-    project_objects as poc,
+    dom_project_objects as poc,
 )
 
 from tests import stub_net as tsn
