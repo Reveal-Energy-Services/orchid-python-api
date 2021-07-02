@@ -11,3 +11,18 @@
 # except under appropriate precautions to maintain the confidentiality hereof, 
 # and may not be used in any way not expressly authorized by the Company.
 #
+
+import option
+
+from orchid import dot_net_dom_access as dna
+
+
+def transform_display_name(net_display_name):
+    maybe_display_name = option.maybe(net_display_name)
+    return maybe_display_name.expect('Unexpected value, `None`, for `display_name`.')
+
+
+class DomProjectObject(dna.DotNetAdapter):
+    name = dna.dom_property('name', 'The name of this data frame.')
+    display_name = dna.transformed_dom_property('display_name', 'The display name of this data frame.',
+                                                transform_display_name)

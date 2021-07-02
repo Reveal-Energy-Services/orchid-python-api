@@ -630,6 +630,25 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     return stub_net_project
 
 
+def create_stub_net_project_object(object_id=None, name=None, display_name=None):
+    """Create a stub implementation of an IProjectObject."""
+    stub_net_project_object_name = 'stub_net_project_object'
+    try:
+        result = unittest.mock.MagicMock(name=stub_net_project_object_name, spec=IProjectObject)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_net_project_object_name)
+
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
+
+    if name is not None:
+        result.Name = name
+
+    result.DisplayName = display_name if display_name is not None else None
+
+    return result
+
+
 def create_stub_project_object(object_id=None, name=None, display_name=None):
     """Create a stub wrapper for an IProjectObject."""
     stub_project_object_name = 'stub_project_object'
