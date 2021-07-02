@@ -21,6 +21,13 @@ Provides a common interface to collections of `IProjectObject` instances. These 
 - Search for a single instance by object ID
 - Search for all instances with a specified name
 - Search for all instances with a specified display name
+
+Here are the DOM objects that may be collections:
+- Data frames
+- Monitors
+- Stages
+- Well trajectory
+- Wells
 """
 
 
@@ -47,6 +54,9 @@ class ProjectObjects:
 
     def find_by_display_name(self, display_name_sought):
         return toolz.filter(lambda po: po.display_name == display_name_sought, self._collection.values())
+
+    def find_by_name(self, name_sought):
+        return toolz.filter(lambda po: po.name == name_sought, self._collection.values())
 
     def find_by_object_id(self, id_sought):
         return toolz.get(id_sought, self._collection, default=None)

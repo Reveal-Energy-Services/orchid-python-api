@@ -26,19 +26,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Search collection by name with no match returns empty sequence
-# - Search collection by name with only one match returns single DOM object with name
-# - Search collection by name with many matching names returns many DOM objects with name
-# - Search collection by display name with no match returns empty sequence
-# - Search collection by display name with only one match returns single DOM object with display name
-# - Search collection by display name with many matches returns many DOM objects with display name
-#
-# Here are the DOM objects that may be collections:
-# - Data frames
-# - Monitors
-# - Stages
-# - Well trajectory
-# - Wells
 class TestProjectObjects(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -110,18 +97,31 @@ class TestProjectObjects(unittest.TestCase):
                 assert_that(list(sut.all_names()), contains_exactly(*expected))
 
     def test_find_by_display_name_returns_matching_project_objects_with_sought_name(self):
-        for net_items, sought_display_name, match_count in [
+        for net_items, display_name_to_match, match_count in [
             ([{'display_name': 'restaurat'}], 'restauras', 0),
             ([{'display_name': 'insuperabile'}], 'insuperabile', 1),
             ([{'display_name': 'diluit'}, {'display_name': 'diluit'}, {'display_name': 'amavit'}], 'diluit', 2),
         ]:
             with self.subTest(f'Find by display name returns {match_count}'
-                              f' matches of "{sought_display_name}"'):
+                              f' matches of "{display_name_to_match}"'):
                 sut = create_sut(net_items, tsn.create_stub_project_object)
 
                 matching_data_frame_display_names = list(toolz.map(
-                    lambda df: df.display_name, sut.find_by_display_name(sought_display_name)))
-                assert_that(matching_data_frame_display_names, equal_to([sought_display_name] * match_count))
+                    lambda df: df.display_name, sut.find_by_display_name(display_name_to_match)))
+                assert_that(matching_data_frame_display_names, equal_to([display_name_to_match] * match_count))
+
+    def test_find_with_name_returns_matches_with_requested_name(self):
+        for net_items, name_to_match, match_count in [
+            ([{'name': 'vicis'}], 'vici', 0),
+            ([{'name': 'rosae'}], 'rosae', 1),
+            ([{'name': 'viva'}, {'name': 'cryptico'}, {'name': 'cryptico'}], 'cryptico', 2),
+        ]:
+            with self.subTest(f'Find by name returns {match_count} matches of "{name_to_match}"'):
+                sut = create_sut(net_items, tsn.create_stub_project_object)
+
+                matching_data_frame_names = list(toolz.map(lambda df: df.name,
+                                                           sut.find_by_name(name_to_match)))
+                assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
 
     def test_find_by_object_id_with_match_returns_project_object_with_object_id(self):
         net_ids = [{'object_id': '78999fda-2998-42cb-98df-13a064b3c16f'},
