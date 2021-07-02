@@ -109,6 +109,20 @@ class TestProjectObjects(unittest.TestCase):
                 # noinspection PyTypeChecker
                 assert_that(list(sut.all_names()), contains_exactly(*expected))
 
+    def test_find_by_display_name_returns_matching_project_objects_with_sought_name(self):
+        for net_items, sought_display_name, match_count in [
+            ([{'display_name': 'restaurat'}], 'restauras', 0),
+            ([{'display_name': 'insuperabile'}], 'insuperabile', 1),
+            ([{'display_name': 'diluit'}, {'display_name': 'diluit'}, {'display_name': 'amavit'}], 'diluit', 2),
+        ]:
+            with self.subTest(f'Find by display name returns {match_count}'
+                              f' matches of "{sought_display_name}"'):
+                sut = create_sut(net_items, tsn.create_stub_project_object)
+
+                matching_data_frame_display_names = list(toolz.map(
+                    lambda df: df.display_name, sut.find_by_display_name(sought_display_name)))
+                assert_that(matching_data_frame_display_names, equal_to([sought_display_name] * match_count))
+
     def test_find_by_object_id_with_match_returns_project_object_with_object_id(self):
         net_id = {'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}
         sought_id = uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb')
