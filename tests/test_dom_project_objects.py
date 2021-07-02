@@ -145,7 +145,7 @@ class TestProjectObjects(unittest.TestCase):
 
 
 def create_sut(net_items, create_func):
-    return poc.ProjectObjects(create_func, net_items)
+    return poc.DomProjectObjects(create_func, net_items)
 
 
 if __name__ == '__main__':
