@@ -17,6 +17,7 @@ import pendulum
 import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
+    dom_project_object as dpo,
     net_date_time as ndt,
 )
 
@@ -24,7 +25,7 @@ from orchid import (
 from Orchid.FractureDiagnostics import IMonitor
 
 
-class NativeMonitorAdapter(dna.DotNetAdapter):
+class NativeMonitorAdapter(dpo.DomProjectObject):
     """Adapts a native IMonitor to python."""
     def __init__(self, net_monitor: IMonitor):
         """
@@ -35,8 +36,6 @@ class NativeMonitorAdapter(dna.DotNetAdapter):
         """
         super().__init__(net_monitor, orchid.base.constantly(net_monitor.Project))
 
-    display_name = dna.dom_property('display_name', 'The name used by engineers to identify this monitor.')
-    name = dna.dom_property('name', 'The name of this monitor.')
     start_time = dna.transformed_dom_property('start_time', 'The start time of this monitor.',
                                               ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of this monitor.',
