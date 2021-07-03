@@ -224,17 +224,24 @@ class TestProject(unittest.TestCase):
              {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'principis'},
              {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'quaesivuisti'})
         ):
-            expected = toolz.pipe(
+            expected_object_ids = toolz.pipe(
                 monitor_dtos,
                 toolz.map(toolz.get('object_id')),
                 toolz.map(uuid.UUID),
                 list
             )
-            with self.subTest(f'Verify monitors object IDs: {expected}'):
+            expected_display_names = toolz.pipe(
+                monitor_dtos,
+                toolz.map(toolz.get('display_name')),
+                list
+            )
+            with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
+                              f' and display names, {expected_display_names}'):
                 stub_native_project = tsn.create_stub_net_project(monitor_dtos=monitor_dtos)
                 sut = create_sut(stub_native_project)
 
-                assert_that(sut.monitors().all_object_ids(), contains_exactly(*expected))
+                assert_that(sut.monitors().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.monitors().all_display_names(), contains_exactly(*expected_display_names))
 
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')
