@@ -22,7 +22,6 @@ import uuid
 
 import deal
 from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
-import icecream
 import option
 import pendulum
 import toolz.curried as toolz
@@ -36,6 +35,16 @@ from tests import (
     stub_net as tsn,
     custom_matchers as tcm,
 )
+
+
+@toolz.curry
+def get_dtos_property(dtos, property_name, transform=toolz.identity):
+    return toolz.pipe(
+        dtos,
+        toolz.map(toolz.get(property_name)),
+        toolz.map(transform),
+        list
+    )
 
 
 @toolz.curry
@@ -224,17 +233,9 @@ class TestProject(unittest.TestCase):
              {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'principis'},
              {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'quaesivuisti'})
         ):
-            expected_object_ids = toolz.pipe(
-                monitor_dtos,
-                toolz.map(toolz.get('object_id')),
-                toolz.map(uuid.UUID),
-                list
-            )
-            expected_display_names = toolz.pipe(
-                monitor_dtos,
-                toolz.map(toolz.get('display_name')),
-                list
-            )
+            get_monitor_dtos_property = get_dtos_property(monitor_dtos)
+            expected_object_ids = get_monitor_dtos_property('object_id', transform=uuid.UUID)
+            expected_display_names = get_monitor_dtos_property('display_name')
             with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
                               f' and display names, {expected_display_names}'):
                 stub_native_project = tsn.create_stub_net_project(monitor_dtos=monitor_dtos)
