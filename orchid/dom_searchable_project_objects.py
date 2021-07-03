@@ -53,11 +53,13 @@ class DomSearchableProjectObjects:
             make_adapter: The callable that constructs adapter instances using `net_project_objects`.
             net_project_objects: The sequence of .NET `IProjectObject` instances adapted by the Python API.
         """
+        def add_project_object_to_collection(so_far, update_po):
+            return toolz.assoc(so_far, update_po.object_id, update_po)
+        
         self._collection = toolz.pipe(
             net_project_objects,
-            toolz.map(lambda kwargs: make_adapter(**kwargs)),
-            toolz.map(lambda dom_object: (dom_object.object_id, dom_object)),
-            dict,
+            toolz.map(make_adapter),
+            lambda pos: toolz.reduce(add_project_object_to_collection, pos, {}),
         )
 
     def __len__(self):

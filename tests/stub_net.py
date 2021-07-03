@@ -27,7 +27,6 @@ import unittest.mock
 import uuid
 from typing import Sequence
 
-import icecream
 import pendulum
 import toolz.curried as toolz
 
@@ -65,6 +64,11 @@ import UnitsNet
 from System import Array, Guid, Type
 # noinspection PyUnresolvedReferences
 from System.Data import DataColumn, DataTable
+
+
+# A recognizable (hex word "testable") value for "don't care" Guid / UUID
+DONT_CARE_ID = '7e57ab1e-7e57-ab1e-7e57-ab1e7e57ab1e'
+
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
@@ -638,8 +642,10 @@ def create_stub_net_project_object(object_id=None, name=None, display_name=None)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=stub_net_project_object_name)
 
-    if object_id is not None:
-        result.ObjectId = Guid(object_id)
+    # To store a project object in a searchable project object collection, an object id is required and is
+    # "automagically" generated. This code sets the `ObjectId` property to an ID supplied to this function or to a
+    # "don't care" ID.
+    result.ObjectId = Guid(object_id) if object_id is not None else Guid(DONT_CARE_ID)
 
     if name is not None:
         result.Name = name
