@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import Callable, Iterable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Tuple
 import uuid
 
 import deal
@@ -72,8 +72,6 @@ class Project(dna.DotNetAdapter):
 
     _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
                                                dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
-    _monitors = dna.map_reduce_dom_property('monitors', 'The project monitors.',
-                                            nma.NativeMonitorAdapter, dna.dictionary_by_id, {})
 
     @property
     def fluid_density(self):
@@ -236,20 +234,5 @@ class Project(dna.DotNetAdapter):
             self._data_frames,
             toolz.valfilter(predicate),
             lambda dfs: dfs.values(),
-        )
-        return result
-
-    def _find_monitors(self, predicate: Callable[[nma.NativeMonitorAdapter], bool]) \
-            -> Iterable[nma.NativeMonitorAdapter]:
-        """
-        Return all project monitors for which `predicate` returns `True`.
-
-        Args:
-            predicate: The callable used to find monitors of interest.
-        """
-        result = toolz.pipe(
-            self._monitors,
-            toolz.valfilter(predicate),
-            lambda monitors: monitors.values(),
         )
         return result
