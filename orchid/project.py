@@ -16,7 +16,7 @@
 #
 
 from collections import namedtuple
-from typing import Callable, Dict, Iterable, List, Tuple
+from typing import Callable, Iterable, List, Optional, Tuple
 import uuid
 
 import deal
@@ -25,6 +25,7 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
+    dom_searchable_project_objects as spo,
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_monitor_curve_adapter as mca,
@@ -144,18 +145,6 @@ class Project(dna.DotNetAdapter):
         """
         return self._find_data_frames(lambda df: df.name == data_frame_name)
 
-    def monitor(self, id_to_match: uuid.UUID) -> option.Option[nma.NativeMonitorAdapter]:
-        """
-        Return the single monitor from this project identified by `id_to_match`.
-        Args:
-            id_to_match: The `uuid.UUID` sought.
-
-        Returns:
-            `option.Some`(monitor) if one match; otherwise, `option.NONE`.
-        """
-        candidates = list(self._find_monitors(lambda monitor: monitor.object_id == id_to_match))
-        return option.maybe(candidates[0] if len(candidates) == 1 else None)
-
     def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
 
         """
@@ -172,20 +161,14 @@ class Project(dna.DotNetAdapter):
         else:
             return []
 
-    def monitors(self) -> Dict[str, nma.NativeMonitorAdapter]:
+    def monitors(self) -> spo.DomSearchableProjectObjects:
         """
-        Return a dictionary of monitors for this project indexed by the monitor display name.
+        Return a `spo.DomSearchableProjectObjects` instance of all the monitors for this project.
 
         Returns:
-            An dictionary of `NativeMonitorAdapter`s indexed by the display name of each monitor.
+            An `spo.DomSearchableProjectObjects` for all the monitors of this project.
         """
-        def collect_monitors(so_far, monitor):
-            return toolz.assoc(so_far, monitor.DisplayName, monitor)
-
-        result = toolz.pipe(self._project_loader.native_project().Monitors.Items,
-                            lambda ms: toolz.reduce(collect_monitors, ms, {}),
-                            toolz.valmap(lambda m: nma.NativeMonitorAdapter(m)))
-        return result
+        return spo.DomSearchableProjectObjects(nma.NativeMonitorAdapter, self.dom_object.Monitors.Items)
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),

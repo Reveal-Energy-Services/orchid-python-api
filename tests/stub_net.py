@@ -359,7 +359,7 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
-def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None):
+def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=None, stop=None):
     stub_name = (f'stub_net_monitor_{display_name}' if display_name is not None else 'stub_net_monitor')
     try:
         result = unittest.mock.MagicMock(name=stub_name, spec=IMonitor)
@@ -371,6 +371,9 @@ def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None)
 
     if name is not None:
         result.Name = name
+
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
 
     if start is not None:
         result.StartTime = net_dt.as_net_date_time(start)

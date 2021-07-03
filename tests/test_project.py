@@ -218,18 +218,23 @@ class TestProject(unittest.TestCase):
     def test_monitors(self):
         for monitor_dtos in (
             (),
-            ({'display_name': 'congruent'},),  # need trailing comma to retain tuple
-            ({'display_name': 'histrio'}, {'display_name': 'principis'}, {'display_name': 'quaesivuisti'})
+            ({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'congruent'},),  # need trailing comma to retain tuple
+            # Don't care about object IDs but must be unique
+            ({'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'histrio'},
+             {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'principis'},
+             {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'quaesivuisti'})
         ):
-            expected = toolz.map(toolz.get('display_name'), monitor_dtos)
-            with self.subTest(f'Verify correct number of monitors: {expected}'):
+            expected = toolz.pipe(
+                monitor_dtos,
+                toolz.map(toolz.get('object_id')),
+                toolz.map(uuid.UUID),
+                list
+            )
+            with self.subTest(f'Verify monitors object IDs: {expected}'):
                 stub_native_project = tsn.create_stub_net_project(monitor_dtos=monitor_dtos)
                 sut = create_sut(stub_native_project)
 
-                assert_that(len(list(sut.monitors())), equal_to(len(monitor_dtos)))
-                for monitor_dto in monitor_dtos:
-                    assert_that(toolz.get(monitor_dto['display_name'], sut.monitors()).display_name,
-                                equal_to(monitor_dto['display_name']))
+                assert_that(sut.monitors().all_object_ids(), contains_exactly(*expected))
 
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')
