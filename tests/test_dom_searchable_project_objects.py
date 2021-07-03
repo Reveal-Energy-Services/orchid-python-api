@@ -34,11 +34,11 @@ class TestDomSearchableProjectObjects(unittest.TestCase):
     def test_length_of_constructed_collection_is_correct(self):
         for net_project_object_dtos in (
                 (),
-                ({'object_id': 'acc01ade-acc0-1ade-acc0-1adeacc01ade'},),
+                ({'object_id': tsn.DONT_CARE_ID_A},),
                 # Don't care about the object IDs - but the **must** be different
-                ({'object_id': 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11'},
-                 {'object_id': 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e'},
-                 {'object_id': 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed'}),
+                ({'object_id': tsn.DONT_CARE_ID_B},
+                 {'object_id': tsn.DONT_CARE_ID_C},
+                 {'object_id': tsn.DONT_CARE_ID_D}),
         ):
             with self.subTest(f'Test length {len(net_project_object_dtos)} of constructed collection'):
                 sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
@@ -63,12 +63,12 @@ class TestDomSearchableProjectObjects(unittest.TestCase):
     def test_query_all_display_names_from_collection(self):
         for net_project_object_dtos in (
                 (),
-                ({'display_name': 'assidui', 'object_id': 'acc01ade-acc0-1ade-acc0-1adeacc01ade'},),
+                ({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'assidui'},),
                 (
                     # Don't care about the object IDs - but the **must** be different
-                    {'object_id': 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11', 'display_name': 'mutabilibus'},
-                    {'object_id': 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e', 'display_name': 'anno'},
-                    {'object_id': 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed', 'display_name': 'vestustas'}
+                    {'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'mutabilibus'},
+                    {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'anno'},
+                    {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'vestustas'}
                 ),
         ):
             expected = [dto['display_name'] for dto in net_project_object_dtos]
@@ -81,12 +81,12 @@ class TestDomSearchableProjectObjects(unittest.TestCase):
     def test_query_all_names_from_collection(self):
         for net_project_object_dtos in (
                 (),
-                ({'name': 'per', 'object_id': 'acc01ade-acc0-1ade-acc0-1adeacc01ade'},),
+                ({'object_id': tsn.DONT_CARE_ID_A, 'name': 'per'},),
                 (
                         # Don't care about the object IDs - but the **must** be different
-                        {'object_id': 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11', 'name': 'caponis'},
-                        {'object_id': 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e', 'name': 'probis'},
-                        {'object_id': 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed', 'name': 'aversis'}
+                        {'object_id': tsn.DONT_CARE_ID_B, 'name': 'caponis'},
+                        {'object_id': tsn.DONT_CARE_ID_C, 'name': 'probis'},
+                        {'object_id': tsn.DONT_CARE_ID_D, 'name': 'aversis'}
                 ),
         ):
             expected = [dto['name'] for dto in net_project_object_dtos]
@@ -98,14 +98,14 @@ class TestDomSearchableProjectObjects(unittest.TestCase):
 
     def test_find_by_display_name_returns_matching_project_objects_with_sought_name(self):
         for net_project_object_dtos, display_name_to_match, match_count in (
-                (({'object_id': 'acc01ade-acc0-1ade-acc0-1adeacc01ade', 'display_name': 'restaurat'},),
+                (({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'restaurat'},),
                  'restauras', 0),
-                (({'object_id': 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11', 'display_name': 'insuperabile'},),
+                (({'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'insuperabile'},),
                  'insuperabile', 1),
                 # Don't care about the object IDs - but the **must** be different
-                (({'object_id': 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e', 'display_name': 'diluit'},
-                  {'object_id': 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed', 'display_name': 'diluit'},
-                  {'object_id': 'e5ca1ade-e5ca-1ade-e5ca-1adee5ca1ade', 'display_name': 'amavit'}),
+                (({'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'diluit'},
+                  {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'diluit'},
+                  {'object_id': tsn.DONT_CARE_ID_E, 'display_name': 'amavit'}),
                  'diluit', 2),
         ):
             with self.subTest(f'Find by display name returns {match_count}'
@@ -118,14 +118,14 @@ class TestDomSearchableProjectObjects(unittest.TestCase):
 
     def test_find_by_name_returns_matching_project_objects_with_sought_name(self):
         for net_project_object_dtos, name_to_match, match_count in (
-                (({'object_id': 'acc01ade-acc0-1ade-acc0-1adeacc01ade', 'name': 'vicis'},),
+                (({'object_id': tsn.DONT_CARE_ID_A, 'name': 'vicis'},),
                  'vici', 0),
-                (({'object_id': 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11', 'name': 'rosae'},),
+                (({'object_id': tsn.DONT_CARE_ID_B, 'name': 'rosae'},),
                  'rosae', 1),
                 # Don't care about the object IDs - but the **must** be different
-                (({'object_id': 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e', 'name': 'viva'},
-                  {'object_id': 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed', 'name': 'cryptico'},
-                  {'object_id': 'e5ca1ade-e5ca-1ade-e5ca-1adee5ca1ade', 'name': 'cryptico'}),
+                (({'object_id': tsn.DONT_CARE_ID_C, 'name': 'viva'},
+                  {'object_id': tsn.DONT_CARE_ID_D, 'name': 'cryptico'},
+                  {'object_id': tsn.DONT_CARE_ID_E, 'name': 'cryptico'}),
                  'cryptico', 2),
         ):
             with self.subTest(f'Find by name returns {match_count}'

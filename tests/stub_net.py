@@ -67,7 +67,14 @@ from System.Data import DataColumn, DataTable
 
 
 # A recognizable (hex word "testable") value for "don't care" Guid / UUID
-DONT_CARE_ID = '7e57ab1e-7e57-ab1e-7e57-ab1e7e57ab1e'
+_DONT_CARE_ID = '7e57ab1e-7e57-ab1e-7e57-ab1e7e57ab1e'
+
+# Other recognizable hex word values for don't care
+DONT_CARE_ID_A = 'acc01ade-acc0-1ade-acc0-1adeacc01ade'  # accolade
+DONT_CARE_ID_B = 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11'  # baseball
+DONT_CARE_ID_C = 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e'  # callable
+DONT_CARE_ID_D = 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed'  # detected
+DONT_CARE_ID_E = 'e5ca1ade-e5ca-1ade-e5ca-1adee5ca1ade'  # escalade
 
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
@@ -645,7 +652,7 @@ def create_stub_net_project_object(object_id=None, name=None, display_name=None)
     # To store a project object in a searchable project object collection, an object id is required and is
     # "automagically" generated. This code sets the `ObjectId` property to an ID supplied to this function or to a
     # "don't care" ID.
-    result.ObjectId = Guid(object_id) if object_id is not None else Guid(DONT_CARE_ID)
+    result.ObjectId = Guid(object_id) if object_id is not None else Guid(_DONT_CARE_ID)
 
     if name is not None:
         result.Name = name
