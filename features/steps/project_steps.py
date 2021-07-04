@@ -112,11 +112,13 @@ def step_impl(context, well, display_name, uwi, object_id):
     def expected_details_to_check():
         return well, display_name, uwi, object_id
 
-    candidates = list(context.actual_wells.find_by_name(well))
-    assert_that(len(candidates), equal_to(1))
-    to_test = candidates[0]
+    candidate_wells = list(context.actual_wells.find_by_name(well))
+    assert_that(len(candidate_wells), equal_to(1),
+                f'Expected 1 well for project in field, {context.field}'
+                f' but found {len(candidate_wells)}.')
+    well_to_test = candidate_wells[0]
 
-    tmp_to_test = actual_details_to_check(to_test)
+    tmp_to_test = actual_details_to_check(well_to_test)
 
     actual_to_test = tmp_to_test
     if tmp_to_test[2] == '':
