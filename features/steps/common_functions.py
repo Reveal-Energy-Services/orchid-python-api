@@ -53,10 +53,9 @@ def has_well_name(well_name, candidate_well):
 
 
 def find_well_by_name_in_project(context, name):
-    candidates = toolz.pipe(context.project.wells,
-                            toolz.filter(has_well_name(name)),
-                            list)
-    assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
+    candidates = list(context.project.wells().find_by_name(name))
+    assert_that(toolz.count(candidates), equal_to(1),
+                f'Failure for field "{context.field}" and well "{name}".')
     result = toolz.first(candidates)
     return result
 
