@@ -27,7 +27,20 @@ import pendulum
 from tests import custom_matchers as tcm
 
 
-@when("I query the monitor identified by {object_id} for the project for '{field}'")
+@when("I query the monitor identified by display name, {display_name}, for the project for '{field}'")
+def step_impl(context, display_name, field):
+    """
+    Args:
+        context (behave.runner.Context): The testing context.
+        field (str): The name of the field whose monitors are sought
+        display_name (str): The value used by data scientists to identify a single monitor of interest.
+    """
+    candidates = list(context.project.monitors().find_by_display_name(display_name))
+    assert_that(len(candidates), equal_to(1))
+    context.monitor = candidates[0]
+
+
+@when("I query the monitor identified by object ID, {object_id}, for the project for '{field}'")
 def step_impl(context, object_id, field):
     """
     Args:
@@ -35,7 +48,8 @@ def step_impl(context, object_id, field):
         field (str): The name of the field whose monitors are sought
         object_id (str): The value used by data scientists to identify a single monitor of interest.
     """
-    context.monitor = context.project.monitor(uuid.UUID(object_id))
+    context.monitor = context.project.monitors().find_by_object_id(uuid.UUID(object_id))
+    assert_that(context.monitor, is_(not_none()))
 
 
 # noinspection PyBDDParameters
@@ -65,7 +79,7 @@ def step_impl(context, object_id, start_time, stop_time):
         start_time (str):  The start time of this monitor
         stop_time (str):  The stop time of this monitor
     """
-    actual = context.monitor.expect(f'Expected monitor with object_id, {uuid.UUID(object_id)}')
+    actual = context.monitor
 
     assert_that(actual.object_id, equal_to(uuid.UUID(object_id)))
     assert_that(actual.time_range, tcm.equal_to_time_range(pendulum.Period(pendulum.parse(start_time),
