@@ -551,16 +551,9 @@ def create_stub_net_well(object_id=None,
 
 
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
-                            project_center=None, project_units=None, well_names=None, well_display_names=None,
-                            uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
+                            project_center=None, project_units=None, curve_names=None, samples=None,
                             curves_physical_quantities=None, monitor_dtos=(), data_frame_ids=(), well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
-    well_names = well_names if well_names else []
-    well_display_names = well_display_names if well_display_names else []
-    uwis = uwis if uwis else []
-    eastings = eastings if eastings else []
-    northings = northings if northings else []
-    tvds = tvds if tvds else []
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
     curves_physical_quantities = (curves_physical_quantities
@@ -616,28 +609,7 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     elif project_units is not None:
         stub_net_project.ProjectUnits = project_units
 
-    # Initially, initialize the `Wells.Items` property based on `well_names`
-    try:
-        stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name) for well_name in well_names]
-
-    for i in range(len(well_names)):
-        stub_well = stub_net_project.Wells.Items[i]
-        stub_well.Uwi = uwis[i] if uwis else None
-        stub_well.DisplayName = well_display_names[i] if well_display_names else None
-        stub_well.Name = well_names[i]
-
-        stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
-        stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
-        stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
-
     # Initialize the .NET `Wells.Items` property using `well_dtos`
-    # TODO: Fix this initialization overwrite
-    # BEWARE: This code **overwrites** the previous code initializing the .NET `Wells.Items` property. If a caller
-    # supplies **both** a `well_names` that is not `None` and a `wells_dto` argument that is not empty, this block will
-    # overwrite the previously value of the .NET `Wells.Items` property, almost assuredly leading to unexpected
-    # (test) behavior.
     if len(well_dtos) > 0:
         stub_net_project.Wells.Items = [create_stub_net_well(**well_dto) for well_dto in well_dtos]
 
