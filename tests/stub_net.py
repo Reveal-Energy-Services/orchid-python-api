@@ -473,7 +473,8 @@ def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
     return toolz.valmap(make_net_subsurface_points, locations_with_net_keys)
 
 
-def create_stub_net_well(name='',
+def create_stub_net_well(object_id=None,
+                         name='',
                          display_name='',
                          ground_level_elevation_above_sea_level=None,
                          kelly_bushing_height_above_ground_level=None,
@@ -486,6 +487,9 @@ def create_stub_net_well(name='',
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
+
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
 
     if name:
         result.Name = name
@@ -549,7 +553,7 @@ def create_stub_net_well(name='',
 def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
                             project_center=None, project_units=None, well_names=None, well_display_names=None,
                             uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_dtos=(), data_frame_ids=()):
+                            curves_physical_quantities=None, monitor_dtos=(), data_frame_ids=(), well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     well_names = well_names if well_names else []
     well_display_names = well_display_names if well_display_names else []
@@ -612,6 +616,7 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     elif project_units is not None:
         stub_net_project.ProjectUnits = project_units
 
+    # Initially, initialize the `Wells.Items` property based on `well_names`
     try:
         stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
@@ -626,6 +631,15 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
         stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
         stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
         stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
+
+    # Initialize the .NET `Wells.Items` property using `well_dtos`
+    # TODO: Fix this initialization overwrite
+    # BEWARE: This code **overwrites** the previous code initializing the .NET `Wells.Items` property. If a caller
+    # supplies **both** a `well_names` that is not `None` and a `wells_dto` argument that is not empty, this block will
+    # overwrite the previously value of the .NET `Wells.Items` property, almost assuredly leading to unexpected
+    # (test) behavior.
+    if len(well_dtos) > 0:
+        stub_net_project.Wells.Items = [create_stub_net_well(**well_dto) for well_dto in well_dtos]
 
     try:
         stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(

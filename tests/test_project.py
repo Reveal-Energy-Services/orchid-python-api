@@ -386,49 +386,25 @@ class TestProject(unittest.TestCase):
 
         assert_that(calling(onp.Project.slurry_rate_volume_unit).with_args(sut), raises(ValueError))
 
-    def test_wells_if_no_wells(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet')
-        sut = create_sut(stub_native_project)
-        assert_that(sut.wells, contains_exactly())
+    def test_wells(self):
+        for well_dtos in (
+                (),
+                ({'object_id': tsn.DONT_CARE_ID_A, 'name': 'congruent'},),  # need trailing comma to retain tuple
+                # Don't care about object IDs but must be unique
+                ({'object_id': tsn.DONT_CARE_ID_B, 'name': 'histrio'},
+                 {'object_id': tsn.DONT_CARE_ID_C, 'name': 'principis'},
+                 {'object_id': tsn.DONT_CARE_ID_D, 'name': 'quaesivuisti'})
+        ):
+            get_well_dtos_property = get_dtos_property(well_dtos)
+            expected_object_ids = get_well_dtos_property('object_id', transform=uuid.UUID)
+            expected_names = get_well_dtos_property('name')
+            with self.subTest(f'Verify wells object IDs, {expected_object_ids}'
+                              f' and names, {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(well_dtos=well_dtos)
+                sut = create_sut(stub_native_project)
 
-    def test_wells_if_one_well(self):
-        expected_well_names = ['clunibus']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=expected_well_names)
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
-
-    def test_wells_if_many_wells(self):
-        expected_well_names = ['cordam', 'turbibus', 'collaris']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=expected_well_names)
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
-
-    def test_wells_by_name_if_no_wells(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet')
-        sut = create_sut(stub_native_project)
-        assert_that(sut.wells_by_name('clunibus'), contains_exactly())
-
-    def test_wells_by_name_if_no_well_with_name_found(self):
-        expected_well_names = ['clunibus']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=expected_well_names)
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells_by_name('clunibus')), contains_exactly(*expected_well_names))
-
-    def test_wells_by_name_if_one_well_with_name_found(self):
-        expected_well_names = ['clunibus']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=['clunibus'])
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells_by_name('clunibus')), contains_exactly(*expected_well_names))
-
-    def test_wells_by_name_if_many_wells_with_name_found(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=['cordam', 'turbibus',
-                                                                                       'cordam', 'collaris',
-                                                                                       'cordam'],
-                                                          uwis=["93-167-64050-25-81", "54-107-49537-17-76",
-                                                                "80-693-58647-57-44", "66-101-46368-44-99",
-                                                                "06-390-40886-62-60"])
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells_by_name('cordam')), contains_exactly(*(['cordam'] * 3)))
+                assert_that(sut.wells().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.wells().all_names(), contains_exactly(*expected_names))
 
     def test_well_time_series_returns_empty_if_no_well_time_series(self):
         expected_well_time_series = []

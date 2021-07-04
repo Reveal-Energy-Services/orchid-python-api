@@ -202,6 +202,15 @@ class Project(dna.DotNetAdapter):
         else:
             raise ValueError(f'Unknown unit system: {self.project_units}')
 
+    def wells(self) -> spo.DomSearchableProjectObjects:
+        """
+        Return a `spo.DomSearchableProjectObjects` instance of all the wells for this project.
+
+        Returns:
+            An `spo.DomSearchableProjectObjects` for all the wells of this project.
+        """
+        return spo.DomSearchableProjectObjects(nwa.NativeWellAdapter, self.dom_object.Wells.Items)
+
     def wells_by_name(self, name) -> Iterable[IWell]:
         """
         Return all the wells in this project with the specified name.
