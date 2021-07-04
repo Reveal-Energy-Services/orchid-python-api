@@ -550,9 +550,10 @@ def create_stub_net_well(object_id=None,
     return result
 
 
-def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
-                            project_center=None, project_units=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_dtos=(), data_frame_ids=(), well_dtos=()):
+def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
+                            data_frame_ids=(), default_well_colors=None, fluid_density=None, monitor_dtos=(),
+                            project_bounds=None, project_center=None, project_units=None, samples=None,
+                            well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
