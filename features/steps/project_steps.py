@@ -87,7 +87,7 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.actual_wells = context.project.wells
+    context.actual_wells = context.project.wells()
 
 
 # noinspection PyBDDParameters
@@ -101,7 +101,7 @@ def step_impl(context, project, well_count):
     """
     context.execute_steps(f'When I query the project name')
     context.execute_steps(f'Then I see the text "{project}"')
-    assert_that(len(list(context.actual_wells)), equal_to(well_count))
+    assert_that(len(context.actual_wells), equal_to(well_count))
 
 
 @then("I see the well details {well}, {display_name}, and {uwi} for {object_id}")
@@ -112,9 +112,11 @@ def step_impl(context, well, display_name, uwi, object_id):
     def expected_details_to_check():
         return well, display_name, uwi, object_id
 
-    tmp_to_test = toolz.pipe(toolz.map(actual_details_to_check, context.actual_wells),
-                             toolz.filter(lambda d: d[0] == well),
-                             toolz.first)
+    candidates = list(context.actual_wells.find_by_name(well))
+    assert_that(len(candidates), equal_to(1))
+    to_test = candidates[0]
+
+    tmp_to_test = actual_details_to_check(to_test)
 
     actual_to_test = tmp_to_test
     if tmp_to_test[2] == '':
