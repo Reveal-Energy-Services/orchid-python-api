@@ -17,13 +17,13 @@
 
 import decimal
 import unittest.mock
+import uuid
 
-from hamcrest import assert_that, equal_to, instance_of, is_, empty, has_item
+from hamcrest import assert_that, equal_to, instance_of, is_, empty, contains_exactly
 import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    native_stage_adapter as nsa,
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
     reference_origins as origins,
@@ -34,6 +34,16 @@ from tests import (
     custom_matchers as tcm,
     stub_net as tsn,
 )
+
+
+@toolz.curry
+def get_dtos_property(dtos, property_name, transform=toolz.identity):
+    return toolz.pipe(
+        dtos,
+        toolz.map(toolz.get(property_name)),
+        toolz.map(transform),
+        list
+    )
 
 
 class TestNativeWellAdapter(unittest.TestCase):
@@ -62,8 +72,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test ground level elevation, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(
-                    ground_level_elevation_above_sea_level=orchid_actual)
+                stub_native_well = tsn.create_stub_net_well(ground_level_elevation_above_sea_level=orchid_actual)
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.ground_level_elevation_above_sea_level, expected, tolerance)
@@ -82,42 +91,30 @@ class TestNativeWellAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test kelly bushing height above ground level, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(
-                    kelly_bushing_height_above_ground_level=orchid_actual)
+                stub_native_well = tsn.create_stub_net_well(kelly_bushing_height_above_ground_level=orchid_actual)
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.kelly_bushing_height_above_ground_level, expected, tolerance)
 
-    def test_name(self):
-        expected_well_name = 'sapientiarum'
-        stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
-        stub_native_well.Name = expected_well_name
-        sut = nwa.NativeWellAdapter(stub_native_well)
+    def test_stages(self):
+        for stage_dtos in (
+                (),
+                ({'object_id': tsn.DONT_CARE_ID_A, 'name': 'romanorm', 'display_name': ''},),
+                # Don't care about object IDs but must be unique
+                ({'object_id': tsn.DONT_CARE_ID_B, 'name': 'mea', 'display_name': ''},
+                 {'object_id': tsn.DONT_CARE_ID_C, 'name': 'monueras', 'display_name': ''},
+                 {'object_id': tsn.DONT_CARE_ID_D, 'name': 'animi', 'display_name': ''})
+        ):
+            get_stage_dtos_property = get_dtos_property(stage_dtos)
+            expected_object_ids = get_stage_dtos_property('object_id', transform=uuid.UUID)
+            expected_names = get_stage_dtos_property('name')
+            with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
+                              f' and names, {expected_names}'):
+                stub_native_well = tsn.create_stub_net_well(stage_dtos=stage_dtos)
+                sut = nwa.NativeWellAdapter(stub_native_well)
 
-        assert_that(sut.name, equal_to(expected_well_name))
-
-    def test_stages_count_equals_net_stages_count(self):
-        for stub_net_stages in [[], [tsn.create_stub_net_stage()], [tsn.create_stub_net_stage(),
-                                                                    tsn.create_stub_net_stage(),
-                                                                    tsn.create_stub_net_stage()]]:
-            with self.subTest(f'Test length of stages for each of {len(stub_net_stages)} .NET stage(s)'):
-                stub_net_well = unittest.mock.MagicMock(name='stub_net_well')
-                stub_net_well.Stages.Items = stub_net_stages
-                sut = nwa.NativeWellAdapter(stub_net_well)
-
-                assert_that(toolz.count(sut.stages), equal_to(len(stub_net_stages)))
-
-    def test_stages_wrap_all_net_stages(self):
-        for stub_net_stages in [[], [tsn.create_stub_net_stage()], [tsn.create_stub_net_stage(),
-                                                                    tsn.create_stub_net_stage(),
-                                                                    tsn.create_stub_net_stage()]]:
-            with self.subTest(f'Test stage adapter for each of {len(stub_net_stages)} .NET stage(s)'):
-                stub_net_well = unittest.mock.MagicMock(name='stub_net_well')
-                stub_net_well.Stages.Items = stub_net_stages
-                sut = nwa.NativeWellAdapter(stub_net_well)
-
-                for actual_stage in sut.stages:
-                    assert_that(actual_stage, instance_of(nsa.NativeStageAdapter))
+                assert_that(sut.stages().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.stages().all_names(), contains_exactly(*expected_names))
 
     def test_trajectory(self):
         stub_native_well = unittest.mock.MagicMock(name='stub_native_well')
@@ -318,9 +315,12 @@ class TestNativeWellAdapter(unittest.TestCase):
             sut = nwa.NativeWellAdapter(stub_native_well)
             whl_actual = sut.wellhead_location
             with self.subTest(f'Testing Wellhead Location'):
-                tcm.assert_that_measurements_close_to(whl_actual.easting, expected_location.easting, tolerances.easting)
-                tcm.assert_that_measurements_close_to(whl_actual.northing, expected_location.northing, tolerances.northing)
-                tcm.assert_that_measurements_close_to(whl_actual.depth, expected_location.depth, tolerances.depth)
+                tcm.assert_that_measurements_close_to(whl_actual.easting, expected_location.easting,
+                                                      tolerances.easting)
+                tcm.assert_that_measurements_close_to(whl_actual.northing, expected_location.northing,
+                                                      tolerances.northing)
+                tcm.assert_that_measurements_close_to(whl_actual.depth, expected_location.depth,
+                                                      tolerances.depth)
 
 
 if __name__ == '__main__':

@@ -229,7 +229,8 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
     return result
 
 
-def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
+def create_stub_net_stage(cluster_count=-1, display_name=None, display_stage_no=-1,
+                          md_top=None, md_bottom=None, name=None, object_id=None,
                           stage_location_bottom=None, stage_location_cluster=None,
                           stage_location_center=None, stage_location_top=None,
                           start_time=None, stop_time=None, treatment_curve_names=None,
@@ -240,11 +241,17 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=stub_net_stage_name)
     result.NumberOfClusters = cluster_count
+    if display_name is not None:
+        result.DisplayName = display_name
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = make_net_measurement(md_top)
     if md_bottom is not None:
         result.MdBottom = make_net_measurement(md_bottom)
+    if name is not None:
+        result.Name = name
+    if object_id is not None:
+        result.ObjectId = object_id
     if stage_location_bottom is not None:
         if callable(stage_location_bottom):
             result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
@@ -473,16 +480,9 @@ def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
     return toolz.valmap(make_net_subsurface_points, locations_with_net_keys)
 
 
-def create_stub_net_well(object_id=None,
-                         name='',
-                         display_name='',
-                         ground_level_elevation_above_sea_level=None,
-                         kelly_bushing_height_above_ground_level=None,
-                         uwi=None,
-                         locations_for_md_kb_values=None,
-                         formation=None,
-                         wellhead_location=None,
-                         ):
+def create_stub_net_well(object_id=None, name='', display_name='', ground_level_elevation_above_sea_level=None,
+                         kelly_bushing_height_above_ground_level=None, uwi=None, locations_for_md_kb_values=None,
+                         formation=None, stage_dtos=(), wellhead_location=None):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
@@ -510,6 +510,9 @@ def create_stub_net_well(object_id=None,
         result.Formation = formation
     else:
         result.Formation = ''
+
+    # Initialize the .NET `Wells.Items` property using `well_dtos`
+    result.Stages.Items = [create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
 
     if wellhead_location:
         # wellhead_location (whl) will be a list of 3 quantities (easting, northing, depth)

@@ -25,6 +25,7 @@ import toolz.curried as toolz
 import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
+    dom_project_object as dpo,
     measurement as om,
     native_subsurface_point as nsp,
     native_treatment_curve_adapter as ntc,
@@ -94,7 +95,7 @@ def subsurface_point_in_length_unit(depth_datum: origins.DepthDatum,
     return result
 
 
-class NativeStageAdapter(dna.DotNetAdapter):
+class NativeStageAdapter(dpo.DomProjectObject):
     """Adapts a .NET IStage to be more Pythonic."""
 
     def __init__(self, adaptee, calculations_factory=None):
