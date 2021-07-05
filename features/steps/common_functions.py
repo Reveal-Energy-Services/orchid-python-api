@@ -29,7 +29,6 @@ def all_stages(searchable):
     return toolz.pipe(
         searchable.all_object_ids(),
         toolz.map(lambda oid: searchable.find_by_object_id(oid)),
-        list,
     )
 
 
