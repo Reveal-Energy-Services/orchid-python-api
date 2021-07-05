@@ -47,7 +47,7 @@ def step_impl(context):
         searchable_wells.all_object_ids(),
         toolz.map(lambda oid: searchable_wells.find_by_object_id(oid)),
         lambda ws: toolz.reduce(
-            lambda so_far, update_value: toolz.assoc(so_far, update_value, update_value.stages), ws, {})
+            lambda so_far, update_value: toolz.assoc(so_far, update_value, update_value.stages()), ws, {})
     )
 
 

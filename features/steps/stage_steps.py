@@ -43,7 +43,7 @@ def step_impl(context, stage_count, well):
     """
 
     def actual_test_details(well_adapter):
-        return well_adapter.name, toolz.count(well_adapter.stages)
+        return well_adapter.name, toolz.count(well_adapter.stages())
 
     def expected_test_details():
         return well, stage_count
@@ -100,6 +100,7 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
 
 def find_stage_with_name(context, name_with_well):
     stages_of_interest = toolz.pipe(context.stages_for_wells.values(),
+                                    toolz.map(cf.all_stages),
                                     toolz.concat,
                                     toolz.filter(lambda s: s.display_name_with_well == name_with_well),
                                     list)

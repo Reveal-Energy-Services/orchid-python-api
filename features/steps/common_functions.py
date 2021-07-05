@@ -25,6 +25,14 @@ import orchid
 from tests import (custom_matchers as tcm)
 
 
+def all_stages(searchable):
+    return toolz.pipe(
+        searchable.all_object_ids(),
+        toolz.map(lambda oid: searchable.find_by_object_id(oid)),
+        list,
+    )
+
+
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
     try:
         expected = orchid.unit_registry.Quantity(expected_text)
@@ -74,6 +82,7 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
         return candidate_stage.display_stage_number == displayed_stage_no
 
     candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
+                            all_stages,
                             toolz.filter(has_stage_no(stage_no)),
                             list)
     assert_that(toolz.count(candidates), equal_to(1),
