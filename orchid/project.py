@@ -61,14 +61,10 @@ class Project(dna.DotNetAdapter):
         """
         super().__init__(project_loader.native_project())
         self._project_loader = project_loader
-        self._are_well_loaded = False
-        self._wells = []
 
     azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
     name = dna.dom_property('name', 'The name of this project.')
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
-    wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
-                                                  nwa.NativeWellAdapter)
 
     _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
                                                dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
