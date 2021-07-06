@@ -139,7 +139,7 @@ class Project(dna.DotNetAdapter):
         """
         return self._find_data_frames(lambda df: df.name == data_frame_name)
 
-    def monitor_curves(self) -> Iterable[mca.NativeTimeSeriesAdapter]:
+    def time_series(self) -> Iterable[mca.NativeTimeSeriesAdapter]:
 
         """
         Return a sequence of well time series for this project.

@@ -412,7 +412,7 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
 
         # noinspection PyTypeChecker
-        assert_that(sut.monitor_curves(), is_(empty()))
+        assert_that(sut.time_series(), is_(empty()))
 
     def test_well_time_series_returns_one_if_one_well_time_series(self):
         curve_name = 'gestum'
@@ -426,7 +426,7 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
 
         # noinspection PyTypeChecker
-        assert_that(len(list(sut.monitor_curves())), equal_to(1))
+        assert_that(len(list(sut.time_series())), equal_to(1))
 
     def test_well_time_series_returns_many_if_many_well_time_series(self):
         curve_names = ['superseduisti', 'mulctaverim', 'veniae']
@@ -442,7 +442,7 @@ class TestProject(unittest.TestCase):
         sut = create_sut(stub_native_project)
 
         # noinspection PyTypeChecker
-        assert_that(len(list(sut.monitor_curves())), equal_to(3))
+        assert_that(len(list(sut.time_series())), equal_to(3))
 
 
 def create_sut(stub_net_project):

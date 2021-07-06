@@ -221,7 +221,7 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context
     """
-    context.monitor_curves = context.project.monitor_curves()
+    context.monitor_curves = context.project.time_series()
     assert_that(context.monitor_curves, is_(not_none()))
 
 
