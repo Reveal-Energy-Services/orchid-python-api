@@ -20,7 +20,6 @@ import unittest.mock
 import uuid
 
 from hamcrest import assert_that, equal_to, instance_of, is_, empty, contains_exactly
-import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
@@ -34,16 +33,6 @@ from tests import (
     custom_matchers as tcm,
     stub_net as tsn,
 )
-
-
-@toolz.curry
-def get_dtos_property(dtos, property_name, transform=toolz.identity):
-    return toolz.pipe(
-        dtos,
-        toolz.map(toolz.get(property_name)),
-        toolz.map(transform),
-        list
-    )
 
 
 class TestNativeWellAdapter(unittest.TestCase):
@@ -105,7 +94,7 @@ class TestNativeWellAdapter(unittest.TestCase):
                  {'object_id': tsn.DONT_CARE_ID_C, 'name': 'monueras', 'display_name': ''},
                  {'object_id': tsn.DONT_CARE_ID_D, 'name': 'animi', 'display_name': ''})
         ):
-            get_stage_dtos_property = get_dtos_property(stage_dtos)
+            get_stage_dtos_property = tsn.get_dtos_property(stage_dtos)
             expected_object_ids = get_stage_dtos_property('object_id', transform=uuid.UUID)
             expected_names = get_stage_dtos_property('name')
             with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'

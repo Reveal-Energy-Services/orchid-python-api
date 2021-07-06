@@ -21,7 +21,7 @@ import unittest.mock
 import uuid
 
 import deal
-from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
+from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, calling, raises
 import option
 import pendulum
 import toolz.curried as toolz
@@ -35,16 +35,6 @@ from tests import (
     stub_net as tsn,
     custom_matchers as tcm,
 )
-
-
-@toolz.curry
-def get_dtos_property(dtos, property_name, transform=toolz.identity):
-    return toolz.pipe(
-        dtos,
-        toolz.map(toolz.get(property_name)),
-        toolz.map(transform),
-        list
-    )
 
 
 @toolz.curry
@@ -233,7 +223,7 @@ class TestProject(unittest.TestCase):
              {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'principis'},
              {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'quaesivuisti'})
         ):
-            get_monitor_dtos_property = get_dtos_property(monitor_dtos)
+            get_monitor_dtos_property = tsn.get_dtos_property(monitor_dtos)
             expected_object_ids = get_monitor_dtos_property('object_id', transform=uuid.UUID)
             expected_display_names = get_monitor_dtos_property('display_name')
             with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
@@ -396,7 +386,7 @@ class TestProject(unittest.TestCase):
                  {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'pluvia', 'name': 'aedificabatis'},
                  {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'lautus', 'name': 'adventicieae'})
         ):
-            get_time_series_dtos_property = get_dtos_property(time_series_dtos)
+            get_time_series_dtos_property = tsn.get_dtos_property(time_series_dtos)
             expected_object_ids = get_time_series_dtos_property('object_id', transform=uuid.UUID)
             expected_display_names = get_time_series_dtos_property('display_name')
             expected_names = get_time_series_dtos_property('name')
@@ -419,7 +409,7 @@ class TestProject(unittest.TestCase):
                  {'object_id': tsn.DONT_CARE_ID_C, 'name': 'principis'},
                  {'object_id': tsn.DONT_CARE_ID_D, 'name': 'quaesivuisti'})
         ):
-            get_well_dtos_property = get_dtos_property(well_dtos)
+            get_well_dtos_property = tsn.get_dtos_property(well_dtos)
             expected_object_ids = get_well_dtos_property('object_id', transform=uuid.UUID)
             expected_names = get_well_dtos_property('name')
             with self.subTest(f'Verify wells object IDs, {expected_object_ids}'

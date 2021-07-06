@@ -690,3 +690,13 @@ def create_stub_dom_project_object(object_id=None, name=None, display_name=None)
         result.display_name = display_name
 
     return result
+
+
+@toolz.curry
+def get_dtos_property(dtos, property_name, transform=toolz.identity):
+    return toolz.pipe(
+        dtos,
+        toolz.map(toolz.get(property_name)),
+        toolz.map(transform),
+        list
+    )
