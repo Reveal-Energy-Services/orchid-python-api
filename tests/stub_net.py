@@ -105,7 +105,8 @@ class StubNetSample:
         self.Value = value
 
 
-def create_stub_net_time_series(start_time_point: pendulum.DateTime, sample_values) -> Sequence[StubNetSample]:
+def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
+                                            sample_values) -> Sequence[StubNetSample]:
     """
     Create a stub .NET time series.
 
@@ -162,12 +163,12 @@ def make_net_measurement(measurement_dto):
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
-    treating_pressure_time_series = create_stub_net_time_series(start_time_point, treating_pressure_values)
+    treating_pressure_time_series = create_stub_net_time_series_data_points(start_time_point, treating_pressure_values)
     treating_pressure_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.TREATING_PRESSURE, 'pressure',
                                                     treating_pressure_time_series)
-    rate_time_series = create_stub_net_time_series(start_time_point, rate_values)
+    rate_time_series = create_stub_net_time_series_data_points(start_time_point, rate_values)
     rate_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SLURRY_RATE, 'ratio', rate_time_series)
-    concentration_time_series = create_stub_net_time_series(start_time_point, concentration_values)
+    concentration_time_series = create_stub_net_time_series_data_points(start_time_point, concentration_values)
     concentration_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION, 'ratio',
                                                 concentration_time_series)
 
@@ -391,23 +392,24 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
     return result
 
 
-def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sampled_quantity_type,
-                                  samples, project):
+def create_stub_net_time_series(name, display_name, sampled_quantity_name, sampled_quantity_type,
+                                samples, project):
+    stub_net_time_series_name = 'stub_net_time_series'
     try:
-        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                         spec=IWellSampledQuantityTimeSeries)
+        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name,
+                                                       spec=IWellSampledQuantityTimeSeries)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve')
-    stub_net_monitor_curve.Name = name
-    stub_net_monitor_curve.DisplayName = display_name
-    stub_net_monitor_curve.SampledQuantityName = sampled_quantity_name
-    stub_net_monitor_curve.SampledQuantityType = sampled_quantity_type
-    stub_net_monitor_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
-                                                                                 return_value=samples)
+        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name)
+    stub_net_time_series.Name = name
+    stub_net_time_series.DisplayName = display_name
+    stub_net_time_series.SampledQuantityName = sampled_quantity_name
+    stub_net_time_series.SampledQuantityType = sampled_quantity_type
+    stub_net_time_series.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(
+        name='stub_time_series_data_points', return_value=samples)
     if project is not None:
-        stub_net_monitor_curve.Well.Project = project
+        stub_net_time_series.Well.Project = project
 
-    return stub_net_monitor_curve
+    return stub_net_time_series
 
 
 def create_stub_net_well_trajectory(easting_magnitudes=None,

@@ -36,7 +36,7 @@ import tests.stub_net as tsn
 # Test ideas
 # - Transform pendulum.DateTime.max to `NaT` in Time Series
 # - Transform pendulum.DateTime.min to `NaT` in Time Series
-class TestNativeMonitorCurveAdapter(unittest.TestCase):
+class TestNativeTimeSeriesAdapter(unittest.TestCase):
     # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
     # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.
     # This approach works, but, in theory, this set up conflates testing the unit, `NativeTimeSeriesAdapter`,
@@ -77,7 +77,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         name = 'trucem'
         values = []
         start_time_point = pendulum.datetime(2021, 4, 2, 15, 17, 57)
-        samples = tsn.create_stub_net_time_series(start_time_point, values)
+        samples = tsn.create_stub_net_time_series_data_points(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
 
         expected = pd.Series(data=[], index=[], name=name, dtype=np.float64)
@@ -91,7 +91,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
     @staticmethod
     def assert_equal_time_series(name, start_time_point, values):
-        samples = tsn.create_stub_net_time_series(start_time_point, values)
+        samples = tsn.create_stub_net_time_series_data_points(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
         expected_time_points = tsn.create_30_second_time_points(start_time_point, len(values))
         expected = pd.Series(data=values, index=expected_time_points, name=name)
@@ -107,7 +107,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
 def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None,
                project=None):
-    stub_native_well_time_series = tsn.create_stub_net_monitor_curve(
+    stub_native_well_time_series = tsn.create_stub_net_time_series(
         name=name, display_name=display_name, sampled_quantity_name=sampled_quantity_name,
         sampled_quantity_type=sampled_quantity_type, samples=samples, project=project
     )

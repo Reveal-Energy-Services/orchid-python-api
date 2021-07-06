@@ -221,8 +221,8 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context
     """
-    context.monitor_curves = context.project.time_series()
-    assert_that(context.monitor_curves, is_(not_none()))
+    context.time_series = context.project.time_series()
+    assert_that(context.time_series, is_(not_none()))
 
 
 # noinspection PyBDDParameters
@@ -240,7 +240,7 @@ def step_impl(context, index, qty_name, time, value, name):
     def is_candidate(curve_to_test):
         return curve_to_test.name == name and curve_to_test.sampled_quantity_name == qty_name
 
-    candidate_curves = list(toolz.filter(is_candidate, context.monitor_curves))
+    candidate_curves = list(toolz.filter(is_candidate, context.time_series))
     assert_that(len(candidate_curves), equal_to(1),
                 f'Expected 1 curve with name, {name}, and sampled quantity_name, {qty_name}.' +
                 f' Found {len(candidate_curves)}')

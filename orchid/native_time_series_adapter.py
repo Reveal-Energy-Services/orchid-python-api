@@ -33,8 +33,8 @@ class TimeSeriesCurveTypes(enum.Enum):
 
 
 class NativeTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
-    def __init__(self, net_monitor_curve: IQuantityTimeSeries):
-        super().__init__(net_monitor_curve, orchid.base.constantly(net_monitor_curve.Well.Project))
+    def __init__(self, net_time_series: IQuantityTimeSeries):
+        super().__init__(net_time_series, orchid.base.constantly(net_time_series.Well.Project))
 
     def quantity_name_unit_map(self, project_units):
         """
