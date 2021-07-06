@@ -249,7 +249,7 @@ def step_impl(context, index, qty_name, time, value, name):
     actual_quantity_name = curve.sampled_quantity_name
     assert_that(actual_quantity_name, equal_to(qty_name))
 
-    samples = curve.time_series()
+    samples = curve.data_points()
 
     actual_sample_time = samples.index[index]
     expected_sample_time = pendulum.parse(time)

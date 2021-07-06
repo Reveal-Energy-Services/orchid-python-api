@@ -48,10 +48,10 @@ def step_impl(context, well, stage_no, curve_type, index, timestamp, value):
                   'proppant': tca.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION,
                   'slurry': tca.TreatmentCurveTypes.SLURRY_RATE}[curve_type]
     actual_treatment_curve = treatment_curves[curve_name]
-    actual_time_stamp = actual_treatment_curve.time_series().index[index].to_pydatetime()
+    actual_time_stamp = actual_treatment_curve.data_points().index[index].to_pydatetime()
     expected_time_stamp = pendulum.parse(timestamp)
     assert_that(actual_time_stamp, equal_to(expected_time_stamp))
-    actual_time_series_value = actual_treatment_curve.time_series()[index]
+    actual_time_series_value = actual_treatment_curve.data_points()[index]
     actual_value_magnitude = decimal.Decimal(actual_time_series_value)
     actual_value_unit = actual_treatment_curve.sampled_quantity_unit()
     actual_value = units.make_measurement(actual_value_unit, actual_value_magnitude)

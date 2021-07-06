@@ -71,7 +71,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
         quantity_name_unit_map = self.quantity_name_unit_map(self.expect_project_units)
         return quantity_name_unit_map[self.sampled_quantity_name]
 
-    def time_series(self) -> pd.Series:
+    def data_points(self) -> pd.Series:
         """
         Return the time series for this well curve.
 

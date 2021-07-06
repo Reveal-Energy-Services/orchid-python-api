@@ -90,7 +90,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
         sut = create_sut(name='palmis', values_starting_at=(values, start_time_point))
 
         expected = pd.Series(data=[], index=[], name='palmis', dtype=np.float64)
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
     def test_single_sample_time_series_from_curve_with_single_samples(self):
         values = [671.09]
@@ -99,7 +99,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
         expected = pd.Series(data=values, index=expected_time_points, name='palmis')
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
@@ -108,7 +108,7 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
         expected = pd.Series(data=values, index=expected_time_points, name='clavis')
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
 
 def create_sut(name='', display_name='', sampled_quantity_name='', suffix='', values_starting_at=None, project=None):

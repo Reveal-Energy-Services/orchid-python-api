@@ -81,7 +81,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         sut = create_sut(name=name, samples=samples)
 
         expected = pd.Series(data=[], index=[], name=name, dtype=np.float64)
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
@@ -95,7 +95,7 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         sut = create_sut(name=name, samples=samples)
         expected_time_points = tsn.create_30_second_time_points(start_time_point, len(values))
         expected = pd.Series(data=values, index=expected_time_points, name=name)
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
