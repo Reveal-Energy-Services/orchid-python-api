@@ -113,8 +113,8 @@ def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
     The "stub .NET" nature is satisfied by returning a sequence in which each item is an instance of `StubNetSample`.
 
     :param start_time_point: The time point at which the time series starts.
-    :param sample_values: The values in the stub samples.
-    :return: A sequence a samples implementing the `ITick<double>` interface using "duck typing."
+    :param sample_values: The values in the stub data_points.
+    :return: A sequence a data_points implementing the `ITick<double>` interface using "duck typing."
     """
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
@@ -392,20 +392,26 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
     return result
 
 
-def create_stub_net_time_series(name, display_name, sampled_quantity_name, sampled_quantity_type,
-                                samples, project):
+def create_stub_net_time_series(object_id, name=None, display_name=None,
+                                sampled_quantity_name=None, sampled_quantity_type=None,
+                                data_points=(), project=None):
     stub_net_time_series_name = 'stub_net_time_series'
     try:
         stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name,
                                                        spec=IWellSampledQuantityTimeSeries)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name)
-    stub_net_time_series.Name = name
-    stub_net_time_series.DisplayName = display_name
-    stub_net_time_series.SampledQuantityName = sampled_quantity_name
-    stub_net_time_series.SampledQuantityType = sampled_quantity_type
+    stub_net_time_series.ObjectId = object_id
+    if name is not None:
+        stub_net_time_series.Name = name
+    if display_name is not None:
+        stub_net_time_series.DisplayName = display_name
+    if sampled_quantity_name is not None:
+        stub_net_time_series.SampledQuantityName = sampled_quantity_name
+    if sampled_quantity_type is not None:
+        stub_net_time_series.SampledQuantityType = sampled_quantity_type
     stub_net_time_series.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(
-        name='stub_time_series_data_points', return_value=samples)
+        name='stub_time_series_data_points', return_value=data_points)
     if project is not None:
         stub_net_time_series.Well.Project = project
 
@@ -555,10 +561,10 @@ def create_stub_net_well(object_id=None, name='', display_name='', ground_level_
     return result
 
 
-def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
-                            data_frame_ids=(), default_well_colors=None, fluid_density=None, monitor_dtos=(),
-                            project_bounds=None, project_center=None, project_units=None, samples=None,
-                            well_dtos=()):
+def create_stub_net_project(
+        name='', azimuth=None, curve_names=None, curves_physical_quantities=None, data_frame_ids=(),
+        default_well_colors=None, fluid_density=None, monitor_dtos=(), project_bounds=None,
+        project_center=None, project_units=None, samples=None, time_series_dtos=(), well_dtos=(), ):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
@@ -615,23 +621,32 @@ def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_phys
     elif project_units is not None:
         stub_net_project.ProjectUnits = project_units
 
+    # TODO: this code assumes that a caller initializes either `curve_names` or `time_series_dtos`.
+    # Initialize the .NET `WellTimeSeriesList.Items` property using `time_series_dtos`
+    if len(time_series_dtos) > 0:
+        stub_net_project.WellTimeSeriesList.Items = [
+            create_stub_net_time_series(**time_series_dto) for time_series_dto in time_series_dtos
+        ]
+
     # Initialize the .NET `Wells.Items` property using `well_dtos`
     if len(well_dtos) > 0:
         stub_net_project.Wells.Items = [create_stub_net_well(**well_dto) for well_dto in well_dtos]
 
-    try:
-        stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(
-            name=curve_name, spec=IWellSampledQuantityTimeSeries) for curve_name in curve_names]
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(name=curve_name)
-                                                     for curve_name in curve_names]
-    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
-                              'temperature': UnitsNet.QuantityType.Temperature}
-    for i in range(len(curve_names)):
-        stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
-        stub_curve.DisplayName = curve_names[i] if curve_names else None
-        stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
-        stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
+    # TODO: this code assumes that a caller initializes either `curve_names` or `time_series_dtos`.
+    if len(curve_names) > 0:
+        try:
+            stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(
+                name=curve_name, spec=IWellSampledQuantityTimeSeries) for curve_name in curve_names]
+        except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+            stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(name=curve_name)
+                                                         for curve_name in curve_names]
+        quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
+                                  'temperature': UnitsNet.QuantityType.Temperature}
+        for i in range(len(curve_names)):
+            stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
+            stub_curve.DisplayName = curve_names[i] if curve_names else None
+            stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
+            stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
 
     return stub_net_project
 

@@ -386,6 +386,30 @@ class TestProject(unittest.TestCase):
 
         assert_that(calling(onp.Project.slurry_rate_volume_unit).with_args(sut), raises(ValueError))
 
+    def test_time_series(self):
+        for time_series_dtos in (
+                (),
+                # Need trailing comma inside parentheses to retain tuple
+                ({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'malae', 'name': 'lustrabit'},),
+                # Don't care about object IDs but must be unique
+                ({'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'vivis', 'name': 'mulgetis'},
+                 {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'pluvia', 'name': 'aedificabatis'},
+                 {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'lautus', 'name': 'adventicieae'})
+        ):
+            get_time_series_dtos_property = get_dtos_property(time_series_dtos)
+            expected_object_ids = get_time_series_dtos_property('object_id', transform=uuid.UUID)
+            expected_display_names = get_time_series_dtos_property('display_name')
+            expected_names = get_time_series_dtos_property('name')
+            with self.subTest(f'Verify time series object IDs, {expected_object_ids}'
+                              f' display_names, {expected_display_names},'
+                              f' and names, {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(time_series_dtos=time_series_dtos)
+                sut = create_sut(stub_native_project)
+
+                assert_that(sut.time_series().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.time_series().all_display_names(), contains_exactly(*expected_display_names))
+                assert_that(sut.time_series().all_names(), contains_exactly(*expected_names))
+
     def test_wells(self):
         for well_dtos in (
                 (),
@@ -405,44 +429,6 @@ class TestProject(unittest.TestCase):
 
                 assert_that(sut.wells().all_object_ids(), contains_exactly(*expected_object_ids))
                 assert_that(sut.wells().all_names(), contains_exactly(*expected_names))
-
-    def test_well_time_series_returns_empty_if_no_well_time_series(self):
-        expected_well_time_series = []
-        stub_native_project = tsn.create_stub_net_project(samples=expected_well_time_series)
-        sut = create_sut(stub_native_project)
-
-        # noinspection PyTypeChecker
-        assert_that(sut.time_series(), is_(empty()))
-
-    def test_well_time_series_returns_one_if_one_well_time_series(self):
-        curve_name = 'gestum'
-        curve_quantity = 'pressure'
-        sample_start = pendulum.datetime(2018, 11, 14, 0, 58, 32, 136000)
-        sample_values = [0.617, 0.408, 2.806]
-
-        samples = make_samples(sample_start, sample_values)
-        stub_native_project = tsn.create_stub_net_project(name='non curo', curve_names=[curve_name], samples=[samples],
-                                                          curves_physical_quantities=[curve_quantity])
-        sut = create_sut(stub_native_project)
-
-        # noinspection PyTypeChecker
-        assert_that(len(list(sut.time_series())), equal_to(1))
-
-    def test_well_time_series_returns_many_if_many_well_time_series(self):
-        curve_names = ['superseduisti', 'mulctaverim', 'veniae']
-        curve_quantity_names = ['temperature', 'pressure', 'pressure']
-        sample_starts = [pendulum.datetime(2019, 3, 7, 10, 2, 13, 131000),
-                         pendulum.datetime(2019, 8, 1, 16, 50, 45, 500000),
-                         pendulum.datetime(2016, 3, 21, 20, 15, 19, 54000)]
-        samples_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
-
-        samples = list(make_samples_for_starts(sample_starts, samples_values))
-        stub_native_project = tsn.create_stub_net_project(name='non curo', curve_names=curve_names, samples=samples,
-                                                          curves_physical_quantities=curve_quantity_names)
-        sut = create_sut(stub_native_project)
-
-        # noinspection PyTypeChecker
-        assert_that(len(list(sut.time_series())), equal_to(3))
 
 
 def create_sut(stub_net_project):

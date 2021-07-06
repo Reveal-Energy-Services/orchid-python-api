@@ -26,7 +26,7 @@ import pandas.testing as pdt
 
 
 from orchid import (
-    native_time_series_adapter as mca,
+    native_time_series_adapter as tsa,
     unit_system as units,
 )
 
@@ -64,8 +64,8 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
 
                 actual = sut.quantity_name_unit_map(project_units)
                 assert_that(actual, has_entries({
-                    mca.TimeSeriesCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
-                    mca.TimeSeriesCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE}))
+                    tsa.TimeSeriesCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+                    tsa.TimeSeriesCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE}))
 
     def test_sampled_quantity_name(self):
         expected_quantity_name = 'perspici'
@@ -108,11 +108,13 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
 def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None,
                project=None):
     stub_native_well_time_series = tsn.create_stub_net_time_series(
-        name=name, display_name=display_name, sampled_quantity_name=sampled_quantity_name,
-        sampled_quantity_type=sampled_quantity_type, samples=samples, project=project
+        object_id=None, name=name, display_name=display_name,
+        sampled_quantity_name=sampled_quantity_name,
+        sampled_quantity_type=sampled_quantity_type,
+        data_points=samples, project=project,
     )
 
-    sut = mca.NativeTimeSeriesAdapter(stub_native_well_time_series)
+    sut = tsa.NativeTimeSeriesAdapter(stub_native_well_time_series)
     return sut
 
 

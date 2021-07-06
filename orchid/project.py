@@ -28,7 +28,7 @@ from orchid import (
     dom_searchable_project_objects as spo,
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
-    native_time_series_adapter as mca,
+    native_time_series_adapter as tsa,
     native_well_adapter as nwa,
     net_quantity as onq,
     unit_system as units,
@@ -139,22 +139,6 @@ class Project(dna.DotNetAdapter):
         """
         return self._find_data_frames(lambda df: df.name == data_frame_name)
 
-    def time_series(self) -> Iterable[mca.NativeTimeSeriesAdapter]:
-
-        """
-        Return a sequence of well time series for this project.
-
-        Returns:
-            An iterable of well time series.
-        """
-        native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
-        if len(native_time_series_list_items) > 0:
-            return toolz.pipe(native_time_series_list_items,
-                              toolz.map(mca.NativeTimeSeriesAdapter),
-                              list)
-        else:
-            return []
-
     def monitors(self) -> spo.DomSearchableProjectObjects:
         """
         Return a `spo.DomSearchableProjectObjects` instance of all the monitors for this project.
@@ -197,6 +181,31 @@ class Project(dna.DotNetAdapter):
             return units.Metric.VOLUME
         else:
             raise ValueError(f'Unknown unit system: {self.project_units}')
+
+    def time_series(self) -> spo.DomSearchableProjectObjects:
+        """
+        Return a `spo.DomSearchableProjectObjects` instance of all the time series for this project.
+
+        Returns:
+            An `spo.DomSearchableProjectObjects` for all the time series of this project.
+        """
+        return spo.DomSearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
+
+    # def time_series(self) -> Iterable[tsa.NativeTimeSeriesAdapter]:
+    #
+    #     """
+    #     Return a sequence of well time series for this project.
+    #
+    #     Returns:
+    #         An iterable of well time series.
+    #     """
+    #     native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
+    #     if len(native_time_series_list_items) > 0:
+    #         return toolz.pipe(native_time_series_list_items,
+    #                           toolz.map(tsa.NativeTimeSeriesAdapter),
+    #                           list)
+    #     else:
+    #         return []
 
     def wells(self) -> spo.DomSearchableProjectObjects:
         """

@@ -45,7 +45,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
     @abstractmethod
     def quantity_name_unit_map(self, project_units):
         """
-        Return a map (dictionary) between quantity names and units (from `unit_system`) of the samples.
+        Return a map (dictionary) between quantity names and units (from `unit_system`) of the data_points.
 
         This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
         role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
@@ -58,7 +58,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
 
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
-        Return the measurement unit of the samples in this curve.
+        Return the measurement unit of the data_points in this curve.
 
         This method plays the role of "Template Method" in the _Template Method_ design pattern. In this role
         it specifies an algorithm to calculate the units of the sampled quantity of the curve delegating some
@@ -78,7 +78,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
         Returns
             The time series of this well curve.
         """
-        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
+        # Because I use `data_points` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self.dom_object.GetOrderedTimeSeriesHistory()))
         result = pd.Series(data=map(lambda s: s[1], samples), index=map(ndt.as_date_time, map(lambda s: s[0], samples)),
                            name=self.name)
