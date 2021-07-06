@@ -19,6 +19,7 @@ from typing import Callable, Union
 import pandas as pd
 
 from orchid import (
+    dom_project_object as dpo,
     dot_net_dom_access as dna,
     net_date_time as ndt,
     unit_system as units,
@@ -28,7 +29,7 @@ from orchid import (
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
-class BaseTimeSeriesAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
+class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
     def __init__(self, adaptee: IQuantityTimeSeries, net_project_callable: Callable):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
@@ -38,8 +39,6 @@ class BaseTimeSeriesAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         """
         super().__init__(adaptee, net_project_callable)
 
-    name = dna.dom_property('name', 'Return the name for this treatment curve.')
-    display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
     sampled_quantity_name = dna.dom_property('sampled_quantity_name',
                                              'Return the sampled quantity name for this curve.')
 
