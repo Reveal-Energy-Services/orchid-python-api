@@ -23,7 +23,7 @@ from .core import load_project
 
 # Helpful constants
 from .native_treatment_curve_adapter import TreatmentCurveTypes
-from .native_monitor_curve_adapter import MonitorCurveTypes
+from .native_time_series_adapter import TimeSeriesCurveTypes
 from .net_date_time import UTC
 
 # Helpful functions

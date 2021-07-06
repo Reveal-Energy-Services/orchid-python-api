@@ -186,7 +186,7 @@ class DotNetAdapter:
             A unit system - either `units.UsOilfield` or `units.Metric`.
 
         Raises:
-            ValueError if the derived instances, for example, a `BaseCurveAdapter` is **not** associated with
+            ValueError if the derived instances, for example, a `BaseTimeSeriesAdapter` is **not** associated with
             an `IProject`.
         """
         return self._maybe_project_units.expect('Expected associated project')
@@ -204,7 +204,7 @@ class DotNetAdapter:
 
             Some derived classes, such as 'NativeWellAdapter` and
             `NativeDataFrame`, contain a `Project` property that returns the `IProject` of the .NET class.
-            For other derived classes, such as `BaseCurveAdapter`, the `IProject` cannot be determined. In the
+            For other derived classes, such as `BaseTimeSeriesAdapter`, the `IProject` cannot be determined. In the
             former situation, an associated `IProject`, this method returns an
             `option.Some[units.UsOilfield]` or an `option.Some[units.Metric]`. For the latter situation, no
             associated `IProject`, this method returns `option.NONE`. The methods of the

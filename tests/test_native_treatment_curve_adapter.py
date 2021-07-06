@@ -40,10 +40,10 @@ from tests import (
 class TestTreatmentCurveAdapter(unittest.TestCase):
     # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
     # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.
-    # This approach works, but, in theory, this set up conflates testing the unit, `NativeMonitorCurveAdapter`,
-    # and its base classes, `BaseCurveAdapter` and `DotNetAdapter`.
+    # This approach works, but, in theory, this set up conflates testing the unit, `NativeTimeSeriesAdapter`,
+    # and its base classes, `BaseTimeSeriesAdapter` and `DotNetAdapter`.
     #
-    # This conflation is not required. (See the unit tests for `BaseCurveAdapter` for examples of mocking the
+    # This conflation is not required. (See the unit tests for `BaseTimeSeriesAdapter` for examples of mocking the
     # required base class properties.) However, it uses a set up that is unlike other unit test set up.
     # Because of time pressure, because the unit (and acceptance / integration) tests all work, and because
     # of this dissimilar set up, I have chosen for now to leave these unit tests as is.

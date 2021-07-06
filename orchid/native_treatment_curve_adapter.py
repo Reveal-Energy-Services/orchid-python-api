@@ -19,7 +19,7 @@ import enum
 
 import orchid.base
 from orchid import (
-    base_curve_adapter as bca,
+    base_time_series_adapter as bca,
     dot_net_dom_access as dna,
 )
 
@@ -33,7 +33,7 @@ class TreatmentCurveTypes(enum.Enum):
     TREATING_PRESSURE = 'Pressure'
 
 
-class NativeTreatmentCurveAdapter(bca.BaseCurveAdapter):
+class NativeTreatmentCurveAdapter(bca.BaseTimeSeriesAdapter):
     suffix = dna.dom_property('suffix', 'Return the suffix for this treatment curve.')
 
     def __init__(self, net_treatment_curve: IQuantityTimeSeries):

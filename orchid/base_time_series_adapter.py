@@ -28,7 +28,7 @@ from orchid import (
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
-class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
+class BaseTimeSeriesAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
     def __init__(self, adaptee: IQuantityTimeSeries, net_project_callable: Callable):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.

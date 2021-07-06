@@ -17,12 +17,12 @@ import unittest.mock
 from hamcrest import assert_that, equal_to
 
 from orchid import (
-    base_curve_adapter as bca,
+    base_time_series_adapter as bca,
     unit_system as units,
 )
 
 
-class StubBaseCurveAdapter(bca.BaseCurveAdapter):
+class StubBaseTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
     def __init__(self, adaptee=None, net_project_callable=None):
         super().__init__(adaptee if adaptee else unittest.mock.MagicMock(name='stub_adaptee'),
                          (net_project_callable if net_project_callable
@@ -50,7 +50,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
         for expected_quantity in test_data.keys():
             for quantity_name, unit_system in test_data[expected_quantity]:
                 with self.subTest(f'Testing quantity name, "{quantity_name}", and unit system, {unit_system}'):
-                    sut = StubBaseCurveAdapter()
+                    sut = StubBaseTimeSeriesAdapter()
                     stub_expect_project_units.return_value = unit_system
                     type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
                         name='stub_sampled_quantity_name',
@@ -72,7 +72,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
         unit_system = units.Metric
         quantity_name = 'energiae'
         quantity = 'ENERGY'
-        sut = StubBaseCurveAdapter()
+        sut = StubBaseTimeSeriesAdapter()
         stub_expect_project_units.return_value = unit_system
         type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
             name='stub_sampled_quantity_name',

@@ -19,20 +19,20 @@ import enum
 
 import orchid.base
 from orchid import (
-    base_curve_adapter as bca,
-    dot_net_dom_access as dna,
+    base_time_series_adapter as bca,
 )
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
-class MonitorCurveTypes(enum.Enum):
+# TODO: Replace with dataclass and constant class variables.
+class TimeSeriesCurveTypes(enum.Enum):
     MONITOR_PRESSURE = 'Pressure'
     MONITOR_TEMPERATURE = 'Temperature'
 
 
-class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
+class NativeTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
     def __init__(self, net_monitor_curve: IQuantityTimeSeries):
         super().__init__(net_monitor_curve, orchid.base.constantly(net_monitor_curve.Well.Project))
 
@@ -48,7 +48,7 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
             project_units: The unit system of the project.
         """
         result = {
-            MonitorCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
-            MonitorCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE,
+            TimeSeriesCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+            TimeSeriesCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE,
         }
         return result
