@@ -37,22 +37,6 @@ from tests import (
 )
 
 
-@toolz.curry
-def make_sample(start, value):
-    return start, value
-
-
-@toolz.curry
-def make_samples(start, values):
-    return toolz.map(make_sample(start), values)
-
-
-@toolz.curry
-def make_samples_for_starts(starts, values_for_starts):
-    return toolz.pipe(zip(starts, values_for_starts),
-                      toolz.map(lambda start_values_pair: make_samples(start_values_pair[0], start_values_pair[1])))
-
-
 # Test ideas
 class TestProject(unittest.TestCase):
     def test_canary(self):
