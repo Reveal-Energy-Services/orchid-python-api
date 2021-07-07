@@ -14,7 +14,7 @@
 
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, is_
 import pendulum
 import toolz.curried as toolz
 
@@ -45,26 +45,50 @@ class TestBaseCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_data_points(self):
-        for object_id, name, start_time, sample_values in (
-                (tsn.DONT_CARE_ID_A, 'canis', pendulum.parse('2019-04-30T17:36:54.311915'), (-149.037, )),
-        ):
-            with self.subTest(f'Time series, {object_id},'
-                              f' has samples {sample_values}'
-                              f' starting at {start_time}'):
-                net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
-                stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
-                sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
+    def test_no_data_points_time_series(self):
+        stub_net_time_series = tsn.create_stub_net_time_series(tsn.DONT_CARE_ID_A, data_points=())
+        sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
 
-                expected_sample_times = toolz.pipe(
-                    tsn.create_30_second_time_points(start_time, len(sample_values)),
-                    toolz.map(net_dt.as_net_date_time),
-                    toolz.map(net_dt.as_date_time),
-                    list,
-                )
-                expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
-                actual_data_points = sut.data_points()
-                pdt.assert_series_equal(actual_data_points, expected_data_points)
+        actual_data_points = sut.data_points()
+        assert_that(actual_data_points.empty, is_(True))
+
+    def test_single_data_point_time_series(self):
+        object_id = tsn.DONT_CARE_ID_B
+        name = 'canis'
+        start_time = pendulum.parse('2019-04-30T17:36:54.311915Z')
+        sample_values = (-149.037, )
+        net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
+        stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
+        sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
+
+        actual_data_points = sut.data_points()
+        expected_sample_times = toolz.pipe(
+            tsn.create_30_second_time_points(start_time, len(sample_values)),
+            toolz.map(net_dt.as_net_date_time),
+            toolz.map(net_dt.as_date_time),
+            list,
+        )
+        expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
+        pdt.assert_series_equal(actual_data_points, expected_data_points)
+
+    def test_many_data_points_time_series(self):
+        object_id = tsn.DONT_CARE_ID_C
+        name = 'arbor'
+        start_time = pendulum.parse('2021-02-28T13:15:01.437180')
+        sample_values = (16.12, -90.80, -27.59,)
+        net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
+        stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
+        sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
+
+        actual_data_points = sut.data_points()
+        expected_sample_times = toolz.pipe(
+            tsn.create_30_second_time_points(start_time, len(sample_values)),
+            toolz.map(net_dt.as_net_date_time),
+            toolz.map(net_dt.as_date_time),
+            list,
+        )
+        expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
+        pdt.assert_series_equal(actual_data_points, expected_data_points)
 
     @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
                          name='stub_expect_project_units',
