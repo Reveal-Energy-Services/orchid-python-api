@@ -57,38 +57,14 @@ class TestBaseCurveAdapter(unittest.TestCase):
         name = 'canis'
         start_time = pendulum.parse('2019-04-30T17:36:54.311915Z')
         sample_values = (-149.037, )
-        net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
-        stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
-        sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
-
-        actual_data_points = sut.data_points()
-        expected_sample_times = toolz.pipe(
-            tsn.create_30_second_time_points(start_time, len(sample_values)),
-            toolz.map(net_dt.as_net_date_time),
-            toolz.map(net_dt.as_date_time),
-            list,
-        )
-        expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
-        pdt.assert_series_equal(actual_data_points, expected_data_points)
+        assert_equal_data_points(name, object_id, sample_values, start_time)
 
     def test_many_data_points_time_series(self):
         object_id = tsn.DONT_CARE_ID_C
         name = 'arbor'
         start_time = pendulum.parse('2021-02-28T13:15:01.437180')
         sample_values = (16.12, -90.80, -27.59,)
-        net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
-        stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
-        sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
-
-        actual_data_points = sut.data_points()
-        expected_sample_times = toolz.pipe(
-            tsn.create_30_second_time_points(start_time, len(sample_values)),
-            toolz.map(net_dt.as_net_date_time),
-            toolz.map(net_dt.as_date_time),
-            list,
-        )
-        expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
-        pdt.assert_series_equal(actual_data_points, expected_data_points)
+        assert_equal_data_points(name, object_id, sample_values, start_time)
 
     @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
                          name='stub_expect_project_units',
@@ -139,6 +115,21 @@ class TestBaseCurveAdapter(unittest.TestCase):
         sut.sampled_quantity_unit()
 
         sut.quantity_name_unit_map.assert_called_once_with(unit_system)
+
+
+def assert_equal_data_points(name, object_id, sample_values, start_time):
+    net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
+    stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
+    sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
+    actual_data_points = sut.data_points()
+    expected_sample_times = toolz.pipe(
+        tsn.create_30_second_time_points(start_time, len(sample_values)),
+        toolz.map(net_dt.as_net_date_time),
+        toolz.map(net_dt.as_date_time),
+        list,
+    )
+    expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
+    pdt.assert_series_equal(actual_data_points, expected_data_points)
 
 
 if __name__ == '__main__':
