@@ -240,7 +240,7 @@ def step_impl(context, index, qty_name, time, value, name):
     def is_candidate(curve_to_test):
         return curve_to_test.name == name and curve_to_test.sampled_quantity_name == qty_name
 
-    candidate_curves = list(toolz.filter(is_candidate, context.time_series))
+    candidate_curves = list(toolz.filter(is_candidate, cf.all_project_objects(context.time_series)))
     assert_that(len(candidate_curves), equal_to(1),
                 f'Expected 1 curve with name, {name}, and sampled quantity_name, {qty_name}.' +
                 f' Found {len(candidate_curves)}')

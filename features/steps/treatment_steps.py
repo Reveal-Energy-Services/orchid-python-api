@@ -44,7 +44,7 @@ def step_impl(context):
     """
     searchable_wells = context.project.wells()
     context.stages_for_wells = toolz.pipe(
-        cf.all_stages(searchable_wells),
+        cf.all_project_objects(searchable_wells),
         lambda ws: toolz.reduce(
             lambda so_far, update_value: toolz.assoc(so_far, update_value, update_value.stages()), ws, {})
     )
@@ -66,7 +66,7 @@ def step_impl(context):
     def calculate_all_treatment_aggregates(searchable_stages):
         return toolz.pipe(
             searchable_stages,
-            cf.all_stages,
+            cf.all_project_objects,
             toolz.map(calculate_treatment_aggregates),
             list,
         )

@@ -25,7 +25,7 @@ import orchid
 from tests import (custom_matchers as tcm)
 
 
-def all_stages(searchable):
+def all_project_objects(searchable):
     return toolz.pipe(
         searchable.all_object_ids(),
         toolz.map(lambda oid: searchable.find_by_object_id(oid)),
@@ -81,7 +81,7 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
         return candidate_stage.display_stage_number == displayed_stage_no
 
     candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
-                            all_stages,
+                            all_project_objects,
                             toolz.filter(has_stage_no(stage_no)),
                             list)
     assert_that(toolz.count(candidates), equal_to(1),
