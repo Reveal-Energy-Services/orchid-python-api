@@ -104,6 +104,9 @@ class StubNetSample:
                                                  milliseconds, stub_dt.StubDateTimeKind.UTC)
         self.Value = value
 
+    def __repr__(self):
+        return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
+
 
 def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
                                             sample_values) -> Sequence[StubNetSample]:
