@@ -172,7 +172,7 @@ def setup_package(context, skip_source=False, skip_binary=False):
 
 def example_notebooks_names():
     """Returns the sequence of example notebook names."""
-    example_notebook_stems = ['completion_analysis', 'plot_monitor_curves', 'plot_trajectories', 'plot_treatment']
+    example_notebook_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories', 'plot_treatment']
     result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), example_notebook_stems)
     return result
 

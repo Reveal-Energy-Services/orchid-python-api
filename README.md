@@ -12,7 +12,7 @@ Additionally, this project installs five examples in the `examples` directory of
 package:
 
 - `plot_trajectories.ipynb`
-- `plot_monitor_curves.ipynb`
+- `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
 - `volume_2_first_response.ipynb`
@@ -314,7 +314,7 @@ The import should complete with no errors.
   `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
 - Verify that the current directory has five notebooks:
     - `plot_trajectories.ipynb`
-    - `plot_monitor_curves.ipynb`
+    - `plot_time_series.ipynb`
     - `plot_treatment.ipynb`
     - `completion_analysis.ipynb`
     - `volume_2_first_response.ipynb`
@@ -329,7 +329,7 @@ The import should complete with no errors.
         3. Wait patiently
         4. Verify that no exceptions occurred
     - Repeat for remaining notebooks:
-        - `plot_monitor_curves.ipynb`
+        - `plot_time_series.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_repsonse.ipynb`
