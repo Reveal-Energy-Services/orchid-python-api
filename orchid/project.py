@@ -66,8 +66,8 @@ class Project(dna.DotNetAdapter):
     name = dna.dom_property('name', 'The name of this project.')
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
 
-    _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
-                                               dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+    # _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
+    #                                            dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
 
     @property
     def fluid_density(self):
@@ -112,6 +112,15 @@ class Project(dna.DotNetAdapter):
         """
         candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
         return option.maybe(candidates[0] if len(candidates) == 1 else None)
+
+    def data_frames(self) -> spo.DomSearchableProjectObjects:
+        """
+        Return a `spo.DomSearchableProjectObjects` instance of all the data frames for this project.
+
+        Returns:
+            An `spo.DomSearchableProjectObjects` for all the data frames of this project.
+        """
+        return spo.DomSearchableProjectObjects(dfa.NativeDataFrameAdapter, self.dom_object.DataFrames.Items)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -190,22 +199,6 @@ class Project(dna.DotNetAdapter):
             An `spo.DomSearchableProjectObjects` for all the time series of this project.
         """
         return spo.DomSearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
-
-    # def time_series(self) -> Iterable[tsa.NativeTimeSeriesAdapter]:
-    #
-    #     """
-    #     Return a sequence of well time series for this project.
-    #
-    #     Returns:
-    #         An iterable of well time series.
-    #     """
-    #     native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
-    #     if len(native_time_series_list_items) > 0:
-    #         return toolz.pipe(native_time_series_list_items,
-    #                           toolz.map(tsa.NativeTimeSeriesAdapter),
-    #                           list)
-    #     else:
-    #         return []
 
     def wells(self) -> spo.DomSearchableProjectObjects:
         """

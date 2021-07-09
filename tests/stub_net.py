@@ -564,10 +564,10 @@ def create_stub_net_well(object_id=None, name='', display_name='', ground_level_
     return result
 
 
-def create_stub_net_project(
-        name='', azimuth=None, curve_names=None, curves_physical_quantities=None, data_frame_ids=(),
-        default_well_colors=None, fluid_density=None, monitor_dtos=(), project_bounds=None,
-        project_center=None, project_units=None, samples=None, time_series_dtos=(), well_dtos=(), ):
+def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
+                            data_frame_dtos=(), data_frame_ids=(), default_well_colors=None,
+                            fluid_density=None, monitor_dtos=(), project_bounds=None, project_center=None,
+                            project_units=None, samples=None, time_series_dtos=(), well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
@@ -589,8 +589,8 @@ def create_stub_net_project(
     stub_net_project.Monitors.Items = [create_stub_net_monitor(**monitor_dto) for
                                        monitor_dto in monitor_dtos]
 
-    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_id) for
-                                         data_frame_id in data_frame_ids]
+    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_dto) for
+                                         data_frame_dto in data_frame_dtos]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
