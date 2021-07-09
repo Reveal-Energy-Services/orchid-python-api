@@ -23,7 +23,7 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    dom_searchable_project_objects as spo,
+    searchable_project_objects as spo,
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_time_series_adapter as tsa,
@@ -72,14 +72,14 @@ class Project(dna.DotNetAdapter):
         """The fluid density of the project in project units."""
         return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
 
-    def data_frames(self) -> spo.DomSearchableProjectObjects:
+    def data_frames(self) -> spo.SearchableProjectObjects:
         """
-        Return a `spo.DomSearchableProjectObjects` instance of all the data frames for this project.
+        Return a `spo.SearchableProjectObjects` instance of all the data frames for this project.
 
         Returns:
-            An `spo.DomSearchableProjectObjects` for all the data frames of this project.
+            An `spo.SearchableProjectObjects` for all the data frames of this project.
         """
-        return spo.DomSearchableProjectObjects(dfa.NativeDataFrameAdapter, self.dom_object.DataFrames.Items)
+        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapter, self.dom_object.DataFrames.Items)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -89,14 +89,14 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def monitors(self) -> spo.DomSearchableProjectObjects:
+    def monitors(self) -> spo.SearchableProjectObjects:
         """
-        Return a `spo.DomSearchableProjectObjects` instance of all the monitors for this project.
+        Return a `spo.SearchableProjectObjects` instance of all the monitors for this project.
 
         Returns:
-            An `spo.DomSearchableProjectObjects` for all the monitors of this project.
+            An `spo.SearchableProjectObjects` for all the monitors of this project.
         """
-        return spo.DomSearchableProjectObjects(nma.NativeMonitorAdapter, self.dom_object.Monitors.Items)
+        return spo.SearchableProjectObjects(nma.NativeMonitorAdapter, self.dom_object.Monitors.Items)
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),
@@ -132,23 +132,23 @@ class Project(dna.DotNetAdapter):
         else:
             raise ValueError(f'Unknown unit system: {self.project_units}')
 
-    def time_series(self) -> spo.DomSearchableProjectObjects:
+    def time_series(self) -> spo.SearchableProjectObjects:
         """
-        Return a `spo.DomSearchableProjectObjects` instance of all the time series for this project.
+        Return a `spo.SearchableProjectObjects` instance of all the time series for this project.
 
         Returns:
-            An `spo.DomSearchableProjectObjects` for all the time series of this project.
+            An `spo.SearchableProjectObjects` for all the time series of this project.
         """
-        return spo.DomSearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
+        return spo.SearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
 
-    def wells(self) -> spo.DomSearchableProjectObjects:
+    def wells(self) -> spo.SearchableProjectObjects:
         """
-        Return a `spo.DomSearchableProjectObjects` instance of all the wells for this project.
+        Return a `spo.SearchableProjectObjects` instance of all the wells for this project.
 
         Returns:
-            An `spo.DomSearchableProjectObjects` for all the wells of this project.
+            An `spo.SearchableProjectObjects` for all the wells of this project.
         """
-        return spo.DomSearchableProjectObjects(nwa.NativeWellAdapter, self.dom_object.Wells.Items)
+        return spo.SearchableProjectObjects(nwa.NativeWellAdapter, self.dom_object.Wells.Items)
 
     def wells_by_name(self, name) -> Iterable[IWell]:
         """

@@ -20,14 +20,14 @@ import toolz.curried as toolz
 
 from orchid import (
     dom_project_object as dpo,
-    dom_searchable_project_objects as spo,
+    searchable_project_objects as spo,
 )
 
 from tests import stub_net as tsn
 
 
 # Test ideas
-class TestDomSearchableProjectObjects(unittest.TestCase):
+class TestSearchableProjectObjects(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -158,7 +158,7 @@ class TestDomSearchableProjectObjects(unittest.TestCase):
 
 
 def create_sut(net_project_object_dtos):
-    return spo.DomSearchableProjectObjects(dpo.DomProjectObject, net_project_object_dtos)
+    return spo.SearchableProjectObjects(dpo.DomProjectObject, net_project_object_dtos)
 
 
 if __name__ == '__main__':
