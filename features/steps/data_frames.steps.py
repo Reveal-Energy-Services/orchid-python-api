@@ -33,7 +33,6 @@ import pandas as pd
 
 from orchid import (
     dot_net_dom_access as dna,
-    net_date_time as net_dt,
 )
 
 
@@ -47,7 +46,7 @@ def step_impl(context, object_id):
         context (behave.runner.Context): The test context.
         object_id (str): The string representation of the value identifying the data frame of interest.
     """
-    context.data_frame_of_interest = context.project.data_frame(dna.as_object_id(object_id)).unwrap()
+    context.data_frame_of_interest = context.project.data_frames().find_by_object_id(dna.as_object_id(object_id))
     assert_that(context.data_frame_of_interest, not_none())
 
 
@@ -60,8 +59,10 @@ def step_impl(context, name, display_name):
         display_name (str): The display name of the data frame of interest.
     """
     context.data_frames_by_names = {
-        name: list(context.project.find_data_frames_with_name(name)),
-        display_name: list(context.project.find_data_frames_with_display_name(display_name)),
+        name: [df.name for df
+               in list(context.project.data_frames().find_by_name(name))],
+        display_name: [df.display_name for df
+                       in list(context.project.data_frames().find_by_display_name(display_name))],
     }
 
 
@@ -72,7 +73,7 @@ def step_impl(context, data_frame_name):
         context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
-    candidates = list(context.project.find_data_frames_with_name(data_frame_name))
+    candidates = list(context.project.data_frames().find_by_name(data_frame_name))
     assert_that(len(candidates), equal_to(1))
 
     context.data_frame_of_interest = candidates[0]
@@ -97,9 +98,8 @@ def step_impl(context, name, display_name):
         name (str): The name of the data frame of interest.
         display_name (str): The name of the data frame of interest used for display purposes.
     """
-    assert_that(len(context.data_frames_by_names[name]), equal_to(1))
-    assert_that(len(context.data_frames_by_names[display_name]), equal_to(1))
-    assert_that(context.data_frames_by_names[name] is context.data_frames_by_names[display_name])
+    assert_that(context.data_frames_by_names[name], contains_exactly(name))
+    assert_that(context.data_frames_by_names[display_name], contains_exactly(display_name))
 
 
 @then("I see the specified data frame {is_potentially_corrupt}")
