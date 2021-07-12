@@ -21,10 +21,7 @@ import unittest.mock
 import uuid
 
 import deal
-from hamcrest import assert_that, equal_to, contains_exactly, contains_inanyorder, is_, empty, calling, raises
-import option
-import pendulum
-import toolz.curried as toolz
+from hamcrest import assert_that, equal_to, contains_exactly, calling, raises
 
 from orchid import (
     measurement as om,
@@ -37,26 +34,7 @@ from tests import (
 )
 
 
-@toolz.curry
-def make_sample(start, value):
-    return start, value
-
-
-@toolz.curry
-def make_samples(start, values):
-    return toolz.map(make_sample(start), values)
-
-
-@toolz.curry
-def make_samples_for_starts(starts, values_for_starts):
-    return toolz.pipe(zip(starts, values_for_starts),
-                      toolz.map(lambda start_values_pair: make_samples(start_values_pair[0], start_values_pair[1])))
-
-
 # Test ideas
-# - data_frame_ids() returns all data frame IDs
-# - all_data_frames_names() returns all data frame names
-# - all_data_frames_display_names() returns all data frame display names
 class TestProject(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -76,110 +54,29 @@ class TestProject(unittest.TestCase):
                 sut = create_sut(stub_native_project)
                 tcm.assert_that_measurements_close_to(sut.azimuth, expected_azimuth, tolerance)
 
-    def test_data_frame_with_match_returns_some_data_frame_with_object_id(self):
-        data_frame_ids, id_to_match = ([{'object_id': '38a1414a-c526-48b8-b069-862fcd6668bb'}],
-                                       uuid.UUID('38a1414a-c526-48b8-b069-862fcd6668bb'))
-        stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
-        sut = create_sut(stub_native_project)
-
-        matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
-        assert_that(matching_data_frame_object_id, equal_to(option.Some(id_to_match)))
-
-    def test_data_frame_with_no_match_returns_option_none(self):
-        data_frame_ids, id_to_match = ([{'object_id': '15843a09-4de6-45f0-b20c-b61671e9ea41'}],
-                                       uuid.UUID('15843a09-4de6-45f0-b20c-b61671e9ea42'))
-        stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
-        sut = create_sut(stub_native_project)
-
-        matching_data_frame_object_id = sut.data_frame(id_to_match).map(lambda df: df.object_id)
-        assert_that(matching_data_frame_object_id, equal_to(option.NONE))
-
-    def test_all_data_frames_object_ids_returns_all_object_ids(self):
-        for data_frame_ids, expected_object_ids in [
-            ([], []),
-            ([{'object_id': '745fefae-b757-4295-8067-8dc83e2b6c53'}],
-             [uuid.UUID('745fefae-b757-4295-8067-8dc83e2b6c53')]),
-            ([{'object_id': '2dca4e6b-4149-4e8b-908f-7e9e5f62d38a'},
-              {'object_id': '2a64351c-24ba-4db3-beaf-ce7f32706a4e'},
-              {'object_id': 'eb6ea8fb-b592-4f9b-b515-3ba63fb3541e'}],
-             toolz.map(uuid.UUID, ['2dca4e6b-4149-4e8b-908f-7e9e5f62d38a',
-                                   '2a64351c-24ba-4db3-beaf-ce7f32706a4e',
-                                   'eb6ea8fb-b592-4f9b-b515-3ba63fb3541e']))
-        ]:
-            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_object_ids}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
+    def test_data_frames(self):
+        for data_frame_dtos in (
+                (),
+                # Need trailing comma inside parentheses to retain tuple
+                ({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'ianitore', 'name': 'praescindent'},),
+                # Don't care about object IDs but must be unique
+                ({'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'adamanti', 'name': 'partes'},
+                 {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'indicium', 'name': 'cunctas'},
+                 {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'aquila', 'name': 'curae'})
+        ):
+            get_data_frame_dtos_property = tsn.get_dtos_property(data_frame_dtos)
+            expected_object_ids = get_data_frame_dtos_property('object_id', transform=uuid.UUID)
+            expected_display_names = get_data_frame_dtos_property('display_name')
+            expected_names = get_data_frame_dtos_property('name')
+            with self.subTest(f'Verify data frame object IDs, {expected_object_ids}'
+                              f' display_names, {expected_display_names},'
+                              f' and names, {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
                 sut = create_sut(stub_native_project)
 
-                actual_object_ids = sut.all_data_frames_object_ids()
-                assert_that(actual_object_ids, contains_inanyorder(*expected_object_ids))
-
-    def test_all_data_frames_display_names_returns_all_display_names(self):
-        for data_frame_ids, expected_display_names in [
-            ([], []),
-            ([{'display_name': 'tumuerunt', 'object_id': 'dbb92d94-5c91-439c-98c3-f9566321140a'}],
-             ['tumuerunt']),
-            ([{'display_name': 'refuerunt', 'object_id': '2dca4e6b-4149-4e8b-908f-7e9e5f62d38a'},
-              {'display_name': 'crapulam', 'object_id': 'f34673ef-0b27-4bd0-a788-2646ddb78680'},
-              {'display_name': 'refuerunt', 'object_id': 'c9d8f992-fbf7-420e-a65e-a36f7b2f608b'}],
-             ['refuerunt', 'crapulam', 'refuerunt'])
-        ]:
-            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_display_names}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
-                sut = create_sut(stub_native_project)
-
-                actual_display_names = sut.all_data_frames_display_names()
-                assert_that(actual_display_names, contains_inanyorder(*expected_display_names))
-
-    def test_all_data_frames_names_returns_all_names(self):
-        for data_frame_ids, expected_names in [
-            ([], []),
-            ([{'name': 'fulmen', 'object_id': 'ff241498-75ad-499a-b47f-27fd19359ac6'}],
-             ['fulmen']),
-            ([{'name': 'fratris', 'object_id': 'd3d16b87-2171-4147-95f0-c7c67bc2bbe4'},
-              {'name': 'visci', 'object_id': '0df09bec-e389-4211-bf25-3c630f0e47b8'},
-              {'name': 'fratris', 'object_id': 'df9c0943-85a0-4ae7-b40a-f9dec680d9f6'}],
-             ['fratris', 'visci', 'fratris'])
-        ]:
-            with self.subTest(f'Verify data frame with {data_frame_ids} returns {expected_names}'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_ids)
-                sut = create_sut(stub_native_project)
-
-                actual_names = sut.all_data_frames_names()
-                assert_that(actual_names, contains_inanyorder(*expected_names))
-
-    def test_find_data_frames_with_display_name_returns_matches_with_requested_name(self):
-        for data_frame_display_names, name_to_match, match_count in [
-            ([{'display_name': 'restaurat', 'object_id': '6ea3a161-4575-47e7-bd5f-c19d9e5be428'}],
-             'restauras', 0),
-            ([{'display_name': 'insuperabile', 'object_id': '8dc279ed-9d81-4dac-9057-58dd74dcd39b'}],
-             'insuperabile', 1),
-            ([{'display_name': 'diluit', 'object_id': '371a1443-1089-4080-8e7c-d48c9435b71b'},
-              {'display_name': 'diluit', 'object_id': '4c21a0fd-dc47-4204-95a5-e5a76bf78516'}],
-             'diluit', 2)
-        ]:
-            with self.subTest(f'Verify {data_frame_display_names} have {match_count} matches of "{name_to_match}"'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_display_names)
-                sut = create_sut(stub_native_project)
-
-                matching_data_frame_display_names = list(toolz.map(
-                    lambda df: df.display_name, sut.find_data_frames_with_display_name(name_to_match)))
-                assert_that(matching_data_frame_display_names, equal_to([name_to_match] * match_count))
-
-    def test_find_data_frames_with_name_returns_matches_with_requested_name(self):
-        for data_frame_names, name_to_match, match_count in [
-            ([{'name': 'vicis', 'object_id': '01de593e-6f52-4c78-8416-aea7a29349cb'}], 'vici', 0),
-            ([{'name': 'rosae', 'object_id': '5feb74e1-0392-45b8-b194-131d8a0bdef3'}], 'rosae', 1),
-            ([{'name': 'diluit', 'object_id': '4750e22c-25ab-42c8-8b08-81bcc2c86b1b'},
-              {'name': 'diluit', 'object_id': '1e4969ab-2b75-4702-9136-6bd06a5f5b74'}],
-             'diluit', 2),
-        ]:
-            with self.subTest(f'Verify {data_frame_names} have {match_count} matches of "{name_to_match}"'):
-                stub_native_project = tsn.create_stub_net_project(data_frame_ids=data_frame_names)
-                sut = create_sut(stub_native_project)
-
-                matching_data_frame_names = list(toolz.map(lambda df: df.name,
-                                                           sut.find_data_frames_with_name(name_to_match)))
-                assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
+                assert_that(sut.data_frames().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.data_frames().all_display_names(), contains_exactly(*expected_display_names))
+                assert_that(sut.data_frames().all_names(), contains_exactly(*expected_names))
 
     def test_default_well_colors_if_no_default_well_colors(self):
         stub_native_project = tsn.create_stub_net_project(name='exsistet')
@@ -218,15 +115,24 @@ class TestProject(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(sut.fluid_density, expected_density, tolerance)
 
     def test_monitors(self):
-        for monitor_display_names in [[], ['congruent'], ['histrio', 'principis', 'quaesivuisti']]:
-            with self.subTest(f'Verify correct number of monitors: {monitor_display_names}'):
-                stub_native_project = tsn.create_stub_net_project(monitor_display_names=monitor_display_names)
+        for monitor_dtos in (
+            (),
+            ({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'congruent'},),  # need trailing comma to retain tuple
+            # Don't care about object IDs but must be unique
+            ({'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'histrio'},
+             {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'principis'},
+             {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'quaesivuisti'})
+        ):
+            get_monitor_dtos_property = tsn.get_dtos_property(monitor_dtos)
+            expected_object_ids = get_monitor_dtos_property('object_id', transform=uuid.UUID)
+            expected_display_names = get_monitor_dtos_property('display_name')
+            with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
+                              f' and display names, {expected_display_names}'):
+                stub_native_project = tsn.create_stub_net_project(monitor_dtos=monitor_dtos)
                 sut = create_sut(stub_native_project)
 
-                assert_that(len(list(sut.monitors())), equal_to(len(monitor_display_names)))
-                for monitor_display_name in monitor_display_names:
-                    assert_that(toolz.get(monitor_display_name, sut.monitors()).display_name,
-                                equal_to(monitor_display_name))
+                assert_that(sut.monitors().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.monitors().all_display_names(), contains_exactly(*expected_display_names))
 
     def test_name(self):
         stub_native_project = tsn.create_stub_net_project(name='commodorum')
@@ -370,87 +276,49 @@ class TestProject(unittest.TestCase):
 
         assert_that(calling(onp.Project.slurry_rate_volume_unit).with_args(sut), raises(ValueError))
 
-    def test_wells_if_no_wells(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet')
-        sut = create_sut(stub_native_project)
-        assert_that(sut.wells, contains_exactly())
+    def test_time_series(self):
+        for time_series_dtos in (
+                (),
+                # Need trailing comma inside parentheses to retain tuple
+                ({'object_id': tsn.DONT_CARE_ID_A, 'display_name': 'malae', 'name': 'lustrabit'},),
+                # Don't care about object IDs but must be unique
+                ({'object_id': tsn.DONT_CARE_ID_B, 'display_name': 'vivis', 'name': 'mulgetis'},
+                 {'object_id': tsn.DONT_CARE_ID_C, 'display_name': 'pluvia', 'name': 'aedificabatis'},
+                 {'object_id': tsn.DONT_CARE_ID_D, 'display_name': 'lautus', 'name': 'adventicieae'})
+        ):
+            get_time_series_dtos_property = tsn.get_dtos_property(time_series_dtos)
+            expected_object_ids = get_time_series_dtos_property('object_id', transform=uuid.UUID)
+            expected_display_names = get_time_series_dtos_property('display_name')
+            expected_names = get_time_series_dtos_property('name')
+            with self.subTest(f'Verify time series object IDs, {expected_object_ids}'
+                              f' display_names, {expected_display_names},'
+                              f' and names, {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(time_series_dtos=time_series_dtos)
+                sut = create_sut(stub_native_project)
 
-    def test_wells_if_one_well(self):
-        expected_well_names = ['clunibus']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=expected_well_names)
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
+                assert_that(sut.time_series().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.time_series().all_display_names(), contains_exactly(*expected_display_names))
+                assert_that(sut.time_series().all_names(), contains_exactly(*expected_names))
 
-    def test_wells_if_many_wells(self):
-        expected_well_names = ['cordam', 'turbibus', 'collaris']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=expected_well_names)
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells), contains_exactly(*expected_well_names))
+    def test_wells(self):
+        for well_dtos in (
+                (),
+                ({'object_id': tsn.DONT_CARE_ID_A, 'name': 'congruent'},),  # need trailing comma to retain tuple
+                # Don't care about object IDs but must be unique
+                ({'object_id': tsn.DONT_CARE_ID_B, 'name': 'histrio'},
+                 {'object_id': tsn.DONT_CARE_ID_C, 'name': 'principis'},
+                 {'object_id': tsn.DONT_CARE_ID_D, 'name': 'quaesivuisti'})
+        ):
+            get_well_dtos_property = tsn.get_dtos_property(well_dtos)
+            expected_object_ids = get_well_dtos_property('object_id', transform=uuid.UUID)
+            expected_names = get_well_dtos_property('name')
+            with self.subTest(f'Verify wells object IDs, {expected_object_ids}'
+                              f' and names, {expected_names}'):
+                stub_native_project = tsn.create_stub_net_project(well_dtos=well_dtos)
+                sut = create_sut(stub_native_project)
 
-    def test_wells_by_name_if_no_wells(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet')
-        sut = create_sut(stub_native_project)
-        assert_that(sut.wells_by_name('clunibus'), contains_exactly())
-
-    def test_wells_by_name_if_no_well_with_name_found(self):
-        expected_well_names = ['clunibus']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=expected_well_names)
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells_by_name('clunibus')), contains_exactly(*expected_well_names))
-
-    def test_wells_by_name_if_one_well_with_name_found(self):
-        expected_well_names = ['clunibus']
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=['clunibus'])
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells_by_name('clunibus')), contains_exactly(*expected_well_names))
-
-    def test_wells_by_name_if_many_wells_with_name_found(self):
-        stub_native_project = tsn.create_stub_net_project(name='exsistet', well_names=['cordam', 'turbibus',
-                                                                                       'cordam', 'collaris',
-                                                                                       'cordam'],
-                                                          uwis=["93-167-64050-25-81", "54-107-49537-17-76",
-                                                                "80-693-58647-57-44", "66-101-46368-44-99",
-                                                                "06-390-40886-62-60"])
-        sut = create_sut(stub_native_project)
-        assert_that(map(lambda w: w.name, sut.wells_by_name('cordam')), contains_exactly(*(['cordam'] * 3)))
-
-    def test_well_time_series_returns_empty_if_no_well_time_series(self):
-        expected_well_time_series = []
-        stub_native_project = tsn.create_stub_net_project(samples=expected_well_time_series)
-        sut = create_sut(stub_native_project)
-
-        # noinspection PyTypeChecker
-        assert_that(sut.monitor_curves(), is_(empty()))
-
-    def test_well_time_series_returns_one_if_one_well_time_series(self):
-        curve_name = 'gestum'
-        curve_quantity = 'pressure'
-        sample_start = pendulum.datetime(2018, 11, 14, 0, 58, 32, 136000)
-        sample_values = [0.617, 0.408, 2.806]
-
-        samples = make_samples(sample_start, sample_values)
-        stub_native_project = tsn.create_stub_net_project(name='non curo', curve_names=[curve_name], samples=[samples],
-                                                          curves_physical_quantities=[curve_quantity])
-        sut = create_sut(stub_native_project)
-
-        # noinspection PyTypeChecker
-        assert_that(len(list(sut.monitor_curves())), equal_to(1))
-
-    def test_well_time_series_returns_many_if_many_well_time_series(self):
-        curve_names = ['superseduisti', 'mulctaverim', 'veniae']
-        curve_quantity_names = ['temperature', 'pressure', 'pressure']
-        sample_starts = [pendulum.datetime(2019, 3, 7, 10, 2, 13, 131000),
-                         pendulum.datetime(2019, 8, 1, 16, 50, 45, 500000),
-                         pendulum.datetime(2016, 3, 21, 20, 15, 19, 54000)]
-        samples_values = [[152.4, 155.3, 142.0], [246.6, 219.4, 213.0], [219.9, 191.5, 187.6]]
-
-        samples = list(make_samples_for_starts(sample_starts, samples_values))
-        stub_native_project = tsn.create_stub_net_project(name='non curo', curve_names=curve_names, samples=samples,
-                                                          curves_physical_quantities=curve_quantity_names)
-        sut = create_sut(stub_native_project)
-
-        # noinspection PyTypeChecker
-        assert_that(len(list(sut.monitor_curves())), equal_to(3))
+                assert_that(sut.wells().all_object_ids(), contains_exactly(*expected_object_ids))
+                assert_that(sut.wells().all_names(), contains_exactly(*expected_names))
 
 
 def create_sut(stub_net_project):

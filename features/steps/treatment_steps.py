@@ -42,7 +42,12 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.stages_for_wells = {w: list(w.stages) for w in context.project.wells}
+    searchable_wells = context.project.wells()
+    context.stages_for_wells = toolz.pipe(
+        cf.all_project_objects(searchable_wells),
+        lambda ws: toolz.reduce(
+            lambda so_far, update_value: toolz.assoc(so_far, update_value, update_value.stages()), ws, {})
+    )
 
 
 @when("I calculate the total pumped volume, proppant mass, and median treating pressure for each stage")
@@ -58,8 +63,13 @@ def step_impl(context):
                                      calcs.median_treating_pressure(for_stage, start_time, stop_time))
         return aggregates
 
-    def calculate_all_treatment_aggregates(for_stages):
-        return list(toolz.map(calculate_treatment_aggregates, for_stages))
+    def calculate_all_treatment_aggregates(searchable_stages):
+        return toolz.pipe(
+            searchable_stages,
+            cf.all_project_objects,
+            toolz.map(calculate_treatment_aggregates),
+            list,
+        )
 
     result = toolz.valmap(calculate_all_treatment_aggregates, context.stages_for_wells)
     context.aggregates_for_stages_for_wells = result

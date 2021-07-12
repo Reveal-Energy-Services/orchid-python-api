@@ -19,26 +19,26 @@ import enum
 
 import orchid.base
 from orchid import (
-    base_curve_adapter as bca,
-    dot_net_dom_access as dna,
+    base_time_series_adapter as bca,
 )
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
-class MonitorCurveTypes(enum.Enum):
+# TODO: Replace with dataclass and constant class variables.
+class TimeSeriesCurveTypes(enum.Enum):
     MONITOR_PRESSURE = 'Pressure'
     MONITOR_TEMPERATURE = 'Temperature'
 
 
-class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
-    def __init__(self, net_monitor_curve: IQuantityTimeSeries):
-        super().__init__(net_monitor_curve, orchid.base.constantly(net_monitor_curve.Well.Project))
+class NativeTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
+    def __init__(self, net_time_series: IQuantityTimeSeries):
+        super().__init__(net_time_series, orchid.base.constantly(net_time_series.Well.Project))
 
     def quantity_name_unit_map(self, project_units):
         """
-        Return a map (dictionary) between quantity names and units (from `unit_system`) of the samples.
+        Return a map (dictionary) between quantity names and units (from `unit_system`) of the data_points.
 
         This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
         role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
@@ -48,7 +48,7 @@ class NativeMonitorCurveAdapter(bca.BaseCurveAdapter):
             project_units: The unit system of the project.
         """
         result = {
-            MonitorCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
-            MonitorCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE,
+            TimeSeriesCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+            TimeSeriesCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE,
         }
         return result

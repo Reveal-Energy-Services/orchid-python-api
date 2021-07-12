@@ -87,7 +87,7 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    context.actual_wells = context.project.wells
+    context.actual_wells = context.project.wells()
 
 
 # noinspection PyBDDParameters
@@ -101,7 +101,7 @@ def step_impl(context, project, well_count):
     """
     context.execute_steps(f'When I query the project name')
     context.execute_steps(f'Then I see the text "{project}"')
-    assert_that(len(list(context.actual_wells)), equal_to(well_count))
+    assert_that(len(context.actual_wells), equal_to(well_count))
 
 
 @then("I see the well details {well}, {display_name}, and {uwi} for {object_id}")
@@ -112,9 +112,13 @@ def step_impl(context, well, display_name, uwi, object_id):
     def expected_details_to_check():
         return well, display_name, uwi, object_id
 
-    tmp_to_test = toolz.pipe(toolz.map(actual_details_to_check, context.actual_wells),
-                             toolz.filter(lambda d: d[0] == well),
-                             toolz.first)
+    candidate_wells = list(context.actual_wells.find_by_name(well))
+    assert_that(len(candidate_wells), equal_to(1),
+                f'Expected 1 well for project in field, {context.field}'
+                f' but found {len(candidate_wells)}.')
+    well_to_test = candidate_wells[0]
+
+    tmp_to_test = actual_details_to_check(well_to_test)
 
     actual_to_test = tmp_to_test
     if tmp_to_test[2] == '':
@@ -217,8 +221,8 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context
     """
-    context.monitor_curves = context.project.monitor_curves()
-    assert_that(context.monitor_curves, is_(not_none()))
+    context.time_series = context.project.time_series()
+    assert_that(context.time_series, is_(not_none()))
 
 
 # noinspection PyBDDParameters
@@ -236,7 +240,7 @@ def step_impl(context, index, qty_name, time, value, name):
     def is_candidate(curve_to_test):
         return curve_to_test.name == name and curve_to_test.sampled_quantity_name == qty_name
 
-    candidate_curves = list(toolz.filter(is_candidate, context.monitor_curves))
+    candidate_curves = list(toolz.filter(is_candidate, cf.all_project_objects(context.time_series)))
     assert_that(len(candidate_curves), equal_to(1),
                 f'Expected 1 curve with name, {name}, and sampled quantity_name, {qty_name}.' +
                 f' Found {len(candidate_curves)}')
@@ -245,7 +249,7 @@ def step_impl(context, index, qty_name, time, value, name):
     actual_quantity_name = curve.sampled_quantity_name
     assert_that(actual_quantity_name, equal_to(qty_name))
 
-    samples = curve.time_series()
+    samples = curve.data_points()
 
     actual_sample_time = samples.index[index]
     expected_sample_time = pendulum.parse(time)

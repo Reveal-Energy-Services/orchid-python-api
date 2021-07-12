@@ -26,7 +26,7 @@ import pandas.testing as pdt
 
 
 from orchid import (
-    native_monitor_curve_adapter as mca,
+    native_time_series_adapter as tsa,
     unit_system as units,
 )
 
@@ -36,13 +36,13 @@ import tests.stub_net as tsn
 # Test ideas
 # - Transform pendulum.DateTime.max to `NaT` in Time Series
 # - Transform pendulum.DateTime.min to `NaT` in Time Series
-class TestNativeMonitorCurveAdapter(unittest.TestCase):
+class TestNativeTimeSeriesAdapter(unittest.TestCase):
     # TODO: Think about isolating unit testing of the SUT and its base classes into separate test classes.
     # Currently, we test the SUT by mocking the project and testing the SUT and its base classes together.
-    # This approach works, but, in theory, this set up conflates testing the unit, `NativeMonitorCurveAdapter`,
-    # and its base classes, `BaseCurveAdapter` and `DotNetAdapter`.
+    # This approach works, but, in theory, this set up conflates testing the unit, `NativeTimeSeriesAdapter`,
+    # and its base classes, `BaseTimeSeriesAdapter` and `DotNetAdapter`.
     #
-    # This conflation is not required. (See the unit tests for `BaseCurveAdapter` for examples of mocking the
+    # This conflation is not required. (See the unit tests for `BaseTimeSeriesAdapter` for examples of mocking the
     # required base class properties.) However, it uses a set up that is unlike other unit test set up.
     # Because of time pressure, because the unit (and acceptance / integration) tests all work, and because
     # of this dissimilar set up, I have chosen for now to leave these unit tests as is.
@@ -64,8 +64,8 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
                 actual = sut.quantity_name_unit_map(project_units)
                 assert_that(actual, has_entries({
-                    mca.MonitorCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
-                    mca.MonitorCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE}))
+                    tsa.TimeSeriesCurveTypes.MONITOR_PRESSURE.value: project_units.PRESSURE,
+                    tsa.TimeSeriesCurveTypes.MONITOR_TEMPERATURE.value: project_units.TEMPERATURE}))
 
     def test_sampled_quantity_name(self):
         expected_quantity_name = 'perspici'
@@ -77,11 +77,11 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
         name = 'trucem'
         values = []
         start_time_point = pendulum.datetime(2021, 4, 2, 15, 17, 57)
-        samples = tsn.create_stub_net_time_series(start_time_point, values)
+        samples = tsn.create_stub_net_time_series_data_points(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
 
         expected = pd.Series(data=[], index=[], name=name, dtype=np.float64)
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
@@ -91,11 +91,11 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
     @staticmethod
     def assert_equal_time_series(name, start_time_point, values):
-        samples = tsn.create_stub_net_time_series(start_time_point, values)
+        samples = tsn.create_stub_net_time_series_data_points(start_time_point, values)
         sut = create_sut(name=name, samples=samples)
         expected_time_points = tsn.create_30_second_time_points(start_time_point, len(values))
         expected = pd.Series(data=values, index=expected_time_points, name=name)
-        pdt.assert_series_equal(sut.time_series(), expected)
+        pdt.assert_series_equal(sut.data_points(), expected)
 
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
@@ -107,12 +107,14 @@ class TestNativeMonitorCurveAdapter(unittest.TestCase):
 
 def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, samples=None,
                project=None):
-    stub_native_well_time_series = tsn.create_stub_net_monitor_curve(
-        name=name, display_name=display_name, sampled_quantity_name=sampled_quantity_name,
-        sampled_quantity_type=sampled_quantity_type, samples=samples, project=project
+    stub_native_well_time_series = tsn.create_stub_net_time_series(
+        object_id=None, name=name, display_name=display_name,
+        sampled_quantity_name=sampled_quantity_name,
+        sampled_quantity_type=sampled_quantity_type,
+        data_points=samples, project=project,
     )
 
-    sut = mca.NativeMonitorCurveAdapter(stub_native_well_time_series)
+    sut = tsa.NativeTimeSeriesAdapter(stub_native_well_time_series)
     return sut
 
 

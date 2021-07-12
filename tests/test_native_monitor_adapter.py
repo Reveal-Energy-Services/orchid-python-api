@@ -28,18 +28,6 @@ class TestNativeMonitorAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_display_name(self):
-        stub_net_monitor = tsn.create_stub_net_monitor(display_name='maiores')
-        sut = nma.NativeMonitorAdapter(stub_net_monitor)
-
-        assert_that(sut.display_name, equal_to('maiores'))
-
-    def test_name(self):
-        stub_net_monitor = tsn.create_stub_net_monitor(name='credula')
-        sut = nma.NativeMonitorAdapter(stub_net_monitor)
-
-        assert_that(sut.name, equal_to('credula'))
-
     def test_time_range(self):
         def microseconds_to_milliseconds(tp):
             carry, milliseconds = net_dt.microseconds_to_milliseconds_with_carry(tp.microsecond)

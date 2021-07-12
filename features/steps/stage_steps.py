@@ -43,18 +43,20 @@ def step_impl(context, stage_count, well):
     """
 
     def actual_test_details(well_adapter):
-        return well_adapter.name, toolz.count(well_adapter.stages)
+        return well_adapter.name, toolz.count(well_adapter.stages())
 
     def expected_test_details():
         return well, stage_count
 
-    candidates = list(toolz.pipe(toolz.map(actual_test_details, context.actual_wells),
-                                 toolz.filter(lambda d: d[0] == well)))
+    candidate_wells = list(context.actual_wells.find_by_name(well))
     # Expect exactly one match
-    assert_that(len(candidates), equal_to(1),
-                f'Expected 1 stage for well {well} in field {context.field}. Found {len(candidates)}.')
+    assert_that(len(candidate_wells), equal_to(1),
+                f'Expected 1 stage for well, {well} in field, {context.field}'
+                f' but found {len(candidate_wells)}.')
 
-    assert_that(candidates[0], equal_to(expected_test_details()),
+    well_to_test = candidate_wells[0]
+    actual_details_to_test = actual_test_details(well_to_test)
+    assert_that(actual_details_to_test, equal_to(expected_test_details()),
                 f'Candidate well and stage failed for field {context.field}.')
 
 
@@ -98,6 +100,7 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
 
 def find_stage_with_name(context, name_with_well):
     stages_of_interest = toolz.pipe(context.stages_for_wells.values(),
+                                    toolz.map(cf.all_project_objects),
                                     toolz.concat,
                                     toolz.filter(lambda s: s.display_name_with_well == name_with_well),
                                     list)

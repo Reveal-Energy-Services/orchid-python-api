@@ -33,7 +33,7 @@ def step_impl(context, well):
     """
     # Remember the `well` to correctly calculate the delta for `close_to` in trajectory step
     context.well = well
-    actual_wells = list(context.project.wells_by_name(well))
+    actual_wells = list(context.project.wells().find_by_name(well))
     # noinspection PyTypeChecker
     assert_that(actual_wells, has_length(1))
     actual_well = actual_wells[0]

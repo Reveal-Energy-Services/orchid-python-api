@@ -19,6 +19,7 @@ from typing import Callable, Union
 import pandas as pd
 
 from orchid import (
+    dom_project_object as dpo,
     dot_net_dom_access as dna,
     net_date_time as ndt,
     unit_system as units,
@@ -28,7 +29,7 @@ from orchid import (
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
-class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
+class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
     def __init__(self, adaptee: IQuantityTimeSeries, net_project_callable: Callable):
         """
         Construct an instance that adapts a .NET `IStageSampledQuantityTimeSeries` instance.
@@ -38,15 +39,13 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         """
         super().__init__(adaptee, net_project_callable)
 
-    name = dna.dom_property('name', 'Return the name for this treatment curve.')
-    display_name = dna.dom_property('display_name', 'Return the display name for this curve.')
     sampled_quantity_name = dna.dom_property('sampled_quantity_name',
                                              'Return the sampled quantity name for this curve.')
 
     @abstractmethod
     def quantity_name_unit_map(self, project_units):
         """
-        Return a map (dictionary) between quantity names and units (from `unit_system`) of the samples.
+        Return a map (dictionary) between quantity names and units (from `unit_system`) of the data_points.
 
         This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
         role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
@@ -59,7 +58,7 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
 
     def sampled_quantity_unit(self) -> Union[units.UsOilfield, units.Metric]:
         """
-        Return the measurement unit of the samples in this curve.
+        Return the measurement unit of the data_points in this curve.
 
         This method plays the role of "Template Method" in the _Template Method_ design pattern. In this role
         it specifies an algorithm to calculate the units of the sampled quantity of the curve delegating some
@@ -72,14 +71,14 @@ class BaseCurveAdapter(dna.DotNetAdapter, metaclass=ABCMeta):
         quantity_name_unit_map = self.quantity_name_unit_map(self.expect_project_units)
         return quantity_name_unit_map[self.sampled_quantity_name]
 
-    def time_series(self) -> pd.Series:
+    def data_points(self) -> pd.Series:
         """
         Return the time series for this well curve.
 
         Returns
             The time series of this well curve.
         """
-        # Because I use `samples` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
+        # Because I use `data_points` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self.dom_object.GetOrderedTimeSeriesHistory()))
         result = pd.Series(data=map(lambda s: s[1], samples), index=map(ndt.as_date_time, map(lambda s: s[0], samples)),
                            name=self.name)

@@ -25,6 +25,13 @@ import orchid
 from tests import (custom_matchers as tcm)
 
 
+def all_project_objects(searchable):
+    return toolz.pipe(
+        searchable.all_object_ids(),
+        toolz.map(lambda oid: searchable.find_by_object_id(oid)),
+    )
+
+
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
     try:
         expected = orchid.unit_registry.Quantity(expected_text)
@@ -53,10 +60,9 @@ def has_well_name(well_name, candidate_well):
 
 
 def find_well_by_name_in_project(context, name):
-    candidates = toolz.pipe(context.project.wells,
-                            toolz.filter(has_well_name(name)),
-                            list)
-    assert_that(toolz.count(candidates), equal_to(1), f'Failure for field "{context.field}" and well "{name}".')
+    candidates = list(context.project.wells().find_by_name(name))
+    assert_that(toolz.count(candidates), equal_to(1),
+                f'Failure for field "{context.field}" and well "{name}".')
     result = toolz.first(candidates)
     return result
 
@@ -75,6 +81,7 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
         return candidate_stage.display_stage_number == displayed_stage_no
 
     candidates = toolz.pipe(context.stages_for_wells[well_of_interest],
+                            all_project_objects,
                             toolz.filter(has_stage_no(stage_no)),
                             list)
     assert_that(toolz.count(candidates), equal_to(1),

@@ -22,6 +22,8 @@ import toolz.curried as toolz
 import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
+    dom_project_object as dpo,
+    searchable_project_objects as spo,
     measurement as om,
     native_stage_adapter as nsa,
     native_subsurface_point as nsp,
@@ -47,7 +49,7 @@ def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
 
 
-class NativeWellAdapter(dna.DotNetAdapter):
+class NativeWellAdapter(dpo.DomProjectObject):
     """Adapts a native IWell to python."""
 
     def __init__(self, net_well: IWell):
@@ -59,10 +61,6 @@ class NativeWellAdapter(dna.DotNetAdapter):
         """
         super().__init__(net_well, orchid.base.constantly(net_well.Project))
 
-    name = dna.dom_property('name', 'The name of the adapted .NET well.')
-    display_name = dna.dom_property('display_name', 'The display name of the adapted .NET well.')
-    stages = dna.transformed_dom_property_iterator('stages', 'An iterator over the NativeStageAdapters.',
-                                                   nsa.NativeStageAdapter)
     trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
                                               nta.NativeTrajectoryAdapter)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
@@ -86,6 +84,15 @@ class NativeWellAdapter(dna.DotNetAdapter):
                             toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
                             list, )
         return WellHeadLocation(*result)
+
+    def stages(self) -> spo.SearchableProjectObjects:
+        """
+        Return a `spo.SearchableProjectObjects` instance of all the stages for this project.
+
+        Returns:
+            An `spo.SearchableProjectObjects` for all the stages of this project.
+        """
+        return spo.SearchableProjectObjects(nsa.NativeStageAdapter, self.dom_object.Stages.Items)
 
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],

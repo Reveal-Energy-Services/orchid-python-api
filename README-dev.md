@@ -12,7 +12,7 @@ REPL. Additionally, this project includes five examples in the `examples` direct
 package:
 
 - `plot_trajectories.ipynb`
-- `plot_monitor_curves.ipynb`
+- `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
 - `volume_2_first_response.ipynb`
@@ -499,7 +499,7 @@ To run all orchid tests
         3. Wait patiently
         4. Verify that no exceptions occurred
     - Repeat for remaining notebooks:
-        - `plot_monitor_curves.ipynb`
+        - `plot_time_series.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
@@ -521,7 +521,7 @@ To run all orchid tests
           `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
         - Verify that the current directory has five notebooks:
             - `completion_analysis.ipynb`
-            - `plot_monitor_curves.ipynb`
+            - `plot_time_series.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
             - `volume_2_first_response.ipynb`
@@ -539,7 +539,7 @@ To run all orchid tests
         3. Wait patiently
         4. Verify that no exceptions occurred
     - Repeat for remaining notebooks:
-        - `plot_monitor_curves.ipynb`
+        - `plot_time_series.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`

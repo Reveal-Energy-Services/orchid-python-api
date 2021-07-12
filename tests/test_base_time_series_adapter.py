@@ -14,15 +14,23 @@
 
 import unittest.mock
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, is_
+import pendulum
+import toolz.curried as toolz
+
+import pandas as pd
+import pandas.testing as pdt
 
 from orchid import (
-    base_curve_adapter as bca,
+    base_time_series_adapter as bca,
+    net_date_time as net_dt,
     unit_system as units,
 )
 
+from tests import stub_net as tsn
 
-class StubBaseCurveAdapter(bca.BaseCurveAdapter):
+
+class StubBaseTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
     def __init__(self, adaptee=None, net_project_callable=None):
         super().__init__(adaptee if adaptee else unittest.mock.MagicMock(name='stub_adaptee'),
                          (net_project_callable if net_project_callable
@@ -37,6 +45,27 @@ class TestBaseCurveAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_no_data_points_time_series(self):
+        stub_net_time_series = tsn.create_stub_net_time_series(tsn.DONT_CARE_ID_A, data_points=())
+        sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
+
+        actual_data_points = sut.data_points()
+        assert_that(actual_data_points.empty, is_(True))
+
+    def test_single_data_point_time_series(self):
+        object_id = tsn.DONT_CARE_ID_B
+        name = 'canis'
+        start_time = pendulum.parse('2019-04-30T17:36:54.311915Z')
+        sample_values = (-149.037, )
+        assert_equal_data_points(name, object_id, sample_values, start_time)
+
+    def test_many_data_points_time_series(self):
+        object_id = tsn.DONT_CARE_ID_C
+        name = 'arbor'
+        start_time = pendulum.parse('2021-02-28T13:15:01.437180')
+        sample_values = (16.12, -90.80, -27.59,)
+        assert_equal_data_points(name, object_id, sample_values, start_time)
+
     @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
                          name='stub_expect_project_units',
                          new_callable=unittest.mock.PropertyMock)
@@ -50,7 +79,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
         for expected_quantity in test_data.keys():
             for quantity_name, unit_system in test_data[expected_quantity]:
                 with self.subTest(f'Testing quantity name, "{quantity_name}", and unit system, {unit_system}'):
-                    sut = StubBaseCurveAdapter()
+                    sut = StubBaseTimeSeriesAdapter()
                     stub_expect_project_units.return_value = unit_system
                     type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
                         name='stub_sampled_quantity_name',
@@ -72,7 +101,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
         unit_system = units.Metric
         quantity_name = 'energiae'
         quantity = 'ENERGY'
-        sut = StubBaseCurveAdapter()
+        sut = StubBaseTimeSeriesAdapter()
         stub_expect_project_units.return_value = unit_system
         type(sut).sampled_quantity_name = unittest.mock.PropertyMock(
             name='stub_sampled_quantity_name',
@@ -86,6 +115,21 @@ class TestBaseCurveAdapter(unittest.TestCase):
         sut.sampled_quantity_unit()
 
         sut.quantity_name_unit_map.assert_called_once_with(unit_system)
+
+
+def assert_equal_data_points(name, object_id, sample_values, start_time):
+    net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
+    stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
+    sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
+    actual_data_points = sut.data_points()
+    expected_sample_times = toolz.pipe(
+        tsn.create_30_second_time_points(start_time, len(sample_values)),
+        toolz.map(net_dt.as_net_date_time),
+        toolz.map(net_dt.as_date_time),
+        list,
+    )
+    expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
+    pdt.assert_series_equal(actual_data_points, expected_data_points)
 
 
 if __name__ == '__main__':

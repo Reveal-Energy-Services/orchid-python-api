@@ -16,18 +16,17 @@
 #
 
 from collections import namedtuple
-from typing import Callable, Dict, Iterable, List, Tuple
-import uuid
+from typing import Iterable, List, Tuple
 
 import deal
-import option
 import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
+    searchable_project_objects as spo,
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
-    native_monitor_curve_adapter as mca,
+    native_time_series_adapter as tsa,
     native_well_adapter as nwa,
     net_quantity as onq,
     unit_system as units,
@@ -60,22 +59,27 @@ class Project(dna.DotNetAdapter):
         """
         super().__init__(project_loader.native_project())
         self._project_loader = project_loader
-        self._are_well_loaded = False
-        self._wells = []
 
     azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
     name = dna.dom_property('name', 'The name of this project.')
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
-    wells = dna.transformed_dom_property_iterator('wells', 'An iterator of all the wells in this project.',
-                                                  nwa.NativeWellAdapter)
 
-    _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
-                                               dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+    # _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
+    #                                            dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
 
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
         return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
+
+    def data_frames(self) -> spo.SearchableProjectObjects:
+        """
+        Return a `spo.SearchableProjectObjects` instance of all the data frames for this project.
+
+        Returns:
+            An `spo.SearchableProjectObjects` for all the data frames of this project.
+        """
+        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapter, self.dom_object.DataFrames.Items)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -85,93 +89,14 @@ class Project(dna.DotNetAdapter):
         result = list(map(tuple, self._project_loader.native_project().PlottingSettings.GetDefaultWellColors()))
         return result
 
-    def data_frame(self, id_to_match: uuid.UUID) -> option.Option[dfa.NativeDataFrameAdapter]:
+    def monitors(self) -> spo.SearchableProjectObjects:
         """
-        Return the single data frame from this project identified by `id_to_match`.
-        Args:
-            id_to_match: The `uuid.UUID` sought.
+        Return a `spo.SearchableProjectObjects` instance of all the monitors for this project.
 
         Returns:
-            `option.Some`(data frame) if one match; otherwise, `option.NONE`.
+            An `spo.SearchableProjectObjects` for all the monitors of this project.
         """
-        candidates = list(self._find_data_frames(lambda df: df.object_id == id_to_match))
-        return option.maybe(candidates[0] if len(candidates) == 1 else None)
-
-    def all_data_frames_object_ids(self) -> Iterable[str]:
-        """
-        Calculate all the data frame object IDs.
-
-        Returns:
-            An iterable over all the object IDs.
-        """
-        return self._all_data_frames_attributes(lambda df: df.object_id)
-
-    def all_data_frames_display_names(self) -> Iterable[str]:
-        """
-        Calculate all the data frame display names.
-
-        Returns:
-            An iterable over all the display names.
-        """
-        return self._all_data_frames_attributes(lambda df: df.display_name)
-
-    def all_data_frames_names(self) -> Iterable[str]:
-        """
-        Calculate all the data frame names.
-
-        Returns:
-            An iterable over all the names.
-        """
-        return self._all_data_frames_attributes(lambda df: df.name)
-
-    def find_data_frames_with_display_name(self, data_frame_display_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
-        """
-        Return all project data frames with `display_name`, `data_frame_name`.
-
-        Args:
-            data_frame_display_name: The display name of the data frame sought.
-        """
-        return self._find_data_frames(lambda df: df.display_name == data_frame_display_name)
-
-    def find_data_frames_with_name(self, data_frame_name: str) -> Iterable[dfa.NativeDataFrameAdapter]:
-        """
-        Return all project data frames named `data_frame_name`.
-
-        Args:
-            data_frame_name: The name of the data frame sought.
-        """
-        return self._find_data_frames(lambda df: df.name == data_frame_name)
-
-    def monitor_curves(self) -> Iterable[mca.NativeMonitorCurveAdapter]:
-
-        """
-        Return a sequence of well time series for this project.
-
-        Returns:
-            An iterable of well time series.
-        """
-        native_time_series_list_items = self._project_loader.native_project().WellTimeSeriesList.Items
-        if len(native_time_series_list_items) > 0:
-            return toolz.pipe(native_time_series_list_items,
-                              toolz.map(mca.NativeMonitorCurveAdapter),
-                              list)
-        else:
-            return []
-
-    def monitors(self) -> Dict[str, nma.NativeMonitorAdapter]:
-        """
-        Return a dictionary of monitors for this project indexed by the monitor display name.
-
-        Returns:
-            An dictionary of `NativeMonitorAdapter`s indexed by the display name of each monitor.
-        """
-        def collect_monitors(so_far, monitor):
-            return toolz.assoc(so_far, monitor.DisplayName, monitor)
-
-        result = toolz.pipe(self._project_loader.native_project().Monitors.Items,
-                            lambda ms: toolz.reduce(collect_monitors, ms, {}),
-                            toolz.valmap(lambda m: nma.NativeMonitorAdapter(m)))
-        return result
+        return spo.SearchableProjectObjects(nma.NativeMonitorAdapter, self.dom_object.Monitors.Items)
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),
@@ -207,6 +132,24 @@ class Project(dna.DotNetAdapter):
         else:
             raise ValueError(f'Unknown unit system: {self.project_units}')
 
+    def time_series(self) -> spo.SearchableProjectObjects:
+        """
+        Return a `spo.SearchableProjectObjects` instance of all the time series for this project.
+
+        Returns:
+            An `spo.SearchableProjectObjects` for all the time series of this project.
+        """
+        return spo.SearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
+
+    def wells(self) -> spo.SearchableProjectObjects:
+        """
+        Return a `spo.SearchableProjectObjects` instance of all the wells for this project.
+
+        Returns:
+            An `spo.SearchableProjectObjects` for all the wells of this project.
+        """
+        return spo.SearchableProjectObjects(nwa.NativeWellAdapter, self.dom_object.Wells.Items)
+
     def wells_by_name(self, name) -> Iterable[IWell]:
         """
         Return all the wells in this project with the specified name.
@@ -214,30 +157,3 @@ class Project(dna.DotNetAdapter):
         :return: A list of all the wells in this project.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
-
-    def _all_data_frames_attributes(self, attribute_func) -> Iterable[str]:
-        """
-        Calculate all the attributes extracted by `attribute_func` from all data frames
-
-        Args:
-            attribute_func: A callable to extract an "attribute" from each data frame.
-
-        Returns:
-            An iterable over all the extracted attributes.
-        """
-        return toolz.map(attribute_func, self._data_frames.values())
-
-    def _find_data_frames(self, predicate: Callable[[dfa.NativeDataFrameAdapter], bool])\
-            -> Iterable[dfa.NativeDataFrameAdapter]:
-        """
-        Return all project data frames for which `predicate` returns `True`.
-
-        Args:
-            predicate: The callable
-        """
-        result = toolz.pipe(
-            self._data_frames,
-            toolz.valfilter(predicate),
-            lambda dfs: dfs.values(),
-        )
-        return result

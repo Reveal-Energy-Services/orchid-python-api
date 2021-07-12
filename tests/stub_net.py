@@ -24,6 +24,7 @@ properties required during testing but do not actually implement the .NET class 
 from collections import namedtuple
 import itertools
 import unittest.mock
+import uuid
 from typing import Sequence
 
 import pendulum
@@ -44,6 +45,7 @@ from tests import (
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (IMonitor,
                                         IProject,
+                                        IProjectObject,
                                         IPlottingSettings,
                                         IStage,
                                         ISubsurfacePoint,
@@ -62,6 +64,18 @@ import UnitsNet
 from System import Array, Guid, Type
 # noinspection PyUnresolvedReferences
 from System.Data import DataColumn, DataTable
+
+
+# A recognizable (hex word "testable") value for "don't care" Guid / UUID
+_DONT_CARE_ID = '7e57ab1e-7e57-ab1e-7e57-ab1e7e57ab1e'
+
+# Other recognizable hex word values for don't care
+DONT_CARE_ID_A = 'acc01ade-acc0-1ade-acc0-1adeacc01ade'  # accolade
+DONT_CARE_ID_B = 'ba5eba11-ba5e-ba11-ba5e-ba11ba5eba11'  # baseball
+DONT_CARE_ID_C = 'ca11ab1e-ca11-ab1e-ca11-ab1eca11ab1e'  # callable
+DONT_CARE_ID_D = 'de7ec7ed-de7e-c7ed-de7e-c7edde7ec7ed'  # detected
+DONT_CARE_ID_E = 'e5ca1ade-e5ca-1ade-e5ca-1adee5ca1ade'  # escalade
+
 
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
@@ -90,16 +104,20 @@ class StubNetSample:
                                                  milliseconds, stub_dt.StubDateTimeKind.UTC)
         self.Value = value
 
+    def __repr__(self):
+        return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
 
-def create_stub_net_time_series(start_time_point: pendulum.DateTime, sample_values) -> Sequence[StubNetSample]:
+
+def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
+                                            sample_values) -> Sequence[StubNetSample]:
     """
     Create a stub .NET time series.
 
     The "stub .NET" nature is satisfied by returning a sequence in which each item is an instance of `StubNetSample`.
 
     :param start_time_point: The time point at which the time series starts.
-    :param sample_values: The values in the stub samples.
-    :return: A sequence a samples implementing the `ITick<double>` interface using "duck typing."
+    :param sample_values: The values in the stub data_points.
+    :return: A sequence a data_points implementing the `ITick<double>` interface using "duck typing."
     """
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
@@ -148,12 +166,12 @@ def make_net_measurement(measurement_dto):
 
 
 def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
-    treating_pressure_time_series = create_stub_net_time_series(start_time_point, treating_pressure_values)
+    treating_pressure_time_series = create_stub_net_time_series_data_points(start_time_point, treating_pressure_values)
     treating_pressure_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.TREATING_PRESSURE, 'pressure',
                                                     treating_pressure_time_series)
-    rate_time_series = create_stub_net_time_series(start_time_point, rate_values)
+    rate_time_series = create_stub_net_time_series_data_points(start_time_point, rate_values)
     rate_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SLURRY_RATE, 'ratio', rate_time_series)
-    concentration_time_series = create_stub_net_time_series(start_time_point, concentration_values)
+    concentration_time_series = create_stub_net_time_series_data_points(start_time_point, concentration_values)
     concentration_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION, 'ratio',
                                                 concentration_time_series)
 
@@ -215,7 +233,8 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
     return result
 
 
-def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md_bottom=None,
+def create_stub_net_stage(cluster_count=-1, display_name=None, display_stage_no=-1,
+                          md_top=None, md_bottom=None, name=None, object_id=None,
                           stage_location_bottom=None, stage_location_cluster=None,
                           stage_location_center=None, stage_location_top=None,
                           start_time=None, stop_time=None, treatment_curve_names=None,
@@ -226,11 +245,17 @@ def create_stub_net_stage(cluster_count=-1, display_stage_no=-1, md_top=None, md
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=stub_net_stage_name)
     result.NumberOfClusters = cluster_count
+    if display_name is not None:
+        result.DisplayName = display_name
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = make_net_measurement(md_top)
     if md_bottom is not None:
         result.MdBottom = make_net_measurement(md_bottom)
+    if name is not None:
+        result.Name = name
+    if object_id is not None:
+        result.ObjectId = object_id
     if stage_location_bottom is not None:
         if callable(stage_location_bottom):
             result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
@@ -345,7 +370,7 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
-def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None):
+def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=None, stop=None):
     stub_name = (f'stub_net_monitor_{display_name}' if display_name is not None else 'stub_net_monitor')
     try:
         result = unittest.mock.MagicMock(name=stub_name, spec=IMonitor)
@@ -358,6 +383,9 @@ def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None)
     if name is not None:
         result.Name = name
 
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
+
     if start is not None:
         result.StartTime = net_dt.as_net_date_time(start)
 
@@ -367,32 +395,44 @@ def create_stub_net_monitor(display_name=None, name=None, start=None, stop=None)
     return result
 
 
-def create_stub_net_monitor_curve(name, display_name, sampled_quantity_name, sampled_quantity_type,
-                                  samples, project):
+def create_stub_net_time_series(object_id, name=None, display_name=None,
+                                sampled_quantity_name=None, sampled_quantity_type=None,
+                                data_points=(), project=None):
+    stub_net_time_series_name = 'stub_net_time_series'
     try:
-        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve',
-                                                         spec=IWellSampledQuantityTimeSeries)
+        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name,
+                                                       spec=IWellSampledQuantityTimeSeries)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_monitor_curve = unittest.mock.MagicMock(name='stub_treatment_curve')
-    stub_net_monitor_curve.Name = name
-    stub_net_monitor_curve.DisplayName = display_name
-    stub_net_monitor_curve.SampledQuantityName = sampled_quantity_name
-    stub_net_monitor_curve.SampledQuantityType = sampled_quantity_type
-    stub_net_monitor_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
-                                                                                 return_value=samples)
+        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name)
+    stub_net_time_series.ObjectId = object_id
+    if name is not None:
+        stub_net_time_series.Name = name
+    if display_name is not None:
+        stub_net_time_series.DisplayName = display_name
+    if sampled_quantity_name is not None:
+        stub_net_time_series.SampledQuantityName = sampled_quantity_name
+    if sampled_quantity_type is not None:
+        stub_net_time_series.SampledQuantityType = sampled_quantity_type
+    stub_net_time_series.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(
+        name='stub_time_series_data_points', return_value=data_points)
     if project is not None:
-        stub_net_monitor_curve.Well.Project = project
+        stub_net_time_series.Well.Project = project
 
-    return stub_net_monitor_curve
+    return stub_net_time_series
 
 
-def create_stub_net_well_trajectory(project=None,
-                                    easting_magnitudes=None,
-                                    northing_magnitudes=None):
+def create_stub_net_well_trajectory(easting_magnitudes=None,
+                                    northing_magnitudes=None,
+                                    object_id=None,
+                                    project=None,
+                                    ):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory')
+    if object_id is not None:
+        stub_trajectory.ObjectId = object_id
+
     if project is not None:
         stub_trajectory.Well.Project = project
 
@@ -451,19 +491,16 @@ def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
     return toolz.valmap(make_net_subsurface_points, locations_with_net_keys)
 
 
-def create_stub_net_well(name='',
-                         display_name='',
-                         ground_level_elevation_above_sea_level=None,
-                         kelly_bushing_height_above_ground_level=None,
-                         uwi=None,
-                         locations_for_md_kb_values=None,
-                         formation=None,
-                         wellhead_location=None,
-                         ):
+def create_stub_net_well(object_id=None, name='', display_name='', ground_level_elevation_above_sea_level=None,
+                         kelly_bushing_height_above_ground_level=None, uwi=None, locations_for_md_kb_values=None,
+                         formation=None, stage_dtos=(), wellhead_location=None):
     try:
         result = unittest.mock.MagicMock(name=name, spec=IWell)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=name)
+
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
 
     if name:
         result.Name = name
@@ -484,6 +521,9 @@ def create_stub_net_well(name='',
         result.Formation = formation
     else:
         result.Formation = ''
+
+    # Initialize the .NET `Wells.Items` property using `well_dtos`
+    result.Stages.Items = [create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
 
     if wellhead_location:
         # wellhead_location (whl) will be a list of 3 quantities (easting, northing, depth)
@@ -524,17 +564,11 @@ def create_stub_net_well(name='',
     return result
 
 
-def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_well_colors=None, project_bounds=None,
-                            project_center=None, project_units=None, well_names=None, well_display_names=None,
-                            uwis=None, eastings=None, northings=None, tvds=None, curve_names=None, samples=None,
-                            curves_physical_quantities=None, monitor_display_names=(), data_frame_ids=()):
+def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
+                            data_frame_dtos=(), data_frame_ids=(), default_well_colors=None,
+                            fluid_density=None, monitor_dtos=(), project_bounds=None, project_center=None,
+                            project_units=None, samples=None, time_series_dtos=(), well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
-    well_names = well_names if well_names else []
-    well_display_names = well_display_names if well_display_names else []
-    uwis = uwis if uwis else []
-    eastings = eastings if eastings else []
-    northings = northings if northings else []
-    tvds = tvds if tvds else []
     curve_names = curve_names if curve_names else []
     samples = samples if samples else []
     curves_physical_quantities = (curves_physical_quantities
@@ -552,11 +586,11 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     if fluid_density is not None:
         stub_net_project.FluidDensity = make_net_measurement(fluid_density)
 
-    stub_net_project.Monitors.Items = [create_stub_net_monitor(display_name=monitor_display_name) for
-                                       monitor_display_name in monitor_display_names]
+    stub_net_project.Monitors.Items = [create_stub_net_monitor(**monitor_dto) for
+                                       monitor_dto in monitor_dtos]
 
-    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_id) for
-                                         data_frame_id in data_frame_ids]
+    stub_net_project.DataFrames.Items = [create_stub_net_data_frame(**data_frame_dto) for
+                                         data_frame_dto in data_frame_dtos]
 
     try:
         plotting_settings = unittest.mock.MagicMock(name='stub_plotting_settings', spec=IPlottingSettings)
@@ -590,33 +624,82 @@ def create_stub_net_project(name='', azimuth=None, fluid_density=None, default_w
     elif project_units is not None:
         stub_net_project.ProjectUnits = project_units
 
-    try:
-        stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name, spec=IWell) for well_name in well_names]
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_project.Wells.Items = [unittest.mock.MagicMock(name=well_name) for well_name in well_names]
+    # TODO: this code assumes that a caller initializes either `curve_names` or `time_series_dtos`.
+    # Initialize the .NET `WellTimeSeriesList.Items` property using `time_series_dtos`
+    if len(time_series_dtos) > 0:
+        stub_net_project.WellTimeSeriesList.Items = [
+            create_stub_net_time_series(**time_series_dto) for time_series_dto in time_series_dtos
+        ]
 
-    for i in range(len(well_names)):
-        stub_well = stub_net_project.Wells.Items[i]
-        stub_well.Uwi = uwis[i] if uwis else None
-        stub_well.DisplayName = well_display_names[i] if well_display_names else None
-        stub_well.Name = well_names[i]
+    # Initialize the .NET `Wells.Items` property using `well_dtos`
+    if len(well_dtos) > 0:
+        stub_net_project.Wells.Items = [create_stub_net_well(**well_dto) for well_dto in well_dtos]
 
-        stub_well.Trajectory.GetEastingArray.return_value = quantity_coordinate(eastings, i, stub_net_project)
-        stub_well.Trajectory.GetNorthingArray.return_value = quantity_coordinate(northings, i, stub_net_project)
-        stub_well.Trajectory.GetTvdArray.return_value = quantity_coordinate(tvds, i, stub_net_project)
-
-    try:
-        stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(
-            name=curve_name, spec=IWellSampledQuantityTimeSeries) for curve_name in curve_names]
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(name=curve_name)
-                                                     for curve_name in curve_names]
-    quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
-                              'temperature': UnitsNet.QuantityType.Temperature}
-    for i in range(len(curve_names)):
-        stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
-        stub_curve.DisplayName = curve_names[i] if curve_names else None
-        stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
-        stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
+    # TODO: this code assumes that a caller initializes either `curve_names` or `time_series_dtos`.
+    if len(curve_names) > 0:
+        try:
+            stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(
+                name=curve_name, spec=IWellSampledQuantityTimeSeries) for curve_name in curve_names]
+        except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+            stub_net_project.WellTimeSeriesList.Items = [unittest.mock.MagicMock(name=curve_name)
+                                                         for curve_name in curve_names]
+        quantity_name_type_map = {'pressure': UnitsNet.QuantityType.Pressure,
+                                  'temperature': UnitsNet.QuantityType.Temperature}
+        for i in range(len(curve_names)):
+            stub_curve = stub_net_project.WellTimeSeriesList.Items[i]
+            stub_curve.DisplayName = curve_names[i] if curve_names else None
+            stub_curve.SampledQuantityType = quantity_name_type_map[curves_physical_quantities[i]]
+            stub_curve.GetOrderedTimeSeriesHistory.return_value = samples[i] if len(samples) > 0 else []
 
     return stub_net_project
+
+
+def create_stub_net_project_object(object_id=None, name=None, display_name=None):
+    """Create a stub implementation of an IProjectObject."""
+    stub_net_project_object_name = 'stub_net_project_object'
+    try:
+        result = unittest.mock.MagicMock(name=stub_net_project_object_name, spec=IProjectObject)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_net_project_object_name)
+
+    # To store a project object in a searchable project object collection, an object id is required and is
+    # "automagically" generated. This code sets the `ObjectId` property to an ID supplied to this function or to a
+    # "don't care" ID.
+    result.ObjectId = Guid(object_id) if object_id is not None else Guid(_DONT_CARE_ID)
+
+    if name is not None:
+        result.Name = name
+
+    result.DisplayName = display_name if display_name is not None else None
+
+    return result
+
+
+def create_stub_dom_project_object(object_id=None, name=None, display_name=None):
+    """Create a stub wrapper for an IProjectObject."""
+    stub_project_object_name = 'stub_project_object'
+    try:
+        result = unittest.mock.MagicMock(name=stub_project_object_name, spec=IProjectObject)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_project_object_name)
+
+    if object_id is not None:
+        result.object_id = uuid.UUID(object_id)
+
+    if name is not None:
+        result.name = name
+
+    if display_name is not None:
+        result.display_name = display_name
+
+    return result
+
+
+@toolz.curry
+def get_dtos_property(dtos, property_name, transform=toolz.identity):
+    return toolz.pipe(
+        dtos,
+        toolz.map(toolz.get(property_name)),
+        toolz.map(transform),
+        list
+    )
