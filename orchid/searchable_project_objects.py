@@ -15,15 +15,33 @@
 from typing import Callable, Iterator, Optional
 import uuid
 
+import toolz.curried as toolz
+
 from orchid import dom_project_object as dpo
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IProjectObject
 
+
+class SearchableProjectError(ValueError):
+    """
+    Raised when an error occurs searching for a `dpo.DomProjectObject`.
+    """
+    pass
+
+
+class SearchableProjectMultipleMatchError(SearchableProjectError):
+    """
+    Raised when multiple matches occur when searching for a `dpo.DomProjectObject`.
+    """
+    pass
+
+
 """
 Provides a searchable collection of `DomProjectObject` instances. This searchable collection provide methods to:
 
 - Query for all object IDs identifying instances in this collection
+- Query for all objects in this collection
 - Query for the name of all instances in this collection
 - Query for the display name of all instances in this collection
 - Search for a single instance by object ID
@@ -40,9 +58,6 @@ Here are the DOM objects that currently may be collections:
 This objects are all derived from `IProjectObject`. The corresponding instances in the Python API all derive from 
 `dpo.DomProjectObject` which implements the attributes `object_id`, `name` and `display_name`.
 """
-
-
-import toolz.curried as toolz
 
 
 class SearchableProjectObjects:
@@ -97,6 +112,15 @@ class SearchableProjectObjects:
             An iterator over all the object IDs of project objects in this collection.
         """
         return self._collection.keys()
+
+    def all_objects(self) -> Iterator[dpo.DomProjectObject]:
+        """
+        Return an iterator over all the projects objects in this collection.
+
+        Returns:
+            An iterator over all the project objects in this collection.
+        """
+        return self._collection.values()
 
     def find_by_display_name(self, display_name_to_find: str) -> Iterator[dpo.DomProjectObject]:
         """
