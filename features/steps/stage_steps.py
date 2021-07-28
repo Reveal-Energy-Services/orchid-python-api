@@ -64,17 +64,6 @@ def get_stages(well_stages_pair):
     return well_stages_pair[1]
 
 
-@toolz.curry
-def find_stage(display_name_with_well, all_stages):
-    def has_display_name_with_well(stage_to_test):
-        return stage_to_test.display_name_with_well == display_name_with_well
-
-    candidates = list(toolz.pipe(all_stages,
-                                 toolz.filter(has_display_name_with_well)))
-    assert len(candidates) == 1, f'Expected 1 stage with "{display_name_with_well}". Found {len(candidates)}.'
-    return candidates[0]
-
-
 # noinspection PyBDDParameters
 @then("I see the correct {stage_no:d}, {name_with_well}, {md_top}, {md_bottom} and {cluster_count:d}")
 def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_count):
@@ -126,10 +115,10 @@ def step_impl(context, stage, name_with_well, easting, northing, tvdss, length):
 
     in_length_unit = context.project.project_units.LENGTH
     actual = stage_of_interest.center_location_easting(in_length_unit,
-                                                                       origins.WellReferenceFrameXy.PROJECT)
+                                                       origins.WellReferenceFrameXy.PROJECT)
     cf.assert_that_actual_measurement_close_to_expected(actual, easting)
     actual1 = stage_of_interest.center_location_northing(in_length_unit,
-                                                                        origins.WellReferenceFrameXy.PROJECT)
+                                                         origins.WellReferenceFrameXy.PROJECT)
     cf.assert_that_actual_measurement_close_to_expected(actual1, northing)
     actual2 = stage_of_interest.center_location_tvdss(in_length_unit)
     cf.assert_that_actual_measurement_close_to_expected(actual2, tvdss)
