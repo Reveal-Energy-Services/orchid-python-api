@@ -100,7 +100,7 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
 
 def find_stage_with_name(context, name_with_well):
     stages_of_interest = toolz.pipe(context.stages_for_wells.values(),
-                                    toolz.map(cf.all_project_objects),
+                                    toolz.map(lambda stages: stages.all_objects()),
                                     toolz.concat,
                                     toolz.filter(lambda s: s.display_name_with_well == name_with_well),
                                     list)

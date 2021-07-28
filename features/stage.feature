@@ -47,7 +47,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate additional basic stage information
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see basic data <well>, <stage_no>, <name_without_well>, <order>, <global_stage_no>, and <connection>
+    Then I see basic data <well>, <stage_no>, <name_without_well>, <order>, <global_stage_no>, and <connection>
 
     Examples: Bakken
       | field  | well    | stage_no | name_without_well | order | global_stage_no | connection  |
@@ -85,7 +85,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate the bottom location for a stage
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see stage bottom location <well>, <stage_no>, <frame>, <x>, <y>, and <depth>
+    Then I see stage bottom location <well>, <stage_no>, <frame>, <x>, <y>, and <depth>
 
     Examples: Bakken
       | field  | well    | stage_no | frame       | x             | y              | depth       |
@@ -124,7 +124,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate the cluster counts for a stage
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see stage cluster count <well>, <stage_no>, and <cluster_count>
+    Then I see stage cluster count <well>, <stage_no>, and <cluster_count>
 
     Examples: Bakken
       | field  | well    | stage_no | cluster_count |
@@ -163,7 +163,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate the cluster locations for a stage
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see stage cluster location <well>, <stage_no>, <cluster_no>, <frame>, <x>, <y>, and <depth>
+    Then I see stage cluster location <well>, <stage_no>, <cluster_no>, <frame>, <x>, <y>, and <depth>
 
     Examples: Bakken
       | field  | well    | stage_no | cluster_no | frame       | x             | y              | depth       |
@@ -202,7 +202,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate the top location for a stage
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see stage top location <well>, <stage_no>, <frame>, <x>, <y>, and <depth>
+    Then I see stage top location <well>, <stage_no>, <frame>, <x>, <y>, and <depth>
 
     Examples: Bakken
       | field  | well    | stage_no | frame       | x             | y              | depth       |
@@ -242,7 +242,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate additional stage treatment data
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see additional treatment data for samples <well>, <stage_no>, <shmin>, <isip>, and <pnet>
+    Then I see additional treatment data for samples <well>, <stage_no>, <shmin>, <isip>, and <pnet>
 
     Examples: Bakken
       | field  | well    | stage_no  | shmin       | isip        | pnet        |
@@ -270,7 +270,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Query stage measurements in project units
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see measurements in project units for samples <well>, <stage_no>, <shmin>, <isip>, and <pnet>
+    Then I see measurements in project units for samples <well>, <stage_no>, <shmin>, <isip>, and <pnet>
 
     Examples: Bakken
       | field  | well    | stage_no  | shmin       | isip        | pnet        |
@@ -337,7 +337,7 @@ Feature: Low-level DOM API (stage)
   Scenario Outline: Calculate additional information to support stage tool tips
     Given I have loaded the project for the field, '<field>'
     When I query the stages for each well in the project
-    And I see additional data <stage_no>, <name_with_well>, <easting>, <northing>, <tvdss> and <length>
+    Then I see additional data <stage_no>, <name_with_well>, <easting>, <northing>, <tvdss> and <length>
 
     Examples: Bakken
       | field  | stage_no | name_with_well   | easting      | northing    | tvdss       | length      |
