@@ -12,17 +12,18 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
-import toolz.curried as toolz
-
 from orchid import searchable_project_objects as spo
 
 
 class SearchableStages(spo.SearchableProjectObjects):
-    def find_by_display_stage_number(self, to_find):
-        candidates = list(toolz.filter(lambda s: s.display_stage_number == to_find, self.all_objects()))
+    def find_by_display_stage_number(self, to_find: int):
+        candidates = list(self.find(lambda s: s.display_stage_number == to_find))
         if len(candidates) == 0:
             return None
         elif len(candidates) == 1:
             return candidates[0]
         else:
             raise spo.SearchableProjectMultipleMatchError(to_find)
+
+    def find_by_display_name_with_well(self, to_find: str):
+        return self.find(lambda s: s.display_name_with_well == to_find)
