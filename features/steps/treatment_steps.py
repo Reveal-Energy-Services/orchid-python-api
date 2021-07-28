@@ -42,11 +42,11 @@ def step_impl(context):
     """
     :type context: behave.runner.Context
     """
-    searchable_wells = context.project.wells()
     context.stages_for_wells = toolz.pipe(
-        cf.all_project_objects(searchable_wells),
-        lambda ws: toolz.reduce(
-            lambda so_far, update_value: toolz.assoc(so_far, update_value, update_value.stages()), ws, {})
+        context.project.wells(),
+        lambda wso: wso.all_objects(),
+        lambda ws: toolz.reduce(lambda so_far, update_value: toolz.assoc(so_far, update_value, update_value.stages()),
+                                ws, {})
     )
 
 

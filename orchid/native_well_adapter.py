@@ -24,6 +24,7 @@ from orchid import (
     dot_net_dom_access as dna,
     dom_project_object as dpo,
     searchable_project_objects as spo,
+    searchable_stages as oss,
     measurement as om,
     native_stage_adapter as nsa,
     native_subsurface_point as nsp,
@@ -85,14 +86,14 @@ class NativeWellAdapter(dpo.DomProjectObject):
                             list, )
         return WellHeadLocation(*result)
 
-    def stages(self) -> spo.SearchableProjectObjects:
+    def stages(self) -> oss.SearchableStages:
         """
         Return a `spo.SearchableProjectObjects` instance of all the stages for this project.
 
         Returns:
             An `spo.SearchableProjectObjects` for all the stages of this project.
         """
-        return spo.SearchableProjectObjects(nsa.NativeStageAdapter, self.dom_object.Stages.Items)
+        return oss.SearchableStages(nsa.NativeStageAdapter, self.dom_object.Stages.Items)
 
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],

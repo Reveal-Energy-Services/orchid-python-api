@@ -100,9 +100,8 @@ def step_impl(context, stage_no, name_with_well, md_top, md_bottom, cluster_coun
 
 def find_stage_with_name(context, name_with_well):
     stages_of_interest = toolz.pipe(context.stages_for_wells.values(),
-                                    toolz.map(lambda stages: stages.all_objects()),
+                                    toolz.map(lambda stages: stages.find_by_display_name_with_well(name_with_well)),
                                     toolz.concat,
-                                    toolz.filter(lambda s: s.display_name_with_well == name_with_well),
                                     list)
     assert len(stages_of_interest) == 1, \
         f'Expected 1 stage with name with well: {name_with_well}. Found {len(stages_of_interest)}.'
