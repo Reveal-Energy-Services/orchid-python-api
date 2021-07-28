@@ -66,7 +66,7 @@ def step_impl(context):
     def calculate_all_treatment_aggregates(searchable_stages):
         return toolz.pipe(
             searchable_stages,
-            cf.all_project_objects,
+            lambda ss: ss.all_objects(),
             toolz.map(calculate_treatment_aggregates),
             list,
         )
