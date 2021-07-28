@@ -14,7 +14,7 @@
 
 import unittest
 
-from hamcrest import assert_that, equal_to, is_, none, calling, raises, all_of, has_property
+from hamcrest import assert_that, equal_to, is_, none, calling, raises, has_property
 import toolz.curried as toolz
 
 
@@ -28,10 +28,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Find by display name with well returns match if found
-# - Find by display name with well returns None if no stages
-# - Find by display name with well returns None if no matches
-# - Find by display name with well returns all matches if multiple
 class TestSearchableStages(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -120,8 +116,9 @@ class TestSearchableStages(unittest.TestCase):
                 stub_net_stages = [tsn.create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
                 sut = oss.SearchableStages(nsa.NativeStageAdapter, stub_net_stages)
 
-                actual = sut.find_by_display_name_with_well(to_find)
-                assert_that(*actual, all_of(has_property('display_name_with_well', to_find)))
+                all_found = tuple(sut.find_by_display_name_with_well(to_find))
+                for actual in all_found:
+                    assert_that(actual, has_property('display_name_with_well', to_find))
 
 
 if __name__ == '__main__':
