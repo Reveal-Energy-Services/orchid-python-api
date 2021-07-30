@@ -233,7 +233,8 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
     return result
 
 
-def create_stub_net_stage(cluster_count=-1, display_name=None, display_stage_no=-1,
+def create_stub_net_stage(cluster_count=-1, display_name=None,
+                          display_name_with_well=None, display_stage_no=-1,
                           md_top=None, md_bottom=None, name=None, object_id=None,
                           stage_location_bottom=None, stage_location_cluster=None,
                           stage_location_center=None, stage_location_top=None,
@@ -247,6 +248,8 @@ def create_stub_net_stage(cluster_count=-1, display_name=None, display_stage_no=
     result.NumberOfClusters = cluster_count
     if display_name is not None:
         result.DisplayName = display_name
+    if display_name_with_well is not None:
+        result.DisplayNameWithWell = display_name_with_well
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = make_net_measurement(md_top)

@@ -22,6 +22,7 @@ use_step_matcher("parse")
 import decimal
 
 from hamcrest import assert_that, equal_to
+import toolz.curried as toolz
 
 import common_functions as cf
 
@@ -45,12 +46,20 @@ def step_impl(context, well):
         context (behave.runner.Context): The test context.
         well (str): The name of the well of interest.
     """
-    context.selected_well = cf.find_well_by_name_in_project(context, well)
+    context.selected_well = _find_well_by_name_in_project(context, well)
 
     context.well_measurements = {
         'kb_above_ground': context.selected_well.kelly_bushing_height_above_ground_level,
         'ground_above_sea_level': context.selected_well.ground_level_elevation_above_sea_level,
     }
+
+
+def _find_well_by_name_in_project(context, name):
+    candidates = list(context.project.wells().find_by_name(name))
+    assert_that(toolz.count(candidates), equal_to(1),
+                f'Failure for field "{context.field}" and well "{name}".')
+    result = toolz.first(candidates)
+    return result
 
 
 @then("I see measurements for {kb_above_ground} and {ground_above_sea_level}")
@@ -72,7 +81,7 @@ def step_impl(context, well):
         context (behave.runner.Context): The test context.
         well (str): The name of the well of interest.
     """
-    context.selected_well = cf.find_well_by_name_in_project(context, well)
+    context.selected_well = _find_well_by_name_in_project(context, well)
 
 
 FRAME_TEXT_TO_FRAMES = {
@@ -129,7 +138,7 @@ def step_impl(context, x, y, depth, md_kb, frame, datum):
 
 @when("I sample the wellhead locations for {well}")
 def step_impl(context, well):
-    context.selected_well = cf.find_well_by_name_in_project(context, well)
+    context.selected_well = _find_well_by_name_in_project(context, well)
 
 
 @then("I see the points {easting}, {northing}, and {depth}")

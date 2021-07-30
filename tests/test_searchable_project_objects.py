@@ -45,7 +45,7 @@ class TestSearchableProjectObjects(unittest.TestCase):
 
                 assert_that(len(sut), equal_to(len(net_project_object_dtos)))
 
-    def test_query_object_ids_from_collection(self):
+    def test_query_all_object_ids_from_collection(self):
         for net_project_object_dtos in (
                 (),
                 ({'object_id': 'fbb6edad-2379-4bde-8eac-e42bf472c8f8'},),
@@ -59,6 +59,20 @@ class TestSearchableProjectObjects(unittest.TestCase):
 
                 # noinspection PyTypeChecker
                 assert_that(list(sut.all_object_ids()), contains_exactly(*expected))
+
+    def test_query_all_objects_from_collection(self):
+        for net_project_object_dtos in (
+                (),
+                ({'object_id': tsn.DONT_CARE_ID_A},),
+                ({'object_id': tsn.DONT_CARE_ID_B},
+                 {'object_id': tsn.DONT_CARE_ID_C},
+                 {'object_id': tsn.DONT_CARE_ID_D}),
+        ):
+            with self.subTest(f'Test all_objects() returns {len(net_project_object_dtos)} instances'):
+                sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
+
+                # noinspection PyTypeChecker
+                assert_that(len(list(sut.all_objects())), equal_to(len(net_project_object_dtos)))
 
     def test_query_all_display_names_from_collection(self):
         for net_project_object_dtos in (
