@@ -235,6 +235,20 @@ def as_duration(to_convert: TimeSpan) -> pendulum.Duration:
     return pendulum.duration(seconds=to_convert.TotalSeconds)
 
 
+def as_time_delta(net_time_span: TimeSpan):
+    """
+    Convert a .NET `TimeSpan` to a Python `dt.timedelta`.
+
+    Args:
+        net_time_span: The .NET `TimeSpan` to convert.
+
+    Returns:
+        The equivalent dt.time_delta value.
+
+    """
+    return dt.timedelta(seconds=net_time_span.TotalSeconds)
+
+
 def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
     """
     Convert microseconds to an integral number of milliseconds with a number of seconds to carry.
