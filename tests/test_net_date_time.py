@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime as dt
 import unittest
 
 from hamcrest import assert_that, calling, equal_to, raises, is_, same_instance
@@ -194,6 +195,23 @@ class TestNetDateTime(unittest.TestCase):
         ]:
             with self.subTest(f'Convert .NET TimeSpan, {str(net_time_span)}, to `pendulum.Duration` with rounding'):
                 actual = net_dt.as_duration(net_time_span)
+                assert_that(actual, equal_to(expected))
+
+    def test_as_time_delta(self):
+        for time_delta_dto in [
+            stub_dt.TimeSpanDto(23, 49, 53, is_negative=True),
+            stub_dt.TimeSpanDto(0, 0, 0),
+            stub_dt.TimeSpanDto(0, 59, 57),
+        ]:
+            net_time_span = stub_dt.make_net_time_span(time_delta_dto)
+            with self.subTest(f'Test converting .NET TimeSpan, {net_time_span}, to time_delta'):
+                actual = net_dt.as_time_delta(net_time_span)
+
+                expected = dt.timedelta(hours=time_delta_dto.hour, minutes=time_delta_dto.minute,
+                                        seconds=time_delta_dto.second)
+                if time_delta_dto.is_negative:
+                    expected = dt.timedelta(hours=-time_delta_dto.hour, minutes=-time_delta_dto.minute,
+                                            seconds=-time_delta_dto.second)
                 assert_that(actual, equal_to(expected))
 
     def test_convert_date_time_sentinel_to_net_sentinel(self):

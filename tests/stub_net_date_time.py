@@ -27,7 +27,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import Int32, DateTime, DateTimeKind, DateTimeOffset
+from System import Int32, DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
 @dc.dataclass
@@ -40,6 +40,16 @@ class TimePointDto:
     second: int
     fractional: om.Quantity = 0 * om.registry.microseconds
     kind: net_dt.TimePointTimeZoneKind = net_dt.TimePointTimeZoneKind.UTC
+
+
+@dc.dataclass
+class TimeSpanDto:
+    hour: int
+    minute: int
+    second: int
+    # Setting is negative to `False` makes all components, hour, minute, and second, negative in the resulting
+    # .NET `TimeSpan`.
+    is_negative: bool = False
 
 
 # noinspection PyPep8Naming
@@ -152,6 +162,13 @@ def make_net_date_time_offset(time_point_dto: TimePointDto) -> DateTimeOffset:
     """
     result = DateTimeOffset(make_net_date_time(time_point_dto))
     return result
+
+
+def make_net_time_span(time_delta_dto: TimeSpanDto):
+    if not time_delta_dto.is_negative:
+        return TimeSpan(time_delta_dto.hour, time_delta_dto.minute, time_delta_dto.second)
+    else:
+        return TimeSpan(-time_delta_dto.hour, -time_delta_dto.minute, -time_delta_dto.second)
 
 
 def make_date_time(time_point_dto: TimePointDto) -> pendulum.DateTime:
