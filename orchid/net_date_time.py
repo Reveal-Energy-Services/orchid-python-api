@@ -266,10 +266,7 @@ def net_date_time_offset_as_date_time(net_time_point: DateTimeOffset) -> pendulu
     if net_time_point == DateTimeOffset.MinValue:
         return pendulum.DateTime.min
 
-    if net_time_point.Offset.TotalSeconds != 0:
-        raise NetDateTimeOffsetNonZeroOffsetError(net_time_point)
-
-    return _net_time_point_to_datetime(base.constantly(ptz.UTC), net_time_point)
+    return _net_time_point_to_datetime(lambda ntp: as_time_delta(ntp.Offset), net_time_point)
 
 
 def is_utc(time_point):

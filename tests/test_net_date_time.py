@@ -34,6 +34,7 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 # Test ideas
 # - is_max_value() for values below, at and above boundary
 # - is_min_value() for values below, at and above boundary
+# - net_date_time_offset_as_date_time returns correct value if .NET DateTimeOffset has non-zero offset
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -227,6 +228,12 @@ class TestNetDateTime(unittest.TestCase):
         )
         actual = net_dt.net_date_time_offset_as_date_time(stub_dt.make_net_date_time_offset(time_point))
         expected = stub_dt.make_date_time(time_point)
+        assert_that(actual, tcm.equal_to_datetime(expected))
+
+    def test_net_date_time_offset_with_non_zero_offset_as_date_time(self):
+        net_date_time_offset = DateTimeOffset(2021, 12, 23, 1, 0, 19, 421, TimeSpan(-8, 0, 0))
+        expected = pendulum.parse('2021-12-23T01:00:19.421000-08:00')
+        actual = net_dt.net_date_time_offset_as_date_time(net_date_time_offset)
         assert_that(actual, tcm.equal_to_datetime(expected))
 
     def test_net_date_time_offset_as_date_time_raises_error_if_non_zero_offset(self):
