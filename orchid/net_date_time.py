@@ -19,6 +19,7 @@ Functions to convert between .NET `DateTime` instances and Python `pendulum.date
 
 import datetime as dt
 import enum
+import functools
 from typing import Tuple, Union
 
 import dateutil.tz as duz
@@ -124,9 +125,13 @@ class NetDateTimeOffsetNonZeroOffsetError(NetDateTimeError):
                          ' cannot be non-zero.')
 
 
-# TODO: Consider changing this implementation to single dispatch
-# Note that this change might require more work than is obvious. Two .NET types: `DateTime` and `DateTimeOffset`
-def as_date_time(net_time_point: System.DateTime) -> pendulum.DateTime:
+@functools.singledispatch
+def as_date_time(net_time_point: object) -> pendulum.DateTime:
+    raise NotImplementedError
+
+
+@as_date_time.register
+def _(net_time_point: System.DateTime) -> pendulum.DateTime:
     """
     Convert a .NET `System.DateTime` instance to a `pendulum.DateTime` instance.
 

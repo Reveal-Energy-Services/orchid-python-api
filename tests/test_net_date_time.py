@@ -63,12 +63,6 @@ class TestNetDateTime(unittest.TestCase):
         assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
                     raises(net_dt.NetDateTimeUnspecifiedDateTimeKindError, pattern=expected_error_message))
 
-    def test_as_date_time_net_time_point_kind_unknown_throws_exception(self):
-        net_time_point = DateTime(2019, 2, 10, 9, 36, 36, 914, stub_dt.StubDateTimeKind.INVALID)
-        expected_error_pattern = f'Unknown .NET System.DateTime.Kind, {stub_dt.StubDateTimeKind.INVALID}.'
-        assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
-                    raises(ValueError, pattern=expected_error_pattern))
-
     def test_as_net_date_time(self):
         for time_point in [
             stub_dt.TimePointDto(2017, 3, 22, 3, 0, 37,
