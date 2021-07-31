@@ -254,12 +254,6 @@ class TestNetDateTime(unittest.TestCase):
         actual = net_dt.net_date_time_offset_as_date_time(net_date_time_offset)
         assert_that(actual, tcm.equal_to_datetime(expected))
 
-    def test_net_date_time_offset_as_date_time_raises_error_if_non_zero_offset(self):
-        net_date_time_offset = DateTimeOffset(2026, 3, 17, 16, 42, 47, 694, TimeSpan.FromMinutes(1))
-        assert_that(calling(net_dt.net_date_time_offset_as_date_time).with_args(net_date_time_offset),
-                    raises(net_dt.NetDateTimeOffsetNonZeroOffsetError,
-                           pattern=r'`Offset`.*2026-03-17T16:42:47.6940000\+00:01'))
-
 
 if __name__ == '__main__':
     unittest.main()

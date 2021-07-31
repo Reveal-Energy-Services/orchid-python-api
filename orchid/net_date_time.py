@@ -280,7 +280,14 @@ def net_date_time_offset_as_date_time(net_time_point: DateTimeOffset) -> pendulu
     if net_time_point == DateTimeOffset.MinValue:
         return pendulum.DateTime.min
 
-    return _net_time_point_to_datetime(lambda ntp: as_time_delta(ntp.Offset), net_time_point)
+    def net_date_time_offset_to_timezone(ntp):
+        integral_offset = int(ntp.Offset.TotalSeconds)
+        if integral_offset == 0:
+            return ptz.UTC
+
+        return ptz.timezone(integral_offset)
+
+    return _net_time_point_to_datetime(net_date_time_offset_to_timezone, net_time_point)
 
 
 def is_utc(time_point):
@@ -292,4 +299,4 @@ def is_utc(time_point):
 def _net_time_point_to_datetime(time_zone_func, net_time_point):
     return pendulum.datetime(net_time_point.Year, net_time_point.Month, net_time_point.Day,
                              net_time_point.Hour, net_time_point.Minute, net_time_point.Second,
-                             net_time_point.Millisecond * 1000, time_zone_func(net_time_point))
+                             net_time_point.Millisecond * 1000, tz=time_zone_func(net_time_point))
