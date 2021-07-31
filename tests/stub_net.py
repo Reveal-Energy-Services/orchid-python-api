@@ -61,7 +61,7 @@ from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSerie
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
-from System import Array, Guid, Type
+from System import Array, DateTime, Guid, Type
 # noinspection PyUnresolvedReferences
 from System.Data import DataColumn, DataTable
 
@@ -99,9 +99,9 @@ class StubNetSample:
             raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
 
         carry_seconds, milliseconds = net_dt.microseconds_to_milliseconds_with_carry(time_point.microsecond)
-        self.Timestamp = stub_dt.StubNetDateTime(time_point.year, time_point.month, time_point.day,
-                                                 time_point.hour, time_point.minute, time_point.second + carry_seconds,
-                                                 milliseconds, stub_dt.StubDateTimeKind.UTC)
+        self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day,
+                                  time_point.hour, time_point.minute, time_point.second + carry_seconds,
+                                  milliseconds, stub_dt.StubDateTimeKind.UTC)
         self.Value = value
 
     def __repr__(self):

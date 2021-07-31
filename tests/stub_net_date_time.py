@@ -52,55 +52,6 @@ class TimeSpanDto:
     is_negative: bool = False
 
 
-# noinspection PyPep8Naming
-class StubNetDateTime:
-    def __init__(self, year, month, day, hour, minute, second, millisecond, kind):
-        self._year = year
-        self._month = month
-        self._day = day
-        self._hour = hour
-        self._minute = minute
-        self._second = second
-        self._millisecond = millisecond
-        self._kind = kind
-
-    @property
-    def Year(self):
-        return self._year
-
-    @property
-    def Month(self):
-        return self._month
-
-    @property
-    def Day(self):
-        return self._day
-
-    @property
-    def Hour(self):
-        return self._hour
-
-    @property
-    def Minute(self):
-        return self._minute
-
-    @property
-    def Second(self):
-        return self._second
-
-    @property
-    def Millisecond(self):
-        return self._millisecond
-
-    @property
-    def Kind(self):
-        return self._kind
-
-    def ToString(self, _format):
-        return f'{self.Year}-{self.Month:02}-{self.Day:02}T{self.Hour:02}:{self.Minute:02}:{self.Second:02}' \
-               f'.000{self.Millisecond}K{self.Kind}'
-
-
 class StubDateTimeKind(enum.IntEnum):
     UNSPECIFIED = 0,
     UTC = 1,
