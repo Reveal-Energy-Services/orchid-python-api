@@ -162,6 +162,33 @@ def _(net_time_point: System.DateTime) -> pendulum.DateTime:
     raise ValueError(f'Unknown .NET System.DateTime.Kind, {net_time_point.Kind}.')
 
 
+@as_date_time.register
+def _(net_time_point: System.DateTimeOffset) -> pendulum.DateTime:
+    """
+    Convert a .NET `System.DateTimeOffset` instance to a `pendulum.DateTime` instance.
+
+    Args:
+        net_time_point: A point in time of type .NET `System.DateTimeOffset`.
+
+    Returns:
+        The `pendulum.DateTime` equivalent to the `net_time_point`.
+    """
+    if net_time_point == System.DateTimeOffset.MaxValue:
+        return pendulum.DateTime.max
+
+    if net_time_point == System.DateTimeOffset.MinValue:
+        return pendulum.DateTime.min
+
+    def net_date_time_offset_to_timezone(ntp):
+        integral_offset = int(ntp.Offset.TotalSeconds)
+        if integral_offset == 0:
+            return ptz.UTC
+
+        return ptz.timezone(integral_offset)
+
+    return _net_time_point_to_datetime(net_date_time_offset_to_timezone, net_time_point)
+
+
 def as_net_date_time(time_point: pendulum.DateTime) -> System.DateTime:
     """
     Convert a `pendulum.DateTime` instance to a .NET `System.DateTime` instance.
@@ -269,32 +296,6 @@ def microseconds_to_milliseconds_with_carry(to_convert: int) -> Tuple[int, int]:
 
     raw_milliseconds = round(to_convert / 1000)
     return divmod(raw_milliseconds, 1000)
-
-
-def net_date_time_offset_as_date_time(net_time_point: System.DateTimeOffset) -> pendulum.DateTime:
-    """
-    Convert a .NET `System.DateTimeOffset` instance to a `pendulum.DateTime` instance.
-
-    Args:
-        net_time_point: A point in time of type .NET `System.DateTimeOffset`.
-
-    Returns:
-        The `pendulum.DateTime` equivalent to the `net_time_point`.
-    """
-    if net_time_point == System.DateTimeOffset.MaxValue:
-        return pendulum.DateTime.max
-
-    if net_time_point == System.DateTimeOffset.MinValue:
-        return pendulum.DateTime.min
-
-    def net_date_time_offset_to_timezone(ntp):
-        integral_offset = int(ntp.Offset.TotalSeconds)
-        if integral_offset == 0:
-            return ptz.UTC
-
-        return ptz.timezone(integral_offset)
-
-    return _net_time_point_to_datetime(net_date_time_offset_to_timezone, net_time_point)
 
 
 def is_utc(time_point):

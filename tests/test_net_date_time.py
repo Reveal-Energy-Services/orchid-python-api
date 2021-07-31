@@ -35,7 +35,7 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 # Test ideas
 # - is_max_value() for values below, at and above boundary
 # - is_min_value() for values below, at and above boundary
-# - net_date_time_offset_as_date_time returns correct value if .NET DateTimeOffset has non-zero offset
+# - as_date_time returns correct value if .NET DateTimeOffset has non-zero offset
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -135,11 +135,11 @@ class TestNetDateTime(unittest.TestCase):
             ('DateTime.MinValue', DateTime.MinValue,
              net_dt.as_date_time, 'pendulum.DateTime.min', pendulum.DateTime.min),
             ('DateTimeOffset.MinValue', DateTimeOffset.MinValue,
-             net_dt.net_date_time_offset_as_date_time, 'pendulum.DateTime.min', pendulum.DateTime.min),
+             net_dt.as_date_time, 'pendulum.DateTime.min', pendulum.DateTime.min),
             ('DateTime.MaxValue', DateTime.MaxValue,
              net_dt.as_date_time, 'pendulum.DateTime.max', pendulum.DateTime.max),
             ('DateTimeOffset.MaxValue', DateTimeOffset.MaxValue,
-             net_dt.net_date_time_offset_as_date_time, 'pendulum.DateTime.max', pendulum.DateTime.max),
+             net_dt.as_date_time, 'pendulum.DateTime.max', pendulum.DateTime.max),
         ]:
             with self.subTest(f'Convert {net_sentinel_name} to {date_time_sentinel_name}'):
                 assert_that(sut_func(net_sentinel), is_(same_instance(date_time_sentinel)))
@@ -238,14 +238,15 @@ class TestNetDateTime(unittest.TestCase):
         time_point = stub_dt.TimePointDto(
             2026, 2, 19, 12, 26, 58, 226 * om.registry.milliseconds, net_dt.TimePointTimeZoneKind.UTC
         )
-        actual = net_dt.net_date_time_offset_as_date_time(stub_dt.make_net_date_time_offset(time_point))
+        net_date_time_offset = stub_dt.make_net_date_time_offset(time_point)
+        actual = net_dt.as_date_time(net_date_time_offset)
         expected = stub_dt.make_date_time(time_point)
         assert_that(actual, tcm.equal_to_datetime(expected))
 
     def test_net_date_time_offset_with_non_zero_offset_as_date_time(self):
         net_date_time_offset = DateTimeOffset(2021, 12, 23, 1, 0, 19, 421, TimeSpan(-8, 0, 0))
         expected = pendulum.parse('2021-12-23T01:00:19.421000-08:00')
-        actual = net_dt.net_date_time_offset_as_date_time(net_date_time_offset)
+        actual = net_dt.as_date_time(net_date_time_offset)
         assert_that(actual, tcm.equal_to_datetime(expected))
 
 
