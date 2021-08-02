@@ -249,6 +249,20 @@ Feature: Adapted IDataFrame DOM API
       | 366    | 2018-11-15T10:31:00.000+00:00 | 11665255.69 | 11465.79     | 243.671    | 234.874205      | 20.594727  |
       | 479    | 2018-11-19T21:25:23.077+00:00 | 11666700.54 | 11395.45     | 237.502735 | 180.208587      | 47.088867  |
 
+  Scenario: Sampled local Permian microseismic data frame have the correct UTC and local timestamp cells
+    Given I have loaded the project for the field, 'Permian-n'
+    When I query the loaded project for the data frame named 'Microseismic Data Frame 01'
+    Then I see the sampled cells
+      | sample | timestamp_utc                     | timestamp_local                   |
+      | 0      | 2018-11-24T12:30:45.0000000+00:00 | 2018-11-24T06:30:45.0000000-06:00 |
+      | 54     | 2018-11-12T15:47:48.1000000+00:00 | 2018-11-12T09:47:48.1000000-06:00 |
+      | 169    | 2018-11-20T15:36:30.0000000+00:00 | 2018-11-20T09:36:30.0000000-06:00 |
+      | 176    | 2018-11-16T08:55:57.0000000+00:00 | 2018-11-16T02:55:57.0000000-06:00 |
+      | 197    | 2018-11-13T16:25:24.3333330+00:00 | 2018-11-13T10:25:24.3333330-06:00 |
+      | 451    | 2018-11-19T02:45:52.5000000+00:00 | 2018-11-18T20:45:52.5000000-06:00 |
+      | 468    | 2018-11-19T12:44:15.0000000+00:00 | 2018-11-19T06:44:15.0000000-06:00 |
+      | 479    | 2018-11-19T21:25:23.0770000+00:00 | 2018-11-19T15:25:23.0770000-06:00 |
+
   Scenario: Sampled GnG project data frame have the correct cells
     Given I have loaded the project for the field, 'GnG'
     When I query the loaded project for the data frame named 'Project Data Frame 01'
