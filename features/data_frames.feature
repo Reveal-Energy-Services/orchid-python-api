@@ -253,7 +253,7 @@ Feature: Adapted IDataFrame DOM API
     Given I have loaded the project for the field, 'Permian-n'
     When I query the loaded project for the data frame named 'Microseismic Data Frame 01'
     Then I see the sampled cells
-      | sample | timestamp_utc                     | timestamp_local                   |
+      | sample | timestamp                         | timestamp_local                   |
       | 0      | 2018-11-24T12:30:45.0000000+00:00 | 2018-11-24T06:30:45.0000000-06:00 |
       | 54     | 2018-11-12T15:47:48.1000000+00:00 | 2018-11-12T09:47:48.1000000-06:00 |
       | 169    | 2018-11-20T15:36:30.0000000+00:00 | 2018-11-20T09:36:30.0000000-06:00 |
