@@ -185,10 +185,8 @@ def _as_data_frame(table):
     raw_frame_data = toolz.reduce(reduce_row, table, initial_data)
     frame_mapped_data = toolz.itemmap(_table_cells_to_data_frame_cells, raw_frame_data)
     frame_data = toolz.valmap(list, frame_mapped_data)
-    raw_result = pd.DataFrame(data=frame_data, columns=frame_data.keys())
+    result = pd.DataFrame(data=frame_data, columns=frame_data.keys())
 
-    # result = _fix_gng_project_data_frame_pnet_column_data_type(raw_result, scenario_name)
-    result = raw_result
     return result
 
 
@@ -247,7 +245,8 @@ def _convert_signal_quality(signal_quality_text):
 
 
 def _parsed_date_with_correct_utc(text_time_point):
-    parsed_time_point = pendulum.parse(text_time_point)
+    raw_parsed_time_point = pendulum.parse(text_time_point)
+    parsed_time_point = raw_parsed_time_point.set(microsecond=round(raw_parsed_time_point.microsecond, -3))
     if parsed_time_point.timezone_name != '+00:00':
         return parsed_time_point
 
@@ -320,6 +319,8 @@ about_data_frame_columns = [
     AboutDataFrameColumn('stage_no', 'StageNumber', _convert_maybe_value(float)),
     AboutDataFrameColumn('tend_max', 'TENDMax', _convert_maybe_value(float)),
     AboutDataFrameColumn('timestamp', 'Timestamp', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('timestamp_local', 'Timestamp((UTC-06:00) Central Time (US & Canada))',
+                         _convert_maybe_value(_parsed_date_with_correct_utc)),
     AboutDataFrameColumn('tnph_ls', 'TNPH_LS', _convert_maybe_value(float)),
     AboutDataFrameColumn('tr_pressure', ' treatment pressure [psi]', _convert_maybe_value(float)),
     AboutDataFrameColumn('tr_stg_part_no', 'TreatmentStagePartNumber', _convert_maybe_value(str)),

@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import datetime as dt
 import unittest
 
 from hamcrest import assert_that, calling, equal_to, raises, is_, same_instance
@@ -34,6 +35,7 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 # Test ideas
 # - is_max_value() for values below, at and above boundary
 # - is_min_value() for values below, at and above boundary
+# - as_date_time returns correct value if .NET DateTimeOffset has non-zero offset
 class TestNetDateTime(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -60,12 +62,6 @@ class TestNetDateTime(unittest.TestCase):
         expected_error_message = f'{net_time_point.ToString("o")}'
         assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
                     raises(net_dt.NetDateTimeUnspecifiedDateTimeKindError, pattern=expected_error_message))
-
-    def test_as_date_time_net_time_point_kind_unknown_throws_exception(self):
-        net_time_point = stub_dt.StubNetDateTime(2019, 2, 10, 9, 36, 36, 914, stub_dt.StubDateTimeKind.INVALID)
-        expected_error_pattern = f'Unknown .NET DateTime.Kind, {stub_dt.StubDateTimeKind.INVALID}.'
-        assert_that(calling(net_dt.as_date_time).with_args(net_time_point),
-                    raises(ValueError, pattern=expected_error_pattern))
 
     def test_as_net_date_time(self):
         for time_point in [
@@ -139,11 +135,11 @@ class TestNetDateTime(unittest.TestCase):
             ('DateTime.MinValue', DateTime.MinValue,
              net_dt.as_date_time, 'pendulum.DateTime.min', pendulum.DateTime.min),
             ('DateTimeOffset.MinValue', DateTimeOffset.MinValue,
-             net_dt.net_date_time_offset_as_date_time, 'pendulum.DateTime.min', pendulum.DateTime.min),
+             net_dt.as_date_time, 'pendulum.DateTime.min', pendulum.DateTime.min),
             ('DateTime.MaxValue', DateTime.MaxValue,
              net_dt.as_date_time, 'pendulum.DateTime.max', pendulum.DateTime.max),
             ('DateTimeOffset.MaxValue', DateTimeOffset.MaxValue,
-             net_dt.net_date_time_offset_as_date_time, 'pendulum.DateTime.max', pendulum.DateTime.max),
+             net_dt.as_date_time, 'pendulum.DateTime.max', pendulum.DateTime.max),
         ]:
             with self.subTest(f'Convert {net_sentinel_name} to {date_time_sentinel_name}'):
                 assert_that(sut_func(net_sentinel), is_(same_instance(date_time_sentinel)))
@@ -196,6 +192,23 @@ class TestNetDateTime(unittest.TestCase):
                 actual = net_dt.as_duration(net_time_span)
                 assert_that(actual, equal_to(expected))
 
+    def test_as_time_delta(self):
+        for time_delta_dto in [
+            stub_dt.TimeSpanDto(23, 49, 53, is_negative=True),
+            stub_dt.TimeSpanDto(0, 0, 0),
+            stub_dt.TimeSpanDto(0, 59, 57),
+        ]:
+            net_time_span = stub_dt.make_net_time_span(time_delta_dto)
+            with self.subTest(f'Test converting .NET TimeSpan, {net_time_span}, to time_delta'):
+                actual = net_dt.as_time_delta(net_time_span)
+
+                expected = dt.timedelta(hours=time_delta_dto.hour, minutes=time_delta_dto.minute,
+                                        seconds=time_delta_dto.second)
+                if time_delta_dto.is_negative:
+                    expected = dt.timedelta(hours=-time_delta_dto.hour, minutes=-time_delta_dto.minute,
+                                            seconds=-time_delta_dto.second)
+                assert_that(actual, equal_to(expected))
+
     def test_convert_date_time_sentinel_to_net_sentinel(self):
         for date_time_sentinel_name, date_time_sentinel, sut_func, net_sentinel_name, net_sentinel in [
             ('pendulum.DateTime.min', pendulum.DateTime.min,
@@ -225,15 +238,16 @@ class TestNetDateTime(unittest.TestCase):
         time_point = stub_dt.TimePointDto(
             2026, 2, 19, 12, 26, 58, 226 * om.registry.milliseconds, net_dt.TimePointTimeZoneKind.UTC
         )
-        actual = net_dt.net_date_time_offset_as_date_time(stub_dt.make_net_date_time_offset(time_point))
+        net_date_time_offset = stub_dt.make_net_date_time_offset(time_point)
+        actual = net_dt.as_date_time(net_date_time_offset)
         expected = stub_dt.make_date_time(time_point)
         assert_that(actual, tcm.equal_to_datetime(expected))
 
-    def test_net_date_time_offset_as_date_time_raises_error_if_non_zero_offset(self):
-        net_date_time_offset = DateTimeOffset(2026, 3, 17, 16, 42, 47, 694, TimeSpan.FromMinutes(1))
-        assert_that(calling(net_dt.net_date_time_offset_as_date_time).with_args(net_date_time_offset),
-                    raises(net_dt.NetDateTimeOffsetNonZeroOffsetError,
-                           pattern=r'`Offset`.*2026-03-17T16:42:47.6940000\+00:01'))
+    def test_net_date_time_offset_with_non_zero_offset_as_date_time(self):
+        net_date_time_offset = DateTimeOffset(2021, 12, 23, 1, 0, 19, 421, TimeSpan(-8, 0, 0))
+        expected = pendulum.parse('2021-12-23T01:00:19.421000-08:00')
+        actual = net_dt.as_date_time(net_date_time_offset)
+        assert_that(actual, tcm.equal_to_datetime(expected))
 
 
 if __name__ == '__main__':
