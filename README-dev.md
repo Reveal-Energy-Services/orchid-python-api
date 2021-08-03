@@ -233,6 +233,9 @@ To update the project dependencies:
     - Run `poetry update`
 
 ## Update API version
+
+### Edit the internal version
+
 - Open the file `orchid/VERSION` for editing.
 - Change the version in the file to the updated value. The safest way to update the value is copying the 
   value if at all possible. The log files print the version number in the banner at the beginning of each
@@ -251,6 +254,8 @@ To update the project dependencies:
     - `2021.1.399.post1` - a post-release or
     - `2021.1.399.b3` - a "beta-3" pre-release
     
+### Edit the package version number
+
 - Open the file `pyproject.toml` for editing.
 - Copy the version identifier from `orchid/VERSION` to the value of the `version` key of the file.
 - Search for the `classifiers` element of `pyproject.toml`. 
@@ -261,6 +266,11 @@ To update the project dependencies:
     [final release](https://www.python.org/dev/peps/pep-0440/#final-releases) version identifier,
     - Comment out the `Development Status :: 4 - Beta` item.
     - Uncomment the `Development Status :: 5 Production/Stable` item.
+
+### Edit the version number in the release notes
+
+- Open the file `ReleaseNotes.md` for editing.
+- Copy the version identifier from `orchid/VERSION` to the version number for the release.
   
 ## Publish to TestPyPI
 
