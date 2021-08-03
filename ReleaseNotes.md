@@ -2,6 +2,13 @@
 
 ## Release notes for 2021.2
 
+This release is the production release of the Orchid Python API corresponding to Orchid 2021.2. This release:
+
+- Updates to the latest version of `numpy`
+- Exposes data frames via the API
+- Internally uses `pendulum` for improved handling of date times (both UTC and local times)
+- Provides a consistent interface for collections of DOM objects
+
 ### Resolved Issues
 
 - [GitHub issue 12](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/12)
@@ -11,7 +18,26 @@
 
 ### Features
 
-- None
+- Project
+  - Data frames
+- Stage
+  - Find stages by:
+    - Display stage number
+    - Display name with well
+
+- Object collections
+  - Find object(s) by
+    - Display name
+    - Name
+    - Object ID
+    - All objects satisfying a predicate (primarily a convenience for use cases where the condition of interest does 
+      not involve identifying information). Note that stages have some of these convenience methods already.
+  - Query collection for
+    - All display names
+    - All names
+    - All object IDs
+    - All objects (primarily a convenience for use cases where one wants all objects in the collection independent 
+      of identifying information)
 
 ### Known Issues
 
