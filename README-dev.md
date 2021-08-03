@@ -194,6 +194,7 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
 Publishing a release has a number of general steps. These steps are optional except for 
 [the last step](#publish-to-pypi). Here are the steps:
 
+- [Update poetry](#update-poetry)
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
 - [Build and test locally](#build-and-test-locally)
@@ -208,12 +209,25 @@ Remember that the file, `tasks.py`, defines many common tasks. Be sure to use co
     - `invoke poetry.venv.remove --help` (for help on a specific command listed)
 to perform these tasks.
 
+## Update poetry
+
+- Navigate to the repository directory
+- Execute the command `poetry self update` 
+
+**Warning**
+
+When the author attempted to execute this command, he encountered an error that the update **could not** 
+update a library. This same message occurred both in a Git Bash shell and in a Powershell (1.0) shell. After
+receiving this message, the installation of was corrupted. (The author received a message like "Could not 
+import poetry.console".) To resolve this issue, the author simply installed `poetry` again. This repaired the 
+`poetry.console` error and updated `poetry` to the latest version.
+
 ## Update dependencies
 
 To update the project dependencies:
 
 - [Create a new, clean development virtualenv](#create-a-new-clean-development-virtualenv)
-- In a Powershell window, navigate to the directory of the new virtualenv
+- In a Powershell window, navigate to the directory of the new virtualenv if not there already
 - Activate the virtualenv (run `poetry shell`)
 - Update the dependencies
     - Run `poetry update`
@@ -403,7 +417,7 @@ Create a new skeleton virtual environment
     
 To test that you were successful,
 
-- Navigate to the virtual environment directory if not there already
+- Navigate to the root directory of the repository if not there already
 - Activate the virtualenv by executing, `poetry shell`
 - Execute the command, `pip list --local`. You should see output like the following (but probably with
   different version numbers)
@@ -411,8 +425,9 @@ To test that you were successful,
   ```
   Package    Version
   ---------- -------
-  pip        20.1.1
-  setuptools 46.4.0
+  pip        21.1.1
+  setuptools 56.2.0
+  wheel      0.36.2
   ```
 
 ### Create a new, clean virtualenv
@@ -465,9 +480,9 @@ To test that you were successful,
   ```
   Package    Version
   ---------- -------
-  pip        20.1.1
-  setuptools 46.4.0
-  wheel      0.34.2
+  pip        21.1.1
+  setuptools 56.2.0
+  wheel      0.36.2
   ```
     
 ### Run all orchid tests
