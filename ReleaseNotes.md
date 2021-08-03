@@ -1,11 +1,13 @@
 # Orchid Python API Release Notes
 
-## Release notes for 2021.2.NNN.b1
+## Release notes for 2021.2
 
 ### Resolved Issues
 
-- [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
 - [GitHub issue 12](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/12)
+- [GitHub issue 16](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/16)
+- [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
+- [GitHub issue 21](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/21)
 
 ### Features
 
@@ -13,7 +15,7 @@
 
 ### Known Issues
 
-- None
+- [GitHub issue 19](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/19)
 
 ## Release notes for 2021.1.399
 
