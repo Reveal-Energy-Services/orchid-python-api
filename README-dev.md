@@ -314,12 +314,12 @@ To publish the distribution to TestPyPI execute either:
 
 Once published, test the published distribution by:
 
-- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
-- In a Powershell window, navigate to the directory of the new virtualenv
-- Activate the virtualenv (run `pipenv shell`)
-- Install the package distribution by running the command, 
+- [create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- in a powershell window, navigate to the directory of the new virtualenv
+- activate the virtualenv (run `pipenv shell`)
+- install the package distribution by running the command, 
   `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`. 
-- [Run Orchid examples](#run-installed-orchid-examples).
+- [run orchid examples](#run-installed-orchid-examples).
 
 If an error occurs, read the error message(s) and consult the section 
 [Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
@@ -362,6 +362,48 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
   
 ## Common tasks
 
+### Install Orchid release
+
+You have two options:
+
+- [Install from web portal](#install-from-web-portal)
+- [Install from build pipelines](#install-from-build-pipelines)
+
+#### Install from web portal
+
+- Open the [Orchid web portal](https://portal.reveal-energy.com)
+- Click the "Sign In" link
+- Click the "Reveal Energy Employee Sign In"
+- If prompted, enter your Profile information
+- Select "Downloads"
+- Find the desired version
+- Install the version by clicking the "download" or "alternative download" link
+
+This will download the installer to your workstation.
+
+Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
+
+#### Install from build pipelines
+
+- Navigate to the [ImageFrac Pipelines](https://reveal-energy.visualstudio.com/ImageFrac/_build)
+- Select the "Orchid Release Pipeline"
+- Select the version you wish to install, for example, "#2021.2.316...", to install version 2021.2.316
+  of Orchid
+- Find the "Stages" tab (you may need to scroll the web page)
+- Find the "Create Installer" stage
+- Select the "artifacts" link of the "Create Installer" stage
+- Open the "Orchid-Application-Installer" link
+- Click on the installer, for example, "Orchid-2021.2.316-Installer.exe"
+
+This will download the installer to your workstation.
+
+Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
+
+### Upgrade pipenv
+
+- Navigate to the repository root
+- Execute the command `pip install pipenv --upgrade`
+
 ### Ensure correct Orchid
 
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
@@ -382,10 +424,7 @@ system. To ensure the correct version of Orchid is installed,
 To make doubly certain, you could run `Orchid.Application.exe` and ensure that the application displays the 
 correct version number in the main window title bar.
 
-If it is not installed, you'll need to:
-
-- Install the appropriate version from the [Web portal](https://portal.reveal-energy.com)
-- Perhaps repeat these steps
+If it is not installed, you'll need to [Install the appropriate Orchid release](#install-orchid-release)
 
 ### Create a new, clean development virtualenv
 
@@ -446,17 +485,22 @@ These instructions assume you will create a test virtual directory using `pipenv
 use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
 instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
 
+Consider [Upgrade pipenv](#upgrade-pipenv)
+
 If using the command line,
 
 - Remove any existing virtual directory by:
-    - Navigate to the root directory of the virtual environment.
+    - Navigate to the root directory of the directory attached to the virtual environment. For example,
+      navigate to `C:\inst\orchid\pipenv`.
     - Execute the command `pipenv --rm` to remove the virtual environment itself. NOTE: If no such virtualenv
       exists, running this command produces a message like:
      
       ```No virtualenv has been created for this project yet!```
       
-    - Execute the command `del Pipfile Pipfile.lock` to remove the `pipenv` supporting files.
+    - Remove `Pipfile` and `Pipfile.lock` using the command supported by your shell.
     - Remove any other files remaining in the virtual environment directory.
+    - Be sure to remove any **hidden** files or directories. For example, a file or a directory starting with 
+      a dot ("."), like `.ipynb-checkpoints`, is hidden to typical listings of Unix-like shells.
     
 - Create a new, clean virtual environment by:
     - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
@@ -531,6 +575,8 @@ To run all orchid tests
 
 ### Run installed Orchid examples
 
+If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
+
 - Prepare to run examples
     - If you have not already done so, 
       [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
@@ -539,11 +585,9 @@ To run all orchid tests
     - If you are testing a `pipenv` virtual environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
-        - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`. Be sure to specify 
-          `python` to run the script with the version of python install in the virtual environment and **not**
-          the system version of python.
-        - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
-          `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
+        - Run `</path/to/virtualenv/Lib/site-packages/copy_orchid_examples.exe`.
+        - If the executable reports that it skipped notebooks, repeat the command with an additional argument:  
+          `</path/to/virtualenv/Lib/site-packages/copy_orchid_examples.exe --overwrite`
         - Verify that the current directory has five notebooks:
             - `completion_analysis.ipynb`
             - `plot_time_series.ipynb`
