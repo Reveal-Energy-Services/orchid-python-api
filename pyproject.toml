@@ -42,6 +42,7 @@ include=[
     "orchid/*.py",
     "orchid/VERSION",
     "orchid_python_api/examples/*.ipynb",
+    "orchid_python_api/examples/*.py",
     "copy_orchid_examples.py",
 ]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
