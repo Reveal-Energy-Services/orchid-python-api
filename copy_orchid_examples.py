@@ -38,12 +38,22 @@ def copy_examples_to(target_dir: str, overwrite: bool) -> None:
         target_dir: The target for the examples.
         overwrite: Flag: true if script will overwrite existing files with the same name in the target_dir.
     """
-    examples_glob = str(site_packages_path().joinpath('orchid_python_api', 'examples', '*.ipynb'))
-    candidates = glob.glob(examples_glob)
-    if not candidates:
-        print(f'No examples matching "{examples_glob}"')
+
+    def example_candidates(filename_glob):
+        example_glob = str(site_packages_path().joinpath('orchid_python_api', 'examples', filename_glob))
+        return glob.glob(example_glob), example_glob
+
+    example_notebook_candidates, example_notebook_glob = example_candidates('*.ipynb')
+    if not example_notebook_candidates:
+        print(f'No example notebooks matching "{example_notebook_glob}"')
         return
 
+    example_script_candidates, example_script_glob = example_candidates('*.py')
+    if not example_script_candidates:
+        print(f'No example scripts matching "{example_script_glob}"')
+        return
+
+    candidates = example_notebook_candidates + example_script_candidates
     for src in candidates:
         target_path = pathlib.Path(target_dir).joinpath(pathlib.Path(src).name)
         duplicate_in_target = target_path.exists()
