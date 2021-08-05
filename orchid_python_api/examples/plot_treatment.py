@@ -42,12 +42,11 @@ def plot_treatment():
     Plot a treatment curves for a single stage of a well
     """
 
-    # 1.0 Load the .ifrac project
-
     # The following code simply captures the configured location of the Orchid training data. It is not needed to
     # use the Orchid Python API itself, but it is used in this example to load well-known data.
-
     orchid_training_data_path = orchid.training_data_path()
+
+    # 1.0 Load the .ifrac project
     project = orchid.load_project(str(orchid_training_data_path.joinpath(
         'frankNstein_Bakken_UTM13_FEET.ifrac')))
 
