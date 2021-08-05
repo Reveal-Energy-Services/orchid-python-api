@@ -34,16 +34,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-print(__doc__)
-
-
-def main():
-    # 1.0 Load the .ifrac project
+def plot_trajectories():
+    """Plot the trajectories for a single well."""
 
     # The following code simply captures the configured location of the Orchid training data. It is not needed to
     # use the Orchid Python API itself, but it is used in this example to load well-known data.
-
     orchid_training_data_path = orchid.training_data_path()
+
+    # 1.0 Load the .ifrac project
+
     project = orchid.load_project(str(orchid_training_data_path.joinpath(
         'Project-frankNstein_Montney_UTM13_METERS.ifrac')))
 
@@ -72,6 +71,11 @@ def main():
 
     plt.rcParams['figure.dpi'] = 150
     plt.show()
+
+
+def main():
+    print(__doc__)
+    plot_trajectories()
 
 
 if __name__ == '__main__':
