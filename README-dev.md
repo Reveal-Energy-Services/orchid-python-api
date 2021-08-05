@@ -8,14 +8,20 @@ This project defines the implementation of the Python API for Orchid*.
 (*Orchid is a mark of Reveal Energy Services, Inc.)
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python
-REPL. Additionally, this project includes five examples in the `examples` directory of the `orchid-python-api`
-package:
+REPL. Additionally, this project includes five scripts and five notebooks in the `examples` directory of the 
+`orchid-python-api` package:
 
 - `plot_trajectories.ipynb`
 - `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
 - `volume_2_first_response.ipynb`
+
+- `plot_trajectories.py`
+- `plot_time_series.py`
+- `plot_treatment.py`
+- `completion_analysis.py`
+- `volume_2_first_response.py`
 
 The first three notebooks plot:
 
@@ -27,6 +33,8 @@ The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of 
 performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
 typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
 first response.
+
+The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
  
 To use these examples: 
 
@@ -40,6 +48,10 @@ To use these examples:
     default destination is your current working directory.) Note that this command is a command-line script 
     that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
     provide you with help on running this command.
+
+More detailed instructions for running the examples can be found either at
+[Run development Orchid examples](#run-development-orchid-examples) or at
+[Run installed Orchid examples](#run-installed-orchid-examples) or at
 
 # Getting Started
 
@@ -539,14 +551,14 @@ To test that you were successful,
   wheel      0.36.2
   ```
     
-### Run all orchid tests
+### Run all Orchid tests
 
 To run all orchid tests
 - Run unit tests
 - Run acceptance (feature) tests
 - [Run examples](#run-development-orchid-examples)
 
-### Run development orchid examples
+### Run development Orchid examples
 
 - Prepare to run examples
     - If you have not already done so, 
@@ -585,21 +597,45 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - If you are testing a `pipenv` virtual environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
-        - Run `</path/to/virtualenv/Scripts/copy_orchid_examples.exe`.
-        - If the executable reports that it skipped notebooks, repeat the command with an additional argument:  
-          `</path/to/virtualenv/Scripts/copy_orchid_examples.exe --overwrite`
-        - Verify that the current directory has five notebooks:
+        - Run `copy_orchid_examples.exe`.
+        - If the executable reports that it skipped files, repeat the command with an additional argument:  
+          `copy_orchid_examples.exe --overwrite`
+        - Verify that the current directory has five example notebooks:
             - `completion_analysis.ipynb`
             - `plot_time_series.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
             - `volume_2_first_response.ipynb`
+        - Verify that the current directory has five example scripts:
+            - `completion_analysis.py`
+            - `plot_time_series.py`
+            - `plot_trajectories.py`
+            - `plot_treatment.py`
+            - `volume_2_first_response.py`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
         - If orchid-python-api not (yet) installed,
             - Copy the example notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+
+#### Run example scripts
+
+- Run the first script
+    - Execute the command `python plot_trajectories.py`
+    - Wait patiently for the `matplotlib` plot window to appear.
+    - Ensure the plot is correct.
+    - Dismiss the `matplotlib` window.
+- Repeat for remaining notebooks:
+    - `plot_treatment.py`
+    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
+       You must dismiss each plot to continue.)
+    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+       You must dismiss each plot to continue.)
+    - `volume_2_first_response.py`
+
+#### Run example notebooks
+
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
     - Successfully run notebook, `plot_trajectories.ipynb`
