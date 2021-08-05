@@ -585,9 +585,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - If you are testing a `pipenv` virtual environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
-        - Run `</path/to/virtualenv/Lib/site-packages/copy_orchid_examples.exe`.
+        - Run `</path/to/virtualenv/Scripts/copy_orchid_examples.exe`.
         - If the executable reports that it skipped notebooks, repeat the command with an additional argument:  
-          `</path/to/virtualenv/Lib/site-packages/copy_orchid_examples.exe --overwrite`
+          `</path/to/virtualenv/Scripts/copy_orchid_examples.exe --overwrite`
         - Verify that the current directory has five notebooks:
             - `completion_analysis.ipynb`
             - `plot_time_series.ipynb`
