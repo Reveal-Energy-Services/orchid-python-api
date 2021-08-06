@@ -11,16 +11,18 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 REPL. Additionally, this project includes five scripts and five notebooks in the `examples` directory of the 
 `orchid-python-api` package:
 
+- `completion_analysis.ipynb`
 - `plot_trajectories.ipynb`
 - `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
-- `completion_analysis.ipynb`
+- `search_data_frames.ipynb`
 - `volume_2_first_response.ipynb`
 
+- `completion_analysis.py`
 - `plot_trajectories.py`
 - `plot_time_series.py`
 - `plot_treatment.py`
-- `completion_analysis.py`
+- `search_data_frames.py`
 - `volume_2_first_response.py`
 
 The first three notebooks plot:
@@ -28,11 +30,12 @@ The first three notebooks plot:
 - The well trajectories for a project
 - The monitor curves for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
- 
+
 The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
-typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
-first response.
+performed on two different wells in a project. The notebook, `search_data_frames.ipynb`, illustrates our
+features to search object collections (like all wells for a project) and our data frame access. Finally, the
+notebook, `volume_2_first_response.ipynb`, uses typical Python packages to calculate derivatives in order to
+calculate the fluid volume pumped before the first response.
 
 The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
  
@@ -572,6 +575,25 @@ To run all orchid tests
         - Copy the example notebooks to the orchid project repository root
             - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 - Activate `poetry shell` if not activated
+ 
+#### Run example scripts
+
+- Run the first script
+    - Execute the command `python plot_trajectories.py`
+    - Wait patiently for the `matplotlib` plot window to appear.
+    - Ensure the plot is correct.
+    - Dismiss the `matplotlib` window.
+- Repeat for remaining notebooks:
+    - `plot_treatment.py`
+    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
+      You must dismiss each plot to continue.)
+    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+      You must dismiss each plot to continue.)
+    - `volume_2_first_response.py`
+    - `search_data_frames.py`
+
+#### Run example notebooks
+
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
     - Successfully run notebook, `plot_trajectories.ipynb`
@@ -584,6 +606,7 @@ To run all orchid tests
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
+        - `search_data_frames.ipynb`
 
 ### Run installed Orchid examples
 
@@ -600,17 +623,19 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - Run `copy_orchid_examples.exe`.
         - If the executable reports that it skipped files, repeat the command with an additional argument:  
           `copy_orchid_examples.exe --overwrite`
-        - Verify that the current directory has five example notebooks:
+        - Verify that the current directory has six example notebooks:
             - `completion_analysis.ipynb`
             - `plot_time_series.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
+            - `search_data_frames.ipynb`
             - `volume_2_first_response.ipynb`
-        - Verify that the current directory has five example scripts:
+        - Verify that the current directory has six example scripts:
             - `completion_analysis.py`
             - `plot_time_series.py`
             - `plot_trajectories.py`
             - `plot_treatment.py`
+            - `search_data_frames.py`
             - `volume_2_first_response.py`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
@@ -633,6 +658,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
+    - `search_data_frames.py`
 
 #### Run example notebooks
 
@@ -648,6 +674,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
+        - `search_data_frames.ipynb`
 
 ## Possible installation errors and resolutions
 

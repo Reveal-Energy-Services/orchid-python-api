@@ -8,19 +8,21 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 
 # Examples
 
-REPL. Additionally, this project includes five scripts and five notebooks in the `examples` directory of the 
+Additionally, this project includes six scripts and six notebooks in the `examples` directory of the 
 `orchid-python-api` package:
 
 - `plot_trajectories.ipynb`
 - `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
+- `search_data_frames.ipynb`
 - `volume_2_first_response.ipynb`
 
 - `plot_trajectories.py`
 - `plot_time_series.py`
 - `plot_treatment.py`
 - `completion_analysis.py`
+- `search_data_frames.py`
 - `volume_2_first_response.py`
 
 The first three notebooks plot:
@@ -29,10 +31,11 @@ The first three notebooks plot:
 - The monitor curves for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
  
-Additionally, the notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
-typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
-first response.
+The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
+performed on two different wells in a project. The notebook, `search_data_frames.ipynb`, illustrates our
+features to search object collections (like all wells for a project) and our data frame access. Finally, the
+notebook, `volume_2_first_response.ipynb`, uses typical Python packages to calculate derivatives in order to
+calculate the fluid volume pumped before the first response.
 
 The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
  
@@ -328,12 +331,14 @@ The import should complete with no errors.
     - `plot_time_series.ipynb`
     - `plot_trajectories.ipynb`
     - `plot_treatment.ipynb`
+    - `search_data_frames.ipynb`
     - `volume_2_first_response.ipynb`
 - Verify that the current directory has five example scripts:
     - `completion_analysis.py`
     - `plot_time_series.py`
     - `plot_trajectories.py`
     - `plot_treatment.py`
+    - `search_data_frames.py`
     - `volume_2_first_response.py`
 
 ## Run example scripts
@@ -350,6 +355,7 @@ The import should complete with no errors.
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
+    - `search_data_frames.py`
 
 ## Run example notebooks
 
@@ -365,6 +371,7 @@ The import should complete with no errors.
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
+        - `search_data_frames.ipynb`
 
 # View Orchid Configuration Details
 

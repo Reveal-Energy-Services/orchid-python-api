@@ -36,12 +36,12 @@ log = logging.getLogger(__name__)
 
 
 @task
-def collect_orchid_assemblies(context, source_root='c:/src/OrchidApp/Orchid', target_dir='./orchid_assemblies'):
+def collect_orchid_assemblies(_context, source_root='c:/src/OrchidApp/Orchid', target_dir='./orchid_assemblies'):
     """
     Collect the Orchid assemblies needed to run the Python Orchid API for development.
 
     Args:
-        context: The task context (unused).
+        _context: The task context (unused).
         source_root: The path to the Orchid repository root.
         target_dir: The target directory for these assemblies. (Default: ./orchid_assemblies)
     """
@@ -170,10 +170,16 @@ def setup_package(context, skip_source=False, skip_binary=False):
     context.run(f'python setup.py {source_option} {wheel_option} ')
 
 
+def example_stem_names():
+    """Returns the sequence of example stem names."""
+    example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
+                     'plot_treatment', 'search_data_frames', 'volume_2_first_response']
+    return example_stems
+
+
 def example_notebooks_names():
     """Returns the sequence of example notebook names."""
-    example_notebook_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories', 'plot_treatment']
-    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), example_notebook_stems)
+    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), example_stem_names())
     return result
 
 
@@ -201,6 +207,40 @@ def examples_copy_notebooks(_context, target_dir='.'):
         target_dir: The directory into which I copy the example notebooks. (Default: current directory)
     """
     source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_notebooks_names())
+    for source_file in source_files:
+        shutil.copy2(source_file, target_dir)
+
+
+def example_scripts_names():
+    """Returns the sequence of example script names."""
+    result = map(lambda s: pathlib.Path(s).with_suffix('.py'), example_stem_names())
+    return result
+
+
+@task
+def examples_clean_scripts(_context, directory='.'):
+    """
+    Remove all the example scripts from a specified directory.
+
+    Args:
+        _context: The task context (unused).
+        directory: The directory from which I remove the example scripts. (Default: current directory)
+    """
+    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_scripts_names())
+    for script_path_to_remove in script_paths_to_remove:
+        script_path_to_remove.unlink(missing_ok=True)
+
+
+@task
+def examples_copy_scripts(_context, target_dir='.'):
+    """
+    Copy all the example scripts to a specified directory.
+
+    Args:
+        _context: The task context (unused).
+        target_dir: The directory into which I copy the example scripts. (Default: current directory)
+    """
+    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_scripts_names())
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
 
