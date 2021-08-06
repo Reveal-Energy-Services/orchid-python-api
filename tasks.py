@@ -170,6 +170,32 @@ def setup_package(context, skip_source=False, skip_binary=False):
     context.run(f'python setup.py {source_option} {wheel_option} ')
 
 
+@task
+def examples_clean(context, directory='.'):
+    """
+    Remove all the example files (notebooks and scripts) from a specified directory.
+
+    Args:
+        context: The task context.
+        directory: The directory from which I remove the examples. (Default: current directory)
+    """
+    examples_clean_notebooks(context, directory)
+    examples_clean_scripts(context, directory)
+
+
+@task
+def examples_copy(context, target_dir='.'):
+    """
+    Copy all the example files (notebooks and scripts) to a specified directory.
+
+    Args:
+        context: The task context.
+        target_dir: The directory into which I copy the examples. (Default: current directory)
+    """
+    examples_copy_notebooks(context, target_dir)
+    examples_copy_scripts(context, target_dir)
+
+
 def example_stem_names():
     """Returns the sequence of example stem names."""
     example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
@@ -457,8 +483,12 @@ dev_ns = Collection('dev')
 dev_ns.add_task(collect_orchid_assemblies, name='setup')
 
 examples_ns = Collection('examples')
+examples_ns.add_task(examples_clean, name='clean')
+examples_ns.add_task(examples_copy, name='copy')
 examples_ns.add_task(examples_clean_notebooks, name='clean-notebooks')
 examples_ns.add_task(examples_copy_notebooks, name='copy-notebooks')
+examples_ns.add_task(examples_clean_scripts, name='clean-scripts')
+examples_ns.add_task(examples_copy_scripts, name='copy-scripts')
 
 pipenv_ns = Collection('pipenv')
 
