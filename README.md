@@ -8,14 +8,20 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 
 # Examples
 
-Additionally, this project installs five examples in the `examples` directory of the `orchid-python-api`
-package:
+REPL. Additionally, this project includes five scripts and five notebooks in the `examples` directory of the 
+`orchid-python-api` package:
 
 - `plot_trajectories.ipynb`
 - `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
 - `completion_analysis.ipynb`
 - `volume_2_first_response.ipynb`
+
+- `plot_trajectories.py`
+- `plot_time_series.py`
+- `plot_treatment.py`
+- `completion_analysis.py`
+- `volume_2_first_response.py`
 
 The first three notebooks plot:
 
@@ -27,6 +33,8 @@ Additionally, the notebook, `completion_analysis.ipynb`, provides a more detaile
 performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
 typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
 first response.
+
+The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
  
 To use these examples: 
 
@@ -41,6 +49,9 @@ To use these examples:
     default destination is your current working directory.) Note that this command is a command-line script 
     that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
     provide you with help on running this command.
+
+More detailed instructions for running the examples can be found at
+[Run Orchid examples](#run-orchid-examples).
 
 # Getting Started
 
@@ -309,21 +320,42 @@ The import should complete with no errors.
 - If necessary, activate the virtual environment by executing either 
   - `pipenv shell` or 
   - `conda activate <your-virtualenv_name>`.
-- Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`
-- If the script reports that it skipped notebooks, repeat the command with an additional argument:  
+- Run `copy_orchid_examples.exe`
+- If the script reports that it skipped notebooks or scripts, repeat the command with an additional argument:  
   `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
-- Verify that the current directory has five notebooks:
-    - `plot_trajectories.ipynb`
-    - `plot_time_series.ipynb`
-    - `plot_treatment.ipynb`
+- Verify that the current directory has five example notebooks:
     - `completion_analysis.ipynb`
+    - `plot_time_series.ipynb`
+    - `plot_trajectories.ipynb`
+    - `plot_treatment.ipynb`
     - `volume_2_first_response.ipynb`
-- The notebooks, as installed, "symbolically" reference the Orchid training data. To resolve this "symbolic
-  reference", 
-  [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data).
+- Verify that the current directory has five example scripts:
+    - `completion_analysis.py`
+    - `plot_time_series.py`
+    - `plot_trajectories.py`
+    - `plot_treatment.py`
+    - `volume_2_first_response.py`
+
+## Run example scripts
+
+- Run the first script
+    - Execute the command `python plot_trajectories.py`
+    - Wait patiently for the `matplotlib` plot window to appear.
+    - Ensure the plot is correct.
+    - Dismiss the `matplotlib` window.
+- Repeat for remaining notebooks:
+    - `plot_treatment.py`
+    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
+       You must dismiss each plot to continue.)
+    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+       You must dismiss each plot to continue.)
+    - `volume_2_first_response.py`
+
+## Run example notebooks
+
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
-    - Run the notebook, `plot_trajectories.ipynb`
+    - Successfully run notebook, `plot_trajectories.ipynb`
         1. Open notebook
         2. Run all cells of notebook
         3. Wait patiently
@@ -332,7 +364,7 @@ The import should complete with no errors.
         - `plot_time_series.ipynb`
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
-        - `volume_2_first_repsonse.ipynb`
+        - `volume_2_first_response.ipynb`
 
 # View Orchid Configuration Details
 
@@ -370,14 +402,3 @@ This output describes four details of the configuration.
 | environment | The configuration specified using environment variables (may be empty) | 
 | result | The configuration used by the Orchid Python API (should not be empty) |
 
-# The "numpy fmod" issue
-
-Our release notes contain the known issues for a specific release. We wanted to emphasize one specific known
-issue. Running the Orchid Python API example notebooks on Windows, the `numpy` package has presented an error
-like the following
-
-> RuntimeError: The current Numpy installation ('<filename of installed numpy>') fails to pass a sanity check
-> due to a bug in the windows runtime. See this issue for more information: https://tinyurl.com/y3dm3h86s
-
-Our work-around to this issue is to pin `numpy` to version 1.19.3 as recommended by Steven Wishnousky of
-Microsoft in the thread mentioned in the error. We are continuing to await a fix from Microsoft for this issue.
