@@ -6,6 +6,20 @@ This project defines the implementation of the Python API for Orchid*.
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
 
+## A Reading Suggestion
+
+This document is one of several documents you may want to read:
+
+
+- [README](./README.md) - This file.
+- [README-dev.md](./README-dev.md) - A similar file targeting for package developers.
+- [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.
+
+Although one can read this document in any text editor since it is simply a text file, consider installing
+the [Python grip utility](https://pypi.org/project/grip/). This application allows one to "render local readme
+files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
+to render the file, you can much more easily navigate the document links.
+
 # Examples
 
 Additionally, this project includes six scripts and six notebooks in the `examples` directory of the 

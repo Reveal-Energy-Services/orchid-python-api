@@ -56,6 +56,19 @@ More detailed instructions for running the examples can be found either at
 [Run development Orchid examples](#run-development-orchid-examples) or at
 [Run installed Orchid examples](#run-installed-orchid-examples) or at
 
+## A Reading Suggestion
+
+This document is one of several documents you may want to read:
+
+- [README](./README.md) - The project README file.
+- [README-dev.md](./README-dev.md) - This file.
+- [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.
+
+Although one can read this document in any text editor since it is simply a text file, consider installing
+the [Python grip utility](https://pypi.org/project/grip/). This application allows one to "render local readme
+files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
+to render the file, you can much more easily navigate the document links.
+
 # Getting Started
 
 ## Development Overview

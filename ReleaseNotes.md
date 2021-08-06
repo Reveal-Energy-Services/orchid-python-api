@@ -1,5 +1,18 @@
 # Orchid Python API Release Notes
 
+## A Reading Suggestion
+
+This document is one of several documents you may want to read:
+
+- [README](./README.md) - The project README file.
+- [README-dev.md](./README-dev.md) - A similar file targeting for package developers.
+- [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.
+
+Although one can read this document in any text editor since it is simply a text file, consider installing
+the [Python grip utility](https://pypi.org/project/grip/). This application allows one to "render local readme
+files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
+to render the file, you can much more easily navigate the document links.
+
 ## Release notes for 2021.2.316
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2021.2. This release:
