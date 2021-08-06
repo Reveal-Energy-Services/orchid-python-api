@@ -39,6 +39,10 @@ This release is the production release of the Orchid Python API corresponding to
     - All objects (primarily a convenience for use cases where one wants all objects in the collection independent 
       of identifying information)
 
+- Examples
+  - Scripts for each example notebook
+  - A notebook and script demonstrating search and data frame access.
+
 ### Known Issues
 
 - [GitHub issue 19](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/19)
