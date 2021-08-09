@@ -260,6 +260,8 @@ def examples_clean_scripts(_context, directory='.'):
 @task
 def examples_copy_scripts(_context, target_dir='.'):
     """
+    example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
+                     'plot_treatment', 'search_data_frames', 'volume_2_first_response']
     Copy all the example scripts to a specified directory.
 
     Args:
@@ -269,6 +271,32 @@ def examples_copy_scripts(_context, target_dir='.'):
     source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_scripts_names())
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
+
+
+@task
+def examples_run_scripts(context):
+    """
+    Run all the example scripts in the current directory.
+
+    Args:
+        context: The task context.
+    """
+    def order_script_names(unordered):
+        ordered = [
+            ('plot_trajectories.py', 0),
+            ('plot_treatment.py', 1),
+            ('plot_time_series.py', 2),
+            ('completion_analysis.py', 3),
+            ('volume_2_first_response.py', 4),
+            ('search_data_frames.py', 5),
+        ]
+        assert len(set(unordered).difference(set(ordered))) == 0,\
+            f'Ordered set, {ordered} different from from {unordered} set'
+        return sorted()
+    source_files = example_scripts_names()
+    for source_file in source_files:
+        context.run(f'python {source_file}', echo=True)
+        print()
 
 
 @task
@@ -489,6 +517,7 @@ examples_ns.add_task(examples_clean_notebooks, name='clean-notebooks')
 examples_ns.add_task(examples_copy_notebooks, name='copy-notebooks')
 examples_ns.add_task(examples_clean_scripts, name='clean-scripts')
 examples_ns.add_task(examples_copy_scripts, name='copy-scripts')
+examples_ns.add_task(examples_run_scripts, name='run-scripts')
 
 pipenv_ns = Collection('pipenv')
 
