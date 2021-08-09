@@ -28,6 +28,8 @@ from invoke import task, Collection
 import toml
 import toolz.curried as toolz
 
+import examples
+
 
 # Commented out for ease of introducing DEBUG logging.
 # logging.basicConfig(level=logging.DEBUG)
@@ -196,19 +198,6 @@ def examples_copy(context, target_dir='.'):
     examples_copy_scripts(context, target_dir)
 
 
-def example_stem_names():
-    """Returns the sequence of example stem names."""
-    example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
-                     'plot_treatment', 'search_data_frames', 'volume_2_first_response']
-    return example_stems
-
-
-def example_notebooks_names():
-    """Returns the sequence of example notebook names."""
-    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), example_stem_names())
-    return result
-
-
 @task
 def examples_clean_notebooks(_context, directory='.'):
     """
@@ -218,7 +207,7 @@ def examples_clean_notebooks(_context, directory='.'):
         _context: The task context (unused).
         directory: The directory from which I remove the example notebooks. (Default: current directory)
     """
-    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_notebooks_names())
+    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), examples.notebook_names())
     for notebook_path_to_remove in notebook_paths_to_remove:
         notebook_path_to_remove.unlink(missing_ok=True)
 
@@ -232,15 +221,9 @@ def examples_copy_notebooks(_context, target_dir='.'):
         _context: The task context (unused).
         target_dir: The directory into which I copy the example notebooks. (Default: current directory)
     """
-    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_notebooks_names())
+    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), examples.notebook_names())
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
-
-
-def example_scripts_names():
-    """Returns the sequence of example script names."""
-    result = map(lambda s: pathlib.Path(s).with_suffix('.py'), example_stem_names())
-    return result
 
 
 @task
@@ -252,7 +235,7 @@ def examples_clean_scripts(_context, directory='.'):
         _context: The task context (unused).
         directory: The directory from which I remove the example scripts. (Default: current directory)
     """
-    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_scripts_names())
+    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), examples.script_names())
     for script_path_to_remove in script_paths_to_remove:
         script_path_to_remove.unlink(missing_ok=True)
 
@@ -268,7 +251,7 @@ def examples_copy_scripts(_context, target_dir='.'):
         _context: The task context (unused).
         target_dir: The directory into which I copy the example scripts. (Default: current directory)
     """
-    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_scripts_names())
+    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), examples.script_names())
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
 
@@ -281,19 +264,7 @@ def examples_run_scripts(context):
     Args:
         context: The task context.
     """
-    def order_script_names(unordered):
-        ordered = [
-            ('plot_trajectories.py', 0),
-            ('plot_treatment.py', 1),
-            ('plot_time_series.py', 2),
-            ('completion_analysis.py', 3),
-            ('volume_2_first_response.py', 4),
-            ('search_data_frames.py', 5),
-        ]
-        assert len(set(unordered).difference(set(ordered))) == 0,\
-            f'Ordered set, {ordered} different from from {unordered} set'
-        return sorted()
-    source_files = example_scripts_names()
+    source_files = examples.ordered_script_names()
     for source_file in source_files:
         context.run(f'python {source_file}', echo=True)
         print()
