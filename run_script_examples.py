@@ -33,7 +33,7 @@ def run_script_examples() -> None:
         return
 
     for example_script_name in example_script_names:
-        subprocess.call(f'python {example_script_name}')
+        subprocess.call(f'{sys.executable} {example_script_name}')
 
 
 def main(cli_args: Optional[Sequence[str]] = None):
