@@ -31,6 +31,7 @@ import toolz.curried as toolz
 
 # Commented out for ease of introducing DEBUG logging.
 # logging.basicConfig(level=logging.DEBUG)
+import examples
 
 log = logging.getLogger(__name__)
 
@@ -260,8 +261,6 @@ def examples_clean_scripts(_context, directory='.'):
 @task
 def examples_copy_scripts(_context, target_dir='.'):
     """
-    example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
-                     'plot_treatment', 'search_data_frames', 'volume_2_first_response']
     Copy all the example scripts to a specified directory.
 
     Args:
@@ -281,19 +280,7 @@ def examples_run_scripts(context):
     Args:
         context: The task context.
     """
-    def order_script_names(unordered):
-        ordered = [
-            ('plot_trajectories.py', 0),
-            ('plot_treatment.py', 1),
-            ('plot_time_series.py', 2),
-            ('completion_analysis.py', 3),
-            ('volume_2_first_response.py', 4),
-            ('search_data_frames.py', 5),
-        ]
-        assert len(set(unordered).difference(set(ordered))) == 0,\
-            f'Ordered set, {ordered} different from from {unordered} set'
-        return sorted()
-    source_files = example_scripts_names()
+    source_files = examples.ordered_script_names()
     for source_file in source_files:
         context.run(f'python {source_file}', echo=True)
         print()
