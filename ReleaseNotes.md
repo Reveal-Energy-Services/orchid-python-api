@@ -1,19 +1,64 @@
 # Orchid Python API Release Notes
 
-## Release notes for 2021.2.NNN.b1
+## A Reading Suggestion
+
+This document is one of several documents you may want to read:
+
+- [README](./README.md) - The project README file.
+- [README-dev.md](./README-dev.md) - A similar file targeting for package developers.
+- [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.
+
+Although one can read this document in any text editor since it is simply a text file, consider installing
+the [Python grip utility](https://pypi.org/project/grip/). This application allows one to "render local readme
+files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
+to render the file, you can much more easily navigate the document links.
+
+## Release notes for 2021.2.316
+
+This release is the production release of the Orchid Python API corresponding to Orchid 2021.2. This release:
+
+- Updates to the latest version of `numpy`
+- Exposes data frames via the API
+- Internally uses `pendulum` for improved handling of date times (both UTC and local times)
+- Provides a consistent interface for collections of DOM objects
 
 ### Resolved Issues
 
-- [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
 - [GitHub issue 12](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/12)
+- [GitHub issue 16](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/16)
+- [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
+- [GitHub issue 21](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/21)
 
 ### Features
 
-- None
+- Project
+  - Data frames
+- Stage
+  - Find stages by:
+    - Display stage number
+    - Display name with well
+
+- Object collections
+  - Find object(s) by
+    - Display name
+    - Name
+    - Object ID
+    - All objects satisfying a predicate (primarily a convenience for use cases where the condition of interest does 
+      not involve identifying information). Note that stages have some of these convenience methods already.
+  - Query collection for
+    - All display names
+    - All names
+    - All object IDs
+    - All objects (primarily a convenience for use cases where one wants all objects in the collection independent 
+      of identifying information)
+
+- Examples
+  - Scripts for each example notebook
+  - A notebook and script demonstrating search and data frame access.
 
 ### Known Issues
 
-- None
+- [GitHub issue 19](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/19)
 
 ## Release notes for 2021.1.399
 

@@ -8,25 +8,36 @@ This project defines the implementation of the Python API for Orchid*.
 (*Orchid is a mark of Reveal Energy Services, Inc.)
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python
-REPL. Additionally, this project includes five examples in the `examples` directory of the `orchid-python-api`
-package:
+REPL. Additionally, this project includes five scripts and five notebooks in the `examples` directory of the 
+`orchid-python-api` package:
 
+- `completion_analysis.ipynb`
 - `plot_trajectories.ipynb`
 - `plot_time_series.ipynb`
 - `plot_treatment.ipynb`
-- `completion_analysis.ipynb`
+- `search_data_frames.ipynb`
 - `volume_2_first_response.ipynb`
+
+- `completion_analysis.py`
+- `plot_trajectories.py`
+- `plot_time_series.py`
+- `plot_treatment.py`
+- `search_data_frames.py`
+- `volume_2_first_response.py`
 
 The first three notebooks plot:
 
 - The well trajectories for a project
 - The monitor curves for a project
 - The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
- 
+
 The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project. Finally, the notebook, `volume_2_first_response.ipynb`, uses
-typical Python packages to calculate derivatives in order to calculate the fluid volume pumped before the 
-first response.
+performed on two different wells in a project. The notebook, `search_data_frames.ipynb`, illustrates our
+features to search object collections (like all wells for a project) and our data frame access. Finally, the
+notebook, `volume_2_first_response.ipynb`, uses typical Python packages to calculate derivatives in order to
+calculate the fluid volume pumped before the first response.
+
+The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
  
 To use these examples: 
 
@@ -40,6 +51,23 @@ To use these examples:
     default destination is your current working directory.) Note that this command is a command-line script 
     that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
     provide you with help on running this command.
+
+More detailed instructions for running the examples can be found either at
+[Run development Orchid examples](#run-development-orchid-examples) or at
+[Run installed Orchid examples](#run-installed-orchid-examples) or at
+
+## A Reading Suggestion
+
+This document is one of several documents you may want to read:
+
+- [README](./README.md) - The project README file.
+- [README-dev.md](./README-dev.md) - This file.
+- [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.
+
+Although one can read this document in any text editor since it is simply a text file, consider installing
+the [Python grip utility](https://pypi.org/project/grip/). This application allows one to "render local readme
+files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
+to render the file, you can much more easily navigate the document links.
 
 # Getting Started
 
@@ -194,6 +222,7 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
 Publishing a release has a number of general steps. These steps are optional except for 
 [the last step](#publish-to-pypi). Here are the steps:
 
+- [Update poetry](#update-poetry)
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
 - [Build and test locally](#build-and-test-locally)
@@ -208,17 +237,33 @@ Remember that the file, `tasks.py`, defines many common tasks. Be sure to use co
     - `invoke poetry.venv.remove --help` (for help on a specific command listed)
 to perform these tasks.
 
+## Update poetry
+
+- Navigate to the repository directory
+- Execute the command `poetry self update` 
+
+**Warning**
+
+When the author attempted to execute this command, he encountered an error that the update **could not** 
+update a library. This same message occurred both in a Git Bash shell and in a Powershell (1.0) shell. After
+receiving this message, the installation of was corrupted. (The author received a message like "Could not 
+import poetry.console".) To resolve this issue, the author simply installed `poetry` again. This repaired the 
+`poetry.console` error and updated `poetry` to the latest version.
+
 ## Update dependencies
 
 To update the project dependencies:
 
 - [Create a new, clean development virtualenv](#create-a-new-clean-development-virtualenv)
-- In a Powershell window, navigate to the directory of the new virtualenv
+- In a Powershell window, navigate to the directory of the new virtualenv if not there already
 - Activate the virtualenv (run `poetry shell`)
 - Update the dependencies
     - Run `poetry update`
 
 ## Update API version
+
+### Edit the internal version
+
 - Open the file `orchid/VERSION` for editing.
 - Change the version in the file to the updated value. The safest way to update the value is copying the 
   value if at all possible. The log files print the version number in the banner at the beginning of each
@@ -237,6 +282,8 @@ To update the project dependencies:
     - `2021.1.399.post1` - a post-release or
     - `2021.1.399.b3` - a "beta-3" pre-release
     
+### Edit the package version number
+
 - Open the file `pyproject.toml` for editing.
 - Copy the version identifier from `orchid/VERSION` to the value of the `version` key of the file.
 - Search for the `classifiers` element of `pyproject.toml`. 
@@ -247,6 +294,11 @@ To update the project dependencies:
     [final release](https://www.python.org/dev/peps/pep-0440/#final-releases) version identifier,
     - Comment out the `Development Status :: 4 - Beta` item.
     - Uncomment the `Development Status :: 5 Production/Stable` item.
+
+### Edit the version number in the release notes
+
+- Open the file `ReleaseNotes.md` for editing.
+- Copy the version identifier from `orchid/VERSION` to the version number for the release.
   
 ## Publish to TestPyPI
 
@@ -290,12 +342,12 @@ To publish the distribution to TestPyPI execute either:
 
 Once published, test the published distribution by:
 
-- [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
-- In a Powershell window, navigate to the directory of the new virtualenv
-- Activate the virtualenv (run `pipenv shell`)
-- Install the package distribution by running the command, 
+- [create a new, clean virtualenv](#create-a-new-clean-virtualenv)
+- in a powershell window, navigate to the directory of the new virtualenv
+- activate the virtualenv (run `pipenv shell`)
+- install the package distribution by running the command, 
   `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`. 
-- [Run Orchid examples](#run-installed-orchid-examples).
+- [run orchid examples](#run-installed-orchid-examples).
 
 If an error occurs, read the error message(s) and consult the section 
 [Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
@@ -338,6 +390,48 @@ Finally, [Run Orchid examples](#run-installed-orchid-examples).
   
 ## Common tasks
 
+### Install Orchid release
+
+You have two options:
+
+- [Install from web portal](#install-from-web-portal)
+- [Install from build pipelines](#install-from-build-pipelines)
+
+#### Install from web portal
+
+- Open the [Orchid web portal](https://portal.reveal-energy.com)
+- Click the "Sign In" link
+- Click the "Reveal Energy Employee Sign In"
+- If prompted, enter your Profile information
+- Select "Downloads"
+- Find the desired version
+- Install the version by clicking the "download" or "alternative download" link
+
+This will download the installer to your workstation.
+
+Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
+
+#### Install from build pipelines
+
+- Navigate to the [ImageFrac Pipelines](https://reveal-energy.visualstudio.com/ImageFrac/_build)
+- Select the "Orchid Release Pipeline"
+- Select the version you wish to install, for example, "#2021.2.316...", to install version 2021.2.316
+  of Orchid
+- Find the "Stages" tab (you may need to scroll the web page)
+- Find the "Create Installer" stage
+- Select the "artifacts" link of the "Create Installer" stage
+- Open the "Orchid-Application-Installer" link
+- Click on the installer, for example, "Orchid-2021.2.316-Installer.exe"
+
+This will download the installer to your workstation.
+
+Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
+
+### Upgrade pipenv
+
+- Navigate to the repository root
+- Execute the command `pip install pipenv --upgrade`
+
 ### Ensure correct Orchid
 
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
@@ -358,10 +452,7 @@ system. To ensure the correct version of Orchid is installed,
 To make doubly certain, you could run `Orchid.Application.exe` and ensure that the application displays the 
 correct version number in the main window title bar.
 
-If it is not installed, you'll need to:
-
-- Install the appropriate version from the [Web portal](https://portal.reveal-energy.com)
-- Perhaps repeat these steps
+If it is not installed, you'll need to [Install the appropriate Orchid release](#install-orchid-release)
 
 ### Create a new, clean development virtualenv
 
@@ -403,7 +494,7 @@ Create a new skeleton virtual environment
     
 To test that you were successful,
 
-- Navigate to the virtual environment directory if not there already
+- Navigate to the root directory of the repository if not there already
 - Activate the virtualenv by executing, `poetry shell`
 - Execute the command, `pip list --local`. You should see output like the following (but probably with
   different version numbers)
@@ -411,8 +502,9 @@ To test that you were successful,
   ```
   Package    Version
   ---------- -------
-  pip        20.1.1
-  setuptools 46.4.0
+  pip        21.1.1
+  setuptools 56.2.0
+  wheel      0.36.2
   ```
 
 ### Create a new, clean virtualenv
@@ -421,17 +513,22 @@ These instructions assume you will create a test virtual directory using `pipenv
 use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
 instructions assume that your test directory is something like `<path/to/inst/orchid/pipenv>`
 
+Consider [Upgrade pipenv](#upgrade-pipenv)
+
 If using the command line,
 
 - Remove any existing virtual directory by:
-    - Navigate to the root directory of the virtual environment.
+    - Navigate to the root directory of the directory attached to the virtual environment. For example,
+      navigate to `C:\inst\orchid\pipenv`.
     - Execute the command `pipenv --rm` to remove the virtual environment itself. NOTE: If no such virtualenv
       exists, running this command produces a message like:
      
       ```No virtualenv has been created for this project yet!```
       
-    - Execute the command `del Pipfile Pipfile.lock` to remove the `pipenv` supporting files.
+    - Remove `Pipfile` and `Pipfile.lock` using the command supported by your shell.
     - Remove any other files remaining in the virtual environment directory.
+    - Be sure to remove any **hidden** files or directories. For example, a file or a directory starting with 
+      a dot ("."), like `.ipynb-checkpoints`, is hidden to typical listings of Unix-like shells.
     
 - Create a new, clean virtual environment by:
     - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
@@ -465,19 +562,19 @@ To test that you were successful,
   ```
   Package    Version
   ---------- -------
-  pip        20.1.1
-  setuptools 46.4.0
-  wheel      0.34.2
+  pip        21.1.1
+  setuptools 56.2.0
+  wheel      0.36.2
   ```
     
-### Run all orchid tests
+### Run all Orchid tests
 
 To run all orchid tests
 - Run unit tests
 - Run acceptance (feature) tests
 - [Run examples](#run-development-orchid-examples)
 
-### Run development orchid examples
+### Run development Orchid examples
 
 - Prepare to run examples
     - If you have not already done so, 
@@ -491,6 +588,25 @@ To run all orchid tests
         - Copy the example notebooks to the orchid project repository root
             - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 - Activate `poetry shell` if not activated
+ 
+#### Run example scripts
+
+- Run the first script
+    - Execute the command `python plot_trajectories.py`
+    - Wait patiently for the `matplotlib` plot window to appear.
+    - Ensure the plot is correct.
+    - Dismiss the `matplotlib` window.
+- Repeat for remaining notebooks:
+    - `plot_treatment.py`
+    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
+      You must dismiss each plot to continue.)
+    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+      You must dismiss each plot to continue.)
+    - `volume_2_first_response.py`
+    - `search_data_frames.py`
+
+#### Run example notebooks
+
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
     - Successfully run notebook, `plot_trajectories.ipynb`
@@ -503,8 +619,11 @@ To run all orchid tests
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
+        - `search_data_frames.ipynb`
 
 ### Run installed Orchid examples
+
+If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
 
 - Prepare to run examples
     - If you have not already done so, 
@@ -514,23 +633,48 @@ To run all orchid tests
     - If you are testing a `pipenv` virtual environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
-        - Run `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py`. Be sure to specify 
-          `python` to run the script with the version of python install in the virtual environment and **not**
-          the system version of python.
-        - If the script reports that it skipped notebooks, repeat the command with an additional argument:  
-          `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
-        - Verify that the current directory has five notebooks:
+        - Run `copy_orchid_examples.exe`.
+        - If the executable reports that it skipped files, repeat the command with an additional argument:  
+          `copy_orchid_examples.exe --overwrite`
+        - Verify that the current directory has six example notebooks:
             - `completion_analysis.ipynb`
             - `plot_time_series.ipynb`
             - `plot_trajectories.ipynb`
             - `plot_treatment.ipynb`
+            - `search_data_frames.ipynb`
             - `volume_2_first_response.ipynb`
+        - Verify that the current directory has six example scripts:
+            - `completion_analysis.py`
+            - `plot_time_series.py`
+            - `plot_trajectories.py`
+            - `plot_treatment.py`
+            - `search_data_frames.py`
+            - `volume_2_first_response.py`
     - If you are testing a `poetry` virtual environment
         - If orchid-python-api is installed in the virtual environment,
             - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
         - If orchid-python-api not (yet) installed,
             - Copy the example notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+
+#### Run example scripts
+
+- Run the first script
+    - Execute the command `python plot_trajectories.py`
+    - Wait patiently for the `matplotlib` plot window to appear.
+    - Ensure the plot is correct.
+    - Dismiss the `matplotlib` window.
+- Repeat for remaining notebooks:
+    - `plot_treatment.py`
+    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
+       You must dismiss each plot to continue.)
+    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+       You must dismiss each plot to continue.)
+    - `volume_2_first_response.py`
+    - `search_data_frames.py`
+
+#### Run example notebooks
+
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
     - Successfully run notebook, `plot_trajectories.ipynb`
@@ -543,6 +687,7 @@ To run all orchid tests
         - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
+        - `search_data_frames.ipynb`
 
 ## Possible installation errors and resolutions
 
