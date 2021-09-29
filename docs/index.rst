@@ -10,8 +10,8 @@ Welcome to PythonApi's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   readme_link
-   readme_dev_link
+   introduction/readme_link
+   introduction/readme_dev_link
    source/modules
 
 
