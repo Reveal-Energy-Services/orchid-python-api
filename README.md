@@ -1,4 +1,4 @@
-# Introduction 
+## Introduction 
 
 This project defines the implementation of the Python API for Orchid*.
 
@@ -6,7 +6,7 @@ This project defines the implementation of the Python API for Orchid*.
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
 
-## A Reading Suggestion
+### A Reading Suggestion
 
 This document is one of several documents you may want to read:
 
@@ -20,7 +20,7 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
-# Examples
+## Examples
 
 Additionally, this project includes six scripts and six notebooks in the `examples` directory of the 
 `orchid-python-api` package:
@@ -70,9 +70,9 @@ To use these examples:
 More detailed instructions for running the examples can be found at
 [Run Orchid examples](#run-orchid-examples).
 
-# Getting Started
+## Getting Started
 
-## Virtual environments
+### Virtual environments
 
 We recommend the use of virtual environments to use the Orchid Python API. This choice avoids putting 
 Orchid-specific packages in your system Python environment.
@@ -100,7 +100,7 @@ Miniconda), we have a [section](#step-by-step-conda-install) for installing the 
 Using any of `pipenv`, `venv` or `poetry`, your first step is to create a directory for **your** project.
 Then, change into that project directory.
 
-## Step-by-step pipenv install
+### Step-by-step pipenv install
 
 - Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To 
   ensure access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
@@ -112,7 +112,7 @@ Then, change into that project directory.
 - Activate the virtual environment by running `pipenv shell`
 - Install Orchid by running `pip install orchid-python-api`.
 
-## Step-by-step conda install
+### Step-by-step conda install
 
 - Install [Anaconda](https://docs.anaconda.com/anaconda/install/) or
   [Miniconda](https://docs.conda.io/en/latest/miniconda.html) following the corresponding instructions for
@@ -139,12 +139,12 @@ ecosystem and, within that virtual environment, use `pip` to install `orchid-pyt
 - Activate the virtual environment by running `conda activate <your-virtualenv_name>`
 - Install Orchid by running `pip install orchid-python-api`.
 
-## Configure the Orchid Python API
+### Configure the Orchid Python API
 
 The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
 the installation, you may need to configure the Orchid Python API to refer to different locations.
 
-### Using the fallback configuration
+#### Using the fallback configuration
 
 If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` using [pipenv](#step-by-step-pipenv-install) or [conda](#step-by-step-conda-install), you
@@ -152,7 +152,7 @@ need to take **no** additional steps to configure the Orchid Python API to find 
 information, the default installation location is, `%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid
 Python API uses the API version to find and use the corresponding version of Orchid.
 
-### Using an environment variable
+#### Using an environment variable
 
 This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
 rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
@@ -186,7 +186,7 @@ expect. If you understand these details, you can jump to [Verify Installation](#
 are not confident of these details, restart your system before proceeding to 
 [Verify Installation](#verify-installation).
 
-### Using a configuration file
+#### Using a configuration file
 
 Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
 easier to change than an environment variable and does not require a system restart to work best. However, it
@@ -229,13 +229,13 @@ corresponding to the installed version of the `orchid-python-api` package.
 If you want to ensure your configuration is correct, 
 [view the Orchid API configuration details](#view-orchid-configuration-details).
 
-## Configure the Orchid training data
+### Configure the Orchid training data
 
 Using the Orchid Python API **requires** a licensed Orchid installation on your workstation. However,
 to use the example Jupyter notebooks, you must configure the Orchid Python API to find the Orchid training
 data.
 
-### Using an environment variable
+#### Using an environment variable
 
 This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
 rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
@@ -268,7 +268,7 @@ to your what you expect. If you understand these details, you can jump to
 [Verify Installation](#verify-installation). If you are not confident of these details, restart your system
 before proceeding to [Verify Installation](#verify-installation).
 
-### Using a configuration file
+#### Using a configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
@@ -308,9 +308,9 @@ training data files.
 If you want to ensure your configuration is correct, 
 [view the Orchid API configuration details](#view-orchid-configuration-details).
 
-# Verify installation
+## Verify installation
 
-## Jupyter lab
+### Jupyter lab
 
 - In your activated virtual environment, run `jupyter lab` to open a browser tab.
 - In the first cell, enter `import orchid`.
@@ -319,7 +319,7 @@ If you want to ensure your configuration is correct,
 
 The import should complete with no errors.
 
-## Python REPL
+### Python REPL
 
 - In your activated virtual environment, run `python` to open a REPL.
 - Enter `import orchid`.
@@ -327,7 +327,7 @@ The import should complete with no errors.
 
 The import should complete with no errors.
 
-# Run Orchid examples
+## Run Orchid examples
 
 - If you have not already done so, 
 [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
@@ -355,7 +355,7 @@ The import should complete with no errors.
     - `search_data_frames.py`
     - `volume_2_first_response.py`
 
-## Run example scripts
+### Run example scripts
 
 - Run the first script
     - Execute the command `python plot_trajectories.py`
@@ -371,7 +371,7 @@ The import should complete with no errors.
     - `volume_2_first_response.py`
     - `search_data_frames.py`
 
-## Run example notebooks
+### Run example notebooks
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -387,7 +387,7 @@ The import should complete with no errors.
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
 
-# View Orchid Configuration Details
+## View Orchid Configuration Details
 
 To "debug" the Orchid Python API configuration, perform the following steps:
 

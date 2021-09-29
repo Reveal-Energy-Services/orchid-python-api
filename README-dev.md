@@ -1,4 +1,4 @@
-# Introduction 
+## Introduction 
 
 (This document targets people *developing* the Orchid Python. If you plan to simply use the API, look at 
 `README.md` instead.)
@@ -56,7 +56,7 @@ More detailed instructions for running the examples can be found either at
 [Run development Orchid examples](#run-development-orchid-examples) or at
 [Run installed Orchid examples](#run-installed-orchid-examples) or at
 
-## A Reading Suggestion
+### A Reading Suggestion
 
 This document is one of several documents you may want to read:
 
@@ -69,14 +69,14 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
-# Getting Started
+## Getting Started
 
-## Development Overview
+### Development Overview
 
 To understand the structure of the code, the file, `./docs_dev/README.md`, in the source repository, contains 
 an overview of the application / package design.
 
-## Development
+### Development
 
 We use a virtual environment to make changes to and to test the Orchid Python API. This choice avoids putting
 Orchid-specific-packages in your system Python environment and avoids version conflicts between the Orchid
@@ -86,13 +86,13 @@ Although the Python ecosystem supports several tools to create and manage virtua
 uses `poetry` because of its support for developer tasks such as packaging and publishing. For information on 
 `poetry` see [the poetry documentation](https://python-poetry.org/docs/).
 
-### Install Python
+#### Install Python
 
 Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To ensure
 access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
 [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 
-### Ensure Command Line Access To Python
+#### Ensure Command Line Access To Python
 
 Although you may be able to perform development without command line access using, for example, `PyCharm`, many
 instructions, including these instructions, will assume command line access. To verify command line access:
@@ -102,7 +102,7 @@ instructions, including these instructions, will assume command line access. To 
 
 You should see a result like "Python 3.x".
 
-### Install Poetry
+#### Install Poetry
 
 To use `poetry`, you may need to perform up to three steps. First, if you do not have python **3** installed,
 you need to install it. To determine if python 3 is installed:
@@ -120,7 +120,7 @@ This will install the `poetry` package in your system python installation. (Note
 installs `pip`. If Python is available from the command line, `pip` will also be available from the command
 line.)
 
-### Create development environment
+#### Create development environment
 
 To create the development environment using `poetry`:
 
@@ -133,7 +133,7 @@ To create the development environment using `poetry`:
 Wait patiently. This command will install **both** the run-time and development-time packages to support 
 changing and running in your local, development environment.
 
-#### Alternative development environments
+##### Alternative development environments
 
 Many people, including this author, use an IDE for python development. It is not necessary, but provides a 
 number of conveniences for development.
@@ -164,7 +164,7 @@ Configure the project interpreter:
 - If `/path/to/virtual-env/Scripts/python.exe` is (now) listed in the "Python Interpreters" dialog, select it.
 - Press "OK"
 
-##### Sharing PyCharm configurations
+###### Sharing PyCharm configurations
 
 When you configure the Python interpreter for PyCharm, `PyCharm` creates a "name" for this interpreter. By
 default, it uses the name of the Python virtual environment in which it finds that interpreter. This choice 
@@ -191,9 +191,9 @@ like Atom and Sublime. You can most likely use whatever editing environment you 
 me, more than one). Remember the recommendation from the book, _The Pragmatic Programmer_: "Find one editor 
 and stick to it."
 
-# Build and test locally
+## Build and test locally
 
-## Package a distribution
+### Package a distribution
 
 - Open a terminal and navigate to the project repository root.
 - Remove the `dist` directory if present.
@@ -206,7 +206,7 @@ and stick to it."
     - The distribution contains the correct `ReleaseNotes.md` For example one can view the file contents by
       using the command `vim dist/<package>.tar.gz` or by using an tool like 7-zip.
         
-## Install local package
+### Install local package
 
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
@@ -217,7 +217,7 @@ and stick to it."
 
 Finally, [Run Orchid examples](#run-installed-orchid-examples).
 
-# Publish a release
+## Publish a release
 
 Publishing a release has a number of general steps. These steps are optional except for 
 [the last step](#publish-to-pypi). Here are the steps:
@@ -237,7 +237,7 @@ Remember that the file, `tasks.py`, defines many common tasks. Be sure to use co
     - `invoke poetry.venv.remove --help` (for help on a specific command listed)
 to perform these tasks.
 
-## Update poetry
+### Update poetry
 
 - Navigate to the repository directory
 - Execute the command `poetry self update` 
@@ -250,7 +250,7 @@ receiving this message, the installation of was corrupted. (The author received 
 import poetry.console".) To resolve this issue, the author simply installed `poetry` again. This repaired the 
 `poetry.console` error and updated `poetry` to the latest version.
 
-## Update dependencies
+### Update dependencies
 
 To update the project dependencies:
 
@@ -260,9 +260,9 @@ To update the project dependencies:
 - Update the dependencies
     - Run `poetry update`
 
-## Update API version
+### Update API version
 
-### Edit the internal version
+#### Edit the internal version
 
 - Open the file `orchid/VERSION` for editing.
 - Change the version in the file to the updated value. The safest way to update the value is copying the 
@@ -282,7 +282,7 @@ To update the project dependencies:
     - `2021.1.399.post1` - a post-release or
     - `2021.1.399.b3` - a "beta-3" pre-release
     
-### Edit the package version number
+#### Edit the package version number
 
 - Open the file `pyproject.toml` for editing.
 - Copy the version identifier from `orchid/VERSION` to the value of the `version` key of the file.
@@ -295,12 +295,12 @@ To update the project dependencies:
     - Comment out the `Development Status :: 4 - Beta` item.
     - Uncomment the `Development Status :: 5 Production/Stable` item.
 
-### Edit the version number in the release notes
+#### Edit the version number in the release notes
 
 - Open the file `ReleaseNotes.md` for editing.
 - Copy the version identifier from `orchid/VERSION` to the version number for the release.
   
-## Publish to TestPyPI
+### Publish to TestPyPI
 
 The steps to publish to TestPyPi are very similar to the steps for 
 [Build and install locally](#build-and-test-locally) and for [Publish to PyPI](#publish-to-pypi). For an 
@@ -309,7 +309,7 @@ introduction to the process (but some different steps), review the
 
 - [Package a distribution](#package-a-distribution)
 
-### Configure TestPyPI as a `poetry` repository
+#### Configure TestPyPI as a `poetry` repository
 
 - Determine if TestPyPI is already configured by running either:
     - `invoke poetry.config.list`
@@ -333,7 +333,7 @@ Once generated, add it to the `poetry` configuration by executing either:
 - `invoke poetry.config.api-token -r test-pypi -t <token>` or
 - `poetry config pypi-token.test-pypi <token>`
     
-### Publish distribution to TestPyPI
+#### Publish distribution to TestPyPI
 
 To publish the distribution to TestPyPI execute either:
 
@@ -352,7 +352,7 @@ Once published, test the published distribution by:
 If an error occurs, read the error message(s) and consult the section 
 [Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
   
-## Publish to PyPI
+### Publish to PyPI
 
 **Before** publishing to PyPI, ensure that:
 
@@ -388,16 +388,16 @@ Once published, test the published distribution by:
   
 Finally, [Run Orchid examples](#run-installed-orchid-examples).
   
-## Common tasks
+### Common tasks
 
-### Install Orchid release
+#### Install Orchid release
 
 You have two options:
 
 - [Install from web portal](#install-from-web-portal)
 - [Install from build pipelines](#install-from-build-pipelines)
 
-#### Install from web portal
+##### Install from web portal
 
 - Open the [Orchid web portal](https://portal.reveal-energy.com)
 - Click the "Sign In" link
@@ -411,7 +411,7 @@ This will download the installer to your workstation.
 
 Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
 
-#### Install from build pipelines
+##### Install from build pipelines
 
 - Navigate to the [ImageFrac Pipelines](https://reveal-energy.visualstudio.com/ImageFrac/_build)
 - Select the "Orchid Release Pipeline"
@@ -427,12 +427,12 @@ This will download the installer to your workstation.
 
 Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
 
-### Upgrade pipenv
+#### Upgrade pipenv
 
 - Navigate to the repository root
 - Execute the command `pip install pipenv --upgrade`
 
-### Ensure correct Orchid
+#### Ensure correct Orchid
 
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
 system. To ensure the correct version of Orchid is installed, 
@@ -454,7 +454,7 @@ correct version number in the main window title bar.
 
 If it is not installed, you'll need to [Install the appropriate Orchid release](#install-orchid-release)
 
-### Create a new, clean development virtualenv
+#### Create a new, clean development virtualenv
 
 If using the command line,
 
@@ -507,7 +507,7 @@ To test that you were successful,
   wheel      0.36.2
   ```
 
-### Create a new, clean virtualenv
+#### Create a new, clean virtualenv
 
 These instructions assume you will create a test virtual directory using `pipenv`. This tool is simpler to
 use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
@@ -567,14 +567,14 @@ To test that you were successful,
   wheel      0.36.2
   ```
     
-### Run all Orchid tests
+#### Run all Orchid tests
 
 To run all orchid tests
 - Run unit tests
 - Run acceptance (feature) tests
 - [Run examples](#run-development-orchid-examples)
 
-### Run development Orchid examples
+#### Run development Orchid examples
 
 - Prepare to run examples
     - If you have not already done so, 
@@ -589,7 +589,7 @@ To run all orchid tests
             - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 - Activate `poetry shell` if not activated
  
-#### Run example scripts
+##### Run example scripts
 
 - Run the first script
     - Execute the command `python plot_trajectories.py`
@@ -605,7 +605,7 @@ To run all orchid tests
     - `volume_2_first_response.py`
     - `search_data_frames.py`
 
-#### Run example notebooks
+##### Run example notebooks
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -621,7 +621,7 @@ To run all orchid tests
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
 
-### Run installed Orchid examples
+#### Run installed Orchid examples
 
 If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
 
@@ -657,7 +657,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Copy the example notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 
-#### Run example scripts
+##### Run example scripts
 
 - Run the first script
     - Execute the command `python plot_trajectories.py`
@@ -673,7 +673,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - `volume_2_first_response.py`
     - `search_data_frames.py`
 
-#### Run example notebooks
+##### Run example notebooks
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -689,9 +689,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
 
-## Possible installation errors and resolutions
+### Possible installation errors and resolutions
 
-### Package not installed from TestPyPI
+#### Package not installed from TestPyPI
 
 Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error
 stating that a package version is unavailable. For example,
@@ -726,9 +726,9 @@ The workaround for this issue is to:
 
 Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
 
-### Pip reports resolution impossible
+#### Pip reports resolution impossible
 
-#### Incompatible pip and packaging
+##### Incompatible pip and packaging
 
 It is possible that you see the following error:
 
@@ -762,12 +762,12 @@ Here are possible resolutions.
   > updates it? Also you may want to check how they are locked in Pipfile.lock.
 - Try the resolutions from [Package not installed from TestPyPI](#package-not-installed-from-testpypi)
 
-## Configure the Orchid Python API
+### Configure the Orchid Python API
 
 The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
 the installation, you may need to configure the Orchid Python API to refer to different locations.
 
-### Using the fallback configuration
+#### Using the fallback configuration
 
 If you installed the latest version Orchid using the installation defaults, and you installed the 
 `orchid-python-api` , you need to take **no** additional steps to configure the Orchid Python API to find this
@@ -775,7 +775,7 @@ installation. For your information, the default installation location is,
 `%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses its version to find and use
 the corresponding version of Orchid.
 
-### Using an environment variable
+#### Using an environment variable
 
 This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
 rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
@@ -808,7 +808,7 @@ could now use that variable. However, the details of "new" is technical and may 
 expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using a configuration file
+#### Using a configuration file
 
 Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
 easier to change than an environment variable and does not require a system restart to work best. However, it
@@ -843,12 +843,12 @@ that describe the information expected by the Orchid Python API. In summary, you
 for the 'orchid' > 'root' key that contains the pathname of the directory containing the Orchid binaries
 corresponding to the installed version of the `orchid-python-api` package.
 
-## Configure the Orchid training data
+#### Configure the Orchid training data
 
 The Orchid Python API **requires** a licensed Orchid installation on your workstation. However, configuring
 the Orchid Python API to find the Orchid training data is only needed to run the example Jupyter notebooks.
 
-### Using an environment variable
+#### Using an environment variable
 
 This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
 rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
@@ -880,7 +880,7 @@ tools can now use that variable. However, the details of "new" is technical and 
 what you expect. If you understand these details, you can return to your original task.
 If you are not confident of these details, restart your system before returning to your original task.
 
-### Using a configuration file
+#### Using a configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
@@ -897,7 +897,7 @@ Language"), a "human friendly data serialization standard". (For technical detai
 [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
 introductions / tutorials.)
 
-## View Orchid Configuration Details
+### View Orchid Configuration Details
 
 To "debug" the Orchid Python API configuration, perform the following steps:
 
@@ -933,7 +933,7 @@ This output describes four details of the configuration.
 | file | The configuration specified in your configuration file |
 | environment | The configuration specified using environment variables | 
 
-# Contribute
+## Contribute
 
 To contribute to this project, follow our typical development process:
 
