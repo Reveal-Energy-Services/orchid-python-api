@@ -1,8 +1,8 @@
 ## Introduction 
 
-This project defines the implementation of the Python API for Orchid*.
+This project defines the implementation of the Python API for Orchid *.
 
-(*Orchid is a mark of Reveal Energy Services, Inc.)
+( *Orchid is a mark of Reveal Energy Services, Inc. )
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
 
@@ -128,7 +128,7 @@ Then, change into that project directory.
   two package installers together. 
   
 The following instructions assume that you will use the simple (put perhaps not scalable) process of creating
-the `conda ` virtual environment with all packages you want to use available in the Anaconda/Miniconda
+the `conda` virtual environment with all packages you want to use available in the Anaconda/Miniconda
 ecosystem and, within that virtual environment, use `pip` to install `orchid-python-api`.
 
 - Open an Anaconda Powershell console.
@@ -335,8 +335,8 @@ The import should complete with no errors.
 [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - Navigate to the directory associated with the virtual environment
 - If necessary, activate the virtual environment by executing either 
-  - `pipenv shell` or 
-  - `conda activate <your-virtualenv_name>`.
+    - `pipenv shell` or 
+    - `conda activate <your-virtualenv_name>`.
 - Run `copy_orchid_examples.exe`
 - If the script reports that it skipped notebooks or scripts, repeat the command with an additional argument:  
   `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
