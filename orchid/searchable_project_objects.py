@@ -84,12 +84,16 @@ class SearchableProjectObjects:
         Returns:
             An iterator over the items in this collection.
         """
-        result = toolz.pipe(
-            self._collection,
-            lambda d: d.items(),
-            toolz.map(toolz.second),
-        )
-        return result
+        # TODO: Change this implementation to be more "fundamental" than `all_objects()`.
+        # The implementation of this method currently calls `all_objects()`. I think this implementation
+        # is not quite correct; instead, `all_objects()` should call this method (even if indirectly) which
+        # should return an iterator over `self._collection.values()`.
+        #
+        # Because we have not tested the Orchid Python API much this quarter, because we are creating a
+        # release, and because I do not want to destabilize the release at this time, I have chosen to
+        # leave the implementation of `all_objects()` as is and implement this method in terms of
+        # `all_objects()`. (FYI: I did prototype "switching" the implementations and all unit tests passed.)
+        return iter(self.all_objects())
 
     def __len__(self):
         """

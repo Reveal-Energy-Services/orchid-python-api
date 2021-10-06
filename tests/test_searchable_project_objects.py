@@ -55,7 +55,6 @@ class TestSearchableProjectObjects(unittest.TestCase):
         ):
             with self.subTest(f'Test length {len(net_project_object_dtos)} of constructed collection'):
                 sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
-
                 actual_object_ids = toolz.pipe(
                     sut,
                     toolz.map(lambda po: po.object_id),
