@@ -77,6 +77,24 @@ class SearchableProjectObjects:
             lambda pos: toolz.reduce(add_project_object_to_collection, pos, {}),
         )
 
+    def __iter__(self):
+        """
+        Return an iterator over the items in this collection.
+
+        Returns:
+            An iterator over the items in this collection.
+        """
+        # TODO: Change this implementation to be more "fundamental" than `all_objects()`.
+        # The implementation of this method currently calls `all_objects()`. I think this implementation
+        # is not quite correct; instead, `all_objects()` should call this method (even if indirectly) which
+        # should return an iterator over `self._collection.values()`.
+        #
+        # Because we have not tested the Orchid Python API much this quarter, because we are creating a
+        # release, and because I do not want to destabilize the release at this time, I have chosen to
+        # leave the implementation of `all_objects()` as is and implement this method in terms of
+        # `all_objects()`. (FYI: I did prototype "switching" the implementations and all unit tests passed.)
+        return iter(self.all_objects())
+
     def __len__(self):
         """
         Return the number of items in this collection.
