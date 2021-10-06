@@ -71,8 +71,14 @@ class TestSearchableProjectObjects(unittest.TestCase):
             with self.subTest(f'Test all_objects() returns {len(net_project_object_dtos)} instances'):
                 sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
 
-                # noinspection PyTypeChecker
-                assert_that(len(list(sut.all_objects())), equal_to(len(net_project_object_dtos)))
+                actual_object_ids = set(toolz.map(lambda po: po.object_id, sut.all_objects()))
+                expected_object_ids = set(
+                    toolz.pipe(net_project_object_dtos,
+                               toolz.map(toolz.get('object_id')),
+                               toolz.map(uuid.UUID),
+                               )
+                )
+                assert_that(actual_object_ids, equal_to(expected_object_ids))
 
     def test_query_all_display_names_from_collection(self):
         for net_project_object_dtos in (
