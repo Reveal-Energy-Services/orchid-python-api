@@ -35,7 +35,7 @@ class TestSearchableProjectObjects(unittest.TestCase):
         for net_project_object_dtos in (
                 (),
                 ({'object_id': tsn.DONT_CARE_ID_A},),
-                # Don't care about the object IDs - but the **must** be different
+                # Don't care about the object IDs - but **must** be different
                 ({'object_id': tsn.DONT_CARE_ID_B},
                  {'object_id': tsn.DONT_CARE_ID_C},
                  {'object_id': tsn.DONT_CARE_ID_D}),
@@ -44,6 +44,29 @@ class TestSearchableProjectObjects(unittest.TestCase):
                 sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
 
                 assert_that(len(sut), equal_to(len(net_project_object_dtos)))
+
+    def test_iteration_over_collection_returns_all_items(self):
+        for net_project_object_dtos in (
+                (),
+                ({'object_id': tsn.DONT_CARE_ID_A},),
+                ({'object_id': tsn.DONT_CARE_ID_B},
+                 {'object_id': tsn.DONT_CARE_ID_C},
+                 {'object_id': tsn.DONT_CARE_ID_D}),
+        ):
+            with self.subTest(f'Test length {len(net_project_object_dtos)} of constructed collection'):
+                sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
+                actual_object_ids = toolz.pipe(
+                    sut,
+                    toolz.map(lambda po: po.object_id),
+                    set,
+                )
+                expected_object_ids = toolz.pipe(
+                    net_project_object_dtos,
+                    toolz.map(toolz.get('object_id')),
+                    toolz.map(uuid.UUID),
+                    set,
+                )
+                assert_that(actual_object_ids, equal_to(expected_object_ids))
 
     def test_query_all_object_ids_from_collection(self):
         for net_project_object_dtos in (
@@ -71,8 +94,18 @@ class TestSearchableProjectObjects(unittest.TestCase):
             with self.subTest(f'Test all_objects() returns {len(net_project_object_dtos)} instances'):
                 sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in net_project_object_dtos])
 
-                # noinspection PyTypeChecker
-                assert_that(len(list(sut.all_objects())), equal_to(len(net_project_object_dtos)))
+                actual_object_ids = toolz.pipe(
+                    sut.all_objects(),
+                    toolz.map(lambda po: po.object_id),
+                    set,
+                )
+                expected_object_ids = toolz.pipe(
+                    net_project_object_dtos,
+                    toolz.map(toolz.get('object_id')),
+                    toolz.map(uuid.UUID),
+                    set
+                )
+                assert_that(actual_object_ids, equal_to(expected_object_ids))
 
     def test_query_all_display_names_from_collection(self):
         for net_project_object_dtos in (
