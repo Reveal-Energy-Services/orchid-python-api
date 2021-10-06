@@ -77,6 +77,20 @@ class SearchableProjectObjects:
             lambda pos: toolz.reduce(add_project_object_to_collection, pos, {}),
         )
 
+    def __iter__(self):
+        """
+        Return an iterator over the items in this collection.
+
+        Returns:
+            An iterator over the items in this collection.
+        """
+        result = toolz.pipe(
+            self._collection,
+            lambda d: d.items(),
+            toolz.map(toolz.second),
+        )
+        return result
+
     def __len__(self):
         """
         Return the number of items in this collection.
