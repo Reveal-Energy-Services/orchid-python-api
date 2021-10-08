@@ -22,7 +22,7 @@ to render the file, you can much more easily navigate the document links.
 
 ## Examples
 
-Additionally, this project includes six scripts and six notebooks in the `examples` directory of the 
+Additionally, this project includes six notebooks and six scripts in the `examples` directory of the 
 `orchid-python-api` package:
 
 - `plot_trajectories.ipynb`
@@ -69,6 +69,51 @@ To use these examples:
 
 More detailed instructions for running the examples can be found at
 [Run Orchid examples](#run-orchid-examples).
+
+## Tutorials
+
+Additionally, this project includes one notebook and one script in the `tutorials` directory of the
+`orchid-python-api` package:
+
+- `dom_navigation_tutorial.ipynb`
+ 
+- `dom_navigation_tutorial.py`
+
+The notebook, `dom_navigation_tutorial.ipynb`, demonstrates using the Orchid Python API class, 
+`SearchableProjectObjects`, to navigate a project. The `SearchableProjectObjects` provides:
+
+- Three query methods:
+    - `all_names()`
+    - `all_display_names()`
+    - `all_object_ids()`
+- Three specific search methods:
+    - `find_by_name()`
+    - `find_by_display_name()`
+    - `find_by_object_id()`
+- A general search method:
+    - `find()` - This method expects a predicate to identify project objects of interest
+- Two general iteration methods:
+  - `all_objects()`
+  - `SearchableProjectObjects` is an _iterator_
+
+The script contains code similar to the notebook but runs either at the command line or in a REPL.
+
+To use these tutorials:
+
+- You may need to
+  [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- You **must**
+  [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- You may need to [view the Orchid API configuration details](#view-orchid-configuration-details)
+- You may want to invoke the command, `copy_orchid_tutorials`
+ 
+  This command copies the tutorial files into an optionally specified (virtual environment) directory. (The
+  default destination is your current working directory.) Note that this command is a command-line script
+  that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to
+  provide you with help on running this command.
+
+More detailed instructions for running the tutorials can be found at 
+[Run Orchid tutorials](#run-orchid-tutorials).
 
 ## Getting Started
 
@@ -340,14 +385,14 @@ The import should complete with no errors.
 - Run `copy_orchid_examples.exe`
 - If the script reports that it skipped notebooks or scripts, repeat the command with an additional argument:  
   `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
-- Verify that the current directory has five example notebooks:
+- Verify that the current directory has six example notebooks:
     - `completion_analysis.ipynb`
     - `plot_time_series.ipynb`
     - `plot_trajectories.ipynb`
     - `plot_treatment.ipynb`
     - `search_data_frames.ipynb`
     - `volume_2_first_response.ipynb`
-- Verify that the current directory has five example scripts:
+- Verify that the current directory has sex example scripts:
     - `completion_analysis.py`
     - `plot_time_series.py`
     - `plot_trajectories.py`
@@ -386,6 +431,40 @@ The import should complete with no errors.
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
+
+## Run Orchid tutorials
+
+- If you have not already done so,
+  [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- You **must**
+  [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- Navigate to the directory associated with the virtual environment
+- If necessary, activate the virtual environment by executing either
+    - `pipenv shell` or
+    - `conda activate <your-virtualenv_name>`.
+- Run `copy_orchid_tutorials.exe`
+- If the script reports that it skipped notebooks or scripts, repeat the command with an additional argument:  
+  `python </path/to/virtualenv/Lib/site-packages/copy_orchid_tutorials.py --overwrite`
+- Verify that the current directory has one tutorial notebooks:
+    - `dom_navigation_tutorial.ipynb`
+- Verify that the current directory has five example scripts:
+    - `dom_navigation_tutorial.py`
+
+### Run tutorial notebook
+
+- Open Jupyter by running `jupyter lab` in the shell
+- Within Jupyter,
+    - Run the notebook, `dom_navigation_tutorial.ipynb`
+        1. Open the notebook in `jupyter`
+        2. Run each cell of the notebook. Typically, this process involves
+            - Read the instructions or comments preceding the code cell(s)
+            - Observe the result of executing the code
+
+### Run tutorial script
+
+- Run the `dom_navigation_tutorial.py` script
+    - Execute the command `python dom_navigation_tutorial.py`
+    - Follow the on-screen messages to advance through the tutorial
 
 ## View Orchid Configuration Details
 
