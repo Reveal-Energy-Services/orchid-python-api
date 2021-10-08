@@ -119,6 +119,35 @@ def navigate_dom():
     # you might want to use to find objects of interest, we have included a more generic method, `find()`,
     # that takes a predicate (a callable) and returns an iterator over all objects for which the predicate
     # returns `True`.
+    #
+    # Finally, we provide the general ability to iterate over all project objects using two mechanisms. The
+    # older mechanism is the `all_objects()` method that returns an iterator over all objects in the
+    # collection.
+    #
+    # Beginning with version 2021.3.318 of the Orchid Python API, we have made `SearchableProjectObjects` an
+    # iterator. This change allows one to use the very familiar Python idiom of:
+    #
+    # ```
+    # for well in projects.wells():
+    #     // processing
+    #     for a single well
+    # ```
+    #
+    # Additionally, one can use `SearchableProjectObjects` in list, dictionary and generator expressions. For
+    # example, to create a dictionary of wells keyed by the well object ID (since ** only ** object ID is
+    # guaranteed to be unique) one would write:
+    #
+    # ```
+    # wells_by_id = {well.object_id: well for well in project.wells()}
+    # ```
+    #
+    # Using `SearchableProjectObjects` as an iterator is very general, is easily understood, and is most
+    # useful when exploring a project interactively at a REPL. However, we have seen that using this general
+    # technique easily leads to duplicated code to search through the collection of project objects for the
+    # specific object that you actually need for your application. Consequently, we encourage you to use the
+    # query methods of `SearchableProjectObjects`, including the general `find(...)` methods, first. If those
+    # do not meet your needs, please let us know by creating
+    # [an issue](https://github.com/Reveal-Energy-Services/orchid-python-api/issues).
 
     # 2.0 Query well "keys"
 
@@ -233,12 +262,22 @@ def navigate_dom():
 
     # 5.0 Finally, if you wish to iterate over all wells, use the `all_objects()` method
 
+    banner('The Orchid Python API provides two mechanisms to iterate over items in `SearchableProjectObjects')
+
     banner('The `all_objects` method returns an iterator over all project objects in the collection')
 
     # The method, `all_objects()`, returns an iterable over **all** wells in the project
     wells_of_interest = list(project.wells().all_objects())
     pretty_print_with_header([AboutProjectObject(well) for well in wells_of_interest],
                              'list(project.wells().all_objects()')
+
+    wait_for_input()
+
+    banner('The `SearchableProjectObjects` class is an iterator over all project objects in the collection')
+
+    # The `SearchableProjectObjects` class is an iterator and supports typical Python iterator idioms like:
+    pretty_print_with_header([AboutProjectObject(well) for well in project.wells()],
+                             'project.wells() returns a Python iterator')
 
     wait_for_input()
 
