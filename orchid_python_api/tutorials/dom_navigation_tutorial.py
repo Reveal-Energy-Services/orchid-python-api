@@ -38,6 +38,13 @@ import uuid  # Used to construct an object ID from its string representation
 # These functions and classes exists simply to assist in executing this script.
 
 
+def banner(banner_text):
+    print(len(banner_text) * '=')
+    print(banner_text)
+    print(len(banner_text) * '=')
+    print()
+
+
 def pretty_print_with_header(items, header):
     header_text = f'{header} returns:'
     pretty_printed_text = (textwrap
@@ -45,7 +52,7 @@ def pretty_print_with_header(items, header):
                            .fill(f'{pprint.pformat(items)}'))
     text_to_print = f'{header_text}\n{pretty_printed_text}'
     print(text_to_print)
-    wait_for_input()
+    print()
 
 
 def wait_for_input():
@@ -119,29 +126,37 @@ def navigate_dom():
     # interested, but you know something about its name or its display name. The Orchid Python API provides
     # you with the `all_names()` and `all_display_names()` to iterate over those names.
 
+    banner('Query well identifying information: name, display name and object ID')
+
     all_well_names = list(project.wells().all_names())
-    pretty_print_with_header(all_well_names, 'project.wells().all_names()')
+    pretty_print_with_header(all_well_names, 'list(project.wells().all_names())')
 
     all_well_display_names = list(project.wells().all_display_names())
-    pretty_print_with_header(all_well_display_names, 'project.wells().all_display_names()')
+    pretty_print_with_header(all_well_display_names, 'list(project.wells().all_display_names())')
 
     # 2.1 Query all object ids
 
     # For completeness, we provide the `all_object_ids()` to list all the object IDs.
     all_well_object_ids = list(project.wells().all_object_ids())
-    pretty_print_with_header(all_well_object_ids, 'project.wells().all_display_names()')
+    pretty_print_with_header(all_well_object_ids, 'list(project.wells().all_display_names())')
+
+    wait_for_input()
 
     # 3.0 Find well by "key"
+
+    banner('Find a collection of wells using name and display name')
 
     # The method, `find_by_name()`, returns an iterable over wells.
     wells_of_interest_by_name = list(project.wells().find_by_name('Demo_1H'))
     pretty_print_with_header([AboutProjectObject(well) for well in wells_of_interest_by_name],
-                             'project.wells().find_by_name("Demo_1H")')
+                             'list(project.wells().find_by_name("Demo_1H"))')
 
     # Similarly, the method, `find_by_display_name()`, returns an iterable over wells
     wells_of_interest_by_display_name = list(project.wells().find_by_display_name('Demo_2H'))
     pretty_print_with_header([AboutProjectObject(well) for well in wells_of_interest_by_name],
-                             'project.wells().find_by_display_name("Demo_1H")')
+                             'list(project.wells().find_by_display_name("Demo_1H"))')
+
+    wait_for_input()
 
     # Because `find_by_name()` and `find_by_display_name()` returns an **iterator**, one typically must handle
     # this method returning
@@ -151,26 +166,37 @@ def navigate_dom():
     # - An iterator with a single item
     #
     # For example,
+    banner('One must handle the three possibilities of zero, one or many wells')
+
     well_name_of_interest = 'Demo_3H'
     wells_of_interest_by_name = list(project.wells().find_by_name(well_name_of_interest))
     if len(wells_of_interest_by_name) == 0:
         print(f'No well in project with name, {well_name_of_interest}')
+        print()
     elif len(wells_of_interest_by_name) > 1:
         print(f'Found {len(wells_of_interest_by_name)} wells in project with name,'
               f' {well_name_of_interest}')
+        print()
     else:
-        print(f'Found single well,'
-              f'\n  {AboutProjectObject(wells_of_interest_by_name[0])}'
-              f'\nin project with name, {well_name_of_interest}')
-    wait_for_input()
+        pretty_print_with_header(AboutProjectObject(wells_of_interest_by_name[0]),
+                                 f'project.wells().find_by_name({well_name_of_interest}) '
+                                 f'finds single well')
 
     # Another way to handle multiple wells found by `find_by_name()` is to use `assert` statements. This way
     # is suitable if any number of matches other than one is an error.
+
+    banner('Or one must use `assert` if not finding a single well is an error')
+
     assert len(wells_of_interest_by_name) == 1, (f'Expected one well with name, {well_name_of_interest},'
                                                  f' but found {len(wells_of_interest_by_display_name)}')
     well_of_interest = wells_of_interest_by_name[0]
-    pretty_print_with_header(AboutProjectObject(well_of_interest),
+    pretty_print_with_header(f'Assert single well with name, {well_name_of_interest}, in project\n'
+                             f'  {AboutProjectObject(wells_of_interest_by_name[0])}',
                              f'project.wells().find_by_name({well_name_of_interest})')
+
+    wait_for_input()
+
+    banner('But one can find a single well using object ID')
 
     # However, `find_by_object_id()` method returns either a well with the specified object ID or None.
     #
@@ -183,27 +209,38 @@ def navigate_dom():
                              f'project.wells().find_by_object_id(uuid.UUID({object_id})')
 
     # But if no well with this object ID exists:
-    object_id = '9fe727b0-5fd1-4240-b475-51c1363edb0e'
+    banner('Remember that searching by object ID may return `None`')
+    object_id = '00000000-0000-0000-0000-000000000000'
     well_of_interest_by_object_id = project.wells().find_by_object_id(uuid.UUID(object_id))
     well_of_interest = (AboutProjectObject(well_of_interest_by_object_id)
                         if well_of_interest_by_object_id is not None
                         else "No such object.")
     pretty_print_with_header(well_of_interest, f'project.wells().find_by_object_id(uuid.UUID({object_id})')
 
+    wait_for_input()
+
     # 4.0 The `find()` method supports more generic queries
+
+    banner('Use the "generic" `find` method with a predicate to find other wells of interest')
 
     # The `find()` method returns an iterable over the wells for which the specified predicate is `True`
     wells_of_interest = list(
-        project.wells().find(lambda well: well.name == 'Demo_3H' or well.display_name == 'Demo_4H'))
-    pretty_print_with_header([(well.name, well.display_name, well.object_id) for well in wells_of_interest],
-                             'project.wells().find(<some condition(s)>)')
+        project.wells().find(lambda well: well.name == 'Demo_3H' or well.name == 'Demo_4H'))
+    pretty_print_with_header([AboutProjectObject(well) for well in wells_of_interest],
+                             'list(project.wells().find(<some condition(s)>))')
 
-    # 5.0 Finally, if you wish to iterate over all wells, use the object_id() method
+    wait_for_input()
+
+    # 5.0 Finally, if you wish to iterate over all wells, use the `all_objects()` method
+
+    banner('The `all_objects` method returns an iterator over all project objects in the collection')
 
     # The method, `all_objects()`, returns an iterable over **all** wells in the project
     wells_of_interest = list(project.wells().all_objects())
-    pretty_print_with_header([(well.name, well.display_name, well.object_id) for well in wells_of_interest],
+    pretty_print_with_header([AboutProjectObject(well) for well in wells_of_interest],
                              'list(project.wells().all_objects()')
+
+    wait_for_input()
 
     # All the project top-level objects provide a similar interface:
     #
@@ -212,14 +249,29 @@ def navigate_dom():
     # - `project.time_series()`
     # - `project.wells()`
     #
+
+    banner('All top-level project objects provide a similar interface')
+    for top_level_name in ['Data frames',
+                           'Monitors',
+                           'Time series',
+                           'Wells']:
+        print(f'- {top_level_name}')
+    print()
+
+    wait_for_input()
+
     # Stages have the same interface; however, stages also have two additional methods:
     #
     # - `stage.find_by_display_stage_number()`
     # - `stage.find_by_display_name_with_well()`
 
+    banner('Stages have two additional methods for searching')
+
     # 6.0 Additional `SearchableStages` methods
 
     # 6.1 Find stages with a specific display stage number
+
+    banner('One can find a specific stage with a display stage number')
 
     # The method, `find_by_display_stage_number()`, returns either the single stage with the display
     # stage number or it returns `None`.
@@ -234,8 +286,6 @@ def navigate_dom():
         f'Expected one well with display_name, {well_display_name_of_interest},' \
         f' but found {len(wells_of_interest_by_display_name)}'
     well_of_interest = wells_of_interest_by_display_name[0]
-    pretty_print_with_header(AboutProjectObject(well_of_interest),
-                             f'project.wells().find_by_display_name({well_display_name_of_interest})')
 
     # Now search for a stage with a specified display stage number.
     stage_display_number_of_interest = 7
@@ -246,7 +296,8 @@ def navigate_dom():
                                  f'find_by_display_stage_number({stage_display_number_of_interest})')
     else:
         print(f'No stage with display stage number, {stage_display_number_of_interest}.')
-        wait_for_input()
+
+    banner('But again, searching by a display stage number may return `None`')
 
     # If you search for a stage by display stage number that does **not** exist:
     stage_display_number_of_interest = 9999
@@ -257,9 +308,12 @@ def navigate_dom():
                                  f'find_by_display_stage_number({stage_display_number_of_interest})')
     else:
         print(f'No stage with display stage number, {stage_display_number_of_interest}.')
-        wait_for_input()
+
+    wait_for_input()
 
     # 6.2 Find stages with a specific display name with well
+
+    banner('One can find a collection of stages with a specified `display_name_with_well`')
 
     # The method, `find_by_display_name_with_well()`, returns:
     #
@@ -273,33 +327,45 @@ def navigate_dom():
     assert len(wells_of_interest_by_name) == 1, (f'Expected one well with name, {well_name_of_interest},'
                                                  f' but found {len(wells_of_interest_by_display_name)}')
     well_of_interest = wells_of_interest_by_name[0]
-    pretty_print_with_header((well_of_interest.name, well_of_interest.display_name, well_of_interest.object_id),
-                             f'list(project.wells().find_by_name({well_name_of_interest})')
 
     stage_display_name_with_well_of_interest = 'Demo_2H-Stage-14'
-    stages_of_interest = [stage for stage
+    stages_of_interest = [AboutStage(stage) for stage
                           in well_of_interest.stages().find_by_display_name_with_well
                           (stage_display_name_with_well_of_interest)]
+    pretty_print_with_header(stages_of_interest,
+                             f'list(well_of_interest.stages().find_by_display_name_with_well'
+                             f'({stage_display_name_with_well_of_interest})')
+
+    banner('One must handle the three possibilities of zero, one or many stages')
+
     if len(stages_of_interest) == 0:
         print(f'No stage in well, {well_of_interest.display_name}, in project with name, '
               f'{stage_display_name_with_well_of_interest}')
+        print()
     elif len(stages_of_interest) > 1:
         print(f'Found {len(stages_of_interest)} stages in well,'
               f' {well_of_interest.display_name}, with display name with well,'
               f' {stage_display_name_with_well_of_interest}')
+        print(0)
     else:
-        print(f'Found single stage in well,'
-              f'\n  {AboutProjectObject(stages_of_interest[0])},'
-              f'\nwith display name with well, {stage_display_name_with_well_of_interest}')
-    wait_for_input()
+        pretty_print_with_header(AboutStage(stages_of_interest[0]),
+                                 f'project.wells().find_by_name({stage_display_name_with_well_of_interest}) '
+                                 f'finds single stage')
+
+    print()
 
     # Another way to handle multiple stages found by `find_by_display_name_with_well()` is to use `assert`
     # statements. This way is suitable if any number of matches other than one is an error.
+
+    banner('Or one must use `assert` if not finding a single stage is an error')
+
     assert len(stages_of_interest) == 1, \
         (f'Expected one well with name, ' f'{stage_display_name_with_well_of_interest},'
          f' but found {len(stages_of_interest)}')
     stage_of_interest = stages_of_interest[0]
-    print(stage_of_interest.name, stage_of_interest.display_name, stage_of_interest.display_name_with_well)
+
+    print(AboutStage(stage_of_interest))
+
     wait_for_input()
 
 
