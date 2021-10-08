@@ -7,8 +7,10 @@ This project defines the implementation of the Python API for Orchid*.
 
 (*Orchid is a mark of Reveal Energy Services, Inc.)
 
+## Examples
+
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python
-REPL. Additionally, this project includes five scripts and five notebooks in the `examples` directory of the 
+REPL. Additionally, this project includes six scripts and six notebooks in the `examples` directory of the 
 `orchid-python-api` package:
 
 - `completion_analysis.ipynb`
@@ -52,9 +54,57 @@ To use these examples:
     that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
     provide you with help on running this command.
 
-More detailed instructions for running the examples can be found either at
-[Run development Orchid examples](#run-development-orchid-examples) or at
-[Run installed Orchid examples](#run-installed-orchid-examples) or at
+More detailed instructions for running the examples can be found at:
+
+- [Run development Orchid examples](#run-development-orchid-examples) or at
+- [Run installed Orchid examples](#run-installed-orchid-examples)
+
+## Tutorials
+
+Additionally, this project includes one notebook and one script in the `tutorials` directory of the
+`orchid-python-api` package:
+
+- `dom_navigation_tutorial.ipynb`
+
+- `dom_navigation_tutorial.py`
+
+The notebook, `dom_navigation_tutorial.ipynb`, demonstrates using the Orchid Python API class,
+`SearchableProjectObjects`, to navigate a project. The `SearchableProjectObjects` provides:
+
+- Three query methods:
+    - `all_names()`
+    - `all_display_names()`
+    - `all_object_ids()`
+- Three specific search methods:
+    - `find_by_name()`
+    - `find_by_display_name()`
+    - `find_by_object_id()`
+- A general search method:
+    - `find()` - This method expects a predicate to identify project objects of interest
+- Two general iteration methods:
+    - `all_objects()`
+    - `SearchableProjectObjects` is an _iterator_
+
+The script contains code similar to the notebook but runs either at the command line or in a REPL.
+
+To use these tutorials:
+
+- You may need to
+  [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- You **must**
+  [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- You may need to [view the Orchid API configuration details](#view-orchid-configuration-details)
+- You may want to invoke the command, `copy_orchid_tutorials`
+
+  This command copies the tutorial files into an optionally specified (virtual environment) directory. (The
+  default destination is your current working directory.) Note that this command is a command-line script
+  that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to
+  provide you with help on running this command.
+
+More detailed instructions for running the examples can be found at:
+
+- [Run development Orchid tutorials](#run-development-orchid-tutorials) or at
+- [Run installed Orchid tutorials](#run-installed-orchid-tutorials)
 
 ### A Reading Suggestion
 
@@ -688,6 +738,79 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
+
+#### Run development Orchid tutorials
+
+- Prepare to run tutorials
+    - If you have not already done so,
+      [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+    - You **must**
+      [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+    - Navigate to `/path/to/repo`
+    - If orchid-python-api is installed in the virtual environment,
+        - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
+    - If orchid-python-api not (yet) installed,
+        - Copy the tutorial notebooks to the orchid project repository root
+            - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
+- Activate `poetry shell` if not activated
+
+##### Run tutorial notebook
+
+- Open Jupyter by running `jupyter lab` in the shell
+- Within Jupyter,
+    - Run the notebook, `dom_navigation_tutorial.ipynb`
+        1. Open the notebook in `jupyter`
+        2. Run each cell of the notebook. Typically, this process involves
+            - Read the instructions or comments preceding the code cell(s)
+            - Observe the result of executing the code
+
+##### Run tutorial script
+
+- Run the `dom_navigation_tutorial.py` script
+    - Execute the command `python dom_navigation_tutorial.py`
+    - Follow the on-screen messages to advance through the tutorial
+
+#### Run installed Orchid tutorials
+
+If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
+
+- Prepare to run tutorials
+    - If you have not already done so,
+      [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+    - You **must**
+      [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+    - If you are testing a `pipenv` virtual environment
+        - Navigate to the directory associated with the virtual environment
+        - If necessary, activate the virtual environment.
+        - Run `copy_orchid_tutorials.exe`.
+        - If the executable reports that it skipped files, repeat the command with an additional argument:  
+          `copy_orchid_tutorials.exe --overwrite`
+        - Verify that the current directory has one tutorial notebooks:
+            - `dom_navigation_tutorial.ipynb`
+        - Verify that the current directory has one tutorial scripts:
+            - `dom_navigation_tutorial.py`
+    - If you are testing a `poetry` virtual environment
+        - If orchid-python-api is installed in the virtual environment,
+            - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
+        - If orchid-python-api not (yet) installed,
+            - Copy the tutorial notebooks to the orchid project repository root
+                - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
+
+##### Run tutorial notebook
+
+- Open Jupyter by running `jupyter lab` in the shell
+- Within Jupyter,
+    - Run the notebook, `dom_navigation_tutorial.ipynb`
+        1. Open the notebook in `jupyter`
+        2. Run each cell of the notebook. Typically, this process involves
+            - Read the instructions or comments preceding the code cell(s)
+            - Observe the result of executing the code
+
+##### Run tutorial script
+
+- Run the `dom_navigation_tutorial.py` script
+    - Execute the command `python dom_navigation_tutorial.py`
+    - Follow the on-screen messages to advance through the tutorial
 
 ### Possible installation errors and resolutions
 
