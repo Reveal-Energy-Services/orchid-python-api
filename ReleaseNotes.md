@@ -13,6 +13,31 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+## Release notes for 2021.3.381
+
+This release is the production release of the Orchid Python API corresponding to Orchid 2021.3. This release:
+
+- Adds an iterator over "searchable project objects"
+- Add a tutorial demonstrating how to navigate the project
+- Prototype developer scripts to generate documentation using Sphinx
+
+### Resolved Issues
+
+- [GitHub issue 22](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/22)
+
+### Features
+
+- SearchableProjectObjects
+  - Make class an iterator
+
+- Tutorials
+  - A notebook and script demonstrating project object navigation
+
+### Known Issues
+
+No additional know issues for this release.
+
+
 ## Release notes for 2021.2.316
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2021.2. This release:
