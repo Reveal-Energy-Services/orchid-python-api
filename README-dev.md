@@ -56,7 +56,7 @@ To use these examples:
 
 More detailed instructions for running the examples can be found at:
 
-- [Run development Orchid examples](#run-development-orchid-examples) or at
+- [Run development Orchid examples](#run-development-orchid-examples)
 - [Run installed Orchid examples](#run-installed-orchid-examples)
 
 ## Tutorials
@@ -289,6 +289,8 @@ to perform these tasks.
 
 ### Update poetry
 
+- Terminate all processes, including PyCharm, that use the `poetry` virtual environment anchored at the 
+  repository directory to allow poetry to update its files.
 - Navigate to the repository directory
 - Execute the command `poetry self update` 
 
@@ -299,6 +301,11 @@ update a library. This same message occurred both in a Git Bash shell and in a P
 receiving this message, the installation of was corrupted. (The author received a message like "Could not 
 import poetry.console".) To resolve this issue, the author simply installed `poetry` again. This repaired the 
 `poetry.console` error and updated `poetry` to the latest version.
+
+When encountering this error a second time, the author noticed an "access denied" error in the stack trace.
+The author also noticed that PyCharm, which **uses** the virtual machine anchored at the repository directory,
+was running during this update. The author hypothesized that the running instance of PyCharm is what causes
+the error.
 
 ### Update dependencies
 

@@ -444,21 +444,21 @@ def poetry_publish(context, repository):
 
 
 @task
-def poetry_remove_venv(context, dirname='.', venv_name=None, python_path=None):
+def poetry_remove_venv(context, dirname='.', venv=None, python_path=None):
     """
     Remove the virtual environment associated with `dirname`.
     Args:
         context: The task context.
         dirname (str): The optional pathname of the directory whose virtual environment is to be removed.
             (Default '.')
-        venv_name (str): The name of the virtual environment to delete (and associated with `dirname`).
+        venv (str): The name of the virtual environment to delete (and associated with `dirname`).
         python_path (str): The full path to the python interpreter used to create the environment.
-            Note: specify either `venv_name` or `python-path` but not both.
+            Note: specify either `venv` or `python-path` but not both.
     """
-    assert not (venv_name and python_path), "Specify either `venv_name` or `python_path` but not both."
+    assert not (venv and python_path), "Specify either `venv` or `python_path` but not both."
 
     with context.cd(dirname):
-        context.run(f'poetry env remove {venv_name or python_path}')
+        context.run(f'poetry env remove {venv or python_path}')
 
 
 @task
