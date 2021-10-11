@@ -43,7 +43,10 @@ include=[
     "orchid/VERSION",
     "orchid_python_api/examples/*.ipynb",
     "orchid_python_api/examples/*.py",
+    "orchid_python_api/tutorials/*.ipynb",
+    "orchid_python_api/tutorials/*.py",
     "copy_orchid_examples.py",
+    "copy_orchid_tutorials.py",
 ]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
@@ -80,9 +83,11 @@ toml = "^0.10.1"
 grip = "^4.5.2"
 parsy = "^1.3.0"
 icecream = "^2.1.1"
+m2r2 = "^0.3.1"
 
 [tool.poetry.scripts]
 copy_orchid_examples = "copy_orchid_examples:main"
+copy_orchid_tutorials = "copy_orchid_tutorials:main"
 
 [tool.poetry.urls]
 Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
