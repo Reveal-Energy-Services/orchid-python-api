@@ -356,6 +356,13 @@ To update the project dependencies:
 
 - Open the file `ReleaseNotes.md` for editing.
 - Copy the version identifier from `orchid/VERSION` to the version number for the release.
+
+#### Edit the version number in the documentation
+
+- Navigate to the `docs` directory
+- Open the file `conf.py` for editing.
+- Search for the `release` value in the file
+- Copy the version identifier from `orchid/VERSION` to the `release` value.
   
 ### Publish to TestPyPI
 
