@@ -1,6 +1,6 @@
-# Orchid Python API Release Notes
+## Orchid Python API Release Notes
 
-## A Reading Suggestion
+### A Reading Suggestion
 
 This document is one of several documents you may want to read:
 
@@ -13,7 +13,7 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
-## Release notes for 2021.3.381
+### Release notes for 2021.3.381
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2021.3. This release:
 
@@ -21,11 +21,11 @@ This release is the production release of the Orchid Python API corresponding to
 - Add a tutorial demonstrating how to navigate the project
 - Prototype developer scripts to generate documentation using Sphinx
 
-### Resolved Issues
+#### Resolved Issues
 
 - [GitHub issue 22](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/22)
 
-### Features
+#### Features
 
 - SearchableProjectObjects
   - Make class an iterator
@@ -33,12 +33,12 @@ This release is the production release of the Orchid Python API corresponding to
 - Tutorials
   - A notebook and script demonstrating project object navigation
 
-### Known Issues
+#### Known Issues
 
 No additional know issues for this release.
 
 
-## Release notes for 2021.2.316
+### Release notes for 2021.2.316
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2021.2. This release:
 
@@ -47,14 +47,14 @@ This release is the production release of the Orchid Python API corresponding to
 - Internally uses `pendulum` for improved handling of date times (both UTC and local times)
 - Provides a consistent interface for collections of DOM objects
 
-### Resolved Issues
+#### Resolved Issues
 
 - [GitHub issue 12](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/12)
 - [GitHub issue 16](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/16)
 - [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
 - [GitHub issue 21](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/21)
 
-### Features
+#### Features
 
 - Project
   - Data frames
@@ -81,17 +81,17 @@ This release is the production release of the Orchid Python API corresponding to
   - Scripts for each example notebook
   - A notebook and script demonstrating search and data frame access.
 
-### Known Issues
+#### Known Issues
 
 - [GitHub issue 19](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/19)
 
-## Release notes for 2021.1.399
+### Release notes for 2021.1.399
 
 This release is the second production release of the Orchid Python API. This release changes the 
 implementation of measurements to use the [pint](https://pint.readthedocs.io/en/stable/) package and adds
 access to additional Orchid features.
 
-### Resolved issues
+#### Resolved issues
 
 - [GitHub issue 6](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/6)
 - [GitHub issue 10](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/10)
@@ -99,7 +99,7 @@ access to additional Orchid features.
 - [GitHub issue 14](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/14)
 - [GitHub issue 15](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/15)
 
-### Features
+#### Features
 
 - Project
   - Azimuth
@@ -121,7 +121,7 @@ access to additional Orchid features.
   
 Replace custom `Measurement` class with the features available in `pint`.
 
-### Known issues
+#### Known issues
 
 - [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
   
@@ -139,12 +139,12 @@ Replace custom `Measurement` class with the features available in `pint`.
   the monitor of interest. Because of issue #16, beware that this work around may not return all monitors
   with the name of interest.
 
-## Release notes for 2020.4.690
+### Release notes for 2020.4.690
 
 This release is the first production release of the Orchid Python API. This release offers access to the
 following Orchid features.
 
-### Features
+#### Features
 
 - General
   - Loading Orchid `.ifrac` files
@@ -202,7 +202,7 @@ following Orchid features.
     - Pumped fluid volume
     - Total proppant mass
 
-### Known issues
+#### Known issues
 
 - [GitHub issue 18](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/18)
   
