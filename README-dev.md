@@ -282,9 +282,11 @@ Publishing a release has a number of general steps. These steps are optional exc
 Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 
 Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
-    - `invoke --help` for general help on `invoke`
-    - `invoke --list` to list the available tasks
-    - `invoke poetry.venv.remove --help` (for help on a specific command listed)
+
+- `invoke --help` for general help on `invoke`
+- `invoke --list` to list the available tasks
+- `invoke poetry.venv.remove --help` (for help on a specific command listed)
+ 
 to perform these tasks.
 
 ### Update poetry
