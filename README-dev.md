@@ -56,7 +56,7 @@ To use these examples:
 
 More detailed instructions for running the examples can be found at:
 
-- [Run development Orchid examples](#run-development-orchid-examples) or at
+- [Run development Orchid examples](#run-development-orchid-examples)
 - [Run installed Orchid examples](#run-installed-orchid-examples)
 
 ## Tutorials
@@ -282,13 +282,17 @@ Publishing a release has a number of general steps. These steps are optional exc
 Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 
 Remember that the file, `tasks.py`, defines many common tasks. Be sure to use commands like:
-    - `invoke --help` for general help on `invoke`
-    - `invoke --list` to list the available tasks
-    - `invoke poetry.venv.remove --help` (for help on a specific command listed)
+
+- `invoke --help` for general help on `invoke`
+- `invoke --list` to list the available tasks
+- `invoke poetry.venv.remove --help` (for help on a specific command listed)
+ 
 to perform these tasks.
 
 ### Update poetry
 
+- Terminate all processes, including PyCharm, that use the `poetry` virtual environment anchored at the 
+  repository directory to allow poetry to update its files.
 - Navigate to the repository directory
 - Execute the command `poetry self update` 
 
@@ -299,6 +303,11 @@ update a library. This same message occurred both in a Git Bash shell and in a P
 receiving this message, the installation of was corrupted. (The author received a message like "Could not 
 import poetry.console".) To resolve this issue, the author simply installed `poetry` again. This repaired the 
 `poetry.console` error and updated `poetry` to the latest version.
+
+When encountering this error a second time, the author noticed an "access denied" error in the stack trace.
+The author also noticed that PyCharm, which **uses** the virtual machine anchored at the repository directory,
+was running during this update. The author hypothesized that the running instance of PyCharm is what causes
+the error.
 
 ### Update dependencies
 
@@ -349,6 +358,13 @@ To update the project dependencies:
 
 - Open the file `ReleaseNotes.md` for editing.
 - Copy the version identifier from `orchid/VERSION` to the version number for the release.
+
+#### Edit the version number in the documentation
+
+- Navigate to the `docs` directory
+- Open the file `conf.py` for editing.
+- Search for the `release` value in the file
+- Copy the version identifier from `orchid/VERSION` to the `release` value.
   
 ### Publish to TestPyPI
 

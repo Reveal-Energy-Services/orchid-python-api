@@ -10,7 +10,6 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 
 This document is one of several documents you may want to read:
 
-
 - [README](./README.md) - This file.
 - [README-dev.md](./README-dev.md) - A similar file targeting for package developers.
 - [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.

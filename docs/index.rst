@@ -11,6 +11,7 @@ Welcome to Orchid Python Api's documentation!
    :caption: Contents:
 
    introduction/readme_link
+   introduction/relnotes_link
    source/modules
 
 
