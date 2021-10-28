@@ -16,15 +16,17 @@
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Union
 
+import numpy as np
 import pandas as pd
 
 from orchid import (
     dom_project_object as dpo,
     dot_net_dom_access as dna,
-    net_date_time as ndt,
     unit_system as units,
 )
 
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
@@ -78,8 +80,11 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
         Returns
             The time series of this well curve.
         """
-        # Because I use `data_points` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
-        samples = list(map(lambda s: (s.Timestamp, s.Value), self.dom_object.GetOrderedTimeSeriesHistory()))
-        result = pd.Series(data=map(lambda s: s[1], samples), index=map(ndt.as_date_time, map(lambda s: s[0], samples)),
+        python_time_series_arrays = ScriptAdapter.AsPythonTimeSeriesArrays(self.dom_object)
+
+        result = pd.Series(data=np.fromiter(python_time_series_arrays.SampleMagnitudes, dtype='float'),
+                           index=pd.DatetimeIndex(np.fromiter(python_time_series_arrays.UnixTimeStampsInSeconds,
+                                                              dtype='datetime64[s]'), tz='UTC'),
                            name=self.name)
+
         return result
