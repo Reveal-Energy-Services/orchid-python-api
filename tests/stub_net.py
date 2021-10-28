@@ -215,6 +215,9 @@ def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
     return stub_native_calculations_factory
 
 
+# TODO: Change implementation of many stub objects to call `create_stub_domain_object`
+
+
 def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data_dto=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
@@ -241,15 +244,13 @@ def create_stub_net_stage(cluster_count=-1, display_name=None,
                           start_time=None, stop_time=None, treatment_curve_names=None,
                           shmin=None, pnet=None, isip=None):
     stub_net_stage_name = 'stub_net_stage'
-    try:
-        result = unittest.mock.MagicMock(name=stub_net_stage_name, spec=IStage)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        result = unittest.mock.MagicMock(name=stub_net_stage_name)
-    result.NumberOfClusters = cluster_count
-    if display_name is not None:
-        result.DisplayName = display_name
+    result = create_stub_domain_object(display_name=display_name,
+                                       stub_name=stub_net_stage_name,
+                                       stub_spec=IStage)
+
     if display_name_with_well is not None:
         result.DisplayNameWithWell = display_name_with_well
+    result.NumberOfClusters = cluster_count
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = make_net_measurement(md_top)
@@ -314,6 +315,20 @@ def create_stub_net_stage(cluster_count=-1, display_name=None,
             raise ValueError(f'Unrecognized shmin={isip}. The value, `isip`, must be a Python `unit` or'
                              f' a UnitsNet `Unit`.')
 
+    return result
+
+
+def create_stub_domain_object(object_id=None, name=None, display_name=None, stub_name=None, stub_spec=None):
+    try:
+        result = unittest.mock.MagicMock(name=stub_name, spec=stub_spec)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_name)
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
+    if display_name is not None:
+        result.DisplayName = display_name
+    if name is not None:
+        result.Name = name
     return result
 
 
@@ -398,20 +413,16 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
     return result
 
 
-def create_stub_net_time_series(object_id, name=None, display_name=None,
+def create_stub_net_time_series(object_id=None, name=None, display_name=None,
                                 sampled_quantity_name=None, sampled_quantity_type=None,
                                 data_points=(), project=None):
     stub_net_time_series_name = 'stub_net_time_series'
-    try:
-        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name,
-                                                       spec=IWellSampledQuantityTimeSeries)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name)
-    stub_net_time_series.ObjectId = object_id
-    if name is not None:
-        stub_net_time_series.Name = name
-    if display_name is not None:
-        stub_net_time_series.DisplayName = display_name
+    stub_net_time_series = create_stub_domain_object(object_id=object_id,
+                                                     name=name,
+                                                     display_name=display_name,
+                                                     stub_name=stub_net_time_series_name,
+                                                     stub_spec=IWellSampledQuantityTimeSeries)
+
     if sampled_quantity_name is not None:
         stub_net_time_series.SampledQuantityName = sampled_quantity_name
     if sampled_quantity_type is not None:
