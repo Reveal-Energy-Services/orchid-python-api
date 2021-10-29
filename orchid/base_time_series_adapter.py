@@ -22,6 +22,7 @@ import pandas as pd
 from orchid import (
     dom_project_object as dpo,
     dot_net_dom_access as dna,
+    project_loader as loader,
     unit_system as units,
 )
 
@@ -80,7 +81,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
         Returns
             The time series of this well curve.
         """
-        python_time_series_arrays = ScriptAdapter.AsPythonTimeSeriesArrays(self.dom_object)
+        python_time_series_arrays = loader.as_python_time_series_arrays(self.dom_object)
 
         result = pd.Series(data=np.fromiter(python_time_series_arrays.SampleMagnitudes, dtype='float'),
                            index=pd.DatetimeIndex(np.fromiter(python_time_series_arrays.UnixTimeStampsInSeconds,

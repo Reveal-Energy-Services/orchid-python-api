@@ -30,11 +30,32 @@ from System import InvalidOperationException
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+from Orchid.FractureDiagnostics.SDKFacade import (
+    PythonTimesSeriesArraysDto,
+    ScriptAdapter,
+)
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 
 class OrchidError(Exception):
     pass
+
+
+def as_python_time_series_arrays(native_time_series: IQuantityTimeSeries):
+    """
+    Calculate the Python time series arrays equivalent to the `native_time_series` samples.
+    Args:
+        native_time_series: The native time series whose samples are sought.
+
+    Returns:
+        A `PythonTimeSeriesArraysDto` containing two arrays:
+        - Sample magnitudes
+        - Unix time stamps in seconds
+    """
+    with sac.ScriptAdapterContext():
+        result = ScriptAdapter.AsPythonTimeSeriesArrays(native_time_series)
+    return result
 
 
 @functools.lru_cache()
