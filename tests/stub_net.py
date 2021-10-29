@@ -124,22 +124,29 @@ def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
     return samples
 
 
-def create_30_second_time_points(start_time_point: pendulum.DateTime, count: int):
+@toolz.curry
+def create_regular_time_points(interval: pendulum.Duration, start_time_point: pendulum.DateTime, count: int):
     """
-    Create a sequence of `count` time points, 30-seconds apart.
+    Create a sequence of `count` time points starting at `start_time_point`, `interval` apart.
 
     Args:
+        interval: The time interval between each point.
         start_time_point: The starting time point of the sequence.
         count: The number of time points in the sequence.
 
     Returns:
         The sequence of time points.
+
     """
     # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
-    end_time_point = start_time_point + pendulum.Duration(seconds=30 * count - 1)
+    end_time_point = start_time_point + interval * (count - 1)
     result = pendulum.period(start_time_point, end_time_point).range('seconds', 30)
     return result
+
+
+create_30_second_time_points = create_regular_time_points(pendulum.duration(seconds=30))
+create_1_second_time_points = create_regular_time_points(pendulum.duration(seconds=1))
 
 
 class StubNetTreatmentCurve:
