@@ -24,7 +24,6 @@ properties required during testing but do not actually implement the .NET class 
 from collections import namedtuple
 import itertools
 import unittest.mock
-import uuid
 from typing import Sequence
 
 import pendulum
