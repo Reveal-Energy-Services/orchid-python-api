@@ -103,11 +103,8 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_single_sample_time_series_from_curve_with_single_samples(self):
         values = [671.09]
         start_time_point = datetime(2016, 2, 9, 4, 50, 39, 340000, tzinfo=tdt.utc_time_zone())
-        sut = create_sut(name='palmis', values_starting_at=(values, start_time_point))
-
-        expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        expected = pd.Series(data=values, index=expected_time_points, name='palmis')
-        pdt.assert_series_equal(sut.data_points(), expected)
+        expected_name = 'palmis'
+        self.assert_time_series_equal(expected_name, start_time_point, values)
 
     # TODO: Consider combining this method with similar method(s) in other modules:
     # - test_base_time_series_adapter
@@ -116,10 +113,14 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
         start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000, tzinfo=tdt.utc_time_zone())
-        sut = create_sut(name='clavis', values_starting_at=(values, start_time_point))
+        expected_name = 'clavis'
+        self.assert_time_series_equal(expected_name, start_time_point, values)
 
+    @staticmethod
+    def assert_time_series_equal(expected_name, start_time_point, values):
+        sut = create_sut(name=expected_name, values_starting_at=(values, start_time_point))
         expected_time_points = [start_time_point + n * timedelta(seconds=30) for n in range(len(values))]
-        expected = pd.Series(data=values, index=expected_time_points, name='clavis')
+        expected = pd.Series(data=values, index=expected_time_points, name=expected_name)
         pdt.assert_series_equal(sut.data_points(), expected)
 
 
