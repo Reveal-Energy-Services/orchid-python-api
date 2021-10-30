@@ -106,7 +106,6 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
     # - test_native_treatment_curve_adapter
     @staticmethod
     def assert_equal_time_series(name, start_time_point, values):
-        # samples = tsn.create_stub_net_time_series_data_points(start_time_point, values)
         sut = create_sut(name=name)
         stub_unix_time_stamps = toolz.pipe(
             tsn.create_30_second_time_points(start_time_point, len(values)),
