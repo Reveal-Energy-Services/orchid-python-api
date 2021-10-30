@@ -139,6 +139,10 @@ def create_regularly_sampled_time_points(interval: pendulum.Duration, start_time
         The sequence of time points.
 
     """
+    # I must handle a count of 0 specially because `pendulum` **includes** the endpoint of the specified range.
+    if count == 0:
+        return []
+
     # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
     end_time_point = start_time_point + interval * (count - 1)
