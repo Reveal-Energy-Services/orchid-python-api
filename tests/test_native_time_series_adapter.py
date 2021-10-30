@@ -89,6 +89,10 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
         start_time_point = pendulum.datetime(2016, 2, 9, 4, 50, 39, tz='UTC')
         self.assert_equal_time_series(name, start_time_point, values)
 
+    # TODO: Consider combining this method with similar method(s) in other modules:
+    # - test_base_time_series_adapter
+    # - test_native_time_series_adapter
+    # - test_native_treatment_curve_adapter
     @staticmethod
     def assert_equal_time_series(name, start_time_point, values):
         samples = tsn.create_stub_net_time_series_data_points(start_time_point, values)

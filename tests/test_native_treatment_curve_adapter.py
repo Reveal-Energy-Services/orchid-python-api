@@ -84,6 +84,10 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
 
         assert_that(sut.suffix, equal_to('hominibus'))
 
+    # TODO: Consider combining this method with similar method(s) in other modules:
+    # - test_base_time_series_adapter
+    # - test_native_time_series_adapter
+    # - test_native_treatment_curve_adapter
     def test_empty_time_series_from_curve_with_no_samples(self):
         values = []
         start_time_point = datetime(2017, 7, 2, 3, 29, 10, 510000)
@@ -92,6 +96,10 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
         expected = pd.Series(data=[], index=[], name='palmis', dtype=np.float64)
         pdt.assert_series_equal(sut.data_points(), expected)
 
+    # TODO: Consider combining this method with similar method(s) in other modules:
+    # - test_base_time_series_adapter
+    # - test_native_time_series_adapter
+    # - test_native_treatment_curve_adapter
     def test_single_sample_time_series_from_curve_with_single_samples(self):
         values = [671.09]
         start_time_point = datetime(2016, 2, 9, 4, 50, 39, 340000, tzinfo=tdt.utc_time_zone())
@@ -101,6 +109,10 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
         expected = pd.Series(data=values, index=expected_time_points, name='palmis')
         pdt.assert_series_equal(sut.data_points(), expected)
 
+    # TODO: Consider combining this method with similar method(s) in other modules:
+    # - test_base_time_series_adapter
+    # - test_native_time_series_adapter
+    # - test_native_treatment_curve_adapter
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
         start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000, tzinfo=tdt.utc_time_zone())

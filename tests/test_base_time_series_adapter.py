@@ -122,6 +122,10 @@ class TestBaseCurveAdapter(unittest.TestCase):
         sut.quantity_name_unit_map.assert_called_once_with(unit_system)
 
 
+# TODO: Consider combining this method with similar method(s) in other modules:
+# - test_base_time_series_adapter
+# - test_native_time_series_adapter
+# - test_native_treatment_curve_adapter
 def assert_equal_data_points(name, object_id, sample_values, start_time):
     stub_net_time_series = tsn.create_stub_net_time_series(object_id, name)
     sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
