@@ -79,6 +79,8 @@ DONT_CARE_ID_E = 'e5ca1ade-e5ca-1ade-e5ca-1adee5ca1ade'  # escalade
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
 StubProjectBounds = namedtuple('StubProjectBounds', ['min_x', 'max_x', 'min_y', 'max_y', 'min_depth', 'max_depth'])
+StubPythonTimesSeriesArraysDto = namedtuple('StubPythonTimesSeriesArraysDto', ['SampleMagnitudes',
+                                                                               'UnixTimeStampsInSeconds'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
@@ -124,7 +126,7 @@ def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
 
 
 @toolz.curry
-def create_regular_time_points(interval: pendulum.Duration, start_time_point: pendulum.DateTime, count: int):
+def create_regularly_sampled_time_points(interval: pendulum.Duration, start_time_point: pendulum.DateTime, count: int):
     """
     Create a sequence of `count` time points starting at `start_time_point`, `interval` apart.
 
@@ -140,12 +142,12 @@ def create_regular_time_points(interval: pendulum.Duration, start_time_point: pe
     # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
     end_time_point = start_time_point + interval * (count - 1)
-    result = pendulum.period(start_time_point, end_time_point).range('seconds', 30)
+    result = pendulum.period(start_time_point, end_time_point).range('seconds', interval.total_seconds())
     return result
 
 
-create_30_second_time_points = create_regular_time_points(pendulum.duration(seconds=30))
-create_1_second_time_points = create_regular_time_points(pendulum.duration(seconds=1))
+create_30_second_time_points = create_regularly_sampled_time_points(pendulum.duration(seconds=30))
+create_1_second_time_points = create_regularly_sampled_time_points(pendulum.duration(seconds=1))
 
 
 class StubNetTreatmentCurve:
