@@ -217,9 +217,9 @@ _PINT_UNIT_CREATE_NET_UNITS = {
     om.registry.psi: lambda qv: UnitsNet.Pressure.FromPoundsForcePerSquareInch(qv),
     om.registry.kPa: lambda qv: UnitsNet.Pressure.FromKilopascals(qv),
     om.registry.oil_bbl / om.registry.min:
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
+        lambda qv: UnitsNet.VolumeFlow.FromOilBarrelsPerMinute(UnitsNet.QuantityValue.op_Implicit(qv)),
     ((om.registry.m ** 3) / om.registry.min):
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
+        lambda qv: UnitsNet.VolumeFlow.FromCubicMetersPerMinute(UnitsNet.QuantityValue.op_Implicit(qv)),
     om.registry.degF: lambda qv: UnitsNet.Temperature.FromDegreesFahrenheit(qv),
     om.registry.degC: lambda qv: UnitsNet.Temperature.FromDegreesCelsius(qv),
     om.registry.oil_bbl: lambda qv: UnitsNet.Volume.FromOilBarrels(qv),
@@ -240,11 +240,10 @@ _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
     },
     opq.PhysicalQuantity.PROPPANT_CONCENTRATION: {
         om.registry.lb / om.registry.gal:
-            lambda qv: ProppantConcentration(float(qv), UnitsNet.Units.MassUnit.Pound,
-                                             UnitsNet.Units.VolumeUnit.UsGallon),
+            lambda qv: UnitsNet.MassConcentration.FromPoundsPerUSGallon(UnitsNet.QuantityValue.op_Implicit(float(qv))),
         om.registry.kg / (om.registry.m ** 3):
-            lambda qv: ProppantConcentration(float(qv), UnitsNet.Units.MassUnit.Kilogram,
-                                             UnitsNet.Units.VolumeUnit.CubicMeter),
+            lambda qv: UnitsNet.MassConcentration.FromKilogramsPerCubicMeter(
+                UnitsNet.QuantityValue.op_Implicit(float(qv))),
     },
 }
 
