@@ -35,8 +35,26 @@ from System import Decimal
 import UnitsNet
 
 
-# Convenience functions
-native_angle_from_degrees = UnitsNet.Angle.FromDegrees
+# Conversion convenience functions
+
+def to_net_quantity_value(magnitude):
+    """
+    Create a `UnitsNet` `QuantityValue` instance.
+
+    The `UnitsNet` package *does not* accept floating point values to create most measurements; instead, these
+    creation functions expect an argument of type `QuantityValue`. In .NET, these values are created using an
+    implicit conversion. This implicit version on the Python side fails.
+
+    This function allows us to define that conversion in one place.
+
+    Args:
+        magnitude: The magnitude of the `UnitNet` `Quantity` (measurement) to be created.
+
+    Returns:
+        The `magnitude` wrapped in a `UnitsNet.QuantityValue` instance.
+
+    """
+    return UnitsNet.QuantityValue.op_Implicit(magnitude)
 
 
 class EqualsComparisonDetails:
@@ -221,9 +239,9 @@ _PINT_UNIT_CREATE_NET_UNITS = {
     om.registry.psi: UnitsNet.Pressure.FromPoundsForcePerSquareInch,
     om.registry.kPa: UnitsNet.Pressure.FromKilopascals,
     om.registry.oil_bbl / om.registry.min:
-        lambda qv: UnitsNet.VolumeFlow.FromOilBarrelsPerMinute(UnitsNet.QuantityValue.op_Implicit(qv)),
+        toolz.compose(UnitsNet.VolumeFlow.FromOilBarrelsPerMinute, to_net_quantity_value),
     ((om.registry.m ** 3) / om.registry.min):
-        lambda qv: UnitsNet.VolumeFlow.FromCubicMetersPerMinute(UnitsNet.QuantityValue.op_Implicit(qv)),
+        toolz.compose(UnitsNet.VolumeFlow.FromCubicMetersPerMinute, to_net_quantity_value),
     om.registry.degF: UnitsNet.Temperature.FromDegreesFahrenheit,
     om.registry.degC: UnitsNet.Temperature.FromDegreesCelsius,
     om.registry.oil_bbl: UnitsNet.Volume.FromOilBarrels,
@@ -239,15 +257,13 @@ _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
     opq.PhysicalQuantity.DENSITY: {
         om.registry.lb / om.registry.cu_ft: _us_oilfield_slurry_rate,
         om.registry.lb / om.registry.ft ** 3: _us_oilfield_slurry_rate,
-        om.registry.kg / (om.registry.m ** 3):
-            lambda qv: UnitsNet.Density.FromKilogramsPerCubicMeter(qv),
+        om.registry.kg / (om.registry.m ** 3): UnitsNet.Density.FromKilogramsPerCubicMeter,
     },
     opq.PhysicalQuantity.PROPPANT_CONCENTRATION: {
         om.registry.lb / om.registry.gal:
-            lambda qv: UnitsNet.MassConcentration.FromPoundsPerUSGallon(UnitsNet.QuantityValue.op_Implicit(float(qv))),
+            toolz.compose(UnitsNet.MassConcentration.FromPoundsPerUSGallon, to_net_quantity_value),
         om.registry.kg / (om.registry.m ** 3):
-            lambda qv: UnitsNet.MassConcentration.FromKilogramsPerCubicMeter(
-                UnitsNet.QuantityValue.op_Implicit(float(qv))),
+            toolz.compose(UnitsNet.MassConcentration.FromKilogramsPerCubicMeter, to_net_quantity_value),
     },
 }
 
