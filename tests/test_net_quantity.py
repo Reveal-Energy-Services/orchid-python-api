@@ -19,6 +19,7 @@ import decimal
 import unittest
 
 from hamcrest import assert_that, equal_to, close_to
+import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
@@ -51,6 +52,21 @@ def is_power_unit(unit):
     return unit == om.registry.hp or unit == om.registry.W
 
 
+# Convenience functions to create `UnitsNet` units for tests
+net_angle_from_degrees = toolz.compose(UnitsNet.Angle.FromDegrees, onq.to_net_quantity_value)
+net_duration_from_minutes = toolz.compose(UnitsNet.Duration.FromMinutes, onq.to_net_quantity_value)
+net_density_from_lbs_per_cu_ft = toolz.compose(UnitsNet.Density.FromPoundsPerCubicFoot,
+                                               onq.to_net_quantity_value)
+net_density_from_kg_per_cu_m = toolz.compose(UnitsNet.Density.FromKilogramsPerCubicMeter,
+                                             onq.to_net_quantity_value)
+net_energy_from_ft_lbs = toolz.compose(UnitsNet.Energy.FromFootPounds, onq.to_net_quantity_value)
+net_energy_from_J = toolz.compose(UnitsNet.Energy.FromJoules, onq.to_net_quantity_value)
+net_force_from_lbf = toolz.compose(UnitsNet.Force.FromPoundsForce, onq.to_net_quantity_value)
+net_force_from_N = toolz.compose(UnitsNet.Force.FromNewtons, onq.to_net_quantity_value)
+net_length_from_ft = toolz.compose(UnitsNet.Length.FromFeet, onq.to_net_quantity_value)
+net_length_from_m = toolz.compose(UnitsNet.Length.FromMeters, onq.to_net_quantity_value)
+
+
 # Test ideas
 # - well.frac_gradient (property - appears to return "ratio unit", `FracGradient`)
 #   (Consider not exposing this property because we expect it to change.)
@@ -79,28 +95,26 @@ class TestNetQuantity(unittest.TestCase):
 
     def test_as_measurement(self):
         for net_quantity, expected, physical_quantity, tolerance in [
-            (UnitsNet.Angle.FromDegrees(onq.to_net_quantity_value(306.1)),
-             306.1 * om.registry.deg, opq.PhysicalQuantity.ANGLE, decimal.Decimal('0.1')),
-            (UnitsNet.Duration.FromMinutes(onq.to_net_quantity_value(1.414)),
-             1.414 * om.registry.min, opq.PhysicalQuantity.DURATION, decimal.Decimal('0.1')),
-            (UnitsNet.Density.FromPoundsPerCubicFoot(onq.to_net_quantity_value(70.13e-3)),
-             70.13e-3 * om.registry.lb / om.registry.ft ** 3,
+            (net_angle_from_degrees(306.1), 306.1 * om.registry.deg,
+             opq.PhysicalQuantity.ANGLE, decimal.Decimal('0.1')),
+            (net_duration_from_minutes(1.414), 1.414 * om.registry.min,
+             opq.PhysicalQuantity.DURATION, decimal.Decimal('0.1')),
+            (net_density_from_lbs_per_cu_ft(70.13e-3), 70.13e-3 * om.registry.lb / om.registry.ft ** 3,
              opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.01e-3')),
-            (UnitsNet.Density.FromKilogramsPerCubicMeter(onq.to_net_quantity_value(1.123)),
-             1.123 * om.registry.kg / (om.registry.m ** 3),
+            (net_density_from_kg_per_cu_m(1.123), 1.123 * om.registry.kg / (om.registry.m ** 3),
              opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.001')),
-            (UnitsNet.Energy.FromFootPounds(onq.to_net_quantity_value(43.12e9)),
-             43.12e9 * om.registry.ft_lb, opq.PhysicalQuantity.ENERGY, decimal.Decimal('0.01e9')),
-            (UnitsNet.Energy.FromJoules(onq.to_net_quantity_value(14.22e3)),
-             14.22e3 * om.registry.J, opq.PhysicalQuantity.ENERGY, decimal.Decimal('0.01e3')),
-            (UnitsNet.Force.FromPoundsForce(onq.to_net_quantity_value(101.0e3)),
-             101.0e3 * om.registry.lbf, opq.PhysicalQuantity.FORCE, decimal.Decimal('0.1e3')),
-            (UnitsNet.Force.FromNewtons(onq.to_net_quantity_value(441.2e3)),
-             441.2e3 * om.registry.N, opq.PhysicalQuantity.FORCE,  decimal.Decimal('0.1e3')),
-            (UnitsNet.Length.FromFeet(onq.to_net_quantity_value(44.49)),
-             44.49 * om.registry.ft, opq.PhysicalQuantity.LENGTH, decimal.Decimal('0.01')),
-            (UnitsNet.Length.FromMeters(onq.to_net_quantity_value(13.56)),
-             13.56 * om.registry.m, opq.PhysicalQuantity.LENGTH, decimal.Decimal('0.01')),
+            (net_energy_from_ft_lbs(43.12e9), 43.12e9 * om.registry.ft_lb,
+             opq.PhysicalQuantity.ENERGY, decimal.Decimal('0.01e9')),
+            (net_energy_from_J(14.22e3), 14.22e3 * om.registry.J,
+             opq.PhysicalQuantity.ENERGY, decimal.Decimal('0.01e3')),
+            (net_force_from_lbf(101.0e3), 101.0e3 * om.registry.lbf,
+             opq.PhysicalQuantity.FORCE, decimal.Decimal('0.1e3')),
+            (net_force_from_N(441.2e3), 441.2e3 * om.registry.N,
+             opq.PhysicalQuantity.FORCE, decimal.Decimal('0.1e3')),
+            (net_length_from_ft(44.49), 44.49 * om.registry.ft,
+             opq.PhysicalQuantity.LENGTH, decimal.Decimal('0.01')),
+            (net_length_from_m(13.56), 13.56 * om.registry.m,
+             opq.PhysicalQuantity.LENGTH, decimal.Decimal('0.01')),
             (UnitsNet.Mass.FromPounds(onq.to_net_quantity_value(30.94)),
              30.94 * om.registry.lb, opq    .PhysicalQuantity.MASS, decimal.Decimal('0.01')),
             (UnitsNet.Mass.FromKilograms(onq.to_net_quantity_value(68.21)),
