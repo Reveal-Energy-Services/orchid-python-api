@@ -30,8 +30,6 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.RatioTypes import ProppantConcentration, SlurryRate
-# noinspection PyUnresolvedReferences
 from System import Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -98,6 +96,7 @@ def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
 
 
+# noinspection PyUnresolvedReferences
 @as_measurement.register(opq.PhysicalQuantity)
 @toolz.curry
 def as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
@@ -114,45 +113,6 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
     Returns:
         The equivalent `pint` `Quantity` instance.
     """
-    def is_proppant_concentration(physical_qty):
-        return physical_qty == opq.PhysicalQuantity.PROPPANT_CONCENTRATION
-
-    def is_slurry_rate(physical_qty):
-        return physical_qty == opq.PhysicalQuantity.SLURRY_RATE
-
-    def ratio_units(net_qty):
-        return net_qty.NumeratorUnit, net_qty.DenominatorUnit
-
-    def is_us_oilfield_proppant_concentration(numerator, denominator):
-        return (numerator == UnitsNet.Units.MassUnit.Pound and
-                denominator == UnitsNet.Units.VolumeUnit.UsGallon)
-
-    def is_metric_proppant_concentration(numerator, denominator):
-        return (numerator == UnitsNet.Units.MassUnit.Kilogram and
-                denominator == UnitsNet.Units.VolumeUnit.CubicMeter)
-
-    def is_us_oilfield_slurry_rate(numerator, denominator):
-        return (numerator == UnitsNet.Units.VolumeUnit.OilBarrel and
-                denominator == UnitsNet.Units.DurationUnit.Minute)
-
-    def is_metric_slurry_rate(numerator, denominator):
-        return (numerator == UnitsNet.Units.VolumeUnit.CubicMeter and
-                denominator == UnitsNet.Units.DurationUnit.Minute)
-
-    if is_proppant_concentration(physical_quantity):
-        numerator_unit, denominator_unit = ratio_units(net_quantity)
-        if is_us_oilfield_proppant_concentration(numerator_unit, denominator_unit):
-            return net_quantity.Value * om.registry.lb / om.registry.gal
-        elif is_metric_proppant_concentration(numerator_unit, denominator_unit):
-            return net_quantity.Value * om.registry.kg / (om.registry.m ** 3)
-
-    if is_slurry_rate(physical_quantity):
-        numerator_unit, denominator_unit = ratio_units(net_quantity)
-        if is_us_oilfield_slurry_rate(numerator_unit, denominator_unit):
-            return net_quantity.Value * om.registry.oil_bbl / om.registry.min
-        elif is_metric_slurry_rate(numerator_unit, denominator_unit):
-            return net_quantity.Value * (om.registry.m ** 3) / om.registry.min
-
     pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
 
     # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
@@ -176,6 +136,7 @@ as_length_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.LENGTH)
 as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESSURE)
 
 
+# noinspection PyUnresolvedReferences
 @as_measurement.register(units.Common)
 @toolz.curry
 def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
@@ -193,6 +154,7 @@ def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity)
     return as_measurement(common_unit.value.physical_quantity, net_quantity)
 
 
+# noinspection PyUnresolvedReferences
 @as_measurement.register(units.Metric)
 @as_measurement.register(units.UsOilfield)
 @toolz.curry
@@ -287,6 +249,7 @@ _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
 }
 
 
+# noinspection PyUnresolvedReferences
 @as_net_quantity.register(opq.PhysicalQuantity)
 @toolz.curry
 def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Quantity) -> UnitsNet.IQuantity:
@@ -317,6 +280,7 @@ def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Q
     return toolz.get(measurement.units, _PINT_UNIT_CREATE_NET_UNITS)(quantity)
 
 
+# noinspection PyUnresolvedReferences
 @as_net_quantity.register(units.Common)
 @toolz.curry
 def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
@@ -334,6 +298,7 @@ def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity)
     return as_net_quantity(to_common_unit.value.physical_quantity, measurement)
 
 
+# noinspection PyUnresolvedReferences
 @as_net_quantity.register(units.Metric)
 @as_net_quantity.register(units.UsOilfield)
 @toolz.curry
@@ -414,6 +379,10 @@ _UNIT_NET_UNITS = {
     units.Metric.POWER: UnitsNet.Units.PowerUnit.Watt,
     units.UsOilfield.PRESSURE: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
     units.Metric.PRESSURE: UnitsNet.Units.PressureUnit.Kilopascal,
+    units.UsOilfield.PROPPANT_CONCENTRATION: UnitsNet.Units.MassConcentrationUnit.PoundPerUSGallon,
+    units.Metric.PROPPANT_CONCENTRATION: UnitsNet.Units.MassConcentrationUnit.KilogramPerCubicMeter,
+    units.UsOilfield.SLURRY_RATE: UnitsNet.Units.VolumeFlowUnit.OilBarrelPerMinute,
+    units.Metric.SLURRY_RATE: UnitsNet.Units.VolumeFlowUnit.CubicMeterPerMinute,
     units.UsOilfield.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeFahrenheit,
     units.Metric.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeCelsius,
     units.UsOilfield.VOLUME: UnitsNet.Units.VolumeUnit.OilBarrel,
@@ -433,48 +402,8 @@ def _convert_net_quantity_to_different_unit(target_unit: units.UnitSystem,
     Returns:
         The .NET `UnitsNet.IQuantity` converted to `target_unit`.
     """
-
-    if _is_proppant_concentration(target_unit):
-        return _create_proppant_concentration(net_quantity, target_unit)
-
-    if _is_slurry_rate(target_unit):
-        return _create_slurry_rate(net_quantity, target_unit)
-
     result = net_quantity.ToUnit(_UNIT_NET_UNITS[target_unit])
     return result
-
-
-def _create_proppant_concentration(net_to_convert, target_unit):
-    if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
-        mass_unit = UnitsNet.Units.MassUnit.Pound
-        volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
-    elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
-        mass_unit = UnitsNet.Units.MassUnit.Kilogram
-        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-    # noinspection PyUnboundLocalVariable
-    converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
-    return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
-
-
-def _create_slurry_rate(net_to_convert, target_unit):
-    if target_unit == units.UsOilfield.SLURRY_RATE:
-        volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
-    elif target_unit == units.Metric.SLURRY_RATE:
-        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-    duration_unit = UnitsNet.Units.DurationUnit.Minute
-    # noinspection PyUnboundLocalVariable
-    converted_magnitude = net_to_convert.As(volume_unit, duration_unit)
-    return SlurryRate(converted_magnitude, volume_unit, duration_unit)
-
-
-def _is_proppant_concentration(to_test):
-    return (to_test == units.UsOilfield.PROPPANT_CONCENTRATION
-            or to_test == units.Metric.PROPPANT_CONCENTRATION)
-
-
-def _is_slurry_rate(to_test):
-    return (to_test == units.UsOilfield.SLURRY_RATE
-            or to_test == units.Metric.SLURRY_RATE)
 
 
 def _net_decimal_to_float(net_decimal: Decimal) -> float:
@@ -524,6 +453,14 @@ _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
     opq.PhysicalQuantity.PRESSURE: {
         UnitsNet.Units.PressureUnit.PoundForcePerSquareInch: om.registry.psi,
         UnitsNet.Units.PressureUnit.Kilopascal: om.registry.kPa,
+    },
+    opq.PhysicalQuantity.PROPPANT_CONCENTRATION: {
+        UnitsNet.Units.MassConcentrationUnit.PoundPerUSGallon: om.registry.lb / om.registry.gallon,
+        UnitsNet.Units.MassConcentrationUnit.KilogramPerCubicMeter: om.registry.kg / om.registry.m ** 3,
+    },
+    opq.PhysicalQuantity.SLURRY_RATE: {
+        UnitsNet.Units.VolumeFlowUnit.OilBarrelPerMinute: om.registry.oil_bbl / om.registry.min,
+        UnitsNet.Units.VolumeFlowUnit.CubicMeterPerMinute: om.registry.m ** 3 / om.registry.min,
     },
     opq.PhysicalQuantity.TEMPERATURE: {
         UnitsNet.Units.TemperatureUnit.DegreeFahrenheit: om.registry.degF,
