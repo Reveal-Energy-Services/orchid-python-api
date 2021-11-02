@@ -35,6 +35,10 @@ from System import Decimal
 import UnitsNet
 
 
+# Convenience functions
+native_angle_from_degrees = UnitsNet.Angle.FromDegrees
+
+
 class EqualsComparisonDetails:
     def __init__(self, tolerance: Real = 1e-4,
                  net_comparison_type: UnitsNet.ComparisonType = UnitsNet.ComparisonType.Relative):
@@ -202,28 +206,28 @@ def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:
 
 
 _PINT_UNIT_CREATE_NET_UNITS = {
-    om.registry.deg: lambda qv: UnitsNet.Angle.FromDegrees(qv),
-    om.registry.min: lambda qv: UnitsNet.Duration.FromMinutes(qv),
-    om.registry.ft_lb: lambda qv: UnitsNet.Energy.FromFootPounds(qv),
-    om.registry.J: lambda qv: UnitsNet.Energy.FromJoules(qv),
-    om.registry.lbf: lambda qv: UnitsNet.Force.FromPoundsForce(qv),
-    om.registry.N: lambda qv: UnitsNet.Force.FromNewtons(qv),
-    om.registry.ft: lambda qv: UnitsNet.Length.FromFeet(qv),
-    om.registry.m: lambda qv: UnitsNet.Length.FromMeters(qv),
-    om.registry.lb: lambda qv: UnitsNet.Mass.FromPounds(qv),
-    om.registry.kg: lambda qv: UnitsNet.Mass.FromKilograms(qv),
-    om.registry.hp: lambda qv: UnitsNet.Power.FromMechanicalHorsepower(qv),
-    om.registry.W: lambda qv: UnitsNet.Power.FromWatts(qv),
-    om.registry.psi: lambda qv: UnitsNet.Pressure.FromPoundsForcePerSquareInch(qv),
-    om.registry.kPa: lambda qv: UnitsNet.Pressure.FromKilopascals(qv),
+    om.registry.deg: UnitsNet.Angle.FromDegrees,
+    om.registry.min: UnitsNet.Duration.FromMinutes,
+    om.registry.ft_lb: UnitsNet.Energy.FromFootPounds,
+    om.registry.J: UnitsNet.Energy.FromJoules,
+    om.registry.lbf: UnitsNet.Force.FromPoundsForce,
+    om.registry.N: UnitsNet.Force.FromNewtons,
+    om.registry.ft: UnitsNet.Length.FromFeet,
+    om.registry.m: UnitsNet.Length.FromMeters,
+    om.registry.lb: UnitsNet.Mass.FromPounds,
+    om.registry.kg: UnitsNet.Mass.FromKilograms,
+    om.registry.hp: UnitsNet.Power.FromMechanicalHorsepower,
+    om.registry.W: UnitsNet.Power.FromWatts,
+    om.registry.psi: UnitsNet.Pressure.FromPoundsForcePerSquareInch,
+    om.registry.kPa: UnitsNet.Pressure.FromKilopascals,
     om.registry.oil_bbl / om.registry.min:
         lambda qv: UnitsNet.VolumeFlow.FromOilBarrelsPerMinute(UnitsNet.QuantityValue.op_Implicit(qv)),
     ((om.registry.m ** 3) / om.registry.min):
         lambda qv: UnitsNet.VolumeFlow.FromCubicMetersPerMinute(UnitsNet.QuantityValue.op_Implicit(qv)),
-    om.registry.degF: lambda qv: UnitsNet.Temperature.FromDegreesFahrenheit(qv),
-    om.registry.degC: lambda qv: UnitsNet.Temperature.FromDegreesCelsius(qv),
-    om.registry.oil_bbl: lambda qv: UnitsNet.Volume.FromOilBarrels(qv),
-    (om.registry.m ** 3): lambda qv: UnitsNet.Volume.FromCubicMeters(qv),
+    om.registry.degF: UnitsNet.Temperature.FromDegreesFahrenheit,
+    om.registry.degC: UnitsNet.Temperature.FromDegreesCelsius,
+    om.registry.oil_bbl: UnitsNet.Volume.FromOilBarrels,
+    (om.registry.m ** 3): UnitsNet.Volume.FromCubicMeters,
 }
 
 
