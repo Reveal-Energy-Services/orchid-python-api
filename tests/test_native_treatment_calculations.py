@@ -40,7 +40,9 @@ from tests import (
 )
 
 
-DONT_CARE_MEASUREMENT_MAGNITUDE = float('NaN')
+# Beginning Oct-2021, Orchid upgraded its dependency on `UnitsNet`. And version >~ 4 of `UnitsNet` *does not*
+# support `NaN` values.
+DONT_CARE_MEASUREMENT_MAGNITUDE = -3.141592653589793
 DONT_CARE_WARNINGS = []
 
 
