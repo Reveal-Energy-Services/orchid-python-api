@@ -97,6 +97,7 @@ net_creator_attributes = {
     'power_from_W': 'Power.FromWatts',
     'pressure_from_psi': 'Pressure.FromPoundsForcePerSquareInch',
     'pressure_from_kPa': 'Pressure.FromKilopascals',
+    'pressure_from_bars': 'Pressure.FromBars',
     'mass_concentration_from_lbs_per_gal': 'MassConcentration.FromPoundsPerUSGallon',
     'mass_concentration_from_kg_per_cu_m': 'MassConcentration.FromKilogramsPerCubicMeter',
     'volume_flow_from_oil_bbl_per_min': 'VolumeFlow.FromOilBarrelsPerMinute',
