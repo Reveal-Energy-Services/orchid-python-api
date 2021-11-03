@@ -18,8 +18,9 @@
 """This module contains functions for converting between instances of the (Python) `Measurement` class and
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
-from numbers import Real
 from functools import singledispatch
+from numbers import Real
+import operator
 
 import toolz.curried as toolz
 
@@ -35,7 +36,8 @@ from System import Decimal
 import UnitsNet
 
 
-# Conversion convenience functions
+# Convenience functions
+
 
 def to_net_quantity_value(magnitude):
     """
@@ -55,6 +57,49 @@ def to_net_quantity_value(magnitude):
 
     """
     return UnitsNet.QuantityValue.op_Implicit(magnitude)
+
+
+# The following code creates conversion functions programmatically by:
+# - Creating a map from variable name to string identifying how to create the `UnitsNet` `Quantity`
+# - Transforming that map by:
+#   - Transforming the map keys by prepending 'net_'
+#   - Transforming the map values to a function creating the value. (See the documentation of
+#     `operator.attrgetter` function for details.)
+# - Adding the key and value of this map to the `globals()` dict (module attributes)
+net_creator_attributes = {
+    'angle_from_deg': 'Angle.FromDegrees',
+    'duration_from_min': 'Duration.FromMinutes',
+    'density_from_lbs_per_cu_ft': 'Density.FromPoundsPerCubicFoot',
+    'density_from_kg_per_cu_m': 'Density.FromKilogramsPerCubicMeter',
+    'energy_from_ft_lbs': 'Energy.FromFootPounds',
+    'energy_from_J': 'Energy.FromJoules',
+    'force_from_lbf': 'Force.FromPoundsForce',
+    'force_from_N': 'Force.FromNewtons',
+    'length_from_ft': 'Length.FromFeet',
+    'length_from_m': 'Length.FromMeters',
+    'mass_from_lbs': 'Mass.FromPounds',
+    'mass_from_kg': 'Mass.FromKilograms',
+    'power_from_hp': 'Power.FromMechanicalHorsepower',
+    'power_from_W': 'Power.FromWatts',
+    'pressure_from_psi': 'Pressure.FromPoundsForcePerSquareInch',
+    'pressure_from_kPa': 'Pressure.FromKilopascals',
+    'mass_concentration_from_lbs_per_gal': 'MassConcentration.FromPoundsPerUSGallon',
+    'mass_concentration_from_kg_per_cu_m': 'MassConcentration.FromKilogramsPerCubicMeter',
+    'volume_flow_from_oil_bbl_per_min': 'VolumeFlow.FromOilBarrelsPerMinute',
+    'volume_flow_from_cu_m_per_min': 'VolumeFlow.FromCubicMetersPerMinute',
+    'temperature_from_deg_F': 'Temperature.FromDegreesFahrenheit',
+    'temperature_from_deg_C': 'Temperature.FromDegreesCelsius',
+    'volume_from_oil_bbl': 'Volume.FromOilBarrels',
+    'volume_from_cu_m': 'Volume.FromCubicMeters',
+}
+net_creator_funcs = toolz.pipe(
+    net_creator_attributes,
+    toolz.keymap(lambda k: f'net_{k}'),
+    toolz.valmap(lambda v: toolz.compose(operator.attrgetter(v)(UnitsNet),
+                                         to_net_quantity_value)),
+)
+for variable_name, variable_value in net_creator_funcs.items():
+    globals()[variable_name] = variable_value
 
 
 class EqualsComparisonDetails:
