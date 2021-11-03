@@ -268,6 +268,7 @@ def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:
     raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_net_quantity`.')
 
 
+# noinspection PyUnresolvedReferences
 _PINT_UNIT_CREATE_NET_UNITS = {
     om.registry.deg: UnitsNet.Angle.FromDegrees,
     om.registry.min: UnitsNet.Duration.FromMinutes,
@@ -283,10 +284,8 @@ _PINT_UNIT_CREATE_NET_UNITS = {
     om.registry.W: UnitsNet.Power.FromWatts,
     om.registry.psi: UnitsNet.Pressure.FromPoundsForcePerSquareInch,
     om.registry.kPa: UnitsNet.Pressure.FromKilopascals,
-    om.registry.oil_bbl / om.registry.min:
-        toolz.compose(UnitsNet.VolumeFlow.FromOilBarrelsPerMinute, to_net_quantity_value),
-    ((om.registry.m ** 3) / om.registry.min):
-        toolz.compose(UnitsNet.VolumeFlow.FromCubicMetersPerMinute, to_net_quantity_value),
+    om.registry.oil_bbl / om.registry.min: net_volume_flow_from_oil_bbl_per_min,
+    ((om.registry.m ** 3) / om.registry.min): net_volume_flow_from_cu_m_per_min,
     om.registry.degF: UnitsNet.Temperature.FromDegreesFahrenheit,
     om.registry.degC: UnitsNet.Temperature.FromDegreesCelsius,
     om.registry.oil_bbl: UnitsNet.Volume.FromOilBarrels,
@@ -298,6 +297,7 @@ def _us_oilfield_slurry_rate(qv):
     return UnitsNet.Density.FromPoundsPerCubicFoot(qv)
 
 
+# noinspection PyUnresolvedReferences
 _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
     opq.PhysicalQuantity.DENSITY: {
         om.registry.lb / om.registry.cu_ft: _us_oilfield_slurry_rate,
@@ -305,10 +305,8 @@ _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
         om.registry.kg / (om.registry.m ** 3): UnitsNet.Density.FromKilogramsPerCubicMeter,
     },
     opq.PhysicalQuantity.PROPPANT_CONCENTRATION: {
-        om.registry.lb / om.registry.gal:
-            toolz.compose(UnitsNet.MassConcentration.FromPoundsPerUSGallon, to_net_quantity_value),
-        om.registry.kg / (om.registry.m ** 3):
-            toolz.compose(UnitsNet.MassConcentration.FromKilogramsPerCubicMeter, to_net_quantity_value),
+        om.registry.lb / om.registry.gal: net_mass_concentration_from_lbs_per_gal,
+        om.registry.kg / (om.registry.m ** 3): net_mass_concentration_from_kg_per_cu_m,
     },
 }
 
