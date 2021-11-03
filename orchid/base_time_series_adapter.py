@@ -73,13 +73,13 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
 
     def data_points(self) -> pd.Series:
         """
-        Return the time series for this well curve.
+        Return the time series for this curve.
 
         Returns
-            The time series of this well curve.
+            The `pandas` time `Series` for this curve.
         """
-        # Because I use `data_points` twice in the subsequent expression, I must *actualize* the map by invoking `list`.
         samples = list(map(lambda s: (s.Timestamp, s.Value), self.dom_object.GetOrderedTimeSeriesHistory()))
-        result = pd.Series(data=map(lambda s: s[1], samples), index=map(ndt.as_date_time, map(lambda s: s[0], samples)),
+        result = pd.Series(data=map(lambda s: s[1], samples),
+                           index=map(ndt.as_date_time, map(lambda s: s[0], samples)),
                            name=self.name)
         return result
