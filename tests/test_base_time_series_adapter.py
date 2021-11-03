@@ -18,12 +18,14 @@ from hamcrest import assert_that, equal_to, is_
 import pendulum
 import toolz.curried as toolz
 
+import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 
 from orchid import (
     base_time_series_adapter as bca,
     net_date_time as net_dt,
+    project_loader as loader,
     unit_system as units,
 )
 
@@ -49,7 +51,10 @@ class TestBaseCurveAdapter(unittest.TestCase):
         stub_net_time_series = tsn.create_stub_net_time_series(tsn.DONT_CARE_ID_A, data_points=())
         sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
 
-        actual_data_points = sut.data_points()
+        with unittest.mock.patch('orchid.base_time_series_adapter.loader.as_python_time_series_arrays',
+                                 spec=loader.as_python_time_series_arrays,
+                                 return_value=tsn.StubPythonTimesSeriesArraysDto((), ())):
+            actual_data_points = sut.data_points()
         assert_that(actual_data_points.empty, is_(True))
 
     def test_single_data_point_time_series(self):
@@ -117,19 +122,33 @@ class TestBaseCurveAdapter(unittest.TestCase):
         sut.quantity_name_unit_map.assert_called_once_with(unit_system)
 
 
+# TODO: Consider combining this method with similar method(s) in other modules:
+# - test_base_time_series_adapter
+# - test_native_time_series_adapter
+# - test_native_treatment_curve_adapter
 def assert_equal_data_points(name, object_id, sample_values, start_time):
-    net_samples = tsn.create_stub_net_time_series_data_points(start_time, sample_values)
-    stub_net_time_series = tsn.create_stub_net_time_series(object_id, name, data_points=net_samples)
+    stub_net_time_series = tsn.create_stub_net_time_series(object_id, name)
     sut = StubBaseTimeSeriesAdapter(stub_net_time_series)
-    actual_data_points = sut.data_points()
-    expected_sample_times = toolz.pipe(
-        tsn.create_30_second_time_points(start_time, len(sample_values)),
-        toolz.map(net_dt.as_net_date_time),
-        toolz.map(net_dt.as_date_time),
+    stub_unix_time_stamps = toolz.pipe(
+        tsn.create_1_second_time_points(start_time, len(sample_values)),
+        toolz.map(lambda dt: int(dt.timestamp())),
         list,
     )
-    expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
-    pdt.assert_series_equal(actual_data_points, expected_data_points)
+    stub_python_time_series_arrays_dto = tsn.StubPythonTimesSeriesArraysDto(sample_values,
+                                                                            stub_unix_time_stamps)
+    with unittest.mock.patch('orchid.base_time_series_adapter.loader.as_python_time_series_arrays',
+                             spec=loader.as_python_time_series_arrays,
+                             return_value=stub_python_time_series_arrays_dto):
+        actual_data_points = sut.data_points()
+        expected_sample_times = toolz.pipe(
+            start_time,
+            lambda st: tsn.create_1_second_time_points(st, len(sample_values)),
+            toolz.map(lambda dt: int(dt.timestamp())),
+            toolz.map(lambda uts: np.datetime64(uts, 's')),
+            lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
+        )
+        expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
+        pdt.assert_series_equal(actual_data_points, expected_data_points)
 
 
 if __name__ == '__main__':
