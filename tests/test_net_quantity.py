@@ -63,8 +63,8 @@ def is_power_unit(unit):
 #     `operator.attrgetter` function for details.)
 # - Add the key and value of this map to the `globals()` dict (module attributes)
 net_creator_attributes = {
-    'angle_from_degrees': 'Angle.FromDegrees',
-    'duration_from_minutes': 'Duration.FromMinutes',
+    'angle_from_deg': 'Angle.FromDegrees',
+    'duration_from_min': 'Duration.FromMinutes',
     'density_from_lbs_per_cu_ft': 'Density.FromPoundsPerCubicFoot',
     'density_from_kg_per_cu_m': 'Density.FromKilogramsPerCubicMeter',
     'energy_from_ft_lbs': 'Energy.FromFootPounds',
@@ -127,9 +127,9 @@ class TestNetQuantity(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     def test_as_measurement(self):
         for net_quantity, expected, physical_quantity, tolerance in [
-            (net_angle_from_degrees(306.1), 306.1 * om.registry.deg,
+            (net_angle_from_deg(306.1), 306.1 * om.registry.deg,
              opq.PhysicalQuantity.ANGLE, decimal.Decimal('0.1')),
-            (net_duration_from_minutes(1.414), 1.414 * om.registry.min,
+            (net_duration_from_min(1.414), 1.414 * om.registry.min,
              opq.PhysicalQuantity.DURATION, decimal.Decimal('0.1')),
             (net_density_from_lbs_per_cu_ft(70.13e-3), 70.13e-3 * om.registry.lb / om.registry.ft ** 3,
              opq.PhysicalQuantity.DENSITY, decimal.Decimal('0.01e-3')),
@@ -180,12 +180,13 @@ class TestNetQuantity(unittest.TestCase):
                 actual = onq.as_measurement(physical_quantity, net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
+    # noinspection PyUnresolvedReferences
     def test_as_measurement_in_common_unit(self):
         for to_convert_net_quantity, expected, to_unit, tolerance in [
-            (UnitsNet.Angle.FromDegrees(onq.to_net_quantity_value(306.1)),
-             306.1 * om.registry.deg, units.Common.ANGLE, decimal.Decimal('0.1')),
-            (UnitsNet.Duration.FromMinutes(onq.to_net_quantity_value(1.414)),
-             1.414 * om.registry.min, units.Common.DURATION, decimal.Decimal('0.001')),
+            (net_angle_from_deg(306.1), 306.1 * om.registry.deg,
+             units.Common.ANGLE, decimal.Decimal('0.1')),
+            (net_duration_from_min(1.414), 1.414 * om.registry.min,
+             units.Common.DURATION, decimal.Decimal('0.001')),
         ]:
             with self.subTest(f'Test as_measurement_in_common_unit for {expected.magnitude} {expected.units:~P}'):
                 actual = onq.as_measurement(to_unit, to_convert_net_quantity)
