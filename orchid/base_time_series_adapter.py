@@ -76,10 +76,10 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
 
     def data_points(self) -> pd.Series:
         """
-        Return the time series for this well curve.
+        Return the time series for this curve.
 
         Returns
-            The time series of this well curve.
+            The `pandas` time `Series` for this curve.
         """
         python_time_series_arrays = loader.as_python_time_series_arrays(self.dom_object)
 
