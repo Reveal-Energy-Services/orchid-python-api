@@ -16,6 +16,7 @@
 #
 
 import decimal
+import operator
 import unittest
 
 from hamcrest import assert_that, equal_to, close_to
@@ -53,18 +54,48 @@ def is_power_unit(unit):
 
 
 # Convenience functions to create `UnitsNet` units for tests
-net_angle_from_degrees = toolz.compose(UnitsNet.Angle.FromDegrees, onq.to_net_quantity_value)
-net_duration_from_minutes = toolz.compose(UnitsNet.Duration.FromMinutes, onq.to_net_quantity_value)
-net_density_from_lbs_per_cu_ft = toolz.compose(UnitsNet.Density.FromPoundsPerCubicFoot,
-                                               onq.to_net_quantity_value)
-net_density_from_kg_per_cu_m = toolz.compose(UnitsNet.Density.FromKilogramsPerCubicMeter,
-                                             onq.to_net_quantity_value)
-net_energy_from_ft_lbs = toolz.compose(UnitsNet.Energy.FromFootPounds, onq.to_net_quantity_value)
-net_energy_from_J = toolz.compose(UnitsNet.Energy.FromJoules, onq.to_net_quantity_value)
-net_force_from_lbf = toolz.compose(UnitsNet.Force.FromPoundsForce, onq.to_net_quantity_value)
-net_force_from_N = toolz.compose(UnitsNet.Force.FromNewtons, onq.to_net_quantity_value)
-net_length_from_ft = toolz.compose(UnitsNet.Length.FromFeet, onq.to_net_quantity_value)
-net_length_from_m = toolz.compose(UnitsNet.Length.FromMeters, onq.to_net_quantity_value)
+#
+# Note that this code creates these functions programmatically by:
+# - Create a map from variable name to string identifying how to create the `UnitsNet` `Quantity`
+# - Transform that map by:
+#   - Transforming the map keys by prepending 'net_'
+#   - Transforming the map values to a function creating the value. (See the documentation of
+#     `operator.attrgetter` function for details.)
+# - Add the key and value of this map to the `globals()` dict (module attributes)
+net_creator_attributes = {
+    'angle_from_degrees': 'Angle.FromDegrees',
+    'duration_from_minutes': 'Duration.FromMinutes',
+    'density_from_lbs_per_cu_ft': 'Density.FromPoundsPerCubicFoot',
+    'density_from_kg_per_cu_m': 'Density.FromKilogramsPerCubicMeter',
+    'energy_from_ft_lbs': 'Energy.FromFootPounds',
+    'energy_from_J': 'Energy.FromJoules',
+    'force_from_lbf': 'Force.FromPoundsForce',
+    'force_from_N': 'Force.FromNewtons',
+    'length_from_ft': 'Length.FromFeet',
+    'length_from_m': 'Length.FromMeters',
+    'mass_from_lbs': 'Mass.FromPounds',
+    'mass_from_kg': 'Mass.FromKilograms',
+    'power_from_hp': 'Power.FromMechanicalHorsepower',
+    'power_from_W': 'Power.FromWatts',
+    'pressure_from_psi': 'Pressure.FromPoundsForcePerSquareInch',
+    'pressure_from_kPa': 'Pressure.FromKilopascals',
+    'mass_concentration_from_lbs_per_gal': 'MassConcentration.FromPoundsPerUSGallon',
+    'mass_concentration_from_kg_per_cu_m': 'MassConcentration.FromKilogramsPerCubicMeter',
+    'volume_flow_from_oil_bbl_per_min': 'VolumeFlow.FromOilBarrelsPerMinute',
+    'volume_flow_from_cu_m_per_min': 'VolumeFlow.FromCubicMetersPerMinute',
+    'temperature_from_deg_F': 'Temperature.FromDegreesFahrenheit',
+    'temperature_from_deg_C': 'Temperature.FromDegreesCelsius',
+    'volume_from_oil_bbl': 'Volume.FromOilBarrels',
+    'volume_from_cu_m': 'Volume.FromCubicMeters',
+}
+net_creator_funcs = toolz.pipe(
+    net_creator_attributes,
+    toolz.keymap(lambda k: f'net_{k}'),
+    toolz.valmap(lambda v: toolz.compose(operator.attrgetter(v)(UnitsNet),
+                                         onq.to_net_quantity_value)),
+)
+for variable_name, variable_value in net_creator_funcs.items():
+    globals()[variable_name] = variable_value
 
 
 # Test ideas
@@ -93,6 +124,7 @@ class TestNetQuantity(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    # noinspection PyUnresolvedReferences
     def test_as_measurement(self):
         for net_quantity, expected, physical_quantity, tolerance in [
             (net_angle_from_degrees(306.1), 306.1 * om.registry.deg,
@@ -115,36 +147,34 @@ class TestNetQuantity(unittest.TestCase):
              opq.PhysicalQuantity.LENGTH, decimal.Decimal('0.01')),
             (net_length_from_m(13.56), 13.56 * om.registry.m,
              opq.PhysicalQuantity.LENGTH, decimal.Decimal('0.01')),
-            (UnitsNet.Mass.FromPounds(onq.to_net_quantity_value(30.94)),
-             30.94 * om.registry.lb, opq    .PhysicalQuantity.MASS, decimal.Decimal('0.01')),
-            (UnitsNet.Mass.FromKilograms(onq.to_net_quantity_value(68.21)),
-             68.21 * om.registry.kg, opq.PhysicalQuantity.MASS, decimal.Decimal('0.01')),
-            (UnitsNet.Power.FromMechanicalHorsepower(onq.to_net_quantity_value(23.28e3)),
-             23.28e3 * om.registry.hp, opq.PhysicalQuantity.POWER, decimal.Decimal('0.01e3')),
-            (UnitsNet.Power.FromWatts(onq.to_net_quantity_value(21.05)),
-             21.05 * om.registry.W, opq.PhysicalQuantity.POWER, decimal.Decimal('0.01')),
-            (UnitsNet.Pressure.FromPoundsForcePerSquareInch(onq.to_net_quantity_value(49.70)),
-             49.70 * om.registry.psi, opq.PhysicalQuantity.PRESSURE, decimal.Decimal('0.01')),
-            (UnitsNet.Pressure.FromKilopascals(onq.to_net_quantity_value(342.7)),
-             342.7 * om.registry.kPa, opq.PhysicalQuantity.PRESSURE, decimal.Decimal('0.01')),
-            (UnitsNet.MassConcentration.FromPoundsPerUSGallon(onq.to_net_quantity_value(3.82)),
-             3.82 * om.registry.lb / om.registry.gal, opq.PhysicalQuantity.PROPPANT_CONCENTRATION,
-             decimal.Decimal('0.01')),
-            (UnitsNet.MassConcentration.FromKilogramsPerCubicMeter(onq.to_net_quantity_value(457.4)),
-             457.4 * om.registry.kg / (om.registry.m ** 3), opq.PhysicalQuantity.PROPPANT_CONCENTRATION,
-             decimal.Decimal('0.01')),
-            (UnitsNet.VolumeFlow.FromOilBarrelsPerMinute(onq.to_net_quantity_value(114.6)),
-             114.6 * om.registry.oil_bbl / om.registry.min, opq.PhysicalQuantity.SLURRY_RATE, decimal.Decimal('0.1')),
-            (UnitsNet.VolumeFlow.FromCubicMetersPerMinute(onq.to_net_quantity_value(18.22)),
-             18.22 * (om.registry.m ** 3) / om.registry.min, opq.PhysicalQuantity.SLURRY_RATE, decimal.Decimal('0.01')),
-            (UnitsNet.Temperature.FromDegreesFahrenheit(onq.to_net_quantity_value(153.6)),
-             om.Quantity(153.6, om.registry.degF), opq.PhysicalQuantity.TEMPERATURE, decimal.Decimal('0.1')),
-            (UnitsNet.Temperature.FromDegreesCelsius(onq.to_net_quantity_value(4.618)),
-             om.Quantity(4.618, om.registry.degC), opq.PhysicalQuantity.TEMPERATURE, decimal.Decimal('0.001')),
-            (UnitsNet.Volume.FromOilBarrels(onq.to_net_quantity_value(83.48)),
-             83.48 * om.registry.oil_bbl, opq.PhysicalQuantity.VOLUME, decimal.Decimal('0.01')),
-            (UnitsNet.Volume.FromCubicMeters(onq.to_net_quantity_value(13.27)),
-             13.27 * om.registry.m ** 3, opq.PhysicalQuantity.VOLUME, decimal.Decimal('0.01')),
+            (net_mass_from_lbs(30.94), 30.94 * om.registry.lb,
+             opq.PhysicalQuantity.MASS, decimal.Decimal('0.01')),
+            (net_mass_from_kg(68.21), 68.21 * om.registry.kg,
+             opq.PhysicalQuantity.MASS, decimal.Decimal('0.01')),
+            (net_power_from_hp(23.28e3), 23.28e3 * om.registry.hp,
+             opq.PhysicalQuantity.POWER, decimal.Decimal('0.01e3')),
+            (net_power_from_W(21.05), 21.05 * om.registry.W,
+             opq.PhysicalQuantity.POWER, decimal.Decimal('0.01')),
+            (net_pressure_from_psi(49.70), 49.70 * om.registry.psi,
+             opq.PhysicalQuantity.PRESSURE, decimal.Decimal('0.01')),
+            (net_pressure_from_kPa(342.7), 342.7 * om.registry.kPa,
+             opq.PhysicalQuantity.PRESSURE, decimal.Decimal('0.01')),
+            (net_mass_concentration_from_lbs_per_gal(3.82), 3.82 * om.registry.lb / om.registry.gal,
+             opq.PhysicalQuantity.PROPPANT_CONCENTRATION, decimal.Decimal('0.01')),
+            (net_mass_concentration_from_kg_per_cu_m(457.4), 457.4 * om.registry.kg / (om.registry.m ** 3),
+             opq.PhysicalQuantity.PROPPANT_CONCENTRATION, decimal.Decimal('0.01')),
+            (net_volume_flow_from_oil_bbl_per_min(114.6), 114.6 * om.registry.oil_bbl / om.registry.min,
+             opq.PhysicalQuantity.SLURRY_RATE, decimal.Decimal('0.1')),
+            (net_volume_flow_from_cu_m_per_min(18.22), 18.22 * (om.registry.m ** 3) / om.registry.min,
+             opq.PhysicalQuantity.SLURRY_RATE, decimal.Decimal('0.01')),
+            (net_temperature_from_deg_F(153.6), om.Quantity(153.6, om.registry.degF),
+             opq.PhysicalQuantity.TEMPERATURE, decimal.Decimal('0.1')),
+            (net_temperature_from_deg_C(4.618), om.Quantity(4.618, om.registry.degC),
+             opq.PhysicalQuantity.TEMPERATURE, decimal.Decimal('0.001')),
+            (net_volume_from_oil_bbl(83.48), 83.48 * om.registry.oil_bbl,
+             opq.PhysicalQuantity.VOLUME, decimal.Decimal('0.01')),
+            (net_volume_from_cu_m(13.27), 13.27 * om.registry.m ** 3,
+             opq.PhysicalQuantity.VOLUME, decimal.Decimal('0.01')),
         ]:
             with self.subTest(f'Test as_measurement for {expected.magnitude} {expected.units:~P}'):
                 actual = onq.as_measurement(physical_quantity, net_quantity)
