@@ -178,43 +178,6 @@ def create_net_treatment(start_time_point, treating_pressure_values, rate_values
     return [treating_pressure_curve, rate_curve, concentration_curve]
 
 
-def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
-                                         pressure_magnitude=None, volume_magnitude=None, mass_magnitude=None):
-    stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
-    stub_native_calculation_result.Warnings = warnings if warnings is not None else []
-
-    stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
-                                                                 autospec=ITreatmentCalculations)
-
-    if pressure_magnitude is not None:
-        net_pressure = UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(pressure_magnitude),
-                                              calculation_unit.net_unit)
-        stub_native_calculation_result.Result = net_pressure
-        stub_native_treatment_calculations.GetMedianTreatmentPressure = unittest.mock.MagicMock(
-            return_value=stub_native_calculation_result)
-
-    if volume_magnitude is not None:
-        net_volume = UnitsNet.Volume.From(UnitsNet.QuantityValue.op_Implicit(volume_magnitude),
-                                          calculation_unit.net_unit)
-        stub_native_calculation_result.Result = net_volume
-        stub_native_treatment_calculations.GetPumpedVolume = unittest.mock.MagicMock(
-            return_value=stub_native_calculation_result)
-
-    if mass_magnitude is not None:
-        net_mass = UnitsNet.Mass.From(UnitsNet.QuantityValue.op_Implicit(mass_magnitude),
-                                      calculation_unit.net_unit)
-        stub_native_calculation_result.Result = net_mass
-        stub_native_treatment_calculations.GetTotalProppantMass = unittest.mock.MagicMock(
-            return_value=stub_native_calculation_result)
-
-    stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
-                                                               autospec=IFractureDiagnosticsCalculationsFactory)
-    stub_native_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
-        return_value=stub_native_treatment_calculations)
-
-    return stub_native_calculations_factory
-
-
 def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data_dto=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
@@ -467,7 +430,7 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
     # This post states that "the trick is to realize that the compiler creates a special static method
     # called `op_Implicit` for your implicit conversion operator."
-    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
+    result = [onq.net_length_from(c, stub_net_project.ProjectUnits.LengthUnit)
               for c in raw_coordinates[i]] if raw_coordinates else []
     return result
 

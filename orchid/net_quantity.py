@@ -59,6 +59,20 @@ def to_net_quantity_value(magnitude):
     return UnitsNet.QuantityValue.op_Implicit(magnitude)
 
 
+def net_length_from(magnitude: float, net_unit: UnitsNet.Length.Units) -> UnitsNet.Quantity:
+    """
+    Create a `UnitsNet` length measurement from `magnitude` and `net_unit`.
+
+    Args:
+        magnitude: The magnitude of the length measurement
+        net_unit: The `UnitsNet` unit of the length measurement
+
+    Returns:
+        The `UnitsNet` `Quantity` whose `Value` is `magnitude` and whose `Unit` is `net_unit`.
+    """
+    return UnitsNet.Length.From(to_net_quantity_value(magnitude), net_unit)
+
+
 # The following code creates conversion functions programmatically by:
 # - Creating a map from variable name to string identifying how to create the `UnitsNet` `Quantity`
 # - Transforming that map by:
