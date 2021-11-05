@@ -414,7 +414,8 @@ Once published, test the published distribution by:
 - activate the virtualenv (run `pipenv shell`)
 - install the package distribution by running the command, 
   `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`. 
-- [run orchid examples](#run-installed-orchid-examples).
+- [Run orchid examples](#run-installed-orchid-examples) and 
+  [run orchid tutorials](#run-installed-orchid-tutorials).
 
 If an error occurs, read the error message(s) and consult the section 
 [Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
