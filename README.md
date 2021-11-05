@@ -391,7 +391,7 @@ The import should complete with no errors.
     - `plot_treatment.ipynb`
     - `search_data_frames.ipynb`
     - `volume_2_first_response.ipynb`
-- Verify that the current directory has sex example scripts:
+- Verify that the current directory has six example scripts:
     - `completion_analysis.py`
     - `plot_time_series.py`
     - `plot_trajectories.py`
@@ -408,8 +408,7 @@ The import should complete with no errors.
     - Dismiss the `matplotlib` window.
 - Repeat for remaining notebooks:
     - `plot_treatment.py`
-    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
-       You must dismiss each plot to continue.)
+    - `plot_time_series.py` 
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`

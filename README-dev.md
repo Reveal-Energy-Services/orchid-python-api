@@ -265,7 +265,8 @@ and stick to it."
 - [Ensure installation of correct Orchid version](#ensure-correct-orchid)
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
 
-Finally, [Run Orchid examples](#run-installed-orchid-examples).
+Finally, [Run Orchid examples](#run-installed-orchid-examples) and 
+[Run Orchid tutorials](#run-installed-orchid-tutorials).
 
 ## Publish a release
 
@@ -664,8 +665,7 @@ To run all orchid tests
     - Dismiss the `matplotlib` window.
 - Repeat for remaining notebooks:
     - `plot_treatment.py`
-    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
-      You must dismiss each plot to continue.)
+    - `plot_time_series.py`
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
       You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
@@ -732,8 +732,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - Dismiss the `matplotlib` window.
 - Repeat for remaining notebooks:
     - `plot_treatment.py`
-    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
-       You must dismiss each plot to continue.)
+    - `plot_time_series.py` 
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
@@ -812,6 +811,12 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Copy the tutorial notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
 
+##### Run tutorial script
+
+- Run the `dom_navigation_tutorial.py` script
+    - Execute the command `python dom_navigation_tutorial.py`
+    - Follow the on-screen messages to advance through the tutorial
+
 ##### Run tutorial notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
@@ -821,12 +826,6 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         2. Run each cell of the notebook. Typically, this process involves
             - Read the instructions or comments preceding the code cell(s)
             - Observe the result of executing the code
-
-##### Run tutorial script
-
-- Run the `dom_navigation_tutorial.py` script
-    - Execute the command `python dom_navigation_tutorial.py`
-    - Follow the on-screen messages to advance through the tutorial
 
 ### Possible installation errors and resolutions
 
