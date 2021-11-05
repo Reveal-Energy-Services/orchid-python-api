@@ -769,6 +769,12 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
 - Activate `poetry shell` if not activated
 
+##### Run tutorial script
+
+- Run the `dom_navigation_tutorial.py` script
+    - Execute the command `python dom_navigation_tutorial.py`
+    - Follow the on-screen messages to advance through the tutorial
+
 ##### Run tutorial notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
@@ -778,12 +784,6 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         2. Run each cell of the notebook. Typically, this process involves
             - Read the instructions or comments preceding the code cell(s)
             - Observe the result of executing the code
-
-##### Run tutorial script
-
-- Run the `dom_navigation_tutorial.py` script
-    - Execute the command `python dom_navigation_tutorial.py`
-    - Follow the on-screen messages to advance through the tutorial
 
 #### Run installed Orchid tutorials
 
