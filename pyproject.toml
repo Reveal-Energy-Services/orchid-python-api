@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "2021.3.381"
+version = "2021.3.406"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -13,7 +13,7 @@ readme = "README.md"
 homepage="https://github.com/Reveal-Energy-Services/orchid-python-api"
 repository="https://github.com/Reveal-Energy-Services/orchid-python-api"
 documentation="https://github.com/Reveal-Energy-Services/orchid-python-api/wiki"
-keywords=["Orchid",
+keywords=["Orchid Integration",
           "Fracture Diagnostics"]
 classifiers=[
     # Trove classifiers

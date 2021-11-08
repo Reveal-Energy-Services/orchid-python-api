@@ -391,7 +391,7 @@ The import should complete with no errors.
     - `plot_treatment.ipynb`
     - `search_data_frames.ipynb`
     - `volume_2_first_response.ipynb`
-- Verify that the current directory has sex example scripts:
+- Verify that the current directory has six example scripts:
     - `completion_analysis.py`
     - `plot_time_series.py`
     - `plot_trajectories.py`
@@ -408,8 +408,7 @@ The import should complete with no errors.
     - Dismiss the `matplotlib` window.
 - Repeat for remaining notebooks:
     - `plot_treatment.py`
-    - `plot_time_series.py` (This script prints multiple messages and presents **multiple** plots.
-       You must dismiss each plot to continue.)
+    - `plot_time_series.py` 
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
@@ -449,6 +448,12 @@ The import should complete with no errors.
 - Verify that the current directory has five example scripts:
     - `dom_navigation_tutorial.py`
 
+### Run tutorial script
+
+- Run the `dom_navigation_tutorial.py` script
+    - Execute the command `python dom_navigation_tutorial.py`
+    - Follow the on-screen messages to advance through the tutorial
+
 ### Run tutorial notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
@@ -458,12 +463,6 @@ The import should complete with no errors.
         2. Run each cell of the notebook. Typically, this process involves
             - Read the instructions or comments preceding the code cell(s)
             - Observe the result of executing the code
-
-### Run tutorial script
-
-- Run the `dom_navigation_tutorial.py` script
-    - Execute the command `python dom_navigation_tutorial.py`
-    - Follow the on-screen messages to advance through the tutorial
 
 ## View Orchid Configuration Details
 

@@ -13,6 +13,26 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 2021.3.406
+
+This release is a hot fix release of the Orchid Python API corresponding to the hot fix for Orchid 2021.3. 
+This release:
+
+- Improves the performance of the `plot_time_series` example
+- Improves the performance of the `volume_2_first_response` example
+
+#### Resolved Issues
+
+- [GitHub issue 23](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/23)
+
+#### Features
+
+No additional features as part of this release.
+
+#### Known Issues
+
+No additional know issues for this release.
+
 ### Release notes for 2021.3.381
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2021.3. This release:
