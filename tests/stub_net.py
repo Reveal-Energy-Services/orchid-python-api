@@ -24,7 +24,6 @@ properties required during testing but do not actually implement the .NET class 
 from collections import namedtuple
 import itertools
 import unittest.mock
-import uuid
 from typing import Sequence
 
 import pendulum
@@ -80,6 +79,8 @@ DONT_CARE_ID_E = 'e5ca1ade-e5ca-1ade-e5ca-1adee5ca1ade'  # escalade
 MeasurementAsUnit = namedtuple('MeasurementAsUnit', ['measurement', 'as_unit'])
 MeasurementDto = namedtuple('MeasurementDto', ['magnitude', 'unit'])
 StubProjectBounds = namedtuple('StubProjectBounds', ['min_x', 'max_x', 'min_y', 'max_y', 'min_depth', 'max_depth'])
+StubPythonTimesSeriesArraysDto = namedtuple('StubPythonTimesSeriesArraysDto', ['SampleMagnitudes',
+                                                                               'UnixTimeStampsInSeconds'])
 StubSample = namedtuple('StubSample', ['Timestamp', 'Value'], module=__name__)
 StubSubsurfaceLocation = namedtuple('StubSubsurfaceLocation', ['x', 'y', 'depth'])
 StubSurfaceLocation = namedtuple('StubSurfaceLocation', ['x', 'y'])
@@ -124,22 +125,33 @@ def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
     return samples
 
 
-def create_30_second_time_points(start_time_point: pendulum.DateTime, count: int):
+@toolz.curry
+def create_regularly_sampled_time_points(interval: pendulum.Duration, start_time_point: pendulum.DateTime, count: int):
     """
-    Create a sequence of `count` time points, 30-seconds apart.
+    Create a sequence of `count` time points starting at `start_time_point`, `interval` apart.
 
     Args:
+        interval: The time interval between each point.
         start_time_point: The starting time point of the sequence.
         count: The number of time points in the sequence.
 
     Returns:
         The sequence of time points.
+
     """
+    # I must handle a count of 0 specially because `pendulum` **includes** the endpoint of the specified range.
+    if count == 0:
+        return []
+
     # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
-    end_time_point = start_time_point + pendulum.Duration(seconds=30 * count - 1)
-    result = pendulum.period(start_time_point, end_time_point).range('seconds', 30)
+    end_time_point = start_time_point + interval * (count - 1)
+    result = pendulum.period(start_time_point, end_time_point).range('seconds', interval.total_seconds())
     return result
+
+
+create_30_second_time_points = create_regularly_sampled_time_points(pendulum.duration(seconds=30))
+create_1_second_time_points = create_regularly_sampled_time_points(pendulum.duration(seconds=1))
 
 
 class StubNetTreatmentCurve:
@@ -178,6 +190,46 @@ def create_net_treatment(start_time_point, treating_pressure_values, rate_values
     return [treating_pressure_curve, rate_curve, concentration_curve]
 
 
+def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
+                                         pressure_magnitude=None, volume_magnitude=None, mass_magnitude=None):
+    stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
+    stub_native_calculation_result.Warnings = warnings if warnings is not None else []
+
+    stub_native_treatment_calculations = unittest.mock.MagicMock(name='stub_calculations',
+                                                                 autospec=ITreatmentCalculations)
+
+    if pressure_magnitude is not None:
+        net_pressure = UnitsNet.Pressure.From(UnitsNet.QuantityValue.op_Implicit(pressure_magnitude),
+                                              calculation_unit.net_unit)
+        stub_native_calculation_result.Result = net_pressure
+        stub_native_treatment_calculations.GetMedianTreatmentPressure = unittest.mock.MagicMock(
+            return_value=stub_native_calculation_result)
+
+    if volume_magnitude is not None:
+        net_volume = UnitsNet.Volume.From(UnitsNet.QuantityValue.op_Implicit(volume_magnitude),
+                                          calculation_unit.net_unit)
+        stub_native_calculation_result.Result = net_volume
+        stub_native_treatment_calculations.GetPumpedVolume = unittest.mock.MagicMock(
+            return_value=stub_native_calculation_result)
+
+    if mass_magnitude is not None:
+        net_mass = UnitsNet.Mass.From(UnitsNet.QuantityValue.op_Implicit(mass_magnitude),
+                                      calculation_unit.net_unit)
+        stub_native_calculation_result.Result = net_mass
+        stub_native_treatment_calculations.GetTotalProppantMass = unittest.mock.MagicMock(
+            return_value=stub_native_calculation_result)
+
+    stub_native_calculations_factory = unittest.mock.MagicMock(name='stub_calculations_factory',
+                                                               autospec=IFractureDiagnosticsCalculationsFactory)
+    stub_native_calculations_factory.CreateTreatmentCalculations = unittest.mock.MagicMock(
+        return_value=stub_native_treatment_calculations)
+
+    return stub_native_calculations_factory
+
+
+# TODO: Change implementation of many stub objects to call `create_stub_domain_object`
+
+
 def create_stub_net_data_frame(display_name=None, name=None, object_id=None, table_data_dto=None):
     stub_net_data_frame_name = 'stub_net_data_frame'
     try:
@@ -204,15 +256,13 @@ def create_stub_net_stage(cluster_count=-1, display_name=None,
                           start_time=None, stop_time=None, treatment_curve_names=None,
                           shmin=None, pnet=None, isip=None):
     stub_net_stage_name = 'stub_net_stage'
-    try:
-        result = unittest.mock.MagicMock(name=stub_net_stage_name, spec=IStage)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        result = unittest.mock.MagicMock(name=stub_net_stage_name)
-    result.NumberOfClusters = cluster_count
-    if display_name is not None:
-        result.DisplayName = display_name
+    result = create_stub_domain_object(display_name=display_name,
+                                       stub_name=stub_net_stage_name,
+                                       stub_spec=IStage)
+
     if display_name_with_well is not None:
         result.DisplayNameWithWell = display_name_with_well
+    result.NumberOfClusters = cluster_count
     result.DisplayStageNumber = display_stage_no
     if md_top is not None:
         result.MdTop = make_net_measurement(md_top)
@@ -277,6 +327,20 @@ def create_stub_net_stage(cluster_count=-1, display_name=None,
             raise ValueError(f'Unrecognized shmin={isip}. The value, `isip`, must be a Python `unit` or'
                              f' a UnitsNet `Unit`.')
 
+    return result
+
+
+def create_stub_domain_object(object_id=None, name=None, display_name=None, stub_name=None, stub_spec=None):
+    try:
+        result = unittest.mock.MagicMock(name=stub_name, spec=stub_spec)
+    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+        result = unittest.mock.MagicMock(name=stub_name)
+    if object_id is not None:
+        result.ObjectId = Guid(object_id)
+    if display_name is not None:
+        result.DisplayName = display_name
+    if name is not None:
+        result.Name = name
     return result
 
 
@@ -361,20 +425,16 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
     return result
 
 
-def create_stub_net_time_series(object_id, name=None, display_name=None,
+def create_stub_net_time_series(object_id=None, name=None, display_name=None,
                                 sampled_quantity_name=None, sampled_quantity_type=None,
                                 data_points=(), project=None):
     stub_net_time_series_name = 'stub_net_time_series'
-    try:
-        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name,
-                                                       spec=IWellSampledQuantityTimeSeries)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        stub_net_time_series = unittest.mock.MagicMock(name=stub_net_time_series_name)
-    stub_net_time_series.ObjectId = object_id
-    if name is not None:
-        stub_net_time_series.Name = name
-    if display_name is not None:
-        stub_net_time_series.DisplayName = display_name
+    stub_net_time_series = create_stub_domain_object(object_id=object_id,
+                                                     name=name,
+                                                     display_name=display_name,
+                                                     stub_name=stub_net_time_series_name,
+                                                     stub_spec=IWellSampledQuantityTimeSeries)
+
     if sampled_quantity_name is not None:
         stub_net_time_series.SampledQuantityName = sampled_quantity_name
     if sampled_quantity_type is not None:
@@ -430,7 +490,7 @@ def quantity_coordinate(raw_coordinates, i, stub_net_project):
     # (https://stackoverflow.com/questions/11544056/how-to-cast-implicitly-on-a-reflected-method-call/11563904).
     # This post states that "the trick is to realize that the compiler creates a special static method
     # called `op_Implicit` for your implicit conversion operator."
-    result = [onq.net_length_from(c, stub_net_project.ProjectUnits.LengthUnit)
+    result = [UnitsNet.Length.From(UnitsNet.QuantityValue.op_Implicit(c), stub_net_project.ProjectUnits.LengthUnit)
               for c in raw_coordinates[i]] if raw_coordinates else []
     return result
 
@@ -644,19 +704,8 @@ def create_stub_net_project_object(object_id=None, name=None, display_name=None)
 def create_stub_dom_project_object(object_id=None, name=None, display_name=None):
     """Create a stub wrapper for an IProjectObject."""
     stub_project_object_name = 'stub_project_object'
-    try:
-        result = unittest.mock.MagicMock(name=stub_project_object_name, spec=IProjectObject)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        result = unittest.mock.MagicMock(name=stub_project_object_name)
-
-    if object_id is not None:
-        result.object_id = uuid.UUID(object_id)
-
-    if name is not None:
-        result.name = name
-
-    if display_name is not None:
-        result.display_name = display_name
+    result = create_stub_domain_object(object_id=object_id, name=name, display_name=display_name,
+                                       stub_spec=IProjectObject)
 
     return result
 

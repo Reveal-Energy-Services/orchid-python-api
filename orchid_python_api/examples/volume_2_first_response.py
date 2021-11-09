@@ -99,9 +99,10 @@ def data_points_from_time_series_in_target_units(pressure_series, target_units):
     # ts is short variable name for data_points data
     ts_units = pressure_series.sampled_quantity_unit()
     ts = pressure_series.data_points()
-    ts_values_w_units = [val * ts_units.value[0] for val in ts.values]
-    ts_in_target_units = [val.to(target_units.value[0]) for val in ts_values_w_units]
-    return pd.Series(data=[val.magnitude for val in ts_in_target_units], index=ts.index)
+    # Convert list of magnitudes (no units) to `numpy` array including units for faster operations
+    ts_values_w_units = orchid.unit_registry.Quantity(ts.to_numpy(), ts_units.value[0])
+    ts_in_target_units = ts_values_w_units.to(target_units.value[0])
+    return pd.Series(data=ts_in_target_units.magnitude, index=ts.index)
 
 
 def calculate_volume_2_first_response():
