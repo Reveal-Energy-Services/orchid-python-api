@@ -129,8 +129,8 @@ class TestNetQuantity(unittest.TestCase):
             (onq.net_volume_from_cu_m(13.27), 13.27 * om.registry.m ** 3,
              opq.PhysicalQuantity.VOLUME, decimal.Decimal('0.01')),
         ]:
-            with self.subTest(f'Test as_measurement for {expected.magnitude} {expected.units:~P}'):
-                actual = onq.as_measurement(physical_quantity, net_quantity)
+            with self.subTest(f'Test deprecated_as_measurement for {expected.magnitude} {expected.units:~P}'):
+                actual = onq.deprecated_as_measurement(physical_quantity, net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
@@ -141,8 +141,8 @@ class TestNetQuantity(unittest.TestCase):
             (onq.net_duration_from_min(1.414), 1.414 * om.registry.min,
              units.Common.DURATION, decimal.Decimal('0.001')),
         ]:
-            with self.subTest(f'Test as_measurement_in_common_unit for {expected.magnitude} {expected.units:~P}'):
-                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+            with self.subTest(f'Test deprecated_as_measurement_in_common_unit for {expected.magnitude} {expected.units:~P}'):
+                actual = onq.deprecated_as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
@@ -195,7 +195,7 @@ class TestNetQuantity(unittest.TestCase):
         ]:
             with self.subTest(f'Test as_measurement_in_specified_same_unit for {expected.magnitude}'
                               f' {expected.units:~P}'):
-                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                actual = onq.deprecated_as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
@@ -248,7 +248,7 @@ class TestNetQuantity(unittest.TestCase):
         ]:
             with self.subTest(f'Test as_measurement_in_specified_different_unit for {expected.magnitude}'
                               f' {expected.units:~P}'):
-                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                actual = onq.deprecated_as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences

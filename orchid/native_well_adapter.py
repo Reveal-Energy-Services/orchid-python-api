@@ -72,17 +72,17 @@ class NativeWellAdapter(dpo.DomProjectObject):
 
     @property
     def ground_level_elevation_above_sea_level(self) -> om.Quantity:
-        return onq.as_measurement(self.expect_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
+        return onq.deprecated_as_measurement(self.expect_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
 
     @property
     def kelly_bushing_height_above_ground_level(self) -> om.Quantity:
-        return onq.as_measurement(self.expect_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
+        return onq.deprecated_as_measurement(self.expect_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
 
     @property
     def wellhead_location(self):
         dom_whl = self.dom_object.WellHeadLocation
         result = toolz.pipe(dom_whl,
-                            toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
+                            toolz.map(onq.deprecated_as_measurement(self.expect_project_units.LENGTH)),
                             list, )
         return WellHeadLocation(*result)
 

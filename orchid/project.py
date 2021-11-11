@@ -70,7 +70,7 @@ class Project(dna.DotNetAdapter):
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
-        return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
+        return onq.deprecated_as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
 
     def data_frames(self) -> spo.SearchableProjectObjects:
         """
@@ -100,7 +100,7 @@ class Project(dna.DotNetAdapter):
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),
-                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            toolz.map(onq.deprecated_as_measurement(self.project_units.LENGTH)),
                             list,
                             lambda ls: ProjectBounds(*ls))
         return result
@@ -111,7 +111,7 @@ class Project(dna.DotNetAdapter):
         """
         net_center = self.dom_object.GetProjectCenter()
         result = toolz.pipe(net_center,
-                            toolz.map(onq.as_measurement(self.project_units.LENGTH)),
+                            toolz.map(onq.deprecated_as_measurement(self.project_units.LENGTH)),
                             list,
                             lambda ls: SurfacePoint(ls[0], ls[1]))
         return result

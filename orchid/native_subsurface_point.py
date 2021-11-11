@@ -68,7 +68,7 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
             target_length_unit: The target unit for all lengths.
         """
         super().__init__(adaptee)
-        self._as_length_measurement_func = onq.as_measurement(target_length_unit)
+        self._as_length_measurement_func = onq.deprecated_as_measurement(target_length_unit)
 
     @property
     def x(self):

@@ -21,6 +21,7 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 from functools import singledispatch
 from numbers import Real
 import operator
+import warnings
 
 import toolz.curried as toolz
 
@@ -176,9 +177,11 @@ class EqualsComparisonDetails:
 # symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
 # but, on various conversion, produce the Pint unit `ft**3`.
 #
+
+
 @singledispatch
 @toolz.curry
-def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def deprecated_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
 
@@ -189,13 +192,14 @@ def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
         unknown: A parameter whose type is not expected.
         _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
     """
-    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
+    warnings.warn('Changing interface', DeprecationWarning)
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `deprecated_as_measurement`.')
 
 
 # noinspection PyUnresolvedReferences
-@as_measurement.register(opq.PhysicalQuantity)
+@deprecated_as_measurement.register(opq.PhysicalQuantity)
 @toolz.curry
-def as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def deprecated_as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in the same unit.
 
@@ -209,6 +213,7 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
     Returns:
         The equivalent `pint` `Quantity` instance.
     """
+    warnings.warn('Changing interface', DeprecationWarning)
     pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
 
     # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
@@ -226,16 +231,16 @@ def as_measurement_using_physical_quantity(physical_quantity, net_quantity: Unit
 
 
 # Define convenience functions when physical quantity is known.
-as_angle_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.ANGLE)
-as_density_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.DENSITY)
-as_length_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.LENGTH)
-as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESSURE)
+as_angle_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.ANGLE)
+as_density_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.DENSITY)
+as_length_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.LENGTH)
+as_pressure_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.PRESSURE)
 
 
 # noinspection PyUnresolvedReferences
-@as_measurement.register(units.Common)
+@deprecated_as_measurement.register(units.Common)
 @toolz.curry
-def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def deprecated_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a common unit.
 
@@ -246,15 +251,16 @@ def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity)
     Returns:
         The equivalent `Quantity` instance.
     """
+    warnings.warn('Changing interface', DeprecationWarning)
     # units.Common support no conversion so simply call another implementation.
-    return as_measurement(common_unit.value.physical_quantity, net_quantity)
+    return deprecated_as_measurement(common_unit.value.physical_quantity, net_quantity)
 
 
 # noinspection PyUnresolvedReferences
-@as_measurement.register(units.Metric)
-@as_measurement.register(units.UsOilfield)
+@deprecated_as_measurement.register(units.Metric)
+@deprecated_as_measurement.register(units.UsOilfield)
 @toolz.curry
-def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def deprecated_as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
 
@@ -265,9 +271,10 @@ def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQua
     Returns:
         The equivalent `Quantity` instance in the specified unit.
     """
+    warnings.warn('Changing interface', DeprecationWarning)
     result = toolz.pipe(net_quantity,
                         _convert_net_quantity_to_different_unit(specified_unit),
-                        as_measurement(specified_unit.value.physical_quantity))
+                        deprecated_as_measurement(specified_unit.value.physical_quantity))
     return result
 
 
@@ -278,6 +285,8 @@ def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQua
 # symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
 # but, on various conversion, produce the Pint unit `ft**3`.
 #
+
+
 @singledispatch
 @toolz.curry
 def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:

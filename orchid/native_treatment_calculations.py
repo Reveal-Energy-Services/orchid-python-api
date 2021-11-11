@@ -58,7 +58,7 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     """
     native_treatment_calculations = loader.native_treatment_calculations()
     native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
-    calculation_measurement = net_qty.as_measurement(physical_quantity, native_calculation_result.Result)
+    calculation_measurement = net_qty.deprecated_as_measurement(physical_quantity, native_calculation_result.Result)
     warnings = native_calculation_result.Warnings
     return CalculationResult(calculation_measurement, warnings)
 
