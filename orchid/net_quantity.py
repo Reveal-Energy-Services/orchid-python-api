@@ -21,8 +21,10 @@ instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 from functools import singledispatch
 from numbers import Real
 import operator
+from typing import Union
 import warnings
 
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -181,6 +183,63 @@ class EqualsComparisonDetails:
 
 @singledispatch
 @toolz.curry
+def as_measurement(unknown, _maybe_net_quantity: option.Option[UnitsNet.IQuantity]) -> om.Quantity:
+    """
+    Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance.
+
+    This function is registered as the type-handler for the `object` type. In our situation, arriving here
+    indicates an error by an implementer and so raises an error.
+
+    Args:
+        unknown: A parameter whose type is not expected.
+        _maybe_net_quantity: The optional .NET `IQuantity` instance to convert. (Unused.)
+    """
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `deprecated_as_measurement`.')
+
+
+@as_measurement.register(units.Metric)
+@as_measurement.register(units.UsOilfield)
+@toolz.curry
+def as_measurement_in_specified_unit(target_unit,
+                                     maybe_net_quantity: option.Option[UnitsNet.IQuantity]) -> om.Quantity:
+    """
+    Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance.
+]
+    Args:
+        target_unit: The unit for the converted `Quantity` instance.
+        maybe_net_quantity: The optional .NET `IQuantity` instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance in the specified unit.
+    """
+    # result = toolz.pipe(maybe_net_quantity,
+    #                     _convert_net_quantity_to_different_unit(target_unit),
+    #                     as_measurement(target_unit.value.physical_quantity, ))
+
+    return maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
+                                     om.Quantity(float('NaN'), target_unit.value.unit))
+
+
+@toolz.curry
+def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
+                            net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert an `IQuantity` to a `pint` `Quantity` in a specified compatible unit.
+
+    Args:
+        target_unit: The target unit for the converted `Quantity` instance.
+        net_quantity: The .NET `IQuantity` instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance in the specified unit.
+    """
+    target_magnitude = net_quantity.As(_UNIT_NET_UNITS[target_unit])
+    result = om.Quantity(target_magnitude, target_unit.value.unit)
+    return result
+
+
+@singledispatch
+@toolz.curry
 def deprecated_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
@@ -228,6 +287,7 @@ def deprecated_as_measurement_using_physical_quantity(physical_quantity, net_qua
         return om.Quantity(net_quantity.Value, pint_unit)
     else:
         return net_quantity.Value * pint_unit
+    # return None
 
 
 # Define convenience functions when physical quantity is known.
@@ -497,7 +557,7 @@ def _convert_net_quantity_to_different_unit(target_unit: units.UnitSystem,
     Convert one .NET `UnitsNet.IQuantity` to another .NET `UnitsNet.IQuantity` in a different unit `target_unit`
     Args:
         net_quantity: The `UnitsNet.IQuantity` instance to convert.
-        target_unit: The unit to which to convert `net_quantity`.
+        target_unit: The unit to which to convert `maybe_net_quantity`.
 
     Returns:
         The .NET `UnitsNet.IQuantity` converted to `target_unit`.
