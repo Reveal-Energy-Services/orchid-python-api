@@ -16,14 +16,14 @@
 import abc
 from typing import Union
 
+import toolz.curried as toolz
+import option
 
 from orchid import (
     dot_net_dom_access as dna,
     net_quantity as onq,
     unit_system as units,
 )
-
-import toolz.curried as toolz
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import ISubsurfacePoint
@@ -68,22 +68,22 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
             target_length_unit: The target unit for all lengths.
         """
         super().__init__(adaptee)
-        self._as_length_measurement_func = onq.deprecated_as_measurement(target_length_unit)
+        self._as_length_measurement_func = onq.as_measurement(target_length_unit)
 
     @property
     def x(self):
         """The x-coordinate of this point."""
-        return self._as_length_measurement_func(self.dom_object.X)
+        return self._as_length_measurement_func(option.maybe(self.dom_object.X))
 
     @property
     def y(self):
         """The y-coordinate of this point."""
-        return self._as_length_measurement_func(self.dom_object.Y)
+        return self._as_length_measurement_func(option.maybe(self.dom_object.Y))
 
     @property
     def depth(self):
         """The depth of this point."""
-        return self._as_length_measurement_func(self.dom_object.Depth)
+        return self._as_length_measurement_func(option.maybe(self.dom_object.Depth))
 
 
 @toolz.curry
