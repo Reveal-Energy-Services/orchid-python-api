@@ -20,6 +20,7 @@ from enum import IntEnum
 from typing import Tuple, Union
 
 import deal
+import option
 import toolz.curried as toolz
 
 import orchid.base
@@ -125,7 +126,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
         """
         Return the instantaneous shut in pressure of this stage in project units.
         """
-        return onq.deprecated_as_measurement(self.expect_project_units.PRESSURE, self.dom_object.Isip)
+        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Isip))
 
     @property
     def pnet(self) -> om.Quantity:
@@ -135,14 +136,14 @@ class NativeStageAdapter(dpo.DomProjectObject):
         The net pressure of a stage is calculated by the formula:
             pnet = isip + fluid-density * tvd - shmin (where tvd is the true vertical depth)
         """
-        return onq.deprecated_as_measurement(self.expect_project_units.PRESSURE, self.dom_object.Pnet)
+        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Pnet))
 
     @property
     def shmin(self) -> om.Quantity:
         """
         Return the minimum horizontal stress of this stage in project units.
         """
-        return onq.deprecated_as_measurement(self.expect_project_units.PRESSURE, self.dom_object.Shmin)
+        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Shmin))
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
@@ -306,7 +307,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.deprecated_as_measurement(target_unit, self.dom_object.Isip)
+        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Isip))
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
@@ -319,7 +320,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
         Returns:
              The measured depth of the stage bottom in the specified unit.
         """
-        return onq.deprecated_as_measurement(in_length_unit, self.dom_object.MdBottom)
+        return onq.as_measurement(in_length_unit, option.maybe(self.dom_object.MdBottom))
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
@@ -332,15 +333,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
         Returns;
          The measured depth of the stage top in the specified unit.
         """
-        return onq.deprecated_as_measurement(in_length_unit, self.dom_object.MdTop)
+        return onq.as_measurement(in_length_unit, option.maybe(self.dom_object.MdTop))
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.deprecated_as_measurement(target_unit, self.dom_object.Pnet)
+        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Pnet))
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.deprecated_as_measurement(target_unit, self.dom_object.Shmin)
+        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Shmin))
 
     def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
