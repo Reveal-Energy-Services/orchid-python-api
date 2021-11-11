@@ -265,6 +265,65 @@ class TestNetQuantity(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     def test_as_measurement_in_specified_different_unit(self):
         for to_convert_net_quantity, expected, to_unit, tolerance in [
+            (option.Some(onq.net_density_from_lbs_per_cu_ft(62.30)),
+             998.0 * om.registry.kg / (om.registry.m ** 3),
+             units.Metric.DENSITY, decimal.Decimal('0.2')),
+            (option.Some(onq.net_density_from_kg_per_cu_m(998.0)),
+             62.30 * om.registry.lb / om.registry.ft ** 3,
+             units.UsOilfield.DENSITY, decimal.Decimal('0.006')),
+            (option.Some(onq.net_energy_from_ft_lbs(2.024)),
+             2.744 * om.registry.J, units.Metric.ENERGY, decimal.Decimal('0.002')),
+            (option.Some(onq.net_energy_from_J(2.744)),
+             2.024 * om.registry.ft_lb, units.UsOilfield.ENERGY, decimal.Decimal('7e-4')),
+            (option.Some(onq.net_force_from_lbf(107.8e3)),
+             479.5e3 * om.registry.N, units.Metric.FORCE, decimal.Decimal('0.5e3')),
+            (option.Some(onq.net_force_from_N(479.5e3)),
+             107.8e3 * om.registry.lbf, units.UsOilfield.FORCE, decimal.Decimal('0.02e3')),
+            (option.Some(onq.net_length_from_ft(155.2)),
+             47.30 * om.registry.m, units.Metric.LENGTH, decimal.Decimal('0.04')),
+            (option.Some(onq.net_length_from_m(47.30)),
+             155.2 * om.registry.ft, units.UsOilfield.LENGTH, decimal.Decimal('0.03')),
+            (option.Some(onq.net_mass_from_lbs(7987)),
+             3622 * om.registry.kg, units.Metric.MASS, decimal.Decimal('0.5e3')),
+            (option.Some(onq.net_mass_from_kg(3.622e3)),
+             7.987e3 * om.registry.lb, units.UsOilfield.MASS, decimal.Decimal('2')),
+            (option.Some(onq.net_power_from_hp(9.254)),
+             6901 * om.registry.W, units.Metric.POWER, decimal.Decimal('0.8')),
+            (option.Some(onq.net_power_from_W(6901)),
+             9.254 * om.registry.hp, units.UsOilfield.POWER, decimal.Decimal('0.002')),
+            (option.Some(onq.net_pressure_from_psi(6972)),
+             48.07e3 * om.registry.kPa, units.Metric.PRESSURE, decimal.Decimal('7')),
+            (option.Some(onq.net_pressure_from_kPa(48.07e3)),
+             6972 * om.registry.psi, units.UsOilfield.PRESSURE, decimal.Decimal('2')),
+            (option.Some(onq.net_mass_concentration_from_lbs_per_gal(5.017)),
+             601.2 * om.registry.kg / (om.registry.m ** 3),
+             units.Metric.PROPPANT_CONCENTRATION, decimal.Decimal('0.2')),
+            (option.Some(onq.net_mass_concentration_from_kg_per_cu_m(601.2)),
+             5.017 * om.registry.lb / om.registry.gal,
+             units.UsOilfield.PROPPANT_CONCENTRATION, decimal.Decimal('0.0008')),
+            (option.Some(onq.net_volume_flow_from_oil_bbl_per_min(100.9)),
+             16.04 * (om.registry.m ** 3) / om.registry.min,
+             units.Metric.SLURRY_RATE, decimal.Decimal('0.02')),
+            (option.Some(onq.net_volume_flow_from_cu_m_per_min(16.04)),
+             100.9 * om.registry.oil_bbl / om.registry.min,
+             units.UsOilfield.SLURRY_RATE, decimal.Decimal('0.1')),
+            (option.Some(onq.net_temperature_from_deg_F(156.2)),
+             om.Quantity(69.00, om.registry.degC), units.Metric.TEMPERATURE, decimal.Decimal('0.05')),
+            (option.Some(onq.net_temperature_from_deg_C(69.00)),
+             om.Quantity(156.2, om.registry.degF), units.UsOilfield.TEMPERATURE, decimal.Decimal('0.3')),
+            (option.Some(onq.net_volume_from_oil_bbl(8951)),
+             1423 * om.registry.m ** 3, units.Metric.VOLUME, decimal.Decimal('0.2')),
+            (option.Some(onq.net_volume_from_cu_m(1423)),
+             8951 * om.registry.oil_bbl, units.UsOilfield.VOLUME, decimal.Decimal('7')),
+        ]:
+            with self.subTest(f'Test as_measurement_in_specified_different_unit for {expected.magnitude}'
+                              f' {expected.units:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
+    def test_deprecated_as_measurement_in_specified_different_unit(self):
+        for to_convert_net_quantity, expected, to_unit, tolerance in [
             (onq.net_density_from_lbs_per_cu_ft(62.30), 998.0 * om.registry.kg / (om.registry.m ** 3),
              units.Metric.DENSITY, decimal.Decimal('0.2')),
             (onq.net_density_from_kg_per_cu_m(998.0), 62.30 * om.registry.lb / om.registry.ft ** 3,
