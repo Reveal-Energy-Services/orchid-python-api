@@ -135,6 +135,18 @@ class TestNetQuantity(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
+    def test_as_measurement_in_common_unit(self):
+        for to_convert_net_quantity, expected, to_unit, tolerance in [
+            (option.Some(onq.net_angle_from_deg(306.1)),
+             306.1 * om.registry.deg, units.Common.ANGLE, decimal.Decimal('0.1')),
+            (option.Some(onq.net_duration_from_min(1.414)),
+             1.414 * om.registry.min, units.Common.DURATION, decimal.Decimal('0.001')),
+        ]:
+            with self.subTest(f'Test as_measurement_in_common_unit for {expected.magnitude} {expected.units:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
     def test_deprecated_as_measurement_in_common_unit(self):
         for to_convert_net_quantity, expected, to_unit, tolerance in [
             (onq.net_angle_from_deg(306.1), 306.1 * om.registry.deg,

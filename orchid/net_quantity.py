@@ -197,6 +197,24 @@ def as_measurement(unknown, _maybe_net_quantity: option.Option[UnitsNet.IQuantit
     raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `deprecated_as_measurement`.')
 
 
+# noinspection PyUnresolvedReferences
+@as_measurement.register(units.Common)
+@toolz.curry
+def as_measurement_in_common_unit(target_unit, maybe_net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance in a common unit.
+
+    Args:
+        target_unit: The unit (from the units.Common) for the converted `Quantity` instance.
+        maybe_net_quantity: The optional .NET `IQuantity` instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance in the target unit.
+    """
+    return maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
+                                     om.Quantity(float('NaN'), target_unit.value.unit))
+
+
 @as_measurement.register(units.Metric)
 @as_measurement.register(units.UsOilfield)
 @toolz.curry
@@ -210,7 +228,7 @@ def as_measurement_in_specified_unit(target_unit,
         maybe_net_quantity: The optional .NET `IQuantity` instance to convert.
 
     Returns:
-        The equivalent `Quantity` instance in the specified unit.
+        The equivalent `Quantity` instance in the target unit.
     """
     # result = toolz.pipe(maybe_net_quantity,
     #                     _convert_net_quantity_to_different_unit(target_unit),
