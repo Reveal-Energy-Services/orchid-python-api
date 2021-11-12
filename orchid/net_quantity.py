@@ -22,7 +22,6 @@ from functools import singledispatch
 from numbers import Real
 import operator
 from typing import Union
-import warnings
 
 import option
 import toolz.curried as toolz
@@ -253,106 +252,6 @@ def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
     """
     target_magnitude = net_quantity.As(_UNIT_NET_UNITS[target_unit])
     result = om.Quantity(target_magnitude, target_unit.value.unit)
-    return result
-
-
-@singledispatch
-@toolz.curry
-def deprecated_as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
-    """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
-
-    This function is registered as the type-handler for the `object` type. In our situation, arriving here
-    indicates an error by an implementer and so raises an error.
-
-    Args:
-        unknown: A parameter whose type is not expected.
-        _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
-    """
-    warnings.warn('Changing interface', DeprecationWarning)
-    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `deprecated_as_measurement`.')
-
-
-# noinspection PyUnresolvedReferences
-@deprecated_as_measurement.register(opq.PhysicalQuantity)
-@toolz.curry
-def deprecated_as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
-    """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in the same unit.
-
-    Args:
-        physical_quantity: The `PhysicalQuantity`. Although we try to determine a unique mapping between units
-        in `pint` and .NET `UnitsNet` units, we cannot perform a unique mapping for density and proppant
-        concentration measured in the metric system (the units of both these physical quantities are
-        "kg/m**3").
-        net_quantity: The .NET IQuantity instance to convert.
-
-    Returns:
-        The equivalent `pint` `Quantity` instance.
-    """
-    warnings.warn('Changing interface', DeprecationWarning)
-    pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
-
-    # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
-    # other units (`Information` and `BitRate` appear to be handled in the same way). Specifically, the
-    # `Value` property **does not** return a value of type `double` but of type `Decimal`. Python.NET
-    # expectedly converts the value returned by `Value` to a Python `decimal.Decimal`. Then, additionally,
-    # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
-    # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
-    if physical_quantity == opq.PhysicalQuantity.POWER:
-        return _net_decimal_to_float(net_quantity.Value) * pint_unit
-    elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
-        return om.Quantity(net_quantity.Value, pint_unit)
-    else:
-        return net_quantity.Value * pint_unit
-    # return None
-
-
-# Define convenience functions when physical quantity is known.
-as_angle_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.ANGLE)
-as_density_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.DENSITY)
-as_length_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.LENGTH)
-as_pressure_measurement = toolz.curry(deprecated_as_measurement, opq.PhysicalQuantity.PRESSURE)
-
-
-# noinspection PyUnresolvedReferences
-@deprecated_as_measurement.register(units.Common)
-@toolz.curry
-def deprecated_as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
-    """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a common unit.
-
-    Args:
-        common_unit: The unit (from the units.Common) for the converted `Quantity` instance.
-        net_quantity: The .NET IQuantity instance to convert.
-
-    Returns:
-        The equivalent `Quantity` instance.
-    """
-    warnings.warn('Changing interface', DeprecationWarning)
-    # units.Common support no conversion so simply call another implementation.
-    return deprecated_as_measurement(common_unit.value.physical_quantity, net_quantity)
-
-
-# noinspection PyUnresolvedReferences
-@deprecated_as_measurement.register(units.Metric)
-@deprecated_as_measurement.register(units.UsOilfield)
-@toolz.curry
-def deprecated_as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
-    """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
-
-    Args:
-        specified_unit: The unit for the converted `Quantity` instance.
-        net_quantity: The .NET IQuantity instance to convert.
-
-    Returns:
-        The equivalent `Quantity` instance in the specified unit.
-    """
-    warnings.warn('Changing interface', DeprecationWarning)
-    result = toolz.pipe(net_quantity,
-                        _convert_net_quantity_to_different_unit(specified_unit),
-                        deprecated_as_measurement(specified_unit.value.physical_quantity))
     return result
 
 
