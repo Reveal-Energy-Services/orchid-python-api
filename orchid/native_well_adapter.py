@@ -102,12 +102,12 @@ class NativeWellAdapter(dpo.DomProjectObject):
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],
                                    well_reference_frame_xy: origins.WellReferenceFrameXy,
-                                   depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
+                                   depth_origin: origins.DepthDatum) -> Iterable[nsp.SubsurfacePoint]:
         sample_at = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity(self.expect_project_units.LENGTH),
                                                      md_kb_values))
         result = toolz.pipe(
             self.dom_object.GetLocationsForMdKbValues(sample_at, well_reference_frame_xy, depth_origin),
-            toolz.map(nsp.make_subsurface_point_using_length_unit(self.expect_project_units.LENGTH)),
+            toolz.map(nsp.make_subsurface_point(self.expect_project_units.LENGTH)),
             list,
         )
         return result

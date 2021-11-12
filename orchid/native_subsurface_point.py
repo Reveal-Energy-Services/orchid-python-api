@@ -29,35 +29,8 @@ from orchid import (
 from Orchid.FractureDiagnostics import ISubsurfacePoint
 
 
-class BaseSubsurfacePoint(dna.DotNetAdapter):
+class SubsurfacePoint(dna.DotNetAdapter):
     """An abstract base class for subsurface points."""
-
-    depth_origin = dna.dom_property('depth_datum',
-                                    'The datum or origin for the z-coordinate of this point.')
-    xy_origin = dna.dom_property('well_reference_frame_xy',
-                                 'The reference frame or origin for the x-y coordinates of this point.')
-
-    @property
-    @abc.abstractmethod
-    def x(self):
-        """The x-coordinate of this point."""
-        pass
-
-    @property
-    @abc.abstractmethod
-    def y(self):
-        """The y-coordinate of this point."""
-        pass
-
-    @property
-    @abc.abstractmethod
-    def depth(self):
-        """The depth of this point."""
-        pass
-
-
-class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
-    """Adapts a .NET ISubsurfacePoint to be more Pythonic. Always returns lengths in the specified units."""
 
     def __init__(self, adaptee: ISubsurfacePoint, target_length_unit: Union[units.UsOilfield, units.Metric]):
         """
@@ -69,6 +42,11 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
         """
         super().__init__(adaptee)
         self._as_length_measurement_func = onq.as_measurement(target_length_unit)
+
+    depth_origin = dna.dom_property('depth_datum',
+                                    'The datum or origin for the z-coordinate of this point.')
+    xy_origin = dna.dom_property('well_reference_frame_xy',
+                                 'The reference frame or origin for the x-y coordinates of this point.')
 
     @property
     def x(self):
@@ -87,27 +65,6 @@ class SubsurfacePointUsingLengthUnit(BaseSubsurfacePoint):
 
 
 @toolz.curry
-def make_subsurface_point_using_length_unit(target_unit: Union[units.UsOilfield, units.Metric],
-                                            net_subsurface_point: ISubsurfacePoint) -> SubsurfacePointUsingLengthUnit:
-    return SubsurfacePointUsingLengthUnit(net_subsurface_point, target_unit)
-
-
-class SubsurfacePoint(BaseSubsurfacePoint):
-    """Adapts a .NET ISubsurfacePoint to be more Pythonic."""
-
-    x = dna.transformed_dom_property('x', 'The x-coordinate of this point.', onq.as_length_measurement)
-    y = dna.transformed_dom_property('y', 'The y-coordinate of this point.', onq.as_length_measurement)
-    depth = dna.transformed_dom_property('depth', 'The z-coordinate (depth) of this point.', onq.as_length_measurement)
-
-    def as_length_unit(self, as_length_unit: Union[units.UsOilfield, units.Metric]) -> SubsurfacePointUsingLengthUnit:
-        """
-        Convert all lengths returned to callers to `as_length_unit`.
-
-        Args:
-            as_length_unit: The unit to which all returned lengths are converted.
-
-        Returns:
-            A `SubsurfacePoint` that returns all lengths `as_length_unit`.
-
-        """
-        return SubsurfacePointUsingLengthUnit(self.dom_object, as_length_unit)
+def make_subsurface_point(target_unit: Union[units.UsOilfield, units.Metric],
+                          net_subsurface_point: ISubsurfacePoint) -> SubsurfacePoint:
+    return SubsurfacePoint(net_subsurface_point, target_unit)
