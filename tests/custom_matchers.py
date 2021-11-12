@@ -13,6 +13,7 @@
 #
 
 import decimal
+import math
 from typing import Optional
 
 from hamcrest import assert_that, equal_to, close_to
@@ -62,6 +63,11 @@ def _calculate_to_test_tolerance(expected: decimal.Decimal, last_digit_adjustmen
 def assert_that_measurements_close_to(actual, expected, tolerance=None, reason=''):
     assert_that(actual.units, equal_to(expected.units), reason)
     _assert_magnitudes_close_to(actual.magnitude, expected.magnitude, tolerance, reason)
+
+
+def assert_that_measurement_is_nan(actual, expected_unit, reason=''):
+    assert_that(actual.units, equal_to(expected_unit), reason)
+    assert_that(math.isnan(actual.magnitude))
 
 
 def assert_that_net_quantities_close_to(actual, expected, tolerance=None, reason=''):

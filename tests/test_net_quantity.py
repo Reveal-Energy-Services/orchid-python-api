@@ -16,6 +16,7 @@
 #
 
 import decimal
+import math
 import unittest
 
 from hamcrest import assert_that, equal_to, close_to
@@ -220,6 +221,36 @@ class TestNetQuantity(unittest.TestCase):
                               f' {expected.units:~P}'):
                 actual = onq.as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_in_target_unit_from_none(self):
+        for to_convert_net_quantity, to_unit in [
+            (option.NONE, units.UsOilfield.DENSITY),
+            (option.NONE, units.Metric.DENSITY),
+            (option.NONE, units.UsOilfield.ENERGY),
+            (option.NONE, units.Metric.ENERGY),
+            (option.NONE, units.UsOilfield.FORCE),
+            (option.NONE, units.Metric.FORCE),
+            (option.NONE, units.UsOilfield.LENGTH),
+            (option.NONE, units.Metric.LENGTH),
+            (option.NONE, units.UsOilfield.MASS),
+            (option.NONE, units.Metric.MASS),
+            (option.NONE, units.UsOilfield.POWER),
+            (option.NONE, units.Metric.POWER),
+            (option.NONE, units.UsOilfield.PRESSURE),
+            (option.NONE, units.Metric.PRESSURE),
+            (option.NONE, units.UsOilfield.PROPPANT_CONCENTRATION),
+            (option.NONE, units.Metric.PROPPANT_CONCENTRATION),
+            (option.NONE, units.UsOilfield.SLURRY_RATE),
+            (option.NONE, units.Metric.SLURRY_RATE),
+            (option.NONE, units.UsOilfield.TEMPERATURE),
+            (option.NONE, units.Metric.TEMPERATURE),
+            (option.NONE, units.UsOilfield.VOLUME),
+            (option.NONE, units.Metric.VOLUME),
+        ]:
+            with self.subTest(f'Test as_measurement_in_target_unit for {to_unit.value.unit:~P}'):
+                actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
 
     # noinspection PyUnresolvedReferences
     def test_deprecated_as_measurement_in_specified_same_unit(self):
