@@ -16,7 +16,9 @@
 #
 
 import deal
+
 import numpy as np
+import option
 import toolz.curried as toolz
 
 import orchid.base
@@ -75,7 +77,8 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
 
     def _trajectory_array(self, raw_array):
         result = toolz.pipe(raw_array,
-                            toolz.map(onq.deprecated_as_measurement(self.expect_project_units.LENGTH)),
+                            toolz.map(option.maybe),
+                            toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
                             toolz.map(lambda m: m.magnitude),
                             list,
                             np.array)
