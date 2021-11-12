@@ -16,15 +16,19 @@
 from collections import namedtuple
 import datetime as dt
 from typing import Callable, Union
+from warnings import warn
 
 import deal
+import option
 import pendulum
 
 from orchid import (
     project_loader as loader,
+    native_stage_adapter as nsa,
     net_date_time as net_dt,
     net_quantity as net_qty,
     physical_quantity as opq,
+    unit_system as units,
 )
 
 #
@@ -42,7 +46,36 @@ CalculationResult = namedtuple('CalculationResult', ['measurement', 'warnings'])
 
 def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculations, IStage, DateTime, DateTime],
                                                           ICalculationResult],
-                        stage: IStage, start: DateTime, stop: DateTime, physical_quantity: opq.PhysicalQuantity):
+                        stage: IStage,
+                        start: DateTime,
+                        stop: DateTime,
+                        target_unit: Union[units.UsOilfield, units.Metric]):
+    """
+    Perform the specific native calculation function for stage from start through (and including) stop.
+
+    Args:
+        native_calculation_func: The specific native treatment calculation function.
+        stage: The stage on which the calculation is being made.
+        start: The (inclusive) start time of the calculation.
+        stop: The (inclusive) stop time of the calculation.
+        target_unit: The target unit of the measurement to be returned as the result.
+
+    Returns:
+        The calculation result (measurement and warnings) for the calculation.
+    """
+    native_treatment_calculations = loader.native_treatment_calculations()
+    native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
+    calculation_measurement = net_qty.as_measurement(target_unit,
+                                                     option.maybe(native_calculation_result.Result))
+    warnings = native_calculation_result.Warnings
+    return CalculationResult(calculation_measurement, warnings)
+
+
+def deprecated_perform_calculation(native_calculation_func: Callable[[ITreatmentCalculations, IStage,
+                                                                      DateTime, DateTime],
+                                                                     ICalculationResult],
+                                   stage: IStage, start: DateTime, stop: DateTime,
+                                   physical_quantity: opq.PhysicalQuantity):
     """
     Perform the specific native calculation function for stage from start through (and including) stop.
 
@@ -56,6 +89,7 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     Returns:
         The calculation result (measurement and warnings) for the calculation.
     """
+    warn(f'Changing signature', DeprecationWarning)
     native_treatment_calculations = loader.native_treatment_calculations()
     native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
     calculation_measurement = net_qty.deprecated_as_measurement(physical_quantity, native_calculation_result.Result)
@@ -65,7 +99,7 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
 
 @deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
 @deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
-def median_treating_pressure(stage: IStage,
+def median_treating_pressure(stage: nsa.NativeStageAdapter,
                              start: Union[pendulum.DateTime, dt.datetime],
                              stop: Union[pendulum.DateTime, dt.datetime]):
     """
@@ -87,7 +121,7 @@ def median_treating_pressure(stage: IStage,
 
     result = perform_calculation(median_treatment_pressure_calculation, stage,
                                  _datetime_to_pendulum(start), _datetime_to_pendulum(stop),
-                                 opq.PhysicalQuantity.PRESSURE)
+                                 stage.expect_project_units.PRESSURE)
     return result
 
 
@@ -116,7 +150,7 @@ def pumped_fluid_volume(stage: IStage,
 
     result = perform_calculation(pumped_fluid_volume_calculation, stage,
                                  _datetime_to_pendulum(start), _datetime_to_pendulum(stop),
-                                 opq.PhysicalQuantity.VOLUME)
+                                 stage.expect_project_units.VOLUME)
     return result
 
 
@@ -144,7 +178,7 @@ def total_proppant_mass(stage: IStage,
 
     result = perform_calculation(total_proppant_mass_calculation, stage,
                                  _datetime_to_pendulum(start), _datetime_to_pendulum(stop),
-                                 opq.PhysicalQuantity.MASS)
+                                 stage.expect_project_units.MASS)
     return result
 
 
