@@ -16,7 +16,6 @@
 from collections import namedtuple
 import datetime as dt
 from typing import Callable, Union
-from warnings import warn
 
 import deal
 import option
@@ -27,7 +26,6 @@ from orchid import (
     native_stage_adapter as nsa,
     net_date_time as net_dt,
     net_quantity as net_qty,
-    physical_quantity as opq,
     unit_system as units,
 )
 
@@ -67,32 +65,6 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
     calculation_measurement = net_qty.as_measurement(target_unit,
                                                      option.maybe(native_calculation_result.Result))
-    warnings = native_calculation_result.Warnings
-    return CalculationResult(calculation_measurement, warnings)
-
-
-def deprecated_perform_calculation(native_calculation_func: Callable[[ITreatmentCalculations, IStage,
-                                                                      DateTime, DateTime],
-                                                                     ICalculationResult],
-                                   stage: IStage, start: DateTime, stop: DateTime,
-                                   physical_quantity: opq.PhysicalQuantity):
-    """
-    Perform the specific native calculation function for stage from start through (and including) stop.
-
-    Args:
-        native_calculation_func: The specific native treatment calculation function.
-        stage: The stage on which the calculation is being made.
-        start: The (inclusive) start time of the calculation.
-        stop: The (inclusive) stop time of the calculation.
-        physical_quantity: The physical quantity of the measurement to be returned as the result.
-
-    Returns:
-        The calculation result (measurement and warnings) for the calculation.
-    """
-    warn(f'Changing signature', DeprecationWarning)
-    native_treatment_calculations = loader.native_treatment_calculations()
-    native_calculation_result = native_calculation_func(native_treatment_calculations, stage, start, stop)
-    calculation_measurement = net_qty.deprecated_as_measurement(physical_quantity, native_calculation_result.Result)
     warnings = native_calculation_result.Warnings
     return CalculationResult(calculation_measurement, warnings)
 
