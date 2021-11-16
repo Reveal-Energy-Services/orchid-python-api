@@ -28,6 +28,7 @@ from orchid import (
     measurement as om,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
+    net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
 )
@@ -461,7 +462,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         net_pressures = [
             tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414),
             tsn.make_measurement_dto(units.Metric.PRESSURE, 3.142),
-            UnitsNet.Pressure.FromBars(UnitsNet.QuantityValue.op_Implicit(0.1506)),
+            onq.net_pressure_from_bars(0.1506),
         ]
         expected_measurements = [
             (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414), decimal.Decimal('1')),

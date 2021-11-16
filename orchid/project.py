@@ -19,6 +19,7 @@ from collections import namedtuple
 from typing import Iterable, List, Tuple
 
 import deal
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -60,7 +61,9 @@ class Project(dna.DotNetAdapter):
         super().__init__(project_loader.native_project())
         self._project_loader = project_loader
 
-    azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.', onq.as_angle_measurement)
+    azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.',
+                                           toolz.compose(onq.as_measurement(units.Common.ANGLE),
+                                                         option.maybe))
     name = dna.dom_property('name', 'The name of this project.')
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
 
@@ -70,7 +73,7 @@ class Project(dna.DotNetAdapter):
     @property
     def fluid_density(self):
         """The fluid density of the project in project units."""
-        return onq.as_measurement(self.project_units.DENSITY, self.dom_object.FluidDensity)
+        return onq.as_measurement(self.project_units.DENSITY, option.maybe(self.dom_object.FluidDensity))
 
     def data_frames(self) -> spo.SearchableProjectObjects:
         """
@@ -100,6 +103,7 @@ class Project(dna.DotNetAdapter):
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),
+                            toolz.map(option.maybe),
                             toolz.map(onq.as_measurement(self.project_units.LENGTH)),
                             list,
                             lambda ls: ProjectBounds(*ls))
@@ -111,6 +115,7 @@ class Project(dna.DotNetAdapter):
         """
         net_center = self.dom_object.GetProjectCenter()
         result = toolz.pipe(net_center,
+                            toolz.map(option.maybe),
                             toolz.map(onq.as_measurement(self.project_units.LENGTH)),
                             list,
                             lambda ls: SurfacePoint(ls[0], ls[1]))

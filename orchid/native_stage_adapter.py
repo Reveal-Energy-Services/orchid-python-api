@@ -20,6 +20,7 @@ from enum import IntEnum
 from typing import Tuple, Union
 
 import deal
+import option
 import toolz.curried as toolz
 
 import orchid.base
@@ -73,7 +74,7 @@ def as_connection_type(type_value):
 def subsurface_point_in_length_unit(depth_datum: origins.DepthDatum,
                                     xy_reference_frame: origins.WellReferenceFrameXy,
                                     in_length_unit: Union[units.UsOilfield, units.Metric],
-                                    net_subsurface_point_func) -> nsp.BaseSubsurfacePoint:
+                                    net_subsurface_point_func) -> nsp.SubsurfacePoint:
     """
     Calculate the subsurface point `in_length_unit` whose value is calculated by the
     callable, `net_subsurface_point_func`.
@@ -91,7 +92,7 @@ def subsurface_point_in_length_unit(depth_datum: origins.DepthDatum,
         The subsurface point in the requested unit of length.
     """
     net_subsurface_point = net_subsurface_point_func(xy_reference_frame.value, depth_datum.value)
-    result = nsp.SubsurfacePoint(net_subsurface_point).as_length_unit(in_length_unit)
+    result = nsp.SubsurfacePoint(net_subsurface_point, in_length_unit)
     return result
 
 
@@ -125,7 +126,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
         """
         Return the instantaneous shut in pressure of this stage in project units.
         """
-        return onq.as_measurement(self.expect_project_units.PRESSURE, self.dom_object.Isip)
+        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Isip))
 
     @property
     def pnet(self) -> om.Quantity:
@@ -135,14 +136,14 @@ class NativeStageAdapter(dpo.DomProjectObject):
         The net pressure of a stage is calculated by the formula:
             pnet = isip + fluid-density * tvd - shmin (where tvd is the true vertical depth)
         """
-        return onq.as_measurement(self.expect_project_units.PRESSURE, self.dom_object.Pnet)
+        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Pnet))
 
     @property
     def shmin(self) -> om.Quantity:
         """
         Return the minimum horizontal stress of this stage in project units.
         """
-        return onq.as_measurement(self.expect_project_units.PRESSURE, self.dom_object.Shmin)
+        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Shmin))
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
@@ -172,7 +173,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def bottom_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
-                        depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
+                        depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
         """
         Return the location of the bottom of this stage in the `xy_well_reference_frame` using the
         `depth_datum` in the specified unit.
@@ -183,7 +184,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
             depth_datum: The datum from which we measure depths.
 
         Returns:
-            The `BaseSubsurfacePoint` of the stage bottom.
+            The `SubsurfacePoint` of the stage bottom.
         """
 
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
@@ -191,7 +192,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def center_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                         xy_reference_frame: origins.WellReferenceFrameXy,
-                        depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
+                        depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
         """
         Return the location of the center of this stage in the `xy_well_reference_frame` using the `depth_datum`
         in the specified unit.
@@ -202,7 +203,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
             depth_datum: The datum from which we measure depths.
 
         Returns:
-            The `BaseSubsurfacePoint` of the stage center.
+            The `SubsurfacePoint` of the stage center.
         """
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
                                                self.dom_object.GetStageLocationCenter)
@@ -286,7 +287,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
     @deal.pre(lambda _self, _in_length_unit, cluster_no, _xy_reference_frame, _depth_datum: cluster_no >= 0)
     def cluster_location(self, in_length_unit: Union[units.UsOilfield, units.Metric], cluster_no: int,
                          xy_reference_frame: origins.WellReferenceFrameXy,
-                         depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
+                         depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
         """
         Return the location of the bottom of this stage in the `xy_well_reference_frame` using the
         `depth_datum` in the specified unit.
@@ -298,7 +299,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
             depth_datum: The datum from which we measure depths.
 
         Returns:
-            The `BaseSubsurfacePoint` of the stage cluster identified by `cluster_no`.
+            The `SubsurfacePoint` of the stage cluster identified by `cluster_no`.
         """
         stage_location_cluster_func = toolz.curry(self.dom_object.GetStageLocationCluster, cluster_no)
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
@@ -306,7 +307,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.as_measurement(target_unit, self.dom_object.Isip)
+        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Isip))
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
@@ -319,7 +320,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
         Returns:
              The measured depth of the stage bottom in the specified unit.
         """
-        return onq.as_measurement(in_length_unit, self.dom_object.MdBottom)
+        return onq.as_measurement(in_length_unit, option.maybe(self.dom_object.MdBottom))
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
@@ -332,15 +333,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
         Returns;
          The measured depth of the stage top in the specified unit.
         """
-        return onq.as_measurement(in_length_unit, self.dom_object.MdTop)
+        return onq.as_measurement(in_length_unit, option.maybe(self.dom_object.MdTop))
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.as_measurement(target_unit, self.dom_object.Pnet)
+        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Pnet))
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.as_measurement(target_unit, self.dom_object.Shmin)
+        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Shmin))
 
     def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
@@ -356,7 +357,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                      xy_reference_frame: origins.WellReferenceFrameXy,
-                     depth_datum: origins.DepthDatum) -> nsp.BaseSubsurfacePoint:
+                     depth_datum: origins.DepthDatum) -> nsp.SubsurfacePoint:
         """
         Return the location of the top of this stage in the `xy_well_reference_frame` using the `depth_datum`
         in the specified unit.
@@ -367,7 +368,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
             depth_datum: The datum from which we measure depths.
 
         Returns:
-            The `BaseSubsurfacePoint` of the stage top.
+            The `SubsurfacePoint` of the stage top.
         """
         return subsurface_point_in_length_unit(depth_datum, xy_reference_frame, in_length_unit,
                                                self.dom_object.GetStageLocationTop)

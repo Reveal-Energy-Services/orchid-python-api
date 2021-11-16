@@ -17,6 +17,7 @@
 
 from typing import Iterable
 
+import option
 import toolz.curried as toolz
 
 import orchid.base
@@ -72,16 +73,19 @@ class NativeWellAdapter(dpo.DomProjectObject):
 
     @property
     def ground_level_elevation_above_sea_level(self) -> om.Quantity:
-        return onq.as_measurement(self.expect_project_units.LENGTH, self.dom_object.GroundLevelElevationAboveSeaLevel)
+        return onq.as_measurement(self.expect_project_units.LENGTH,
+                                  option.maybe(self.dom_object.GroundLevelElevationAboveSeaLevel))
 
     @property
     def kelly_bushing_height_above_ground_level(self) -> om.Quantity:
-        return onq.as_measurement(self.expect_project_units.LENGTH, self.dom_object.KellyBushingHeightAboveGroundLevel)
+        return onq.as_measurement(self.expect_project_units.LENGTH,
+                                  option.maybe(self.dom_object.KellyBushingHeightAboveGroundLevel))
 
     @property
     def wellhead_location(self):
         dom_whl = self.dom_object.WellHeadLocation
         result = toolz.pipe(dom_whl,
+                            toolz.map(option.maybe),
                             toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
                             list, )
         return WellHeadLocation(*result)
@@ -98,12 +102,12 @@ class NativeWellAdapter(dpo.DomProjectObject):
     def locations_for_md_kb_values(self,
                                    md_kb_values: Iterable[om.Quantity],
                                    well_reference_frame_xy: origins.WellReferenceFrameXy,
-                                   depth_origin: origins.DepthDatum) -> Iterable[nsp.BaseSubsurfacePoint]:
+                                   depth_origin: origins.DepthDatum) -> Iterable[nsp.SubsurfacePoint]:
         sample_at = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity(self.expect_project_units.LENGTH),
                                                      md_kb_values))
         result = toolz.pipe(
             self.dom_object.GetLocationsForMdKbValues(sample_at, well_reference_frame_xy, depth_origin),
-            toolz.map(nsp.make_subsurface_point_using_length_unit(self.expect_project_units.LENGTH)),
+            toolz.map(nsp.make_subsurface_point(self.expect_project_units.LENGTH)),
             list,
         )
         return result

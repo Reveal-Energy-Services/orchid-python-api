@@ -18,9 +18,12 @@
 """This module contains functions for converting between instances of the (Python) `Measurement` class and
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
-from numbers import Real
 from functools import singledispatch
+from numbers import Real
+import operator
+from typing import Union
 
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -30,11 +33,104 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.RatioTypes import ProppantConcentration, SlurryRate
-# noinspection PyUnresolvedReferences
 from System import Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
+
+
+# Convenience functions
+
+
+def to_net_quantity_value(magnitude):
+    """
+    Create a `UnitsNet` `QuantityValue` instance.
+
+    The `UnitsNet` package *does not* accept floating point values to create most measurements; instead, these
+    creation functions expect an argument of type `QuantityValue`. In .NET, these values are created using an
+    implicit conversion. This implicit version on the Python side fails.
+
+    This function allows us to define that conversion in one place.
+
+    Args:
+        magnitude: The magnitude of the `UnitNet` `Quantity` (measurement) to be created.
+
+    Returns:
+        The `magnitude` wrapped in a `UnitsNet.QuantityValue` instance.
+
+    """
+    return UnitsNet.QuantityValue.op_Implicit(magnitude)
+
+
+def net_length_from(magnitude: float, net_unit: UnitsNet.Length.Units) -> UnitsNet.Quantity:
+    """
+    Create a `UnitsNet` length measurement from `magnitude` and `net_unit`.
+
+    Args:
+        magnitude: The magnitude of the length measurement
+        net_unit: The `UnitsNet` unit of the length measurement
+
+    Returns:
+        The `UnitsNet` `Quantity` whose `Value` is `magnitude` and whose `Unit` is `net_unit`.
+    """
+    return UnitsNet.Length.From(to_net_quantity_value(magnitude), net_unit)
+
+
+def net_pressure_from(magnitude: float, net_unit: UnitsNet.Pressure.Units) -> UnitsNet.Quantity:
+    """
+    Create a `UnitsNet` pressure measurement from `magnitude` and `net_unit`.
+
+    Args:
+        magnitude: The magnitude of the pressure measurement
+        net_unit: The `UnitsNet` unit of the pressure measurement
+
+    Returns:
+        The `UnitsNet` `Quantity` whose `Value` is `magnitude` and whose `Unit` is `net_unit`.
+    """
+    return UnitsNet.Pressure.From(to_net_quantity_value(magnitude), net_unit)
+
+
+# The following code creates conversion functions programmatically by:
+# - Creating a map from variable name to string identifying how to create the `UnitsNet` `Quantity`
+# - Transforming that map by:
+#   - Transforming the map keys by prepending 'net_'
+#   - Transforming the map values to a function creating the value. (See the documentation of
+#     `operator.attrgetter` function for details.)
+# - Adding the key and value of this map to the `globals()` dict (module attributes)
+net_creator_attributes = {
+    'angle_from_deg': 'Angle.FromDegrees',
+    'duration_from_min': 'Duration.FromMinutes',
+    'density_from_lbs_per_cu_ft': 'Density.FromPoundsPerCubicFoot',
+    'density_from_kg_per_cu_m': 'Density.FromKilogramsPerCubicMeter',
+    'energy_from_ft_lbs': 'Energy.FromFootPounds',
+    'energy_from_J': 'Energy.FromJoules',
+    'force_from_lbf': 'Force.FromPoundsForce',
+    'force_from_N': 'Force.FromNewtons',
+    'length_from_ft': 'Length.FromFeet',
+    'length_from_m': 'Length.FromMeters',
+    'mass_from_lbs': 'Mass.FromPounds',
+    'mass_from_kg': 'Mass.FromKilograms',
+    'power_from_hp': 'Power.FromMechanicalHorsepower',
+    'power_from_W': 'Power.FromWatts',
+    'pressure_from_psi': 'Pressure.FromPoundsForcePerSquareInch',
+    'pressure_from_kPa': 'Pressure.FromKilopascals',
+    'pressure_from_bars': 'Pressure.FromBars',
+    'mass_concentration_from_lbs_per_gal': 'MassConcentration.FromPoundsPerUSGallon',
+    'mass_concentration_from_kg_per_cu_m': 'MassConcentration.FromKilogramsPerCubicMeter',
+    'volume_flow_from_oil_bbl_per_min': 'VolumeFlow.FromOilBarrelsPerMinute',
+    'volume_flow_from_cu_m_per_min': 'VolumeFlow.FromCubicMetersPerMinute',
+    'temperature_from_deg_F': 'Temperature.FromDegreesFahrenheit',
+    'temperature_from_deg_C': 'Temperature.FromDegreesCelsius',
+    'volume_from_oil_bbl': 'Volume.FromOilBarrels',
+    'volume_from_cu_m': 'Volume.FromCubicMeters',
+}
+net_creator_funcs = toolz.pipe(
+    net_creator_attributes,
+    toolz.keymap(lambda k: f'net_{k}'),
+    toolz.valmap(lambda v: toolz.compose(operator.attrgetter(v)(UnitsNet),
+                                         to_net_quantity_value)),
+)
+for variable_name, variable_value in net_creator_funcs.items():
+    globals()[variable_name] = variable_value
 
 
 class EqualsComparisonDetails:
@@ -82,134 +178,80 @@ class EqualsComparisonDetails:
 # symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
 # but, on various conversion, produce the Pint unit `ft**3`.
 #
+
+
 @singledispatch
 @toolz.curry
-def as_measurement(unknown, _net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def as_measurement(unknown, _maybe_net_quantity: option.Option[UnitsNet.IQuantity]) -> om.Quantity:
     """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
+    Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance.
 
     This function is registered as the type-handler for the `object` type. In our situation, arriving here
     indicates an error by an implementer and so raises an error.
 
     Args:
         unknown: A parameter whose type is not expected.
-        _net_quantity: The .NET IQuantity instance to convert. (Unused in this base implementation.)
+        _maybe_net_quantity: The optional .NET `IQuantity` instance to convert. (Unused.)
     """
-    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `deprecated_as_measurement`.')
 
 
-@as_measurement.register(opq.PhysicalQuantity)
-@toolz.curry
-def as_measurement_using_physical_quantity(physical_quantity, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
-    """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in the same unit.
-
-    Args:
-        physical_quantity: The `PhysicalQuantity`. Although we try to determine a unique mapping between units
-        in `pint` and .NET `UnitsNet` units, we cannot perform a unique mapping for density and proppant
-        concentration measured in the metric system (the units of both these physical quantities are
-        "kg/m**3").
-        net_quantity: The .NET IQuantity instance to convert.
-
-    Returns:
-        The equivalent `pint` `Quantity` instance.
-    """
-    def is_proppant_concentration(physical_qty):
-        return physical_qty == opq.PhysicalQuantity.PROPPANT_CONCENTRATION
-
-    def is_slurry_rate(physical_qty):
-        return physical_qty == opq.PhysicalQuantity.SLURRY_RATE
-
-    def ratio_units(net_qty):
-        return net_qty.NumeratorUnit, net_qty.DenominatorUnit
-
-    def is_us_oilfield_proppant_concentration(numerator, denominator):
-        return (numerator == UnitsNet.Units.MassUnit.Pound and
-                denominator == UnitsNet.Units.VolumeUnit.UsGallon)
-
-    def is_metric_proppant_concentration(numerator, denominator):
-        return (numerator == UnitsNet.Units.MassUnit.Kilogram and
-                denominator == UnitsNet.Units.VolumeUnit.CubicMeter)
-
-    def is_us_oilfield_slurry_rate(numerator, denominator):
-        return (numerator == UnitsNet.Units.VolumeUnit.OilBarrel and
-                denominator == UnitsNet.Units.DurationUnit.Minute)
-
-    def is_metric_slurry_rate(numerator, denominator):
-        return (numerator == UnitsNet.Units.VolumeUnit.CubicMeter and
-                denominator == UnitsNet.Units.DurationUnit.Minute)
-
-    if is_proppant_concentration(physical_quantity):
-        numerator_unit, denominator_unit = ratio_units(net_quantity)
-        if is_us_oilfield_proppant_concentration(numerator_unit, denominator_unit):
-            return net_quantity.Value * om.registry.lb / om.registry.gal
-        elif is_metric_proppant_concentration(numerator_unit, denominator_unit):
-            return net_quantity.Value * om.registry.kg / (om.registry.m ** 3)
-
-    if is_slurry_rate(physical_quantity):
-        numerator_unit, denominator_unit = ratio_units(net_quantity)
-        if is_us_oilfield_slurry_rate(numerator_unit, denominator_unit):
-            return net_quantity.Value * om.registry.oil_bbl / om.registry.min
-        elif is_metric_slurry_rate(numerator_unit, denominator_unit):
-            return net_quantity.Value * (om.registry.m ** 3) / om.registry.min
-
-    pint_unit = _to_pint_unit(physical_quantity, net_quantity.Unit)
-
-    # UnitsNet, for an unknown reason, handles the `Value` property of `Power` **differently** from almost all
-    # other units (`Information` and `BitRate` appear to be handled in the same way). Specifically, the
-    # `Value` property **does not** return a value of type `double` but of type `Decimal`. Python.NET
-    # expectedly converts the value returned by `Value` to a Python `decimal.Decimal`. Then, additionally,
-    # Pint has a problem handling a unit whose value is `decimal.Decimal`. I do not quite understand this
-    # problem, but I have seen other issues on GitHub that seem to indicate similar problems.
-    if physical_quantity == opq.PhysicalQuantity.POWER:
-        return _net_decimal_to_float(net_quantity.Value) * pint_unit
-    elif physical_quantity == opq.PhysicalQuantity.TEMPERATURE:
-        return om.Quantity(net_quantity.Value, pint_unit)
-    else:
-        return net_quantity.Value * pint_unit
-
-
-# Define convenience functions when physical quantity is known.
-as_angle_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.ANGLE)
-as_density_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.DENSITY)
-as_length_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.LENGTH)
-as_pressure_measurement = toolz.curry(as_measurement, opq.PhysicalQuantity.PRESSURE)
-
-
+# noinspection PyUnresolvedReferences
 @as_measurement.register(units.Common)
 @toolz.curry
-def as_measurement_in_common_unit(common_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def as_measurement_in_common_unit(target_unit, maybe_net_quantity: UnitsNet.IQuantity) -> om.Quantity:
     """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a common unit.
+    Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance in a common unit.
 
     Args:
-        common_unit: The unit (from the units.Common) for the converted `Quantity` instance.
-        net_quantity: The .NET IQuantity instance to convert.
+        target_unit: The unit (from the units.Common) for the converted `Quantity` instance.
+        maybe_net_quantity: The optional .NET `IQuantity` instance to convert.
 
     Returns:
-        The equivalent `Quantity` instance.
+        The equivalent `Quantity` instance in the target unit.
     """
-    # units.Common support no conversion so simply call another implementation.
-    return as_measurement(common_unit.value.physical_quantity, net_quantity)
+    return maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
+                                     om.Quantity(float('NaN'), target_unit.value.unit))
 
 
 @as_measurement.register(units.Metric)
 @as_measurement.register(units.UsOilfield)
 @toolz.curry
-def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+def as_measurement_in_specified_unit(target_unit,
+                                     maybe_net_quantity: option.Option[UnitsNet.IQuantity]) -> om.Quantity:
     """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
+    Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance.
+]
+    Args:
+        target_unit: The unit for the converted `Quantity` instance.
+        maybe_net_quantity: The optional .NET `IQuantity` instance to convert.
+
+    Returns:
+        The equivalent `Quantity` instance in the target unit.
+    """
+    # result = toolz.pipe(maybe_net_quantity,
+    #                     _convert_net_quantity_to_different_unit(target_unit),
+    #                     as_measurement(target_unit.value.physical_quantity, ))
+
+    return maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
+                                     om.Quantity(float('NaN'), target_unit.value.unit))
+
+
+@toolz.curry
+def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
+                            net_quantity: UnitsNet.IQuantity) -> om.Quantity:
+    """
+    Convert an `IQuantity` to a `pint` `Quantity` in a specified compatible unit.
 
     Args:
-        specified_unit: The unit for the converted `Quantity` instance.
-        net_quantity: The .NET IQuantity instance to convert.
+        target_unit: The target unit for the converted `Quantity` instance.
+        net_quantity: The .NET `IQuantity` instance to convert.
 
     Returns:
         The equivalent `Quantity` instance in the specified unit.
     """
-    result = toolz.pipe(net_quantity,
-                        _convert_net_quantity_to_different_unit(specified_unit),
-                        as_measurement(specified_unit.value.physical_quantity))
+    target_magnitude = net_quantity.As(_UNIT_NET_UNITS[target_unit])
+    result = om.Quantity(target_magnitude, target_unit.value.unit)
     return result
 
 
@@ -220,6 +262,8 @@ def as_measurement_in_specified_unit(specified_unit, net_quantity: UnitsNet.IQua
 # symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
 # but, on various conversion, produce the Pint unit `ft**3`.
 #
+
+
 @singledispatch
 @toolz.curry
 def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:
@@ -239,29 +283,28 @@ def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:
     raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_net_quantity`.')
 
 
+# noinspection PyUnresolvedReferences
 _PINT_UNIT_CREATE_NET_UNITS = {
-    om.registry.deg: lambda qv: UnitsNet.Angle.FromDegrees(qv),
-    om.registry.min: lambda qv: UnitsNet.Duration.FromMinutes(qv),
-    om.registry.ft_lb: lambda qv: UnitsNet.Energy.FromFootPounds(qv),
-    om.registry.J: lambda qv: UnitsNet.Energy.FromJoules(qv),
-    om.registry.lbf: lambda qv: UnitsNet.Force.FromPoundsForce(qv),
-    om.registry.N: lambda qv: UnitsNet.Force.FromNewtons(qv),
-    om.registry.ft: lambda qv: UnitsNet.Length.FromFeet(qv),
-    om.registry.m: lambda qv: UnitsNet.Length.FromMeters(qv),
-    om.registry.lb: lambda qv: UnitsNet.Mass.FromPounds(qv),
-    om.registry.kg: lambda qv: UnitsNet.Mass.FromKilograms(qv),
-    om.registry.hp: lambda qv: UnitsNet.Power.FromMechanicalHorsepower(qv),
-    om.registry.W: lambda qv: UnitsNet.Power.FromWatts(qv),
-    om.registry.psi: lambda qv: UnitsNet.Pressure.FromPoundsForcePerSquareInch(qv),
-    om.registry.kPa: lambda qv: UnitsNet.Pressure.FromKilopascals(qv),
-    om.registry.oil_bbl / om.registry.min:
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.OilBarrel, UnitsNet.Units.DurationUnit.Minute),
-    ((om.registry.m ** 3) / om.registry.min):
-        lambda qv: SlurryRate(qv, UnitsNet.Units.VolumeUnit.CubicMeter, UnitsNet.Units.DurationUnit.Minute),
-    om.registry.degF: lambda qv: UnitsNet.Temperature.FromDegreesFahrenheit(qv),
-    om.registry.degC: lambda qv: UnitsNet.Temperature.FromDegreesCelsius(qv),
-    om.registry.oil_bbl: lambda qv: UnitsNet.Volume.FromOilBarrels(qv),
-    (om.registry.m ** 3): lambda qv: UnitsNet.Volume.FromCubicMeters(qv),
+    om.registry.deg: UnitsNet.Angle.FromDegrees,
+    om.registry.min: UnitsNet.Duration.FromMinutes,
+    om.registry.ft_lb: UnitsNet.Energy.FromFootPounds,
+    om.registry.J: UnitsNet.Energy.FromJoules,
+    om.registry.lbf: UnitsNet.Force.FromPoundsForce,
+    om.registry.N: UnitsNet.Force.FromNewtons,
+    om.registry.ft: UnitsNet.Length.FromFeet,
+    om.registry.m: UnitsNet.Length.FromMeters,
+    om.registry.lb: UnitsNet.Mass.FromPounds,
+    om.registry.kg: UnitsNet.Mass.FromKilograms,
+    om.registry.hp: UnitsNet.Power.FromMechanicalHorsepower,
+    om.registry.W: UnitsNet.Power.FromWatts,
+    om.registry.psi: UnitsNet.Pressure.FromPoundsForcePerSquareInch,
+    om.registry.kPa: UnitsNet.Pressure.FromKilopascals,
+    om.registry.oil_bbl / om.registry.min: net_volume_flow_from_oil_bbl_per_min,
+    ((om.registry.m ** 3) / om.registry.min): net_volume_flow_from_cu_m_per_min,
+    om.registry.degF: UnitsNet.Temperature.FromDegreesFahrenheit,
+    om.registry.degC: UnitsNet.Temperature.FromDegreesCelsius,
+    om.registry.oil_bbl: UnitsNet.Volume.FromOilBarrels,
+    (om.registry.m ** 3): UnitsNet.Volume.FromCubicMeters,
 }
 
 
@@ -269,24 +312,21 @@ def _us_oilfield_slurry_rate(qv):
     return UnitsNet.Density.FromPoundsPerCubicFoot(qv)
 
 
+# noinspection PyUnresolvedReferences
 _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
     opq.PhysicalQuantity.DENSITY: {
         om.registry.lb / om.registry.cu_ft: _us_oilfield_slurry_rate,
         om.registry.lb / om.registry.ft ** 3: _us_oilfield_slurry_rate,
-        om.registry.kg / (om.registry.m ** 3):
-            lambda qv: UnitsNet.Density.FromKilogramsPerCubicMeter(qv),
+        om.registry.kg / (om.registry.m ** 3): UnitsNet.Density.FromKilogramsPerCubicMeter,
     },
     opq.PhysicalQuantity.PROPPANT_CONCENTRATION: {
-        om.registry.lb / om.registry.gal:
-            lambda qv: ProppantConcentration(float(qv), UnitsNet.Units.MassUnit.Pound,
-                                             UnitsNet.Units.VolumeUnit.UsGallon),
-        om.registry.kg / (om.registry.m ** 3):
-            lambda qv: ProppantConcentration(float(qv), UnitsNet.Units.MassUnit.Kilogram,
-                                             UnitsNet.Units.VolumeUnit.CubicMeter),
+        om.registry.lb / om.registry.gal: net_mass_concentration_from_lbs_per_gal,
+        om.registry.kg / (om.registry.m ** 3): net_mass_concentration_from_kg_per_cu_m,
     },
 }
 
 
+# noinspection PyUnresolvedReferences
 @as_net_quantity.register(opq.PhysicalQuantity)
 @toolz.curry
 def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Quantity) -> UnitsNet.IQuantity:
@@ -317,6 +357,7 @@ def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Q
     return toolz.get(measurement.units, _PINT_UNIT_CREATE_NET_UNITS)(quantity)
 
 
+# noinspection PyUnresolvedReferences
 @as_net_quantity.register(units.Common)
 @toolz.curry
 def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
@@ -334,6 +375,7 @@ def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity)
     return as_net_quantity(to_common_unit.value.physical_quantity, measurement)
 
 
+# noinspection PyUnresolvedReferences
 @as_net_quantity.register(units.Metric)
 @as_net_quantity.register(units.UsOilfield)
 @toolz.curry
@@ -414,6 +456,10 @@ _UNIT_NET_UNITS = {
     units.Metric.POWER: UnitsNet.Units.PowerUnit.Watt,
     units.UsOilfield.PRESSURE: UnitsNet.Units.PressureUnit.PoundForcePerSquareInch,
     units.Metric.PRESSURE: UnitsNet.Units.PressureUnit.Kilopascal,
+    units.UsOilfield.PROPPANT_CONCENTRATION: UnitsNet.Units.MassConcentrationUnit.PoundPerUSGallon,
+    units.Metric.PROPPANT_CONCENTRATION: UnitsNet.Units.MassConcentrationUnit.KilogramPerCubicMeter,
+    units.UsOilfield.SLURRY_RATE: UnitsNet.Units.VolumeFlowUnit.OilBarrelPerMinute,
+    units.Metric.SLURRY_RATE: UnitsNet.Units.VolumeFlowUnit.CubicMeterPerMinute,
     units.UsOilfield.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeFahrenheit,
     units.Metric.TEMPERATURE: UnitsNet.Units.TemperatureUnit.DegreeCelsius,
     units.UsOilfield.VOLUME: UnitsNet.Units.VolumeUnit.OilBarrel,
@@ -428,53 +474,13 @@ def _convert_net_quantity_to_different_unit(target_unit: units.UnitSystem,
     Convert one .NET `UnitsNet.IQuantity` to another .NET `UnitsNet.IQuantity` in a different unit `target_unit`
     Args:
         net_quantity: The `UnitsNet.IQuantity` instance to convert.
-        target_unit: The unit to which to convert `net_quantity`.
+        target_unit: The unit to which to convert `maybe_net_quantity`.
 
     Returns:
         The .NET `UnitsNet.IQuantity` converted to `target_unit`.
     """
-
-    if _is_proppant_concentration(target_unit):
-        return _create_proppant_concentration(net_quantity, target_unit)
-
-    if _is_slurry_rate(target_unit):
-        return _create_slurry_rate(net_quantity, target_unit)
-
     result = net_quantity.ToUnit(_UNIT_NET_UNITS[target_unit])
     return result
-
-
-def _create_proppant_concentration(net_to_convert, target_unit):
-    if target_unit == units.UsOilfield.PROPPANT_CONCENTRATION:
-        mass_unit = UnitsNet.Units.MassUnit.Pound
-        volume_unit = UnitsNet.Units.VolumeUnit.UsGallon
-    elif target_unit == units.Metric.PROPPANT_CONCENTRATION:
-        mass_unit = UnitsNet.Units.MassUnit.Kilogram
-        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-    # noinspection PyUnboundLocalVariable
-    converted_magnitude = net_to_convert.As(mass_unit, volume_unit)
-    return ProppantConcentration(converted_magnitude, mass_unit, volume_unit)
-
-
-def _create_slurry_rate(net_to_convert, target_unit):
-    if target_unit == units.UsOilfield.SLURRY_RATE:
-        volume_unit = UnitsNet.Units.VolumeUnit.OilBarrel
-    elif target_unit == units.Metric.SLURRY_RATE:
-        volume_unit = UnitsNet.Units.VolumeUnit.CubicMeter
-    duration_unit = UnitsNet.Units.DurationUnit.Minute
-    # noinspection PyUnboundLocalVariable
-    converted_magnitude = net_to_convert.As(volume_unit, duration_unit)
-    return SlurryRate(converted_magnitude, volume_unit, duration_unit)
-
-
-def _is_proppant_concentration(to_test):
-    return (to_test == units.UsOilfield.PROPPANT_CONCENTRATION
-            or to_test == units.Metric.PROPPANT_CONCENTRATION)
-
-
-def _is_slurry_rate(to_test):
-    return (to_test == units.UsOilfield.SLURRY_RATE
-            or to_test == units.Metric.SLURRY_RATE)
 
 
 def _net_decimal_to_float(net_decimal: Decimal) -> float:
@@ -524,6 +530,14 @@ _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
     opq.PhysicalQuantity.PRESSURE: {
         UnitsNet.Units.PressureUnit.PoundForcePerSquareInch: om.registry.psi,
         UnitsNet.Units.PressureUnit.Kilopascal: om.registry.kPa,
+    },
+    opq.PhysicalQuantity.PROPPANT_CONCENTRATION: {
+        UnitsNet.Units.MassConcentrationUnit.PoundPerUSGallon: om.registry.lb / om.registry.gallon,
+        UnitsNet.Units.MassConcentrationUnit.KilogramPerCubicMeter: om.registry.kg / om.registry.m ** 3,
+    },
+    opq.PhysicalQuantity.SLURRY_RATE: {
+        UnitsNet.Units.VolumeFlowUnit.OilBarrelPerMinute: om.registry.oil_bbl / om.registry.min,
+        UnitsNet.Units.VolumeFlowUnit.CubicMeterPerMinute: om.registry.m ** 3 / om.registry.min,
     },
     opq.PhysicalQuantity.TEMPERATURE: {
         UnitsNet.Units.TemperatureUnit.DegreeFahrenheit: om.registry.degF,
