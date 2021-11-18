@@ -124,3 +124,16 @@ def auto_pick_observations(project):
     mutableProject = project.ToMutable()
     mutableProject.AddObservationSet(observationSet)
     mutableProject.Dispose()
+
+
+def main():
+    orchid_training_data_path = orchid.training_data_path()
+    project = orchid.load_project(str(orchid_training_data_path.joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')))
+    native_project = project.dom_object
+    auto_pick_observations(native_project)
+    print(native_project.Name)
+    return
+
+
+if __name__ == '__main__':
+    main()
