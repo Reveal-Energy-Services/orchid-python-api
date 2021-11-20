@@ -16,7 +16,7 @@ import clr
 import orchid
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import (IProject, MonitorExtensions, Leakoff, Observation)
+from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
@@ -41,13 +41,15 @@ def auto_pick_observations(project):
             monitor = mItem
 
     stgParts = MonitorExtensions.FindPossiblyVisibleStageParts(monitor, project.Wells.Items)
+    print(f'{len(stgParts)=}')
 
-    observationSet = FractureDiagnosticsFactory.CreateObservationSet(project, "Auto-picked Observation Set3")
+    fracture_diagnostics_factory = FractureDiagnosticsFactory.Create()
+    observationSet = fracture_diagnostics_factory.CreateObservationSet(project, 'Auto-picked Observation Set3')
 
     for part in stgParts:
 
-        timeRange = FractureDiagnosticsFactory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
-                                                                         part.StopTime.AddDays(1))
+        timeRange = fracture_diagnostics_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
+                                                                           part.StopTime.AddDays(1))
         ticks = monitor.TimeSeries.GetOrderedTimeSeriesHistory(timeRange)
 
         xvals = List[float]()
@@ -80,15 +82,16 @@ def auto_pick_observations(project):
         pVals = timeSeriesInterpolant.Interpolate(timeSeriesInterpolationPoints.ToArray(), 0)
 
         controlPointTimes = List[Leakoff.ControlPoint]()
-        controlPointTimes.Add(Leakoff.ControlPoint(DateTime=L1.Time,
-                                                   Pressure=UnitsNet.Pressure(pVals[0],
-                                                                              UnitsNet.Units.PressureUnit.Psi)))
-        controlPointTimes.Add(Leakoff.ControlPoint(DateTime=L2.Time,
-                                                   Pressure=UnitsNet.Pressure(pVals[1],
-                                                                              UnitsNet.Units.PressureUnit.Psi)))
+        controlPointTimes.Add(Leakoff.ControlPoint(
+            DateTime=L1.Time, Pressure=UnitsNet.Pressure(pVals[0],
+                                                         UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+        controlPointTimes.Add(Leakoff.ControlPoint(
+            DateTime=L2.Time,
+            Pressure=UnitsNet.Pressure(pVals[1],
+                                       UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
 
-        leakoffCurve = FractureDiagnosticsFactory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
-                                                                     controlPointTimes)
+        leakoffCurve = fracture_diagnostics_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
+                                                                       controlPointTimes)
 
         maxP = -1000
         ts = DateTime.MinValue
@@ -101,7 +104,7 @@ def auto_pick_observations(project):
         queryTimes.Add(ts)
         leakoffP = leakoffCurve.GetPressureValues(queryTimes)[0]
 
-        observation = FractureDiagnosticsFactory.CreateObservation(monitor, part)
+        observation = fracture_diagnostics_factory.CreateObservation(monitor, part)
         obsCtrlPointTimes = List[DateTime]()
         obsCtrlPointTimes.Add(L1.Time)
         obsCtrlPointTimes.Add(L2.Time)
@@ -112,7 +115,8 @@ def auto_pick_observations(project):
         mutableObservation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
         mutableObservation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
         mutableObservation.Position = ts
-        mutableObservation.DeltaPressure = UnitsNet.Pressure(maxP, UnitsNet.Units.PressureUnit.Psi) - leakoffP
+        mutableObservation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
+                UnitsNet.Pressure(maxP, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leakoffP)
         mutableObservation.Notes = "Auto-picked"
         mutableObservation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
         mutableObservation.Dispose()
@@ -132,6 +136,10 @@ def main():
     native_project = project.dom_object
     auto_pick_observations(native_project)
     print(native_project.Name)
+    print(f'{len(native_project.ObservationSets.Items)=}')
+    for observation_set in native_project.ObservationSets.Items:
+        print(f'{len(observation_set.LeakOffObservations.Items)=}')
+    print(f'{len(observation_set.GetObservations())=}')
     return
 
 
