@@ -12,6 +12,8 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import pathlib
+
 import clr
 import orchid
 
@@ -22,9 +24,17 @@ from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import (
+    ScriptAdapter,
+)
+# noinspection PyUnresolvedReferences
 from System import (DateTime, String)
 # noinspection PyUnresolvedReferences
+from System.IO import (FileStream, FileMode, FileAccess, FileShare)
+# noinspection PyUnresolvedReferences
 import UnitsNet
+
+BAKKEN_PROJECT_FILE_NAME = 'frankNstein_Bakken_UTM13_FEET.ifrac'
 
 clr.AddReference('Orchid.Math')
 clr.AddReference('System.Collections')
@@ -131,15 +141,28 @@ def auto_pick_observations(project):
 
 
 def main():
+    # Read Orchid project
     orchid_training_data_path = orchid.training_data_path()
-    project = orchid.load_project(str(orchid_training_data_path.joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')))
+    project = orchid.load_project(str(orchid_training_data_path.joinpath(BAKKEN_PROJECT_FILE_NAME)))
     native_project = project.dom_object
     auto_pick_observations(native_project)
+
+    # Print changed data
     print(native_project.Name)
     print(f'{len(native_project.ObservationSets.Items)=}')
     for observation_set in native_project.ObservationSets.Items:
         print(f'{len(observation_set.LeakOffObservations.Items)=}')
     print(f'{len(observation_set.GetObservations())=}')
+
+    # Write Orchid project
+    source_file_name = pathlib.Path(BAKKEN_PROJECT_FILE_NAME)
+    target_file_name = ''.join([source_file_name.stem, '.999', source_file_name.suffix])
+    target_path_name = str(orchid_training_data_path.joinpath(target_file_name))
+    with orchid.script_adapter_context.ScriptAdapterContext():
+        writer = ScriptAdapter.CreateProjectFileWriter()
+        use_binary_format = False
+        writer.Write(native_project, target_path_name, use_binary_format)
+
     return
 
 
