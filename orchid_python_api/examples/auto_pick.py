@@ -42,8 +42,6 @@ from Orchid.Math import Interpolation
 # noinspection PyUnresolvedReferences
 from System.Collections.Generic import List
 
-BAKKEN_PROJECT_FILE_NAME = 'frankNstein_Bakken_UTM13_FEET.ifrac'
-
 
 def auto_pick_observations(native_project, native_monitor):
     stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
@@ -138,16 +136,18 @@ def auto_pick_observations(native_project, native_monitor):
 def main():
     logging.basicConfig(level=logging.INFO)
 
-    # Read Orchid project
     orchid_training_data_path = orchid.training_data_path()
-    project = orchid.load_project(str(orchid_training_data_path.joinpath(BAKKEN_PROJECT_FILE_NAME)))
+    source_project_file_name = 'frankNstein_Bakken_UTM13_FEET.ifrac'
+
+    # Read Orchid project
+    project = orchid.load_project(str(orchid_training_data_path.joinpath(source_project_file_name)))
+    native_project = project.dom_object
     monitor_name = 'Demo_3H - MonitorWell'
     candidate_monitors = list(project.monitors().find_by_display_name(monitor_name))
     # I actually expect one or more monitors, but I only need one (arbitrarily the first one)
     assert len(candidate_monitors) > 0, f'One or monitors with display name, "{monitor_name}", expected.' \
                                         f' Found {len(candidate_monitors)}.'
     native_monitor = candidate_monitors[0].dom_object
-    native_project = project.dom_object
     auto_pick_observations(native_project, native_monitor)
 
     # Log changed project data
@@ -159,7 +159,7 @@ def main():
     logging.info(f'{len(observation_set.GetObservations())=}')
 
     # Write Orchid project
-    source_file_name = pathlib.Path(BAKKEN_PROJECT_FILE_NAME)
+    source_file_name = pathlib.Path(source_project_file_name)
     target_file_name = ''.join([source_file_name.stem, '.999', source_file_name.suffix])
     target_path_name = str(orchid_training_data_path.joinpath(target_file_name))
     with orchid.script_adapter_context.ScriptAdapterContext():
