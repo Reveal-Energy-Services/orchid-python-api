@@ -57,17 +57,17 @@ def auto_pick_observations(native_project, native_monitor):
                                                               part.StopTime.AddDays(1))
         ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
 
-        xvals = List[float]()
-        yvals = List[float]()
+        time_stamp_ticks = List[float]()
+        magnitudes = List[float]()
 
         tick_count = ticks.Length
         for i in range(0, tick_count):
             tick = ticks[i]
-            xvals.Add(tick.Timestamp.Ticks)
-            yvals.Add(tick.Value)
+            time_stamp_ticks.Add(tick.Timestamp.Ticks)
+            magnitudes.Add(tick.Value)
 
-        time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(xvals.ToArray(),
-                                                                                            yvals.ToArray())
+        time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks.ToArray(),
+                                                                                            magnitudes.ToArray())
         L1 = LeakoffCurves.LeakoffCurveControlPointTime()
         L1.Active = 1
         L1.Time = part.StartTime.AddMinutes(-20)
