@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import logging
 import pathlib
 
 import clr
@@ -41,33 +42,32 @@ from Orchid.Math import Interpolation
 # noinspection PyUnresolvedReferences
 from System.Collections.Generic import List
 
-
 BAKKEN_PROJECT_FILE_NAME = 'frankNstein_Bakken_UTM13_FEET.ifrac'
 
 
 def auto_pick_observations(native_project, native_monitor):
-    stgParts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
+    stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
 
-    fracture_diagnostics_factory = FractureDiagnosticsFactory.Create()
-    observationSet = fracture_diagnostics_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
+    object_factory = FractureDiagnosticsFactory.Create()
+    observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
 
-    for part in stgParts:
+    for part in stage_parts:
 
-        timeRange = fracture_diagnostics_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
-                                                                           part.StopTime.AddDays(1))
-        ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(timeRange)
+        time_range = object_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
+                                                              part.StopTime.AddDays(1))
+        ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
 
         xvals = List[float]()
         yvals = List[float]()
 
-        nTicks = ticks.Length
-        for i in range(0, nTicks):
+        tick_count = ticks.Length
+        for i in range(0, tick_count):
             tick = ticks[i]
             xvals.Add(tick.Timestamp.Ticks)
             yvals.Add(tick.Value)
 
-        timeSeriesInterpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(xvals.ToArray(),
-                                                                                          yvals.ToArray())
+        time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(xvals.ToArray(),
+                                                                                            yvals.ToArray())
         L1 = LeakoffCurves.LeakoffCurveControlPointTime()
         L1.Active = 1
         L1.Time = part.StartTime.AddMinutes(-20)
@@ -80,62 +80,64 @@ def auto_pick_observations(native_project, native_monitor):
         L3.Active = 0
         L3.Time = part.StartTime.AddMinutes(10)
 
-        timeSeriesInterpolationPoints = List[float]()
-        timeSeriesInterpolationPoints.Add(L1.Time.Ticks)
-        timeSeriesInterpolationPoints.Add(L2.Time.Ticks)
+        time_series_interpolation_points = List[float]()
+        time_series_interpolation_points.Add(L1.Time.Ticks)
+        time_series_interpolation_points.Add(L2.Time.Ticks)
 
-        pVals = timeSeriesInterpolant.Interpolate(timeSeriesInterpolationPoints.ToArray(), 0)
+        pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points.ToArray(), 0)
 
-        controlPointTimes = List[Leakoff.ControlPoint]()
-        controlPointTimes.Add(Leakoff.ControlPoint(
-            DateTime=L1.Time, Pressure=UnitsNet.Pressure(pVals[0],
+        control_point_times = List[Leakoff.ControlPoint]()
+        control_point_times.Add(Leakoff.ControlPoint(
+            DateTime=L1.Time, Pressure=UnitsNet.Pressure(pressure_values[0],
                                                          UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-        controlPointTimes.Add(Leakoff.ControlPoint(
+        control_point_times.Add(Leakoff.ControlPoint(
             DateTime=L2.Time,
-            Pressure=UnitsNet.Pressure(pVals[1],
+            Pressure=UnitsNet.Pressure(pressure_values[1],
                                        UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
 
-        leakoffCurve = fracture_diagnostics_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
-                                                                       controlPointTimes)
+        leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
+                                                           control_point_times)
 
-        maxP = -1000
+        maximum_pressure = -1000
         ts = DateTime.MinValue
         for tick in ticks:
-            if tick.Timestamp >= part.StartTime and tick.Timestamp <= part.StopTime and tick.Value > maxP:
-                maxP = tick.Value
+            if tick.Timestamp >= part.StartTime and tick.Timestamp <= part.StopTime and tick.Value > maximum_pressure:
+                maximum_pressure = tick.Value
                 ts = tick.Timestamp
 
-        queryTimes = List[DateTime]()
-        queryTimes.Add(ts)
-        leakoffP = leakoffCurve.GetPressureValues(queryTimes)[0]
+        query_times = List[DateTime]()
+        query_times.Add(ts)
+        leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
 
-        observation = fracture_diagnostics_factory.CreateObservation(native_monitor, part)
-        obsCtrlPointTimes = List[DateTime]()
-        obsCtrlPointTimes.Add(L1.Time)
-        obsCtrlPointTimes.Add(L2.Time)
+        observation = object_factory.CreateObservation(native_monitor, part)
+        observation_control_points = List[DateTime]()
+        observation_control_points.Add(L1.Time)
+        observation_control_points.Add(L2.Time)
 
-        mutableObservation = observation.ToMutable()
-        mutableObservation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
-        mutableObservation.ControlPointTimes = obsCtrlPointTimes
-        mutableObservation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
-        mutableObservation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
-        mutableObservation.Position = ts
-        mutableObservation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
-                UnitsNet.Pressure(maxP, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leakoffP)
-        mutableObservation.Notes = "Auto-picked"
-        mutableObservation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
-        mutableObservation.Dispose()
+        mutable_observation = observation.ToMutable()
+        mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
+        mutable_observation.ControlPointTimes = observation_control_points
+        mutable_observation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
+        mutable_observation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
+        mutable_observation.Position = ts
+        mutable_observation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
+                UnitsNet.Pressure(maximum_pressure, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leak_off_pressure)
+        mutable_observation.Notes = "Auto-picked"
+        mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
+        mutable_observation.Dispose()
 
-        mutableObservationSet = observationSet.ToMutable()
-        mutableObservationSet.AddEvent(observation)
-        mutableObservationSet.Dispose()
+        mutable_observation_set = observation_set.ToMutable()
+        mutable_observation_set.AddEvent(observation)
+        mutable_observation_set.Dispose()
 
-    mutableProject = native_project.ToMutable()
-    mutableProject.AddObservationSet(observationSet)
-    mutableProject.Dispose()
+    mutable_project = native_project.ToMutable()
+    mutable_project.AddObservationSet(observation_set)
+    mutable_project.Dispose()
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+
     # Read Orchid project
     orchid_training_data_path = orchid.training_data_path()
     project = orchid.load_project(str(orchid_training_data_path.joinpath(BAKKEN_PROJECT_FILE_NAME)))
@@ -148,13 +150,13 @@ def main():
     native_project = project.dom_object
     auto_pick_observations(native_project, native_monitor)
 
-    # Print changed data
-    print(native_project.Name)
-    print(f'{len(native_project.ObservationSets.Items)=}')
+    # Log changed project data
+    logging.info(f'{native_project.Name=}')
+    logging.info(f'{len(native_project.ObservationSets.Items)=}')
     for observation_set in native_project.ObservationSets.Items:
-        print(f'Observation set name: {observation_set.Name}')
-        print(f'{len(observation_set.LeakOffObservations.Items)=}')
-    print(f'{len(observation_set.GetObservations())=}')
+        logging.info(f'{observation_set.Name=}')
+        logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
+    logging.info(f'{len(observation_set.GetObservations())=}')
 
     # Write Orchid project
     source_file_name = pathlib.Path(BAKKEN_PROJECT_FILE_NAME)
