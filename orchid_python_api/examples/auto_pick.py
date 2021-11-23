@@ -34,8 +34,6 @@ from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
-BAKKEN_PROJECT_FILE_NAME = 'frankNstein_Bakken_UTM13_FEET.ifrac'
-
 clr.AddReference('Orchid.Math')
 clr.AddReference('System.Collections')
 # noinspection PyUnresolvedReferences
@@ -44,23 +42,20 @@ from Orchid.Math import Interpolation
 from System.Collections.Generic import List
 
 
-def auto_pick_observations(project):
-    monitor = ''
-    for mItem in project.Monitors.Items:
-        if mItem.DisplayName == 'Demo_3H - MonitorWell':
-            monitor = mItem
+BAKKEN_PROJECT_FILE_NAME = 'frankNstein_Bakken_UTM13_FEET.ifrac'
 
-    stgParts = MonitorExtensions.FindPossiblyVisibleStageParts(monitor, project.Wells.Items)
-    print(f'{len(stgParts)=}')
+
+def auto_pick_observations(native_project, native_monitor):
+    stgParts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
 
     fracture_diagnostics_factory = FractureDiagnosticsFactory.Create()
-    observationSet = fracture_diagnostics_factory.CreateObservationSet(project, 'Auto-picked Observation Set3')
+    observationSet = fracture_diagnostics_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
 
     for part in stgParts:
 
         timeRange = fracture_diagnostics_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
                                                                            part.StopTime.AddDays(1))
-        ticks = monitor.TimeSeries.GetOrderedTimeSeriesHistory(timeRange)
+        ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(timeRange)
 
         xvals = List[float]()
         yvals = List[float]()
@@ -114,7 +109,7 @@ def auto_pick_observations(project):
         queryTimes.Add(ts)
         leakoffP = leakoffCurve.GetPressureValues(queryTimes)[0]
 
-        observation = fracture_diagnostics_factory.CreateObservation(monitor, part)
+        observation = fracture_diagnostics_factory.CreateObservation(native_monitor, part)
         obsCtrlPointTimes = List[DateTime]()
         obsCtrlPointTimes.Add(L1.Time)
         obsCtrlPointTimes.Add(L2.Time)
@@ -135,7 +130,7 @@ def auto_pick_observations(project):
         mutableObservationSet.AddEvent(observation)
         mutableObservationSet.Dispose()
 
-    mutableProject = project.ToMutable()
+    mutableProject = native_project.ToMutable()
     mutableProject.AddObservationSet(observationSet)
     mutableProject.Dispose()
 
@@ -144,13 +139,20 @@ def main():
     # Read Orchid project
     orchid_training_data_path = orchid.training_data_path()
     project = orchid.load_project(str(orchid_training_data_path.joinpath(BAKKEN_PROJECT_FILE_NAME)))
+    monitor_name = 'Demo_3H - MonitorWell'
+    candidate_monitors = list(project.monitors().find_by_display_name(monitor_name))
+    # I actually expect one or more monitors, but I only need one (arbitrarily the first one)
+    assert len(candidate_monitors) > 0, f'One or monitors with display name, "{monitor_name}", expected.' \
+                                        f' Found {len(candidate_monitors)}.'
+    native_monitor = candidate_monitors[0].dom_object
     native_project = project.dom_object
-    auto_pick_observations(native_project)
+    auto_pick_observations(native_project, native_monitor)
 
     # Print changed data
     print(native_project.Name)
     print(f'{len(native_project.ObservationSets.Items)=}')
     for observation_set in native_project.ObservationSets.Items:
+        print(f'Observation set name: {observation_set.Name}')
         print(f'{len(observation_set.LeakOffObservations.Items)=}')
     print(f'{len(observation_set.GetObservations())=}')
 
