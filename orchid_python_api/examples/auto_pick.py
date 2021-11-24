@@ -96,8 +96,14 @@ def calculate_stage_part_pressure_samples(native_monitor, stage_part):
     return stage_part_pressure_samples
 
 
-def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
+def create_observation_control_points(leak_off_curve_times):
+    observation_control_points = List[DateTime]()
+    observation_control_points.Add(leak_off_curve_times['L1'])
+    observation_control_points.Add(leak_off_curve_times['L2'])
+    return observation_control_points
 
+
+def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
     # Auto pick observation details
     # - Leak off curve type
     # - Control point times
@@ -125,16 +131,12 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     maximum_pressure_sample = calculate_maximum_pressure_sample(stage_part, stage_part_pressure_samples)
     leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
-    observation_control_points = List[DateTime]()
-    observation_control_points.Add(leak_off_curve_times['L1'])
-    observation_control_points.Add(leak_off_curve_times['L2'])
-
     picked_observation = unpicked_observation  # An alias to better communicate intent
     mutable_observation = picked_observation.ToMutable()
     # - Leak off curve type
     mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
     # - Control point times
-    mutable_observation.ControlPointTimes = observation_control_points
+    mutable_observation.ControlPointTimes = create_observation_control_points(leak_off_curve_times)
     # - Visible range x-min time
     mutable_observation.VisibleRangeXminTime = stage_part.StartTime.AddHours(-1)
     # - Visible range x-max time
