@@ -89,6 +89,13 @@ def calculate_maximum_pressure_sample(stage_part, ticks):
     return maximum_pressure_sample
 
 
+def calculate_stage_part_pressure_samples(native_monitor, stage_part):
+    time_range = object_factory.CreateDateTimeOffsetRange(stage_part.StartTime.AddDays(-1),
+                                                          stage_part.StopTime.AddDays(1))
+    stage_part_pressure_samples = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
+    return stage_part_pressure_samples
+
+
 def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
 
     # Auto pick observation details
@@ -101,30 +108,26 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     # - Notes
     # - Signal quality
 
-    time_range = object_factory.CreateDateTimeOffsetRange(stage_part.StartTime.AddDays(-1),
-                                                          stage_part.StopTime.AddDays(1))
-    ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
+    stage_part_pressure_samples = calculate_stage_part_pressure_samples(native_monitor, stage_part)
 
-    leak_off_control_point_times = {
+    leak_off_curve_times = {
         'L1': stage_part.StartTime.AddMinutes(-20),
         'L2': stage_part.StartTime,
-        'L3': stage_part.StartTime.AddMinutes(10),
     }
-
-    control_point_times = calculate_leak_off_control_point_times(leak_off_control_point_times['L1'],
-                                                                 leak_off_control_point_times['L2'],
-                                                                 ticks)
+    control_point_times = calculate_leak_off_control_point_times(leak_off_curve_times['L1'],
+                                                                 leak_off_curve_times['L2'],
+                                                                 stage_part_pressure_samples)
 
     # Create leak off curve
     leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
                                                        control_point_times)
 
-    maximum_pressure_sample = calculate_maximum_pressure_sample(stage_part, ticks)
+    maximum_pressure_sample = calculate_maximum_pressure_sample(stage_part, stage_part_pressure_samples)
     leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
     observation_control_points = List[DateTime]()
-    observation_control_points.Add(leak_off_control_point_times['L1'])
-    observation_control_points.Add(leak_off_control_point_times['L2'])
+    observation_control_points.Add(leak_off_curve_times['L1'])
+    observation_control_points.Add(leak_off_curve_times['L2'])
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
     mutable_observation = picked_observation.ToMutable()
