@@ -30,7 +30,7 @@ from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,
 )
 # noinspection PyUnresolvedReferences
-from System import (DateTime, String)
+from System import (Array, Double, DateTime, String)
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 # noinspection PyUnresolvedReferences
@@ -82,17 +82,6 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
                                                           stage_part.StopTime.AddDays(1))
     ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
 
-    time_stamp_ticks = List[float]()
-    magnitudes = List[float]()
-
-    tick_count = ticks.Length
-    for i in range(0, tick_count):
-        tick = ticks[i]
-        time_stamp_ticks.Add(tick.Timestamp.Ticks)
-        magnitudes.Add(tick.Value)
-
-    time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks.ToArray(),
-                                                                                        magnitudes.ToArray())
     L1 = LeakoffCurves.LeakoffCurveControlPointTime()
     L1.Active = 1
     L1.Time = stage_part.StartTime.AddMinutes(-20)
@@ -105,11 +94,18 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     L3.Active = 0
     L3.Time = stage_part.StartTime.AddMinutes(10)
 
-    time_series_interpolation_points = List[float]()
-    time_series_interpolation_points.Add(L1.Time.Ticks)
-    time_series_interpolation_points.Add(L2.Time.Ticks)
-
-    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points.ToArray(), 0)
+    time_series_interpolation_points = Array.CreateInstance(Double, 2)
+    time_series_interpolation_points[0] = L1.Time.Ticks
+    time_series_interpolation_points[1] = L2.Time.Ticks
+    time_stamp_ticks = Array.CreateInstance(Double, ticks.Length)
+    magnitudes = Array.CreateInstance(Double, ticks.Length)
+    for i in range(0, ticks.Length):
+        tick = ticks[i]
+        time_stamp_ticks[i] = tick.Timestamp.Ticks
+        magnitudes[i] = tick.Value
+    time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
+                                                                                        magnitudes)
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, 0)
 
     control_point_times = List[Leakoff.ControlPoint]()
     control_point_times.Add(Leakoff.ControlPoint(
@@ -157,8 +153,6 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
 
 def auto_pick_observations(native_project, native_monitor):
     stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
-
-    object_factory = FractureDiagnosticsFactory.Create()
 
     observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
     for part in stage_parts:
