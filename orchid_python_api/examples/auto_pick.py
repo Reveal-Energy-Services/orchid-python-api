@@ -47,6 +47,12 @@ from System.Collections.Generic import List
 object_factory = FractureDiagnosticsFactory.Create()
 
 
+def calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample):
+    return UnitsNet.Pressure.op_Subtraction(
+        UnitsNet.Pressure(maximum_pressure_sample.Value, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
+        leak_off_pressure)
+
+
 def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_point_2, ticks):
     time_series_interpolation_points = Array.CreateInstance(Double, 2)
     time_series_interpolation_points[0] = interpolation_point_1.Ticks
@@ -104,7 +110,7 @@ def create_observation_control_points(leak_off_curve_times):
 
 
 def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
-    # Auto pick observation details
+    # Auto pick observation details to be set
     # - Leak off curve type
     # - Control point times
     # - Visible range x-min time
@@ -124,7 +130,6 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
                                                                  leak_off_curve_times['L2'],
                                                                  stage_part_pressure_samples)
 
-    # Create leak off curve
     leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
                                                        control_point_times)
 
@@ -133,22 +138,13 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
     mutable_observation = picked_observation.ToMutable()
-    # - Leak off curve type
     mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
-    # - Control point times
     mutable_observation.ControlPointTimes = create_observation_control_points(leak_off_curve_times)
-    # - Visible range x-min time
     mutable_observation.VisibleRangeXminTime = stage_part.StartTime.AddHours(-1)
-    # - Visible range x-max time
     mutable_observation.VisibleRangeXmaxTime = stage_part.StopTime.AddHours(1)
     mutable_observation.Position = maximum_pressure_sample.Timestamp
-    # - Delta pressure
-    mutable_observation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
-        UnitsNet.Pressure(maximum_pressure_sample.Value, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
-        leak_off_pressure)
-    # - Notes
+    mutable_observation.DeltaPressure = calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample)
     mutable_observation.Notes = "Auto-picked"
-    # - Signal quality
     mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
     mutable_observation.Dispose()
 
