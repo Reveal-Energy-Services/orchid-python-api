@@ -101,6 +101,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, part):
     leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
                                                        control_point_times)
 
+    # - Position
     maximum_pressure = -1000
     ts = DateTime.MinValue
     for tick in ticks:
@@ -117,15 +118,22 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, part):
     observation_control_points.Add(L2.Time)
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
-    mutable_observation = unpicked_observation.ToMutable()
+    mutable_observation = picked_observation.ToMutable()
+    # - Leak off curve type
     mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
+    # - Control point times
     mutable_observation.ControlPointTimes = observation_control_points
+    # - Visible range x-min time
     mutable_observation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
+    # - Visible range x-max time
     mutable_observation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
     mutable_observation.Position = ts
+    # - Delta pressure
     mutable_observation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
         UnitsNet.Pressure(maximum_pressure, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leak_off_pressure)
+    # - Notes
     mutable_observation.Notes = "Auto-picked"
+    # - Signal quality
     mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
     mutable_observation.Dispose()
 
