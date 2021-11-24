@@ -43,94 +43,120 @@ from Orchid.Math import Interpolation
 from System.Collections.Generic import List
 
 
+def auto_pick_observation_details(unpicked_observation, native_monitor, part):
+    object_factory = FractureDiagnosticsFactory.Create()
+
+    # Auto pick observation details
+    # - Leak off curve type
+    # - Control point times
+    # - Visible range x-min time
+    # - Visible range x-max time
+    # - Position
+    # - Delta pressure
+    # - Notes
+    # - Signal quality
+
+    time_range = object_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
+                                                          part.StopTime.AddDays(1))
+    ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
+
+    time_stamp_ticks = List[float]()
+    magnitudes = List[float]()
+
+    tick_count = ticks.Length
+    for i in range(0, tick_count):
+        tick = ticks[i]
+        time_stamp_ticks.Add(tick.Timestamp.Ticks)
+        magnitudes.Add(tick.Value)
+
+    time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks.ToArray(),
+                                                                                        magnitudes.ToArray())
+    L1 = LeakoffCurves.LeakoffCurveControlPointTime()
+    L1.Active = 1
+    L1.Time = part.StartTime.AddMinutes(-20)
+
+    L2 = LeakoffCurves.LeakoffCurveControlPointTime()
+    L2.Active = 1
+    L2.Time = part.StartTime
+
+    L3 = LeakoffCurves.LeakoffCurveControlPointTime()
+    L3.Active = 0
+    L3.Time = part.StartTime.AddMinutes(10)
+
+    time_series_interpolation_points = List[float]()
+    time_series_interpolation_points.Add(L1.Time.Ticks)
+    time_series_interpolation_points.Add(L2.Time.Ticks)
+
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points.ToArray(), 0)
+
+    control_point_times = List[Leakoff.ControlPoint]()
+    control_point_times.Add(Leakoff.ControlPoint(
+        DateTime=L1.Time, Pressure=UnitsNet.Pressure(pressure_values[0],
+                                                     UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+    control_point_times.Add(Leakoff.ControlPoint(
+        DateTime=L2.Time,
+        Pressure=UnitsNet.Pressure(pressure_values[1],
+                                   UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+
+    leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
+                                                       control_point_times)
+
+    maximum_pressure = -1000
+    ts = DateTime.MinValue
+    for tick in ticks:
+        if tick.Timestamp >= part.StartTime and tick.Timestamp <= part.StopTime and tick.Value > maximum_pressure:
+            maximum_pressure = tick.Value
+            ts = tick.Timestamp
+
+    query_times = List[DateTime]()
+    query_times.Add(ts)
+    leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
+
+    observation_control_points = List[DateTime]()
+    observation_control_points.Add(L1.Time)
+    observation_control_points.Add(L2.Time)
+
+    picked_observation = unpicked_observation  # An alias to better communicate intent
+    mutable_observation = unpicked_observation.ToMutable()
+    mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
+    mutable_observation.ControlPointTimes = observation_control_points
+    mutable_observation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
+    mutable_observation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
+    mutable_observation.Position = ts
+    mutable_observation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
+        UnitsNet.Pressure(maximum_pressure, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leak_off_pressure)
+    mutable_observation.Notes = "Auto-picked"
+    mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
+    mutable_observation.Dispose()
+
+    return picked_observation
+
+
 def auto_pick_observations(native_project, native_monitor):
     stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
 
     object_factory = FractureDiagnosticsFactory.Create()
+
     observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
-
     for part in stage_parts:
+        # Create unpicked observation
+        unpicked_observation = object_factory.CreateObservation(native_monitor, part)
 
-        time_range = object_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
-                                                              part.StopTime.AddDays(1))
-        ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
+        # Auto-pick observation details
+        picked_observation = auto_pick_observation_details(unpicked_observation, native_monitor, part)
 
-        time_stamp_ticks = List[float]()
-        magnitudes = List[float]()
-
-        tick_count = ticks.Length
-        for i in range(0, tick_count):
-            tick = ticks[i]
-            time_stamp_ticks.Add(tick.Timestamp.Ticks)
-            magnitudes.Add(tick.Value)
-
-        time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks.ToArray(),
-                                                                                            magnitudes.ToArray())
-        L1 = LeakoffCurves.LeakoffCurveControlPointTime()
-        L1.Active = 1
-        L1.Time = part.StartTime.AddMinutes(-20)
-
-        L2 = LeakoffCurves.LeakoffCurveControlPointTime()
-        L2.Active = 1
-        L2.Time = part.StartTime
-
-        L3 = LeakoffCurves.LeakoffCurveControlPointTime()
-        L3.Active = 0
-        L3.Time = part.StartTime.AddMinutes(10)
-
-        time_series_interpolation_points = List[float]()
-        time_series_interpolation_points.Add(L1.Time.Ticks)
-        time_series_interpolation_points.Add(L2.Time.Ticks)
-
-        pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points.ToArray(), 0)
-
-        control_point_times = List[Leakoff.ControlPoint]()
-        control_point_times.Add(Leakoff.ControlPoint(
-            DateTime=L1.Time, Pressure=UnitsNet.Pressure(pressure_values[0],
-                                                         UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-        control_point_times.Add(Leakoff.ControlPoint(
-            DateTime=L2.Time,
-            Pressure=UnitsNet.Pressure(pressure_values[1],
-                                       UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-
-        leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
-                                                           control_point_times)
-
-        maximum_pressure = -1000
-        ts = DateTime.MinValue
-        for tick in ticks:
-            if tick.Timestamp >= part.StartTime and tick.Timestamp <= part.StopTime and tick.Value > maximum_pressure:
-                maximum_pressure = tick.Value
-                ts = tick.Timestamp
-
-        query_times = List[DateTime]()
-        query_times.Add(ts)
-        leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
-
-        observation = object_factory.CreateObservation(native_monitor, part)
-        observation_control_points = List[DateTime]()
-        observation_control_points.Add(L1.Time)
-        observation_control_points.Add(L2.Time)
-
-        mutable_observation = observation.ToMutable()
-        mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
-        mutable_observation.ControlPointTimes = observation_control_points
-        mutable_observation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
-        mutable_observation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
-        mutable_observation.Position = ts
-        mutable_observation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
-                UnitsNet.Pressure(maximum_pressure, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leak_off_pressure)
-        mutable_observation.Notes = "Auto-picked"
-        mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
-        mutable_observation.Dispose()
-
+        # Add picked observation to observation set
         mutable_observation_set = observation_set.ToMutable()
-        mutable_observation_set.AddEvent(observation)
+        mutable_observation_set.AddEvent(picked_observation)
         mutable_observation_set.Dispose()
 
+    # Add observation set to project
+    project_with_observation_set = native_project  # An alias to better communicate intent
     mutable_project = native_project.ToMutable()
     mutable_project.AddObservationSet(observation_set)
     mutable_project.Dispose()
+
+    return project_with_observation_set
 
 
 def main():
