@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import functools
 import logging
 import pathlib
 
@@ -43,8 +44,29 @@ from Orchid.Math import Interpolation
 from System.Collections.Generic import List
 
 
-def auto_pick_observation_details(unpicked_observation, native_monitor, part):
-    object_factory = FractureDiagnosticsFactory.Create()
+object_factory = FractureDiagnosticsFactory.Create()
+
+
+def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
+    query_times = List[DateTime]()
+    query_times.Add(maximum_pressure_sample.Timestamp)
+    leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
+    return leak_off_pressure
+
+
+def calculate_maximum_pressure_sample(stage_part, ticks):
+    def maximum_pressure_reducer(so_far, candidate):
+        if stage_part.StartTime <= candidate.Timestamp <= stage_part.StopTime and candidate.Value > so_far.Value:
+            return candidate
+        else:
+            return so_far
+
+    sentinel_maximum = object_factory.CreateTick[float](DateTime.MinValue, -1000)
+    maximum_pressure_sample = functools.reduce(maximum_pressure_reducer, ticks, sentinel_maximum)
+    return maximum_pressure_sample
+
+
+def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
 
     # Auto pick observation details
     # - Leak off curve type
@@ -56,8 +78,8 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, part):
     # - Notes
     # - Signal quality
 
-    time_range = object_factory.CreateDateTimeOffsetRange(part.StartTime.AddDays(-1),
-                                                          part.StopTime.AddDays(1))
+    time_range = object_factory.CreateDateTimeOffsetRange(stage_part.StartTime.AddDays(-1),
+                                                          stage_part.StopTime.AddDays(1))
     ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
 
     time_stamp_ticks = List[float]()
@@ -73,15 +95,15 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, part):
                                                                                         magnitudes.ToArray())
     L1 = LeakoffCurves.LeakoffCurveControlPointTime()
     L1.Active = 1
-    L1.Time = part.StartTime.AddMinutes(-20)
+    L1.Time = stage_part.StartTime.AddMinutes(-20)
 
     L2 = LeakoffCurves.LeakoffCurveControlPointTime()
     L2.Active = 1
-    L2.Time = part.StartTime
+    L2.Time = stage_part.StartTime
 
     L3 = LeakoffCurves.LeakoffCurveControlPointTime()
     L3.Active = 0
-    L3.Time = part.StartTime.AddMinutes(10)
+    L3.Time = stage_part.StartTime.AddMinutes(10)
 
     time_series_interpolation_points = List[float]()
     time_series_interpolation_points.Add(L1.Time.Ticks)
@@ -98,20 +120,12 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, part):
         Pressure=UnitsNet.Pressure(pressure_values[1],
                                    UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
 
+    # Create leak off curve
     leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
                                                        control_point_times)
 
-    # - Position
-    maximum_pressure = -1000
-    ts = DateTime.MinValue
-    for tick in ticks:
-        if tick.Timestamp >= part.StartTime and tick.Timestamp <= part.StopTime and tick.Value > maximum_pressure:
-            maximum_pressure = tick.Value
-            ts = tick.Timestamp
-
-    query_times = List[DateTime]()
-    query_times.Add(ts)
-    leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
+    maximum_pressure_sample = calculate_maximum_pressure_sample(stage_part, ticks)
+    leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
     observation_control_points = List[DateTime]()
     observation_control_points.Add(L1.Time)
@@ -124,13 +138,14 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, part):
     # - Control point times
     mutable_observation.ControlPointTimes = observation_control_points
     # - Visible range x-min time
-    mutable_observation.VisibleRangeXminTime = part.StartTime.AddHours(-1)
+    mutable_observation.VisibleRangeXminTime = stage_part.StartTime.AddHours(-1)
     # - Visible range x-max time
-    mutable_observation.VisibleRangeXmaxTime = part.StopTime.AddHours(1)
-    mutable_observation.Position = ts
+    mutable_observation.VisibleRangeXmaxTime = stage_part.StopTime.AddHours(1)
+    mutable_observation.Position = maximum_pressure_sample.Timestamp
     # - Delta pressure
     mutable_observation.DeltaPressure = UnitsNet.Pressure.op_Subtraction(
-        UnitsNet.Pressure(maximum_pressure, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch), leak_off_pressure)
+        UnitsNet.Pressure(maximum_pressure_sample.Value, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
+        leak_off_pressure)
     # - Notes
     mutable_observation.Notes = "Auto-picked"
     # - Signal quality
