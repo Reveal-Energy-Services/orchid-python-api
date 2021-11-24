@@ -105,19 +105,15 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
                                                           stage_part.StopTime.AddDays(1))
     ticks = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
 
-    L1 = LeakoffCurves.LeakoffCurveControlPointTime()
-    L1.Active = 1
-    L1.Time = stage_part.StartTime.AddMinutes(-20)
+    leak_off_control_point_times = {
+        'L1': stage_part.StartTime.AddMinutes(-20),
+        'L2': stage_part.StartTime,
+        'L3': stage_part.StartTime.AddMinutes(10),
+    }
 
-    L2 = LeakoffCurves.LeakoffCurveControlPointTime()
-    L2.Active = 1
-    L2.Time = stage_part.StartTime
-
-    L3 = LeakoffCurves.LeakoffCurveControlPointTime()
-    L3.Active = 0
-    L3.Time = stage_part.StartTime.AddMinutes(10)
-
-    control_point_times = calculate_leak_off_control_point_times(L1.Time, L2.Time, ticks)
+    control_point_times = calculate_leak_off_control_point_times(leak_off_control_point_times['L1'],
+                                                                 leak_off_control_point_times['L2'],
+                                                                 ticks)
 
     # Create leak off curve
     leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
@@ -127,8 +123,8 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
     observation_control_points = List[DateTime]()
-    observation_control_points.Add(L1.Time)
-    observation_control_points.Add(L2.Time)
+    observation_control_points.Add(leak_off_control_point_times['L1'])
+    observation_control_points.Add(leak_off_control_point_times['L2'])
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
     mutable_observation = picked_observation.ToMutable()
