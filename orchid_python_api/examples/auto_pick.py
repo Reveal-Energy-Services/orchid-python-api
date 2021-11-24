@@ -47,6 +47,29 @@ from System.Collections.Generic import List
 object_factory = FractureDiagnosticsFactory.Create()
 
 
+def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_point_2, ticks):
+    time_series_interpolation_points = Array.CreateInstance(Double, 2)
+    time_series_interpolation_points[0] = interpolation_point_1.Ticks
+    time_series_interpolation_points[1] = interpolation_point_2.Ticks
+    time_stamp_ticks = Array.CreateInstance(Double, ticks.Length)
+    magnitudes = Array.CreateInstance(Double, ticks.Length)
+    for i in range(0, ticks.Length):
+        tick = ticks[i]
+        time_stamp_ticks[i] = tick.Timestamp.Ticks
+        magnitudes[i] = tick.Value
+    time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
+                                                                                        magnitudes)
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, 0)
+    control_point_times = List[Leakoff.ControlPoint]()
+    control_point_times.Add(Leakoff.ControlPoint(
+        DateTime=interpolation_point_1,
+        Pressure=UnitsNet.Pressure(pressure_values[0], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+    control_point_times.Add(Leakoff.ControlPoint(
+        DateTime=interpolation_point_2,
+        Pressure=UnitsNet.Pressure(pressure_values[1], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+    return control_point_times
+
+
 def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
     query_times = List[DateTime]()
     query_times.Add(maximum_pressure_sample.Timestamp)
@@ -94,27 +117,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     L3.Active = 0
     L3.Time = stage_part.StartTime.AddMinutes(10)
 
-    time_series_interpolation_points = Array.CreateInstance(Double, 2)
-    time_series_interpolation_points[0] = L1.Time.Ticks
-    time_series_interpolation_points[1] = L2.Time.Ticks
-    time_stamp_ticks = Array.CreateInstance(Double, ticks.Length)
-    magnitudes = Array.CreateInstance(Double, ticks.Length)
-    for i in range(0, ticks.Length):
-        tick = ticks[i]
-        time_stamp_ticks[i] = tick.Timestamp.Ticks
-        magnitudes[i] = tick.Value
-    time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
-                                                                                        magnitudes)
-    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, 0)
-
-    control_point_times = List[Leakoff.ControlPoint]()
-    control_point_times.Add(Leakoff.ControlPoint(
-        DateTime=L1.Time, Pressure=UnitsNet.Pressure(pressure_values[0],
-                                                     UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-    control_point_times.Add(Leakoff.ControlPoint(
-        DateTime=L2.Time,
-        Pressure=UnitsNet.Pressure(pressure_values[1],
-                                   UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+    control_point_times = calculate_leak_off_control_point_times(L1.Time, L2.Time, ticks)
 
     # Create leak off curve
     leak_off_curve = object_factory.CreateLeakoffCurve(Leakoff.LeakoffCurveType.Linear,
