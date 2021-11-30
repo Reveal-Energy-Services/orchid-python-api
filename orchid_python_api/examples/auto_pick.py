@@ -196,7 +196,7 @@ def main(cli_args):
     auto_pick_observations(native_project, native_monitor)
 
     # Log changed project data
-    if cli_args.verbose:
+    if cli_args.verbosity >= 2:
         logging.info(f'{native_project.Name=}')
         logging.info(f'{len(native_project.ObservationSets.Items)=}')
         for observation_set in native_project.ObservationSets.Items:
@@ -210,7 +210,7 @@ def main(cli_args):
         writer = ScriptAdapter.CreateProjectFileWriter()
         use_binary_format = False
         writer.Write(native_project, target_path_name, use_binary_format)
-        if cli_args.verbose:
+        if cli_args.verbosity >= 1:
            logging.info(f'Wrote changes to "{target_path_name}"')
 
     return
@@ -226,7 +226,8 @@ def make_target_file_name_from_source(source_file_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Automatically pick leak off observations.")
-    parser.add_argument('-v', '--verbose', action='store_true', help='Log verbose output.')
+    parser.add_argument('-v', '--verbosity', type=int, choices=[0, 1, 2], default=0,
+                        help='Increase output verbosity. (Default: 0; that is, least output.)')
 
     default_file_name_to_read = pathlib.Path('frankNstein_Bakken_UTM13_FEET.ifrac')
     default_project_path_name_to_read = make_project_path_name(orchid.training_data_path(),
