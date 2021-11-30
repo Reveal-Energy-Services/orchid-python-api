@@ -12,6 +12,7 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import argparse
 import functools
 import logging
 import pathlib
@@ -180,14 +181,11 @@ def auto_pick_observations(native_project, native_monitor):
     return project_with_observation_set
 
 
-def main():
+def main(cli_args):
     logging.basicConfig(level=logging.INFO)
 
-    orchid_training_data_path = orchid.training_data_path()
-    source_project_file_name = 'frankNstein_Bakken_UTM13_FEET.ifrac'
-
     # Read Orchid project
-    project = orchid.load_project(str(orchid_training_data_path.joinpath(source_project_file_name)))
+    project = orchid.load_project(cli_args.input_project)
     native_project = project.dom_object
     monitor_name = 'Demo_3H - MonitorWell'
     candidate_monitors = list(project.monitors().find_by_display_name(monitor_name))
@@ -198,24 +196,49 @@ def main():
     auto_pick_observations(native_project, native_monitor)
 
     # Log changed project data
-    logging.info(f'{native_project.Name=}')
-    logging.info(f'{len(native_project.ObservationSets.Items)=}')
-    for observation_set in native_project.ObservationSets.Items:
-        logging.info(f'{observation_set.Name=}')
-        logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
-    logging.info(f'{len(observation_set.GetObservations())=}')
+    if cli_args.verbose:
+        logging.info(f'{native_project.Name=}')
+        logging.info(f'{len(native_project.ObservationSets.Items)=}')
+        for observation_set in native_project.ObservationSets.Items:
+            logging.info(f'{observation_set.Name=}')
+            logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
+        logging.info(f'{len(observation_set.GetObservations())=}')
 
     # Write Orchid project
-    source_file_name = pathlib.Path(source_project_file_name)
-    target_file_name = ''.join([source_file_name.stem, '.999', source_file_name.suffix])
-    target_path_name = str(orchid_training_data_path.joinpath(target_file_name))
+    target_path_name = cli_args.output_project
     with orchid.script_adapter_context.ScriptAdapterContext():
         writer = ScriptAdapter.CreateProjectFileWriter()
         use_binary_format = False
         writer.Write(native_project, target_path_name, use_binary_format)
+        if cli_args.verbose:
+           logging.info(f'Wrote changes to "{target_path_name}"')
 
     return
 
 
+def make_project_path_name(project_dir_name, project_file_name):
+    return str(project_dir_name.joinpath(project_file_name))
+
+
+def make_target_file_name_from_source(source_file_name):
+    return ''.join([source_file_name.stem, '.999', source_file_name.suffix])
+
+
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="Automatically pick leak off observations.")
+    parser.add_argument('-v', '--verbose', action='store_true', help='Log verbose output.')
+
+    default_file_name_to_read = pathlib.Path('frankNstein_Bakken_UTM13_FEET.ifrac')
+    default_project_path_name_to_read = make_project_path_name(orchid.training_data_path(),
+                                                               default_file_name_to_read)
+    parser.add_argument('input_project', help=f'Path name of project to read.')
+
+    default_file_name_to_write = make_target_file_name_from_source(default_file_name_to_read)
+    default_project_path_name_to_write = make_project_path_name(orchid.training_data_path(),
+                                                                default_file_name_to_write)
+    parser.add_argument('-o', '--output_project', default=default_project_path_name_to_write,
+                        help=f'Filename of project to write. (Default: {default_project_path_name_to_write}')
+
+    args = parser.parse_args()
+    main(args)
+
