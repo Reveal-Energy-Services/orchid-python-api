@@ -190,8 +190,8 @@ def main(cli_args):
     monitor_name = 'Demo_3H - MonitorWell'
     candidate_monitors = list(project.monitors().find_by_display_name(monitor_name))
     # I actually expect one or more monitors, but I only need one (arbitrarily the first one)
-    assert len(candidate_monitors) > 0, f'One or monitors with display name, "{monitor_name}", expected.' \
-                                        f' Found {len(candidate_monitors)}.'
+    assert len(candidate_monitors) > 0, (f'One or monitors with display name, "{monitor_name}", expected.'
+                                         f' Found {len(candidate_monitors)}.')
     native_monitor = candidate_monitors[0].dom_object
     auto_pick_observations(native_project, native_monitor)
 
@@ -202,7 +202,7 @@ def main(cli_args):
         for observation_set in native_project.ObservationSets.Items:
             logging.info(f'{observation_set.Name=}')
             logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
-        logging.info(f'{len(observation_set.GetObservations())=}')
+            logging.info(f'{len(observation_set.GetObservations())=}')
 
     # Write Orchid project
     target_path_name = cli_args.output_project
