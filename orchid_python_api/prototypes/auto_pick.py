@@ -283,6 +283,8 @@ def main(cli_args):
     # Read Orchid project
     project = orchid.load_project(cli_args.input_project)
     native_project = project.dom_object
+
+    # Automatically pick the observations for a specific monitor
     monitor_name = 'Demo_3H - MonitorWell'
     candidate_monitors = list(project.monitors().find_by_display_name(monitor_name))
     # I actually expect one or more monitors, but I only need one (arbitrarily the first one)
@@ -291,7 +293,7 @@ def main(cli_args):
     native_monitor = candidate_monitors[0].dom_object
     auto_pick_observations(native_project, native_monitor)
 
-    # Log changed project data
+    # Log changed project data if requested
     if cli_args.verbosity >= 2:
         logging.info(f'{native_project.Name=}')
         logging.info(f'{len(native_project.ObservationSets.Items)=}')
@@ -300,7 +302,7 @@ def main(cli_args):
             logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
             logging.info(f'{len(observation_set.GetObservations())=}')
 
-    # Write Orchid project
+    # Save project changes to specified .ifrac file
     target_path_name = cli_args.output_project
     with orchid.script_adapter_context.ScriptAdapterContext():
         writer = ScriptAdapter.CreateProjectFileWriter()
@@ -342,11 +344,11 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbosity', type=int, choices=[0, 1, 2], default=0,
                         help='Increase output verbosity. (Default: 0; that is, least output.)')
 
+    parser.add_argument('input_project', help=f'Path name of project to read.')
+
     default_file_name_to_read = pathlib.Path('frankNstein_Bakken_UTM13_FEET.ifrac')
     default_project_path_name_to_read = make_project_path_name(orchid.training_data_path(),
                                                                default_file_name_to_read)
-    parser.add_argument('input_project', help=f'Path name of project to read.')
-
     default_file_name_to_write = make_target_file_name_from_source(default_file_name_to_read)
     default_project_path_name_to_write = make_project_path_name(orchid.training_data_path(),
                                                                 default_file_name_to_write)
