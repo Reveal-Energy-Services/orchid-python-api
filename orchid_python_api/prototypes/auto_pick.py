@@ -49,12 +49,34 @@ object_factory = FractureDiagnosticsFactory.Create()
 
 
 def calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample):
+    """
+    Calculate the delta pressure value.
+
+    Args:
+        leak_off_pressure: Pressure from the treatment leak off curve.
+        maximum_pressure_sample: The maximum treatment pressure.
+
+    Returns:
+        The pressure difference.
+
+    """
     return UnitsNet.Pressure.op_Subtraction(
         UnitsNet.Pressure(maximum_pressure_sample.Value, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
         leak_off_pressure)
 
 
 def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_point_2, ticks):
+    """
+    Return the calculated control points for a leak off curve.
+
+    Args:
+        interpolation_point_1: The first point at which to interpolate pressure values.
+        interpolation_point_2: The second point at which to interpolate pressure values.
+        ticks: A sequence of .NET `Tick` values.
+
+    Returns:
+        The times at which to set the control points for a leak off curve.
+    """
     time_series_interpolation_points = Array.CreateInstance(Double, 2)
     time_series_interpolation_points[0] = interpolation_point_1.Ticks
     time_series_interpolation_points[1] = interpolation_point_2.Ticks
@@ -78,6 +100,16 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
 
 
 def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
+    """
+    Calculate the leak off pressure at the time of maximum pressure.
+
+    Args:
+        leak_off_curve: The leak off curve to query.
+        maximum_pressure_sample: The sample (magnitude and time) of maximum pressure.
+
+    Returns:
+
+    """
     query_times = List[DateTime]()
     query_times.Add(maximum_pressure_sample.Timestamp)
     leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
@@ -85,6 +117,16 @@ def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
 
 
 def calculate_maximum_pressure_sample(stage_part, ticks):
+    """
+    Calculate the sample (time stamp and magnitude) at which the maximum pressure occurs.
+
+    Args:
+        stage_part: The stage part used to limit the queried samples.
+        ticks: A iterator of samples for the stage part.
+
+    Returns:
+        The sample (time stamp and magnitude) at which the maximum pressure occurs.
+    """
     def maximum_pressure_reducer(so_far, candidate):
         if stage_part.StartTime <= candidate.Timestamp <= stage_part.StopTime and candidate.Value > so_far.Value:
             return candidate
@@ -97,6 +139,16 @@ def calculate_maximum_pressure_sample(stage_part, ticks):
 
 
 def calculate_stage_part_pressure_samples(native_monitor, stage_part):
+    """
+    Calculate the pressure samples from the monitor for the `stage_part`.
+
+    Args:
+        native_monitor: The .NET `IMonitor` object recording pressures.
+        stage_part: The .NET `IStagePart` limiting the monitor times to the stage treatment times.
+
+    Returns:
+        The pressure samples from `native_monitor` for the `stage_part`.
+    """
     time_range = object_factory.CreateDateTimeOffsetRange(stage_part.StartTime.AddDays(-1),
                                                           stage_part.StopTime.AddDays(1))
     stage_part_pressure_samples = native_monitor.TimeSeries.GetOrderedTimeSeriesHistory(time_range)
@@ -104,10 +156,28 @@ def calculate_stage_part_pressure_samples(native_monitor, stage_part):
 
 
 def calculate_stage_part_visible_time_range(stage_part):
+    """
+    Calculate the visible time range of the stage treatment.
+
+    Args:
+        stage_part: The stage part identifying the stage treatment of interest.
+
+    Returns:
+        A `tuple` identifying the start and stop of the stage treatment.
+    """
     return stage_part.StartTime.AddHours(-1), stage_part.StopTime.AddHours(1)
 
 
 def create_observation_control_points(leak_off_curve_times):
+    """
+    Create the control points for an observation.
+
+    Args:
+        leak_off_curve_times: The `dict` containing time stamps for specific leak off curve control points.
+
+    Returns:
+        The .NET `IList` containing the leak off curve control points.
+    """
     observation_control_points = List[DateTime]()
     observation_control_points.Add(leak_off_curve_times['L1'])
     observation_control_points.Add(leak_off_curve_times['L2'])
@@ -115,6 +185,17 @@ def create_observation_control_points(leak_off_curve_times):
 
 
 def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
+    """
+    Change `unpicked_observation` by adding details to make it a picked observation.
+
+    Args:
+        unpicked_observation: The unpicked observation.
+        native_monitor: The .NET `IMonitor` for this observation.
+        stage_part: The .NET `IStagePart` observed by `native_monitor`.
+
+    Returns:
+        The "picked" observation with the appropriate details filled in.
+    """
     # Auto pick observation details to be set
     # - Leak off curve type
     # - Control point times
@@ -157,6 +238,15 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
 
 
 def auto_pick_observations(native_project, native_monitor):
+    """
+        Automatically pick observations for each treatment stage of `native_project` observed by `native_monitor`.
+    Args:
+        native_project: The `IProject` whose observations are sought.
+        native_monitor: The `IMonitor` whose observations we automatically pick.
+
+    Returns:
+
+    """
     stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
 
     observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
@@ -182,6 +272,12 @@ def auto_pick_observations(native_project, native_monitor):
 
 
 def main(cli_args):
+    """
+    Save project with automatically picked observations from original project read from disk.
+
+    Args:
+        cli_args: The command line arguments from `argparse.ArgumentParser`.
+    """
     logging.basicConfig(level=logging.INFO)
 
     # Read Orchid project
@@ -213,14 +309,31 @@ def main(cli_args):
         if cli_args.verbosity >= 1:
            logging.info(f'Wrote changes to "{target_path_name}"')
 
-    return
-
 
 def make_project_path_name(project_dir_name, project_file_name):
+    """
+    Make a path name to a project.
+
+    Args:
+        project_dir_name: The directory name of the project.
+        project_file_name: The file name of the project.
+
+    Returns:
+        The path name to the .ifrac file for this project.
+    """
     return str(project_dir_name.joinpath(project_file_name))
 
 
 def make_target_file_name_from_source(source_file_name):
+    """
+    Make a file name for the changed project file name from the original project file name.
+
+    Args:
+        source_file_name: The file name of the project originally read.
+
+    Returns:
+        The project file name with a `.999` suffix inserted before the `.ifrac` suffix.
+    """
     return ''.join([source_file_name.stem, '.999', source_file_name.suffix])
 
 
