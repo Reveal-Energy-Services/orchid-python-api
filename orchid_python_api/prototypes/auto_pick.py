@@ -168,7 +168,7 @@ def calculate_stage_part_visible_time_range(stage_part):
     return stage_part.StartTime.AddHours(-1), stage_part.StopTime.AddHours(1)
 
 
-def create_observation_control_points(leak_off_curve_times):
+def create_leak_off_curve_control_points(leak_off_curve_times):
     """
     Create the control points for an observation.
 
@@ -178,10 +178,10 @@ def create_observation_control_points(leak_off_curve_times):
     Returns:
         The .NET `IList` containing the leak off curve control points.
     """
-    observation_control_points = List[DateTime]()
-    observation_control_points.Add(leak_off_curve_times['L1'])
-    observation_control_points.Add(leak_off_curve_times['L2'])
-    return observation_control_points
+    leak_off_curve_control_points = List[DateTime]()
+    leak_off_curve_control_points.Add(leak_off_curve_times['L1'])
+    leak_off_curve_control_points.Add(leak_off_curve_times['L2'])
+    return leak_off_curve_control_points
 
 
 def auto_pick_observation_details(unpicked_observation, native_monitor, stage_part):
@@ -225,7 +225,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     picked_observation = unpicked_observation  # An alias to better communicate intent
     mutable_observation = picked_observation.ToMutable()
     mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
-    mutable_observation.ControlPointTimes = create_observation_control_points(leak_off_curve_times)
+    mutable_observation.ControlPointTimes = create_leak_off_curve_control_points(leak_off_curve_times)
     (mutable_observation.VisibleRangeXminTime,
      mutable_observation.VisibleRangeXmaxTime) = calculate_stage_part_visible_time_range(stage_part)
     mutable_observation.Position = maximum_pressure_sample.Timestamp
@@ -262,6 +262,7 @@ def auto_pick_observations(native_project, native_monitor):
         mutable_observation_set.AddEvent(picked_observation)
         mutable_observation_set.Dispose()
 
+    # TODO: Can we use Python disposable decorator?
     # Add observation set to project
     project_with_observation_set = native_project  # An alias to better communicate intent
     mutable_project = native_project.ToMutable()
