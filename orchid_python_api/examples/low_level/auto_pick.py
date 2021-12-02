@@ -298,7 +298,8 @@ def main(cli_args):
         logging.info(f'{len(native_project.ObservationSets.Items)=}')
         for observation_set in native_project.ObservationSets.Items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
+            # TODO: Remove when >~ 2021.4
+            # logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
             logging.info(f'{len(observation_set.GetObservations())=}')
 
     # Save project changes to specified .ifrac file
