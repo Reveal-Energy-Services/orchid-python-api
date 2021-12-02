@@ -19,6 +19,7 @@ import pathlib
 
 import clr
 import orchid
+import orchid.dot_net_displosable as dnd  # Yes. I misspelled "disposable."
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
@@ -223,16 +224,15 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
-    mutable_observation = picked_observation.ToMutable()
-    mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
-    mutable_observation.ControlPointTimes = create_leak_off_curve_control_points(leak_off_curve_times)
-    (mutable_observation.VisibleRangeXminTime,
-     mutable_observation.VisibleRangeXmaxTime) = calculate_stage_part_visible_time_range(stage_part)
-    mutable_observation.Position = maximum_pressure_sample.Timestamp
-    mutable_observation.DeltaPressure = calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample)
-    mutable_observation.Notes = "Auto-picked"
-    mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
-    mutable_observation.Dispose()
+    with dnd.disposable(picked_observation.ToMutable()) as mutable_observation :
+        mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
+        mutable_observation.ControlPointTimes = create_leak_off_curve_control_points(leak_off_curve_times)
+        (mutable_observation.VisibleRangeXminTime,
+         mutable_observation.VisibleRangeXmaxTime) = calculate_stage_part_visible_time_range(stage_part)
+        mutable_observation.Position = maximum_pressure_sample.Timestamp
+        mutable_observation.DeltaPressure = calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample)
+        mutable_observation.Notes = "Auto-picked"
+        mutable_observation.SignalQuality = Observation.SignalQualityValue.UndrainedCompressive
 
     return picked_observation
 
@@ -258,16 +258,14 @@ def auto_pick_observations(native_project, native_monitor):
         picked_observation = auto_pick_observation_details(unpicked_observation, native_monitor, part)
 
         # Add picked observation to observation set
-        mutable_observation_set = observation_set.ToMutable()
-        mutable_observation_set.AddEvent(picked_observation)
-        mutable_observation_set.Dispose()
+        with dnd.disposable(observation_set.ToMutable()) as mutable_observation_set:
+            mutable_observation_set.AddEvent(picked_observation)
 
     # TODO: Can we use Python disposable decorator?
     # Add observation set to project
     project_with_observation_set = native_project  # An alias to better communicate intent
-    mutable_project = native_project.ToMutable()
-    mutable_project.AddObservationSet(observation_set)
-    mutable_project.Dispose()
+    with dnd.disposable(native_project.ToMutable()) as mutable_project:
+        mutable_project.AddObservationSet(observation_set)
 
     return project_with_observation_set
 
