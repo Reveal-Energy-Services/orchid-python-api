@@ -240,7 +240,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
                                                 origins.DepthDatum.KELLY_BUSHING)
         return subsurface_point.y
 
-    def center_location_md(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
+    def center_location_mdkb(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
         Return the measured depth of the stage center in project units.
 

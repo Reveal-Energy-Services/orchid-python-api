@@ -305,5 +305,5 @@ def step_impl(context, well, stage_no, center_mdkb):
         center_mdkb (str): The measured depth of the stage center relative to the kelly bushing.
     """
     stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
-    actual = stage_of_interest.center_location_md(context.project.project_units.LENGTH)
+    actual = stage_of_interest.center_location_mdkb(context.project.project_units.LENGTH)
     cf.assert_that_actual_measurement_close_to_expected(actual, center_mdkb)
