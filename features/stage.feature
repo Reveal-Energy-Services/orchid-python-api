@@ -372,3 +372,42 @@ Feature: Low-level DOM API (stage)
       | Montney | 2        | Vert_01-Stage-2  | 1842.15 m | -1133.05 m | 1734.75 m | 35.5 m  |
       | Montney | 3        | Vert_01-Stage-3  | 1842.15 m | -1133.05 m | 1684.75 m | 35.5 m  |
       | Montney | 4        | Vert_01-Stage-4  | 1842.15 m | -1133.05 m | 1634.75 m | 35.5 m  |
+
+  Scenario Outline: Calculate stage center location measured depth from kelly busing elevation
+    Given I have loaded the project for the field, '<field>'
+    When I query the stages for each well in the project
+    Then I see the correct <stage_no> and <center_md>
+
+    Examples: Bakken
+      | field  | stage_no | center_md   |
+      | Bakken | 1        | 20908.67 ft |
+      | Bakken | 50       | 11349.07 ft |
+      | Bakken | 9        | 19397.29 ft |
+      | Bakken | 33       | 14686.09 ft |
+      | Bakken | 1        | 20876.54 ft |
+      | Bakken | 50       | 11243.10 ft |
+      | Bakken | 21       | 16967.10 ft |
+      | Bakken | 8        | 19533.30 ft |
+      | Bakken | 1        | 20867.96 ft |
+      | Bakken | 35       | 11372.50 ft |
+      | Bakken | 7        | 19569.00 ft |
+      | Bakken | 26       | 13983.00 ft |
+
+    Examples: Montney
+      | field   | stage_no | center_md |
+      | Montney | 1        | 5482.25 m |
+      | Montney | 15       | 2683.25 m |
+      | Montney | 8        | 4083.25 m |
+      | Montney | 2        | 5283.25 m |
+      | Montney | 1        | 5476.00 m |
+      | Montney | 29       | 2804.50 m |
+      | Montney | 8        | 4820.75 m |
+      | Montney | 14       | 4244.75 m |
+      | Montney | 1        | 5275.75 m |
+      | Montney | 28       | 2575.75 m |
+      | Montney | 9        | 4475.75 m |
+      | Montney | 20       | 3375.75 m |
+      | Montney | 1        | 2512.75 m |
+      | Montney | 2        | 2462.75 m |
+      | Montney | 3        | 2412.75 m |
+      | Montney | 4        | 2362.75 m |
