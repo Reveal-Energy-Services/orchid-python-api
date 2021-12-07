@@ -293,3 +293,17 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
     cf.assert_that_actual_measurement_close_to_expected(actual_shmin, shmin)
     cf.assert_that_actual_measurement_close_to_expected(actual_isip, isip)
     cf.assert_that_actual_measurement_close_to_expected(actual_pnet, pnet)
+
+
+@then("I see the correct {well}, {stage_no:d}, and {center_mdkb}")
+def step_impl(context, well, stage_no, center_mdkb):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number of interest.
+        center_mdkb (str): The measured depth of the stage center relative to the kelly bushing.
+    """
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
+    actual = stage_of_interest.center_location_mdkb(context.project.project_units.LENGTH)
+    cf.assert_that_actual_measurement_close_to_expected(actual, center_mdkb)
