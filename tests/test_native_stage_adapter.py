@@ -126,6 +126,33 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                            origins.DepthDatum.SEA_LEVEL),
                     raises(deal.PreContractError, pattern=f'must be a unit system length'))
 
+    def test_center_location_mdkb_returns_average_of_md_top_bottom(self):
+        for actual_top_dto, actual_bottom_dto, expected_center_mdkb_dto, expected_center_mdkb_unit in [
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12035.8),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12200.0),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12117.9),
+             units.UsOilfield.LENGTH),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3668.52),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3718.55),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3693.53),
+             units.Metric.LENGTH),
+            (tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12035.8),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12200.0),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3693.53),
+             units.Metric.LENGTH),
+            (tsn.make_measurement_dto(units.Metric.LENGTH, 3668.52),
+             tsn.make_measurement_dto(units.Metric.LENGTH, 3718.55),
+             tsn.make_measurement_dto(units.UsOilfield.LENGTH, 12117.9),
+             units.UsOilfield.LENGTH),
+        ]:
+            expected_center_mdkb = tsn.make_measurement(expected_center_mdkb_dto)
+            with self.subTest(f'Stage center MDKB = {expected_center_mdkb:~P})'):
+                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                actual_center_mdkb = sut.center_location_mdkb(expected_center_mdkb_unit)
+                tcm.assert_that_measurements_close_to(actual_center_mdkb, expected_center_mdkb, 5e-2)
+
     def test_cluster_count(self):
         expected_cluster_count = 3
         stub_net_stage = tsn.create_stub_net_stage(cluster_count=expected_cluster_count)

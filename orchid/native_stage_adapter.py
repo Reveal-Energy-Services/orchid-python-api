@@ -247,7 +247,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
         Args:
             in_length_unit: The unit of length for the returned Measurement.
         """
-        return self._center_location_depth(in_length_unit, origins.DepthDatum.KELLY_BUSHING)
+        return (self.md_top(in_length_unit) + self.md_bottom(in_length_unit)) / 2
 
     def center_location_tvdgl(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
