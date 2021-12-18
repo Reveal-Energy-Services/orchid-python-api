@@ -54,33 +54,33 @@ Feature: Low-level trajectory API (DOM API)
       | Bakken | Demo_4H | 144   | -13383 ft | 34594 ft | 10763 ft  | 0.0000 deg  | 0.0000 deg | 11298 ft  |
       | Bakken | Demo_4H | 140   | -13224 ft | 34576 ft | 10761 ft  | 0.0000 deg  | 0.0000 deg | 11138 ft  |
 
-#    Examples: Permian
-#      | field   | well | index | easting | northing |
-#      | Permian | C1   | 0     | -60.14  | -0.91    |
-#      | Permian | C1   | 527   | -391.31 | -4712.97 |
-#      | Permian | C1   | 506   | -387.02 | -2731.01 |
-#      | Permian | C1   | 316   | -190.85 | -37.16   |
-#      | Permian | C1   | 355   | -195.47 | -39.29   |
-#      | Permian | C1   | 419   | -205.74 | -70.32   |
-#      | Permian | C2   | 0     | -19.88  | -0.29    |
-#      | Permian | C2   | 527   | -65.28  | -4856.17 |
-#      | Permian | C2   | 525   | -72.04  | -4687.58 |
-#      | Permian | C2   | 487   | -130.08 | -1103.93 |
-#      | Permian | C2   | 331   | -46.12  | 65.84    |
-#      | Permian | C2   | 240   | -36.54  | 60.61    |
-#      | Permian | C3   | 0     | 59.97   | 0.89     |
-#      | Permian | C3   | 530   | 529.25  | -5169.96 |
-#      | Permian | C3   | 478   | 427.90  | -475.20  |
-#      | Permian | C3   | 374   | 197.17  | 35.92    |
-#      | Permian | C3   | 182   | 150.80  | 18.43    |
-#      | Permian | C3   | 132   | 130.82  | 12.05    |
-#      | Permian | P1   | 0     | 20.04   | 0.30     |
-#      | Permian | P1   | 535   | 229.52  | -5114.54 |
-#      | Permian | P1   | 478   | 172.42  | -259.50  |
-#      | Permian | P1   | 410   | 114.31  | 92.34    |
-#      | Permian | P1   | 57    | 66.38   | 28.36    |
-#      | Permian | P1   | 519   | 214.53  | -3659.28 |
-#
+    Examples: Permian
+      | field   | well | index | easting     | northing   | tvdss      | inclination | azimuth     | mdkb      |
+      | Permian | C1   | 0     | -60.137 ft  | -0.9075 ft | -2872.0 ft | 0.0000 deg  | 0.0000 deg  | 0.0000 ft |
+      | Permian | C1   | 527   | -391.31 ft  | -4713.0 ft | 11727 ft   | 90.830 deg  | 179.09 deg  | 16960 ft  |
+      | Permian | C1   | 506   | -387.02 ft  | -2731.0 ft | 11746 ft   | 90.290 deg  | 177.29 deg  | 14977 ft  |
+      | Permian | C1   | 316   | -190.85 ft  | -37.164 ft | 7097.6 ft  | 0.6500 deg  | 268.20 deg  | 7975.0 ft |
+      | Permian | C1   | 355   | -195.47 ft  | -39.288 ft | 8072.6 ft  | 0.4400 deg  | 178.74 deg  | 8950.0 ft |
+      | Permian | C1   | 419   | -205.74 ft  | -70.320 ft | 9672.1 ft  | 2.3500 deg  | 188.58 deg  | 10550 ft  |
+      | Permian | C2   | 0     | -19.881 ft  | -0.2875 ft | -2872.0 ft | 0.0000 deg  | 0.0000 deg  | 0.0000 ft |
+      | Permian | C2   | 527   | -65.280 ft  | -4856.2 ft | 11452 ft   | 87.0500 deg | 177.65 deg  | 16912 ft  |
+      | Permian | C2   | 525   | -72.042 ft  | -4687.6 ft | 11442 ft   | 86.0800 deg | 177.84 deg  | 16743 ft  |
+      | Permian | C2   | 487   | -130.077 ft | -1103.9 ft | 11452 ft   | 88.0700 deg | 179.42 deg  | 13157 ft  |
+      | Permian | C2   | 331   | -46.124 ft  | 65.843 ft  | 7473.1 ft  | 1.2700 deg  | 307.58 deg  | 8350.0 ft |
+      | Permian | C2   | 240   | -36.545 ft  | 60.606 ft  | 5198.2 ft  | 0.4200 deg  | 259.07 deg  | 6075.0 ft |
+      | Permian | C3   | 0     | 59.974 ft   | 0.8925 ft  | -2872.0 ft | 0.0000 deg  | 0.0000 deg  | 0.0000 ft |
+      | Permian | C3   | 530   | 529.25 ft   | -5170.0 ft | 11447 ft   | 89.790 deg  | 177.13 deg  | 17273 ft  |
+      | Permian | C3   | 478   | 427.90 ft   | -475.20 ft | 11432 ft   | 82.120 deg  | 159.86 deg  | 12568 ft  |
+      | Permian | C3   | 374   | 197.17 ft   | 35.921 ft  | 8547.8 ft  | 1.6100 deg  | 105.03 deg  | 9425.0 ft |
+      | Permian | C3   | 182   | 150.80 ft   | 18.434 ft  | 3748.4 ft  | 1.1100 deg  | 109.20 deg  | 4625.0 ft |
+      | Permian | C3   | 132   | 130.82 ft   | 12.055 ft  | 2498.6 ft  | 0.8300 deg  | 65.04 deg   | 3375.0 ft |
+      | Permian | P1   | 0     | 20.046 ft   | 0.3025 ft  | -2872.0 ft | 0.0000 deg  | 0.0000 deg  | 0.0000 ft |
+      | Permian | P1   | 535   | 229.53 ft   | -5114.5 ft | 11650 ft   | 89.480 deg  | 176.22 deg  | 17391 ft  |
+      | Permian | P1   | 478   | 172.42 ft   | -259.50 ft | 11526 ft   | 52.370 deg  | 180.59 deg  | 12507 ft  |
+      | Permian | P1   | 410   | 114.31 ft   | 92.342 ft  | 9446.8 ft  | 2.0600 deg  | 171.93 deg  | 10325 ft  |
+      | Permian | P1   | 57    | 66.378 ft   | 28.362 ft  | 623.33 ft  | 1.0400 deg  | 20.4800 deg | 1500.0 ft |
+      | Permian | P1   | 519   | 214.53 ft   | -3659.3 ft | 11636 ft   | 90.120 deg  | 180.83 deg  | 15935 ft  |
+
 #    Examples: Montney
 #      | field   | well    | index | easting  | northing  |
 #      | Montney | Hori_01 | 0     | -615.050 | 376.682   |
