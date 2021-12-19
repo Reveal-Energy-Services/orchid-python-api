@@ -20,6 +20,8 @@ import unittest.mock
 import deal
 from hamcrest import assert_that, equal_to, empty, contains_exactly, calling, raises
 
+import numpy as np
+
 from orchid import (
     native_trajectory_adapter as nta,
     reference_origins as origins,
@@ -89,6 +91,16 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.PROJECT),
                     contains_exactly(*expected_northing_magnitudes))
 
+    def test_get_tvd_array_if_one_item_tvd_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.Metric)
+        expected_tvd_ss_magnitudes = [2673.8]
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
+        assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
+
     def test_get_easting_array_if_many_items_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [501040, 281770, 289780]
@@ -108,6 +120,16 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.WELL_HEAD),
                     contains_exactly(*expected_northing_magnitudes))
+
+    def test_get_tvd_ss_array_if_many_items_tvd_ss_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
+        expected_tvd_ss_magnitudes = [8192.7, 7415.2, 9615.7]
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
+        assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
 
     def test_get_easting_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)

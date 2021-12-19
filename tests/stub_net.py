@@ -472,6 +472,10 @@ def create_stub_net_well_trajectory(easting_magnitudes=None,
                                                           project.project_units.LENGTH)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
+    if tvd_ss_magnitudes is not None and project.project_units is not None:
+        stub_tvd_sss = create_stub_net_trajectory_array(tvd_ss_magnitudes, project.project_units.LENGTH)
+        stub_trajectory.GetTvdArray = unittest.mock.MagicMock(name='stub_tvd_sss', return_value=stub_tvd_sss)
+
     return stub_trajectory
 
 
