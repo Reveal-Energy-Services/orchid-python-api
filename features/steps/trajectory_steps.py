@@ -117,9 +117,9 @@ def step_impl(context, easting, northing, tvdss, index):
         tvdss (str): The trajectory item TVDSS.
         index (int): The index of the trajectory item.
     """
-    cf.assert_that_actual_measurement_close_to_expected(context.easting_array[index], easting)
-    cf.assert_that_actual_measurement_close_to_expected(context.expected_northing_array[index], northing)
-    cf.assert_that_actual_measurement_close_to_expected(context.tvd_ss_array[index], tvdss)
+    cf.assert_that_actual_measurement_magnitude_close_to_expected(context.easting_array[index], easting)
+    cf.assert_that_actual_measurement_magnitude_close_to_expected(context.northing_array[index], northing)
+    cf.assert_that_actual_measurement_magnitude_close_to_expected(context.tvd_ss_array[index], tvdss)
 
 
 @step("I query the inclination and azimuth arrays and the MDKB arrays in the project reference frame in project units")

@@ -31,7 +31,7 @@ Feature: Low-level trajectory API (DOM API)
       | field  | well    | index | easting   | northing | tvdss     |
       | Bakken | Demo_1H | 0     | -12994 ft | 35549 ft | 0.0000 ft |
       | Bakken | Demo_1H | 252   | -23010 ft | 36879 ft | 10705 ft  |
-      | Bakken | Demo_1H | 146   | -13280 ft | 36837 ft | 10770 ft  |
+      | Bakken | Demo_1H | 146   | -13280 ft | 36870 ft | 10770 ft  |
       | Bakken | Demo_1H | 174   | -15903 ft | 36872 ft | 10751 ft  |
       | Bakken | Demo_1H | 99    | -12732 ft | 36547 ft | 8609.4 ft |
       | Bakken | Demo_1H | 185   | -16947 ft | 36880 ft | 10739 ft  |
