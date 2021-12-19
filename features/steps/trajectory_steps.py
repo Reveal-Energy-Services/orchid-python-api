@@ -17,12 +17,15 @@
 
 from behave import *
 use_step_matcher("parse")
+
 import toolz.curried as toolz
 import numpy as np
 
 from hamcrest import assert_that, has_length, close_to
 
 from orchid import (reference_origins as origins)
+
+import common_functions as cf
 
 
 @when('I query the trajectory for well "{well}"')
@@ -40,15 +43,6 @@ def step_impl(context, well):
     context.trajectory = actual_well.trajectory
 
 
-@when('I query the easting and northing arrays in the project reference frame in project units')
-def step_impl(context):
-    """
-    :type context: behave.runner.Context
-    """
-    context.easting_array = context.trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
-    context.northing_array = context.trajectory.get_northing_array(origins.WellReferenceFrameXy.PROJECT)
-
-
 @then('I see {count:d} values in each array')
 def step_impl(context, count):
     """
@@ -57,22 +51,6 @@ def step_impl(context, count):
     """
     assert_that(context.easting_array, has_length(count))
     assert_that(context.northing_array, has_length(count))
-
-
-# noinspection PyBDDParameters
-@then("I see correct {easting:g} and {northing:g} values at {index:d}")
-def step_impl(context, easting, northing, index):
-    """
-    :type context: behave.runner.Context
-    :param easting: The easting value from the trajectory at index.
-    :type easting: float
-    :param northing: The northing value for the trajectory at index.
-    :type northing: float
-    :param index: The index of the well trajectory being sampled.
-    :type index: int
-    """
-    assert_that(context.easting_array[index], close_to(easting, close_to_delta(context.well)))
-    assert_that(context.northing_array[index], close_to(northing, close_to_delta(context.well)))
 
 
 def close_to_delta(well_to_test):
@@ -112,3 +90,60 @@ def step_impl(context):
     # Relative tolerance of 0.001 determined empirically. Expected data was rounded to 6 significant figures
     np.testing.assert_allclose(context.easting_array[sample_indices], expected_eastings, rtol=0.001)
     np.testing.assert_allclose(context.northing_array[sample_indices], expected_northings, rtol=0.001)
+
+
+@step("I query the easting, northing, and TVDSS arrays in the project reference frame in project units")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    context.easting_array = context.trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
+    context.northing_array = context.trajectory.get_northing_array(origins.WellReferenceFrameXy.PROJECT)
+    context.tvd_ss_array = context.trajectory.get_tvd_array(origins.DepthDatum.SEA_LEVEL)
+
+
+# noinspection PyBDDParameters
+@then("I see correct {easting}, {northing}, and {tvdss} values at {index:d}")
+def step_impl(context, easting, northing, tvdss, index):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        easting (str): The trajectory item easting.
+        northing (str): The trajectory item northing.
+        tvdss (str): The trajectory item TVDSS.
+        index (int): The index of the trajectory item.
+    """
+    cf.assert_that_actual_measurement_close_to_expected(context.easting_array[index], context.table[easting][index])
+    cf.assert_that_actual_measurement_close_to_expected(context.northing_array[index], context.table[northing][index])
+    cf.assert_that_actual_measurement_close_to_expected(context.tvd_ss_array[index], context.table[tvdss][index])
+
+
+@step("I query the inclination and azimuth arrays and the MDKB arrays in the project reference frame in project units")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    context.inclination_array = context.trajectory.get_inclination_array()
+    context.azimuth_array = context.trajectory.get_azimuth_array()
+    context.mdb_kb_array = context.trajectory.get_mk_kb_array()
+
+
+# noinspection PyBDDParameters
+@then("I see correct {inclination}, {azimuth}, and {mdkb} values at {index:d}")
+def step_impl(context, inclination, azimuth, mdkb, index):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        inclination (str): The trajectory item inclination.
+        azimuth (str): The trajectory item azimuth.
+        mdkb (str): The trajectory item TVDSS.
+        index (int): The index of the trajectory item.
+    """
+    cf.assert_that_actual_measurement_close_to_expected(context.inclination_array[index],
+                                                        context.table[inclination][index])
+    cf.assert_that_actual_measurement_close_to_expected(context.azimuth_array[index],
+                                                        context.table[azimuth][index])
+    cf.assert_that_actual_measurement_close_to_expected(context.md_kb_array[index],
+                                                        context.table[mdkb][index])
