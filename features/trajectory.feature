@@ -81,29 +81,29 @@ Feature: Low-level trajectory API (DOM API)
       | Permian | P1   | 57    | 66.378 ft   | 28.362 ft  | 623.33 ft  | 1.0400 deg  | 20.4800 deg | 1500.0 ft |
       | Permian | P1   | 519   | 214.53 ft   | -3659.3 ft | 11636 ft   | 90.120 deg  | 180.83 deg  | 15935 ft  |
 
-#    Examples: Montney
-#      | field   | well    | index | easting  | northing  |
-#      | Montney | Hori_01 | 0     | -615.050 | 376.682   |
-#      | Montney | Hori_01 | 101   | -545.283 | 203.339   |
-#      | Montney | Hori_01 | 13    | -645.919 | 362.269   |
-#      | Montney | Hori_01 | 22    | -657.965 | 347.512   |
-#      | Montney | Hori_01 | 84    | -649.134 | 339.618   |
-#      | Montney | Hori_01 | 91    | -618.307 | 297.645   |
-#      | Montney | Hori_02 | 0     | -615.050 | 376.682   |
-#      | Montney | Hori_02 | 211   | 1897.803 | -1526.118 |
-#      | Montney | Hori_02 | 150   | 508.827  | -454.406  |
-#      | Montney | Hori_02 | 109   | -384.796 | 226.856   |
-#      | Montney | Hori_02 | 194   | 1530.445 | -1245.970 |
-#      | Montney | Hori_02 | 18    | -634.650 | 345.162   |
-#      | Montney | Hori_03 | 0     | -612.050 | 379.682   |
-#      | Montney | Hori_03 | 201   | 1893.489 | -1335.094 |
-#      | Montney | Hori_03 | 88    | -543.260 | 338.535   |
-#      | Montney | Hori_03 | 167   | 1127.349 | -738.748  |
-#      | Montney | Hori_03 | 173   | 1264.479 | -848.186  |
-#      | Montney | Hori_03 | 10    | -608.251 | 359.357   |
-#      | Montney | Vert_01 | 0     | 1842.150 | -1133.046 |
-#      | Montney | Vert_01 | 101   | 1842.150 | -1133.046 |
-#      | Montney | Vert_01 | 95    | 1842.150 | -1133.046 |
-#      | Montney | Vert_01 | 78    | 1842.150 | -1133.046 |
-#      | Montney | Vert_01 | 29    | 1842.150 | -1133.046 |
-#      | Montney | Vert_01 | 42    | 1842.150 | -1133.046 |
+    Examples: Montney
+      | field   | well    | index | easting   | northing  | tvdss       | inclination | azimuth    | mdkb     |
+      | montney | Hori_01 | 0     | -615.05 m | 376.68 m  | -728.00 m   | 0.0000 deg  | 0.0000 deg | 0.0000 m |
+      | montney | Hori_01 | 101   | -545.28 m | 203.34 m  | 1678.0 m    | 69.800 deg  | 138.90 deg | 2492.6 m |
+      | montney | Hori_01 | 13    | -645.92 m | 362.27 m  | -368.34 m   | 6.5000 deg  | 233.90 deg | 36.680 m |
+      | montney | Hori_01 | 22    | -657.97 m | 347.51 m  | -134.85 m   | 2.5000 deg  | 194.70 deg | 596.00 m |
+      | montney | Hori_01 | 84    | -649.13 m | 339.62 m  | 1513.82 m   | 18.900 deg  | 146.40 deg | 2246.0 m |
+      | montney | Hori_01 | 91    | -618.31 m | 297.64 m  | 1599.48 m   | 36.200 deg  | 139.70 deg | 2346.8 m |
+      | montney | Hori_02 | 0     | -615.05 m | 376.68 m  | -728.00 m   | 0.0000 deg  | 0.0000 deg | 0.0000 m |
+      | montney | Hori_02 | 211   | 1897.8 m  | -1526.1 m | 1819.4 m    | 90.300 deg  | 128.10 deg | 5570.0 m |
+      | montney | Hori_02 | 150   | 508.83 m  | -454.41 m | 1813.0 m    | 86.500 deg  | 128.20 deg | 3815.1 m |
+      | montney | Hori_02 | 109   | -384.80 m | 226.86 m  | 1805.0 m    | 83.300 deg  | 122.40 deg | 2690.6 m |
+      | montney | Hori_02 | 194   | 1530.4 m  | -1246.0 m | 1816.5 m    | 89.900 deg  | 126.50 deg | 5108.0 m |
+      | montney | Hori_02 | 18    | -634.65 m | 345.16 m  | -236.66 m   | 2.4000 deg  | 191.30 deg | 493.08 m |
+      | montney | Hori_03 | 0     | -612.05 m | 379.68 m  | -728.00 m   | 0.0000 deg  | 0.0000 deg | 0.0000 m |
+      | montney | Hori_03 | 201   | 1893.5 m  | -1335.1 m | 1699.0 m    | 90.300 deg  | 127.90 deg | 5353.0 m |
+      | montney | Hori_03 | 88    | -543.26 m | 338.53 m  | 1587.7 m    | 30.500 deg  | 101.40 deg | 2327.8 m |
+      | montney | Hori_03 | 167   | 1127.3 m  | -738.75 m | 1694.3 m    | 88.600 deg  | 127.90 deg | 4381.7 m |
+      | montney | Hori_03 | 173   | 1264.4 m  | -848.18 m | 1695.9 m    | 90.400 deg  | 128.60 deg | 4557.2 m |
+      | montney | Hori_03 | 10    | -608.25 m | 359.36 m  | -459.65 m   | 4.2000 deg  | 165.70 deg | 269.31 m |
+      | montney | Vert_01 | 0     | 1842.2 m  | -1133.0 m | -728.0000 m | 0.0000 deg  | 0.0000 deg | 0.0000 m |
+      | montney | Vert_01 | 101   | 1842.2 m  | -1133.0 m | 1972.0 m    | 0.0000 deg  | 0.0000 deg | 2700.0 m |
+      | montney | Vert_01 | 95    | 1842.2 m  | -1133.0 m | 1702.4 m    | 0.0000 deg  | 0.0000 deg | 2430.4 m |
+      | montney | Vert_01 | 78    | 1842.2 m  | -1133.0 m | 1457.0 m    | 0.0000 deg  | 0.0000 deg | 2185.0 m |
+      | montney | Vert_01 | 29    | 1842.2 m  | -1133.0 m | 79.690 m    | 0.0000 deg  | 0.0000 deg | 807.69 m |
+      | montney | Vert_01 | 42    | 1842.2 m  | -1133.0 m | 458.39 m    | 0.0000 deg  | 0.0000 deg | 1186.4 m |
