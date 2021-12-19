@@ -47,8 +47,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_easting_array_if_empty_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
         expected_easting_magnitudes = []
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(easting_magnitudes=expected_easting_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_easting_array(origins.WellReferenceFrameXy.WELL_HEAD), empty())
@@ -56,8 +56,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_northing_array_if_empty_northing_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_northing_magnitudes = []
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              northing_magnitudes=expected_northing_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(northing_magnitudes=expected_northing_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE), empty())
@@ -65,17 +65,26 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_tvd_ss_array_if_empty_tvd_ss_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
         expected_tvd_ss_magnitudes = []
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(tvd_ss_magnitudes=expected_tvd_ss_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), empty())
 
+    def test_get_inclination_array_if_empty_inclination_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.Common)
+        expected_inclination_magnitudes = []
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              inclination_magnitudes=expected_inclination_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        assert_that(sut.get_inclination_array(), empty())
+
     def test_get_easting_array_if_one_item_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [789921]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(easting_magnitudes=expected_easting_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_easting_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE),
@@ -84,8 +93,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_northing_array_if_one_item_northing_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
         expected_northing_magnitudes = [6936068]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              northing_magnitudes=expected_northing_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(northing_magnitudes=expected_northing_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.PROJECT),
@@ -94,8 +103,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_tvd_array_if_one_item_tvd_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_tvd_ss_magnitudes = [2673.8]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(tvd_ss_magnitudes=expected_tvd_ss_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
@@ -104,8 +113,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_easting_array_if_many_items_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [501040, 281770, 289780]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(easting_magnitudes=expected_easting_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_easting_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE),
@@ -114,8 +123,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_northing_array_if_many_items_northing_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
         expected_northing_magnitudes = [8332810, 2537900, 9876464]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              northing_magnitudes=expected_northing_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(northing_magnitudes=expected_northing_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.WELL_HEAD),
@@ -124,8 +133,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_tvd_ss_array_if_many_items_tvd_ss_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
         expected_tvd_ss_magnitudes = [8192.7, 7415.2, 9615.7]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(tvd_ss_magnitudes=expected_tvd_ss_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
@@ -134,16 +143,16 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_get_easting_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
         expected_easting_magnitudes = []
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(easting_magnitudes=expected_easting_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
         assert_that(calling(sut.get_easting_array).with_args(None), raises(deal.PreContractError))
 
     def test_get_northing_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_northing_magnitudes = []
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              northing_magnitudes=expected_northing_magnitudes)
+        stub_trajectory = tsn.create_stub_net_well_trajectory(northing_magnitudes=expected_northing_magnitudes,
+                                                              project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
         assert_that(calling(sut.get_northing_array).with_args(None), raises(deal.PreContractError))
 
@@ -181,7 +190,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
     def test_send_correct_length_unit_to_get_easting_array_if_no_length_unit_specified(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project, easting_magnitudes=[])
+        stub_trajectory = tsn.create_stub_net_well_trajectory(easting_magnitudes=[], project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
         sut.get_easting_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE)
 
@@ -190,7 +199,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
     def test_send_correct_length_unit_to_get_northing_array_if_no_length_unit_specified(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project, northing_magnitudes=[])
+        stub_trajectory = tsn.create_stub_net_well_trajectory(northing_magnitudes=[], project=stub_project)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
         sut.get_northing_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE)
 

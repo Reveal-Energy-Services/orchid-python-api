@@ -97,6 +97,15 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_array(self.dom_object.GetTvdArray(depth_datum))
 
+    def get_inclination_array(self) -> np.array:
+        """
+        Calculate the array of inclination values.
+
+        Returns:
+            The array of inclinations of this trajectory.
+        """
+        return np.empty((0,), 'float')
+
     def _trajectory_array(self, raw_array):
         result = toolz.pipe(raw_array,
                             toolz.map(option.maybe),

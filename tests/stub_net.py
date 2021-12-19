@@ -447,11 +447,9 @@ def create_stub_net_time_series(object_id=None, name=None, display_name=None,
     return stub_net_time_series
 
 
-def create_stub_net_well_trajectory(easting_magnitudes=None,
-                                    northing_magnitudes=None,
-                                    tvd_ss_magnitudes=None,
-                                    object_id=None,
-                                    project=None,
+def create_stub_net_well_trajectory(easting_magnitudes=None, northing_magnitudes=None, tvd_ss_magnitudes=None,
+                                    inclination_magnitudes=None,
+                                    object_id=None, project=None,
                                     ):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
