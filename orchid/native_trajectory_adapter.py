@@ -46,6 +46,9 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         super().__init__(net_trajectory, orchid.base.constantly(net_trajectory.Well.Project))
 
+    # TODO: Consider alternative interface, get_eastings()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     @deal.pre(validation.arg_not_none)
     def get_easting_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:
         """
@@ -60,6 +63,9 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_array(self.dom_object.GetEastingArray(reference_frame))
 
+    # TODO: Consider alternative interface, get_northings()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     @deal.pre(validation.arg_not_none)
     def get_northing_array(self, reference_frame: origins.WellReferenceFrameXy) -> np.array:
         """
@@ -75,6 +81,10 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_array(self.dom_object.GetNorthingArray(reference_frame))
 
+    # TODO: Consider alternative interface, get_northings()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
+    @deal.pre(validation.arg_not_none)
     def get_tvd_array(self, depth_datum: origins.DepthDatum) -> np.array:
         """
         Calculate the array of total vertical depth values relative to `depth_datum` in project length units.
@@ -92,6 +102,5 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
                             toolz.map(option.maybe),
                             toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
                             toolz.map(lambda m: m.magnitude),
-                            list,
-                            np.array)
+                            lambda magnitudes: np.fromiter(magnitudes, dtype='float'))
         return result
