@@ -23,7 +23,10 @@ import numpy as np
 
 from hamcrest import assert_that, has_length, close_to
 
-from orchid import (reference_origins as origins)
+from orchid import (
+    measurement as om,
+    reference_origins as origins,
+)
 
 import common_functions as cf
 
@@ -114,9 +117,9 @@ def step_impl(context, easting, northing, tvdss, index):
         tvdss (str): The trajectory item TVDSS.
         index (int): The index of the trajectory item.
     """
-    cf.assert_that_actual_measurement_close_to_expected(context.easting_array[index], context.table[easting][index])
-    cf.assert_that_actual_measurement_close_to_expected(context.northing_array[index], context.table[northing][index])
-    cf.assert_that_actual_measurement_close_to_expected(context.tvd_ss_array[index], context.table[tvdss][index])
+    cf.assert_that_actual_measurement_close_to_expected(context.easting_array[index], easting)
+    cf.assert_that_actual_measurement_close_to_expected(context.expected_northing_array[index], northing)
+    cf.assert_that_actual_measurement_close_to_expected(context.tvd_ss_array[index], tvdss)
 
 
 @step("I query the inclination and azimuth arrays and the MDKB arrays in the project reference frame in project units")
@@ -141,9 +144,6 @@ def step_impl(context, inclination, azimuth, mdkb, index):
         mdkb (str): The trajectory item TVDSS.
         index (int): The index of the trajectory item.
     """
-    cf.assert_that_actual_measurement_close_to_expected(context.inclination_array[index],
-                                                        context.table[inclination][index])
-    cf.assert_that_actual_measurement_close_to_expected(context.azimuth_array[index],
-                                                        context.table[azimuth][index])
-    cf.assert_that_actual_measurement_close_to_expected(context.md_kb_array[index],
-                                                        context.table[mdkb][index])
+    cf.assert_that_actual_measurement_close_to_expected(context.inclination_array[index], inclination)
+    cf.assert_that_actual_measurement_close_to_expected(context.expected_azimuth_array[index], azimuth)
+    cf.assert_that_actual_measurement_close_to_expected(context.md_kb_array[index], mdkb)
