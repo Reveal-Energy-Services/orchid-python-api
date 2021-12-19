@@ -60,6 +60,15 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE), empty())
 
+    def test_get_tvd_ss_array_if_empty_tvd_ss_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
+        expected_tvd_ss_magnitudes = []
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        assert_that(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), empty())
+
     def test_get_easting_array_if_one_item_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [789921]

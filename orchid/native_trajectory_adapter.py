@@ -75,6 +75,18 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_array(self.dom_object.GetNorthingArray(reference_frame))
 
+    def get_tvd_array(self, depth_datum: origins.DepthDatum) -> np.array:
+        """
+        Calculate the array of total vertical depth values relative to `depth_datum` in project length units.
+
+        Args:
+            depth_datum: The depth datum for the vertical depth values.
+
+        Returns:
+            The array of total vertical depths of this trajectory.
+        """
+        return self._trajectory_array(self.dom_object.GetTvdArray(depth_datum))
+
     def _trajectory_array(self, raw_array):
         result = toolz.pipe(raw_array,
                             toolz.map(option.maybe),

@@ -449,6 +449,7 @@ def create_stub_net_time_series(object_id=None, name=None, display_name=None,
 
 def create_stub_net_well_trajectory(easting_magnitudes=None,
                                     northing_magnitudes=None,
+                                    tvd_ss_magnitudes=None,
                                     object_id=None,
                                     project=None,
                                     ):
