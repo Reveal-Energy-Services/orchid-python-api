@@ -144,6 +144,6 @@ def step_impl(context, inclination, azimuth, mdkb, index):
         mdkb (str): The trajectory item TVDSS.
         index (int): The index of the trajectory item.
     """
-    cf.assert_that_actual_measurement_close_to_expected(context.inclination_array[index], inclination)
-    cf.assert_that_actual_measurement_close_to_expected(context.expected_azimuth_array[index], azimuth)
-    cf.assert_that_actual_measurement_close_to_expected(context.md_kb_array[index], mdkb)
+    cf.assert_that_actual_measurement_magnitude_close_to_expected(context.inclination_array[index], inclination)
+    cf.assert_that_actual_measurement_magnitude_close_to_expected(context.azimuth_array[index], azimuth)
+    cf.assert_that_actual_measurement_magnitude_close_to_expected(context.md_kb_array[index], mdkb)
