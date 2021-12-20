@@ -69,7 +69,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                               tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        assert_that(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), empty())
+        assert_that(sut.get_tvd_ss_array(), empty())
 
     def test_get_inclination_array_if_empty_inclination_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Common)
@@ -88,7 +88,6 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_azimuth_east_of_north_array(), empty())
-
 
     def test_get_easting_array_if_one_item_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
@@ -110,14 +109,14 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         assert_that(sut.get_northing_array(origins.WellReferenceFrameXy.PROJECT),
                     contains_exactly(*expected_northing_magnitudes))
 
-    def test_get_tvd_array_if_one_item_tvd_array(self):
+    def test_get_tvd_ss_array_if_one_item_tvd_ss_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_tvd_ss_magnitudes = [2673.8]
         stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
                                                               tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
+        np.testing.assert_allclose(sut.get_tvd_ss_array(), expected_tvd_ss_magnitudes)
         assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
 
     def test_get_inclination_array_if_one_item_inclination_array(self):
@@ -165,7 +164,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                               tvd_ss_magnitudes=expected_tvd_ss_magnitudes)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
+        np.testing.assert_allclose(sut.get_tvd_ss_array(), expected_tvd_ss_magnitudes)
         assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
 
     def test_get_inclination_array_if_many_items_inclination_array(self):

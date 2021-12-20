@@ -82,21 +82,15 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_length_array(self.dom_object.GetNorthingArray(reference_frame))
 
-    # TODO: Consider alternative interface, get_northings()
-    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
-    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
-    @deal.pre(validation.arg_not_none)
-    def get_tvd_array(self, depth_datum: origins.DepthDatum) -> np.array:
+    # TODO: Consider alternative interface, get_tvd_ss()
+    def get_tvd_ss_array(self) -> np.array:
         """
         Calculate the array of total vertical depth values relative to `depth_datum` in project length units.
-
-        Args:
-            depth_datum: The depth datum for the vertical depth values.
 
         Returns:
             The array of total vertical depths of this trajectory.
         """
-        return self._trajectory_length_array(self.dom_object.GetTvdArray(depth_datum))
+        return self._get_tvd_array(origins.DepthDatum.SEA_LEVEL)
 
     # TODO: Consider alternative interface, get_northings()
     def get_inclination_array(self) -> np.array:
@@ -117,6 +111,19 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
             The array of azimuths of this trajectory.
         """
         return self._trajectory_angle_array(self.dom_object.GetAzimuthEastOfNorthArray())
+
+    @deal.pre(validation.arg_not_none)
+    def _get_tvd_array(self, depth_datum: origins.DepthDatum) -> np.array:
+        """
+        Calculate the array of total vertical depth values relative to `depth_datum` in project length units.
+
+        Args:
+            depth_datum: The depth datum for the vertical depth values.
+
+        Returns:
+            The array of total vertical depths of this trajectory.
+        """
+        return self._trajectory_length_array(self.dom_object.GetTvdArray(depth_datum))
 
     @staticmethod
     def _trajectory_angle_array(raw_array):

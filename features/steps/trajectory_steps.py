@@ -103,7 +103,7 @@ def step_impl(context):
     """
     context.easting_array = context.trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
     context.northing_array = context.trajectory.get_northing_array(origins.WellReferenceFrameXy.PROJECT)
-    context.tvd_ss_array = context.trajectory.get_tvd_array(origins.DepthDatum.SEA_LEVEL)
+    context.tvd_ss_array = context.trajectory.get_tvd_ss_array()
 
 
 # noinspection PyBDDParameters
