@@ -89,6 +89,15 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
         assert_that(sut.get_azimuth_east_of_north_array(), empty())
 
+    def test_get_md_kb_array_if_empty_md_kb_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
+        expected_md_kb_magnitudes = []
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              md_kb_magnitudes=expected_md_kb_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        assert_that(sut.get_md_kb_array(), empty())
+
     def test_get_easting_array_if_one_item_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [789921]
@@ -137,6 +146,15 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
         np.testing.assert_allclose(sut.get_azimuth_east_of_north_array(), expected_azimuth_magnitudes)
 
+    def test_get_md_kb_array_if_one_item_md_kb_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.Metric)
+        expected_md_kb_magnitudes = [2588.5]
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              md_kb_magnitudes=expected_md_kb_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        np.testing.assert_allclose(sut.get_md_kb_array(), expected_md_kb_magnitudes)
+
     def test_get_easting_array_if_many_items_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [501040, 281770, 289780]
@@ -184,6 +202,15 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         np.testing.assert_allclose(sut.get_azimuth_east_of_north_array(), expected_azimuth_magnitudes)
+
+    def test_get_md_kb_array_if_many_items_md_kb_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
+        expected_md_kb_magnitudes = [9669.3, 12206., 13289.]
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              md_kb_magnitudes=expected_md_kb_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        np.testing.assert_allclose(sut.get_md_kb_array(), expected_md_kb_magnitudes)
 
     def test_get_easting_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)

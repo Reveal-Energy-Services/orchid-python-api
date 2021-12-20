@@ -112,6 +112,15 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_angle_array(self.dom_object.GetAzimuthEastOfNorthArray())
 
+    def get_md_kb_array(self) -> np.array:
+        """
+        Calculate the array of MD KB values.
+
+        Returns:
+            The array of MD KB values of this trajectory.
+        """
+        return self._trajectory_length_array(self.dom_object.GetMdKbArray())
+
     @deal.pre(validation.arg_not_none)
     def _get_tvd_array(self, depth_datum: origins.DepthDatum) -> np.array:
         """
