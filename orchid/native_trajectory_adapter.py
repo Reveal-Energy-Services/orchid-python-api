@@ -37,6 +37,15 @@ from Orchid.FractureDiagnostics import IWellTrajectory
 import UnitsNet
 
 
+def _trajectory_array_in_unit(tgt_unit, raw_array):
+    result = toolz.pipe(raw_array,
+                        toolz.map(option.maybe),
+                        toolz.map(onq.as_measurement(tgt_unit)),
+                        toolz.map(lambda m: m.magnitude),
+                        lambda magnitudes: np.fromiter(magnitudes, dtype='float'))
+    return result
+
+
 class NativeTrajectoryAdapter(dna.DotNetAdapter):
     def __init__(self, net_trajectory: IWellTrajectory):
         """
@@ -136,17 +145,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
 
     @staticmethod
     def _trajectory_angle_array(raw_array):
-        result = toolz.pipe(raw_array,
-                            toolz.map(option.maybe),
-                            toolz.map(onq.as_measurement(units.Common.ANGLE)),
-                            toolz.map(lambda m: m.magnitude),
-                            lambda magnitudes: np.fromiter(magnitudes, dtype='float'))
-        return result
+        return _trajectory_array_in_unit(units.Common.ANGLE, raw_array)
 
     def _trajectory_length_array(self, raw_array):
-        result = toolz.pipe(raw_array,
-                            toolz.map(option.maybe),
-                            toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
-                            toolz.map(lambda m: m.magnitude),
-                            lambda magnitudes: np.fromiter(magnitudes, dtype='float'))
-        return result
+        return _trajectory_array_in_unit(self.expect_project_units.LENGTH, raw_array)
