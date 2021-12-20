@@ -87,7 +87,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                               azimuth_magnitudes=expected_azimuth_magnitudes)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        assert_that(sut.get_azimuth_array(), empty())
+        assert_that(sut.get_azimuth_east_of_north_array(), empty())
 
 
     def test_get_easting_array_if_one_item_easting_array(self):
@@ -136,7 +136,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                               azimuth_magnitudes=expected_azimuth_magnitudes)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        np.testing.assert_allclose(sut.get_azimuth_array(), expected_azimuth_magnitudes)
+        np.testing.assert_allclose(sut.get_azimuth_east_of_north_array(), expected_azimuth_magnitudes)
 
     def test_get_easting_array_if_many_items_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
@@ -184,7 +184,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                               azimuth_magnitudes=expected_azimuth_magnitudes)
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        np.testing.assert_allclose(sut.get_azimuth_array(), expected_azimuth_magnitudes)
+        np.testing.assert_allclose(sut.get_azimuth_east_of_north_array(), expected_azimuth_magnitudes)
 
     def test_get_easting_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)

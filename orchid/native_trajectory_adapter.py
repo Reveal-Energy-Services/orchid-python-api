@@ -109,7 +109,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         return self._trajectory_angle_array(self.dom_object.GetInclinationArray())
 
     # TODO: Consider alternative interface, get_northings()
-    def get_azimuth_array(self) -> np.array:
+    def get_azimuth_east_of_north_array(self) -> np.array:
         """
         Calculate the array of azimuth values.
 

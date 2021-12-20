@@ -129,7 +129,7 @@ def step_impl(context):
         context (behave.runner.Context): The test context.
     """
     context.inclination_array = context.trajectory.get_inclination_array()
-    context.azimuth_array = context.trajectory.get_azimuth_array()
+    context.azimuth_array = context.trajectory.get_azimuth_east_of_north_array()
     context.mdb_kb_array = context.trajectory.get_mk_kb_array()
 
 
