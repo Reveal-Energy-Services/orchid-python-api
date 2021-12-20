@@ -110,6 +110,15 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
         assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
 
+    def test_get_inclination_array_if_one_item_inclination_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.Common)
+        expected_inclination_magnitudes = [93.857]
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              inclination_magnitudes=expected_inclination_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        np.testing.assert_allclose(sut.get_inclination_array(), expected_inclination_magnitudes)
+
     def test_get_easting_array_if_many_items_easting_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
         expected_easting_magnitudes = [501040, 281770, 289780]
@@ -139,6 +148,15 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
 
         np.testing.assert_allclose(sut.get_tvd_array(origins.DepthDatum.SEA_LEVEL), expected_tvd_ss_magnitudes)
         assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
+
+    def test_get_inclination_array_if_many_items_inclination_array(self):
+        stub_project = tsn.create_stub_net_project(project_units=units.Common)
+        expected_inclination_magnitudes = [86.049, 89.042, 92.203]
+        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                              inclination_magnitudes=expected_inclination_magnitudes)
+        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+
+        np.testing.assert_allclose(sut.get_inclination_array(), expected_inclination_magnitudes)
 
     def test_get_easting_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)

@@ -26,6 +26,7 @@ from orchid import (
     dot_net_dom_access as dna,
     net_quantity as onq,
     reference_origins as origins,
+    unit_system as units,
     validation,
 )
 
@@ -61,7 +62,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         Returns:
             The array of eastings of this trajectory.
         """
-        return self._trajectory_array(self.dom_object.GetEastingArray(reference_frame))
+        return self._trajectory_length_array(self.dom_object.GetEastingArray(reference_frame))
 
     # TODO: Consider alternative interface, get_northings()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
@@ -79,7 +80,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
             The array of northings of this trajectory.
 
         """
-        return self._trajectory_array(self.dom_object.GetNorthingArray(reference_frame))
+        return self._trajectory_length_array(self.dom_object.GetNorthingArray(reference_frame))
 
     # TODO: Consider alternative interface, get_northings()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
@@ -95,7 +96,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         Returns:
             The array of total vertical depths of this trajectory.
         """
-        return self._trajectory_array(self.dom_object.GetTvdArray(depth_datum))
+        return self._trajectory_length_array(self.dom_object.GetTvdArray(depth_datum))
 
     def get_inclination_array(self) -> np.array:
         """
@@ -104,9 +105,18 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         Returns:
             The array of inclinations of this trajectory.
         """
-        return np.empty((0,), 'float')
+        return self._trajectory_angle_array(self.dom_object.GetInclinationArray())
 
-    def _trajectory_array(self, raw_array):
+    @staticmethod
+    def _trajectory_angle_array(raw_array):
+        result = toolz.pipe(raw_array,
+                            toolz.map(option.maybe),
+                            toolz.map(onq.as_measurement(units.Common.ANGLE)),
+                            toolz.map(lambda m: m.magnitude),
+                            lambda magnitudes: np.fromiter(magnitudes, dtype='float'))
+        return result
+
+    def _trajectory_length_array(self, raw_array):
         result = toolz.pipe(raw_array,
                             toolz.map(option.maybe),
                             toolz.map(onq.as_measurement(self.expect_project_units.LENGTH)),
