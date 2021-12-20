@@ -57,8 +57,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       easting_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-                np.testing.assert_allclose(sut.get_easting_array(reference_frame), expected)
                 assert_that(stub_trajectory.GetEastingArray.called_once_with(reference_frame))
+                np.testing.assert_allclose(sut.get_easting_array(reference_frame), expected)
 
     def test_get_northing_array(self):
         for expected, project_units, reference_frame in [
@@ -73,8 +73,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       northing_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-                np.testing.assert_allclose(sut.get_northing_array(reference_frame), expected)
                 assert_that(stub_trajectory.GetNorthingArray.called_once_with(reference_frame))
+                np.testing.assert_allclose(sut.get_northing_array(reference_frame), expected)
 
     def test_get_tvd_ss_array(self):
         for expected, project_units in [
@@ -88,8 +88,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       tvd_ss_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-                np.testing.assert_allclose(sut.get_tvd_ss_array(), expected)
                 assert_that(stub_trajectory.GetTvdArray.called_once_with(origins.DepthDatum.SEA_LEVEL))
+                np.testing.assert_allclose(sut.get_tvd_ss_array(), expected)
 
     def test_get_inclination_array(self):
         for expected in [
@@ -131,8 +131,8 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       md_kb_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-                np.testing.assert_allclose(sut.get_md_kb_array(), expected)
                 assert_that(stub_trajectory.GetMdKbArray.called_once_with())
+                np.testing.assert_allclose(sut.get_md_kb_array(), expected)
 
     def test_get_easting_array_raises_error_if_no_reference_frame(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
