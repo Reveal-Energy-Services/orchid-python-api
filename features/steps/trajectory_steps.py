@@ -107,7 +107,7 @@ def step_impl(context):
 
 
 # noinspection PyBDDParameters
-@then("I see correct {easting}, {northing}, and {tvdss} values at {index:d}")
+@then("I see the initial trajectory details {easting}, {northing}, and {tvdss} values at {index:d}")
 def step_impl(context, easting, northing, tvdss, index):
     """
     Args:
@@ -130,11 +130,11 @@ def step_impl(context):
     """
     context.inclination_array = context.trajectory.get_inclination_array()
     context.azimuth_array = context.trajectory.get_azimuth_east_of_north_array()
-    context.mdb_kb_array = context.trajectory.get_mk_kb_array()
+    context.md_kb_array = context.trajectory.get_md_kb_array()
 
 
 # noinspection PyBDDParameters
-@then("I see correct {inclination}, {azimuth}, and {mdkb} values at {index:d}")
+@then("I see the additional trajectory details {inclination}, {azimuth}, and {mdkb} values at {index:d}")
 def step_impl(context, inclination, azimuth, mdkb, index):
     """
     Args:

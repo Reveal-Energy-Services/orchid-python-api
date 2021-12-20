@@ -25,7 +25,7 @@ Feature: Low-level trajectory API (DOM API)
     When I query the project wells
     When I query the trajectory for well "<well>"
     And I query the easting, northing, and TVDSS arrays in the project reference frame in project units
-    Then I see correct <easting>, <northing>, and <tvdss> values at <index>
+    Then I see the initial trajectory details <easting>, <northing>, and <tvdss> values at <index>
 
     Examples: Bakken
       | field  | well    | index | easting   | northing | tvdss     |
@@ -113,7 +113,7 @@ Feature: Low-level trajectory API (DOM API)
     When I query the project wells
     When I query the trajectory for well "<well>"
     And I query the inclination and azimuth arrays and the MDKB arrays in the project reference frame in project units
-    Then I see correct <inclination>, <azimuth>, and <mdkb> values at <index>
+    Then I see the additional trajectory details <inclination>, <azimuth>, and <mdkb> values at <index>
 
     Examples: Bakken
       | field  | well    | index |  inclination | azimuth    | mdkb      |
@@ -125,7 +125,7 @@ Feature: Low-level trajectory API (DOM API)
       | Bakken | Demo_1H | 185   |  0.0000 deg  | 0.0000 deg | 14934 ft  |
       | Bakken | Demo_2H | 0     |  0.0000 deg  | 0.0000 deg | 0.0000 ft |
       | Bakken | Demo_2H | 245   |  0.0000 deg  | 0.0000 deg | 20980 ft  |
-      | Bakken | Demo_2H | 203   |  0.0000 deg  | 0.0000 deg | 17032 ft
+      | Bakken | Demo_2H | 203   |  0.0000 deg  | 0.0000 deg | 17032 ft  |
       | Bakken | Demo_2H | 154   |  0.0000 deg  | 0.0000 deg | 12373 ft  |
       | Bakken | Demo_2H | 155   |  0.0000 deg  | 0.0000 deg | 12465 ft  |
       | Bakken | Demo_2H | 241   |  0.0000 deg  | 0.0000 deg | 20639 ft  |
@@ -173,7 +173,7 @@ Feature: Low-level trajectory API (DOM API)
       | field   | well    | index |  inclination | azimuth    | mdkb     |
       | Montney | Hori_01 | 0     |  0.0000 deg  | 0.0000 deg | 0.0000 m |
       | Montney | Hori_01 | 101   |  69.800 deg  | 138.90 deg | 2492.6 m |
-      | Montney | Hori_01 | 13    |  6.5000 deg  | 233.90 deg | 36.680 m |
+      | Montney | Hori_01 | 13    |  6.5000 deg  | 233.90 deg | 361.68 m |
       | Montney | Hori_01 | 22    |  2.5000 deg  | 194.70 deg | 596.00 m |
       | Montney | Hori_01 | 84    |  18.900 deg  | 146.40 deg | 2246.0 m |
       | Montney | Hori_01 | 91    |  36.200 deg  | 139.70 deg | 2346.8 m |
