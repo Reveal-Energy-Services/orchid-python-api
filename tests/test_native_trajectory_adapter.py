@@ -44,14 +44,21 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_get_easting_array_if_empty_easting_array(self):
-        stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
-        expected_easting_magnitudes = []
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
-        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
+    def test_get_easting_array(self):
+        for expected, project_units, reference_frame in [
+            ([], units.UsOilfield, origins.WellReferenceFrameXy.WELL_HEAD),
+            ([789921], units.Metric, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE),
+            ([501040, 281770, 289780], units.Metric, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE),
+        ]:
+            with self.subTest(f'eastings: {expected}, project units: {project_units}, '
+                              f'relative to: {str(reference_frame)}'):
+                stub_project = tsn.create_stub_net_project(project_units=project_units)
+                stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
+                                                                      easting_magnitudes=expected)
+                sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-        assert_that(sut.get_easting_array(origins.WellReferenceFrameXy.WELL_HEAD), empty())
+                assert_that(sut.get_easting_array(reference_frame), contains_exactly(*expected))
+                assert_that(stub_trajectory.GetEastingArray.called_once_with(reference_frame))
 
     def test_get_northing_array_if_empty_northing_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.Metric)
@@ -97,16 +104,6 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         assert_that(sut.get_md_kb_array(), empty())
-
-    def test_get_easting_array_if_one_item_easting_array(self):
-        stub_project = tsn.create_stub_net_project(project_units=units.Metric)
-        expected_easting_magnitudes = [789921]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
-        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
-
-        assert_that(sut.get_easting_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE),
-                    contains_exactly(*expected_easting_magnitudes))
 
     def test_get_northing_array_if_one_item_northing_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
@@ -154,16 +151,6 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
         sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
         np.testing.assert_allclose(sut.get_md_kb_array(), expected_md_kb_magnitudes)
-
-    def test_get_easting_array_if_many_items_easting_array(self):
-        stub_project = tsn.create_stub_net_project(project_units=units.Metric)
-        expected_easting_magnitudes = [501040, 281770, 289780]
-        stub_trajectory = tsn.create_stub_net_well_trajectory(project=stub_project,
-                                                              easting_magnitudes=expected_easting_magnitudes)
-        sut = nta.NativeTrajectoryAdapter(stub_trajectory)
-
-        assert_that(sut.get_easting_array(origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE),
-                    contains_exactly(*expected_easting_magnitudes))
 
     def test_get_northing_array_if_many_items_northing_array(self):
         stub_project = tsn.create_stub_net_project(project_units=units.UsOilfield)
