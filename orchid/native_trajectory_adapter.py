@@ -98,6 +98,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_length_array(self.dom_object.GetTvdArray(depth_datum))
 
+    # TODO: Consider alternative interface, get_northings()
     def get_inclination_array(self) -> np.array:
         """
         Calculate the array of inclination values.
@@ -106,6 +107,16 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
             The array of inclinations of this trajectory.
         """
         return self._trajectory_angle_array(self.dom_object.GetInclinationArray())
+
+    # TODO: Consider alternative interface, get_northings()
+    def get_azimuth_array(self) -> np.array:
+        """
+        Calculate the array of azimuth values.
+
+        Returns:
+            The array of azimuths of this trajectory.
+        """
+        return self._trajectory_angle_array(self.dom_object.GetAzimuthEastOfNorthArray())
 
     @staticmethod
     def _trajectory_angle_array(raw_array):

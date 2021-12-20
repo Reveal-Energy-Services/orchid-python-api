@@ -447,10 +447,9 @@ def create_stub_net_time_series(object_id=None, name=None, display_name=None,
     return stub_net_time_series
 
 
-def create_stub_net_well_trajectory(easting_magnitudes=None, northing_magnitudes=None, tvd_ss_magnitudes=None,
-                                    inclination_magnitudes=None,
-                                    object_id=None, project=None,
-                                    ):
+def create_stub_net_well_trajectory(object_id=None, project=None,
+                                    easting_magnitudes=None, northing_magnitudes=None, tvd_ss_magnitudes=None,
+                                    inclination_magnitudes=None, azimuth_magnitudes=None):
     try:
         stub_trajectory = unittest.mock.MagicMock(name='stub_trajectory', spec=IWellTrajectory)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
@@ -478,6 +477,11 @@ def create_stub_net_well_trajectory(easting_magnitudes=None, northing_magnitudes
         stub_inclinations = create_stub_net_trajectory_array(inclination_magnitudes, units.Common.ANGLE)
         stub_trajectory.GetInclinationArray = unittest.mock.MagicMock(name='stub_inclinations',
                                                                       return_value=stub_inclinations)
+
+    if azimuth_magnitudes is not None:
+        stub_azimuths = create_stub_net_trajectory_array(azimuth_magnitudes, units.Common.ANGLE)
+        stub_trajectory.GetAzimuthEastOfNorthArray = unittest.mock.MagicMock(name='stub_azimuths',
+                                                                             return_value=stub_azimuths)
 
     return stub_trajectory
 
