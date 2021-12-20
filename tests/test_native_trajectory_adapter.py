@@ -18,7 +18,7 @@
 import unittest.mock
 
 import deal
-from hamcrest import assert_that, equal_to, empty, contains_exactly, calling, raises
+from hamcrest import assert_that, equal_to, empty, calling, raises
 
 import numpy as np
 
@@ -57,7 +57,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       easting_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-                assert_that(sut.get_easting_array(reference_frame), contains_exactly(*expected))
+                np.testing.assert_allclose(sut.get_easting_array(reference_frame), expected)
                 assert_that(stub_trajectory.GetEastingArray.called_once_with(reference_frame))
 
     def test_get_northing_array(self):
@@ -73,7 +73,7 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       northing_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
-                assert_that(sut.get_northing_array(reference_frame), contains_exactly(*expected))
+                np.testing.assert_allclose(sut.get_northing_array(reference_frame), expected)
                 assert_that(stub_trajectory.GetNorthingArray.called_once_with(reference_frame))
 
     def test_get_tvd_ss_array(self):
