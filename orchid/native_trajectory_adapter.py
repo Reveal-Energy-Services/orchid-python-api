@@ -74,17 +74,17 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         in project length units.
 
         Once one has a trajectory (from a well of a project), one can access the (Numpy) array of easting
-        values. For example,
+        values relative to a reference. For example,
 
         >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Demo_3H'))[0]
         >>> trajectory = well.trajectory
         >>> eastings = trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
-        >>> f'{units.make_measurement(project.project_units.LENGTH, eastings[213]):.0f~P}'
-        '-21008 ft'
+        >>> eastings[213]
+        -21007.733000000007
 
-        Argsk
+        Args
             reference_frame: The reference frame for the easting coordinates.
 
         Returns:
@@ -101,6 +101,17 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         Calculate the magnitudes of northings of this trajectory relative to the specified `reference_frame`
         in project length units.
 
+        Once one has a trajectory (from a well of a project), one can access the (Numpy) array of northing
+        values relative to a reference. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Demo_2H'))[0]
+        >>> trajectory = well.trajectory
+        >>> northings = trajectory.get_northing_array(origins.WellReferenceFrameXy.PROJECT)
+        >>> northings[203]
+        36105.4299999997
+
         Args:
             reference_frame: The reference frame for the northing coordinates.
 
@@ -110,36 +121,69 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_length_array(self.dom_object.GetNorthingArray(reference_frame))
 
-    # TODO: Consider alternative interface, get_tvd_ss()
+    # TODO: Consider alternative interface, get_tvd_sss()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
     # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_tvd_ss_array(self) -> np.array:
         """
-        Calculate the array of total vertical depth values relative to `depth_datum` in project length units.
+        Calculate the array of total vertical sub-sea depth values in project length units.
+
+        Once one has a trajectory (from a well of a project), one can access the (Numpy) array of TVDSS
+        values. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Demo_4H'))[0]
+        >>> trajectory = well.trajectory
+        >>> tvd_sss = trajectory.get_tvd_ss_array()
+        >>> tvd_sss[144]
+        10763.48512
 
         Returns:
             The array of total vertical depths of this trajectory.
         """
         return self._get_tvd_array(origins.DepthDatum.SEA_LEVEL)
 
-    # TODO: Consider alternative interface, get_northings()
+    # TODO: Consider alternative interface, get_inclinations()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
     # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_inclination_array(self) -> np.array:
         """
         Calculate the array of inclination values.
 
+        Once one has a trajectory (from a well of a project), one can access the (Numpy) array of inclination
+        values. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Hori_03'))[0]
+        >>> trajectory = well.trajectory
+        >>> inclinations = trajectory.get_inclination_array()
+        >>> inclinations[10]
+        4.2
+
         Returns:
             The array of inclinations of this trajectory.
         """
         return self._trajectory_angle_array(self.dom_object.GetInclinationArray())
 
-    # TODO: Consider alternative interface, get_northings()
+    # TODO: Consider alternative interface, get_azimuths_east_of_north()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
     # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_azimuth_east_of_north_array(self) -> np.array:
         """
         Calculate the array of azimuth values.
+
+        Once one has a trajectory (from a well of a project), one can access the (Numpy) array of azimuth east
+        of north values. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Hori_03'))[0]
+        >>> trajectory = well.trajectory
+        >>> azimuths_east_of_north = trajectory.get_azimuth_east_of_north_array()
+        >>> azimuths_east_of_north[173]
+        128.6
 
         Returns:
             The array of azimuths of this trajectory.
@@ -152,6 +196,17 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
     def get_md_kb_array(self) -> np.array:
         """
         Calculate the array of MD KB values.
+
+        Once one has a trajectory (from a well of a project), one can access the (Numpy) array of MDKB
+        values. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Hori_01'))[0]
+        >>> trajectory = well.trajectory
+        >>> md_kbs = trajectory.get_md_kb_array()
+        >>> md_kbs[84]
+        2246.04
 
         Returns:
             The array of MD KB values of this trajectory.
