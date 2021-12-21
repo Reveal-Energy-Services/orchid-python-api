@@ -51,6 +51,14 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         Construct an instance adapting a .NET `IWellTrajectory`.
 
+        One need not construct an instance directly; instead, one constructs an instance by accessing the
+        Orchid domain object model (DOM) of a project. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Demo_1H'))[0]
+        >>> trajectory = well.trajectory
+
         Args:
             net_trajectory: The .NET trajectory to be adapted.
         """
@@ -65,7 +73,18 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         Calculate the magnitudes of eastings of this trajectory relative to the specified `reference_frame`
         in project length units.
 
-        Args:
+        Once one has a trajectory (from a well of a project), one can access the (Numpy) array of easting
+        values. For example,
+
+        >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> project = orchid.load_project(str(project_path))
+        >>> well = list(project.wells().find_by_name('Demo_3H'))[0]
+        >>> trajectory = well.trajectory
+        >>> eastings = trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
+        >>> f'{units.make_measurement(project.project_units.LENGTH, eastings[213]):.0f~P}'
+        '-21008 ft'
+
+        Argsk
             reference_frame: The reference frame for the easting coordinates.
 
         Returns:
@@ -92,6 +111,8 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         return self._trajectory_length_array(self.dom_object.GetNorthingArray(reference_frame))
 
     # TODO: Consider alternative interface, get_tvd_ss()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_tvd_ss_array(self) -> np.array:
         """
         Calculate the array of total vertical depth values relative to `depth_datum` in project length units.
@@ -102,6 +123,8 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         return self._get_tvd_array(origins.DepthDatum.SEA_LEVEL)
 
     # TODO: Consider alternative interface, get_northings()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_inclination_array(self) -> np.array:
         """
         Calculate the array of inclination values.
@@ -112,6 +135,8 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         return self._trajectory_angle_array(self.dom_object.GetInclinationArray())
 
     # TODO: Consider alternative interface, get_northings()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_azimuth_east_of_north_array(self) -> np.array:
         """
         Calculate the array of azimuth values.
@@ -121,6 +146,9 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         """
         return self._trajectory_angle_array(self.dom_object.GetAzimuthEastOfNorthArray())
 
+    # TODO: Consider alternative interface, get_md_kbs()
+    # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
+    # [pint pandas extension](https://github.com/hgrecco/pint-pandas)
     def get_md_kb_array(self) -> np.array:
         """
         Calculate the array of MD KB values.
@@ -149,3 +177,8 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
 
     def _trajectory_length_array(self, raw_array):
         return _trajectory_array_in_unit(self.expect_project_units.LENGTH, raw_array)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
