@@ -57,6 +57,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Demo_1H'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
 
         Args:
@@ -79,6 +80,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Demo_3H'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
         >>> eastings = trajectory.get_easting_array(origins.WellReferenceFrameXy.PROJECT)
         >>> eastings[213]
@@ -107,6 +109,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Demo_2H'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
         >>> northings = trajectory.get_northing_array(origins.WellReferenceFrameXy.PROJECT)
         >>> northings[203]
@@ -134,6 +137,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Demo_4H'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
         >>> tvd_sss = trajectory.get_tvd_ss_array()
         >>> tvd_sss[144]
@@ -157,6 +161,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Hori_03'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
         >>> inclinations = trajectory.get_inclination_array()
         >>> inclinations[10]
@@ -180,6 +185,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Hori_03'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
         >>> azimuths_east_of_north = trajectory.get_azimuth_east_of_north_array()
         >>> azimuths_east_of_north[173]
@@ -203,6 +209,7 @@ class NativeTrajectoryAdapter(dna.DotNetAdapter):
         >>> project_path = orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')
         >>> project = orchid.load_project(str(project_path))
         >>> well = list(project.wells().find_by_name('Hori_01'))[0]
+        >>> # noinspection PyUnresolvedReferences
         >>> trajectory = well.trajectory
         >>> md_kbs = trajectory.get_md_kb_array()
         >>> md_kbs[84]
