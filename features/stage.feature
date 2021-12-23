@@ -102,7 +102,6 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_4H | 9        | State Plane | 1981243.43 ft | 17495771.46 ft | 10728.06 ft |
       | Bakken | Demo_4H | 32       | Project     | -14425.49 ft  | 34608.42 ft    | 10759.68 ft |
 
-    # TODO: Repair errors
     Examples: Montney
       | field   | well    | stage_no | frame       | x           | y            | depth     |
       | Montney | Hori_01 | 1        | Project     | 1867.08 m   | -1699.25 m   | 2441.27 m |
