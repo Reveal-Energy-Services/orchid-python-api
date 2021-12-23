@@ -106,10 +106,10 @@ Feature: Low-level DOM API (stage)
     # TODO: Repair errors
     Examples: Montney
       | field   | well    | stage_no | frame       | x           | y            | depth     |
-#      | Montney | Hori_01 | 1        | Project     | 1867.08 m   | -1699.25 m   | 985.27 m  |
-#      | Montney | Hori_01 | 15       | Project     | -342.00 m   | 17.22 m      | 963.85 m  |
-#      | Montney | Hori_01 | 9        | Well Head   | 1220.21 m   | -1094.97 m   | 976.55 m  |
-#      | Montney | Hori_01 | 7        | State Plane | 658124.19 m | 6178007.10 m | 980.48 m  |
+      | Montney | Hori_01 | 1        | Project     | 1867.08 m   | -1699.25 m   | 2441.27 m  |
+      | Montney | Hori_01 | 15       | Project     | -342.00 m   | 17.22 m      | 2419.85 m  |
+      | Montney | Hori_01 | 9        | Well Head   | 1220.21 m   | -1094.97 m   | 2432.55 m  |
+      | Montney | Hori_01 | 7        | State Plane | 658124.19 m | 6178007.10 m | 2436.48 m  |
 #      | Montney | Hori_02 | 1        | State Plane | 659041.61 m | 6177489.54 m | 1091.18 m |
 #      | Montney | Hori_02 | 29       | Project     | -265.31 m   | 136.65 m     | 1079.20 m |
 #      | Montney | Hori_02 | 4        | Well Head   | 2251.94 m   | -1702.43 m   | 1089.77 m |
@@ -184,10 +184,10 @@ Feature: Low-level DOM API (stage)
 
     Examples: Montney
       | field   | well    | stage_no | cluster_no | frame       | x           | y            | depth     |
-#      | Montney | Hori_01 | 1        | 1          | State Plane | 659000.89 m | 6177324.27 m | 987.62 m  |
-#      | Montney | Hori_01 | 15       | 1          | Well Head   | 203.66 m    | -305.76 m    | 962.61 m  |
-#      | Montney | Hori_01 | 10       | 1          | Project     | 377.19 m    | -543.60 m    | 974.40 m  |
-#      | Montney | Hori_01 | 2        | 1          | State Plane | 658842.83 m | 6177445.09 m | 986.82 m  |
+      | Montney | Hori_01 | 1        | 1          | State Plane | 659000.89 m | 6177324.27 m | 2443.62 m  |
+      | Montney | Hori_01 | 15       | 1          | Well Head   | 203.66 m    | -305.76 m    | 2418.61 m  |
+      | Montney | Hori_01 | 10       | 1          | Project     | 377.19 m    | -543.60 m    | 2430.40 m  |
+      | Montney | Hori_01 | 2        | 1          | State Plane | 658842.83 m | 6177445.09 m | 2442.82 m  |
 #      | Montney | Hori_02 | 1        | 1          | Project     | 1823.90 m   | -1468.04 m   | 1091.17 m |
 #      | Montney | Hori_02 | 29       | 1          | Well Head   | 320.78 m    | -218.66 m    | 1078.98 m |
 #      | Montney | Hori_02 | 5        | 1          | State Plane | 658733.50 m | 6177723.22 m | 1088.52 m |
@@ -223,10 +223,10 @@ Feature: Low-level DOM API (stage)
 
     Examples: Montney
       | field   | well    | stage_no | frame       | x           | y            | depth     |
-#      | Montney | Hori_01 | 1        | Well Head   | 2344.53 m   | -1968.70 m   | 988.91 m  |
-#      | Montney | Hori_01 | 15       | Project     | -478.23 m   | 127.63 m     | 964.28 m  |
-#      | Montney | Hori_01 | 7        | Project     | 785.50 m    | -853.64 m    | 977.35 m  |
-#      | Montney | Hori_01 | 10       | State Plane | 657510.84 m | 6178480.55 m | 973.21 m  |
+      | Montney | Hori_01 | 1        | Well Head   | 2344.53 m   | -1968.70 m   | 2444.91 m  |
+      | Montney | Hori_01 | 15       | Project     | -478.23 m   | 127.63 m     | 2420.28 m  |
+      | Montney | Hori_01 | 7        | Project     | 785.50 m    | -853.64 m    | 2433.35 m  |
+      | Montney | Hori_01 | 10       | State Plane | 657510.84 m | 6178480.55 m | 2429.21 m  |
 #      | Montney | Hori_02 | 1        | Well Head   | 2423.59 m   | -1832.70 m   | 1091.25 m |
 #      | Montney | Hori_02 | 29       | Project     | -322.66 m   | 180.15 m     | 1078.73 m |
 #      | Montney | Hori_02 | 10       | State Plane | 658324.33 m | 6178037.58 m | 1088.78 m |
