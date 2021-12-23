@@ -114,10 +114,10 @@ Feature: Low-level DOM API (stage)
       | Montney | Hori_02 | 29       | Project     | -265.31 m   | 136.65 m     | 2535.20 m |
       | Montney | Hori_02 | 4        | Well Head   | 2251.94 m   | -1702.43 m   | 2545.77 m |
       | Montney | Hori_02 | 17       | Project     | 647.61 m    | -565.58 m    | 2544.27 m |
-#      | Montney | Hori_03 | 1        | State Plane | 659064.68 m | 6177658.76 m | 971.11 m  |
-#      | Montney | Hori_03 | 28       | Project     | -299.37 m   | 300.25 m     | 962.96 m  |
-#      | Montney | Hori_03 | 6        | Well Head   | 2079.32 m   | -1384.52 m   | 965.57 m  |
-#      | Montney | Hori_03 | 16       | Project     | 677.20 m    | -392.31 m    | 960.78 m  |
+      | Montney | Hori_03 | 1        | State Plane | 659064.68 m | 6177658.76 m | 2427.11 m  |
+      | Montney | Hori_03 | 28       | Project     | -299.37 m   | 300.25 m     | 2418.96 m  |
+      | Montney | Hori_03 | 6        | Well Head   | 2079.32 m   | -1384.52 m   | 2421.57 m  |
+      | Montney | Hori_03 | 16       | Project     | 677.20 m    | -392.31 m    | 2416.78 m  |
 #      | Montney | Vert_01 | 1        | Project     | 1842.15 m   | -1133.05 m   | 1074.50 m |
 #      | Montney | Vert_01 | 2        | Project     | 1842.15 m   | -1133.05 m   | 1024.50 m |
 #      | Montney | Vert_01 | 3        | State Plane | 659044.57 m | 6177836.62 m | 974.50 m  |
@@ -192,10 +192,10 @@ Feature: Low-level DOM API (stage)
       | Montney | Hori_02 | 29       | 1          | Well Head   | 320.78 m    | -218.66 m    | 2534.98 m |
       | Montney | Hori_02 | 5        | 1          | State Plane | 658733.50 m | 6177723.22 m | 2544.52 m |
       | Montney | Hori_02 | 17       | 1          | Project     | 619.24 m    | -543.02 m    | 2544.19 m |
-#      | Montney | Hori_03 | 1        | 1          | State Plane | 659034.62 m | 6177681.60 m | 970.90 m  |
-#      | Montney | Hori_03 | 28       | 1          | Project     | -335.49 m   | 311.16 m     | 961.96 m  |
-#      | Montney | Hori_03 | 2        | 1          | Well Head   | 2364.47 m   | -1607.47 m   | 969.93 m  |
-#      | Montney | Hori_03 | 22       | 1          | Well Head   | 779.40 m    | -389.37 m    | 964.47 m  |
+      | Montney | Hori_03 | 1        | 1          | State Plane | 659034.62 m | 6177681.60 m | 2426.90 m  |
+      | Montney | Hori_03 | 28       | 1          | Project     | -335.49 m   | 311.16 m     | 2417.96 m  |
+      | Montney | Hori_03 | 2        | 1          | Well Head   | 2364.47 m   | -1607.47 m   | 2425.93 m  |
+      | Montney | Hori_03 | 22       | 1          | Well Head   | 779.40 m    | -389.37 m    | 2420.47 m  |
 #      | Montney | Vert_01 | 1        | 1          | State Plane | 659044.57 m | 6177836.62 m | 1056.75 m |
 #      | Montney | Vert_01 | 2        | 1          | State Plane | 659044.57 m | 6177836.62 m | 1006.75 m |
 #      | Montney | Vert_01 | 3        | 1          | Project     | 1842.15 m   | -1133.05 m   | 956.75 m  |
@@ -231,10 +231,10 @@ Feature: Low-level DOM API (stage)
       | Montney | Hori_02 | 29       | Project     | -322.66 m   | 180.15 m     | 2534.73 m |
       | Montney | Hori_02 | 10       | State Plane | 658324.33 m | 6178037.58 m | 2544.78 m |
       | Montney | Hori_02 | 26       | Project     | -91.15 m    | 8.58 m       | 2536.80 m |
-#      | Montney | Hori_03 | 1        | Project     | 1802.08 m   | -1265.32 m   | 970.70 m  |
-#      | Montney | Hori_03 | 28       | State Plane | 656830.01 m | 6179288.49 m | 961.03 m  |
-#      | Montney | Hori_03 | 6        | Project     | 1406.83 m   | -959.62 m    | 964.31 m  |
-#      | Montney | Hori_03 | 21       | Well Head   | 829.56 m    | -426.24 m    | 964.87 m  |
+      | Montney | Hori_03 | 1        | Project     | 1802.08 m   | -1265.32 m   | 2426.70 m  |
+      | Montney | Hori_03 | 28       | State Plane | 656830.01 m | 6179288.49 m | 2417.03 m  |
+      | Montney | Hori_03 | 6        | Project     | 1406.83 m   | -959.62 m    | 2420.31 m  |
+      | Montney | Hori_03 | 21       | Well Head   | 829.56 m    | -426.24 m    | 2420.87 m  |
 #      | Montney | Vert_01 | 1        | Well Head   | 0.00 m      | 0.00 m       | 1039.00 m |
 #      | Montney | Vert_01 | 2        | State Plane | 659044.57 m | 6177836.62 m | 989.00 m  |
 #      | Montney | Vert_01 | 3        | Well Head   | 0.00 m      | 0.00 m       | 939.00 m  |
