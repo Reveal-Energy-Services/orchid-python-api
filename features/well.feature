@@ -80,10 +80,10 @@ Feature: Adapted IWell DOM API
       | Montney | Hori_03 | 1018. m | Project | Sea    | -599.0 m    | 351.0 m     | 288.4 m  |
       | Montney | Hori_03 | 3668. m | Project | Sea    | 562.7 m     | -302.7 m    | 1692. m  |
       | Montney | Hori_03 | 4439. m | Project | Sea    | 1172. m     | -774.2 m    | 1695. m  |
-      #      | Montney | Vert_01 | 360.0 m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -1086. m |
-      #      | Montney | Vert_01 | 462.1 m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -983.9 m |
-      #      | Montney | Vert_01 | 1158. m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -288.0 m |
-      #      | Montney | Vert_01 | 2640. m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | 1194. m  |
+      | Montney | Vert_01 | 360.0 m | Well    | Sea    | 0.000 m     | 0.000 m     | -368.0 m |
+      | Montney | Vert_01 | 462.1 m | Well    | Sea    | 0.000 m     | 0.000 m     | -265.9 m |
+      | Montney | Vert_01 | 1158. m | Well    | Sea    | 0.000 m     | 0.000 m     | 430.0 m  |
+      | Montney | Vert_01 | 2640. m | Well    | Sea    | 0.000 m     | 0.000 m    | 1912. m  |
 
   Scenario Outline: Get wellhead locations in project units for different wells
     Given I have loaded the project for the field, '<field>'
