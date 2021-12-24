@@ -67,19 +67,19 @@ Feature: Adapted IWell DOM API
     # TODO: Repair commented out tests
     # TODO: Consider changing some datums from ground level to kelly bushing
     Examples: Montney
-      | field   | well    | md_kb   | frame | datum  | x           | y           | depth   |
-      | Montney | Hori_01 | 467.3 m | Plane | Kelly  | 6.565e+05 m | 6.179e+06 m | 464.8 m |
-      | Montney | Hori_01 | 814.8 m | Plane | Kelly  | 6.565e+05 m | 6.179e+06 m | 811.9 m |
-      | Montney | Hori_01 | 2595. m | Plane | Kelly  | 6.567e+05 m | 6.179e+06 m | 2420. m |
-      | Montney | Hori_01 | 3062. m | Plane | Kelly  | 6.571e+05 m | 6.179e+06 m | 2423. m |
-      | Montney | Hori_02 | 1026. m | Well  | Ground | -19.34 m    | -32.18 m    | 1014. m |
-      | Montney | Hori_02 | 1889. m | Well  | Ground | -15.00 m    | -32.30 m    | 1877. m |
-      | Montney | Hori_02 | 3968. m | Well  | Ground | 1243. m     | -926.9 m    | 2534. m |
-      | Montney | Hori_02 | 4096. m | Well  | Ground | 1344. m     | -1006. m    | 2535. m |
-      #      | Montney | Hori_03 | 358.8 m | Plane   | Ground | 6.566e+05 m | 6.179e+06 m | -1089. m |
-      #      | Montney | Hori_03 | 1018. m | Plane   | Ground | 6.566e+05 m | 6.179e+06 m | -429.7 m |
-      #      | Montney | Hori_03 | 3668. m | Plane   | Ground | 6.578e+05 m | 6.179e+06 m | 974.4 m  |
-      #      | Montney | Hori_03 | 4439. m | Plane   | Ground | 6.584e+05 m | 6.178e+06 m | 977.4 m  |
+      | field   | well    | md_kb   | frame   | datum  | x           | y           | depth    |
+      | Montney | Hori_01 | 467.3 m | Plane   | Kelly  | 6.565e+05 m | 6.179e+06 m | 464.8 m  |
+      | Montney | Hori_01 | 814.8 m | Plane   | Kelly  | 6.565e+05 m | 6.179e+06 m | 811.9 m  |
+      | Montney | Hori_01 | 2595. m | Plane   | Kelly  | 6.567e+05 m | 6.179e+06 m | 2420. m  |
+      | Montney | Hori_01 | 3062. m | Plane   | Kelly  | 6.571e+05 m | 6.179e+06 m | 2423. m  |
+      | Montney | Hori_02 | 1026. m | Well    | Ground | -19.34 m    | -32.18 m    | 1014. m  |
+      | Montney | Hori_02 | 1889. m | Well    | Ground | -15.00 m    | -32.30 m    | 1877. m  |
+      | Montney | Hori_02 | 3968. m | Well    | Ground | 1243. m     | -926.9 m    | 2534. m  |
+      | Montney | Hori_02 | 4096. m | Well    | Ground | 1344. m     | -1006. m    | 2535. m  |
+      | Montney | Hori_03 | 358.8 m | Project | Sea    | -605.7 m    | 351.7 m     | -370.5 m |
+      | Montney | Hori_03 | 1018. m | Project | Sea    | -599.0 m    | 351.0 m     | 288.4 m  |
+      | Montney | Hori_03 | 3668. m | Project | Sea    | 562.7 m     | -302.7 m    | 1692. m  |
+      | Montney | Hori_03 | 4439. m | Project | Sea    | 1172. m     | -774.2 m    | 1695. m  |
       #      | Montney | Vert_01 | 360.0 m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -1086. m |
       #      | Montney | Vert_01 | 462.1 m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -983.9 m |
       #      | Montney | Vert_01 | 1158. m | Plane   | Ground | 6.590e+05 m | 6.178e+06 m | -288.0 m |
