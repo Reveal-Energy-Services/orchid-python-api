@@ -44,28 +44,25 @@ Feature: Adapted IWell DOM API
     When I sample the well subsurface locations for '<well>'
     Then I see the points <x>, <y>, and <depth> in project units at <md_kb> in <frame> and <datum>
 
-    # TODO: Change some kelly bushing datums to ground level
     Examples: Bakken
-      | field  | well    | md_kb        | frame   | datum | x             | y            | depth        |
-      | Bakken | Demo_1H | 350.4 ft     | Well    | Kelly | 1.002 ft      | -0.5727 ft   | 350.4 ft     |
-      | Bakken | Demo_1H | 2880. ft     | Well    | Kelly | 20.51 ft      | 52.04 ft     | 2877. ft     |
-      | Bakken | Demo_1H | 1.297e+04 ft | Well    | Kelly | -1990. ft     | 1314. ft     | 1.077e+04 ft |
-      | Bakken | Demo_1H | 1.853e+04 ft | Well    | Kelly | -7547. ft     | 1324. ft     | 1.072e+04 ft |
-      | Bakken | Demo_2H | 2943. ft     | Plane   | Kelly | 1.989e+06 ft  | 1.750e+07 ft | 2943. ft     |
-      | Bakken | Demo_2H | 3496. ft     | Plane   | Kelly | 1.989e+06 ft  | 1.750e+07 ft | 3495. ft     |
-      | Bakken | Demo_2H | 7739. ft     | Plane   | Kelly | 1.990e+06 ft  | 1.750e+07 ft | 7712. ft     |
-      | Bakken | Demo_2H | 1.091e+04 ft | Plane   | Kelly | 1.989e+06 ft  | 1.750e+07 ft | 1.074e+04 ft |
-      | Bakken | Demo_3H | 756.1 ft     | Well    | Kelly | 5.000e-3 ft   | 0.000 ft     | 756.2 ft     |
-      | Bakken | Demo_3H | 5893. ft     | Well    | Kelly | 8.203 ft      | -24.55 ft    | 5892. ft     |
-      | Bakken | Demo_3H | 6283. ft     | Well    | Kelly | 14.05 ft      | -23.66 ft    | 6282. ft     |
-      | Bakken | Demo_3H | 2.065e+04 ft | Well    | Kelly | -9910. ft     | 719.3 ft     | 1.074e+04 ft |
-      | Bakken | Demo_4H | 3799. ft     | Project | Sea   | -1.306e+04 ft | 3.537e+04 ft | 3798. ft     |
-      | Bakken | Demo_4H | 7971. ft     | Project | Sea   | -1.283e+04 ft | 3.493e+04 ft | 7930. ft     |
-      | Bakken | Demo_4H | 9654. ft     | Project | Sea   | -1.275e+04 ft | 3.473e+04 ft | 9600. ft     |
-      | Bakken | Demo_4H | 1.422e+04 ft | Project | Sea   | -1.630e+04 ft | 3.460e+04 ft | 1.075e+04 ft |
+      | field  | well    | md_kb        | frame   | datum  | x             | y            | depth        |
+      | Bakken | Demo_1H | 350.4 ft     | Project | Kelly  | -1.299e+04 ft | 3.555e+04 ft | 350.4 ft     |
+      | Bakken | Demo_1H | 2880. ft     | Project | Kelly  | -1.297e+04 ft | 3.560e+04 ft | 2877. ft     |
+      | Bakken | Demo_1H | 1.297e+04 ft | Project | Kelly  | -1.498e+04 ft | 3.686e+04 ft | 1.077e+04 ft |
+      | Bakken | Demo_1H | 1.853e+04 ft | Project | Kelly  | -2.054e+04 ft | 3.687e+04 ft | 1.072e+04 ft |
+      | Bakken | Demo_2H | 2943. ft     | Well    | Sea    | 10.03 ft      | -1.229 ft    | 2943. ft     |
+      | Bakken | Demo_2H | 3496. ft     | Well    | Sea    | 16.51 ft      | 17.80 ft     | 3495. ft     |
+      | Bakken | Demo_2H | 7739. ft     | Well    | Sea    | 218.4 ft      | 398.7 ft     | 7712. ft     |
+      | Bakken | Demo_2H | 1.091e+04 ft | Well    | Sea    | 54.92 ft      | 695.7 ft     | 1.074e+04 ft |
+      | Bakken | Demo_3H | 756.1 ft     | Plane   | Ground | 1.990e+06 ft  | 1.750e+07 ft | 756.2 ft     |
+      | Bakken | Demo_3H | 5893. ft     | Plane   | Ground | 1.990e+06 ft  | 1.750e+07 ft | 5892. ft     |
+      | Bakken | Demo_3H | 6283. ft     | Plane   | Ground | 1.990e+06 ft  | 1.750e+07 ft | 6282. ft     |
+      | Bakken | Demo_3H | 2.065e+04 ft | Plane   | Ground | 1.980e+06 ft  | 1.750e+07 ft | 1.074e+04 ft |
+      | Bakken | Demo_4H | 3799. ft     | Project | Ground | -1.306e+04 ft | 3.537e+04 ft | 3799. ft     |
+      | Bakken | Demo_4H | 7971. ft     | Project | Ground | -1.283e+04 ft | 3.493e+04 ft | 7930. ft     |
+      | Bakken | Demo_4H | 9654. ft     | Project | Ground | -1.275e+04 ft | 3.473e+04 ft | 9600. ft     |
+      | Bakken | Demo_4H | 1.422e+04 ft | Project | Ground | -1.630e+04 ft | 3.460e+04 ft | 1.075e+04 ft |
 
-    # TODO: Repair commented out tests
-    # TODO: Consider changing some datums from ground level to kelly bushing
     Examples: Montney
       | field   | well    | md_kb   | frame   | datum  | x           | y           | depth    |
       | Montney | Hori_01 | 467.3 m | Plane   | Kelly  | 6.565e+05 m | 6.179e+06 m | 464.8 m  |
