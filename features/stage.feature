@@ -284,16 +284,17 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_4H | 6         | 8146.03 psi | 4883.45 psi | 1441.63 psi |
       | Bakken | Demo_4H | 35        | 8181.86 psi | 5178.00 psi | 1721.05 psi |
 
+
     Examples: Montney
-      | field   | well    | stage_no | shmin   | isip      | pnet         |
-      #      | Montney | Hori_01 | 1        | 100 kPa | 69.22 kPa | 9873.50 kPa  |
-      #      | Montney | Hori_01 | 8        | 100 kPa | 31.00 kPa | 9730.30 kPa  |
-      #      | Montney | Hori_02 | 2        | 100 kPa | 30.50 kPa | 10861.70 kPa |
-      #      | Montney | Hori_02 | 10       | 100 kPa | 32.20 kPa | 10840.20 kPa |
-      #      | Montney | Hori_03 | 3        | 100 kPa | 28.20 kPa | 9662.69 kPa  |
-      #      | Montney | Hori_03 | 21       | 100 kPa | 31.50 kPa | 9609.65 kPa  |
-      #      | Montney | Vert_01 | 1        | 100 kPa | 33.50 kPa | 10524.12 kPa |
-      #      | Montney | Vert_01 | 3        | 100 kPa | 32.10 kPa | 9529.93 kPa  |
+      | field   | well    | stage_no | shmin   | isip      | pnet          |
+      | Montney | Hori_01 | 1        | 100 kPa | 69.22 kPa | 2.413e+04 kPa |
+      | Montney | Hori_01 | 8        | 100 kPa | 31.00 kPa | 2.399e+04 kPa |
+      | Montney | Hori_02 | 2        | 100 kPa | 30.50 kPa | 2.512e+04 kPa |
+      | Montney | Hori_02 | 10       | 100 kPa | 32.20 kPa | 2.510e+04 kPa |
+      | Montney | Hori_03 | 3        | 100 kPa | 28.20 kPa | 2.392e+04 kPa |
+      | Montney | Hori_03 | 21       | 100 kPa | 31.50 kPa | 2.387e+04 kPa |
+      | Montney | Vert_01 | 1        | 100 kPa | 33.50 kPa | 2.478e+04 kPa |
+      | Montney | Vert_01 | 3        | 100 kPa | 32.10 kPa | 2.379e+04 kPa |
 
   Scenario Outline: Calculate basic information to support stage tool tips
     Given I have loaded the project for the field, '<field>'
