@@ -67,11 +67,11 @@ Feature: Adapted IWell DOM API
     # TODO: Repair commented out tests
     # TODO: Consider changing some datums from ground level to kelly bushing
     Examples: Montney
-      | field   | well    | md_kb   | frame   | datum  | x           | y           | depth    |
-      | Montney | Hori_01 | 467.3 m | Project | Sea    | -653.4 m    | 355.0 m     | -263.2 m |
-      | Montney | Hori_01 | 814.8 m | Project | Sea    | -656.0 m    | 344.2 m     | 83.88 m  |
-      | Montney | Hori_01 | 2595. m | Project | Sea    | -478.6 m    | 128.0 m     | 1692. m  |
-      | Montney | Hori_01 | 3062. m | Project | Sea    | -112.2 m    | -161.2 m    | 1695. m  |
+      | field   | well    | md_kb   | frame | datum | x           | y           | depth   |
+      | Montney | Hori_01 | 467.3 m | Plane | Kelly | 6.565e+05 m | 6.179e+06 m | 464.8 m |
+      | Montney | Hori_01 | 814.8 m | Plane | Kelly | 6.565e+05 m | 6.179e+06 m | 811.9 m |
+      | Montney | Hori_01 | 2595. m | Plane | Kelly | 6.567e+05 m | 6.179e+06 m | 2420. m |
+      | Montney | Hori_01 | 3062. m | Plane | Kelly | 6.571e+05 m | 6.179e+06 m | 2423. m |
       #      | Montney | Hori_02 | 1026. m | Well    | Ground | -19.34 m    | -32.18 m    | -421.9 m |
       #      | Montney | Hori_02 | 1889. m | Well    | Ground | -15.00 m    | -32.30 m    | 441.0 m  |
       #      | Montney | Hori_02 | 3968. m | Well    | Ground | 1243. m     | -926.9 m    | 1098. m  |
