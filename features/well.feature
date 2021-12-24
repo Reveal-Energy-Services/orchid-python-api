@@ -67,15 +67,15 @@ Feature: Adapted IWell DOM API
     # TODO: Repair commented out tests
     # TODO: Consider changing some datums from ground level to kelly bushing
     Examples: Montney
-      | field   | well    | md_kb   | frame | datum | x           | y           | depth   |
-      | Montney | Hori_01 | 467.3 m | Plane | Kelly | 6.565e+05 m | 6.179e+06 m | 464.8 m |
-      | Montney | Hori_01 | 814.8 m | Plane | Kelly | 6.565e+05 m | 6.179e+06 m | 811.9 m |
-      | Montney | Hori_01 | 2595. m | Plane | Kelly | 6.567e+05 m | 6.179e+06 m | 2420. m |
-      | Montney | Hori_01 | 3062. m | Plane | Kelly | 6.571e+05 m | 6.179e+06 m | 2423. m |
-      #      | Montney | Hori_02 | 1026. m | Well    | Ground | -19.34 m    | -32.18 m    | -421.9 m |
-      #      | Montney | Hori_02 | 1889. m | Well    | Ground | -15.00 m    | -32.30 m    | 441.0 m  |
-      #      | Montney | Hori_02 | 3968. m | Well    | Ground | 1243. m     | -926.9 m    | 1098. m  |
-      #      | Montney | Hori_02 | 4096. m | Well    | Ground | 1344. m     | -1006. m    | 1099. m  |
+      | field   | well    | md_kb   | frame | datum  | x           | y           | depth   |
+      | Montney | Hori_01 | 467.3 m | Plane | Kelly  | 6.565e+05 m | 6.179e+06 m | 464.8 m |
+      | Montney | Hori_01 | 814.8 m | Plane | Kelly  | 6.565e+05 m | 6.179e+06 m | 811.9 m |
+      | Montney | Hori_01 | 2595. m | Plane | Kelly  | 6.567e+05 m | 6.179e+06 m | 2420. m |
+      | Montney | Hori_01 | 3062. m | Plane | Kelly  | 6.571e+05 m | 6.179e+06 m | 2423. m |
+      | Montney | Hori_02 | 1026. m | Well  | Ground | -19.34 m    | -32.18 m    | 1014. m |
+      | Montney | Hori_02 | 1889. m | Well  | Ground | -15.00 m    | -32.30 m    | 1877. m |
+      | Montney | Hori_02 | 3968. m | Well  | Ground | 1243. m     | -926.9 m    | 2534. m |
+      | Montney | Hori_02 | 4096. m | Well  | Ground | 1344. m     | -1006. m    | 2535. m |
       #      | Montney | Hori_03 | 358.8 m | Plane   | Ground | 6.566e+05 m | 6.179e+06 m | -1089. m |
       #      | Montney | Hori_03 | 1018. m | Plane   | Ground | 6.566e+05 m | 6.179e+06 m | -429.7 m |
       #      | Montney | Hori_03 | 3668. m | Plane   | Ground | 6.578e+05 m | 6.179e+06 m | 974.4 m  |
