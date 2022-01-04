@@ -61,7 +61,7 @@ class Project(dna.DotNetAdapter):
         super().__init__(project_loader.native_project())
         self._project_loader = project_loader
 
-    azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project.',
+    azimuth = dna.transformed_dom_property('azimuth', 'The azimuth of the project measured east of north.',
                                            toolz.compose(onq.as_measurement(units.Common.ANGLE),
                                                          option.maybe))
     name = dna.dom_property('name', 'The name of this project.')
