@@ -252,9 +252,6 @@ def auto_pick_observations(native_project, native_monitor):
     Returns:
 
     """
-
-
-
     observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
 
     wells = native_project.Wells.Items
@@ -278,8 +275,7 @@ def auto_pick_observations(native_project, native_monitor):
                 mutable_stage.SetAttribute(pick_attribute_1, random()*100.0)
                 mutable_stage.SetAttribute(pick_attribute_2, stage.GlobalStageSequenceNumber)
 
-            # Ensure the stage is "visible" to the monitor
-            if stage.StartTime.Ticks > native_monitor.StartTime.Ticks and stage.StopTime.Ticks < native_monitor.StopTime.Ticks:
+            if is_stage_visible_to_monitor(native_monitor, stage):
 
                 stage_parts = stage.Parts
                 for part in stage_parts:
@@ -301,6 +297,20 @@ def auto_pick_observations(native_project, native_monitor):
         mutable_project.AddObservationSet(observation_set)
 
     return project_with_observation_set
+
+
+def is_stage_visible_to_monitor(native_monitor, stage):
+    """
+    Determine if the stage treatment is visible to the specified monitor.
+
+    Args:
+        native_monitor: The .NET `IMonitor` that may "see" the stage treatment.
+        stage: The stage of interest.
+
+    Returns:
+        True if the stage is being treated while the monitor is actively monitoring pressures.
+    """
+    return stage.StartTime.Ticks > native_monitor.StartTime.Ticks and stage.StopTime.Ticks < native_monitor.StopTime.Ticks
 
 
 def main(cli_args):
