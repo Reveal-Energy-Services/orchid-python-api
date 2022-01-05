@@ -21,8 +21,13 @@ import clr
 import orchid
 import orchid.dot_net_displosable as dnd  # Yes. I misspelled "disposable."
 
+
+# seed the pseudorandom number generator
+from random import seed
+from random import random
+
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
+from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation, StageAttribute)
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
@@ -32,7 +37,7 @@ from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,
 )
 # noinspection PyUnresolvedReferences
-from System import (Array, Double, DateTime, String)
+from System import (Array, Double, Int32, DateTime, String)
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 # noinspection PyUnresolvedReferences
@@ -250,9 +255,25 @@ def auto_pick_observations(native_project, native_monitor):
     observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
 
     wells = native_project.Wells.Items
+
+    # Create a new "Stage Attribute"
+    pick_attribute_1 = StageAttribute[Double]("My Attribute 1", 0.0)
+    pick_attribute_2 = StageAttribute[Int32]("My Attribute 2", 0)
+
     for well in wells:
         stages = well.Stages.Items
+
+        # Add the pick attribute to the well.
+        with dnd.disposable(well.ToMutable()) as mutable_well:
+            mutable_well.AddStageAttribute(pick_attribute_1)
+            mutable_well.AddStageAttribute(pick_attribute_2)
+
         for stage in stages:
+
+            # Set the attribute for the stage
+            with dnd.disposable(stage.ToMutable()) as mutable_stage:
+                mutable_stage.SetAttribute(pick_attribute_1, random()*100.0)
+                mutable_stage.SetAttribute(pick_attribute_2, stage.GlobalStageSequenceNumber)
 
             if is_stage_visible_to_monitor(native_monitor, stage):
 
@@ -299,7 +320,11 @@ def main(cli_args):
     Args:
         cli_args: The command line arguments from `argparse.ArgumentParser`.
     """
+
+
     logging.basicConfig(level=logging.INFO)
+
+    seed(1)
 
     # Read Orchid project
     project = orchid.load_project(cli_args.input_project)
