@@ -310,6 +310,26 @@ The author also noticed that PyCharm, which **uses** the virtual machine anchore
 was running during this update. The author hypothesized that the running instance of PyCharm is what causes
 the error.
 
+#### Uninstall poetry 
+
+To work around this issue, one may need to uninstall `poetry` by:
+
+- Navigate to the repository root
+- If using a `bash` shell:
+    - Download the poetry installer by executing
+      ```
+      curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py >get-poetry.py
+      ```
+- If using a `Powershell` command prompt:
+    - Download the poetry installer by executing
+      ```
+      (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content > get-poetry.py
+      ```
+      
+See [Poetry Issue 2245](https://github.com/python-poetry/poetry/issues/2245) for similar instructions. After
+removing `poetry`, reinstall it by following the 
+[installation instructions](https://python-poetry.org/docs/#installation).
+
 ### Update dependencies
 
 To update the project dependencies:
