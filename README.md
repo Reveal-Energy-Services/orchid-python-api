@@ -473,9 +473,10 @@ To "debug" the Orchid Python API configuration, perform the following steps:
 - Within that virtual environment, invoke Python. It is important to create a new REPL so that you start with 
   a "clean" environment.
 - Within the Python REPL, execute the following commands.
+
   ```
   import logging
-  logging.basicConfi(level=logging.DEBUG)
+  logging.basicConfig(level=logging.DEBUG)
   import orchid
   ```
   
