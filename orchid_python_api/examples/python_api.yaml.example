@@ -1,5 +1,7 @@
 orchid:
-  # Replace the value of the `root` key with the path into which you installed Orchid.
-  root: c:\path\to\orchid-installation
+  # Replace the value of the `root` key with the path of the `PythonApiLibs` directory of Orchid installation
+  # root path. Require the path of the `PythonApiLibs` directory is a workaround for
+  # [GitHub Issue 25](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/25).
+  root: c:\path\to\orchid-installation-python-api-libs
   # Replace the value of the `training` key with the path to the Orchid training data
   training_data: c:\path-to\orchid\training-data
