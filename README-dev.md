@@ -1,45 +1,45 @@
 ## Introduction 
 
 (This document targets people *developing* the Orchid Python. If you plan to simply use the API, look at 
-`README.md` instead.)
+[README](./README.md) instead.)
 
 This project defines the implementation of the Python API for Orchid*.
+
+Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
 
 (*Orchid is a mark of Reveal Energy Services, Inc.)
 
 ## Examples
 
-Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python
-REPL. Additionally, this project includes six scripts and six notebooks in the `examples` directory of the 
-`orchid-python-api` package:
+### High-level examples
 
-- `completion_analysis.ipynb`
-- `plot_trajectories.ipynb`
-- `plot_time_series.ipynb`
-- `plot_treatment.ipynb`
-- `search_data_frames.ipynb`
-- `volume_2_first_response.ipynb`
+This project includes six scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
 
-- `completion_analysis.py`
-- `plot_trajectories.py`
-- `plot_time_series.py`
-- `plot_treatment.py`
-- `search_data_frames.py`
-- `volume_2_first_response.py`
-
-The first three notebooks plot:
-
-- The well trajectories for a project
-- The monitor curves for a project
-- The treatment curves (pressure, slurry rate and concentration) for a specific stage of a well in a project
-
-The notebook, `completion_analysis.ipynb`, provides a more detailed analysis of the completion
-performed on two different wells in a project. The notebook, `search_data_frames.ipynb`, illustrates our
-features to search object collections (like all wells for a project) and our data frame access. Finally, the
-notebook, `volume_2_first_response.ipynb`, uses typical Python packages to calculate derivatives in order to
-calculate the fluid volume pumped before the first response.
+| Name                            | Demonstrates...                                                                        |
+|---------------------------------|----------------------------------------------------------------------------------------|
+| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project    |
+| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                           |
+| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                              |
+| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project              | 
+| `search_data_frames.ipynb`      | Searching object collections (like all wells for a project) and our data frame access  | 
+| `volume_2_first_response.ipynb` | Calculating derivatives to calculate the fluid volume pumped before the first response | 
 
 The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
+
+### Low-level examples
+
+In addition, this project includes four scripts and a notebook in the `examples/low_level` directory of the
+`orchid-python-api` package:
+
+| Name                                      | Demonstrates...                                                   |
+|-------------------------------------------|-------------------------------------------------------------------|
+| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file   |
+| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes.                                 |
+| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method       |
+| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series. | 
+
+The notebook, `auto_pick.ipynb` contain the same code as the script, `auto_pick.py`, but runs in a Jupyter
+notebook.
  
 To use these examples: 
 
