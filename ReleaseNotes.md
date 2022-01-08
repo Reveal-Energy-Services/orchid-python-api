@@ -21,6 +21,7 @@ This release is the production release of the Orchid Python API corresponding to
 - Repairs stage center MDKB calculation
 - Adds well trajectory methods
 - Clarifies installed package requirements
+- Work-around to clarify `PythonApiLibs` in configuration
 
 #### Resolved Issues
 
@@ -43,7 +44,7 @@ This release is the production release of the Orchid Python API corresponding to
 - Examples (low-level)
   - Adding observations and saving changed projects
   - Matching low-level monitor time series and high-level project time series (A low-level workaround for
-    [GitHub issue 17](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/17))
+    [GitHub issue 17](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/17)
   - Creating stage attributes
     
 - Distribution
@@ -51,7 +52,7 @@ This release is the production release of the Orchid Python API corresponding to
 
 #### Known Issues
 
-No additional know issues for this release.
+- [GitHub issue 25](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/25)
 
 ### Release notes for 2021.3.406
 
