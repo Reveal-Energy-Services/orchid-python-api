@@ -476,16 +476,16 @@ Once published, test the published distribution by:
   
 Finally, [Run Orchid examples](#run-installed-orchid-high-level-examples).
   
-### Common tasks
+## Common tasks
 
-#### Install Orchid release
+### Install Orchid release
 
 You have two options:
 
 - [Install from web portal](#install-from-web-portal)
 - [Install from build pipelines](#install-from-build-pipelines)
 
-##### Install from web portal
+### Install from web portal
 
 - Open the [Orchid web portal](https://portal.reveal-energy.com)
 - Click the "Sign In" link
@@ -497,9 +497,9 @@ You have two options:
 
 This will download the installer to your workstation.
 
-Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
+Once finished, click on the downloaded installer and follow the wizard prompts to install the executable.
 
-##### Install from build pipelines
+### Install from build pipelines
 
 - Navigate to the [ImageFrac Pipelines](https://reveal-energy.visualstudio.com/ImageFrac/_build)
 - Select the "Orchid Release Pipeline"
@@ -513,14 +513,14 @@ Once finshed, click on the downloaded installer and follow the wizard prompts to
 
 This will download the installer to your workstation.
 
-Once finshed, click on the downloaded installer and follow the wizard prompts to install the executable.
+Once finished, click on the downloaded installer and follow the wizard prompts to install the executable.
 
-#### Upgrade pipenv
+### Upgrade pipenv
 
 - Navigate to the repository root
 - Execute the command `pip install pipenv --upgrade`
 
-#### Ensure correct Orchid
+### Ensure correct Orchid
 
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
 system. To ensure the correct version of Orchid is installed, 
@@ -542,7 +542,7 @@ correct version number in the main window title bar.
 
 If it is not installed, you'll need to [Install the appropriate Orchid release](#install-orchid-release)
 
-#### Create a new, clean development virtualenv
+### Create a new, clean development virtualenv
 
 If using the command line,
 
@@ -595,7 +595,7 @@ To test that you were successful,
   wheel      0.36.2
   ```
 
-#### Create a new, clean virtualenv
+### Create a new, clean virtualenv
 
 These instructions assume you will create a test virtual directory using `pipenv`. This tool is simpler to
 use than `poetry` but does not have the convenient development features of `poetry`. Further, these 
@@ -655,14 +655,14 @@ To test that you were successful,
   wheel      0.36.2
   ```
     
-#### Run all Orchid tests
+### Run all Orchid tests
 
 To run all orchid tests
 - Run unit tests
 - Run acceptance (feature) tests
 - [Run development Orchid high-level examples](#run-development-orchid-high-level-examples)
 
-#### Run development Orchid high-level examples
+### Run development Orchid high-level examples
 
 - Prepare to run examples
     - If you have not already done so, 
@@ -677,7 +677,7 @@ To run all orchid tests
             - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 - Activate `poetry shell` if not activated
  
-##### Run example scripts
+#### Run example scripts
 
 - Run the first script
     - Execute the command `python plot_trajectories.py`
@@ -692,7 +692,7 @@ To run all orchid tests
     - `volume_2_first_response.py`
     - `search_data_frames.py`
 
-##### Run example notebooks
+#### Run example notebooks
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -708,7 +708,7 @@ To run all orchid tests
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
 
-#### Run installed Orchid high-level examples
+### Run installed Orchid high-level examples
 
 If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
 
@@ -744,7 +744,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Copy the example notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 
-##### Run example scripts
+#### Run example scripts
 
 - Run the first script
     - Execute the command `python plot_trajectories.py`
@@ -759,7 +759,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - `volume_2_first_response.py`
     - `search_data_frames.py`
 
-##### Run example notebooks
+#### Run example notebooks
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -775,7 +775,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
 
-#### Run development Orchid tutorials
+### Run development Orchid tutorials
 
 - Prepare to run tutorials
     - If you have not already done so,
@@ -790,13 +790,13 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
 - Activate `poetry shell` if not activated
 
-##### Run tutorial script
+#### Run tutorial script
 
 - Run the `dom_navigation_tutorial.py` script
     - Execute the command `python dom_navigation_tutorial.py`
     - Follow the on-screen messages to advance through the tutorial
 
-##### Run tutorial notebook
+#### Run tutorial notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -806,7 +806,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Read the instructions or comments preceding the code cell(s)
             - Observe the result of executing the code
 
-#### Run installed Orchid tutorials
+### Run installed Orchid tutorials
 
 If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
 
@@ -832,13 +832,13 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Copy the tutorial notebooks to the orchid project repository root
                 - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
 
-##### Run tutorial script
+#### Run tutorial script
 
 - Run the `dom_navigation_tutorial.py` script
     - Execute the command `python dom_navigation_tutorial.py`
     - Follow the on-screen messages to advance through the tutorial
 
-##### Run tutorial notebook
+#### Run tutorial notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -848,9 +848,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Read the instructions or comments preceding the code cell(s)
             - Observe the result of executing the code
 
-### Possible installation errors and resolutions
+## Possible installation errors and resolutions
 
-#### Package not installed from TestPyPI
+### Package not installed from TestPyPI
 
 Because TestPyPI is **not** a complete replacement for PyPi, when installing you may encounter an error
 stating that a package version is unavailable. For example,
@@ -885,9 +885,9 @@ The workaround for this issue is to:
 
 Then repeat the command, `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
 
-#### Pip reports resolution impossible
+### Pip reports resolution impossible
 
-##### Incompatible pip and packaging
+#### Incompatible pip and packaging
 
 It is possible that you see the following error:
 
@@ -921,12 +921,12 @@ Here are possible resolutions.
   > updates it? Also you may want to check how they are locked in Pipfile.lock.
 - Try the resolutions from [Package not installed from TestPyPI](#package-not-installed-from-testpypi)
 
-### Configure the Orchid Python API
+## Configure the Orchid Python API
 
 The Orchid Python API requires a licensed Orchid installation on your workstation. Depending on the details of
 the installation, you may need to configure the Orchid Python API to refer to different locations.
 
-#### Using the fallback configuration
+### Using the fallback configuration
 
 If you installed the latest version Orchid using the installation defaults, and you installed the
 `orchid-python-api` using [pipenv](./README.md#step-by-step-pipenv-install) or using
@@ -935,7 +935,7 @@ Orchid Python API to find this installation. For your information, the default i
 `%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses the API version to find and use
 the corresponding version of Orchid.
 
-#### Using an environment variable
+### Using an environment variable
 
 This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
 rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
@@ -970,7 +970,7 @@ expect. If you understand these details, you can jump to
 [Verify Installation](./README.md#verify-installation). If you are not confident of these details, restart
 your system before proceeding to [Verify Installation](./README.md#verify-installation).
 
-#### Using a configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API is by creating a configuration file. A configuration file is
 easier to change than an environment variable and does not require a system restart to work best. However, it
@@ -1013,13 +1013,13 @@ Orchid binaries corresponding to the installed version of the `orchid-python-api
 If you want to ensure your configuration is correct,
 [view the Orchid API configuration details](#view-orchid-configuration-details).
 
-### Configure the Orchid training data
+## Configure the Orchid training data
 
 Using the Orchid Python API **requires** a licensed Orchid installation on your workstation. However,
 to use the example Jupyter notebooks or scripts, you must configure the Orchid Python API to find the
 Orchid training data.
 
-#### Using an environment variable
+### Using an environment variable
 
 This mechanism is perhaps the easiest procedure to create an Orchid Python API configuration that changes 
 rarely and is available to all your tools. It works best with a system restart. (Environment variables can be 
@@ -1052,7 +1052,7 @@ to your what you expect. If you understand these details, you can jump to
 [Verify Installation](./README.md#verify-installation). If you are not confident of these details, restart
 your system before proceeding to [Verify Installation](./README.md#verify-installation).
 
-#### Using a configuration file
+### Using a configuration file
 
 Another option to configure the Orchid Python API to find the Orchid training data is by creating a 
 configuration file. A configuration file is easier to change than an environment variable and does not require 
