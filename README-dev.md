@@ -521,6 +521,11 @@ Once finished, click on the downloaded installer and follow the wizard prompts t
 - Navigate to the repository root
 - Execute the command `pip install pipenv --upgrade`
 
+### Update conda
+
+- Open an Anaconda Powershell console
+- Execute the command `conda update conda`
+
 ### Ensure correct Orchid
 
 By default, the Python API for Orchid expects to find the Orchid binaries in a specific location on your local
@@ -617,7 +622,7 @@ If using the command line,
     - Remove `Pipfile` and `Pipfile.lock` using the command supported by your shell.
     - Remove any other files remaining in the virtual environment directory.
     - Be sure to remove any **hidden** files or directories. For example, a file or a directory starting with 
-      a dot ("."), like `.ipynb-checkpoints`, is hidden to typical listings of Unix-like shells.
+      a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of Unix-like shells.
     
 - Create a new, clean virtual environment by:
     - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
@@ -655,6 +660,90 @@ To test that you were successful,
   setuptools 56.2.0
   wheel      0.36.2
   ```
+
+### Create a clean conda environment
+
+Using `conda` is simpler to use than `poetry` but does not have the convenient development features of 
+`poetry`. Further, these instructions assume that your test directory is something like 
+`<path/to/inst/orchid/conda>` and that your `conda` environment is named `orchid`. Finally, these assumptions
+assume you will use an Anaconda Powershell environment. Although many of the commands should work unchanged 
+in an Anaconda `cmd` shell, we have not tested in that environment.
+
+- Consider [Update conda](#update-conda)
+- Remove any existing environment by:
+  - Navigate to the test directory. For example, navigate to `C:\inst\orchid\conda`.
+  - Execute the command `conda env remove --name 'orchid'` to remove the environment itself. NOTE: If no such 
+    virtualenv exists, running this command silently succeeds (since the environment is already "removed).
+  - Remove any other files remaining in the virtual environment directory.
+  - Be sure to remove any **hidden** files or directories. For example, a file or a directory starting with
+    a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of Unix-like shells. The Powershell
+    command will be something like `remove-item .ipynb_checkpoints -recurse`. 
+
+- Create a new, clean virtual environment by:
+  - Execute the command `conda create -name orchid python=<python-version>` where `python_ver` is the
+    version of Python used by the Orchid Python API (currently 3.8.7).
+  - If you see a warning like, 
+    
+    ```
+    WARNING: A directory already exists at the target location 'C:\Users\larry.jones\Miniconda3\envs\orchid'
+    but it is not a conda environment.
+    Continue creating environment (y/[n])?
+    ```
+    
+    Enter 'y' to overwrite the existing directory.
+  - If you see a message like
+
+    ```
+    Solving environment: failed
+
+    PackagesNotFoundError: The following packages are not available from current channels:
+
+      - python=3.8.7
+
+    Current channels:
+
+      - https://repo.anaconda.com/pkgs/main/win-64
+      - https://repo.anaconda.com/pkgs/main/noarch
+      - https://repo.anaconda.com/pkgs/r/win-64
+      - https://repo.anaconda.com/pkgs/r/noarch
+      - https://repo.anaconda.com/pkgs/msys2/win-64
+      - https://repo.anaconda.com/pkgs/msys2/noarch
+
+    To search for alternate channels that may provide the conda package you're
+    looking for, navigate to
+
+        https://anaconda.org
+
+    and use the search bar at the top of the page.
+    ```
+    
+    This message is expected for Python 3.8.7. 
+    
+    - List the available Python packages by executing the command
+      `conda search --full-name python | findstr /r '3.8.[0-9]'`
+  
+      This command will produce output similar to the following: 
+
+      ```
+      python                         3.8.3      he1778fa_0  pkgs/main
+      python                         3.8.3      he1778fa_2  pkgs/main
+      python                         3.8.5      h5fd99cc_1  pkgs/main
+      python                         3.8.5      he1778fa_0  pkgs/main
+      python                         3.8.8      hdbf39b2_4  pkgs/main
+      python                         3.8.8      hdbf39b2_5  pkgs/main
+      python                        3.8.10      hdbf39b2_7  pkgs/main
+      python                        3.8.11      h6244533_1  pkgs/main
+      python                        3.8.12      h6244533_0  pkgs/main 
+      ```
+    - Select any version > 3.8.7 and create the environment using that version. For example, if I want to use
+      Python 3.8.12, I would execute the command `conda create --name orchid python=3.8.12`.
+
+To test that you were successful,
+  - Execute `conda env list`. You should see output similar to 
+    
+    ```
+    orchid                   C:\Users\larry.jones\Miniconda3\envs\orchid
+    ```
 
 ### Run all Orchid tests
 
@@ -857,9 +946,9 @@ To generate a `requirements.txt` file,
 - Activate the virtualenv (run `poetry shell`)
 - Run the command, `poetry export -f requirements.txt --output requirements.txt`
 
-To test the generated file in a `conda` environment,
+#### Test the requirements file in  a `pipenv` virtual environment
 
-To test the generated file in a `pipenv` virtual environment,
+To test the generated requirements file using a `pipenv` virtual environment,
 
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
@@ -869,6 +958,34 @@ To test the generated file in a `pipenv` virtual environment,
   [require hashes error when installing dependencies](#require-hashes-error-when-installing-dependencies)
   for possible resolutions.
 - Execute the command, `pip list --local`. 
+
+Sample the package list. You should see output like the following (but with different version numbers)
+
+| Package    | Version |
+|------------|---------|
+| jupyterlab | 2.3.2   |
+| matplotlib | 3.5.1   |
+| numpy      | 1.22.0  |
+| pandas     | 1.3.5   |
+| scipy      | 1.6.1   |
+
+#### Test the requirements file in  a `conda` environment
+
+To test the generated requirements file using a `conda` environment,
+
+- [Create a clean conda environment](#create-a-clean-conda-environment)
+- In an Anaconda Powershell window, navigate to the directory of the test environment
+- Activate the environment by running `conda activate orchid`
+- If you are using `conda` to manage packages in your environment:
+  - Install the package requirements by running:
+    - `conda install --file /path/to/repo/requirements.txt`
+  - Execute the command:
+    - `conda list`
+- If you are using `pip` to manage packages in your environment:
+  - Install the package requirements by running:
+    - `pip install -r /path/to/repo/requirements.txt`
+  - Execute the command:
+    - `pip list --local`
 
 Sample the package list. You should see output like the following (but with different version numbers)
 
