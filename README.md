@@ -1,5 +1,3 @@
-# README
-
 ## Introduction 
 
 This project defines the implementation of the Python API for Orchid*.
