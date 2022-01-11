@@ -45,7 +45,7 @@ def add_orchid_assemblies() -> None:
 
 def app_settings_path() -> str:
     """
-    Return the pathname of the `appSettings.json` file needed by the `SDKFacade `assembly.
+    Return the pathname of the `appSettings.json` file needed by the `SDKFacade` assembly.
 
     :return: The required pathname.
     """
