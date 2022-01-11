@@ -40,7 +40,7 @@ class NativeTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
         """
         Return a map (dictionary) between quantity names and units (from `unit_system`) of the data_points.
 
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        This method plays the role of "Primitive Operation" in the *Template Method* design pattern. In this
         role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
         classes through invocation of "Primitive Operations".
 
