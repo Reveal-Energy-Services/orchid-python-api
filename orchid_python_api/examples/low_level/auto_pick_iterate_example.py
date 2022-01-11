@@ -19,7 +19,7 @@ import pathlib
 
 import clr
 import orchid
-import orchid.dot_net_displosable as dnd  # Yes. I misspelled "disposable."
+import orchid.dot_net_disposable as dnd
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)

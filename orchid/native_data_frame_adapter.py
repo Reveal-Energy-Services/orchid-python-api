@@ -23,7 +23,7 @@ import toolz.curried as toolz
 from orchid import (
     base,
     dot_net_dom_access as dna,
-    dot_net_displosable as dnd,
+    dot_net_disposable as dnd,
     net_date_time as net_dt,
 )
 

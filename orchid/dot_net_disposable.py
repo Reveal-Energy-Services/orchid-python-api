@@ -56,7 +56,7 @@ def disposable(obj_or_class, *args, **kwargs):
 
     if not hasattr(obj, 'Dispose') or not callable(obj.Dispose):
         # Likely not IDisposable, currently isinstance doesn't work for
-        # interfaces so we have to check that in this explicit way
+        # interfaces, so we have to check that in this explicit way
         return obj
 
     try:
