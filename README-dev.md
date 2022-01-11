@@ -524,6 +524,7 @@ Once finished, click on the downloaded installer and follow the wizard prompts t
 ### Update conda
 
 - Open an Anaconda Powershell console
+- Activate the "base" `conda` environment if not already activated
 - Execute the command `conda update conda`
 
 ### Ensure correct Orchid
@@ -648,6 +649,7 @@ If using `python invoke`,
     
 To test that you were successful,
 
+- Open a Powershell console
 - Navigate to the virtual environment directory if not there already
 - Activate the virtualenv by executing, `pipenv shell`
 - Execute the command, `pip list --local`. You should see output like the following (but probably different 
@@ -663,11 +665,12 @@ To test that you were successful,
 
 ### Create a clean conda environment
 
-Using `conda` is simpler to use than `poetry` but does not have the convenient development features of 
-`poetry`. Further, these instructions assume that your test directory is something like 
-`<path/to/inst/orchid/conda>` and that your `conda` environment is named `orchid`. Finally, these assumptions
-assume you will use an Anaconda Powershell environment. Although many of the commands should work unchanged 
-in an Anaconda `cmd` shell, we have not tested in that environment.
+These instructions assume you will create a virtual environment using `conda`. This tool is simpler to use
+than `poetry` but does not have the convenient development features of `poetry`. Further, these instructions
+assume that your test directory is something like `<path/to/inst/orchid/conda>` and that your `conda`
+environment is named `orchid`. Finally, these assumptions assume you will use an Anaconda Powershell
+environment. Although many of the commands should work unchanged in an Anaconda `cmd` shell, we have not
+tested these instructions in that environment.
 
 - Consider [Update conda](#update-conda)
 - Remove any existing environment by:
@@ -690,9 +693,10 @@ in an Anaconda `cmd` shell, we have not tested in that environment.
     - Remove the virtual directory itself by executing 
       `remove-item C:\Users\larry.jones\Miniconda3\envs\orchid -recurse`.
     - Remove any other files remaining in the test directory.
-    - Be sure to remove any **hidden** files or directories. For example, a file or a directory starting with
-      a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of Unix-like shells. The Powershell
-      command will be something like `remove-item .ipynb_checkpoints -recurse`. 
+    - Be sure to remove any **hidden** files or directories in the test directory. For example, a file or a
+      directory starting with a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of
+      Unix-like shells. The Powershell command will be something like 
+      
 
 - Create a new, clean virtual environment by:
   - Execute the command `conda create -name orchid python=<python-version>` where `python_ver` is the
@@ -973,7 +977,7 @@ To generate a `requirements.txt` file,
 
 - Navigate to the repository root
 - Activate the virtualenv (run `poetry shell`)
-- Run the command, `poetry export -f requirements.txt --output requirements.txt`
+- Run the command, `poetry export --without-hashes -f requirements.txt --output requirements.txt`
 
 #### Test the requirements file in  a pipenv virtual environment
 
@@ -1005,23 +1009,17 @@ To test the generated requirements file using a `conda` environment,
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In an Anaconda Powershell window, navigate to the directory of the test environment
 - Activate the environment by running `conda activate orchid`
-- If you are using `conda` to manage packages in your environment:
-  - Install the package requirements by running:
-    - `conda install --file /path/to/repo/requirements.txt`
-  - If you see an error message like the following:
-    
-    ```
-    InvalidVersionSpec: Invalid version '0.1.2;sys_platform=="darwin"andpython_version>="3.7"andplatform_system=="Darwin"\': invalid character(s)
-    ```
-    
-    Unfortunately, the development team has been unable to resolve or workaround this issue. 
-  - Execute the command:
-    - `conda list`
 - If you are using `pip` to manage packages in your environment:
   - Install the package requirements by running:
     - `pip install -r /path/to/repo/requirements.txt`
   - Execute the command:
     - `pip list --local`
+  - If you have `git-bash` installed, you may be able to use the `less` command to search for package names;
+    for example, by executing the following command and searching by entering `/numpy` at the prompt (':')
+    
+    ```
+    pip list --local | & 'C:\Program Files\Git\usr\bin\less.exe'
+    ```
 
 Sample the package list. You should see output like the following (but with different version numbers)
 
