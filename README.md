@@ -1,10 +1,13 @@
+# README
+
 ## Introduction 
 
 This project defines the implementation of the Python API for Orchid*.
 
-Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
+Specifically, the `orchid` package makes Orchid features available to Python applications and to the
+Python REPL.
 
-(*Orchid is a mark of Reveal Energy Services, Inc.)
+(* Orchid is a mark of Reveal Energy Services, Inc.)
 
 ### A Reading Suggestion
 
@@ -191,11 +194,11 @@ the installation, you may need to configure the Orchid Python API to refer to di
 #### Using the fallback configuration
 
 If you installed the latest version Orchid using the installation defaults, and you installed the
-`orchid-python-api` using [pipenv](#step-by-step-pipenv-install) or using 
-[conda](#step-by-step-conda-install), you need to take **no** additional steps to configure the 
-Orchid Python API to find this installation. For your information, the default installation location is,
-`%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses the API version to find and use
-the corresponding version of Orchid.
+`orchid-python-api` using the [pipenv installation instructions](#step-by-step-pipenv-install) or 
+the [conda installation instructions](#step-by-step-conda-install), you need to take **no** additional
+steps to configure the Orchid Python API to find this installation. For your information, the default
+installation location is, `%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses the API
+version to find and use the corresponding version of Orchid.
 
 #### Using an environment variable
 
@@ -255,16 +258,20 @@ introduction, visit [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or
 Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
 expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in
 each installed `orchid-python-api` package. Assuming you created a virtual environment as described in
-the step-by-step [pipenv install](#step-by-step-pipenv-install) or
-[conda install](#step-by-step-conda-install) section, you can find this example file,
+the step-by-step [pipenv installation instructions](#step-by-step-pipenv-install) or
+the [conda installation instructions](#step-by-step-conda-install) section, you can find this example file,
 `python_api.yaml.example`, in the directory,
 `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`. 
 
 To use this configuration file as an example:
 
 - Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
-  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
-   /path/to/home-directory/.orchid/python_api.yaml`
+  the command:
+ 
+  ```
+  copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml
+  ```
+  
 - Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
 
 The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash),
@@ -327,7 +334,7 @@ data locations.
 To create a configuration file used by the Orchid Python API, you create a file named `python_api.yaml`
 and put it in the directory, `/path/to/home-directory/.orchid`, where `/path/to/home-directory` is a 
 symbolic reference to your home directory. Technically, the format of the file is `YAML` ("YAML Ain't Markup
-Language"), a "human friendly data serialization standard". (For technical details, visit 
+Language"), a "human friendly data serialization standard". (For technical details, visit
 [the website](https://yaml.org/). For a gentler introduction, visit 
 [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many `YAML` 
 introductions / tutorials.)
@@ -335,15 +342,20 @@ introductions / tutorials.)
 Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
 expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in
 each installed `orchid-python-api` package. Assuming you created a virtual environment as described in
-step-by-step [pipenv install](#step-by-step-pipenv-install) or [conda install](#step-by-step-conda-install),
-you can find this example file, `python_api.yaml.example`, in the directory,
+the step-by-step [pipenv installation instructions](#step-by-step-pipenv-install) or the 
+[conda installation instructions](#step-by-step-conda-install), you can find this example file,
+`python_api.yaml.example`, in the directory,
 `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`.
 
 To use this configuration file as an example:
 
 - Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
-  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
-  /path/to/home-directory/.orchid/python_api.yaml`
+  the command
+  
+  ```
+  copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml
+  ```  
+  
 - Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
 
 The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash),
