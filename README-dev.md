@@ -457,13 +457,18 @@ Once published, test the published distribution by:
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
 - Install the package distribution by running the command,
-  `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
-- [Run Orchid examples](#run-installed-orchid-high-level-examples)
-- [Run Orchid tutorials](#run-installed-orchid-tutorials)
-- Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+  ```
+  pip install --index-url https://test.pypi.org/simple/ orchid-python-api
+  ```
 
 If an error occurs, read the error message(s) and consult the section
 [Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
+
+Once installed, 
+
+- [Run Orchid examples](#run-installed-orchid-high-level-examples)
+- [Run Orchid tutorials](#run-installed-orchid-tutorials)
+- Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
 
 Optionally, test the published distribution in a conda environment by:
 
@@ -471,7 +476,15 @@ Optionally, test the published distribution in a conda environment by:
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
 - Install the package distribution by running the command,
-  `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
+  ```
+  pip install --index-url https://test.pypi.org/simple/ orchid-python-api
+  ```
+
+If an error occurs, read the error message(s) and consult the section
+[Possible installation errors and resolutions](#possible-installation-errors-and-resolutions).
+
+Once installed,
+
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
@@ -739,9 +752,9 @@ tested these instructions in that environment.
     - Remember the pathname of the virtual environment. In our case, the pathname is
       `C:\Users\larry.jones\Miniconda3\envs\orchid`
     - Execute the command `conda env remove --name orchid` to remove the environment itself.
-    - Remove the virtual directory itself by executing
+    - Remove the virtual directory itself by executing 
       ```
-      remove-item C:\Users\larry.jones\Miniconda3\envs\orchid -recurse
+      remove-item /path/to/conda-environments/orchid -recurse
       ```
     - Remove any other files remaining in the test directory.
     - Be sure to remove any **hidden** files or directories in the test directory. For example, a file or a
@@ -750,7 +763,7 @@ tested these instructions in that environment.
 
 
 - Create a new, clean virtual environment by:
-  - Execute the command `conda create -name orchid python=<python-version>` where `python_ver` is the
+  - Execute the command `conda create --name orchid python=<python-version>` where `python_ver` is the
     version of Python used by the Orchid Python API (currently 3.8.7).
   - If you see errors or warnings, attempt to [resolve conda create issues](#resolve-conda-create-issues)
     and then execute the previous command.
@@ -891,7 +904,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
     - You **must** 
       [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
-- If you are testing a `pipenv` virtual environment
+- If you are testing a `pipenv` virtual environment or a `conda` environment,
     - Navigate to the directory associated with the virtual environment
     - If necessary, activate the virtual environment.
     - Run `copy_orchid_examples.exe`.
@@ -958,7 +971,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
   - You **must**
     [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
-- If you are testing a `pipenv` virtual environment
+- If you are testing a `pipenv` virtual environment or a `conda` environment,
   - Navigate to the directory associated with the virtual environment
   - If necessary, activate the virtual environment.
   - Run `copy_orchid_low_level_examples.exe`.
@@ -989,7 +1002,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
-    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET. ifrac
+    python auto_pick_and_create_stage_attribute.py --verbosity=2 --output=/path/to/training-data/frankNstein_Bakken_UTM13_FEET.998.ifrac /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
@@ -1048,7 +1061,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
     - You **must**
       [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
-    - If you are testing a `pipenv` virtual environment
+    - If you are testing a `pipenv` virtual environment or a `conda` environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
         - Run `copy_orchid_tutorials.exe`.
