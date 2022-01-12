@@ -90,6 +90,7 @@ codetiming = "^1.3.0"
 [tool.poetry.scripts]
 copy_orchid_examples = "copy_orchid_examples:main"
 copy_orchid_tutorials = "copy_orchid_tutorials:main"
+copy_orchid_low_level_examples = "copy_orchid_low_level_examples:main"
 
 [tool.poetry.urls]
 Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
