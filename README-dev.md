@@ -277,6 +277,7 @@ Publishing a release has a number of general steps. These steps are optional exc
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
 - [Generate requirements file](#generate-requirements-file)
+- Generate and test html documentation
 - [Build and test locally](#build-and-test-locally)
 - [Publish to TestPyPI](#publish-to-testpypi)
 - [Publish to PyPI](#publish-to-pypi)
