@@ -970,14 +970,13 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
-  - Execute the command `python auto_pick.py --verbose /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac`
-  - Review the output and ensure the script finishes without errors.
-  - Optionally test the newly created `.ifrac` file in Orchid
   - Successfully run notebook, `auto_pick.ipynb`
     1. Open notebook
     2. Run all cells of notebook
     3. Wait patiently
     4. Verify that no exceptions occurred
+  - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
 
 ### Run development Orchid tutorials
 
