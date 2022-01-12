@@ -284,8 +284,11 @@ Finally,
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
 - [Configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 
-Finally, [Run Orchid examples](#run-installed-orchid-high-level-examples) and
-[Run Orchid tutorials](#run-installed-orchid-tutorials).
+Finally,
+
+- [Run Orchid examples](#run-installed-orchid-high-level-examples)
+- [Run Orchid tutorials](#run-installed-orchid-tutorials)
+- Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
 
 ## Publish a release
 
@@ -712,7 +715,9 @@ tested these instructions in that environment.
       `C:\Users\larry.jones\Miniconda3\envs\orchid`
     - Execute the command `conda env remove --name orchid` to remove the environment itself.
     - Remove the virtual directory itself by executing
-      `remove-item C:\Users\larry.jones\Miniconda3\envs\orchid -recurse`.
+      ```
+      remove-item C:\Users\larry.jones\Miniconda3\envs\orchid -recurse
+      ```
     - Remove any other files remaining in the test directory.
     - Be sure to remove any **hidden** files or directories in the test directory. For example, a file or a
       directory starting with a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of
