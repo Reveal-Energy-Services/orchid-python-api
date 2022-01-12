@@ -258,12 +258,28 @@ and stick to it."
         
 ### Install local package
 
+#### Install and test locally in pipenv virtual environment
+
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
 - Install the package distribution by running `pip install </path/to/package-distribution>`
 - [Ensure installation of correct Orchid version](#ensure-correct-orchid)
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- [Configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+
+Finally, [Run Orchid examples](#run-installed-orchid-high-level-examples) and
+[Run Orchid tutorials](#run-installed-orchid-tutorials).
+  
+#### Install and test locally in conda environment
+
+- [Create a clean conda environment](#create-a-clean-conda-environment)
+- In an Anaconda Powershell window, navigate to the directory of the test directory
+- Activate the virtualenv (run `conda activate orchid`)
+- Install the package distribution by running `pip install </path/to/package-distribution>`
+- [Ensure installation of correct Orchid version](#ensure-correct-orchid)
+- [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+- [Configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 
 Finally, [Run Orchid examples](#run-installed-orchid-high-level-examples) and 
 [Run Orchid tutorials](#run-installed-orchid-tutorials).
@@ -535,9 +551,10 @@ system. To ensure the correct version of Orchid is installed,
 
 - Navigate to the orchid installation directory, `$PROGRAMFILES\Reveal Energy Services\Orchid`
 - List that directory
-- You should see a directory named something like, `Orchid-<python-api-version>`, where `<python-api-version>` 
-  is a symbolic reference for the version number in which you are interested.
-- Navigate into the version specific information. For example, `Orchid-2020.4.232`
+- You should see a directory named something like, `Orchid-<python-api-version>.<build>`, where 
+  `<python-api-version>` is a symbolic reference for the version number in which you are interested and 
+  `<build>` is a symbolic reference to the build number which **does not matter** for our purposes.
+- Navigate into the version specific information. For example, `Orchid-2021.4.283.27327`
 - You should see a directory like `PythonApiLibs`
 - Navigate into this directory
 - You should see files like:
@@ -841,32 +858,32 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
     - You **must** 
       [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
-    - If you are testing a `pipenv` virtual environment
-        - Navigate to the directory associated with the virtual environment
-        - If necessary, activate the virtual environment.
-        - Run `copy_orchid_examples.exe`.
-        - If the executable reports that it skipped files, repeat the command with an additional argument:  
-          `copy_orchid_examples.exe --overwrite`
-        - Verify that the current directory has six example notebooks:
-            - `completion_analysis.ipynb`
-            - `plot_time_series.ipynb`
-            - `plot_trajectories.ipynb`
-            - `plot_treatment.ipynb`
-            - `search_data_frames.ipynb`
-            - `volume_2_first_response.ipynb`
-        - Verify that the current directory has six example scripts:
-            - `completion_analysis.py`
-            - `plot_time_series.py`
-            - `plot_trajectories.py`
-            - `plot_treatment.py`
-            - `search_data_frames.py`
-            - `volume_2_first_response.py`
-    - If you are testing a `poetry` virtual environment
-        - If orchid-python-api is installed in the virtual environment,
-            - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
-        - If orchid-python-api not (yet) installed,
-            - Copy the example notebooks to the orchid project repository root
-                - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+- If you are testing a `pipenv` virtual environment
+    - Navigate to the directory associated with the virtual environment
+    - If necessary, activate the virtual environment.
+    - Run `copy_orchid_examples.exe`.
+    - If the executable reports that it skipped files, repeat the command with an additional argument:  
+      `copy_orchid_examples.exe --overwrite`
+    - Verify that the current directory has six example notebooks:
+        - `completion_analysis.ipynb`
+        - `plot_time_series.ipynb`
+        - `plot_trajectories.ipynb`
+        - `plot_treatment.ipynb`
+        - `search_data_frames.ipynb`
+        - `volume_2_first_response.ipynb`
+    - Verify that the current directory has six example scripts:
+        - `completion_analysis.py`
+        - `plot_time_series.py`
+        - `plot_trajectories.py`
+        - `plot_treatment.py`
+        - `search_data_frames.py`
+        - `volume_2_first_response.py`
+- If you are testing a `poetry` virtual environment
+    - If orchid-python-api is installed in the virtual environment,
+        - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
+    - If orchid-python-api not (yet) installed,
+        - Copy the example notebooks to the orchid project repository root
+            - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
 
 #### Run example scripts
 
@@ -875,13 +892,18 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - Wait patiently for the `matplotlib` plot window to appear.
     - Ensure the plot is correct.
     - Dismiss the `matplotlib` window.
-- Repeat for remaining notebooks:
+- Repeat for remaining scripts:
     - `plot_treatment.py`
     - `plot_time_series.py` 
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
     - `search_data_frames.py`
+- Consider testing the low-level scripts:
+  - Copy the scripts by executing
+    ```
+    copy 
+    ```
 
 #### Run example notebooks
 
@@ -1144,11 +1166,11 @@ the installation, you may need to configure the Orchid Python API to refer to di
 ### Using the fallback configuration
 
 If you installed the latest version Orchid using the installation defaults, and you installed the
-`orchid-python-api` using [pipenv](./README.md#step-by-step-pipenv-install) or using
-[conda](./README.md#step-by-step-conda-install), you need to take **no** additional steps to configure the
-Orchid Python API to find this installation. For your information, the default installation location is,
-`%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid Python API uses the API version to find and use
-the corresponding version of Orchid.
+`orchid-python-api` using the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or
+using the [step-by-step conda install](./README.md#step-by-step-conda-install), you need to
+take **no** additional steps to configure the Orchid Python API to find this installation. For your
+information, the default installation location is, `%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid
+Python API uses the API version to find and use the corresponding version of Orchid.
 
 ### Using an environment variable
 
@@ -1208,8 +1230,8 @@ introduction, visit [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or
 Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
 expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in
 each installed `orchid-python-api` package. Assuming you created a virtual environment as described in
-the step-by-step [pipenv install](./README.md#step-by-step-pipenv-install) or
-[conda install](./README.md#step-by-step-conda-install) section, you can find this example file,
+the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or the
+[step-by-step conda install](./README.md#step-by-step-conda-install) section, you can find this example file,
 `python_api.yaml.example`, in the directory,
 `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`. 
 
@@ -1288,8 +1310,9 @@ introductions / tutorials.)
 Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
 expected by the Orchid Python API. We, however, distribute an example file name `python_api.yaml.example` in
 each installed `orchid-python-api` package. Assuming you created a virtual environment as described in
-step-by-step [pipenv install](#step-by-step-pipenv-install) or [conda install](#step-by-step-conda-install),
-you can find this example file, `python_api.yaml.example`, in the directory,
+the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or the 
+[step-by-step conda install](./README.md#step-by-step-conda-install), you can find this example file,
+`python_api.yaml.example`, in the directory,
 `/path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples`.
 
 To use this configuration file as an example:
