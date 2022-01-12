@@ -268,8 +268,11 @@ and stick to it."
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
 - [Configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 
-Finally, [Run Orchid examples](#run-installed-orchid-high-level-examples) and
-[Run Orchid tutorials](#run-installed-orchid-tutorials).
+Finally, 
+
+- [Run Orchid examples](#run-installed-orchid-high-level-examples)
+- [Run Orchid tutorials](#run-installed-orchid-tutorials)
+- Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
   
 #### Install and test locally in conda environment
 
@@ -920,6 +923,78 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
+
+### Run installed Orchid low-level examples
+
+If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
+
+- Prepare to run examples
+  - If you have not already done so,
+    [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+  - You **must**
+    [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- If you are testing a `pipenv` virtual environment
+  - Navigate to the directory associated with the virtual environment
+  - If necessary, activate the virtual environment.
+  - Run `copy_orchid_examples.exe`.
+  - If the executable reports that it skipped files, repeat the command with an additional argument:  
+    `copy_orchid_examples.exe --overwrite`
+  - Verify that the current directory has six example notebooks:
+    - `completion_analysis.ipynb`
+    - `plot_time_series.ipynb`
+    - `plot_trajectories.ipynb`
+    - `plot_treatment.ipynb`
+    - `search_data_frames.ipynb`
+    - `volume_2_first_response.ipynb`
+  - Verify that the current directory has six example scripts:
+    - `completion_analysis.py`
+    - `plot_time_series.py`
+    - `plot_trajectories.py`
+    - `plot_treatment.py`
+    - `search_data_frames.py`
+    - `volume_2_first_response.py`
+- If you are testing a `poetry` virtual environment
+  - If orchid-python-api is installed in the virtual environment,
+    - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
+  - If orchid-python-api not (yet) installed,
+    - Copy the example notebooks to the orchid project repository root
+      - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+
+#### Run example scripts
+
+- Run the first script
+  - Execute the command `python plot_trajectories.py`
+  - Wait patiently for the `matplotlib` plot window to appear.
+  - Ensure the plot is correct.
+  - Dismiss the `matplotlib` window.
+- Repeat for remaining scripts:
+  - `plot_treatment.py`
+  - `plot_time_series.py`
+  - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+    You must dismiss each plot to continue.)
+  - `volume_2_first_response.py`
+  - `search_data_frames.py`
+- Consider testing the low-level scripts:
+  - Copy the scripts by executing
+    ```
+    copy 
+    ```
+
+#### Run example notebooks
+
+- Open Jupyter by running `jupyter lab` in the shell
+- Within Jupyter,
+  - Successfully run notebook, `plot_trajectories.ipynb`
+    1. Open notebook
+    2. Run all cells of notebook
+    3. Wait patiently
+    4. Verify that no exceptions occurred
+  - Repeat for remaining notebooks:
+    - `plot_time_series.ipynb`
+    - `plot_treatment.ipynb`
+    - `completion_analysis.ipynb`
+    - `volume_2_first_response.ipynb`
+    - `search_data_frames.ipynb`
 
 ### Run development Orchid tutorials
 
