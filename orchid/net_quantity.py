@@ -221,7 +221,7 @@ def as_measurement_in_specified_unit(target_unit,
                                      maybe_net_quantity: option.Option[UnitsNet.IQuantity]) -> om.Quantity:
     """
     Convert an optional .NET `IQuantity` to a `pint` `Quantity` instance.
-]
+
     Args:
         target_unit: The unit for the converted `Quantity` instance.
         maybe_net_quantity: The optional .NET `IQuantity` instance to convert.
@@ -229,9 +229,6 @@ def as_measurement_in_specified_unit(target_unit,
     Returns:
         The equivalent `Quantity` instance in the target unit.
     """
-    # result = toolz.pipe(maybe_net_quantity,
-    #                     _convert_net_quantity_to_different_unit(target_unit),
-    #                     as_measurement(target_unit.value.physical_quantity, ))
 
     return maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
                                      om.Quantity(float('NaN'), target_unit.value.unit))

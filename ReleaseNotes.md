@@ -13,6 +13,47 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 2021.4.283
+
+This release is the production release of the Orchid Python API corresponding to Orchid 2021.4. This release:
+
+- Adds several low-level examples
+- Repairs stage center MDKB calculation
+- Adds well trajectory methods
+- Clarifies installed package requirements
+- Work-around to clarify `PythonApiLibs` in configuration
+
+#### Resolved Issues
+
+- [GitHub issue 24](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/24)
+
+#### Features
+
+- Well trajectory
+  - TVDSS
+  - Inclination
+  - Azimuth
+  - MDKB
+
+- Project
+  - Clarifies direction of project azimuth
+
+- Stage
+  - Corrects stage center MDKB calculation
+
+- Examples (low-level)
+  - Adding observations and saving changed projects
+  - Matching low-level monitor time series and high-level project time series (A low-level workaround for
+    [GitHub issue 17](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/17)
+  - Creating stage attributes
+    
+- Distribution
+  - Adds generation of `requirements.txt` to release process
+
+#### Known Issues
+
+- [GitHub issue 25](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/25)
+
 ### Release notes for 2021.3.406
 
 This release is a hot fix release of the Orchid Python API corresponding to the hot fix for Orchid 2021.3. 
@@ -56,7 +97,6 @@ This release is the production release of the Orchid Python API corresponding to
 #### Known Issues
 
 No additional know issues for this release.
-
 
 ### Release notes for 2021.2.316
 
@@ -148,7 +188,7 @@ Replace custom `Measurement` class with the features available in `pint`.
   This issue is a deprecation warning from `matplotlib`. It began occurring after updating the package
   dependencies. We do not believe this error will affect customer code.
 
-- [GitHub issue 16](https://github.com/Reveal-Energy-Services/orchid-python-api/issues)
+- [GitHub issue 16](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/16)
   
   All monitor curves can be access indirectly via the `Project.monitor_curves()` method. The work-around for
   this issue is then to search for curves by with a matching name.

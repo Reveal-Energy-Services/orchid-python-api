@@ -30,12 +30,10 @@ def disposable(obj_or_class, *args, **kwargs):
     """
     Contextmanager wrapper around IDisposables.
 
-    One uses this method using code like:
+    Example:
 
-    ```
-    with disposable(dbConnection):
-        blah()
-    ```
+    >>> with disposable(dbConnection):
+    >>>     blah()
 
     Args:
         obj_or_class: The .NET object or class with a `Dispose` method.
@@ -45,6 +43,7 @@ def disposable(obj_or_class, *args, **kwargs):
     Returns:
         The instance of the object or class implementing `IDispose`.
     """
+
     if isclass(obj_or_class) or isfunction(obj_or_class):
         obj = obj_or_class(*args, **kwargs)
     else:
@@ -56,7 +55,7 @@ def disposable(obj_or_class, *args, **kwargs):
 
     if not hasattr(obj, 'Dispose') or not callable(obj.Dispose):
         # Likely not IDisposable, currently isinstance doesn't work for
-        # interfaces so we have to check that in this explicit way
+        # interfaces, so we have to check that in this explicit way
         return obj
 
     try:

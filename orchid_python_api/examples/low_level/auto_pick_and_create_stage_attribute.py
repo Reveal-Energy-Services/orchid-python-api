@@ -19,7 +19,7 @@ import pathlib
 
 import clr
 import orchid
-import orchid.dot_net_displosable as dnd  # Yes. I misspelled "disposable."
+import orchid.dot_net_disposable as dnd
 
 
 # seed the pseudorandom number generator

@@ -50,7 +50,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
         """
         Return a map (dictionary) between quantity names and units (from `unit_system`) of the data_points.
 
-        This method plays the role of "Primitive Operation" in the _Template Method_ design pattern. In this
+        This method plays the role of "Primitive Operation" in the *Template Method* design pattern. In this
         role, the "Template Method" defines an algorithm and delegates some steps of the algorithm to derived
         classes through invocation of "Primitive Operations".
 
@@ -63,7 +63,7 @@ class BaseTimeSeriesAdapter(dpo.DomProjectObject, metaclass=ABCMeta):
         """
         Return the measurement unit of the data_points in this curve.
 
-        This method plays the role of "Template Method" in the _Template Method_ design pattern. In this role
+        This method plays the role of "Template Method" in the *Template Method* design pattern. In this role
         it specifies an algorithm to calculate the units of the sampled quantity of the curve delegating some
         algorithm steps to derived classes by invoking the "Primitive Operation-", `quantity_name_unit_map()`
         and `get_net_project_units()`.

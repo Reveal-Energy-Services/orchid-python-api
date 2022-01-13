@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "2021.3.406"
+version = "2021.4.283"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -46,6 +46,7 @@ include=[
     "orchid_python_api/tutorials/*.ipynb",
     "orchid_python_api/tutorials/*.py",
     "copy_orchid_examples.py",
+    "copy_orchid_low_level_examples.py",
     "copy_orchid_tutorials.py",
 ]
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
@@ -89,6 +90,7 @@ codetiming = "^1.3.0"
 [tool.poetry.scripts]
 copy_orchid_examples = "copy_orchid_examples:main"
 copy_orchid_tutorials = "copy_orchid_tutorials:main"
+copy_orchid_low_level_examples = "copy_orchid_low_level_examples:main"
 
 [tool.poetry.urls]
 Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"

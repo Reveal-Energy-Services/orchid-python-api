@@ -60,10 +60,10 @@ orchid.dot\_net module
    :undoc-members:
    :show-inheritance:
 
-orchid.dot\_net\_displosable module
------------------------------------
+orchid.dot\_net\_disposable module
+----------------------------------
 
-.. automodule:: orchid.dot_net_displosable
+.. automodule:: orchid.dot_net_disposable
    :members:
    :undoc-members:
    :show-inheritance:
