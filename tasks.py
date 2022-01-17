@@ -1,5 +1,5 @@
 #
-#  Copyright 2017-2021 Reveal Energy Services, Inc 
+#  Copyright (c) 2017-2022 Reveal Energy Services, Inc 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -197,7 +197,7 @@ def examples_copy(context, target_dir='.'):
     examples_copy_scripts(context, target_dir)
 
 
-def example_stem_names():
+def examples_stem_names():
     """Returns the sequence of example stem names."""
     example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
                      'plot_treatment', 'search_data_frames', 'volume_2_first_response']
@@ -206,7 +206,7 @@ def example_stem_names():
 
 def example_notebooks_names():
     """Returns the sequence of example notebook names."""
-    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), example_stem_names())
+    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), examples_stem_names())
     return result
 
 
@@ -240,7 +240,7 @@ def examples_copy_notebooks(_context, target_dir='.'):
 
 def example_scripts_names():
     """Returns the sequence of example script names."""
-    result = map(lambda s: pathlib.Path(s).with_suffix('.py'), example_stem_names())
+    result = map(lambda s: pathlib.Path(s).with_suffix('.py'), examples_stem_names())
     return result
 
 
@@ -284,6 +284,47 @@ def examples_run_scripts(context):
     for source_file in source_files:
         context.run(f'python {source_file}', echo=True)
         print()
+
+
+def low_level_stem_names():
+    """Returns the sequence of low-level example stem names."""
+    low_level_stems = ['auto_pick', 'auto_pick_and_create_stage_attribute', 'monitor_time_series',]
+    return low_level_stems
+
+
+def low_level_scripts_names():
+    """Returns the sequence of low-level example script names."""
+    result = map(lambda s: pathlib.Path(s).with_suffix('.py'), low_level_stem_names())
+    return result
+
+
+@task
+def low_level_clean_scripts(_context, directory='.'):
+    """
+    Remove all the low-level example scripts from a specified directory.
+
+    Args:
+        _context: The task context (unused).
+        directory: The directory from which I remove the low-level example scripts. (Default: current directory)
+    """
+    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), low_level_scripts_names())
+    for script_path_to_remove in script_paths_to_remove:
+        script_path_to_remove.unlink(missing_ok=True)
+
+
+@task
+def low_level_copy_scripts(_context, target_dir='.'):
+    """
+    Copy all the low-level example scripts to a specified directory.
+
+    Args:
+        _context: The task context (unused).
+        target_dir: The directory into which I copy the example scripts. (Default: current directory)
+    """
+    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples/low_level').joinpath(fn),
+                       low_level_scripts_names())
+    for source_file in source_files:
+        shutil.copy2(source_file, target_dir)
 
 
 @task
@@ -506,6 +547,10 @@ examples_ns.add_task(examples_clean_scripts, name='clean-scripts')
 examples_ns.add_task(examples_copy_scripts, name='copy-scripts')
 examples_ns.add_task(examples_run_scripts, name='run-scripts')
 
+low_level_ns = Collection('low-level')
+low_level_ns.add_task(low_level_clean_scripts, name='clean')
+low_level_ns.add_task(low_level_copy_scripts, name='copy-scripts')
+
 pipenv_ns = Collection('pipenv')
 
 pipenv_venv_ns = Collection('venv')
@@ -552,6 +597,7 @@ poetry_ns.add_collection(poetry_venv_ns)
 
 ns.add_collection(dev_ns)
 ns.add_collection(examples_ns)
+ns.add_collection(low_level_ns)
 ns.add_collection(pipenv_ns)
 ns.add_collection(poetry_ns)
 ns.add_collection(poetry_venv_ns)
