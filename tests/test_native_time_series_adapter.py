@@ -31,8 +31,10 @@ from orchid import (
     project_loader as loader,
     unit_system as units,
 )
-
-import tests.stub_net as tsn
+from tests import (
+    stub_net as tsn,
+    test_time_series_equal as tse,
+)
 
 
 # Test ideas
@@ -106,26 +108,7 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
     # - test_native_treatment_curve_adapter
     @staticmethod
     def assert_equal_time_series(name, start_time_point, values):
-        sut = create_sut(name=name)
-        stub_unix_time_stamps = toolz.pipe(
-            tsn.create_30_second_time_points(start_time_point, len(values)),
-            toolz.map(lambda dt: int(dt.timestamp())),
-            list,
-        )
-        stub_python_time_series_arrays_dto = tsn.StubPythonTimesSeriesArraysDto(values,
-                                                                                stub_unix_time_stamps)
-        with unittest.mock.patch('orchid.base_time_series_adapter.loader.as_python_time_series_arrays',
-                                 spec=loader.as_python_time_series_arrays,
-                                 return_value=stub_python_time_series_arrays_dto):
-            expected_time_points = toolz.pipe(
-                start_time_point,
-                lambda st: tsn.create_30_second_time_points(st, len(values)),
-                toolz.map(lambda dt: int(dt.timestamp())),
-                toolz.map(lambda uts: np.datetime64(uts, 's')),
-                lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
-            )
-            expected = pd.Series(data=values, index=expected_time_points, name=name)
-            pdt.assert_series_equal(sut.data_points(), expected)
+        tse.assert_time_series_equal(name, start_time_point, values, create_sut)
 
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
