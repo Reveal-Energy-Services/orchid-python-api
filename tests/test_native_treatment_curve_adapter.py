@@ -150,8 +150,6 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
                 toolz.map(lambda uts: np.datetime64(uts, 's')),
                 lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
             )
-            # expected = pd.Series(data=values, index=expected_time_points, name=name)
-            # pdt.assert_series_equal(sut.data_points(), expected)
             expected = pd.Series(data=values, index=expected_time_points, name=expected_name)
             pdt.assert_series_equal(sut.data_points(), expected)
 
