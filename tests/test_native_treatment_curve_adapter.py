@@ -16,7 +16,7 @@
 #
 
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import unittest.mock
 
 from hamcrest import assert_that, equal_to, has_entries
