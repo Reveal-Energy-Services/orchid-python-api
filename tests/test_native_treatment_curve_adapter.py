@@ -92,22 +92,18 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
         values = []
         start_time_point = datetime(2017, 7, 2, 3, 29, 10, 510000)
         expected_name = 'palmis'
-        self.assert_time_series_equal(expected_name, start_time_point, values)
+        tse.assert_time_series_equal(expected_name, start_time_point, values, create_sut)
 
     def test_single_sample_time_series_from_curve_with_single_samples(self):
         values = [671.09]
         start_time_point = datetime(2016, 2, 9, 4, 50, 39, 340000, tzinfo=tdt.utc_time_zone())
         expected_name = 'palmis'
-        self.assert_time_series_equal(expected_name, start_time_point, values)
+        tse.assert_time_series_equal(expected_name, start_time_point, values, create_sut)
 
     def test_many_samples_time_series_from_curve_with_many_samples(self):
         values = [331.10, 207.70, 272.08]
         start_time_point = datetime(2018, 12, 8, 18, 18, 35, 264000, tzinfo=tdt.utc_time_zone())
         expected_name = 'clavis'
-        self.assert_time_series_equal(expected_name, start_time_point, values)
-
-    @staticmethod
-    def assert_time_series_equal(expected_name, start_time_point, values):
         tse.assert_time_series_equal(expected_name, start_time_point, values, create_sut)
 
 

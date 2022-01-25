@@ -81,24 +81,19 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
         name = 'trucem'
         values = []
         start_time_point = pendulum.datetime(2021, 4, 2, 15, 17, 57)
-        self.assert_equal_time_series(name, start_time_point, values)
+        tse.assert_time_series_equal(name, start_time_point, values, create_sut)
 
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
         values = [26.3945]
         start_time_point = pendulum.datetime(2016, 2, 9, 4, 50, 39, tz='UTC')
-        self.assert_equal_time_series(name, start_time_point, values)
-
-    @staticmethod
-    def assert_equal_time_series(name, start_time_point, values):
         tse.assert_time_series_equal(name, start_time_point, values, create_sut)
 
     def test_many_sample_time_series_if_many_sample(self):
         name = 'vulnerabatis'
         values = [75.75, 62.36, 62.69]
         start_time_point = pendulum.datetime(2016, 11, 25, 12, 8, 15, tz='UTC')
-
-        self.assert_equal_time_series(name, start_time_point, values)
+        tse.assert_time_series_equal(name, start_time_point, values, create_sut)
 
 
 def create_sut(name='', display_name='', sampled_quantity_name='', sampled_quantity_type=-1, project=None):
