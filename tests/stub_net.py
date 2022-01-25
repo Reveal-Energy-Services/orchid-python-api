@@ -177,19 +177,6 @@ def make_net_measurement(measurement_dto):
     return onq.as_net_quantity(measurement_dto.unit, measurement)
 
 
-def create_net_treatment(start_time_point, treating_pressure_values, rate_values, concentration_values):
-    treating_pressure_time_series = create_stub_net_time_series_data_points(start_time_point, treating_pressure_values)
-    treating_pressure_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.TREATING_PRESSURE, 'pressure',
-                                                    treating_pressure_time_series)
-    rate_time_series = create_stub_net_time_series_data_points(start_time_point, rate_values)
-    rate_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SLURRY_RATE, 'ratio', rate_time_series)
-    concentration_time_series = create_stub_net_time_series_data_points(start_time_point, concentration_values)
-    concentration_curve = StubNetTreatmentCurve(ontc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION, 'ratio',
-                                                concentration_time_series)
-
-    return [treating_pressure_curve, rate_curve, concentration_curve]
-
-
 def create_stub_net_calculations_factory(warnings=None, calculation_unit=None,
                                          pressure_magnitude=None, volume_magnitude=None, mass_magnitude=None):
     stub_native_calculation_result = unittest.mock.MagicMock(name='stub_calculation_result')
