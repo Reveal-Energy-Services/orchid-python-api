@@ -28,7 +28,7 @@ from tests import (
 )
 
 
-def assert_time_series_equal(expected_name, start_time_point, values, create_sut_func, **data_samples_kwargs):
+def assert_time_series_equal(expected_name, start_time_point, values, create_sut_func):
     """
     Assert that a created time series equals a generated and expected time series.
 
@@ -37,10 +37,8 @@ def assert_time_series_equal(expected_name, start_time_point, values, create_sut
         start_time_point: The starting time of the time series samples. (Assumes 30-second sample time.)
         values: The expected time series values.
         create_sut_func: The function that creates the time series to be tested.
-        **data_samples_kwargs: A single additional keyword argument that specifies the argument to the
-                creation function that specifies, perhaps indirectly, the generated samples.
     """
-    sut = create_sut_func(name=expected_name, **data_samples_kwargs)
+    sut = create_sut_func(name=expected_name)
     stub_unix_time_stamps = toolz.pipe(
         tsn.create_30_second_time_points(start_time_point, len(values)),
         toolz.map(lambda dt: int(dt.timestamp())),
@@ -58,5 +56,5 @@ def assert_time_series_equal(expected_name, start_time_point, values, create_sut
             toolz.map(lambda uts: np.datetime64(uts, 's')),
             lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
         )
-        expected = pd.Series(data=values, index=expected_time_points, name=expected_name)
+        expected = pd.Series(data=values, index=expected_time_points, name=expected_name, dtype='float64')
         pdt.assert_series_equal(sut.data_points(), expected)
