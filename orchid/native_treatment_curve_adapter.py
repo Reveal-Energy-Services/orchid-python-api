@@ -53,6 +53,7 @@ class NativeTreatmentCurveAdapter(bca.BaseTimeSeriesAdapter):
         """
         result = {
             TreatmentCurveTypes.TREATING_PRESSURE.value: project_units.PRESSURE,
+            TreatmentCurveTypes.DOWNHOLE_PROPPANT_CONCENTRATION.value: project_units.PROPPANT_CONCENTRATION,
             TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value: project_units.PROPPANT_CONCENTRATION,
             TreatmentCurveTypes.SLURRY_RATE.value: project_units.SLURRY_RATE,
         }

@@ -74,8 +74,8 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
                 actual = sut.quantity_name_unit_map(project_units)
                 assert_that(actual, has_entries({
                     tca.TreatmentCurveTypes.TREATING_PRESSURE.value: project_units.PRESSURE,
-                    tca.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value:
-                    project_units.PROPPANT_CONCENTRATION,
+                    tca.TreatmentCurveTypes.DOWNHOLE_PROPPANT_CONCENTRATION.value: project_units.PROPPANT_CONCENTRATION,
+                    tca.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION.value: project_units.PROPPANT_CONCENTRATION,
                     tca.TreatmentCurveTypes.SLURRY_RATE.value: project_units.SLURRY_RATE}))
 
     def test_sampled_quantity_name_from_treatment_curve(self):
