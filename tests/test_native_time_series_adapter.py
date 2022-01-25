@@ -81,20 +81,7 @@ class TestNativeTimeSeriesAdapter(unittest.TestCase):
         name = 'trucem'
         values = []
         start_time_point = pendulum.datetime(2021, 4, 2, 15, 17, 57)
-        sut = create_sut(name=name)
-
-        expected_sample_times = toolz.pipe(
-            start_time_point,
-            lambda st: tsn.create_1_second_time_points(st, len(values)),
-            toolz.map(lambda dt: int(dt.timestamp())),
-            toolz.map(lambda uts: np.datetime64(uts, 's')),
-            lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
-        )
-        expected = pd.Series(data=[], index=expected_sample_times, name=name, dtype=np.float64)
-        with unittest.mock.patch('orchid.base_time_series_adapter.loader.as_python_time_series_arrays',
-                                 spec=loader.as_python_time_series_arrays,
-                                 return_value=tsn.StubPythonTimesSeriesArraysDto((), ())):
-            pdt.assert_series_equal(sut.data_points(), expected)
+        self.assert_equal_time_series(name, start_time_point, values)
 
     def test_single_sample_time_series_if_single_sample(self):
         name = 'aquilinum'
