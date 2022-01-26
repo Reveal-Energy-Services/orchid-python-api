@@ -472,17 +472,23 @@ class TestNativeStageAdapter(unittest.TestCase):
         toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
     def test_treatment_curves_many_curves(self):
-        expected_sampled_quantity_names = [ntc.TreatmentCurveTypes.TREATING_PRESSURE,
-                                           ntc.TreatmentCurveTypes.SLURRY_RATE,
-                                           ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION]
-        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
-        sut = nsa.NativeStageAdapter(stub_net_stage)
+        for proppant_curve_type in [
+            ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION,
+            ntc.TreatmentCurveTypes.DOWNHOLE_PROPPANT_CONCENTRATION,
+        ]:
+            proppant_curve_description = proppant_curve_type.value.lower()
+            with self.subTest(f'Pressure, rate and {proppant_curve_description}'):
+                expected_sampled_quantity_names = [ntc.TreatmentCurveTypes.TREATING_PRESSURE,
+                                                   ntc.TreatmentCurveTypes.SLURRY_RATE,
+                                                   proppant_curve_type]
+                stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
+                sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        actual_curves = sut.treatment_curves()
-        assert_that(actual_curves.keys(), has_items(ntc.TreatmentCurveTypes.TREATING_PRESSURE,
-                                                    ntc.TreatmentCurveTypes.SLURRY_RATE,
-                                                    ntc.TreatmentCurveTypes.SURFACE_PROPPANT_CONCENTRATION))
-        toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
+                actual_curves = sut.treatment_curves()
+                assert_that(actual_curves.keys(), has_items(ntc.TreatmentCurveTypes.TREATING_PRESSURE,
+                                                            ntc.TreatmentCurveTypes.SLURRY_RATE,
+                                                            proppant_curve_type))
+                toolz.valmap(assert_is_native_treatment_curve_facade, actual_curves)
 
     @staticmethod
     def _make_pressure_test_pairs():
