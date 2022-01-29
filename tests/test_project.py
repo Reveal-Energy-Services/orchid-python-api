@@ -26,7 +26,7 @@ from hamcrest import assert_that, equal_to, contains_exactly, calling, raises
 from orchid import (
     measurement as om,
     project as onp,
-    project_loader as loader,
+    project_store as loader,
     unit_system as units)
 from tests import (
     stub_net as tsn,
@@ -322,7 +322,7 @@ class TestProject(unittest.TestCase):
 
 
 def create_sut(stub_net_project):
-    patched_loader = loader.ProjectLoader('dont_care')
+    patched_loader = loader.ProjectStore('dont_care')
     patched_loader.native_project = unittest.mock.MagicMock(name='stub_project', return_value=stub_net_project)
 
     sut = onp.Project(patched_loader)

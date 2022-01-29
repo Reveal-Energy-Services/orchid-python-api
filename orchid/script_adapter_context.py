@@ -45,7 +45,7 @@ class ScriptAdapterContext:
     """
     A "private" class with the responsibility to initialize and shutdown the .NET ScriptAdapter class.
 
-    I considered making `ProjectLoader` a context manager; however, the API then becomes somewhat unclear.
+    I considered making `ProjectStore` a context manager; however, the API then becomes somewhat unclear.
 
         - Does the constructor enter the context? Must a caller initialize the instance and then enter the
           context?
@@ -53,7 +53,7 @@ class ScriptAdapterContext:
         - Enters the context twice?
 
     Because I was uncertain I created this private class to model the `ScriptAdapter` context. The property,
-    `ProjectLoader.native_project`, enters the context if it will actually read the project and exits the
+    `ProjectStore.native_project`, enters the context if it will actually read the project and exits the
     context when the read operation is finished.
 
     For information on Python context managers, see

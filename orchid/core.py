@@ -21,7 +21,7 @@
 import deal
 
 from orchid.project import Project
-from orchid.project_loader import ProjectLoader
+from orchid.project_store import ProjectStore
 
 
 @deal.pre(lambda ifrac_pathname: ifrac_pathname is not None)
@@ -35,6 +35,6 @@ def load_project(ifrac_pathname: str) -> Project:
     :return: The project of interest.
     """
 
-    loader = ProjectLoader(ifrac_pathname.strip())
+    loader = ProjectStore(ifrac_pathname.strip())
     result = Project(loader)
     return result

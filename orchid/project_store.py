@@ -71,7 +71,7 @@ def native_treatment_calculations():
     return result
 
 
-class ProjectLoader:
+class ProjectStore:
     """Provides an .NET IProject to be adapted."""
 
     @deal.pre(validation.arg_not_none)

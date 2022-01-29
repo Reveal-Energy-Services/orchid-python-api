@@ -28,7 +28,7 @@ import pandas.testing as pdt
 
 from orchid import (
     native_treatment_curve_adapter as tca,
-    project_loader as loader,
+    project_store as loader,
     unit_system as units,
 )
 from tests import (

@@ -28,7 +28,7 @@ import pandas.testing as pdt
 
 from orchid import (
     native_time_series_adapter as tsa,
-    project_loader as loader,
+    project_store as loader,
     unit_system as units,
 )
 from tests import (
