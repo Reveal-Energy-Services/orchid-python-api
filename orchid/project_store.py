@@ -19,9 +19,9 @@ import functools
 
 import deal
 
-import orchid  # to support doctests only
 from orchid import (
     dot_net,
+    dot_net_disposable as dnd,
     script_adapter_context as sac,
     validation,
 )
@@ -37,6 +37,11 @@ from Orchid.FractureDiagnostics.SDKFacade import (
 )
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
+
+# To support doctests only
+import json
+import zipfile
+import orchid  # to support doctests only
 
 
 class OrchidError(Exception):
@@ -116,6 +121,33 @@ class ProjectStore:
                 self._project = reader.Read(stream_reader)
             finally:
                 stream_reader.Close()
+
+    def save_project(self, project):
+        """
+        Save the specified project to `self._project_pathname`.
+
+        >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> loaded_project = orchid.load_project(str(load_path))
+        >>> # TODO: move this code to the property eventually, I think.
+        >>> with (dnd.disposable(loaded_project.dom_object.ToMutable())) as mnp:
+        ...     mnp.Name = 'nomen mutatum'
+        >>> save_path = load_path.with_name(f'{loaded_project.name}{load_path.suffix}')
+        >>> orchid.save_project(loaded_project, str(save_path))
+        >>> save_path.exists()
+        True
+        >>> with zipfile.ZipFile(save_path) as archive:
+        ...     content = json.loads(archive.read('project.json'))
+        ...     content['Object']['Name']
+        'nomen mutatum'
+
+        Args:
+            project: The project to be saved.
+        """
+        with sac.ScriptAdapterContext():
+            writer = ScriptAdapter.CreateProjectFileWriter()
+            use_binary_format = False
+            writer.Write(project.dom_object, str(self._project_pathname), use_binary_format)
+        self._project = project
 
 
 if __name__ == '__main__':

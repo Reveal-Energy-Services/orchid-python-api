@@ -31,10 +31,29 @@ def load_project(ifrac_pathname: str) -> Project:
     """
     Return the project for the specified `.ifrac` file.
 
-    :param ifrac_pathname: The path identifying the data file of the project of interest.
-    :return: The project of interest.
-    """
+    Args:
+        ifrac_pathname: The path identifying the data file of the project of interest.
 
+    Returns:
+        The project of interest.
+    """
     loader = ProjectStore(ifrac_pathname.strip())
     result = Project(loader)
     return result
+
+
+@deal.pre(lambda project, _: project is not None)
+@deal.pre(lambda _, ifrac_pathname: ifrac_pathname is not None)
+@deal.pre(lambda _, ifrac_pathname: len(ifrac_pathname) != 0)
+@deal.pre(lambda _, ifrac_pathname: len(ifrac_pathname.strip()) != 0)
+def save_project(project: Project, ifrac_pathname: str) -> None:
+    """
+    Return the project for the specified `.ifrac` file.
+
+    Args:
+        ifrac_pathname: The path identifying the data file of the project of interest.
+        project: The project of interest.
+    """
+
+    store = ProjectStore(ifrac_pathname.strip())
+    store.save_project(project)
