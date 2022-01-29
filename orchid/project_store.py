@@ -19,6 +19,7 @@ import functools
 
 import deal
 
+import orchid  # to support doctests only
 from orchid import (
     dot_net,
     script_adapter_context as sac,
@@ -95,15 +96,26 @@ class ProjectStore:
             The loaded `IProject`.
         """
         if not self._project:
-            with sac.ScriptAdapterContext():
-                reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
-                # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
-                stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
-                try:
-                    self._project = reader.Read(stream_reader)
-                finally:
-                    stream_reader.Close()
+            self.load_project()
         return self._project
+
+    def load_project(self):
+        """
+        Load a project from the path, `self._project_pathname`.
+
+        >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> loaded_project = orchid.load_project(str(load_path))
+        >>> loaded_project.name
+        'frankNstein_Bakken_UTM13_FEET'
+        """
+        with sac.ScriptAdapterContext():
+            reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
+            # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
+            stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
+            try:
+                self._project = reader.Read(stream_reader)
+            finally:
+                stream_reader.Close()
 
 
 if __name__ == '__main__':
