@@ -351,12 +351,9 @@ def main(cli_args):
 
     # Save project changes to specified .ifrac file
     target_path_name = cli_args.output_project
-    with orchid.script_adapter_context.ScriptAdapterContext():
-        writer = ScriptAdapter.CreateProjectFileWriter()
-        use_binary_format = False
-        writer.Write(native_project, target_path_name, use_binary_format)
-        if cli_args.verbosity >= 1:
-           logging.info(f'Wrote changes to "{target_path_name}"')
+    orchid.save_project(project, target_path_name)
+    if cli_args.verbosity >= 1:
+        logging.info(f'Wrote changes to "{target_path_name}"')
 
 
 def make_project_path_name(project_dir_name, project_file_name):
