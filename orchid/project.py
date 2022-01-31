@@ -32,7 +32,7 @@ from orchid import (
     net_quantity as onq,
     unit_system as units,
 )
-from orchid.project_loader import ProjectLoader
+from orchid.project_store import ProjectStore
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IWell, UnitSystem
@@ -52,7 +52,7 @@ class Project(dna.DotNetAdapter):
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
     @deal.pre(lambda self, project_loader: project_loader is not None)
-    def __init__(self, project_loader: ProjectLoader):
+    def __init__(self, project_loader: ProjectStore):
         """
         Construct an instance adapting he project available from net_project.
 

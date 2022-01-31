@@ -21,7 +21,7 @@ import pandas as pd
 import pandas.testing as pdt
 
 from orchid import (
-    project_loader as loader,
+    project_store as loader,
 )
 from tests import (
     stub_net as tsn,

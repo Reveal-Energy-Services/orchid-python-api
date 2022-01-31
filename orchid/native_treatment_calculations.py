@@ -22,7 +22,7 @@ import option
 import pendulum
 
 from orchid import (
-    project_loader as loader,
+    project_store as loader,
     native_stage_adapter as nsa,
     net_date_time as net_dt,
     net_quantity as net_qty,

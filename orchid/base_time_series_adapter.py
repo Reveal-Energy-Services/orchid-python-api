@@ -22,7 +22,7 @@ import pandas as pd
 from orchid import (
     dom_project_object as dpo,
     dot_net_dom_access as dna,
-    project_loader as loader,
+    project_store as loader,
     unit_system as units,
 )
 

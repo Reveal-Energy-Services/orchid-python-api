@@ -191,7 +191,7 @@ orchid.project module
 orchid.project\_loader module
 -----------------------------
 
-.. automodule:: orchid.project_loader
+.. automodule:: orchid.project_store
    :members:
    :undoc-members:
    :show-inheritance:

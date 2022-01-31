@@ -22,7 +22,7 @@ from hamcrest import assert_that, equal_to, calling, raises
 import pendulum
 
 from orchid import (
-    project_loader as loader,
+    project_store as loader,
     native_stage_adapter as nsa,
     native_treatment_calculations as ntc,
     unit_system as units,

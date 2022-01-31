@@ -25,7 +25,7 @@ import pandas.testing as pdt
 from orchid import (
     base_time_series_adapter as bca,
     net_date_time as net_dt,
-    project_loader as loader,
+    project_store as loader,
     unit_system as units,
 )
 
