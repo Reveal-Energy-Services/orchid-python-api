@@ -1270,7 +1270,7 @@ If you installed the latest version Orchid using the installation defaults, and 
 using the [step-by-step conda install](./README.md#step-by-step-conda-install), you need to
 take **no** additional steps to configure the Orchid Python API to find this installation. For your
 information, the default installation location is, `%ProgramFiles%\Reveal Energy Services\Orchid`. The Orchid
-Python API uses the API version to find and use the corresponding version of Orchid.
+Python API uses the API version to find and use the required Orchid Python API assemblies.
 
 ### Using an environment variable
 
@@ -1280,14 +1280,14 @@ made available for a narrow set of tools on your system or available to all your
 technical rules that you need not understand.) 
 
 To use environment variables to configure the Orchid Python API, you will need to create the environment
-variable `ORCHID_ROOT` and set its value to the path of the `PythonApiLibs` directory beneath the root Orchid
+variable `ORCHID_ROOT` and set its value to the path of the `PythonApiLibs` directory beneath the Orchid
 installation directory. (For your information, the `PythonApiLibs` directory containing the version-specific
-Orchid binary files, `.exe`'s and `. dll`'s should be in a subdirectory like `ORCHID_ROOT/Orchid-2020.4.
-232/PythonApiLibs`.) 
+Orchid binary and configuration files should be in a subdirectory like 
+`ORCHID_ROOT/Orchid-2020.4.232/PythonApiLibs` when you accept the installation defaults.) 
 
-This document assumes you want to create a long-term configuration that survives a system restart and is
-available to all your tools. Symbolically, this document will refer to the root of the Orchid installation as
-`/path/to/orchid-installation-python-api-libs`. 
+This section assumes you want to create a long-term configuration that survives a system restart and is
+available to all your tools. Symbolically, this document will refer to the directory containing the binaries
+required by the Orchid Python API as `/path-to/orchid/version/python-api-libs`. 
 
 To create the required environment variable, enter the search term "environment variables" in the Windows-10 
 search box and select the item named, "Edit environment variables for your account." The system will then 
@@ -1296,7 +1296,7 @@ present you with the "Environment Variables" dialog. Under the section named "Us
 words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory into
-which Orchid is installed, `/path/to/orchid-installation-python-api-libs`. This action pastes the directory
+which Orchid is installed, `/path-to/orchid/version/python-api-libs`. This action pastes the directory
 name into the "Variable Value" text box. Verify that the directory is correct, and then click "OK". Verify
 that you see the name `ORCHID_ROOT` with the correct value in the "User variables for <your.username>" list.
 Finally, click "OK" to dismiss the "Environment Variables" dialog.
@@ -1314,7 +1314,16 @@ easier to change than an environment variable and does not require a system rest
 requires more knowledge and work on your part. In general, a configuration file is better if your requirements
 change "often". For example, if you are working with multiple, side-by-side Orchid versions and Orchid Python 
 API versions, you may find it faster and easier to create a configuration file once and change it as you 
-change Orchid / Orchid Python API versions.
+change Orchid / Orchid Python API versions. 
+
+To use a file to configure the Orchid Python API, you will need to create a configuration file named 
+`python_api.yaml` and set the value of the `orchid` > `root` key to the path of the `PythonApiLibs` directory
+beneath the Orchid installation directory. (For your information, the `PythonApiLibs` directory containing the
+version-specific Orchid binary and configuration files should be in a subdirectory like 
+`ORCHID_ROOT/Orchid-2020.4.232/PythonApiLibs` when you accept the installation defaults.)
+
+Symbolically, this document will refer to the directory containing the binaries required by the 
+Orchid Python API as `/path-to/orchid/version/python-api-libs`. 
 
 To create a configuration file used by the Orchid Python API, you must:
 
@@ -1337,15 +1346,15 @@ the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or th
 
 To use this configuration file as an example:
 
-- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
-  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
-   /path/to/home-directory/.orchid/python_api.yaml`
+- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute:
+  ```
+  copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml
+  ```
 - Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
 
 The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash),
 that describe the information expected by the Orchid Python API. In summary, you'll need to provide a value
-for the 'orchid' > 'root' key that contains the pathname of the `PythonApiLibs` directory containing the
-Orchid binaries corresponding to the installed version of the `orchid-python-api` package.
+for the `orchid` > `root` key that contains (symbolically), `/path-to/orchid/version/python-api-libs`.
 
 If you want to ensure your configuration is correct,
 [view the Orchid API configuration details](#view-orchid-configuration-details).
