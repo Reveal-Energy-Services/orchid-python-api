@@ -90,7 +90,7 @@ class ProjectStore:
             project_pathname: Identifies the data file for the project of interest.
         """
         self._project_pathname = project_pathname
-        self._project = None
+        self._native_project = None
         self._in_context = False
 
     def native_project(self):
@@ -100,9 +100,9 @@ class ProjectStore:
         Returns:
             The loaded `IProject`.
         """
-        if not self._project:
+        if self._native_project is None:
             self.load_project()
-        return self._project
+        return self._native_project
 
     def load_project(self):
         """
@@ -118,7 +118,7 @@ class ProjectStore:
             # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
             stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
             try:
-                self._project = reader.Read(stream_reader)
+                self._native_project = reader.Read(stream_reader)
             finally:
                 stream_reader.Close()
 
@@ -126,6 +126,7 @@ class ProjectStore:
         """
         Save the specified project to `self._project_pathname`.
 
+        >>> # Test saving changed project
         >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
         >>> loaded_project = orchid.load_project(str(load_path))
         >>> # TODO: move this code to the property eventually, I think.
@@ -139,6 +140,19 @@ class ProjectStore:
         ...     content = json.loads(archive.read('project.json'))
         ...     content['Object']['Name']
         'nomen mutatum'
+        >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
+        >>> # I do not expect end users to utilize this side-effect.
+        >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
+        >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+        >>> to_save_project = orchid.load_project(str(load_path))
+        >>> # TODO: move this code to the property eventually, I think.
+        >>> with (dnd.disposable(to_save_project.dom_object.ToMutable())) as mnp:
+        ...     mnp.Name = 'mutatio project'
+        >>> save_path = load_path.with_name(f'{to_save_project.name}{load_path.suffix}')
+        >>> save_store = ProjectStore(str(save_path))
+        >>> save_store.save_project(to_save_project)
+        >>> to_save_project.dom_object == save_store.native_project()
+        True
 
         Args:
             project: The project to be saved.
@@ -147,7 +161,7 @@ class ProjectStore:
             writer = ScriptAdapter.CreateProjectFileWriter()
             use_binary_format = False
             writer.Write(project.dom_object, str(self._project_pathname), use_binary_format)
-        self._project = project
+        self._native_project = project.dom_object
 
 
 if __name__ == '__main__':
