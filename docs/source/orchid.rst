@@ -188,7 +188,7 @@ orchid.project module
    :undoc-members:
    :show-inheritance:
 
-orchid.project\_loader module
+orchid.project\_store module
 -----------------------------
 
 .. automodule:: orchid.project_store
