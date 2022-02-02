@@ -18,6 +18,7 @@ import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     dom_project_object as dpo,
+    native_time_series_adapter as tsa,
     net_date_time as ndt,
 )
 
@@ -40,6 +41,8 @@ class NativeMonitorAdapter(dpo.DomProjectObject):
                                               ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of this monitor.',
                                              ndt.as_date_time)
+    time_series = dna.transformed_dom_property('time_series', 'The time series for this monitor.',
+                                               tsa.NativeTimeSeriesAdapter)
 
     @property
     def time_range(self):

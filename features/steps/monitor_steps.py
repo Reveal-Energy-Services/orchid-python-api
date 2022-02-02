@@ -24,6 +24,10 @@ import uuid
 from hamcrest import assert_that, equal_to, is_, not_none
 import pendulum
 
+import orchid
+
+import common_functions as cf
+
 from tests import custom_matchers as tcm
 
 
@@ -84,3 +88,43 @@ def step_impl(context, object_id, start_time, stop_time):
     assert_that(actual.object_id, equal_to(uuid.UUID(object_id)))
     assert_that(actual.time_range, tcm.equal_to_time_range(pendulum.Period(pendulum.parse(start_time),
                                                                            pendulum.parse(stop_time))))
+
+
+@when("I query the monitor time series with {display_name}")
+def step_impl(context, display_name):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+        display_name (str): The display name that identifies the monitor of interest.
+    """
+    candidate_monitors = list(context.project.monitors().find_by_display_name(display_name))
+    assert_that(len(candidate_monitors), equal_to(1),
+                f'Expected single monitor with {display_name}. Found {len(candidate_monitors)}.')
+
+    context.monitor = candidate_monitors[0]
+
+
+@then("I see the samples {index:d}, {qty_name}, {time}, and {value} for the monitor time series")
+def step_impl(context, index, qty_name, time, value):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+        index (int): The index of the well time series sample of interest.
+        qty_name (str): The phenomenon type of sample of interest.
+        time (str): The time of the sample of interest
+        value (str): The measured value of the sample of interest.
+    """
+    # curve = context.monitor.time_series()
+    # actual_quantity_name = curve.sampled_quantity_name
+    # assert_that(actual_quantity_name, equal_to(qty_name))
+    #
+    # samples = curve.data_points()
+    #
+    # actual_sample_time = samples.index[index]
+    # expected_sample_time = pendulum.parse(time)
+    # assert_that(actual_sample_time, equal_to(expected_sample_time))
+    #
+    # actual_sample_magnitude = samples[actual_sample_time]
+    # actual_sample_measurement = orchid.make_measurement(curve.sampled_quantity_unit(), actual_sample_magnitude)
+    # cf.assert_that_actual_measurement_close_to_expected(actual_sample_measurement, value)
+    pass
