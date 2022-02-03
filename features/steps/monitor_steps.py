@@ -114,7 +114,7 @@ def step_impl(context, index, qty_name, time, value):
         time (str): The time of the sample of interest
         value (str): The measured value of the sample of interest.
     """
-    # curve = context.monitor.time_series()
+    # curve = context.monitor.well_time_series()
     # actual_quantity_name = curve.sampled_quantity_name
     # assert_that(actual_quantity_name, equal_to(qty_name))
     #
