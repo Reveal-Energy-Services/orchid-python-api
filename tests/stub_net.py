@@ -30,7 +30,6 @@ import pendulum
 import toolz.curried as toolz
 
 from orchid import (
-    native_treatment_curve_adapter as ontc,
     net_date_time as net_dt,
     net_quantity as onq,
     unit_system as units,
@@ -387,7 +386,8 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     return stub_net_treatment_curve
 
 
-def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=None, stop=None):
+def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=None, stop=None,
+                            well_time_series_dto=None):
     stub_name = (f'stub_net_monitor_{display_name}' if display_name is not None else 'stub_net_monitor')
     try:
         result = unittest.mock.MagicMock(name=stub_name, spec=IMonitor)
@@ -408,6 +408,9 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
 
     if stop is not None:
         result.StopTime = net_dt.as_net_date_time(stop)
+
+    if well_time_series_dto is not None:
+        result.TimeSeries = create_stub_net_time_series(**well_time_series_dto)
 
     return result
 

@@ -13,6 +13,7 @@
 #
 
 import unittest
+import uuid
 
 from hamcrest import assert_that, equal_to
 import pendulum
@@ -43,6 +44,15 @@ class TestNativeMonitorAdapter(unittest.TestCase):
         assert_that(actual_time_range,
                     equal_to(pendulum.period(microseconds_to_milliseconds(expected_start),
                                              microseconds_to_milliseconds(expected_stop))))
+
+    def test_well_time_series(self):
+        time_series_dto = {'object_id': '6de0edfa-dff5-47b1-9970-6eff0880bb86'}
+        stub_net_monitor = tsn.create_stub_net_monitor(well_time_series_dto=time_series_dto)
+
+        sut = nma.NativeMonitorAdapter(stub_net_monitor)
+
+        expected_uuid = uuid.UUID(time_series_dto['object_id'])
+        assert_that(sut.well_time_series.object_id, equal_to(expected_uuid))
 
 
 if __name__ == '__main__':
