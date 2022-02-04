@@ -114,18 +114,16 @@ def step_impl(context, index, qty_name, time, value):
         time (str): The time of the sample of interest
         value (str): The measured value of the sample of interest.
     """
-    # curve = context.monitor.well_time_series()
-    # actual_quantity_name = curve.sampled_quantity_name
-    # assert_that(actual_quantity_name, equal_to(qty_name))
-    #
-    # samples = curve.data_points()
-    #
-    # actual_sample_time = samples.index[index]
-    # expected_sample_time = pendulum.parse(time)
-    # assert_that(actual_sample_time, equal_to(expected_sample_time))
-    #
-    # actual_sample_magnitude = samples[actual_sample_time]
-    # actual_sample_measurement = orchid.make_measurement(curve.sampled_quantity_unit(), actual_sample_magnitude)
-    # cf.assert_that_actual_measurement_close_to_expected(actual_sample_measurement, value)
-    print(f'{context.scenario.name} step implementation commented out.')
-    pass
+    curve = context.monitor.well_time_series
+    actual_quantity_name = curve.sampled_quantity_name
+    assert_that(actual_quantity_name, equal_to(qty_name))
+
+    samples = curve.data_points()
+
+    actual_sample_time = samples.index[index]
+    expected_sample_time = pendulum.parse(time)
+    assert_that(actual_sample_time, equal_to(expected_sample_time))
+
+    actual_sample_magnitude = samples[actual_sample_time]
+    actual_sample_measurement = orchid.make_measurement(curve.sampled_quantity_unit(), actual_sample_magnitude)
+    cf.assert_that_actual_measurement_close_to_expected(actual_sample_measurement, value)
