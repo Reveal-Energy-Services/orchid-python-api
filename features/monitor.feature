@@ -113,15 +113,15 @@ Feature: Adapted IMonitor DOM API
       | Bakken | Demo_4H - stage 6     | 114594 | Pressure | 2018-07-07T03:13:05.0000000Z | -7999 psi   |
 
     Examples: Montney
-      | field   | display_name          | index  | qty_name | time                         | value        |
-      | Montney | Hori_02 - 0 - stage 1 | 0      | Pressure | 2018-04-05T10:01:07.0000000Z | 20665.11 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 14848  | Pressure | 2018-04-05T14:16:39.0000000Z | 18562.68 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 67025  | Pressure | 2018-04-06T05:11:54.0000000Z | 15446.07 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 138193 | Pressure | 2018-04-07T01:34:01.0000000Z | 27726.53 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 196604 | Pressure | 2018-04-07T18:18:33.0000000Z | 27965.21 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 252497 | Pressure | 2018-04-08T10:17:31.0000000Z | 27131.21 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 256716 | Pressure | 2018-04-08T11:30:10.0000000Z | 34203.43 kPa |
-      | Montney | Hori_02 - 0 - stage 1 | 325041 | Pressure | 2018-04-09T07:06:53.0000000Z | 26835 kPa    |
+      | field   | display_name         | index  | qty_name | time                         | value        |
+      | Montney | Hori_02 - 0 - stage 1 | 0      | Pressure | 2018-04-05T09:26:03.0000000Z | 16136.97 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 57362  | Pressure | 2018-04-06T01:34:42.0000000Z | 15442.79 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 75454  | Pressure | 2018-04-06T06:41:19.0000000Z | 15317.41 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 77095  | Pressure | 2018-04-06T07:08:44.0000000Z | 15308.05 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 230565 | Pressure | 2018-04-08T02:21:39.0000000Z | 15575.36 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 242309 | Pressure | 2018-04-08T05:39:08.0000000Z | 15178.11 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 311658 | Pressure | 2018-04-09T01:12:25.0000000Z | 13830.99 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 332477 | Pressure | 2018-04-09T07:04:03.0000000Z | 13540.6 kPa  |
       | Montney | Vert_01 - 0 - stage 1 | 0      | Pressure | 2018-04-05T10:24:12.0000000Z | 19459.03 kPa |
       | Montney | Vert_01 - 0 - stage 1 | 6652   | Pressure | 2018-04-05T12:19:34.0000000Z | 19061.51 kPa |
       | Montney | Vert_01 - 0 - stage 1 | 90175  | Pressure | 2018-04-06T12:16:56.0000000Z | 16491.47 kPa |
