@@ -18,6 +18,7 @@ import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     dom_project_object as dpo,
+    native_time_series_adapter as tsa,
     net_date_time as ndt,
 )
 
@@ -40,7 +41,27 @@ class NativeMonitorAdapter(dpo.DomProjectObject):
                                               ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of this monitor.',
                                              ndt.as_date_time)
+    well_time_series = dna.transformed_dom_property(
+        'time_series',
+        """The complete time series for the well that may be monitoring treatments.
+        
+        The returned time series contains all samples recorded for the project. More specifically, it may
+        contain samples either before or after `time_range()`.
+        
+        Another consequence of this definition is that if a client wants to access sample inside 
+        `time_range()`, one must write code to manually filter the series samples to only include the samples
+        in `time_range()`.
+        """,
+        tsa.NativeTimeSeriesAdapter)
 
     @property
     def time_range(self):
+        """
+        Calculate the time range during which this monitor is active; that is, monitoring the treatment stage.
+
+        Returns:
+            The time range during which this monitor is active. The type of the returned value is
+            `pendulum.Period`. See the [documentation](https://pendulum.eustace.io/docs/) to understand the
+            methods available from a `pendulum.Period` instance.
+        """
         return pendulum.Period(self.start_time, self.stop_time)

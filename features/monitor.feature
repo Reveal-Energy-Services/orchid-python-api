@@ -71,3 +71,62 @@ Feature: Adapted IMonitor DOM API
       | field   | display_name          | name    | start_time                   | stop_time                    |
       | Montney | Vert_01 - 0 - stage 1 | Vert_01 | 2018-04-06T16:44:00.0000000Z | 2018-04-10T03:20:00.0000000Z |
       | Montney | Hori_02 - 0 - stage 1 | Hori_02 | 2018-04-06T13:30:00.0000000Z | 2018-04-09T22:06:00.0000000Z |
+
+  Scenario Outline: Sample the well time series for a monitor
+    Given I have loaded the project for the field, '<field>'
+    When I query the monitor time series with <display_name>
+    Then I see the samples <index>, <qty_name>, <time>, and <value> for the monitor time series
+
+    Examples: Bakken
+      | field  | display_name          | index  | qty_name | time                         | value       |
+      | Bakken | Demo_1H - stage 22    | 0      | Pressure | 2018-05-27T18:46:21.0000000Z | 12.84 psi   |
+      | Bakken | Demo_1H - stage 50    | 6078   | Pressure | 2018-05-29T21:25:50.0000000Z | 12.8 psi    |
+      | Bakken | Demo_1H - stage 22    | 24489  | Pressure | 2018-06-05T06:51:51.0000000Z | 13.24 psi   |
+      | Bakken | Demo_1H - stage 8     | 35902  | Pressure | 2018-06-09T05:59:28.0000000Z | 3072.1 psi  |
+      | Bakken | Demo_1H - stage 36    | 47331  | Pressure | 2018-06-13T05:14:55.0000000Z | 5643.42 psi |
+      | Bakken | Demo_1H - stage 50    | 56567  | Pressure | 2018-06-16T10:13:32.0000000Z | 4267.47 psi |
+      | Bakken | Demo_1H - stage 36    | 94551  | Pressure | 2018-06-29T14:47:28.0000000Z | 3471.16 psi |
+      | Bakken | Demo_1H - stage 8     | 114594 | Pressure | 2018-07-07T03:13:05.0000000Z | -7999 psi   |
+      | Bakken | Demo_2H - stage 29    | 0      | Pressure | 2018-05-27T18:46:21.0000000Z | 13.21 psi   |
+      | Bakken | Demo_2H - stage 14    | 1105   | Pressure | 2018-05-28T03:59:18.0000000Z | 12.42 psi   |
+      | Bakken | Demo_2H - stage 1     | 14475  | Pressure | 2018-06-01T19:24:46.0000000Z | 12.75 psi   |
+      | Bakken | Demo_2H - stage 29    | 18418  | Pressure | 2018-06-03T04:16:20.0000000Z | 12.52 psi   |
+      | Bakken | Demo_2H - stage 1     | 33263  | Pressure | 2018-06-08T07:59:47.0000000Z | 2882.93 psi |
+      | Bakken | Demo_2H - stage 14    | 83966  | Pressure | 2018-06-25T22:34:44.0000000Z | 3424.57 psi |
+      | Bakken | Demo_2H - stage 43    | 87110  | Pressure | 2018-06-27T00:46:44.0000000Z | 3231.8 psi  |
+      | Bakken | Demo_2H - stage 43    | 114594 | Pressure | 2018-07-07T03:13:05.0000000Z | -7999 psi   |
+      | Bakken | Demo_3H - MonitorWell | 0      | Pressure | 2018-06-07T16:35:02.0000000Z | 1628.97 psi |
+      | Bakken | Demo_3H - MonitorWell | 9872   | Pressure | 2018-06-11T02:53:53.0000000Z | 1278.02 psi |
+      | Bakken | Demo_3H - MonitorWell | 38744  | Pressure | 2018-06-21T03:38:08.0000000Z | 900.61 psi  |
+      | Bakken | Demo_3H - MonitorWell | 47718  | Pressure | 2018-06-24T06:28:34.0000000Z | 904.48 psi  |
+      | Bakken | Demo_3H - MonitorWell | 58806  | Pressure | 2018-06-28T02:55:59.0000000Z | 1399.29 psi |
+      | Bakken | Demo_3H - MonitorWell | 58869  | Pressure | 2018-06-28T03:27:29.0000000Z | 1964.85 psi |
+      | Bakken | Demo_3H - MonitorWell | 62026  | Pressure | 2018-06-29T05:46:52.0000000Z | 2716.76 psi |
+      | Bakken | Demo_3H - MonitorWell | 62757  | Pressure | 2018-06-29T11:52:22.0000000Z | 2677.54 psi |
+      | Bakken | Demo_4H - stage 35    | 0      | Pressure | 2018-05-27T18:46:21.0000000Z | 13.22 psi   |
+      | Bakken | Demo_4H - stage 25    | 3864   | Pressure | 2018-05-29T02:58:48.0000000Z | 12.48 psi   |
+      | Bakken | Demo_4H - stage 6     | 19189  | Pressure | 2018-06-03T10:41:50.0000000Z | 13.19 psi   |
+      | Bakken | Demo_4H - stage 35    | 25197  | Pressure | 2018-06-05T12:45:51.0000000Z | 13.3 psi    |
+      | Bakken | Demo_4H - stage 15    | 65166  | Pressure | 2018-06-19T09:53:18.0000000Z | 4995.46 psi |
+      | Bakken | Demo_4H - stage 15    | 81490  | Pressure | 2018-06-25T01:56:42.0000000Z | 2887.48 psi |
+      | Bakken | Demo_4H - stage 25    | 87675  | Pressure | 2018-06-27T05:29:14.0000000Z | 3743.04 psi |
+      | Bakken | Demo_4H - stage 6     | 114594 | Pressure | 2018-07-07T03:13:05.0000000Z | -7999 psi   |
+
+    Examples: Montney
+      | field   | display_name         | index  | qty_name | time                         | value        |
+      | Montney | Hori_02 - 0 - stage 1 | 0      | Pressure | 2018-04-05T09:26:03.0000000Z | 16136.97 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 57362  | Pressure | 2018-04-06T01:34:42.0000000Z | 15442.79 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 75454  | Pressure | 2018-04-06T06:41:19.0000000Z | 15317.41 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 77095  | Pressure | 2018-04-06T07:08:44.0000000Z | 15308.05 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 230565 | Pressure | 2018-04-08T02:21:39.0000000Z | 15575.36 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 242309 | Pressure | 2018-04-08T05:39:08.0000000Z | 15178.11 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 311658 | Pressure | 2018-04-09T01:12:25.0000000Z | 13830.99 kPa |
+      | Montney | Hori_02 - 0 - stage 1 | 332477 | Pressure | 2018-04-09T07:04:03.0000000Z | 13540.6 kPa  |
+      | Montney | Vert_01 - 0 - stage 1 | 0      | Pressure | 2018-04-05T10:24:12.0000000Z | 19459.03 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 6652   | Pressure | 2018-04-05T12:19:34.0000000Z | 19061.51 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 90175  | Pressure | 2018-04-06T12:16:56.0000000Z | 16491.47 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 134841 | Pressure | 2018-04-07T01:09:16.0000000Z | 25115.39 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 211515 | Pressure | 2018-04-07T23:10:44.0000000Z | 16361.86 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 222007 | Pressure | 2018-04-08T02:11:20.0000000Z | 15895.58 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 300671 | Pressure | 2018-04-09T00:49:23.0000000Z | 14088.72 kPa |
+      | Montney | Vert_01 - 0 - stage 1 | 322124 | Pressure | 2018-04-09T06:59:16.0000000Z | 13859.02 kPa |
