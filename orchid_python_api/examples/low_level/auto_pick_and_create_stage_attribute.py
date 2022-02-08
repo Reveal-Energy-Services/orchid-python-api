@@ -379,7 +379,7 @@ def make_target_file_name_from_source(source_file_name):
         source_file_name: The file name of the project originally read.
 
     Returns:
-        The project file name with a `.999` suffix inserted before the `.ifrac` suffix.
+        The project file name with a `.998` suffix inserted before the `.ifrac` suffix.
     """
     return ''.join([source_file_name.stem, '.998', source_file_name.suffix])
 
