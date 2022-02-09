@@ -16,6 +16,7 @@ import argparse
 import dataclasses as dc
 import logging
 import pathlib
+import pprint
 from typing import Optional
 
 import orchid
@@ -47,6 +48,22 @@ class CreateStageDto:
     maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
     cluster_count: int = 0  # Must be non-negative
 
+    def create_stage(self, well: nwa.NativeWellAdapter):
+        # Must supply the unit system for conversions
+        native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_top)
+        native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_bottom)
+        native_shmin = (onq.as_net_quantity(units.UsOilfield.PRESSURE, self.maybe_shmin)
+                        if self.maybe_shmin is not None
+                        else None)
+        native_stage = object_factory.CreateStage(UInt32(self.order_of_completion_on_well),
+                                                  well.dom_object,
+                                                  self.connection_type.value,
+                                                  native_md_top,
+                                                  native_md_bottom,
+                                                  native_shmin,
+                                                  UInt32(self.cluster_count))
+        return nsa.NativeStageAdapter(native_stage)
+
     def __post_init__(self):
         # See the
         # [StackOverflow post](https://stackoverflow.com/questions/54488765/validating-input-when-mutating-a-dataclass)
@@ -56,23 +73,6 @@ class CreateStageDto:
         if self.maybe_shmin is not None:
             assert self.maybe_shmin.check('[pressure]'), f'maybe_shmin must be a pressure if not `None`'
         assert self.cluster_count >= 0, f'cluster_count must be non-zero'
-
-
-def create_stage(stage_dto: CreateStageDto, well: nwa.NativeWellAdapter):
-    # Must supply the unit system for conversions
-    native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, stage_dto.md_top)
-    native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, stage_dto.md_bottom)
-    native_shmin = (onq.as_net_quantity(units.UsOilfield.PRESSURE, stage_dto.maybe_shmin)
-                    if stage_dto.maybe_shmin is not None
-                    else None)
-    native_stage = object_factory.CreateStage(UInt32(stage_dto.order_of_completion_on_well),
-                                              well.dom_object,
-                                              stage_dto.connection_type.value,
-                                              native_md_top,
-                                              native_md_bottom,
-                                              native_shmin,
-                                              UInt32(stage_dto.cluster_count))
-    return nsa.NativeStageAdapter(native_stage)
 
 
 def append_stages(project):
@@ -105,9 +105,9 @@ def append_stages(project):
             cluster_count=7
         ),
     ]
-    for stage_dto in stages_to_append:
-        created_stage = create_stage(stage_dto, target_well)
-        print(created_stage.name, created_stage.shmin if created_stage.shmin else 'None', created_stage.cluster_count)
+    created_stages = [stage_dto.create_stage(target_well) for stage_dto in stages_to_append]
+    pprint.pprint([(created_stage.name, created_stage.shmin if created_stage.shmin else 'None',
+                    created_stage.cluster_count) for created_stage in created_stages])
 
 
 def main(cli_args):
