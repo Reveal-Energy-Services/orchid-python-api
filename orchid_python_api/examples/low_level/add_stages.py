@@ -16,13 +16,12 @@ import argparse
 import dataclasses as dc
 import logging
 import pathlib
-import pprint
 from typing import Optional
 
 import orchid
 from orchid import (
-    dot_net_disposable as dnd,
     native_stage_adapter as nsa,
+    native_well_adapter as nwa,
     net_quantity as onq,
     measurement as om,
     unit_system as units,
@@ -59,28 +58,20 @@ class CreateStageDto:
         assert self.cluster_count >= 0, f'cluster_count must be non-zero'
 
 
-def create_stage(
-        # 1 more than the maximum of `order_of_completion_on_well` for all stages on `target_well`
-        order_of_completion_on_well: int,
-        well: object,
-        connection_type: nsa.ConnectionType,
-        md_top: om.Quantity,
-        md_bottom: om.Quantity,
-        *,
-        # Remember that passing `None`, the default value, results in Orchid calculating a shmin value from
-        # the `FracGradient` property of the well.
-        maybe_shmin: Optional[om.Quantity] = None,
-        cluster_count: int = 0):
-    native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, md_top)  # Must supply the unit system for conversion
-    native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, md_bottom)
-    shmin = onq.as_net_quantity(units.UsOilfield.PRESSURE, maybe_shmin) if maybe_shmin is not None else None
-    native_stage = object_factory.CreateStage(UInt32(order_of_completion_on_well),
+def create_stage(stage_dto: CreateStageDto, well: nwa.NativeWellAdapter):
+    # Must supply the unit system for conversions
+    native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, stage_dto.md_top)
+    native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, stage_dto.md_bottom)
+    native_shmin = (onq.as_net_quantity(units.UsOilfield.PRESSURE, stage_dto.maybe_shmin)
+                    if stage_dto.maybe_shmin is not None
+                    else None)
+    native_stage = object_factory.CreateStage(UInt32(stage_dto.order_of_completion_on_well),
                                               well.dom_object,
-                                              connection_type.value,
+                                              stage_dto.connection_type.value,
                                               native_md_top,
                                               native_md_bottom,
-                                              shmin,
-                                              UInt32(cluster_count))
+                                              native_shmin,
+                                              UInt32(stage_dto.cluster_count))
     return nsa.NativeStageAdapter(native_stage)
 
 
@@ -94,27 +85,29 @@ def append_stages(project):
 
     # Create an iterable of stages to append
     stages_to_append = [
-        create_stage(
+        CreateStageDto(
             35,  # hard-coded to be one greater than largest `order_of_completion_on_well`
-            target_well, nsa.ConnectionType.PLUG_AND_PERF,
+            nsa.ConnectionType.PLUG_AND_PERF,
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12603.3),
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12750.5)),
-        create_stage(
+        CreateStageDto(
             36,
-            target_well, nsa.ConnectionType.PLUG_AND_PERF,
+            nsa.ConnectionType.PLUG_AND_PERF,
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12396.8),
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
             maybe_shmin=orchid.make_measurement(orchid.unit_system.UsOilfield.PRESSURE, 2.322)
         ),
-        create_stage(
+        CreateStageDto(
             37,
-            target_well, nsa.ConnectionType.PLUG_AND_PERF,
+            nsa.ConnectionType.PLUG_AND_PERF,
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12396.8),
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
             cluster_count=7
         ),
     ]
-    pprint.pprint([(s.name, s.shmin if s.shmin else 'None', s.cluster_count) for s in stages_to_append])
+    for stage_dto in stages_to_append:
+        created_stage = create_stage(stage_dto, target_well)
+        print(created_stage.name, created_stage.shmin if created_stage.shmin else 'None', created_stage.cluster_count)
 
 
 def main(cli_args):
