@@ -13,6 +13,7 @@
 #
 
 import argparse
+import dataclasses as dc
 import logging
 import pathlib
 import pprint
@@ -36,6 +37,26 @@ from UnitsNet import Pressure
 
 
 object_factory = FractureDiagnosticsFactory.Create()
+
+
+@dc.dataclass(frozen=True)
+class CreateStageDto:
+    order_of_completion_on_well: int  # Must be non-negative
+    connection_type: nsa.ConnectionType
+    md_top: om.Quantity  # Must be length
+    md_bottom: om.Quantity  # Must be length
+    maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
+    cluster_count: int = 0  # Must be non-negative
+
+    def __post_init__(self):
+        # See the
+        # [StackOverflow post](https://stackoverflow.com/questions/54488765/validating-input-when-mutating-a-dataclass)
+        assert self.order_of_completion_on_well >= 0, f'order_of_completion_on_well must be non-zero'
+        assert self.md_top.check('[length]'), f'md_top must be a length'
+        assert self.md_bottom.check('[length]'), f'md_bottom must be a length'
+        if self.maybe_shmin is not None:
+            assert self.maybe_shmin.check('[pressure]'), f'maybe_shmin must be a pressure if not `None`'
+        assert self.cluster_count >= 0, f'cluster_count must be non-zero'
 
 
 def create_stage(
