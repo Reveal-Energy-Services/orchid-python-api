@@ -27,8 +27,6 @@ from orchid import (
     unit_system as units,
 )
 
-SENTINEL_PRESSURE = units.make_measurement(units.UsOilfield.PRESSURE, 9.9999e-10)
-
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
@@ -54,21 +52,14 @@ def create_stage(
         cluster_count: int = 0):
     native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, md_top)  # Must supply the unit system for conversion
     native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, md_bottom)
-    # Must use SENTINEL_PRESSURE to work around PythonNet issue #460 (and #1693)
-    shmin = (onq.as_net_quantity(units.UsOilfield.PRESSURE, maybe_shmin)
-             if maybe_shmin is not None
-             else onq.as_net_quantity(units.UsOilfield.PRESSURE, SENTINEL_PRESSURE))
+    shmin = onq.as_net_quantity(units.UsOilfield.PRESSURE, maybe_shmin) if maybe_shmin is not None else None
     native_stage = object_factory.CreateStage(UInt32(order_of_completion_on_well),
                                               well.dom_object,
                                               connection_type.value,
                                               native_md_top,
                                               native_md_bottom,
-                                              Nullable[Pressure](shmin),
+                                              shmin,
                                               UInt32(cluster_count))
-    # Part two of work around for Python.NET issue #460 (and #1693)
-    if maybe_shmin is None:
-        with dnd.disposable(native_stage.ToMutable()) as mns:
-            mns.Shmin = None
     return nsa.NativeStageAdapter(native_stage)
 
 
