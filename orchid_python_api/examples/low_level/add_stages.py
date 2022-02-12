@@ -13,14 +13,17 @@
 #
 
 import argparse
+from collections import namedtuple
 import dataclasses as dc
 import logging
 import pathlib
 import pprint
 from typing import Optional
 
+import examples
 import orchid
 from orchid import (
+    dot_net_disposable as dnd,
     native_stage_adapter as nsa,
     native_well_adapter as nwa,
     net_quantity as onq,
@@ -29,9 +32,11 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import IStage
+# noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
-from System import UInt32, Nullable
+from System import (Array, UInt32, Nullable,)
 # noinspection PyUnresolvedReferences
 from UnitsNet import Pressure
 
@@ -75,6 +80,9 @@ class CreateStageDto:
         assert self.cluster_count >= 0, f'cluster_count must be non-zero'
 
 
+CreatedStageDetails = namedtuple('CreatedStageDetails', ['name', 'shmin', 'cluster_count', 'global_stage_sequence_no'])
+
+
 def append_stages(project):
     # Find well to which to add stages
     candidate_well_name = 'Demo_4H'
@@ -106,8 +114,22 @@ def append_stages(project):
         ),
     ]
     created_stages = [stage_dto.create_stage(target_well) for stage_dto in stages_to_append]
-    pprint.pprint([(created_stage.name, created_stage.shmin if created_stage.shmin else 'None',
-                    created_stage.cluster_count) for created_stage in created_stages])
+
+    pprint.pprint([CreatedStageDetails(created_stage.name,
+                                       f'{created_stage.shmin:.3f~P}' if created_stage.shmin else 'None',
+                                       created_stage.cluster_count,
+                                       created_stage.global_stage_sequence_number)
+                   for created_stage in created_stages])
+
+    # Add stages to target_well
+    with dnd.disposable(target_well.dom_object.ToMutable()) as mutable_well:
+        native_created_stages = Array[IStage]([created_stage.dom_object for created_stage in created_stages])
+        pprint.pprint([f'{ncs.GlobalStageSequenceNumber=}' for ncs in native_created_stages])
+        mutable_well.AddStages(native_created_stages)
+
+    candidate_stages = target_well.stages().find(lambda s: s.order_of_completion_on_well in {35, 36, 37})
+    pprint.pprint([CreatedStageDetails(s.name, f'{s.shmin:.3f~P}', s.cluster_count, s.global_stage_sequence_number)
+                   for s in candidate_stages])
 
 
 def main(cli_args):
