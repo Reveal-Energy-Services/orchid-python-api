@@ -32,8 +32,6 @@ from random import random
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation, StageAttribute)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
-# noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.SDKFacade import (
