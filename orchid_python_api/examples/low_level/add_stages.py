@@ -20,12 +20,12 @@ import pathlib
 import pprint
 from typing import Optional
 
-import examples
 import orchid
 from orchid import (
     dot_net_disposable as dnd,
     native_stage_adapter as nsa,
     native_well_adapter as nwa,
+    net_fracture_diagnostics_factory as net_factory,
     net_quantity as onq,
     measurement as om,
     unit_system as units,
@@ -34,14 +34,12 @@ from orchid import (
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import IStage
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
-# noinspection PyUnresolvedReferences
 from System import (Array, UInt32, Nullable,)
 # noinspection PyUnresolvedReferences
 from UnitsNet import Pressure
 
 
-object_factory = FractureDiagnosticsFactory.Create()
+object_factory = net_factory.create()
 
 
 @dc.dataclass(frozen=True)
