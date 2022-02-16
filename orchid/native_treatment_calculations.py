@@ -69,8 +69,8 @@ def perform_calculation(native_calculation_func: Callable[[ITreatmentCalculation
     return CalculationResult(calculation_measurement, warnings)
 
 
-@deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
-@deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
+@deal.pre(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
+@deal.pre(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
 def median_treating_pressure(stage: nsa.NativeStageAdapter,
                              start: Union[pendulum.DateTime, dt.datetime],
                              stop: Union[pendulum.DateTime, dt.datetime]):
@@ -97,8 +97,8 @@ def median_treating_pressure(stage: nsa.NativeStageAdapter,
     return result
 
 
-@deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
-@deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
+@deal.pre(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
+@deal.pre(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
 def pumped_fluid_volume(stage: IStage,
                         start: Union[pendulum.DateTime, dt.datetime],
                         stop: Union[pendulum.DateTime, dt.datetime]):
@@ -126,8 +126,8 @@ def pumped_fluid_volume(stage: IStage,
     return result
 
 
-@deal.require(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
-@deal.require(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
+@deal.pre(lambda _stage, start, _stop: net_dt.is_utc(start), message='Expected UTC for start time zone.')
+@deal.pre(lambda _stage, _start, stop: net_dt.is_utc(stop), message='Expected UTC for stop time zone.')
 def total_proppant_mass(stage: IStage,
                         start: Union[pendulum.DateTime, dt.datetime],
                         stop: Union[pendulum.DateTime, dt.datetime]):

@@ -118,23 +118,28 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     expected_measurement=expected_measurement)
 
     def test_median_treating_pressure_raises_error_if_timezone_not_utc(self):
-        for expected_measurement_dto, start, stop, message_parameter in [
+        for expected_measurement_dto, start, stop, message_parameter, calculation_name in [
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 57.74),
              dt.datetime(2019, 11, 15, 5, 16, 26, tzinfo=UTC),
              dt.datetime(2019, 11, 15, 20, 46, 11, tzinfo=pendulum.timezone('Australia/Queensland')),
-             'stop'),
+             'stop',
+             'median treating pressure'),
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 63.36),
              dt.datetime(2021, 9, 24, 12, 24, 1, tzinfo=pendulum.timezone('America/Pangnirtung')),
              dt.datetime(2019, 11, 15, 20, 46, 11, tzinfo=UTC),
-             'start'),
+             'start',
+             'median treating pressure'),
             (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 7302.85),
              dt.datetime(2018, 10, 10, 0, 17, 41, tzinfo=pendulum.timezone(-54286)),
              dt.datetime(2018, 10, 10, 7, 10, 5, tzinfo=pendulum.timezone(-54286)),
-             'start'),  # `start` detected first
+             'stop',  # `stop` detected first
+             'median treating pressure'),
         ]:
-            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter, start, stop)
+            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter,
+                                                    start, stop, calculation_name)
 
-    def assert_raises_if_not_utc_time_zone(self, expected_measurement_dto, message_parameter, start, stop):
+    def assert_raises_if_not_utc_time_zone(self, expected_measurement_dto, message_parameter,
+                                           start, stop, calculation_name):
         stub_calculation_result = create_stub_calculation_result(expected_measurement_dto, DONT_CARE_WARNINGS)
         result = unittest.mock.MagicMock(name='treatment_calculations', spec=ITreatmentCalculations)
         result.GetMedianTreatmentPressure = stub_calculation_result
@@ -142,7 +147,7 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
         with unittest.mock.patch('orchid.native_treatment_calculations.loader.native_treatment_calculations',
                                  spec=loader.native_treatment_calculations,
                                  return_value=stub_treatment_calculations):
-            with self.subTest(f'Calculating median treating pressure with start, {start.isoformat()},'
+            with self.subTest(f'Calculating {calculation_name} with start, {start.isoformat()},'
                               f'and stop, {stop.isoformat()}, raises PreContractError'):
                 assert_that(calling(ntc.median_treating_pressure).with_args(
                     create_stub_stage_adapter(), start, stop),
@@ -201,21 +206,25 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     expected_measurement=expected_measurement)
 
     def test_pumped_fluid_volume_raises_error_if_timezone_not_utc(self):
-        for expected_measurement_dto, start, stop, message_parameter in [
+        for expected_measurement_dto, start, stop, message_parameter, calculation_name in [
             (tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6055.),
              dt.datetime(2025, 4, 21, 2, 26, 14, tzinfo=UTC),
              dt.datetime(2025, 4, 21, 12, 52, 34, tzinfo=pendulum.timezone('Etc/GMT-14')),
-             'stop'),
+             'stop',
+             'pumped fluid volume'),
             (tsn.make_measurement_dto(units.UsOilfield.VOLUME, 6978.),
              dt.datetime(2019, 9, 9, 8, 0, 33, tzinfo=pendulum.timezone('America/Tijuana')),
              dt.datetime(2019, 9, 9, 11, 1, 19, tzinfo=UTC),
-             'start'),
+             'start',
+             'pumped fluid volume'),
             (tsn.make_measurement_dto(units.Metric.VOLUME, 1332.),
              dt.datetime(2018, 2, 8, 13, 1, 58, tzinfo=pendulum.timezone(32017)),
              dt.datetime(2018, 2, 8, 19, 37, 26, tzinfo=pendulum.timezone(32017)),
-             'start'),  # `start` detected first
+             'stop',  # `stop` detected first
+             'pumped fluid volume'),
         ]:
-            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter, start, stop)
+            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter,
+                                                    start, stop, calculation_name)
 
     def test_pumped_fluid_volume_returns_get_pumped_volume_warnings(self):
         for expected_warnings in [['urinator egregrius'], ['nomenclatura', 'gestus', 'tertia'], []]:
@@ -270,21 +279,25 @@ class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
                                                     expected_measurement=expected_measurement)
 
     def test_total_proppant_mass_raises_error_if_timezone_not_utc(self):
-        for expected_measurement_dto, start, stop, message_parameter in [
+        for expected_measurement_dto, start, stop, message_parameter, calculation_name in [
             (tsn.make_measurement_dto(units.UsOilfield.MASS, 7653.),
              dt.datetime(2025, 6, 9, 2, 28, 48, tzinfo=UTC),
              dt.datetime(2025, 6, 9, 5, 25, 8, tzinfo=pendulum.timezone('Asia/Irkutsk')),
-             'stop'),
+             'stop',
+             'total proppant mass'),
             (tsn.make_measurement_dto(units.Metric.MASS, 2882.),
              dt.datetime(2018, 1, 24, 1, 11, 10, tzinfo=pendulum.timezone('America/Recife')),
              dt.datetime(2018, 1, 24, 12, 25, 20, tzinfo=UTC),
-             'start'),
+             'start',
+             'total_proppant_mass'),
             (tsn.make_measurement_dto(units.Metric.MASS, 152900),
              dt.datetime(2027, 5, 9, 5, 3, 18, tzinfo=pendulum.timezone(-1916)),
              dt.datetime(2027, 5, 9, 16, 36, 39, tzinfo=pendulum.timezone(-1916)),
-             'start'),  # `start` detected first
+             'stop',  # `stop` detected first
+             'total proppant mass'),
         ]:
-            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter, start, stop)
+            self.assert_raises_if_not_utc_time_zone(expected_measurement_dto, message_parameter,
+                                                    start, stop, calculation_name)
 
     def test_total_proppant_mass_returns_get_total_proppant_mass_warnings(self):
         for expected_warnings in [[],  ['igitur', 'pantinam', 'incidi'], ['violentia venio']]:
