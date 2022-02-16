@@ -165,7 +165,7 @@ orchid.net\_date\_time module
    :show-inheritance:
 
 orchid.net\_fracture\_diagnostics\_factory module
------------------------------
+-------------------------------------------------
 
 .. automodule:: orchid.net_fracture_diagnostics_factory
    :members:
