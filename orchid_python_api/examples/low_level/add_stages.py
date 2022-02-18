@@ -20,6 +20,8 @@ import pathlib
 import pprint
 from typing import Optional
 
+import pendulum  # Used for creating time-zone aware date times (UTC by default)
+
 import orchid
 from orchid import (
     dot_net_disposable as dnd,
@@ -27,14 +29,20 @@ from orchid import (
     native_well_adapter as nwa,
     net_fracture_diagnostics_factory as net_factory,
     net_quantity as onq,
+    net_date_time as ndt,
     measurement as om,
     unit_system as units,
 )
 
+import clr
+clr.AddReference('System.Collections')
+
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IStage
+from Orchid.FractureDiagnostics import (IStage, IStagePart)
 # noinspection PyUnresolvedReferences
 from System import (Array, UInt32, Nullable,)
+# noinspection PyUnresolvedReferences
+from System.Collections.Generic import List
 # noinspection PyUnresolvedReferences
 from UnitsNet import Pressure
 
@@ -42,7 +50,7 @@ from UnitsNet import Pressure
 object_factory = net_factory.create()
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass
 class CreateStageDto:
     order_of_completion_on_well: int  # Must be non-negative
     connection_type: nsa.ConnectionType
@@ -50,6 +58,15 @@ class CreateStageDto:
     md_bottom: om.Quantity  # Must be length
     maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
     cluster_count: int = 0  # Must be non-negative
+    # BEWARE: one need supply neither a start time nor a stop time; however, not supplying this data can
+    # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
+    # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
+    # issue with Orchid.
+    #
+    # Further, because of the Orchid API, if one supp
+    #
+    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
+    maybe_time_range: Optional[pendulum.Period] = None  # `None` results
 
     def create_stage(self, well: nwa.NativeWellAdapter):
         # Must supply the unit system for conversions
@@ -58,13 +75,26 @@ class CreateStageDto:
         native_shmin = (onq.as_net_quantity(units.UsOilfield.PRESSURE, self.maybe_shmin)
                         if self.maybe_shmin is not None
                         else None)
-        native_stage = object_factory.CreateStage(UInt32(self.order_of_completion_on_well),
-                                                  well.dom_object,
-                                                  self.connection_type.value,
-                                                  native_md_top,
-                                                  native_md_bottom,
-                                                  native_shmin,
-                                                  UInt32(self.cluster_count))
+        no_time_range_native_stage = object_factory.CreateStage(
+            UInt32(self.order_of_completion_on_well),
+            well.dom_object,
+            self.connection_type.value,
+            native_md_top,
+            native_md_bottom,
+            native_shmin,
+            UInt32(self.cluster_count)
+        )
+        with dnd.disposable(no_time_range_native_stage.ToMutable()) as mutable_stage:
+            if self.maybe_time_range is not None:
+                stage_part = object_factory.CreateStagePart(no_time_range_native_stage,
+                                                            ndt.as_net_date_time(self.maybe_time_range.start),
+                                                            ndt.as_net_date_time(self.maybe_time_range.end),
+                                                            None)
+                stage_parts = List[IStagePart]()
+                stage_parts.Add(stage_part)
+                mutable_stage.Parts = stage_parts
+        native_stage = no_time_range_native_stage
+
         return nsa.NativeStageAdapter(native_stage)
 
     def __post_init__(self):
@@ -78,7 +108,8 @@ class CreateStageDto:
         assert self.cluster_count >= 0, f'cluster_count must be non-zero'
 
 
-CreatedStageDetails = namedtuple('CreatedStageDetails', ['name', 'shmin', 'cluster_count', 'global_stage_sequence_no'])
+CreatedStageDetails = namedtuple('CreatedStageDetails', ['name', 'shmin', 'cluster_count',
+                                                         'global_stage_sequence_no', 'start_time', 'stop_time'])
 
 
 def append_stages(project):
@@ -95,20 +126,27 @@ def append_stages(project):
             35,  # hard-coded to be one greater than largest `order_of_completion_on_well`
             nsa.ConnectionType.PLUG_AND_PERF,
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12603.3),
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12750.5)),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12750.5),
+            # `pendulum` uses UTC by default for timezone (and UTC required)
+            maybe_time_range=pendulum.parse('2018-06-06T06:16:57.153222/2018-06-06T07:25:41.873222'),
+        ),
         CreateStageDto(
             36,
             nsa.ConnectionType.PLUG_AND_PERF,
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12396.8),
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
-            maybe_shmin=orchid.make_measurement(orchid.unit_system.UsOilfield.PRESSURE, 2.322)
+            maybe_shmin=orchid.make_measurement(orchid.unit_system.UsOilfield.PRESSURE, 2.322),
+            # `pendulum` uses UTC by default for timezone (and UTC required)
+            maybe_time_range=pendulum.parse('2018-06-15T14:11:40.450044/2018-06-15T15:10:11.200044'),
         ),
         CreateStageDto(
             37,
             nsa.ConnectionType.PLUG_AND_PERF,
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12396.8),
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
-            cluster_count=7
+            cluster_count=7,
+            # `pendulum` uses UTC by default for timezone (and UTC required)
+            maybe_time_range=pendulum.parse('2018-06-28T22:38:03.799472/2018-06-28T23:24:33.929472'),
         ),
     ]
     created_stages = [stage_dto.create_stage(target_well) for stage_dto in stages_to_append]
@@ -116,17 +154,19 @@ def append_stages(project):
     pprint.pprint([CreatedStageDetails(created_stage.name,
                                        f'{created_stage.shmin:.3f~P}' if created_stage.shmin else 'None',
                                        created_stage.cluster_count,
-                                       created_stage.global_stage_sequence_number)
+                                       created_stage.global_stage_sequence_number,
+                                       str(created_stage.start_time),
+                                       str(created_stage.stop_time))
                    for created_stage in created_stages])
 
     # Add stages to target_well
     with dnd.disposable(target_well.dom_object.ToMutable()) as mutable_well:
         native_created_stages = Array[IStage]([created_stage.dom_object for created_stage in created_stages])
-        pprint.pprint([f'{ncs.GlobalStageSequenceNumber=}' for ncs in native_created_stages])
         mutable_well.AddStages(native_created_stages)
 
     candidate_stages = target_well.stages().find(lambda s: s.order_of_completion_on_well in {35, 36, 37})
-    pprint.pprint([CreatedStageDetails(s.name, f'{s.shmin:.3f~P}', s.cluster_count, s.global_stage_sequence_number)
+    pprint.pprint([CreatedStageDetails(s.name, f'{s.shmin:.3f~P}', s.cluster_count,
+                                       s.global_stage_sequence_number, str(s.start_time), str(s.stop_time))
                    for s in candidate_stages])
 
 
