@@ -58,15 +58,17 @@ class CreateStageDto:
     md_bottom: om.Quantity  # Must be length
     maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
     cluster_count: int = 0  # Must be non-negative
-    # BEWARE: one need supply neither a start time nor a stop time; however, not supplying this data can
+    # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
     # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
     # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
     # issue with Orchid.
     #
-    # Further, because of the Orchid API, if one supp
-    #
     # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
-    maybe_time_range: Optional[pendulum.Period] = None  # `None` results
+    maybe_time_range: Optional[pendulum.Period] = None
+
+    # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
+    # the project saved with adding stages.
+    maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
 
     def create_stage(self, well: nwa.NativeWellAdapter):
         # Must supply the unit system for conversions
@@ -89,7 +91,8 @@ class CreateStageDto:
                 stage_part = object_factory.CreateStagePart(no_time_range_native_stage,
                                                             ndt.as_net_date_time(self.maybe_time_range.start),
                                                             ndt.as_net_date_time(self.maybe_time_range.end),
-                                                            None)
+                                                            onq.as_net_quantity_in_specified_unit(
+                                                                units.UsOilfield.PRESSURE, self.maybe_isip))
                 stage_parts = List[IStagePart]()
                 stage_parts.Add(stage_part)
                 mutable_stage.Parts = stage_parts
@@ -106,6 +109,8 @@ class CreateStageDto:
         if self.maybe_shmin is not None:
             assert self.maybe_shmin.check('[pressure]'), f'maybe_shmin must be a pressure if not `None`'
         assert self.cluster_count >= 0, f'cluster_count must be non-zero'
+        if self.maybe_isip is not None:
+            assert self.maybe_isip.check('[pressure]'), f'maybe_isip must be a pressure if not `None`'
 
 
 CreatedStageDetails = namedtuple('CreatedStageDetails', ['name', 'shmin', 'cluster_count',
@@ -129,6 +134,7 @@ def append_stages(project):
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12750.5),
             # `pendulum` uses UTC by default for timezone (and UTC required)
             maybe_time_range=pendulum.parse('2018-06-06T05:34:03.6839387/2018-06-06T07:19:35.5601864'),
+            maybe_isip=3420.32 * orchid.unit_registry.psi,
         ),
         CreateStageDto(
             36,
@@ -138,6 +144,7 @@ def append_stages(project):
             maybe_shmin=orchid.make_measurement(orchid.unit_system.UsOilfield.PRESSURE, 2.322),
             # `pendulum` uses UTC by default for timezone (and UTC required)
             maybe_time_range=pendulum.parse('2018-06-15T14:11:40.450044/2018-06-15T15:10:11.200044'),
+            maybe_isip=2712.70 * orchid.unit_registry.psi,
         ),
         CreateStageDto(
             37,
@@ -147,6 +154,7 @@ def append_stages(project):
             cluster_count=7,
             # `pendulum` uses UTC by default for timezone (and UTC required)
             maybe_time_range=pendulum.parse('2018-06-28T23:35:54.3790545/2018-06-29T01:18:05.8397489'),
+            maybe_isip=3192.69 * orchid.unit_registry.psi
         ),
     ]
     created_stages = [stage_dto.create_stage(target_well) for stage_dto in stages_to_append]
