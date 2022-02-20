@@ -128,7 +128,7 @@ def append_stages(project):
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12603.3),
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12750.5),
             # `pendulum` uses UTC by default for timezone (and UTC required)
-            maybe_time_range=pendulum.parse('2018-06-06T06:16:57.153222/2018-06-06T07:25:41.873222'),
+            maybe_time_range=pendulum.parse('2018-06-06T05:34:03.6839387/2018-06-06T07:19:35.5601864'),
         ),
         CreateStageDto(
             36,
@@ -146,7 +146,7 @@ def append_stages(project):
             orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
             cluster_count=7,
             # `pendulum` uses UTC by default for timezone (and UTC required)
-            maybe_time_range=pendulum.parse('2018-06-28T22:38:03.799472/2018-06-28T23:24:33.929472'),
+            maybe_time_range=pendulum.parse('2018-06-28T23:35:54.3790545/2018-06-29T01:18:05.8397489'),
         ),
     ]
     created_stages = [stage_dto.create_stage(target_well) for stage_dto in stages_to_append]
