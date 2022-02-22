@@ -19,7 +19,10 @@ import pathlib
 
 import clr
 import orchid
-import orchid.dot_net_disposable as dnd
+from orchid import (
+    dot_net_disposable as dnd,
+    net_fracture_diagnostics_factory as net_factory,
+)
 
 
 # seed the pseudorandom number generator
@@ -28,8 +31,6 @@ from random import random
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation, StageAttribute)
-# noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
 # noinspection PyUnresolvedReferences
@@ -51,7 +52,7 @@ from Orchid.Math import Interpolation
 from System.Collections.Generic import List
 
 
-object_factory = FractureDiagnosticsFactory.Create()
+object_factory = net_factory.create()
 
 
 def calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample):
@@ -380,7 +381,7 @@ def make_target_file_name_from_source(source_file_name):
     Returns:
         The project file name with a `.999` suffix inserted before the `.ifrac` suffix.
     """
-    return ''.join([source_file_name.stem, '.999', source_file_name.suffix])
+    return ''.join([source_file_name.stem, '.998', source_file_name.suffix])
 
 
 if __name__ == '__main__':

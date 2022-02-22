@@ -19,12 +19,13 @@ import pathlib
 
 import clr
 import orchid
-import orchid.dot_net_disposable as dnd
+from orchid import (
+    dot_net_disposable as dnd,
+    net_fracture_diagnostics_factory as net_factory,
+)
 
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
-# noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories import FractureDiagnosticsFactory
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
 # noinspection PyUnresolvedReferences
@@ -46,7 +47,7 @@ from Orchid.Math import Interpolation
 from System.Collections.Generic import List
 
 
-object_factory = FractureDiagnosticsFactory.Create()
+object_factory = net_factory.create()
 
 
 def calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample):
