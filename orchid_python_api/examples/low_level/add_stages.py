@@ -130,8 +130,8 @@ def append_stages(project):
         CreateStageDto(
             35,  # hard-coded to be one greater than largest `order_of_completion_on_well`
             nsa.ConnectionType.PLUG_AND_PERF,
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12603.3),
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12750.5),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 20898.2),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 20985.8),
             # `pendulum` uses UTC by default for timezone (and UTC required)
             maybe_time_range=pendulum.parse('2018-06-06T05:34:03.6839387/2018-06-06T07:19:35.5601864'),
             maybe_isip=3420.32 * orchid.unit_registry.psi,
@@ -139,8 +139,8 @@ def append_stages(project):
         CreateStageDto(
             36,
             nsa.ConnectionType.PLUG_AND_PERF,
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12396.8),
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 17362.2),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 17372.3),
             maybe_shmin=orchid.make_measurement(orchid.unit_system.UsOilfield.PRESSURE, 2.322),
             # `pendulum` uses UTC by default for timezone (and UTC required)
             maybe_time_range=pendulum.parse('2018-06-15T14:11:40.450044/2018-06-15T15:10:11.200044'),
@@ -149,8 +149,8 @@ def append_stages(project):
         CreateStageDto(
             37,
             nsa.ConnectionType.PLUG_AND_PERF,
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12396.8),
-            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 12556.9),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 10627.2),
+            orchid.make_measurement(orchid.unit_system.UsOilfield.LENGTH, 10759.7),
             cluster_count=7,
             # `pendulum` uses UTC by default for timezone (and UTC required)
             maybe_time_range=pendulum.parse('2018-06-28T23:35:54.3790545/2018-06-29T01:18:05.8397489'),
