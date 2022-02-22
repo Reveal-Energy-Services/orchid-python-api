@@ -288,7 +288,8 @@ def examples_run_scripts(context):
 
 def low_level_stem_names():
     """Returns the sequence of low-level example stem names."""
-    low_level_stems = ['auto_pick', 'auto_pick_iterate_example', 'auto_pick_and_create_stage_attribute',
+    low_level_stems = ['add_stages', 'auto_pick', 'auto_pick_iterate_example',
+                       'auto_pick_and_create_stage_attribute',
                        'monitor_time_series',]
     return low_level_stems
 
