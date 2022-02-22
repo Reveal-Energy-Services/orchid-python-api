@@ -159,23 +159,18 @@ def append_stages(project):
     ]
     created_stages = [stage_dto.create_stage(target_well) for stage_dto in stages_to_append]
 
-    pprint.pprint([CreatedStageDetails(created_stage.name,
-                                       f'{created_stage.shmin:.3f~P}' if created_stage.shmin else 'None',
-                                       created_stage.cluster_count,
-                                       created_stage.global_stage_sequence_number,
-                                       str(created_stage.start_time),
-                                       str(created_stage.stop_time))
-                   for created_stage in created_stages])
+    for created_stage in created_stages:
+        logging.info(CreatedStageDetails(created_stage.name,
+                                         f'{created_stage.shmin:.3f~P}' if created_stage.shmin else 'None',
+                                         created_stage.cluster_count,
+                                         created_stage.global_stage_sequence_number,
+                                         str(created_stage.start_time),
+                                         str(created_stage.stop_time)))
 
     # Add stages to target_well
     with dnd.disposable(target_well.dom_object.ToMutable()) as mutable_well:
         native_created_stages = Array[IStage]([created_stage.dom_object for created_stage in created_stages])
         mutable_well.AddStages(native_created_stages)
-
-    candidate_stages = target_well.stages().find(lambda s: s.order_of_completion_on_well in {35, 36, 37})
-    pprint.pprint([CreatedStageDetails(s.name, f'{s.shmin:.3f~P}', s.cluster_count,
-                                       s.global_stage_sequence_number, str(s.start_time), str(s.stop_time))
-                   for s in candidate_stages])
 
 
 def main(cli_args):
