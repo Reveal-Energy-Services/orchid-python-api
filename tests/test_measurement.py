@@ -59,7 +59,7 @@ class TestMeasurement(unittest.TestCase):
         assert_that(hasattr(om, 'Unit'), is_(True))
 
     def test_is_application_registry(self):
-        assert_that(pint.get_application_registry(), equal_to(om.registry))
+        assert_that(pint.get_application_registry().get(), equal_to(om.registry))
 
     def test_sample_measurements(self):
         for actual, expected_magnitude, expected_unit in [
