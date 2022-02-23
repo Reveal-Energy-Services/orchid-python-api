@@ -798,6 +798,14 @@ requests = "*"
 test = ["codecov", "ipykernel", "pytest (>=5.3.2)", "pytest-cov", "jupyter-server", "openapi-core (>=0.14.0,<0.15.0)", "pytest-console-scripts", "strict-rfc3339", "ruamel.yaml", "wheel"]
 
 [[package]]
+name = "jupyterlab-vim"
+version = "0.14.5"
+description = "Code cell vim bindings"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "jupyterlab-widgets"
 version = "1.0.2"
 description = "A JupyterLab extension."
@@ -1827,7 +1835,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "c32663da0b0ce9363f160ab8f8ed841c48e0875e34883bc3886545e6702267ce"
+content-hash = "300ea0a221ca41f07e636d6a694a44e370ffa09e60996046c3e9b1ea1290cbe1"
 
 [metadata.files]
 alabaster = [
@@ -2144,6 +2152,10 @@ jupyterlab-pygments = [
 jupyterlab-server = [
     {file = "jupyterlab_server-2.10.3-py3-none-any.whl", hash = "sha256:62f3c598f1d48dfb9b27729ed17772e38115cbe61e7d60fe68a853791bdf1038"},
     {file = "jupyterlab_server-2.10.3.tar.gz", hash = "sha256:3fb84a5813d6d836ceda773fb2d4e9ef3c7944dbc1b45a8d59d98641a80de80a"},
+]
+jupyterlab-vim = [
+    {file = "jupyterlab_vim-0.14.5-py3-none-any.whl", hash = "sha256:6722fa3c35425ccca207eddf5f636058d28b8e75fabdb1f680a56762f9921afd"},
+    {file = "jupyterlab_vim-0.14.5.tar.gz", hash = "sha256:74794f2f298d19c9c362301ef63333681204fc90a18bec0b220c29383749e282"},
 ]
 jupyterlab-widgets = [
     {file = "jupyterlab_widgets-1.0.2-py3-none-any.whl", hash = "sha256:f5d9efface8ec62941173ba1cffb2edd0ecddc801c11ae2931e30b50492eb8f7"},

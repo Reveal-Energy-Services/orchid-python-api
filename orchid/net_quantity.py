@@ -378,7 +378,7 @@ def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity)
 @toolz.curry
 def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
     """
-    Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance in a specified, but compatible unit.
+    Convert a `pint` `Quantity` to a .NET UnitsNet.IQuantity instance in a specified, but compatible unit.
 
     Args:
         specified_unit: The unit for the converted `Quantity` instance.
