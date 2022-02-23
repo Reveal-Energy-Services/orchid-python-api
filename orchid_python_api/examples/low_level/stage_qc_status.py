@@ -60,10 +60,10 @@ class StageQC:
 
     def start_stop_time_confirmation(self) -> StageCorrectionStatus:
         """
-        Calculate the stage start/stop time confirmation using the low-level API.
+        Calculate the stage start/stop time confirmation status using the low-level API.
 
         Returns:
-            The start/stop time confirmation for the QC of the stage of this instance.
+            The start/stop time confirmation status for the QC of the stage of this instance.
         """
         project_user_data = self._net_project.ProjectUserData
         stage_qc_id = f'{str(self._net_stage.ObjectId)}|stage_start_stop_confirmation'
@@ -76,7 +76,7 @@ class StageQC:
 
 def log_status_for_stages(well: nwa.NativeWellAdapter, stage_display_numbers: Iterable[int]):
     """
-    Print the stage QC statuses for `stage_display_numbers` of `well`.
+    Log the stage QC statuses for `stage_display_numbers` of `well`.
 
     Args:
         well: The well of interest.
