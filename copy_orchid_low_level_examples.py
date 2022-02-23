@@ -57,9 +57,7 @@ def copy_examples_to(target_dir: str, overwrite: bool) -> None:
         print(f'No example scripts matching "{example_script_glob}"')
         return
 
-    candidates = (example_notebook_candidates +
-                  [c for c in example_script_candidates if not c.endswith('auto_pick_iterate_example.py')])
-    for src in candidates:
+    for src in example_script_candidates:
         target_path = pathlib.Path(target_dir).joinpath(pathlib.Path(src).name)
         duplicate_in_target = target_path.exists()
         if duplicate_in_target and not overwrite:
