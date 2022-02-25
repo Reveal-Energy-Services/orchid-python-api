@@ -34,7 +34,7 @@ from System import Guid
 #
 # Additionally, it resolves an issue I was experiencing with PyCharm: when I used `property` directly
 # in the class definition, PyCharm reported "Property 'xyz' could not be read. I think it might have been
-# than I needed to apply `curry` to the "getter method" I also defined in the class in order to pass he
+# than I needed to apply `curry` to the "getter method" I also defined in the class in order to pass the
 # attribute name at definition time (because `self` was only available at run-time).
 
 
