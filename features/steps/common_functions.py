@@ -24,6 +24,9 @@ import orchid
 # noinspection PyUnresolvedReferences
 from tests import (custom_matchers as tcm)
 
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import DateTime
+
 
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
     try:
@@ -70,6 +73,10 @@ def assert_that_actual_measurement_magnitude_close_to_expected(actual: float,
                  if tolerance is None
                  else tolerance)
     tcm.assert_that_measurements_close_to(actual * expected.units, expected, tolerance=tolerance, reason=reason)
+
+
+def assert_that_net_date_times_are_equal(actual: DateTime, expected: DateTime):
+    assert_that(actual, tcm.equal_to_net_date_time(expected))
 
 
 def find_stage_by_stage_no(context, stage_no, well_of_interest):
