@@ -327,7 +327,7 @@ def step_impl(context, stage_no, well, from_start, to_start):
     context.stage_to_change = stage_to_change  # ensure all steps change the same native stage
     assert_that(stage_to_change.start_time, equal_to(pdt.parse(from_start)))
 
-    # stage_to_change.start_time = to_start
+    stage_to_change.start_time = to_start
 
 
 # noinspection PyBDDParameters
@@ -345,7 +345,7 @@ def step_impl(context, stage_no, well, from_stop, to_stop):
     assert_that(stage_to_change.dom_object, equal_to(context.stage_to_change.dom_object))
     assert_that(stage_to_change.stop_time, equal_to(pdt.parse(from_stop)))
 
-    # stage_to_change.stop_time = to_stop
+    stage_to_change.stop_time = to_stop
 
 
 @when("I query the .NET IStage for {well} and {stage_no:d}")
@@ -368,8 +368,8 @@ def step_impl(context, to_start):
         to_start (str): The expected start time of the native stage.
     """
     native_stage = context.stage_to_change.dom_object
-    # cf.assert_that_net_date_times_are_equal(native_stage.StartTime,
-    #                                         ndt.as_net_date_time(pdt.parse(to_start)))
+    cf.assert_that_net_date_times_are_equal(native_stage.StartTime,
+                                            ndt.as_net_date_time(pdt.parse(to_start)))
 
 
 @step("I see a stop time of {to_stop}")
