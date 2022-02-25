@@ -316,10 +316,10 @@ def step_impl(context, stage_no, well, from_start, to_start):
     """
     Args:
         context (behave.runner.Context):
-        stage_no (int):
-        well (str):
-        from_start (str):
-        to_start (str):
+        stage_no (int): The displayed stage number of interest.
+        well (str): The name of the well of interest.
+        from_start (str): The original start time of the stage of interest.
+        to_start (str): The updated start time of the stage of interest.
     """
     raise NotImplementedError(
         u'STEP: And I change the start time of stage <stage_no> of <well> <from_start> <to_start>')
@@ -331,10 +331,10 @@ def step_impl(context, stage_no, well, from_stop, to_stop):
     """
     Args:
         context (behave.runner.Context):
-        stage_no (int):
-        well (str):
-        from_stop (str):
-        to_stop (str):
+        stage_no (int): The displayed stage number of interest.
+        well (str): The name of the well of interest.
+        from_stop (str): The original stop time of the stage of interest.
+        to_stop (str): The updated stop time of the stage of interest.
     """
     raise NotImplementedError(u'STEP: And I change the stop time of stage <stage_no> of <well> <from_stop> <to_stop>')
 
@@ -372,9 +372,9 @@ def step_impl(context, well, stage_no, to_start, to_stop):
     """
     Args:
         context (behave.runner.Context):
-        well (str):
-        stage_no (int):
-        to_start (str):
-        to_stop (str):
+        stage_no (int): The displayed stage number of interest.
+        well (str): The name of the well of interest.
+        to_start (str): The original start time of the stage of interest.
+        to_stop (str): The updated stop time of the stage of interest.
     """
     raise NotImplementedError(u'STEP: Then I see the correct <well>, <stage_no>, <to_start>, and <to_stop>')
