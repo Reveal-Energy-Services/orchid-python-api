@@ -348,6 +348,7 @@ def step_impl(context, stage_no, well, from_stop, to_stop):
     stage_to_change.stop_time = to_stop
 
 
+# noinspection PyBDDParameters
 @when("I query the .NET IStage for {well} and {stage_no:d}")
 def step_impl(context, well, stage_no):
     """
