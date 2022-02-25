@@ -94,3 +94,12 @@ def find_stage_no_in_well(context, stage_no, well):
     well_of_interest = find_well_by_name_in_stages_for_wells(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
     return stage_of_interest
+
+
+def find_stage_no_in_well_of_project(context, stage_no, well):
+    candidate_wells = list(context.project.wells().find_by_name(well))
+    assert_that(len(candidate_wells), equal_to(1), f'Failure for field "{context.field}" and well "{well}".')
+    well_for_interest = candidate_wells[0]
+
+    result = well_for_interest.stages().find_by_display_stage_number(stage_no)
+    return result

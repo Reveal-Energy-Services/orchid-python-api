@@ -21,6 +21,7 @@ from behave import *
 use_step_matcher("parse")
 
 from hamcrest import assert_that, equal_to
+import pendulum as pdt
 import toolz.curried as toolz
 
 import common_functions as cf
@@ -321,8 +322,10 @@ def step_impl(context, stage_no, well, from_start, to_start):
         from_start (str): The original start time of the stage of interest.
         to_start (str): The updated start time of the stage of interest.
     """
-    raise NotImplementedError(
-        u'STEP: And I change the start time of stage <stage_no> of <well> <from_start> <to_start>')
+    stage_to_change = cf.find_stage_no_in_well_of_project(context, stage_no, well)
+    assert_that(stage_to_change.start_time, equal_to(pdt.parse(from_start)))
+
+    stage_to_change.start_time = to_start
 
 
 # noinspection PyBDDParameters
