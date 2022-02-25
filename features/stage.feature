@@ -413,7 +413,7 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 3        | 2412.75 m   |
       | Montney | Vert_01 | 4        | 2362.75 m   |
 
-  Scenario Outline: Calculate stage start and stop times
+  Scenario Outline: Change stage start and stop times
     Given I have loaded the project for the field, '<field>'
     And I change the start time of stage <stage_no> of <well> <from_start> <to_start>
     And I change the stop time of stage <stage_no> of <well> <from_stop> <to_stop>

@@ -295,6 +295,7 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
     cf.assert_that_actual_measurement_close_to_expected(actual_pnet, pnet)
 
 
+# noinspection PyBDDParameters
 @then("I see the correct {well}, {stage_no:d}, and {center_mdkb}")
 def step_impl(context, well, stage_no, center_mdkb):
     """
@@ -307,3 +308,73 @@ def step_impl(context, well, stage_no, center_mdkb):
     stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     actual = stage_of_interest.center_location_mdkb(context.project.project_units.LENGTH)
     cf.assert_that_actual_measurement_close_to_expected(actual, center_mdkb)
+
+
+# noinspection PyBDDParameters
+@step("I change the start time of stage {stage_no:d} of {well} {from_start} {to_start}")
+def step_impl(context, stage_no, well, from_start, to_start):
+    """
+    Args:
+        context (behave.runner.Context):
+        stage_no (int):
+        well (str):
+        from_start (str):
+        to_start (str):
+    """
+    raise NotImplementedError(
+        u'STEP: And I change the start time of stage <stage_no> of <well> <from_start> <to_start>')
+
+
+# noinspection PyBDDParameters
+@step("I change the stop time of stage {stage_no:d} of {well} {from_stop} {to_stop}")
+def step_impl(context, stage_no, well, from_stop, to_stop):
+    """
+    Args:
+        context (behave.runner.Context):
+        stage_no (int):
+        well (str):
+        from_stop (str):
+        to_stop (str):
+    """
+    raise NotImplementedError(u'STEP: And I change the stop time of stage <stage_no> of <well> <from_stop> <to_stop>')
+
+
+@step("I save the changes to a temporary file")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    raise NotImplementedError(u'STEP: And I save the changes to a temporary file')
+
+
+@step("I load the temporary file")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    raise NotImplementedError(u'STEP: And I load the temporary file')
+
+
+@when("I query the stages for each well in the changed project")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    raise NotImplementedError(u'STEP: When I query the stages for each well in the changed project')
+
+
+# noinspection PyBDDParameters
+@then("I see the correct {well}, {stage_no:d}, {to_start}, and {to_stop}")
+def step_impl(context, well, stage_no, to_start, to_stop):
+    """
+    Args:
+        context (behave.runner.Context):
+        well (str):
+        stage_no (int):
+        to_start (str):
+        to_stop (str):
+    """
+    raise NotImplementedError(u'STEP: Then I see the correct <well>, <stage_no>, <to_start>, and <to_stop>')
