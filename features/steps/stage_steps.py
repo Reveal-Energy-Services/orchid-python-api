@@ -325,7 +325,7 @@ def step_impl(context, stage_no, well, from_start, to_start):
     stage_to_change = cf.find_stage_no_in_well_of_project(context, stage_no, well)
     assert_that(stage_to_change.start_time, equal_to(pdt.parse(from_start)))
 
-    stage_to_change.start_time = to_start
+    # stage_to_change.start_time = to_start
 
 
 # noinspection PyBDDParameters
@@ -339,7 +339,10 @@ def step_impl(context, stage_no, well, from_stop, to_stop):
         from_stop (str): The original stop time of the stage of interest.
         to_stop (str): The updated stop time of the stage of interest.
     """
-    raise NotImplementedError(u'STEP: And I change the stop time of stage <stage_no> of <well> <from_stop> <to_stop>')
+    stage_to_change = cf.find_stage_no_in_well_of_project(context, stage_no, well)
+    assert_that(stage_to_change.stop_time, equal_to(pdt.parse(from_stop)))
+
+    # stage_to_change.stop_time = to_stop
 
 
 @step("I save the changes to a temporary file")
