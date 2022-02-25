@@ -449,3 +449,11 @@ Feature: Low-level DOM API (stage)
       | bakken | Demo_4H | 7        | 2018-06-12T08:31:14.542233Z | 2018-06-12T11:53:45.201420Z | 2018-06-12T08:31:14.542233Z | 2018-06-12T11:54:45.201420Z |
       | bakken | Demo_4H | 26       | 2018-06-25T08:51:22.653811Z | 2018-06-25T11:06:25.949708Z | 2018-06-25T10:51:22.653811Z | 2018-06-25T11:06:25.949708Z |
       | bakken | Demo_4H | 35       | 2018-06-28T18:30:42.187494Z | 2018-06-28T20:32:57.209472Z | 2018-06-28T18:30:42.187494Z | 2018-06-28T19:32:57.209472Z |
+
+    # These examples primarily test error conditions
+    # - Hori_01 Stage 1:
+    Examples: Montney
+      | field   | well    | stage_no | from_start           | from_stop            | to_start             | to_stop              |
+      | montney | Hori_01 | 1        | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z | NaT                  | 2018-04-06T21:14:58Z |
+      | montney | Hori_01 | 2        | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z | 2018-04-07T05:23:00Z | NaT                  |
+      | montney | Hori_01 | 8        | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z | NaT                  | NaT                  |
