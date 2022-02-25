@@ -417,10 +417,9 @@ Feature: Low-level DOM API (stage)
     Given I have loaded the project for the field, '<field>'
     And I change the start time of stage <stage_no> of <well> <from_start> <to_start>
     And I change the stop time of stage <stage_no> of <well> <from_stop> <to_stop>
-    And I save the changes to a temporary file
-    And I load the temporary file
-    When I query the stages for each well in the changed project
-    Then I see the correct <well>, <stage_no>, <to_start>, and <to_stop>
+    When I query the .NET IStage for <well> and <stage_no>
+    Then I see a start time of <to_start>
+    And I see a stop time of <to_stop>
 
     # The following examples test the following conditions:
     # - Demo_1H Stage 1: Start microseconds earlier
@@ -451,9 +450,11 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_4H | 35       | 2018-06-28T18:30:42.187Z | 2018-06-28T20:32:57.209Z | 2018-06-28T18:30:42.187Z    | 2018-06-28T19:32:57.209Z |
 
     # These examples primarily test error conditions
-    # - Hori_01 Stage 1:
+    # - Hori_01 Stage 1: change start time to `pendulum.DateTime.min` (sentinel for `NaT`)
+    # - Hori_01 Stage 2: change stop time to `pendulum.DateTime.max` (sentinel for `NaT`)
+    # - Hori_02 Stage 3: change both start and stop time to `pendulum.DateTime.min` and pendulum.DateTime.max`, respectively
     Examples: Montney
-      | field   | well    | stage_no | from_start           | from_stop            | to_start             | to_stop              |
-      | Montney | Hori_01 | 1        | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z | NaT                  | 2018-04-06T21:14:58Z |
-      | Montney | Hori_01 | 2        | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z | 2018-04-07T05:23:00Z | NaT                  |
-      | Montney | Hori_01 | 8        | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z | NaT                  | NaT                  |
+      | field   | well    | stage_no | from_start           | from_stop            | to_start             | to_stop                     |
+      | Montney | Hori_01 | 1        | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z | 0001-01-01T00:00:00Z | 2018-04-06T21:14:58Z        |
+      | Montney | Hori_01 | 2        | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z | 2018-04-07T05:23:00Z | 9999-12-31T23:59:59.999999Z |
+      | Montney | Hori_01 | 8        | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z | 0001-01-01T00:00:00Z | 9999-12-31T23:59:59.999999Z |
