@@ -312,74 +312,19 @@ def step_impl(context, well, stage_no, center_mdkb):
     cf.assert_that_actual_measurement_close_to_expected(actual, center_mdkb)
 
 
-# noinspection PyBDDParameters
-@step("I change the start time of stage {stage_no:d} of {well} {from_start} {to_start}")
-def step_impl(context, stage_no, well, from_start, to_start):
+@then("I see the correct {well}, {stage_no:d}, {start_time}, and {stop_time}")
+def step_impl(context, well, stage_no, start_time, stop_time):
     """
     Args:
-        context (behave.runner.Context): Test context.
-        stage_no (int): The displayed stage number of interest.
-        well (str): The name of the well of interest.
-        from_start (str): The original start time of the stage of interest.
-        to_start (str): The updated start time of the stage of interest.
-    """
-    stage_to_change = cf.find_stage_no_in_well_of_project(context, stage_no, well)
-    context.stage_to_change = stage_to_change  # ensure all steps change the same native stage
-    assert_that(stage_to_change.start_time, equal_to(pdt.parse(from_start)))
-
-    stage_to_change.start_time = to_start
-
-
-# noinspection PyBDDParameters
-@step("I change the stop time of stage {stage_no:d} of {well} {from_stop} {to_stop}")
-def step_impl(context, stage_no, well, from_stop, to_stop):
-    """
-    Args:
-        context (behave.runner.Context): Test context.
-        stage_no (int): The displayed stage number of interest.
-        well (str): The name of the well of interest.
-        from_stop (str): The original stop time of the stage of interest.
-        to_stop (str): The updated stop time of the stage of interest.
-    """
-    stage_to_change = cf.find_stage_no_in_well_of_project(context, stage_no, well)
-    assert_that(stage_to_change.dom_object, equal_to(context.stage_to_change.dom_object))
-    assert_that(stage_to_change.stop_time, equal_to(pdt.parse(from_stop)))
-
-    stage_to_change.stop_time = to_stop
-
-
-# noinspection PyBDDParameters
-@when("I query the .NET IStage for {well} and {stage_no:d}")
-def step_impl(context, well, stage_no):
-    """
-    Args:
+        context (behave.runner.Context): The
         context (behave.runner.Context): The test context.
         well (str): The name of the well of interest.
         stage_no (int): The displayed stage number of interest.
+        start_time (str): The start time of the stage.
+        stop_time (str): The stop time of the stage.
     """
-    changed_stage = cf.find_stage_no_in_well_of_project(context, stage_no, well)
-    assert_that(changed_stage.dom_object, equal_to(context.stage_to_change.dom_object))
-
-
-@then("I see a start time of {to_start}")
-def step_impl(context, to_start):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        to_start (str): The expected start time of the native stage.
-    """
-    native_stage = context.stage_to_change.dom_object
-    cf.assert_that_net_date_times_are_equal(native_stage.StartTime,
-                                            ndt.as_net_date_time(pdt.parse(to_start)))
-
-
-@step("I see a stop time of {to_stop}")
-def step_impl(context, to_stop):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        to_stop (str): The expected stop time of the native stage.
-    """
-    native_stage = context.stage_to_change.dom_object
-    cf.assert_that_net_date_times_are_equal(native_stage.StopTime,
-                                            ndt.as_net_date_time(pdt.parse(to_stop)))
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
+    actual_start_time = stage_of_interest.start_time
+    assert_that(actual_start_time, equal_to(pdt.parse(start_time)))
+    actual_stop_time = stage_of_interest.stop_time
+    assert_that(actual_stop_time, equal_to(pdt.parse(stop_time)))

@@ -413,48 +413,28 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 3        | 2412.75 m   |
       | Montney | Vert_01 | 4        | 2362.75 m   |
 
-  Scenario Outline: Change stage start and stop times
+  Scenario Outline: Query stage start and stop times
     Given I have loaded the project for the field, '<field>'
-    And I change the start time of stage <stage_no> of <well> <from_start> <to_start>
-    And I change the stop time of stage <stage_no> of <well> <from_stop> <to_stop>
-    When I query the .NET IStage for <well> and <stage_no>
-    Then I see a start time of <to_start>
-    And I see a stop time of <to_stop>
+    When I query the stages for each well in the project
+    Then I see the correct <well>, <stage_no>, <start_time>, and <stop_time>
 
-    # The following examples test the following conditions:
-    # - Demo_1H Stage 1: Start microseconds earlier
-    # - Demo_1H Stage 9: Start microseconds later
-    # - Demo_1H Stage 33: Stop microseconds earlier
-    # - Demo_1H Stage 50: Stop microseconds later
-    # - Demo_2H Stage 1: End before total data range (this stage is the first stage in the global sequence number)
-    # - Demo_2H Stage 8: Change start seconds
-    # - Demo_2H Stage 21: Change stop seconds
-    # - Demo_2H Stage 50: Start after total data range (this range is the last stage in the global sequence number)
-    # - Demo_4H Stage 1: Change start minute
-    # - Demo_4H Stage 7: Change stop minute
-    # - Demo_4H Stage 26: Change start hour
-    # - Demo_4H Stage 35: Change stop hour
     Examples: Bakken
-      | field  | well    | stage_no | from_start               | from_stop                | to_start                    | to_stop                  |
-      | Bakken | Demo_1H | 1        | 2018-06-06T13:37:13.273Z | 2018-06-06T16:55:21.743Z | 2018-06-06T13:37:13.272Z    | 2018-06-06T16:55:21.743Z |
-      | Bakken | Demo_1H | 9        | 2018-06-12T12:40:58Z     | 2018-06-12T15:12:32Z     | 2018-06-12T12:40:58.000001Z | 2018-06-12T15:12:32Z     |
-      | Bakken | Demo_1H | 33       | 2018-06-21T22:07:43.952Z | 2018-06-21T23:46:28.989Z | 2018-06-21T22:07:43.952Z    | 2018-06-21T23:46:28.990Z |
-      | Bakken | Demo_1H | 50       | 2018-06-28T12:43:08.378Z | 2018-06-28T13:52:37.360Z | 2018-06-28T12:43:08.378Z    | 2018-06-28T13:52:37.361Z |
-      | Bakken | Demo_2H | 1        | 2018-06-06T06:57:39.072Z | 2018-06-06T09:11:00.113Z | 2018-05-27T06:57:39.072Z    | 2018-05-27T09:11:00.113Z |
-      | Bakken | Demo_2H | 8        | 2018-06-10T07:23:46.025Z | 2018-06-10T09:48:32.530Z | 2018-06-10T07:23:47.025Z    | 2018-06-10T09:48:32.530Z |
-      | Bakken | Demo_2H | 21       | 2018-06-17T13:16:00.974Z | 2018-06-17T15:22:46.754Z | 2018-06-17T13:16:00.974Z    | 2018-06-17T15:22:45.754Z |
-      | Bakken | Demo_2H | 50       | 2018-06-29T23:48:10.173Z | 2018-06-30T01:24:49.306Z | 2018-07-07T23:48:10.173Z    | 2018-07-04T01:24:49.306Z |
-      | Bakken | Demo_4H | 1        | 2018-06-06T09:43:37.053Z | 2018-06-06T11:56:26.370Z | 2018-06-06T09:42:37.053Z    | 2018-06-06T11:56:26.370Z |
-      | Bakken | Demo_4H | 7        | 2018-06-12T08:31:14.542Z | 2018-06-12T11:53:45.201Z | 2018-06-12T08:31:14.542Z    | 2018-06-12T11:54:45.201Z |
-      | Bakken | Demo_4H | 26       | 2018-06-25T08:51:22.653Z | 2018-06-25T11:06:25.949Z | 2018-06-25T10:51:22.653Z    | 2018-06-25T11:06:25.949Z |
-      | Bakken | Demo_4H | 35       | 2018-06-28T18:30:42.187Z | 2018-06-28T20:32:57.209Z | 2018-06-28T18:30:42.187Z    | 2018-06-28T19:32:57.209Z |
+      | field  | well    | stage_no | start_time               | stop_time                |
+      | Bakken | Demo_1H | 1        | 2018-06-06T13:37:13.273Z | 2018-06-06T16:55:21.743Z |
+      | Bakken | Demo_1H | 9        | 2018-06-12T12:40:58Z     | 2018-06-12T15:12:32Z     |
+      | Bakken | Demo_1H | 33       | 2018-06-21T22:07:43.952Z | 2018-06-21T23:46:28.989Z |
+      | Bakken | Demo_1H | 50       | 2018-06-28T12:43:08.378Z | 2018-06-28T13:52:37.360Z |
+      | Bakken | Demo_2H | 1        | 2018-06-06T06:57:39.072Z | 2018-06-06T09:11:00.113Z |
+      | Bakken | Demo_2H | 8        | 2018-06-10T07:23:46.025Z | 2018-06-10T09:48:32.530Z |
+      | Bakken | Demo_2H | 21       | 2018-06-17T13:16:00.974Z | 2018-06-17T15:22:46.754Z |
+      | Bakken | Demo_2H | 50       | 2018-06-29T23:48:10.173Z | 2018-06-30T01:24:49.306Z |
+      | Bakken | Demo_4H | 1        | 2018-06-06T09:43:37.053Z | 2018-06-06T11:56:26.370Z |
+      | Bakken | Demo_4H | 7        | 2018-06-12T08:31:14.542Z | 2018-06-12T11:53:45.201Z |
+      | Bakken | Demo_4H | 26       | 2018-06-25T08:51:22.653Z | 2018-06-25T11:06:25.949Z |
+      | Bakken | Demo_4H | 35       | 2018-06-28T18:30:42.187Z | 2018-06-28T20:32:57.209Z |
 
-    # These examples primarily test error conditions
-    # - Hori_01 Stage 1: change start time to `pendulum.DateTime.min` (sentinel for `NaT`)
-    # - Hori_01 Stage 2: change stop time to `pendulum.DateTime.max` (sentinel for `NaT`)
-    # - Hori_02 Stage 3: change both start and stop time to `pendulum.DateTime.min` and pendulum.DateTime.max`, respectively
     Examples: Montney
-      | field   | well    | stage_no | from_start           | from_stop            | to_start             | to_stop                     |
-      | Montney | Hori_01 | 1        | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z | 0001-01-01T00:00:00Z | 2018-04-06T21:14:58Z        |
-      | Montney | Hori_01 | 2        | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z | 2018-04-07T05:23:00Z | 9999-12-31T23:59:59.999999Z |
-      | Montney | Hori_01 | 8        | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z | 0001-01-01T00:00:00Z | 9999-12-31T23:59:59.999999Z |
+      | field   | well    | stage_no | start_time           | stop_time            |
+      | Montney | Hori_01 | 1        | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z |
+      | Montney | Hori_01 | 2        | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z |
+      | Montney | Hori_01 | 8        | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z |
