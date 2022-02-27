@@ -22,12 +22,12 @@ from hamcrest import assert_that, equal_to
 import pendulum as pdt
 
 from orchid import (
-    measurement as om,
     native_stage_part_adapter as spa,
     unit_system as units,
 )
 
 from tests import (
+    custom_matchers as tcm,
     stub_net as tsn,
 )
 
@@ -68,6 +68,20 @@ class TestNativeStagePartAdapter(unittest.TestCase):
         sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
         assert_that(sut.stop_time, equal_to(pdt.parse('2021-08-22T23:33:36.329')))
+
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    def test_isip_returns_native_stage_part_property(self, mock_as_unit_system):
+
+        for isip_dto, project_units in [
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 18780.7), units.Metric)
+        ]:
+            expected_isip = tsn.make_measurement(isip_dto)
+            with self.subTest(f'Testing ISIP of {expected_isip:~P}'):
+                mock_as_unit_system.return_value = project_units
+                stub_net_stage_part = tsn.create_stub_net_stage_part(isip=isip_dto)
+                sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+                tcm.assert_that_measurements_close_to(sut.isip, expected_isip, tolerance=0.01)
 
 
 if __name__ == '__main__':

@@ -30,6 +30,7 @@ import pendulum
 import toolz.curried as toolz
 
 from orchid import (
+    measurement as om,
     net_date_time as ndt,
     net_quantity as onq,
     unit_system as units,
@@ -235,8 +236,18 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
     return result
 
 
-def create_stub_net_stage_part(display_name_with_well=None, display_name_without_well=None, isip=None, part_no=None,
-                               start_time=None, project=None, stop_time=None):
+def _set_net_isip(isip, result):
+    if hasattr(isip, 'unit'):
+        result.Isip = make_net_measurement(isip)
+    elif hasattr(isip, 'Unit'):
+        result.Isip = isip
+    else:
+        raise ValueError(f'Unrecognized isip={isip}. The value, `isip`, must be a `Pint` `Quantity` or'
+                         f' a UnitsNet `Unit`.')
+
+
+def create_stub_net_stage_part(display_name_with_well=None, display_name_without_well=None,
+                               isip=None, part_no=None, start_time=None, stop_time=None):
     stub_net_stage_part_name = 'stub_net_stage_part'
     result = create_stub_domain_object(stub_name=stub_net_stage_part_name,
                                        stub_spec=IStagePart)
@@ -252,7 +263,7 @@ def create_stub_net_stage_part(display_name_with_well=None, display_name_without
     if stop_time is not None:
         result.StopTime = ndt.as_net_date_time(stop_time)
     if isip is not None:
-        result.Isip = onq.as_net_quantity(project.project_units.PRESSURE, isip)
+        _set_net_isip(isip, result)
 
     return result
 
@@ -328,13 +339,7 @@ def create_stub_net_stage(cluster_count=-1, display_name=None,
                              f' a UnitsNet `Unit`.')
 
     if isip is not None:
-        if hasattr(isip, 'unit'):
-            result.Isip = make_net_measurement(isip)
-        elif hasattr(isip, 'Unit'):
-            result.Isip = isip
-        else:
-            raise ValueError(f'Unrecognized shmin={isip}. The value, `isip`, must be a Python `unit` or'
-                             f' a UnitsNet `Unit`.')
+        _set_net_isip(isip, result)
 
     return result
 
