@@ -16,6 +16,7 @@
 #
 
 
+import decimal
 import unittest
 
 from hamcrest import assert_that, equal_to
@@ -74,6 +75,15 @@ class TestNativeStagePartAdapter(unittest.TestCase):
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 18780.7),
              units.Metric,
              tsn.make_measurement_dto(units.Metric.PRESSURE, 18780.7)),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, 22142.0),
+             units.UsOilfield,
+             tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 3211.43)),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 3891.73),
+             units.UsOilfield,
+             tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 3891.73)),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 3348.05),
+             units.Metric,
+             tsn.make_measurement_dto(units.Metric.PRESSURE, 23084.0)),
         ]:
             with self.subTest(f'Testing ISIP of {expected_isip_dto}'):
                 stub_net_project = tsn.create_stub_net_project(project_units=project_units)
@@ -82,7 +92,7 @@ class TestNativeStagePartAdapter(unittest.TestCase):
 
                 tcm.assert_that_measurements_close_to(sut.isip,
                                                       tsn.make_measurement(expected_isip_dto),
-                                                      tolerance=0.01)
+                                                      tolerance=decimal.Decimal('0.01'))
 
 
 if __name__ == '__main__':
