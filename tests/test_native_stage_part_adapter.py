@@ -17,6 +17,7 @@
 
 
 import decimal
+import math
 import unittest
 
 from hamcrest import assert_that, equal_to
@@ -34,8 +35,6 @@ from tests import (
 
 
 # Test ideas
-# - isip returns non-null native stage part property converted to `Pint` `Quantity`
-# - isip returns `null` native stage part property converted to `NaN` with correct units
 class TestNativeStagePartAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
@@ -93,6 +92,22 @@ class TestNativeStagePartAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(sut.isip,
                                                       tsn.make_measurement(expected_isip_dto),
                                                       tolerance=decimal.Decimal('0.01'))
+
+    def test_isip_returns_nan_if_native_stage_part_property_is_null(self):
+        for isip_dto, project_units in [
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, float('NaN')), units.Metric),
+            (tsn.make_measurement_dto(units.Metric.PRESSURE, float('NaN')), units.UsOilfield),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, float('NaN')), units.UsOilfield),
+            (tsn.make_measurement_dto(units.UsOilfield.PRESSURE, float('NaN')), units.Metric),
+        ]:
+            with self.subTest(f'Test `null` .NET ISIP produces `NaN` in {project_units} units'):
+                stub_net_project = tsn.create_stub_net_project(project_units=project_units)
+                stub_net_stage_part = tsn.create_stub_net_stage_part(isip=isip_dto, project=stub_net_project)
+                sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+                actual = sut.isip
+                assert_that(math.isnan(actual.magnitude))
+                assert_that(actual.units, equal_to(project_units.PRESSURE.value.unit))
 
 
 if __name__ == '__main__':

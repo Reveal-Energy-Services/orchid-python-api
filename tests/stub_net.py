@@ -23,6 +23,7 @@ properties required during testing but do not actually implement the .NET class 
 
 from collections import namedtuple
 import itertools
+import math
 import unittest.mock
 from typing import Sequence
 
@@ -238,7 +239,7 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
 
 def _set_net_isip(isip, result):
     if hasattr(isip, 'unit'):
-        result.Isip = make_net_measurement(isip)
+        result.Isip = make_net_measurement(isip) if not math.isnan(isip.magnitude) else None
     elif hasattr(isip, 'Unit'):
         result.Isip = isip
     else:
@@ -628,8 +629,8 @@ def create_stub_net_well(object_id=None, name='', display_name='', ground_level_
 
 
 def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
-                            data_frame_dtos=(), data_frame_ids=(), default_well_colors=None,
-                            fluid_density=None, monitor_dtos=(), project_bounds=None, project_center=None,
+                            data_frame_dtos=(), default_well_colors=None, fluid_density=None,
+                            monitor_dtos=(), project_bounds=None, project_center=None,
                             project_units=None, samples=None, time_series_dtos=(), well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     curve_names = curve_names if curve_names else []
