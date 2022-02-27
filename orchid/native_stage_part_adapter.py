@@ -18,8 +18,8 @@
 
 import option
 
-import orchid
 from orchid import (
+    base,
     dot_net_dom_access as dna,
     dom_project_object as dpo,
     measurement as om,
@@ -30,7 +30,7 @@ from orchid import (
 
 class NativeStagePartAdapter(dpo.DomProjectObject):
     def __init__(self, adaptee):
-        super().__init__(adaptee, orchid.base.constantly(adaptee.Project))
+        super().__init__(adaptee, base.constantly(adaptee.Project))
 
     display_name_with_well = dna.dom_property('display_name_with_well',
                                               'The display stage number including the well name')

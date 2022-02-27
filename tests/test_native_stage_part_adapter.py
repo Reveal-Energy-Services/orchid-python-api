@@ -18,10 +18,56 @@
 
 import unittest
 
+from hamcrest import assert_that, equal_to
+import pendulum as pdt
 
+from orchid import (
+    measurement as om,
+    native_stage_part_adapter as spa,
+    unit_system as units,
+)
+
+from tests import (
+    stub_net as tsn,
+)
+
+
+# Test ideas
+# - isip returns non-null native stage part property converted to `Pint` `Quantity`
+# - isip returns `null` native stage part property converted to `NaN` with correct units
 class TestNativeStagePartAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
+
+    def test_display_name_with_well_returns_native_stage_part_property(self):
+        stub_net_stage_part = tsn.create_stub_net_stage_part(display_name_with_well='calcar')
+        sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+        assert_that(sut.display_name_with_well, equal_to('calcar'))
+
+    def test_display_name_without_well_returns_native_stage_part_property(self):
+        stub_net_stage_part = tsn.create_stub_net_stage_part(display_name_without_well='edo')
+        sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+        assert_that(sut.display_name_without_well, equal_to('edo'))
+
+    def test_part_no_returns_native_stage_part_property(self):
+        stub_net_stage_part = tsn.create_stub_net_stage_part(part_no=3)
+        sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+        assert_that(sut.part_no, equal_to(3))
+
+    def test_start_time_returns_native_stage_part_property(self):
+        stub_net_stage_part = tsn.create_stub_net_stage_part(start_time=pdt.parse('2026-05-31T04:52:20.857'))
+        sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+        assert_that(sut.start_time, equal_to(pdt.parse('2026-05-31T04:52:20.857')))
+
+    def test_stop_time_returns_native_stage_part_property(self):
+        stub_net_stage_part = tsn.create_stub_net_stage_part(stop_time=pdt.parse('2021-08-22T23:33:36.329'))
+        sut = spa.NativeStagePartAdapter(stub_net_stage_part)
+
+        assert_that(sut.stop_time, equal_to(pdt.parse('2021-08-22T23:33:36.329')))
 
 
 if __name__ == '__main__':
