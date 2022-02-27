@@ -247,7 +247,8 @@ def _set_net_isip(isip, result):
 
 
 def create_stub_net_stage_part(display_name_with_well=None, display_name_without_well=None,
-                               isip=None, part_no=None, start_time=None, stop_time=None):
+                               isip=None, part_no=None, project=None,
+                               start_time=None, stop_time=None):
     stub_net_stage_part_name = 'stub_net_stage_part'
     result = create_stub_domain_object(stub_name=stub_net_stage_part_name,
                                        stub_spec=IStagePart)
@@ -258,6 +259,8 @@ def create_stub_net_stage_part(display_name_with_well=None, display_name_without
         result.DisplayNameWithoutWell = display_name_without_well
     if part_no is not None:
         result.PartNumber = part_no
+    if project is not None:
+        result.Project = project
     if start_time is not None:
         result.StartTime = ndt.as_net_date_time(start_time)
     if stop_time is not None:
