@@ -1,0 +1,78 @@
+#  Copyright (c) 2017-2022 Reveal Energy Services, Inc
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+# This file is part of Orchid and related technologies.
+#
+
+# noinspection PyPackageRequirements
+from behave import *
+
+use_step_matcher("parse")
+
+from hamcrest import assert_that, equal_to
+import pendulum as pdt
+
+import common_functions as cf
+
+
+@when("I query the stage parts for well, {well}, and stage, {stage_no:d}, of the project")
+def step_impl(context, well, stage_no):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name used to identify the well (assumed unique).
+        stage_no (int): The stage number that identifies the stage of interest.
+    """
+    candidate_wells = list(context.project.wells().find_by_name(well))
+    assert len(candidate_wells) == 1, f'Expected exactly one well named, {well}. Found {len(candidate_wells)}.'
+    context.well_of_interest = candidate_wells[0]
+
+    context.stage_of_interest = context.well_of_interest.stages().find_by_display_stage_number(stage_no)
+
+    context.stage_parts_of_interest = context.stage_of_interest.stage_parts()
+
+
+@then("I see {name}, {part_no:d}, {display_name}, {display_name_with_well}, and {display_name_without_well}")
+def step_impl(context, name, part_no, display_name, display_name_with_well, display_name_without_well):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+        name (str): The name of the stage part.
+        part_no (int): The number of the stage part.
+        display_name (str): The value identifying this stage part displayed to users.
+        display_name_with_well (str): The value identifying this stage part, including the well, displayed to users.
+        display_name_without_well (str): The value identifying this stage part, without the well, displayed to users.
+    """
+    sut = context.stage_parts_of_interest.find_by_stage_part_number(part_no)
+    assert_that(sut.name, equal_to(name))
+    assert_that(sut.display_name, equal_to(display_name))
+    assert_that(sut.display_name_with_well, equal_to(display_name_with_well))
+    assert_that(sut.display_name_without_well, equal_to(display_name_without_well))
+
+
+# noinspection PyBDDParameters
+@then("I see {part_no:d}, {start_time}, {stop_time}, and {isip}")
+def step_impl(context, part_no, start_time, stop_time, isip):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        part_no (int): The number of the stage part.
+        start_time (str): The start time of this stage part.
+        stop_time (str): The stop time of this stage part.
+        isip (str): The instantaneous shut-in pressure of this stage part.
+    """
+    sut = context.stage_parts_of_interest.find_by_stage_part_number(part_no)
+    assert_that(sut.start_time, equal_to(pdt.parse(start_time)))
+    assert_that(sut.stop_time, equal_to(pdt.parse(stop_time)))
+    cf.assert_that_actual_measurement_close_to_expected(sut.isip, isip)

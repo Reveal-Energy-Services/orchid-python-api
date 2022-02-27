@@ -13,6 +13,7 @@
 #
 
 import decimal
+import datetime as dt
 
 from hamcrest import assert_that, equal_to
 

@@ -28,11 +28,13 @@ from orchid import (
     dot_net_dom_access as dna,
     dom_project_object as dpo,
     measurement as om,
+    native_stage_part_adapter as spa,
     native_subsurface_point as nsp,
     native_treatment_curve_adapter as ntc,
     net_date_time as ndt,
     net_quantity as onq,
     reference_origins as origins,
+    searchable_stage_parts as ssp,
     unit_system as units,
     validation
 )
@@ -137,6 +139,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
             pnet = isip + fluid-density * tvd - shmin (where tvd is the true vertical depth)
         """
         return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Pnet))
+
+    def stage_parts(self) -> ssp.SearchableStageParts:
+        """
+        Return a `ssp.SearchableStageParts` for all the stage parts for this stage.
+
+        Returns:
+            An `ssp.SearchableStageParts` for all the stage parts for this stage.
+        """
+        return ssp.SearchableStageParts(spa.NativeStagePartAdapter, self.dom_object.Parts)
 
     @property
     def shmin(self) -> om.Quantity:
