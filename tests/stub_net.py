@@ -482,17 +482,19 @@ def create_stub_net_well_trajectory(object_id=None, project=None,
     if project is not None:
         stub_trajectory.Well.Project = project
 
-    if easting_magnitudes is not None and project.project_units is not None:
-        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project.project_units.LENGTH)
+    if easting_magnitudes is not None and project.ProjectUnits is not None:
+        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes,
+                                                         units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
 
-    if northing_magnitudes is not None and project.project_units is not None:
+    if northing_magnitudes is not None and project.ProjectUnits is not None:
         stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
-                                                          project.project_units.LENGTH)
+                                                          units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
-    if tvd_ss_magnitudes is not None and project.project_units is not None:
-        stub_tvd_sss = create_stub_net_trajectory_array(tvd_ss_magnitudes, project.project_units.LENGTH)
+    if tvd_ss_magnitudes is not None and project.ProjectUnits is not None:
+        stub_tvd_sss = create_stub_net_trajectory_array(tvd_ss_magnitudes,
+                                                        units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetTvdArray = unittest.mock.MagicMock(name='stub_tvd_sss', return_value=stub_tvd_sss)
 
     if inclination_magnitudes is not None:
@@ -505,8 +507,9 @@ def create_stub_net_well_trajectory(object_id=None, project=None,
         stub_trajectory.GetAzimuthEastOfNorthArray = unittest.mock.MagicMock(name='stub_azimuths',
                                                                              return_value=stub_azimuths)
 
-    if md_kb_magnitudes is not None and project.project_units is not None:
-        stub_md_kbs = create_stub_net_trajectory_array(md_kb_magnitudes, project.project_units.LENGTH)
+    if md_kb_magnitudes is not None and project.ProjectUnits is not None:
+        stub_md_kbs = create_stub_net_trajectory_array(md_kb_magnitudes,
+                                                       units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetMdKbArray = unittest.mock.MagicMock(name='stub_md_kbs', return_value=stub_md_kbs)
 
     return stub_trajectory

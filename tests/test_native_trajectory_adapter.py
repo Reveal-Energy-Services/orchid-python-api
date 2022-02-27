@@ -57,8 +57,10 @@ class TestNativeTrajectoryAdapter(unittest.TestCase):
                                                                       easting_magnitudes=expected)
                 sut = nta.NativeTrajectoryAdapter(stub_trajectory)
 
+                actual = sut.get_easting_array(reference_frame)
+
                 assert_that(stub_trajectory.GetEastingArray.called_once_with(reference_frame))
-                np.testing.assert_allclose(sut.get_easting_array(reference_frame), expected)
+                np.testing.assert_allclose(actual, expected)
 
     def test_get_northing_array(self):
         for expected, project_units, reference_frame in [
