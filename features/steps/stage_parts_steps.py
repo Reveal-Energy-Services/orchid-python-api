@@ -43,8 +43,8 @@ def step_impl(context, well, stage_no):
     context.stage_parts_of_interest = context.stage_of_interest.stage_parts()
 
 
-@then("I see {name}, {part_no:d}, {display_name}, {display_name_with_well}, and {display_name_without_well}")
-def step_impl(context, name, part_no, display_name, display_name_with_well, display_name_without_well):
+@then("I see {part_no:d}, {name}, {display_name}, {display_name_with_well}, and {display_name_without_well}")
+def step_impl(context, part_no, name, display_name, display_name_with_well, display_name_without_well):
     """
     Args:
         context (behave.runner.Context): The test context

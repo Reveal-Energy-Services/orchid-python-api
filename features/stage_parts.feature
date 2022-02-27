@@ -23,7 +23,7 @@ Feature: High-level DOM API (stage part)
   Scenario Outline: Get the identifying information for each stage part in a project
     Given I have loaded the project for the field, '<field>'
     When I query the stage parts for well, <well>, and stage, <stage_no>, of the project
-    Then I see <name>, <part_no>, <display_name>, <display_name_with_well>, and <display_name_without_well>
+    Then I see <part_no>, <name>, <display_name>, <display_name_with_well>, and <display_name_without_well>
 
     Examples: Bakken
       | field  | well    | stage_no | part_no | name     | display_name | display_name_with_well | display_name_without_well |
