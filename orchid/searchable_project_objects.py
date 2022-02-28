@@ -52,6 +52,7 @@ Here are the DOM objects that currently may be collections:
 - Data frames
 - Monitors
 - Stages
+- Stage Parts
 - Well trajectory
 - Wells
 
