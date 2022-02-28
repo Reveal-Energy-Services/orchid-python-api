@@ -114,6 +114,42 @@ class StubNetSample:
 
 
 @dc.dataclass
+class StagePartDto:
+    display_name_with_well: str = None
+    display_name_without_well: str = None
+    isip: om.Quantity = None
+    object_id: uuid.UUID = None
+    part_no: int = None
+    project: object = None  # a stub net project
+    start_time: pdt.DateTime = None
+    stop_time: pdt.DateTime = None
+
+    def create_net_stub(self):
+        stub_net_stage_part_name = 'stub_net_stage_part'
+        result = create_stub_domain_object(stub_name=stub_net_stage_part_name,
+                                           stub_spec=IStagePart)
+
+        if self.display_name_with_well is not None:
+            result.DisplayNameWithWell = self.display_name_with_well
+        if self.display_name_without_well is not None:
+            result.DisplayNameWithoutWell = self.display_name_without_well
+        if self.isip is not None:
+            _set_net_isip(self.isip, result)
+        if self.object_id is not None:
+            result.ObjectId = Guid(self.object_id)
+        if self.part_no is not None:
+            result.PartNumber = self.part_no
+        if self.project is not None:
+            result.Project = self.project
+        if self.start_time is not None:
+            result.StartTime = ndt.as_net_date_time(self.start_time)
+        if self.stop_time is not None:
+            result.StopTime = ndt.as_net_date_time(self.stop_time)
+
+        return result
+
+
+@dc.dataclass
 class StageDto:
     cluster_count: int = -1
     display_name: str = None
@@ -130,6 +166,7 @@ class StageDto:
     stage_location_center: Callable = None
     stage_location_cluster: Callable = None
     stage_location_top: Callable = None
+    stage_parts: Iterable[StagePartDto] = None
     start_time: pdt.DateTime = None
     stop_time: pdt.DateTime = None
     treatment_curve_names: Iterable[str] = None
@@ -168,6 +205,8 @@ class StageDto:
             if callable(self.stage_location_top):
                 result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',
                                                                      side_effect=self.stage_location_top)
+        if self.stage_parts is not None:
+            result.Parts = [dto.create_net_stub() for dto in self.stage_parts]
         if self.start_time is not None:
             result.StartTime = ndt.as_net_date_time(self.start_time)
         if self.stop_time is not None:
@@ -200,42 +239,6 @@ class StageDto:
 
         if self.isip is not None:
             _set_net_isip(self.isip, result)
-
-        return result
-
-
-@dc.dataclass
-class StagePartDto:
-    display_name_with_well: str = None
-    display_name_without_well: str = None
-    isip: om.Quantity = None
-    object_id: uuid.UUID = None
-    part_no: int = None
-    project: object = None  # a stub net project
-    start_time: pdt.DateTime = None
-    stop_time: pdt.DateTime = None
-
-    def create_net_stub(self):
-        stub_net_stage_part_name = 'stub_net_stage_part'
-        result = create_stub_domain_object(stub_name=stub_net_stage_part_name,
-                                           stub_spec=IStagePart)
-
-        if self.display_name_with_well is not None:
-            result.DisplayNameWithWell = self.display_name_with_well
-        if self.display_name_without_well is not None:
-            result.DisplayNameWithoutWell = self.display_name_without_well
-        if self.isip is not None:
-            _set_net_isip(self.isip, result)
-        if self.object_id is not None:
-            result.ObjectId = Guid(self.object_id)
-        if self.part_no is not None:
-            result.PartNumber = self.part_no
-        if self.project is not None:
-            result.Project = self.project
-        if self.start_time is not None:
-            result.StartTime = ndt.as_net_date_time(self.start_time)
-        if self.stop_time is not None:
-            result.StopTime = ndt.as_net_date_time(self.stop_time)
 
         return result
 

@@ -379,6 +379,18 @@ class TestNativeStageAdapter(unittest.TestCase):
                 actual_stage_length = sut.stage_length(expected_stage_length_dto.unit)
                 tcm.assert_that_measurements_close_to(actual_stage_length, expected_stage_length, decimal.Decimal('1'))
 
+    def test_stage_parts(self):
+        for stage_part_dtos in [
+            (),
+            (tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A),),
+            [tsn.StagePartDto(object_id=oid) for oid in [tsn.DONT_CARE_ID_A, tsn.DONT_CARE_ID_B, tsn.DONT_CARE_ID_C]],
+        ]:
+            with self.subTest(f'Expecting {len(stage_part_dtos)} stage parts'):
+                stub_net_stage = tsn.StageDto(stage_parts=stage_part_dtos).create_net_stub()
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                assert_that(len(sut.stage_parts()), equal_to(len(stage_part_dtos)))
+
     def test_start_time(self):
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, tdt.utc_time_zone())
         stub_net_stage = tsn.StageDto(start_time=expected_start_time).create_net_stub()
