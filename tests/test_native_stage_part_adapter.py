@@ -40,31 +40,31 @@ class TestNativeStagePartAdapter(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     def test_display_name_with_well_returns_native_stage_part_property(self):
-        stub_net_stage_part = tsn.create_stub_net_stage_part(display_name_with_well='calcar')
+        stub_net_stage_part = tsn.StagePartDto(display_name_with_well='calcar').create_net_stub()
         sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
         assert_that(sut.display_name_with_well, equal_to('calcar'))
 
     def test_display_name_without_well_returns_native_stage_part_property(self):
-        stub_net_stage_part = tsn.create_stub_net_stage_part(display_name_without_well='edo')
+        stub_net_stage_part = tsn.StagePartDto(display_name_without_well='edo').create_net_stub()
         sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
         assert_that(sut.display_name_without_well, equal_to('edo'))
 
     def test_part_no_returns_native_stage_part_property(self):
-        stub_net_stage_part = tsn.create_stub_net_stage_part(part_no=3)
+        stub_net_stage_part = tsn.StagePartDto(part_no=3).create_net_stub()
         sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
         assert_that(sut.part_no, equal_to(3))
 
     def test_start_time_returns_native_stage_part_property(self):
-        stub_net_stage_part = tsn.create_stub_net_stage_part(start_time=pdt.parse('2026-05-31T04:52:20.857'))
+        stub_net_stage_part = tsn.StagePartDto(start_time=pdt.parse('2026-05-31T04:52:20.857')).create_net_stub()
         sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
         assert_that(sut.start_time, equal_to(pdt.parse('2026-05-31T04:52:20.857')))
 
     def test_stop_time_returns_native_stage_part_property(self):
-        stub_net_stage_part = tsn.create_stub_net_stage_part(stop_time=pdt.parse('2021-08-22T23:33:36.329'))
+        stub_net_stage_part = tsn.StagePartDto(stop_time=pdt.parse('2021-08-22T23:33:36.329')).create_net_stub()
         sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
         assert_that(sut.stop_time, equal_to(pdt.parse('2021-08-22T23:33:36.329')))
@@ -86,7 +86,7 @@ class TestNativeStagePartAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Testing ISIP of {expected_isip_dto}'):
                 stub_net_project = tsn.create_stub_net_project(project_units=project_units)
-                stub_net_stage_part = tsn.create_stub_net_stage_part(isip=net_isip_dto, project=stub_net_project)
+                stub_net_stage_part = tsn.StagePartDto(isip=net_isip_dto, project=stub_net_project).create_net_stub()
                 sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
                 tcm.assert_that_measurements_close_to(sut.isip,
@@ -102,7 +102,7 @@ class TestNativeStagePartAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test `null` .NET ISIP produces `NaN` in {project_units} units'):
                 stub_net_project = tsn.create_stub_net_project(project_units=project_units)
-                stub_net_stage_part = tsn.create_stub_net_stage_part(isip=isip_dto, project=stub_net_project)
+                stub_net_stage_part = tsn.StagePartDto(isip=isip_dto, project=stub_net_project).create_net_stub()
                 sut = spa.NativeStagePartAdapter(stub_net_stage_part)
 
                 actual = sut.isip
