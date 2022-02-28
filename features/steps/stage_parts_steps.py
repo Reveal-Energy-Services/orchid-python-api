@@ -54,7 +54,7 @@ def step_impl(context, part_no, name, display_name, display_name_with_well, disp
         display_name_with_well (str): The value identifying this stage part, including the well, displayed to users.
         display_name_without_well (str): The value identifying this stage part, without the well, displayed to users.
     """
-    sut = context.stage_parts_of_interest.find_by_stage_part_number(part_no)
+    sut = context.stage_parts_of_interest.find_by_part_number(part_no)
     assert_that(sut.name, equal_to(name))
     assert_that(sut.display_name, equal_to(display_name))
     assert_that(sut.display_name_with_well, equal_to(display_name_with_well))
@@ -72,7 +72,7 @@ def step_impl(context, part_no, start_time, stop_time, isip):
         stop_time (str): The stop time of this stage part.
         isip (str): The instantaneous shut-in pressure of this stage part.
     """
-    sut = context.stage_parts_of_interest.find_by_stage_part_number(part_no)
+    sut = context.stage_parts_of_interest.find_by_part_number(part_no)
     assert_that(sut.start_time, equal_to(pdt.parse(start_time)))
     assert_that(sut.stop_time, equal_to(pdt.parse(stop_time)))
     cf.assert_that_actual_measurement_close_to_expected(sut.isip, isip)

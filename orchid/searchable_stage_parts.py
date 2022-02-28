@@ -23,7 +23,7 @@ from orchid import (
 
 
 class SearchableStageParts(spo.SearchableProjectObjects):
-    def find_by_stage_part_number(self, to_find: int) -> Optional[spa.NativeStagePartAdapter]:
+    def find_by_part_number(self, to_find: int) -> Optional[spa.NativeStagePartAdapter]:
         """
         Find a stage part with the specified part number.
 
