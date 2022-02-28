@@ -24,7 +24,6 @@ import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
     dom_project_object as dpo,
-    searchable_project_objects as spo,
     searchable_stages as oss,
     measurement as om,
     native_stage_adapter as nsa,
