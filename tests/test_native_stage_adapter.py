@@ -86,7 +86,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         bottom_mock_func = mock_subsurface_point_func(DONT_CARE_METRIC_LOCATION,
                                                       origins.WellReferenceFrameXy.WELL_HEAD,
                                                       origins.DepthDatum.KELLY_BUSHING)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_bottom=bottom_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.bottom_location(units.Metric.LENGTH, origins.WellReferenceFrameXy.WELL_HEAD,
@@ -96,7 +96,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                                  origins.DepthDatum.KELLY_BUSHING.value)
 
     def test_bottom_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.Metric.PRESSURE
@@ -108,7 +108,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         center_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
                                                       origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                                       origins.DepthDatum.GROUND_LEVEL)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_center=center_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.center_location(units.UsOilfield.LENGTH, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
@@ -118,7 +118,7 @@ class TestNativeStageAdapter(unittest.TestCase):
             origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE.value, origins.DepthDatum.GROUND_LEVEL.value)
 
     def test_center_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.UsOilfield.POWER
@@ -147,7 +147,8 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_center_mdkb = tsn.make_measurement(expected_center_mdkb_dto)
             with self.subTest(f'Stage center MDKB = {expected_center_mdkb:~P})'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                stub_net_stage = tsn.StageDto(md_top=actual_top_dto,
+                                              md_bottom=actual_bottom_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_center_mdkb = sut.center_location_mdkb(expected_center_mdkb_unit)
@@ -155,7 +156,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_cluster_count(self):
         expected_cluster_count = 3
-        stub_net_stage = tsn.create_stub_net_stage(cluster_count=expected_cluster_count)
+        stub_net_stage = tsn.StageDto(cluster_count=expected_cluster_count).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.cluster_count, equal_to(expected_cluster_count))
@@ -177,7 +178,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                                DONT_CARE_CLUSTER_NO,
                                                                origins.WellReferenceFrameXy.PROJECT,
                                                                origins.DepthDatum.KELLY_BUSHING)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_cluster=cluster_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_cluster=cluster_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.cluster_location(units.UsOilfield.LENGTH,
@@ -190,7 +191,7 @@ class TestNativeStageAdapter(unittest.TestCase):
             origins.DepthDatum.KELLY_BUSHING.value)
 
     def test_cluster_location_invalid_cluster_no_raises_contract_error(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(calling(sut.cluster_location).with_args(units.UsOilfield.LENGTH, -1,
@@ -199,7 +200,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                     raises(deal.PreContractError))
 
     def test_cluster_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.Metric.DENSITY
@@ -211,7 +212,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
-        stub_net_stage = tsn.create_stub_net_stage(display_stage_no=expected_display_stage_number)
+        stub_net_stage = tsn.StageDto(display_stage_no=expected_display_stage_number).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
@@ -230,7 +231,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             with self.subTest(self.in_project_units_test_description('ISIP', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
-                stub_net_stage = tsn.create_stub_net_stage(isip=orchid_actual)
+                stub_net_stage = tsn.StageDto(isip=orchid_actual).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 tcm.assert_that_measurements_close_to(sut.isip, expected, tolerance)
@@ -245,14 +246,14 @@ class TestNativeStageAdapter(unittest.TestCase):
         for net_isip, expected_pair in zip(net_isips, expected_matrix):
             expected_dto, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(isip=net_isip)
+                stub_net_stage = tsn.StageDto(isip=net_isip).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 expected = tsn.make_measurement(expected_dto)
                 tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected_dto.unit), expected, tolerance)
 
     def test_isip_all_non_unit_errors(self):
         expected_pressure_dto = tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414)
-        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure_dto)
+        stub_net_stage = tsn.StageDto(isip=expected_pressure_dto).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
         assert_that(calling(sut.isip_in_pressure_unit).with_args(units.UsOilfield.LENGTH),
                     raises(deal.PreContractError))
@@ -270,7 +271,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_bottom = tsn.make_measurement(expected_bottom_dto)
             with self.subTest(f'Test MD bottom {expected_bottom:~P}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_bottom=actual_bottom_dto)
+                stub_net_stage = tsn.StageDto(md_bottom=actual_bottom_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_bottom = sut.md_bottom(expected_bottom_dto.unit)
@@ -289,7 +290,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_top = tsn.make_measurement(expected_top_dto)
             with self.subTest(f'Test MD top {expected_top:~P}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto)
+                stub_net_stage = tsn.StageDto(md_top=actual_top_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top_dto.unit)
@@ -309,7 +310,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             with self.subTest(self.in_project_units_test_description('PNET', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
-                stub_net_stage = tsn.create_stub_net_stage(pnet=orchid_actual)
+                stub_net_stage = tsn.StageDto(pnet=orchid_actual).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 tcm.assert_that_measurements_close_to(sut.pnet, expected, tolerance)
@@ -319,7 +320,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for net_pnet, expected_pair in zip(net_pnets, expected_matrix):
             expected_dto, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(pnet=net_pnet)
+                stub_net_stage = tsn.StageDto(pnet=net_pnet).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 expected = tsn.make_measurement(expected_dto)
                 tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected_dto.unit), expected, tolerance)
@@ -338,7 +339,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             with self.subTest(self.in_project_units_test_description('shmin', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
-                stub_net_stage = tsn.create_stub_net_stage(shmin=orchid_actual)
+                stub_net_stage = tsn.StageDto(shmin=orchid_actual).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 tcm.assert_that_measurements_close_to(sut.shmin, expected, tolerance)
@@ -348,7 +349,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for net_shmin, expected_pair in zip(net_shmins, expected_matrix):
             expected_dto, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_shmin} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
+                stub_net_stage = tsn.StageDto(shmin=net_shmin).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 expected = tsn.make_measurement(expected_dto)
                 tcm.assert_that_measurements_close_to(sut.shmin_in_pressure_unit(expected_dto.unit),
@@ -371,7 +372,8 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_stage_length = tsn.make_measurement(expected_stage_length_dto)
             with self.subTest(f'Test stage length with expected stage length {expected_stage_length:~P}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                stub_net_stage = tsn.StageDto(md_top=actual_top_dto,
+                                              md_bottom=actual_bottom_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_stage_length = sut.stage_length(expected_stage_length_dto.unit)
@@ -379,7 +381,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_start_time(self):
         expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, tdt.utc_time_zone())
-        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
+        stub_net_stage = tsn.StageDto(start_time=expected_start_time).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_start_time = sut.start_time
@@ -387,7 +389,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_stop_time(self):
         expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, tdt.utc_time_zone())
-        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
+        stub_net_stage = tsn.StageDto(stop_time=expected_stop_time).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_stop_time = sut.stop_time
@@ -436,7 +438,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         top_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
                                                    origins.WellReferenceFrameXy.PROJECT,
                                                    origins.DepthDatum.SEA_LEVEL)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_top=top_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_top=top_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.top_location(units.UsOilfield.LENGTH, origins.WellReferenceFrameXy.PROJECT,
@@ -446,7 +448,7 @@ class TestNativeStageAdapter(unittest.TestCase):
             origins.WellReferenceFrameXy.PROJECT.value, origins.DepthDatum.SEA_LEVEL.value)
 
     def test_top_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.UsOilfield.PROPPANT_CONCENTRATION
@@ -456,7 +458,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                     raises(deal.PreContractError, pattern=f'must be a unit system length'))
 
     def test_treatment_curves_no_curves(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curve = sut.treatment_curves()
@@ -464,7 +466,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_one_curve(self):
         expected_sampled_quantity_name = ntc.TreatmentCurveTypes.SLURRY_RATE
-        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=[expected_sampled_quantity_name])
+        stub_net_stage = tsn.StageDto(treatment_curve_names=[expected_sampled_quantity_name]).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
@@ -481,7 +483,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 expected_sampled_quantity_names = [ntc.TreatmentCurveTypes.TREATING_PRESSURE,
                                                    ntc.TreatmentCurveTypes.SLURRY_RATE,
                                                    proppant_curve_type]
-                stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
+                stub_net_stage = tsn.StageDto(treatment_curve_names=expected_sampled_quantity_names).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_curves = sut.treatment_curves()
