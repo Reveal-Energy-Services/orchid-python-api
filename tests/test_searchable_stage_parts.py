@@ -19,6 +19,15 @@
 import unittest
 
 
+# Test ideas
+# - Find by part number when number found
+# - Find by part number when number not found
+# - Find by display name with well when one found
+# - Find by display name with well when zero found
+# - Find by display name with well when many found
+# - Find by display name without well when one found
+# - Find by display name without well when zero found
+# - Find by display name without well when many found
 class TestSearchableStageParts(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
