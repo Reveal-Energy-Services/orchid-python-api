@@ -98,3 +98,45 @@ Feature: High-level DOM API (stage part)
       | montney | Vert_01 | 3        | 0       | 2018-04-10T12:37:14.000Z | 2018-04-10T15:24:41.000Z | 32.1 kPa |
       | montney | Vert_01 | 4        | 0       | 2018-04-10T18:41:50.000Z | 2018-04-10T20:29:35.000Z | 32.2 kPa |
 
+  Scenario Outline: Change the stage part start and stop times
+    Given I have loaded the project for the field, '<field>'
+    And I change the start time of stage part <part_no> of <stage_no> of <well> <to_start>
+    And I change the stop time of stage part <part_no> of <stage_no> of <well> <to_stop>
+    And I save the changes to a temporary file
+    And I load the temporary file
+    Then I see the changed <to_start> and <to_stop> for <well>, and <stage_no>
+    And I see the changed <to_start> and <to_stop> for <well>, <stage_no>, and <part_no>
+
+    Examples: Bakken
+      | field  | well    | stage_no | part_no | to_start                    | to_stop                     |
+      | bakken | Demo_1H | 1        | 0       | 2018-05-27T13:37:13.273318Z | 2018-06-06T16:55:21.743769Z |
+      | bakken | Demo_1H | 9        | 0       | 2018-06-12T12:40:59Z        | 2018-06-12T15:12:32Z        |
+      | bakken | Demo_1H | 33       | 0       | 2018-06-21T22:07:43.952640Z | 2018-06-21T23:46:29.989260Z |
+      | bakken | Demo_1H | 50       | 0       | 2018-07-07T12:43:08.378905Z | 2018-07-07T13:52:37.360844Z |
+      | bakken | Demo_2H | 1        | 0       | 2018-06-06T06:57:39.072870Z | 2018-06-06T09:11:00.113523Z |
+      | bakken | Demo_2H | 8        | 0       | 2018-06-10T07:23:46.025395Z | 2018-06-10T09:48:32.530521Z |
+      | bakken | Demo_2H | 21       | 0       | 2018-06-17T13:16:00.974118Z | 2018-06-17T15:22:46.754150Z |
+      | bakken | Demo_2H | 50       | 0       | 2018-06-29T23:48:10.173337Z | 2018-06-30T01:24:49.306636Z |
+      | bakken | Demo_4H | 1        | 0       | 2018-06-06T09:43:37.053222Z | 2018-06-06T11:56:26.370854Z |
+      | bakken | Demo_4H | 7        | 0       | 2018-06-12T08:31:14.542233Z | 2018-06-12T11:53:45.201420Z |
+      | bakken | Demo_4H | 26       | 0       | 2018-06-25T08:51:22.653811Z | 2018-06-25T11:06:25.949708Z |
+      | bakken | Demo_4H | 35       | 0       | 2018-06-28T18:30:42.187494Z | 2018-06-28T20:32:57.209472Z |
+
+    Examples: Montney
+      | field   | well    | stage_no | part_no | to_start             | to_stop              |
+      | montney | Hori_01 | 1        | 0       | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z |
+      | montney | Hori_01 | 2        | 0       | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z |
+      | montney | Hori_01 | 8        | 0       | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z |
+      | montney | Hori_01 | 15       | 0       | 2018-04-19T19:47:22Z | 2018-04-19T22:41:54Z |
+      | montney | Hori_02 | 1        | 0       | 2018-04-06T10:40:00Z | 2018-04-06T13:30:00Z |
+      | montney | Hori_02 | 8        | 0       | 2018-04-13T04:46:21Z | 2018-04-13T06:12:20Z |
+      | montney | Hori_02 | 14       | 0       | 2018-04-15T08:16:00Z | 2018-04-15T10:06:00Z |
+      | montney | Hori_02 | 29       | 0       | 2018-04-19T10:13:14Z | 2018-04-19T11:21:07Z |
+      | montney | Hori_03 | 1        | 0       | 2018-04-06T21:29:15Z | 2018-04-07T00:29:35Z |
+      | montney | Hori_03 | 9        | 0       | 2018-04-14T04:25:00Z | 2018-04-14T06:05:00Z |
+      | montney | Hori_03 | 20       | 0       | 2018-04-17T16:06:39Z | 2018-04-17T17:12:01Z |
+      | montney | Hori_03 | 28       | 0       | 2018-04-05T11:31:34Z | 2018-04-20T12:50:35Z |
+      | montney | Vert_01 | 1        | 0       | 2018-04-06T13:59:00Z | 2018-04-06T16:44:00Z |
+      | montney | Vert_01 | 2        | 0       | 2018-04-10T03:20:00Z | 2018-04-10T06:38:00Z |
+      | montney | Vert_01 | 3        | 0       | 2018-04-10T12:37:14Z | 2018-04-10T15:24:41Z |
+      | montney | Vert_01 | 4        | 0       | 2018-04-10T18:41:50Z | 2018-04-10T20:29:35Z |
