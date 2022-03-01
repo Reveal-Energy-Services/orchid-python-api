@@ -17,7 +17,6 @@
 
 from collections import namedtuple
 import decimal
-from datetime import datetime
 import unittest.mock
 
 import deal
@@ -392,20 +391,22 @@ class TestNativeStageAdapter(unittest.TestCase):
                 assert_that(len(sut.stage_parts()), equal_to(len(stage_part_dtos)))
 
     def test_start_time(self):
-        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, tdt.utc_time_zone())
-        stub_net_stage = tsn.StageDto(start_time=expected_start_time).create_net_stub()
+        start_time_dto = tdt.TimePointDto(2024, 10, 31, 7, 31, 27, 357000 * om.registry.microseconds)
+        # TODO: Change `StageDto` `start_time` argument to expect a `TimePointDto`.
+        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_start_time = sut.start_time
-        assert_that(actual_start_time, equal_to(expected_start_time))
+        assert_that(actual_start_time, equal_to(start_time_dto.to_datetime()))
 
     def test_stop_time(self):
-        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, tdt.utc_time_zone())
-        stub_net_stage = tsn.StageDto(stop_time=expected_stop_time).create_net_stub()
+        stop_time_dto = tdt.TimePointDto(2016, 3, 31, 3, 31, 30, 947000 * om.registry.microseconds)
+        # TODO: Change `StageDto` `stop_time` argument to expect a `TimePointDto`.
+        stub_net_stage = tsn.StageDto(stop_time=stop_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_stop_time = sut.stop_time
-        assert_that(actual_stop_time, equal_to(expected_stop_time))
+        assert_that(actual_stop_time, equal_to(stop_time_dto.to_datetime()))
 
     def test_subsurface_point_in_length_unit(self):
         net_points = [
