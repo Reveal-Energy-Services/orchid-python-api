@@ -76,3 +76,19 @@ def step_impl(context, part_no, start_time, stop_time, isip):
     assert_that(sut.start_time, equal_to(pdt.parse(start_time)))
     assert_that(sut.stop_time, equal_to(pdt.parse(stop_time)))
     cf.assert_that_actual_measurement_close_to_expected(sut.isip, isip)
+
+
+@step("I see the changed {to_start} and {to_stop} for well, {well}, stage, {stage_no:d}, and part, {part_no:d}")
+def step_impl(context, to_start, to_stop, well, stage_no, part_no):
+    """
+    Args:
+        context (behave.runner.Context):
+        to_start (str): The expected start time of the part of interest.
+        to_stop (str): The expected stop time of the part of interest.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed number of the stage of interest.
+        part_no (int): The number of the stage part of interest.
+    """
+    part_of_interest = cf.find_part_by_part_no_in_stage_no_in_well_of_project(context, part_no, stage_no, well)
+    assert_that(part_of_interest.start_time, equal_to(pdt.parse(to_start)))
+    assert_that(part_of_interest.stop_time, equal_to(pdt.parse(to_stop)))

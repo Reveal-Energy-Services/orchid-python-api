@@ -90,6 +90,26 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
     return candidate
 
 
+def find_part_by_part_no_in_stage_no_in_well_of_project(context, part_no, stage_no, well_name):
+    """
+    Return the part with `part_no` in stage , `stage_no`, in well named, `well_name`, of loaded project.
+    Args:
+        context: The test context (expected to contain the loaded project)
+        part_no (int): The number used by engineers to identify the stage part of interest.
+        stage_no (int): The number used by engineers to identify the stage of interest.
+        well_name (str): The name used by engineers to identify the well of interest.
+
+    Returns:
+        The part with `part_no` in stage , `stage_no`, in well named, `well_name`, of loaded project.
+    """
+    stage_of_interest = find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name)
+    result = stage_of_interest.stage_parts().find_by_part_number(part_no)
+    assert result is not None, (f'Expected part number, {part_no}, in stage number, {stage_no},'
+                                f' in well named, {well_name}, of loaded project. Found none.')
+
+    return result
+
+
 def find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name):
     """
     Return the stage number, `stage_no`, in well named, `well_name`, of loaded project.

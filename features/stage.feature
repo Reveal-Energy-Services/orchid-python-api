@@ -443,10 +443,29 @@ Feature: Low-level DOM API (stage)
     Given I have loaded the project for the field, '<field>'
     And I change the start time of stage <stage_no> of <well> <to_start>
     And I change the stop time of stage <stage_no> of <well> <to_stop>
-    Then I see the changed <to_start> and <to_stop> for <well>, and <stage_no>
+    Then I see the changed <to_start> and <to_stop> for well, <well> and stage, <stage_no>
     # The following behavior is not user visible, but I thought it was important to verify given the details of the
     # Orchid implementation
-    And I see the changed <to_start> and <to_stop> for <well>, <stage_no>, and <part_no>
+    And I see the changed <to_start> and <to_stop> for well, <well>, stage, <stage_no>, and part, <part_no>
+
+    Examples: Montney
+      | field   | well    | stage_no | part_no | to_start             | to_stop              |
+      | montney | Hori_01 | 1        | 0       | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z |
+      | montney | Hori_01 | 2        | 0       | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z |
+      | montney | Hori_01 | 8        | 0       | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z |
+      | montney | Hori_01 | 15       | 0       | 2018-04-19T19:47:22Z | 2018-04-19T22:41:54Z |
+      | montney | Hori_02 | 1        | 0       | 2018-04-06T10:40:00Z | 2018-04-06T13:30:00Z |
+      | montney | Hori_02 | 8        | 0       | 2018-04-13T04:46:21Z | 2018-04-13T06:12:20Z |
+      | montney | Hori_02 | 14       | 0       | 2018-04-15T08:16:00Z | 2018-04-15T10:06:00Z |
+      | montney | Hori_02 | 29       | 0       | 2018-04-19T10:13:14Z | 2018-04-19T11:21:07Z |
+      | montney | Hori_03 | 1        | 0       | 2018-04-06T21:29:15Z | 2018-04-07T00:29:35Z |
+      | montney | Hori_03 | 9        | 0       | 2018-04-14T04:25:00Z | 2018-04-14T06:05:00Z |
+      | montney | Hori_03 | 20       | 0       | 2018-04-17T16:06:39Z | 2018-04-17T17:12:01Z |
+      | montney | Hori_03 | 28       | 0       | 2018-04-05T11:31:34Z | 2018-04-20T12:50:35Z |
+      | montney | Vert_01 | 1        | 0       | 2018-04-06T13:59:00Z | 2018-04-06T16:44:00Z |
+      | montney | Vert_01 | 2        | 0       | 2018-04-10T03:20:00Z | 2018-04-10T06:38:00Z |
+      | montney | Vert_01 | 3        | 0       | 2018-04-10T12:37:14Z | 2018-04-10T15:24:41Z |
+      | montney | Vert_01 | 4        | 0       | 2018-04-10T18:41:50Z | 2018-04-10T20:29:35Z |
 
     # The following examples test the following conditions:
     # - Demo_1H Stage 1: Start milliseconds earlier
@@ -470,7 +489,7 @@ Feature: Low-level DOM API (stage)
       | Bakken | Demo_2H | 1        | 0       | 2018-05-27T12:57:03.072Z | 2018-05-27T15:51:50.113Z |
       | Bakken | Demo_2H | 8        | 0       | 2018-06-10T07:23:47.025Z | 2018-06-10T09:48:32.530Z |
       | Bakken | Demo_2H | 21       | 0       | 2018-06-17T13:16:00.974Z | 2018-06-17T15:22:45.754Z |
-      | Bakken | Demo_2H | 50       | 0       | 2018-07-07T06:05:43.173Z | 2018-07-07:08:13:40.306Z |
+      | Bakken | Demo_2H | 50       | 0       | 2018-07-07T06:05:43.173Z | 2018-07-07T08:13:40.306Z |
       | Bakken | Demo_4H | 1        | 0       | 2018-06-06T09:42:37.053Z | 2018-06-06T11:56:26.370Z |
       | Bakken | Demo_4H | 7        | 0       | 2018-06-12T08:31:14.542Z | 2018-06-12T11:54:45.201Z |
       | Bakken | Demo_4H | 26       | 0       | 2018-06-25T09:51:22.653Z | 2018-06-25T11:06:25.949Z |
