@@ -140,15 +140,6 @@ class NativeStageAdapter(dpo.DomProjectObject):
         """
         return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Pnet))
 
-    def stage_parts(self) -> ssp.SearchableStageParts:
-        """
-        Return a `ssp.SearchableStageParts` for all the stage parts for this stage.
-
-        Returns:
-            An `ssp.SearchableStageParts` for all the stage parts for this stage.
-        """
-        return ssp.SearchableStageParts(spa.NativeStagePartAdapter, self.dom_object.Parts)
-
     @property
     def shmin(self) -> om.Quantity:
         """
@@ -365,6 +356,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
             The Measurement of the length of this stage.
         """
         return self.md_bottom(in_length_unit) - self.md_top(in_length_unit)
+
+    def stage_parts(self) -> ssp.SearchableStageParts:
+        """
+        Return a `ssp.SearchableStageParts` for all the stage parts for this stage.
+
+        Returns:
+            An `ssp.SearchableStageParts` for all the stage parts for this stage.
+        """
+        return ssp.SearchableStageParts(spa.NativeStagePartAdapter, self.dom_object.Parts)
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                      xy_reference_frame: origins.WellReferenceFrameXy,
