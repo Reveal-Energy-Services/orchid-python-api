@@ -136,21 +136,6 @@ def make_net_time_span(time_delta_dto: TimeSpanDto):
         return TimeSpan(-time_delta_dto.hour, -time_delta_dto.minute, -time_delta_dto.second)
 
 
-def make_date_time(time_point_dto: TimePointDto) -> pdt.DateTime:
-    """
-    Constructs a `pdt.DateTime` instance from a `TimePointDto` instance.
-
-    This method is mostly for convenience.
-
-    Args:
-        time_point_dto: The instance from which to construct the `pdt.Datetime` instance.
-
-    Returns:
-        The `pdt.Datetime` instance equivalent to `time_point_dto`.
-    """
-    return time_point_dto.to_datetime()
-
-
 def utc_time_zone() -> dt.tzinfo:
     """
     Calculate the single instance of the UTC time zone.
