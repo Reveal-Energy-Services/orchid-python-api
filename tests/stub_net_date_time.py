@@ -55,6 +55,19 @@ class TimePointDto:
                               tz=_kind_to_tzinfo(self.kind.value))
         return result
 
+    def to_net_date_time(self) -> DateTime:
+        """
+        Construct a .NET `DateTime` instance from this instance.
+
+        Returns:
+            The .NET `DateTime` equivalent to this instance.
+        """
+        result = DateTime(self.year, self.month, self.day,
+                          self.hour, self.minute, self.second,
+                          int(round(self.fractional.to(om.registry.milliseconds).magnitude)),
+                          self.kind.value)
+        return result
+
 
 @dc.dataclass
 class TimeSpanDto:
