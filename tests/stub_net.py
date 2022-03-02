@@ -27,7 +27,7 @@ import itertools
 import math
 import unittest.mock
 import uuid
-from typing import Callable, Iterable, Sequence
+from typing import Callable, Iterable, Sequence, Union
 
 import pendulum as pdt
 import toolz.curried as toolz
@@ -166,7 +166,7 @@ class StageDto:
     stage_location_center: Callable = None
     stage_location_cluster: Callable = None
     stage_location_top: Callable = None
-    stage_parts: Iterable[StagePartDto] = None
+    stage_parts: Iterable[Union[StagePartDto, IStagePart]] = None
     start_time: pdt.DateTime = None
     stop_time: pdt.DateTime = None
     treatment_curve_names: Iterable[str] = None
@@ -206,7 +206,7 @@ class StageDto:
                 result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',
                                                                      side_effect=self.stage_location_top)
         if self.stage_parts is not None:
-            result.Parts = [dto.create_net_stub() for dto in self.stage_parts]
+            result.Parts = [o.create_net_stub() if isinstance(o, StagePartDto) else o for o in self.stage_parts]
         if self.start_time is not None:
             result.StartTime = ndt.as_net_date_time(self.start_time)
         if self.stop_time is not None:
