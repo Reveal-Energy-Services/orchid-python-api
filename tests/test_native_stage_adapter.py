@@ -526,6 +526,14 @@ class TestNativeStageAdapter(unittest.TestCase):
 
 
 # Test ideas
+# - Change start time
+#   - Single stage part
+#   - No stage parts
+#   - Many stage parts
+# - Change stop time
+#   - Single stage part
+#   - No stage parts
+#   - Many stage parts
 class TestNativeStageAdapterSetter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -569,6 +577,45 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         assert_that(actual_call.args[0].ToString('o'), equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
         assert_that(actual_call.args[1].ToString('o'), equal_to(stop_time_dto.to_net_date_time().ToString('o')))
 
+    def test_set_stop_time_with_single_part(self):
+        start_time_dto = tdt.TimePointDto(2020, 2, 5, 4, 33, 45, 201 * om.registry.milliseconds)
+        ante_stop_time_dto = tdt.TimePointDto(2020, 2, 5, 6, 20, 24, 411 * om.registry.milliseconds)
+        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
+
+        # Because calling the setter involves calling `ToMutable` which returns an `IDisposable` instance at run-time
+        # which is wrapped in the context manager returned by `dnd.disposable`, we must very carefully construct the
+        # mocks involved in this test.
+        #
+        # First, we create an instance of a stub that "mocks" IMutableStage. See the comments on the
+        # `StubNetMutableStagePart` class for the details of what we provide. Second, we assign the call to `TuMutable`
+        # to a mock that returns an instance of `StubNetMutableStagePart`. Finally, we must assert that
+        # - We called `ToMutable` exactly once
+        # - We called `SetStartStopTimes` exactly once
+        # - The call to `SetStartStopTimes` has the correct arguments.
+        #
+        # I think I might be able to simplify this process but perhaps not this sprint.
+        #
+        stub_net_mutable_stage_part = StubNetMutableStagePart()
+        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
+                                               start_time=start_time_dto.to_datetime(),
+                                               stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
+        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
+
+        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime(),
+                                      stage_parts=[stub_net_stage_part],
+                                      stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_stop_time_dto = tdt.TimePointDto(2024, 9, 27, 17, 58, 47, 978 * om.registry.milliseconds)
+        sut.stop_time = post_stop_time_dto.to_datetime()
+
+        stub_net_stage_part.ToMutable.assert_called_once()
+        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+        assert_that(actual_call.args[0].ToString('o'), equal_to(start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(actual_call.args[1].ToString('o'), equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+
 
 # noinspection PyPep8Naming
 class StubNetMutableStagePart:
@@ -581,6 +628,10 @@ class StubNetMutableStagePart:
     Additionally, this class provides a mock implementation of the `SetStartStopTimes` method. Exposing this method
     allows a caller to verify calls to `SetStartStopTimes`.
     """
+    def __init__(self):
+        # Reset the mock when one creates a new instance
+        StubNetMutableStagePart.SetStartStopTimes.reset_mock()
+
     # Capture calls to `IMutableStagePart`
     SetStartStopTimes = unittest.mock.MagicMock('set_start_stop_times')
 
