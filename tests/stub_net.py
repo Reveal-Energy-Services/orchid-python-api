@@ -51,6 +51,7 @@ from Orchid.FractureDiagnostics import (IMonitor,
                                         IPlottingSettings,
                                         IStage,
                                         IStagePart,
+                                        IMutableStagePart,
                                         ISubsurfacePoint,
                                         IWell,
                                         IWellTrajectory,
@@ -145,6 +146,27 @@ class StagePartDto:
             result.StartTime = ndt.as_net_date_time(self.start_time)
         if self.stop_time is not None:
             result.StopTime = ndt.as_net_date_time(self.stop_time)
+
+        return result
+
+
+@dc.dataclass
+class MutableStagePartDto(StagePartDto):
+    def create_net_stub(self):
+        # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
+        # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
+        # `hasattr` will be "fooled" because `MagicMock` will report that this instance has both dunder
+        # methods `__enter__` and `__exit__`. I actually want the context manager returned by
+        # `dnd.disposable()` to return *this* mock instance so I make it an instance of `Mock` which
+        # will not, be default, implement the `__enter__` and `__exit__` dunder methods.
+        result = unittest.mock.Mock(name='stub_mutable_net_stage_part')
+
+        # This attribute allows callers to monitor calls to `SetStartStopTimes`
+        result.SetStartStopTimes = unittest.mock.Mock(name='SetStartStopTimes')
+
+        # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
+        # block as it exits the context.
+        result.Dispose = unittest.mock.Mock(name='Dispose')
 
         return result
 
