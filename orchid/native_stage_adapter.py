@@ -25,6 +25,7 @@ import toolz.curried as toolz
 
 import orchid.base
 from orchid import (
+    dot_net_disposable as dnd,
     dot_net_dom_access as dna,
     dom_project_object as dpo,
     measurement as om,
@@ -122,6 +123,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
                                               ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment',
                                              ndt.as_date_time)
+
+    @start_time.setter
+    def start_time(self, to_start_time):
+        to_start_net_time = ndt.as_net_date_time(to_start_time)
+        stop_net_time = ndt.as_net_date_time(self.stop_time)
+        first_stage_part = toolz.first(self.stage_parts())
+        with dnd.disposable(first_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
+            mutable_first_stage_part.SetStartStopTimes(to_start_net_time, stop_net_time)
+            print(mutable_first_stage_part)
 
     @property
     def isip(self) -> om.Quantity:

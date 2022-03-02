@@ -40,6 +40,8 @@ from tests import (
 
 # noinspection PyUnresolvedReferences
 import UnitsNet
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics import IMutableStagePart
 
 AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
@@ -521,6 +523,59 @@ class TestNativeStageAdapter(unittest.TestCase):
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
         return net_pressures * 2, expected_measurements
+
+
+# Test ideas
+class TestNativeStageAdapterSetter(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
+
+    def test_set_start_time_with_single_part(self):
+        ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
+        stop_time_dto = tdt.TimePointDto(2025, 8, 27, 13, 46, 59, 506 * om.registry.milliseconds)
+        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
+
+        # Because we have a context manager involved in the calls (through `ToMutable()`), we must set up the mocks
+        # correctly in detail. Specifically, we must have a mock for the mutable stage part and a mock for the context
+        # manager whose `__enter__` method returns the mock for the mutable stage part.
+        # stub_net_mutable_stage_part = unittest.mock.MagicMock(name='stub_mutable_stage_part',
+        #                                                       autospec=IMutableStagePart)
+        # stub_net_mutable_stage_part.SetStartStopTime = unittest.mock.MagicMock()
+        #
+        # stub_context_manager = unittest.mock.Mock(name='stub_context_manager')
+        # stub_context_manager.__enter__ = unittest.mock.Mock(return_value=stub_net_mutable_stage_part)
+        # stub_context_manager.__exit__ = unittest.mock.Mock(return_value=False)
+
+        stub_net_mutable_stage_part = StubNetMutableStagePart()
+        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
+                                               start_time=ante_start_time_dto.to_datetime(),
+                                               stop_time=stop_time_dto.to_datetime()).create_net_stub()
+        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
+
+        stub_net_stage = tsn.StageDto(start_time=ante_start_time_dto.to_datetime(),
+                                      stage_parts=[stub_net_stage_part],
+                                      stop_time=stop_time_dto.to_datetime()).create_net_stub()
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_start_time_dto = tdt.TimePointDto(2021, 1, 27, 9, 35, 30, 66 * om.registry.milliseconds)
+        sut.start_time = post_start_time_dto.to_datetime()
+
+        stub_net_stage_part.ToMutable.assert_called_once()
+        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+        assert_that(actual_call.args[0].ToString('o'), equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(actual_call.args[1].ToString('o'), equal_to(stop_time_dto.to_net_date_time().ToString('o')))
+
+
+# noinspection PyPep8Naming
+class StubNetMutableStagePart:
+    # Capture calls to `IMutableStagePart`
+    SetStartStopTimes = unittest.mock.MagicMock('set_start_stop_times')
+
+    # Mimic .NET disposable
+    def Dispose(self):
+        return
 
 
 def assert_is_native_treatment_curve_facade(curve):
