@@ -27,6 +27,7 @@ from orchid import (
     measurement as om,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
+    net_date_time as ndt,
     net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
@@ -38,10 +39,12 @@ from tests import (
     stub_net as tsn,
 )
 
-# noinspection PyUnresolvedReferences
-import UnitsNet
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IMutableStagePart
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import (DateTime, DateTimeKind)
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 AboutLocation = namedtuple('AboutLocation', ['x', 'y', 'depth', 'unit'])
 AboutOrigin = namedtuple('AboutOrigin', ['xy', 'depth'])
@@ -392,7 +395,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
                 assert_that(len(sut.stage_parts()), equal_to(len(stage_part_dtos)))
 
-    def test_start_time(self):
+    def test_start_time_if_neither_nat_nor_null(self):
         start_time_dto = tdt.TimePointDto(2024, 10, 31, 7, 31, 27, 357000 * om.registry.microseconds)
         # TODO: Change `StageDto` `start_time` argument to expect a `TimePointDto`.
         stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime()).create_net_stub()
@@ -401,7 +404,23 @@ class TestNativeStageAdapter(unittest.TestCase):
         actual_start_time = sut.start_time
         assert_that(actual_start_time, equal_to(start_time_dto.to_datetime()))
 
-    def test_stop_time(self):
+    def test_start_time_if_nat(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StartTime = DateTime.MinValue
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time
+        assert_that(actual_start_time, equal_to(ndt.NAT))
+
+    def test_start_time_if_null(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StartTime = None
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time
+        assert_that(actual_start_time, equal_to(ndt.NAT))
+
+    def test_stop_time_if_neither_nat_nor_null(self):
         stop_time_dto = tdt.TimePointDto(2016, 3, 31, 3, 31, 30, 947000 * om.registry.microseconds)
         # TODO: Change `StageDto` `stop_time` argument to expect a `TimePointDto`.
         stub_net_stage = tsn.StageDto(stop_time=stop_time_dto.to_datetime()).create_net_stub()
@@ -409,6 +428,22 @@ class TestNativeStageAdapter(unittest.TestCase):
 
         actual_stop_time = sut.stop_time
         assert_that(actual_stop_time, equal_to(stop_time_dto.to_datetime()))
+
+    def test_stop_time_if_nat(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StopTime = ndt.NET_NAT
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time
+        assert_that(actual_stop_time, equal_to(ndt.NAT))
+
+    def test_stop_time_if_null(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StopTime = None
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time
+        assert_that(actual_stop_time, equal_to(ndt.NAT))
 
     def test_subsurface_point_in_length_unit(self):
         net_points = [

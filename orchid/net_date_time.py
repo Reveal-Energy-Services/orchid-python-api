@@ -34,7 +34,8 @@ from System import (DateTime, DateTimeKind, DateTimeOffset, TimeSpan)
 
 # Encapsulate the use of pendulum and DateTime.
 UTC = pdt.UTC
-DATETIME_NAT = DateTime.MinValue
+NET_NAT = DateTime.MinValue
+NAT = pdt.DateTime.min
 
 
 class TimePointTimeZoneKind(enum.Enum):
@@ -131,6 +132,23 @@ def as_date_time(net_time_point: object) -> pdt.DateTime:
     raise NotImplementedError
 
 
+@as_date_time.register(type(None))
+def _(net_time_point) -> pdt.DateTime:
+    """
+    Convert a .NET `DateTime` instance to a `pdt.DateTime` instance.
+
+    Args:
+        net_time_point: A point in time of type .NET `DateTime`.
+
+    Returns:
+        The `pdt.DateTime` equivalent to the `to_test`.
+
+        If `net_time_point` is `DateTime.MaxValue`, returns `pdt.DateTime.max`. If `net_time_point` is
+        `DateTime.MinValue`, returns `DATETIME_NAT`.
+    """
+    return NAT
+
+
 @as_date_time.register
 def _(net_time_point: DateTime) -> pdt.DateTime:
     """
@@ -143,13 +161,13 @@ def _(net_time_point: DateTime) -> pdt.DateTime:
         The `pdt.DateTime` equivalent to the `to_test`.
 
         If `net_time_point` is `DateTime.MaxValue`, returns `pdt.DateTime.max`. If `net_time_point` is
-        `DateTime.MinValue`, returns `pdt.DateTime.min`.
+        `DateTime.MinValue`, returns `DATETIME_NAT`.
     """
     if net_time_point == DateTime.MaxValue:
         return pdt.DateTime.max
 
     if net_time_point == DateTime.MinValue:
-        return pdt.DateTime.min
+        return NAT
 
     if net_time_point.Kind == DateTimeKind.Utc:
         return _net_time_point_to_datetime(base.constantly(ptz.UTC), net_time_point)
@@ -178,7 +196,7 @@ def _(net_time_point: DateTimeOffset) -> pdt.DateTime:
         return pdt.DateTime.max
 
     if net_time_point == DateTimeOffset.MinValue:
-        return pdt.DateTime.min
+        return NAT
 
     def net_date_time_offset_to_timezone(ntp):
         integral_offset = int(ntp.Offset.TotalSeconds)
@@ -201,12 +219,12 @@ def as_net_date_time(time_point: pdt.DateTime) -> DateTime:
         The equivalent .NET `DateTime` instance.
 
         If `time_point` is `pdt.DateTime.max`, return `DateTime.MaxValue`. If `time_point` is
-        `pdt.DateTime.min`, return `DateTime.MinValue`.
+        `DATETIME_NAT`, return `DateTime.MinValue`.
     """
     if time_point == pdt.DateTime.max:
         return DateTime.MaxValue
 
-    if time_point == pdt.DateTime.min:
+    if time_point == NAT:
         return DateTime.MinValue
 
     if not time_point.tzinfo == ptz.UTC:
@@ -230,12 +248,12 @@ def as_net_date_time_offset(time_point: pdt.DateTime) -> DateTimeOffset:
         The equivalent .NET `DateTimeOffset` instance.
 
         If `time_point` is `pdt.DateTime.max`, return `DateTime.MaxValue`. If `time_point` is
-        `pdt.DateTime.min`, return `DateTime.MinValue`.
+        `DATETIME_NAT`, return `DateTime.MinValue`.
     """
     if time_point == pdt.DateTime.max:
         return DateTimeOffset.MaxValue
 
-    if time_point == pdt.DateTime.min:
+    if time_point == NAT:
         return DateTimeOffset.MinValue
 
     date_time = as_net_date_time(time_point)
