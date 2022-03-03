@@ -21,6 +21,7 @@ from typing import Tuple, Union
 
 import deal
 import option
+import pendulum as pdt
 import toolz.curried as toolz
 
 import orchid.base
@@ -139,6 +140,25 @@ class NativeStageAdapter(dpo.DomProjectObject):
         last_stage_part = toolz.last(self.stage_parts())
         with dnd.disposable(last_stage_part.dom_object.ToMutable()) as mutable_last_stage_part:
             mutable_last_stage_part.SetStartStopTimes(start_net_time, to_stop_net_time)
+
+    def _get_time_range(self) -> pdt.Period:
+        return pdt.period(self.start_time, self.stop_time)
+
+    def _set_time_range(self, to_time_range: pdt.Period):
+        to_start_net_time = ndt.as_net_date_time(to_time_range.start)
+        to_stop_net_time = ndt.as_net_date_time(to_time_range.end)
+        if any(self.stage_parts()):
+            first_stage_part = toolz.first(self.stage_parts())
+            with dnd.disposable(first_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
+                mutable_first_stage_part.SetStartStopTimes(to_start_net_time,
+                                                           first_stage_part.dom_object.StopTime)
+            last_stage_part = toolz.last(self.stage_parts())
+            with dnd.disposable(last_stage_part.dom_object.ToMutable()) as mutable_last_stage_part:
+                mutable_last_stage_part.SetStartStopTimes(last_stage_part.dom_object.StartTime,
+                                                          to_stop_net_time)
+
+    time_range = property(fget=_get_time_range, fset=_set_time_range,
+                          doc='The time range (start and end) of this stage')
 
     @property
     def isip(self) -> om.Quantity:
