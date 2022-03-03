@@ -125,22 +125,6 @@ class NativeStageAdapter(dpo.DomProjectObject):
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment',
                                              ndt.as_date_time)
 
-    @start_time.setter
-    def start_time(self, to_start_time):
-        to_start_net_time = ndt.as_net_date_time(to_start_time)
-        stop_net_time = ndt.as_net_date_time(self.stop_time)
-        first_stage_part = toolz.first(self.stage_parts())
-        with dnd.disposable(first_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
-            mutable_first_stage_part.SetStartStopTimes(to_start_net_time, stop_net_time)
-
-    @stop_time.setter
-    def stop_time(self, to_stop_time):
-        start_net_time = ndt.as_net_date_time(self.start_time)
-        to_stop_net_time = ndt.as_net_date_time(to_stop_time)
-        last_stage_part = toolz.last(self.stage_parts())
-        with dnd.disposable(last_stage_part.dom_object.ToMutable()) as mutable_last_stage_part:
-            mutable_last_stage_part.SetStartStopTimes(start_net_time, to_stop_net_time)
-
     def _get_time_range(self) -> pdt.Period:
         return pdt.period(self.start_time, self.stop_time)
 

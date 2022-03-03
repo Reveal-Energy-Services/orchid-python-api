@@ -574,11 +574,9 @@ class TestNativeStageAdapter(unittest.TestCase):
 
 # Test ideas
 # - Change start time
-#   - Single stage part
 #   - No stage parts
 #   - Many stage parts
 # - Change stop time
-#   - Single stage part
 #   - No stage parts
 #   - Many stage parts
 class TestNativeStageAdapterSetter(unittest.TestCase):
@@ -656,58 +654,6 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
                     equal_to(start_time_dto.to_net_date_time().ToString('o')))
         assert_that(second_call.args[1].ToString('o'),
                     equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
-
-    def obs_test_set_start_time_with_single_part(self):
-        ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
-        stop_time_dto = tdt.TimePointDto(2025, 8, 27, 13, 46, 59, 506 * om.registry.milliseconds)
-        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
-
-        stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
-                                               start_time=ante_start_time_dto.to_datetime(),
-                                               stop_time=stop_time_dto.to_datetime()).create_net_stub()
-        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
-
-        stub_net_stage = tsn.StageDto(start_time=ante_start_time_dto.to_datetime(),
-                                      stage_parts=[stub_net_stage_part],
-                                      stop_time=stop_time_dto.to_datetime()).create_net_stub()
-
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-
-        post_start_time_dto = tdt.TimePointDto(2021, 1, 27, 9, 35, 30, 66 * om.registry.milliseconds)
-        sut.start_time = post_start_time_dto.to_datetime()
-
-        stub_net_stage_part.ToMutable.assert_called_once()
-        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
-        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
-        assert_that(actual_call.args[0].ToString('o'), equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(actual_call.args[1].ToString('o'), equal_to(stop_time_dto.to_net_date_time().ToString('o')))
-
-    def obs_test_set_stop_time_with_single_part(self):
-        start_time_dto = tdt.TimePointDto(2020, 2, 5, 4, 33, 45, 201 * om.registry.milliseconds)
-        ante_stop_time_dto = tdt.TimePointDto(2020, 2, 5, 6, 20, 24, 411 * om.registry.milliseconds)
-        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
-
-        stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
-                                               start_time=start_time_dto.to_datetime(),
-                                               stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
-        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
-
-        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime(),
-                                      stage_parts=[stub_net_stage_part],
-                                      stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
-
-        sut = nsa.NativeStageAdapter(stub_net_stage)
-
-        post_stop_time_dto = tdt.TimePointDto(2024, 9, 27, 17, 58, 47, 978 * om.registry.milliseconds)
-        sut.stop_time = post_stop_time_dto.to_datetime()
-
-        stub_net_stage_part.ToMutable.assert_called_once()
-        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
-        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
-        assert_that(actual_call.args[0].ToString('o'), equal_to(start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(actual_call.args[1].ToString('o'), equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
 
 
 def assert_is_native_treatment_curve_facade(curve):
