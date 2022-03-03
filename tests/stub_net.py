@@ -189,6 +189,7 @@ class StageDto:
     stage_location_cluster: Callable = None
     stage_location_top: Callable = None
     stage_parts: Iterable[Union[StagePartDto, IStagePart]] = None
+    # TODO: Change `start_time` and `stop_time` defaults to `ndt.DATETIME_NAT`
     start_time: pdt.DateTime = None
     stop_time: pdt.DateTime = None
     treatment_curve_names: Iterable[str] = None
