@@ -20,7 +20,8 @@ import decimal
 import unittest.mock
 
 import deal
-from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, instance_of, calling, raises
+from hamcrest import (assert_that, equal_to, empty, contains_exactly, has_items,
+                      instance_of, calling, raises, same_instance, is_, none)
 import pendulum as pdt
 import toolz.curried as toolz
 
@@ -583,7 +584,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_set_start_time_with_single_part(self):
+    def test_set_start_time_if_single_part(self):
         ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
         stop_time_dto = tdt.TimePointDto(2025, 8, 27, 13, 46, 59, 506 * om.registry.milliseconds)
         # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
@@ -619,7 +620,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         assert_that(second_call.args[1].ToString('o'),
                     equal_to(stop_time_dto.to_net_date_time().ToString('o')))
 
-    def test_set_stop_time_with_single_part(self):
+    def test_set_stop_time_if_single_part(self):
         start_time_dto = tdt.TimePointDto(2022, 11, 25, 4, 21, 53, 846 * om.registry.milliseconds)
         ante_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 7, 7, 46, 31 * om.registry.milliseconds)
         # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
@@ -654,6 +655,36 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
                     equal_to(start_time_dto.to_net_date_time().ToString('o')))
         assert_that(second_call.args[1].ToString('o'),
                     equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+
+    @unittest.mock.patch('orchid.native_stage_adapter.fdf.create')
+    def test_set_start_stop_time_if_no_parts(self, stub_factory_create):
+        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A).create_net_stub()
+        stub_fd_factory = unittest.mock.MagicMock(name='stub_fd_factory')
+        stub_fd_factory.CreateStagePart = unittest.mock.MagicMock('stub_create_stage_part',
+                                                                  return_value=stub_net_stage_part)
+        stub_factory_create.return_value = stub_fd_factory
+
+        stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_start_time_dto = tdt.TimePointDto(2020, 5, 10, 22, 36, 8, 58 * om.registry.milliseconds)
+        post_stop_time_dto = tdt.TimePointDto(2020, 5, 11, 0, 55, 11, 61 * om.registry.milliseconds)
+        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+
+        # Expect one call to create a stage part with the post start and stop times
+        stub_fd_factory.CreateStagePart.assert_called_once()
+        stage_arg, start_arg, stop_arg, isip_arg = stub_fd_factory.CreateStagePart.call_args_list[0].args
+        assert_that(stage_arg, same_instance(stub_net_stage))
+        assert_that(start_arg.ToString('o'), equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(stop_arg.ToString('o'), equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+        assert_that(isip_arg, is_(none()))
+
+        # Expect calls to add the newly created stage part to the Parts of the mutable stage
+        stub_net_stage.ToMutable.assert_called_once()
+        stub_net_mutable_stage.Parts.Add.assert_called_once_with(stub_net_stage_part)
 
 
 def assert_is_native_treatment_curve_facade(curve):

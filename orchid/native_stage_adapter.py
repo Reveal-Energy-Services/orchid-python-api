@@ -34,6 +34,7 @@ from orchid import (
     native_subsurface_point as nsp,
     native_treatment_curve_adapter as ntc,
     net_date_time as ndt,
+    net_fracture_diagnostics_factory as fdf,
     net_quantity as onq,
     reference_origins as origins,
     searchable_stage_parts as ssp,
@@ -140,6 +141,12 @@ class NativeStageAdapter(dpo.DomProjectObject):
             with dnd.disposable(last_stage_part.dom_object.ToMutable()) as mutable_last_stage_part:
                 mutable_last_stage_part.SetStartStopTimes(last_stage_part.dom_object.StartTime,
                                                           to_stop_net_time)
+        else:  # No stage parts
+            factory = fdf.create()
+            stage_part_to_add = factory.CreateStagePart(self.dom_object, to_start_net_time,
+                                                        to_stop_net_time, None)
+            with dnd.disposable(self.dom_object.ToMutable()) as mutable_stage:
+                mutable_stage.Parts.Add(stage_part_to_add)
 
     time_range = property(fget=_get_time_range, fset=_set_time_range,
                           doc='The time range (start and end) of this stage')
