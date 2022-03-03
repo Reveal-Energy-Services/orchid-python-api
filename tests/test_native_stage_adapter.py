@@ -683,8 +683,69 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         assert_that(isip_arg, is_(none()))
 
         # Expect calls to add the newly created stage part to the Parts of the mutable stage
-        stub_net_stage.ToMutable.assert_called_once()
+        stub_net_stage.ToMutable.assert_called_once_with()
         stub_net_mutable_stage.Parts.Add.assert_called_once_with(stub_net_stage_part)
+
+    def test_set_start_time_if_many_parts(self):
+        ante_start_time_dtos = [
+            tdt.TimePointDto(2022, 2, 14, 22, 35, 9, 273 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 2, 51, 4, 216 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 7, 17, 2, 360 * om.registry.milliseconds),
+        ]
+        ante_start_date_times = [start_time_dto.to_datetime() for start_time_dto in ante_start_time_dtos]
+        ante_stop_time_dtos = [
+            tdt.TimePointDto(2022, 2, 15, 0, 57, 49, 123 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 4, 26, 5, 21 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 9, 30, 57, 983 * om.registry.milliseconds),
+        ]
+        ante_stop_date_times = [stop_time_dto.to_datetime() for stop_time_dto in ante_stop_time_dtos]
+        part_object_ids = [
+            tsn.DONT_CARE_ID_A,
+            tsn.DONT_CARE_ID_B,
+            tsn.DONT_CARE_ID_C,
+        ]
+        stub_net_mutable_stage_part = [tsn.MutableStagePartDto().create_net_stub()
+                                       for _ in range(len(ante_start_time_dtos))]
+        stub_net_stage_parts = [tsn.StagePartDto(object_id=args[0],
+                                                 start_time=args[1],
+                                                 stop_time=args[2]).create_net_stub()
+                                for args in zip(part_object_ids, ante_start_date_times,
+                                                ante_stop_date_times)]
+        for i in range(len(stub_net_mutable_stage_part)):
+            # noinspection PyPep8Naming
+            stub_net_stage_parts[i].ToMutable = unittest.mock.MagicMock(
+                return_value=stub_net_mutable_stage_part[i])
+
+        stub_net_stage = tsn.StageDto(start_time=ante_start_date_times[0],
+                                      stage_parts=stub_net_stage_parts,
+                                      stop_time=ante_stop_date_times[-1]).create_net_stub()
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_start_time_dto = tdt.TimePointDto(2022, 2, 14, 22, 12, 12, 650 * om.registry.milliseconds)
+        post_stop_time_dto = tdt.TimePointDto(2022, 2, 15, 9, 2, 12, 912 * om.registry.milliseconds)
+        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+
+        # Expect one call to first mutable stage part
+        stub_net_stage_parts[0].ToMutable.assert_called_once_with()
+        # One call to last mutable stage part
+        stub_net_stage_parts[-1].ToMutable.assert_called_once_with()
+        # And no calls to middle mutable stage part
+        stub_net_stage_parts[1].ToMutable.assert_not_called()
+
+        # First call to `SetStartStopTimes` contains new start and old stop
+        first_call = stub_net_mutable_stage_part[0].SetStartStopTimes.call_args_list[0]
+        assert_that(first_call.args[0].ToString('o'),
+                    equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(first_call.args[1].ToString('o'),
+                    equal_to(ante_stop_time_dtos[0].to_net_date_time().ToString('o')))
+
+        # Second call to `SetStartStopTimes` contains old start and new stop
+        second_call = stub_net_mutable_stage_part[-1].SetStartStopTimes.call_args_list[0]
+        assert_that(second_call.args[0].ToString('o'),
+                    equal_to(ante_start_time_dtos[-1].to_net_date_time().ToString('o')))
+        assert_that(second_call.args[1].ToString('o'),
+                    equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
 
 
 def assert_is_native_treatment_curve_facade(curve):
