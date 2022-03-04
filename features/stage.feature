@@ -454,8 +454,7 @@ Feature: Low-level DOM API (stage)
 
   Scenario Outline: Change the stage start and stop times
     Given I have loaded the project for the field, '<field>'
-    And I change the start time of stage <stage_no> of <well> <to_start>
-    And I change the stop time of stage <stage_no> of <well> <to_stop>
+    And I change the time range of stage <stage_no> of <well> to <to_start>-<to_stop>
     Then I see the changed <to_start> and <to_stop> for well, <well> and stage, <stage_no>
     # The following behavior is not user visible, but I thought it was important to verify given the details of the
     # Orchid implementation
