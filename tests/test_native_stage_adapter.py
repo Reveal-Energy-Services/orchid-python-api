@@ -674,7 +674,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         stub_net_stage.ToMutable.assert_called_once_with()
         stub_net_mutable_stage.Parts.Add.assert_called_once_with(stub_net_stage_part)
 
-    def test_set_start_time_if_many_parts(self):
+    def test_set_start_stop_time_if_many_parts(self):
         ante_start_time_dtos = [
             tdt.TimePointDto(2022, 2, 14, 22, 35, 9, 273 * om.registry.milliseconds),
             tdt.TimePointDto(2022, 2, 15, 2, 51, 4, 216 * om.registry.milliseconds),
