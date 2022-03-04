@@ -574,6 +574,9 @@ class TestNativeStageAdapter(unittest.TestCase):
 
 
 # TODO: Handle set start/stop edge cases
+# I have seen an error in the integration tests in which Orchid raised an exception because the `StartTime` of an
+# `IStage` was *after* the `StopTime`. However, when I tried to duplicate what I though caused this error, I could
+# not create a failing test. I am leaving this to-do reminder and these test ideas for further work.
 # Test ideas
 # - Change start time
 #   - Error when many stage parts and start after first stage start
