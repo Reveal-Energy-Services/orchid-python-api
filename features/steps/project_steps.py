@@ -68,6 +68,27 @@ def step_impl(context, field):
     context.project = context.loaded_projects[project_pathname]
 
 
+@given("I have loaded the changeable project for the field, '{field}'")
+def step_impl(context, field):
+    """
+    Args:
+        context (behave.runner.Context):
+        field (str):
+    """
+    # TODO: Move clearing of cache into `after_scenario`
+    # This implementation is almost identical to the previous implementation ("I have loaded the project..."). However,
+    # the previous implementation caches the loaded projects. Because this step deals with projects that can be changed,
+    # and I do not want to cache those changes from scenario to scenario, I overwrite `context.project` with a newly
+    # loaded project. This implementation prevents cross-contamination of changes from one scenario to another.
+    #
+    # As an alternative implementation, I tried clearing the cache in the `after_scenario` step with the scenario name;
+    # however, this did not work. I suspect "user error."
+    canonical_field = field.casefold()
+    context.field = field.capitalize()
+    project_pathname = FIELD_NAME_PATHNAME_MAP[canonical_field]
+    context.project = orchid.core.load_project(project_pathname)
+
+
 @when("I query the project name")
 def step_impl(context):
     """

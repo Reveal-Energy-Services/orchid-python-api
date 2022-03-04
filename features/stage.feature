@@ -453,7 +453,7 @@ Feature: Low-level DOM API (stage)
       | montney | Vert_01 | 4        | 2018-04-10T18:41:50Z | 2018-04-10T20:29:35Z |
 
   Scenario Outline: Change the stage start and stop times
-    Given I have loaded the project for the field, '<field>'
+    Given I have loaded the changeable project for the field, '<field>'
     And I change the time range of stage <stage_no> of <well> to the range <to_start> to <to_stop>
     Then I see the changed <to_start> and <to_stop> for well, <well> and stage, <stage_no>
     # The following behavior is not user visible, but I thought it was important to verify given the details of the
