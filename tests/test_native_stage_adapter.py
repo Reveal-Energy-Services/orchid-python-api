@@ -573,13 +573,12 @@ class TestNativeStageAdapter(unittest.TestCase):
         return net_pressures * 2, expected_measurements
 
 
+# TODO: Handle set start/stop edge cases
 # Test ideas
 # - Change start time
-#   - No stage parts
-#   - Many stage parts
+#   - Error when many stage parts and start after first stage start
 # - Change stop time
-#   - No stage parts
-#   - Many stage parts
+#   - Error when many stage parts and stop before last stage start
 class TestNativeStageAdapterSetter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
