@@ -316,7 +316,6 @@ def step_impl(context, well, stage_no, center_mdkb):
 def step_impl(context, well, stage_no, start_time, stop_time):
     """
     Args:
-        context (behave.runner.Context): The
         context (behave.runner.Context): The test context.
         well (str): The name of the well of interest.
         stage_no (int): The displayed stage number of interest.
@@ -330,30 +329,18 @@ def step_impl(context, well, stage_no, start_time, stop_time):
     assert_that(actual_stop_time, equal_to(pdt.parse(stop_time)))
 
 
-@step("I change the start time of stage {stage_no:d} of {well} {to_start}")
-def step_impl(context, stage_no, well, to_start):
+@step("I change the time range of stage {stage_no:d} of {well} to the range {to_start} to {to_stop}")
+def step_impl(context, stage_no, well, to_start, to_stop):
     """
     Args:
         context (behave.runner.Context): The test context.
         stage_no (int): The number used by engineers to identifying stages in a well.
         well (str): The well containing the stage whose start time is to be changed.
         to_start (str): The new start time of the stage.
-    """
-    stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
-    stage_of_interest.start = pdt.parse(to_start)
-
-
-@step("I change the stop time of stage {stage_no:d} of {well} {to_stop}")
-def step_impl(context, stage_no, well, to_stop):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        stage_no (int): The number used by engineers to identifying stages in a well.
-        well (str): The well containing the stage whose stop time is to be changed.
         to_stop (str): The new stop time of the stage.
     """
     stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
-    stage_of_interest.stop = pdt.parse(to_stop)
+    stage_of_interest.time_range = (pdt.period(pdt.parse(to_start), pdt.parse(to_stop)))
 
 
 @then("I see the changed {to_start} and {to_stop} for well, {well} and stage, {stage_no:d}")
@@ -369,18 +356,3 @@ def step_impl(context, to_start, to_stop, well, stage_no):
     stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     assert_that(stage_of_interest.start_time, equal_to(pdt.parse(to_start)))
     assert_that(stage_of_interest.stop_time, equal_to(pdt.parse(to_stop)))
-
-
-@step("I change the time range of stage {stage_no:d} of {well} to {to_start}-{to_stop}")
-def step_impl(context, stage_no, well, to_start, to_stop):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        stage_no (int): The number used by engineers to identifying stages in a well.
-        well (str): The well containing the stage whose start time is to be changed.
-        to_start (str): The new start time of the stage.
-        to_stop (str): The new stop time of the stage.
-    """
-    # stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
-    raise NotImplementedError(
-        u'STEP: And I change the time range of stage <stage_no> of <well> to <to_start>-<to_stop>')
