@@ -132,11 +132,16 @@ class NativeStageAdapter(dpo.DomProjectObject):
     def _set_time_range(self, to_time_range: pdt.Period):
         to_start_net_time = ndt.as_net_date_time(to_time_range.start)
         to_stop_net_time = ndt.as_net_date_time(to_time_range.end)
-        if any(self.stage_parts()):
-            first_stage_part = toolz.first(self.stage_parts())
-            with dnd.disposable(first_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
+        if len(self.stage_parts()) == 1:
+            single_stage_part = toolz.first(self.stage_parts())
+            with dnd.disposable(single_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
                 mutable_first_stage_part.SetStartStopTimes(to_start_net_time,
-                                                           first_stage_part.dom_object.StopTime)
+                                                           to_stop_net_time)
+        elif len(self.stage_parts()) > 1:
+            single_stage_part = toolz.first(self.stage_parts())
+            with dnd.disposable(single_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
+                mutable_first_stage_part.SetStartStopTimes(to_start_net_time,
+                                                           single_stage_part.dom_object.StopTime)
             last_stage_part = toolz.last(self.stage_parts())
             with dnd.disposable(last_stage_part.dom_object.ToMutable()) as mutable_last_stage_part:
                 mutable_last_stage_part.SetStartStopTimes(last_stage_part.dom_object.StartTime,

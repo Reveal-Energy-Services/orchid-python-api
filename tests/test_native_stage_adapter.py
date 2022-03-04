@@ -604,20 +604,14 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         sut.time_range = pdt.period(post_start_time_dto.to_datetime(), stop_time_dto.to_datetime())
 
         # Expect two calls neither with any arguments
-        stub_net_stage_part.ToMutable.assert_has_calls([unittest.mock.call(), unittest.mock.call()])
+        stub_net_stage_part.ToMutable.assert_called_once_with()
 
         # First call contains new start and old stop
-        first_call, second_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list
-        assert_that(first_call.args[0].ToString('o'),
+        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+        assert_that(actual_call.args[0].ToString('o'),
                     equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(first_call.args[1].ToString('o'),
-                    equal_to(stop_time_dto.to_net_date_time().ToString('o')))
-
-        # However, we can only test the new stop time of the second call, because the implementation
-        # relies on a side effect of the first call; that is, the implementation actually sets the
-        # start time of the *single* stage part to be *new* start time. Because we are mocking
-        # the stage parts, we cannot detect errors in the first argument of the call.
-        assert_that(second_call.args[1].ToString('o'),
+        assert_that(actual_call.args[1].ToString('o'),
                     equal_to(stop_time_dto.to_net_date_time().ToString('o')))
 
     def test_set_stop_time_if_single_part(self):
@@ -640,21 +634,16 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         sut.time_range = pdt.period(start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
 
         # Expect two calls neither with any arguments
-        stub_net_stage_part.ToMutable.assert_has_calls([unittest.mock.call(), unittest.mock.call()])
+        stub_net_stage_part.ToMutable.assert_called_once_with()
 
         # First call contains new start and old stop
-        first_call, second_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list
-        assert_that(first_call.args[0].ToString('o'),
+        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+        assert_that(actual_call.args[0].ToString('o'),
                     equal_to(start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(first_call.args[1].ToString('o'),
-                    equal_to(ante_stop_time_dto.to_net_date_time().ToString('o')))
-
-        # In this situation, because the start time of the stage is *unchanged*, we can assert the
-        # arguments to *both* calls
-        assert_that(second_call.args[0].ToString('o'),
-                    equal_to(start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(second_call.args[1].ToString('o'),
+        assert_that(actual_call.args[1].ToString('o'),
                     equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+
 
     @unittest.mock.patch('orchid.native_stage_adapter.fdf.create')
     def test_set_start_stop_time_if_no_parts(self, stub_factory_create):
