@@ -21,18 +21,23 @@ from typing import Tuple, Union
 
 import deal
 import option
+import pendulum as pdt
 import toolz.curried as toolz
 
 import orchid.base
 from orchid import (
+    dot_net_disposable as dnd,
     dot_net_dom_access as dna,
     dom_project_object as dpo,
     measurement as om,
+    native_stage_part_adapter as spa,
     native_subsurface_point as nsp,
     native_treatment_curve_adapter as ntc,
     net_date_time as ndt,
+    net_fracture_diagnostics_factory as fdf,
     net_quantity as onq,
     reference_origins as origins,
+    searchable_stage_parts as ssp,
     unit_system as units,
     validation
 )
@@ -120,6 +125,36 @@ class NativeStageAdapter(dpo.DomProjectObject):
                                               ndt.as_date_time)
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment',
                                              ndt.as_date_time)
+
+    def _get_time_range(self) -> pdt.Period:
+        return pdt.period(self.start_time, self.stop_time)
+
+    def _set_time_range(self, to_time_range: pdt.Period):
+        to_start_net_time = ndt.as_net_date_time(to_time_range.start)
+        to_stop_net_time = ndt.as_net_date_time(to_time_range.end)
+        if len(self.stage_parts()) == 1:
+            single_stage_part = toolz.first(self.stage_parts())
+            with dnd.disposable(single_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
+                mutable_first_stage_part.SetStartStopTimes(to_start_net_time,
+                                                           to_stop_net_time)
+        elif len(self.stage_parts()) > 1:
+            single_stage_part = toolz.first(self.stage_parts())
+            with dnd.disposable(single_stage_part.dom_object.ToMutable()) as mutable_first_stage_part:
+                mutable_first_stage_part.SetStartStopTimes(to_start_net_time,
+                                                           single_stage_part.dom_object.StopTime)
+            last_stage_part = toolz.last(self.stage_parts())
+            with dnd.disposable(last_stage_part.dom_object.ToMutable()) as mutable_last_stage_part:
+                mutable_last_stage_part.SetStartStopTimes(last_stage_part.dom_object.StartTime,
+                                                          to_stop_net_time)
+        else:  # No stage parts
+            factory = fdf.create()
+            stage_part_to_add = factory.CreateStagePart(self.dom_object, to_start_net_time,
+                                                        to_stop_net_time, None)
+            with dnd.disposable(self.dom_object.ToMutable()) as mutable_stage:
+                mutable_stage.Parts.Add(stage_part_to_add)
+
+    time_range = property(fget=_get_time_range, fset=_set_time_range,
+                          doc='The time range (start and end) of this stage')
 
     @property
     def isip(self) -> om.Quantity:
@@ -354,6 +389,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
             The Measurement of the length of this stage.
         """
         return self.md_bottom(in_length_unit) - self.md_top(in_length_unit)
+
+    def stage_parts(self) -> ssp.SearchableStageParts:
+        """
+        Return a `ssp.SearchableStageParts` for all the stage parts for this stage.
+
+        Returns:
+            An `ssp.SearchableStageParts` for all the stage parts for this stage.
+        """
+        return ssp.SearchableStageParts(spa.NativeStagePartAdapter, self.dom_object.Parts)
 
     def top_location(self, in_length_unit: Union[units.UsOilfield, units.Metric],
                      xy_reference_frame: origins.WellReferenceFrameXy,

@@ -14,10 +14,10 @@
 
 import enum
 import dataclasses as dc
-import datetime as dt
+import datetime as dt  # only for UTC time zone
 from numbers import Real
 
-import pendulum
+import pendulum as pdt
 import pendulum.tz as ptz
 import toolz.curried as toolz
 
@@ -26,7 +26,7 @@ from orchid import (
     net_date_time as net_dt,
 )
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import Int32, DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 
 
@@ -40,6 +40,33 @@ class TimePointDto:
     second: int
     fractional: om.Quantity = 0 * om.registry.microseconds
     kind: net_dt.TimePointTimeZoneKind = net_dt.TimePointTimeZoneKind.UTC
+
+    def to_datetime(self) -> pdt.DateTime:
+        """
+        Constructs a `pdt.DateTime` instance from this instance.
+
+        Returns:
+            The `pdt.Datetime` instance equivalent to `time_point_dto`.
+        """
+
+        result = pdt.datetime(self.year, self.month, self.day,
+                              self.hour, self.minute, self.second,
+                              int(self.fractional.to(om.registry.microseconds).magnitude),
+                              tz=_kind_to_tzinfo(self.kind.value))
+        return result
+
+    def to_net_date_time(self) -> DateTime:
+        """
+        Construct a .NET `DateTime` instance from this instance.
+
+        Returns:
+            The .NET `DateTime` equivalent to this instance.
+        """
+        result = DateTime(self.year, self.month, self.day,
+                          self.hour, self.minute, self.second,
+                          int(round(self.fractional.to(om.registry.milliseconds).magnitude)),
+                          self.kind.value)
+        return result
 
 
 @dc.dataclass
@@ -120,26 +147,6 @@ def make_net_time_span(time_delta_dto: TimeSpanDto):
         return TimeSpan(time_delta_dto.hour, time_delta_dto.minute, time_delta_dto.second)
     else:
         return TimeSpan(-time_delta_dto.hour, -time_delta_dto.minute, -time_delta_dto.second)
-
-
-def make_date_time(time_point_dto: TimePointDto) -> pendulum.DateTime:
-    """
-    Constructs a `pendulum.DateTime` instance from a `TimePointDto` instance.
-
-    This method is mostly for convenience.
-
-    Args:
-        time_point_dto: The instance from which to construct the `pendulum.Datetime` instance.
-
-    Returns:
-        The `pendulum.Datetime` instance equivalent to `time_point_dto`.
-    """
-
-    result = pendulum.datetime(time_point_dto.year, time_point_dto.month, time_point_dto.day,
-                               time_point_dto.hour, time_point_dto.minute, time_point_dto.second,
-                               int(time_point_dto.fractional.to(om.registry.microseconds).magnitude),
-                               tz=_kind_to_tzinfo(time_point_dto.kind.value))
-    return result
 
 
 def utc_time_zone() -> dt.tzinfo:

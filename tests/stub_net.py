@@ -15,22 +15,26 @@
 # This file is part of Orchid and related technologies.
 #
 
-"""A module for creating 'stub" .NET classes for use in testing.
+"""A module for creating 'stub' .NET classes for use in testing.
 
 Note that these stubs are "duck typing" stubs for .NET classes; that is, they have the same methods and
 properties required during testing but do not actually implement the .NET class interfaces.
 """
 
 from collections import namedtuple
+import dataclasses as dc
 import itertools
+import math
 import unittest.mock
-from typing import Sequence
+import uuid
+from typing import Callable, Iterable, Sequence, Union
 
-import pendulum
+import pendulum as pdt
 import toolz.curried as toolz
 
 from orchid import (
-    net_date_time as net_dt,
+    measurement as om,
+    net_date_time as ndt,
     net_quantity as onq,
     unit_system as units,
 )
@@ -46,6 +50,8 @@ from Orchid.FractureDiagnostics import (IMonitor,
                                         IProjectObject,
                                         IPlottingSettings,
                                         IStage,
+                                        IStagePart,
+                                        IMutableStagePart,
                                         ISubsurfacePoint,
                                         IWell,
                                         IWellTrajectory,
@@ -93,12 +99,12 @@ argument and providing the magnitude later."""
 
 
 class StubNetSample:
-    def __init__(self, time_point: pendulum.DateTime, value: float):
+    def __init__(self, time_point: pdt.DateTime, value: float):
         # I chose to use capitalized names for compatability with .NET
-        if time_point.tzinfo != pendulum.tz.UTC:
+        if time_point.tzinfo != pdt.tz.UTC:
             raise ValueError(f'Cannot create .NET DateTime with DateTimeKind.Utc from time zone, {time_point.tzinfo}.')
 
-        carry_seconds, milliseconds = net_dt.microseconds_to_milliseconds_with_carry(time_point.microsecond)
+        carry_seconds, milliseconds = ndt.microseconds_to_milliseconds_with_carry(time_point.microsecond)
         self.Timestamp = DateTime(time_point.year, time_point.month, time_point.day,
                                   time_point.hour, time_point.minute, time_point.second + carry_seconds,
                                   milliseconds, stub_dt.StubDateTimeKind.UTC)
@@ -108,16 +114,192 @@ class StubNetSample:
         return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
 
 
-def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
+@dc.dataclass
+class StagePartDto:
+    display_name_with_well: str = None
+    display_name_without_well: str = None
+    isip: om.Quantity = None
+    object_id: uuid.UUID = None
+    part_no: int = None
+    project: object = None  # a stub net project
+    start_time: pdt.DateTime = None
+    stop_time: pdt.DateTime = None
+
+    def create_net_stub(self):
+        stub_net_stage_part_name = 'stub_net_stage_part'
+        result = create_stub_domain_object(stub_name=stub_net_stage_part_name,
+                                           stub_spec=IStagePart)
+
+        if self.display_name_with_well is not None:
+            result.DisplayNameWithWell = self.display_name_with_well
+        if self.display_name_without_well is not None:
+            result.DisplayNameWithoutWell = self.display_name_without_well
+        if self.isip is not None:
+            _set_net_isip(self.isip, result)
+        if self.object_id is not None:
+            result.ObjectId = Guid(self.object_id)
+        if self.part_no is not None:
+            result.PartNumber = self.part_no
+        if self.project is not None:
+            result.Project = self.project
+        if self.start_time is not None:
+            result.StartTime = ndt.as_net_date_time(self.start_time)
+        if self.stop_time is not None:
+            result.StopTime = ndt.as_net_date_time(self.stop_time)
+
+        return result
+
+
+@dc.dataclass
+class MutableStagePartDto(StagePartDto):
+    def create_net_stub(self):
+        # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
+        # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
+        # `hasattr` will be "fooled" because `MagicMock` will report that this instance has both dunder
+        # methods `__enter__` and `__exit__`. I actually want the context manager returned by
+        # `dnd.disposable()` to return *this* mock instance, so I make it an instance of `Mock` which
+        # will not, be default, implement the `__enter__` and `__exit__` dunder methods.
+        result = unittest.mock.Mock(name='stub_mutable_net_stage_part')
+
+        # This attribute allows callers to monitor calls to `SetStartStopTimes`
+        result.SetStartStopTimes = unittest.mock.Mock(name='SetStartStopTimes')
+
+        # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
+        # block as it exits the context.
+        result.Dispose = unittest.mock.Mock(name='Dispose')
+
+        return result
+
+
+@dc.dataclass
+class StageDto:
+    cluster_count: int = -1
+    display_name: str = None
+    display_name_with_well: str = None
+    display_stage_no: int = -1
+    isip: object = None  # Union[om.Quantity, UnitsNet.Quantity] and an measurement "DTO" with `unit`
+    md_top: om.Quantity = None
+    md_bottom: om.Quantity = None
+    name: str = None
+    object_id: uuid.UUID = None
+    pnet: object = None  # Union[om.Quantity, UnitsNet.Quantity] and an measurement "DTO" with `unit`
+    shmin: object = None  # Union[om.Quantity, UnitsNet.Quantity] and an measurement "DTO" with `unit`
+    stage_location_bottom: Callable = None
+    stage_location_center: Callable = None
+    stage_location_cluster: Callable = None
+    stage_location_top: Callable = None
+    stage_parts: Iterable[Union[StagePartDto, IStagePart]] = None
+    # TODO: Change `start_time` and `stop_time` defaults to `ndt.DATETIME_NAT`
+    start_time: pdt.DateTime = None
+    stop_time: pdt.DateTime = None
+    treatment_curve_names: Iterable[str] = None
+
+    def create_net_stub(self):
+        stub_net_stage_name = 'stub_net_stage'
+        result = create_stub_domain_object(display_name=self.display_name,
+                                           stub_name=stub_net_stage_name,
+                                           stub_spec=IStage)
+
+        if self.display_name_with_well is not None:
+            result.DisplayNameWithWell = self.display_name_with_well
+        result.NumberOfClusters = self.cluster_count
+        result.DisplayStageNumber = self.display_stage_no
+        if self.md_top is not None:
+            result.MdTop = make_net_measurement(self.md_top)
+        if self.md_bottom is not None:
+            result.MdBottom = make_net_measurement(self.md_bottom)
+        if self.name is not None:
+            result.Name = self.name
+        if self.object_id is not None:
+            result.ObjectId = self.object_id
+        if self.stage_location_bottom is not None:
+            if callable(self.stage_location_bottom):
+                result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
+                                                                        side_effect=self.stage_location_bottom)
+        if self.stage_location_center is not None:
+            if callable(self.stage_location_center):
+                result.GetStageLocationCenter = unittest.mock.MagicMock('stub_get_stage_center_location',
+                                                                        side_effect=self.stage_location_center)
+        if self.stage_location_cluster is not None:
+            if callable(self.stage_location_cluster):
+                result.GetStageLocationCluster = unittest.mock.MagicMock('stub_get_stage_cluster_location',
+                                                                         side_effect=self.stage_location_cluster)
+        if self.stage_location_top is not None:
+            if callable(self.stage_location_top):
+                result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',
+                                                                     side_effect=self.stage_location_top)
+        if self.stage_parts is not None:
+            result.Parts = [o.create_net_stub() if isinstance(o, StagePartDto) else o for o in self.stage_parts]
+        if self.start_time is not None:
+            result.StartTime = ndt.as_net_date_time(self.start_time)
+        if self.stop_time is not None:
+            result.StopTime = ndt.as_net_date_time(self.stop_time)
+
+        if self.treatment_curve_names is not None:
+            result.TreatmentCurves.Items = list(toolz.map(
+                lambda sampled_quantity_name: create_stub_net_treatment_curve(
+                    sampled_quantity_name=sampled_quantity_name.value), self.treatment_curve_names))
+        else:
+            result.TreatmentCurves.Items = []
+
+        if self.shmin is not None:
+            if hasattr(self.shmin, 'unit'):
+                result.Shmin = make_net_measurement(self.shmin)
+            elif hasattr(self.shmin, 'Unit'):
+                result.Shmin = self.shmin
+            else:
+                raise ValueError(f'Unrecognized self.shmin={self.shmin}. The value, `shmin`,'
+                                 ' must be a Python `unit` or a UnitsNet `Unit`.')
+
+        if self.pnet is not None:
+            if hasattr(self.pnet, 'unit'):
+                result.Pnet = make_net_measurement(self.pnet)
+            elif hasattr(self.pnet, 'Unit'):
+                result.Pnet = self.pnet
+            else:
+                raise ValueError(f'Unrecognized shmin={self.pnet}. The value, `shmin`,'
+                                 ' must be a Python `unit` or a UnitsNet `Unit`.')
+
+        if self.isip is not None:
+            _set_net_isip(self.isip, result)
+
+        return result
+
+
+@dc.dataclass
+class MutableStageDto(StagePartDto):
+    def create_net_stub(self):
+        # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
+        # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
+        # `hasattr` will be "fooled" because `MagicMock` will report that this instance has both dunder
+        # methods `__enter__` and `__exit__`. I actually want the context manager returned by
+        # `dnd.disposable()` to return *this* mock instance, so I make it an instance of `Mock` which
+        # will not, be default, implement the `__enter__` and `__exit__` dunder methods.
+        result = unittest.mock.Mock(name='stub_mutable_net_stage_part')
+
+        # This attribute allows callers to monitor calls to `Parts.Add`
+        result.Parts.Add = unittest.mock.Mock(name='Parts.Add')
+
+        # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
+        # block as it exits the context.
+        result.Dispose = unittest.mock.Mock(name='Dispose')
+
+        return result
+
+
+def create_stub_net_time_series_data_points(start_time_point: pdt.DateTime,
                                             sample_values) -> Sequence[StubNetSample]:
     """
     Create a stub .NET time series.
 
     The "stub .NET" nature is satisfied by returning a sequence in which each item is an instance of `StubNetSample`.
 
-    :param start_time_point: The time point at which the time series starts.
-    :param sample_values: The values in the stub data_points.
-    :return: A sequence a data_points implementing the `ITick<double>` interface using "duck typing."
+    Args:
+        start_time_point(pdt.DateTime): The time point at which the time series starts.
+        sample_values(Sequence[StubNetSample]): The values in the stub data_points.
+
+    Returns:
+        A sequence a data_points implementing the `ITick<double>` interface using "duck typing."
     """
     sample_time_points = create_30_second_time_points(start_time_point, len(sample_values))
     samples = [StubNetSample(st, sv) for (st, sv) in zip(sample_time_points, sample_values)]
@@ -125,7 +307,7 @@ def create_stub_net_time_series_data_points(start_time_point: pendulum.DateTime,
 
 
 @toolz.curry
-def create_regularly_sampled_time_points(interval: pendulum.Duration, start_time_point: pendulum.DateTime, count: int):
+def create_regularly_sampled_time_points(interval: pdt.Duration, start_time_point: pdt.DateTime, count: int):
     """
     Create a sequence of `count` time points starting at `start_time_point`, `interval` apart.
 
@@ -138,19 +320,19 @@ def create_regularly_sampled_time_points(interval: pendulum.Duration, start_time
         The sequence of time points.
 
     """
-    # I must handle a count of 0 specially because `pendulum` **includes** the endpoint of the specified range.
+    # I must handle a count of 0 specially because `pdt` **includes** the endpoint of the specified range.
     if count == 0:
         return []
 
-    # The `pendulum` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
+    # The `pdt` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
     end_time_point = start_time_point + interval * (count - 1)
-    result = pendulum.period(start_time_point, end_time_point).range('seconds', interval.total_seconds())
+    result = pdt.period(start_time_point, end_time_point).range('seconds', interval.total_seconds())
     return result
 
 
-create_30_second_time_points = create_regularly_sampled_time_points(pendulum.duration(seconds=30))
-create_1_second_time_points = create_regularly_sampled_time_points(pendulum.duration(seconds=1))
+create_30_second_time_points = create_regularly_sampled_time_points(pdt.duration(seconds=30))
+create_1_second_time_points = create_regularly_sampled_time_points(pdt.duration(seconds=1))
 
 
 class StubNetTreatmentCurve:
@@ -234,86 +416,14 @@ def create_stub_net_data_frame(display_name=None, name=None, object_id=None, tab
     return result
 
 
-def create_stub_net_stage(cluster_count=-1, display_name=None,
-                          display_name_with_well=None, display_stage_no=-1,
-                          md_top=None, md_bottom=None, name=None, object_id=None,
-                          stage_location_bottom=None, stage_location_cluster=None,
-                          stage_location_center=None, stage_location_top=None,
-                          start_time=None, stop_time=None, treatment_curve_names=None,
-                          shmin=None, pnet=None, isip=None):
-    stub_net_stage_name = 'stub_net_stage'
-    result = create_stub_domain_object(display_name=display_name,
-                                       stub_name=stub_net_stage_name,
-                                       stub_spec=IStage)
-
-    if display_name_with_well is not None:
-        result.DisplayNameWithWell = display_name_with_well
-    result.NumberOfClusters = cluster_count
-    result.DisplayStageNumber = display_stage_no
-    if md_top is not None:
-        result.MdTop = make_net_measurement(md_top)
-    if md_bottom is not None:
-        result.MdBottom = make_net_measurement(md_bottom)
-    if name is not None:
-        result.Name = name
-    if object_id is not None:
-        result.ObjectId = object_id
-    if stage_location_bottom is not None:
-        if callable(stage_location_bottom):
-            result.GetStageLocationBottom = unittest.mock.MagicMock('stub_get_stage_bottom_location',
-                                                                    side_effect=stage_location_bottom)
-    if stage_location_center is not None:
-        if callable(stage_location_center):
-            result.GetStageLocationCenter = unittest.mock.MagicMock('stub_get_stage_center_location',
-                                                                    side_effect=stage_location_center)
-    if stage_location_cluster is not None:
-        if callable(stage_location_cluster):
-            result.GetStageLocationCluster = unittest.mock.MagicMock('stub_get_stage_cluster_location',
-                                                                     side_effect=stage_location_cluster)
-    if stage_location_top is not None:
-        if callable(stage_location_top):
-            result.GetStageLocationTop = unittest.mock.MagicMock('stub_get_stage_top_location',
-                                                                 side_effect=stage_location_top)
-    if start_time is not None:
-        result.StartTime = net_dt.as_net_date_time(start_time)
-    if stop_time is not None:
-        result.StopTime = net_dt.as_net_date_time(stop_time)
-
-    if treatment_curve_names is not None:
-        result.TreatmentCurves.Items = list(toolz.map(
-            lambda sampled_quantity_name: create_stub_net_treatment_curve(
-                sampled_quantity_name=sampled_quantity_name.value), treatment_curve_names))
+def _set_net_isip(isip, result):
+    if hasattr(isip, 'unit'):
+        result.Isip = make_net_measurement(isip) if not math.isnan(isip.magnitude) else None
+    elif hasattr(isip, 'Unit'):
+        result.Isip = isip
     else:
-        result.TreatmentCurves.Items = []
-
-    if shmin is not None:
-        if hasattr(shmin, 'unit'):
-            result.Shmin = make_net_measurement(shmin)
-        elif hasattr(shmin, 'Unit'):
-            result.Shmin = shmin
-        else:
-            raise ValueError(f'Unrecognized shmin={shmin}. The value, `shmin`, must be a Python `unit` or'
-                             f' a UnitsNet `Unit`.')
-
-    if pnet is not None:
-        if hasattr(pnet, 'unit'):
-            result.Pnet = make_net_measurement(pnet)
-        elif hasattr(pnet, 'Unit'):
-            result.Pnet = pnet
-        else:
-            raise ValueError(f'Unrecognized shmin={pnet}. The value, `shmin`, must be a Python `unit` or'
-                             f' a UnitsNet `Unit`.')
-
-    if isip is not None:
-        if hasattr(isip, 'unit'):
-            result.Isip = make_net_measurement(isip)
-        elif hasattr(isip, 'Unit'):
-            result.Isip = isip
-        else:
-            raise ValueError(f'Unrecognized shmin={isip}. The value, `isip`, must be a Python `unit` or'
-                             f' a UnitsNet `Unit`.')
-
-    return result
+        raise ValueError(f'Unrecognized isip={isip}. The value, `isip`, must be a `Pint` `Quantity` or'
+                         f' a UnitsNet `Unit`.')
 
 
 def create_stub_domain_object(object_id=None, name=None, display_name=None, stub_name=None, stub_spec=None):
@@ -377,7 +487,7 @@ def create_stub_net_treatment_curve(name=None, display_name=None,
     if values_starting_at is not None:
         values, start_time_point = values_starting_at
         time_points = create_30_second_time_points(start_time_point, len(values))
-        samples = [StubSample(t, v) for (t, v) in zip(map(net_dt.as_net_date_time, time_points), values)]
+        samples = [StubSample(t, v) for (t, v) in zip(map(ndt.as_net_date_time, time_points), values)]
         stub_net_treatment_curve.GetOrderedTimeSeriesHistory = unittest.mock.MagicMock(name='stub_time_series',
                                                                                        return_value=samples)
     if project is not None:
@@ -404,10 +514,10 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
         result.ObjectId = Guid(object_id)
 
     if start is not None:
-        result.StartTime = net_dt.as_net_date_time(start)
+        result.StartTime = ndt.as_net_date_time(start)
 
     if stop is not None:
-        result.StopTime = net_dt.as_net_date_time(stop)
+        result.StopTime = ndt.as_net_date_time(stop)
 
     if well_time_series_dto is not None:
         result.TimeSeries = create_stub_net_time_series(**well_time_series_dto)
@@ -450,17 +560,19 @@ def create_stub_net_well_trajectory(object_id=None, project=None,
     if project is not None:
         stub_trajectory.Well.Project = project
 
-    if easting_magnitudes is not None and project.project_units is not None:
-        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes, project.project_units.LENGTH)
+    if easting_magnitudes is not None and project.ProjectUnits is not None:
+        stub_eastings = create_stub_net_trajectory_array(easting_magnitudes,
+                                                         units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetEastingArray = unittest.mock.MagicMock(name='stub_eastings', return_value=stub_eastings)
 
-    if northing_magnitudes is not None and project.project_units is not None:
+    if northing_magnitudes is not None and project.ProjectUnits is not None:
         stub_northings = create_stub_net_trajectory_array(northing_magnitudes,
-                                                          project.project_units.LENGTH)
+                                                          units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetNorthingArray = unittest.mock.MagicMock(name='stub_northings', return_value=stub_northings)
 
-    if tvd_ss_magnitudes is not None and project.project_units is not None:
-        stub_tvd_sss = create_stub_net_trajectory_array(tvd_ss_magnitudes, project.project_units.LENGTH)
+    if tvd_ss_magnitudes is not None and project.ProjectUnits is not None:
+        stub_tvd_sss = create_stub_net_trajectory_array(tvd_ss_magnitudes,
+                                                        units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetTvdArray = unittest.mock.MagicMock(name='stub_tvd_sss', return_value=stub_tvd_sss)
 
     if inclination_magnitudes is not None:
@@ -473,8 +585,9 @@ def create_stub_net_well_trajectory(object_id=None, project=None,
         stub_trajectory.GetAzimuthEastOfNorthArray = unittest.mock.MagicMock(name='stub_azimuths',
                                                                              return_value=stub_azimuths)
 
-    if md_kb_magnitudes is not None and project.project_units is not None:
-        stub_md_kbs = create_stub_net_trajectory_array(md_kb_magnitudes, project.project_units.LENGTH)
+    if md_kb_magnitudes is not None and project.ProjectUnits is not None:
+        stub_md_kbs = create_stub_net_trajectory_array(md_kb_magnitudes,
+                                                       units.as_unit_system(project.ProjectUnits).LENGTH)
         stub_trajectory.GetMdKbArray = unittest.mock.MagicMock(name='stub_md_kbs', return_value=stub_md_kbs)
 
     return stub_trajectory
@@ -555,7 +668,7 @@ def create_stub_net_well(object_id=None, name='', display_name='', ground_level_
         result.Formation = ''
 
     # Initialize the .NET `Wells.Items` property using `well_dtos`
-    result.Stages.Items = [create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
+    result.Stages.Items = [StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
 
     if wellhead_location:
         # wellhead_location (whl) will be a list of 3 quantities (easting, northing, depth)
@@ -597,8 +710,8 @@ def create_stub_net_well(object_id=None, name='', display_name='', ground_level_
 
 
 def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
-                            data_frame_dtos=(), data_frame_ids=(), default_well_colors=None,
-                            fluid_density=None, monitor_dtos=(), project_bounds=None, project_center=None,
+                            data_frame_dtos=(), default_well_colors=None, fluid_density=None,
+                            monitor_dtos=(), project_bounds=None, project_center=None,
                             project_units=None, samples=None, time_series_dtos=(), well_dtos=()):
     default_well_colors = default_well_colors if default_well_colors else [[]]
     curve_names = curve_names if curve_names else []
@@ -648,7 +761,6 @@ def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_phys
         stub_net_project.GetProjectCenter = unittest.mock.MagicMock(name='stub_get_project_center',
                                                                     return_value=net_center)
 
-    stub_net_project.project_units = project_units
     if project_units == units.UsOilfield:
         stub_net_project.ProjectUnits = UnitSystem.USOilfield()
     elif project_units == units.Metric:
@@ -709,7 +821,6 @@ def create_stub_net_project_object(object_id=None, name=None, display_name=None)
 
 def create_stub_dom_project_object(object_id=None, name=None, display_name=None):
     """Create a stub wrapper for an IProjectObject."""
-    stub_project_object_name = 'stub_project_object'
     result = create_stub_domain_object(object_id=object_id, name=name, display_name=display_name,
                                        stub_spec=IProjectObject)
 

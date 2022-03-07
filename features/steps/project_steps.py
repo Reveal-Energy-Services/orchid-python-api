@@ -29,16 +29,16 @@ import common_functions as cf
 
 
 FIELD_NAME_PATHNAME_MAP = {
-    'Bakken': str(orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')),
-    'Permian': str(orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')),
-    'Montney': str(orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')),
-    'Permian-u': str(orchid.training_data_path().joinpath(
+    'bakken': str(orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')),
+    'permian': str(orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')),
+    'montney': str(orchid.training_data_path().joinpath('Project-frankNstein_Montney_UTM13_METERS.ifrac')),
+    'permian-u': str(orchid.training_data_path().joinpath(
         'Project-frankNstein_Permian_UTM13FT_DF_PR2298_vs263.ifrac')),
-    'Permian-c': str(orchid.training_data_path().joinpath(
+    'permian-c': str(orchid.training_data_path().joinpath(
         'Project-frankNstein_Permian_UTM13FT_0412_PjtDataFrame.ifrac')),
-    'Permian-n': str(orchid.training_data_path().joinpath(
+    'permian-n': str(orchid.training_data_path().joinpath(
         'ProjectPermian_LocalTime.ifrac')),
-    'GnG': str(orchid.training_data_path().joinpath('GnG_DemoProject_wDataFrames.ifrac')),
+    'gng': str(orchid.training_data_path().joinpath('GnG_DemoProject_wDataFrames.ifrac')),
 }
 
 
@@ -60,11 +60,33 @@ def step_impl(context, field):
     :type context: behave.runner.Context
     :param field: The name of the field of the project.
     """
-    context.field = field
-    project_pathname = FIELD_NAME_PATHNAME_MAP[field]
+    canonical_field = field.casefold()
+    context.field = field.capitalize()
+    project_pathname = FIELD_NAME_PATHNAME_MAP[canonical_field]
     if project_pathname not in context.loaded_projects:
         context.loaded_projects[project_pathname] = orchid.core.load_project(project_pathname)
     context.project = context.loaded_projects[project_pathname]
+
+
+@given("I have loaded the changeable project for the field, '{field}'")
+def step_impl(context, field):
+    """
+    Args:
+        context (behave.runner.Context):
+        field (str):
+    """
+    # TODO: Move clearing of cache into `after_scenario`
+    # This implementation is almost identical to the previous implementation ("I have loaded the project..."). However,
+    # the previous implementation caches the loaded projects. Because this step deals with projects that can be changed,
+    # and I do not want to cache those changes from scenario to scenario, I overwrite `context.project` with a newly
+    # loaded project. This implementation prevents cross-contamination of changes from one scenario to another.
+    #
+    # As an alternative implementation, I tried clearing the cache in the `after_scenario` step with the scenario name;
+    # however, this did not work. I suspect "user error."
+    canonical_field = field.casefold()
+    context.field = field.capitalize()
+    project_pathname = FIELD_NAME_PATHNAME_MAP[canonical_field]
+    context.project = orchid.core.load_project(project_pathname)
 
 
 @when("I query the project name")

@@ -45,7 +45,7 @@ class TestNetDateTime(unittest.TestCase):
                                               net_dt.TimePointTimeZoneKind.UTC)
         actual = net_dt.as_date_time(stub_dt.make_net_date_time(time_point_dto))
 
-        assert_that(actual, equal_to(stub_dt.make_date_time(time_point_dto)))
+        assert_that(actual, equal_to(time_point_dto.to_datetime()))
 
     def test_as_date_time_net_time_point_kind_local(self):
         time_point_dto = stub_dt.TimePointDto(2024, 11, 24, 18, 56, 35, stub_dt.make_milliseconds(45),
@@ -82,7 +82,7 @@ class TestNetDateTime(unittest.TestCase):
         ]:
             expected = stub_dt.make_net_date_time(time_point)
             with self.subTest(f'Test as_net_date_time for {expected.ToString("o")}'):
-                actual = net_dt.as_net_date_time(stub_dt.make_date_time(time_point))
+                actual = net_dt.as_net_date_time(time_point.to_datetime())
                 assert_that(actual, tcm.equal_to_net_date_time(expected))
 
     def test_as_net_date_time_from_parsed_time_is_correct(self):
@@ -113,7 +113,7 @@ class TestNetDateTime(unittest.TestCase):
         ]:
             expected = stub_dt.make_net_date_time_offset(time_point)
             with self.subTest(f'Test as_net_date_time for {expected.ToString("o")}'):
-                actual = net_dt.as_net_date_time_offset(stub_dt.make_date_time(time_point))
+                actual = net_dt.as_net_date_time_offset(time_point.to_datetime())
                 assert_that(actual, tcm.equal_to_net_date_time_offset(expected))
 
     def test_as_net_date_time_offset_from_parsed_time_is_correct(self):
@@ -240,7 +240,7 @@ class TestNetDateTime(unittest.TestCase):
         )
         net_date_time_offset = stub_dt.make_net_date_time_offset(time_point)
         actual = net_dt.as_date_time(net_date_time_offset)
-        expected = stub_dt.make_date_time(time_point)
+        expected = time_point.to_datetime()
         assert_that(actual, tcm.equal_to_datetime(expected))
 
     def test_net_date_time_offset_with_non_zero_offset_as_date_time(self):

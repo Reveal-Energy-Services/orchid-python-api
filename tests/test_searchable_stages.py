@@ -38,7 +38,7 @@ class TestSearchableStages(unittest.TestCase):
             toolz.map(lambda e: {'object_id': e[0], 'display_stage_no': e[1]}),
         )
         to_find_stage_display_number = 9
-        stub_net_stages = [tsn.create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
+        stub_net_stages = [tsn.StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
         sut = oss.SearchableStages(nsa.NativeStageAdapter, stub_net_stages)
 
         actual = sut.find_by_display_stage_number(to_find_stage_display_number)
@@ -48,7 +48,7 @@ class TestSearchableStages(unittest.TestCase):
     def test_find_by_display_stage_number_returns_none_if_no_stages(self):
         stage_dtos = ()
         to_find_stage_display_number = 4
-        stub_net_stages = [tsn.create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
+        stub_net_stages = [tsn.StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
         sut = oss.SearchableStages(nsa.NativeStageAdapter, stub_net_stages)
 
         actual = sut.find_by_display_stage_number(to_find_stage_display_number)
@@ -61,7 +61,7 @@ class TestSearchableStages(unittest.TestCase):
             toolz.map(lambda e: {'object_id': e[0], 'display_stage_no': e[1]}),
         )
         to_find_stage_display_number = 8
-        stub_net_stages = [tsn.create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
+        stub_net_stages = [tsn.StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
         sut = oss.SearchableStages(nsa.NativeStageAdapter, stub_net_stages)
 
         actual = sut.find_by_display_stage_number(to_find_stage_display_number)
@@ -74,7 +74,7 @@ class TestSearchableStages(unittest.TestCase):
             toolz.map(lambda e: {'object_id': e[0], 'display_stage_no': e[1]}),
         )
         to_find_stage_display_number = 6
-        stub_net_stages = [tsn.create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
+        stub_net_stages = [tsn.StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
         sut = oss.SearchableStages(nsa.NativeStageAdapter, stub_net_stages)
 
         assert_that(calling(sut.find_by_display_stage_number).with_args(to_find_stage_display_number),
@@ -113,7 +113,7 @@ class TestSearchableStages(unittest.TestCase):
             ),
         ]:
             with self.subTest(f'Test find_by_display_name_with_well({to_find}) against {stage_dtos}'):
-                stub_net_stages = [tsn.create_stub_net_stage(**stage_dto) for stage_dto in stage_dtos]
+                stub_net_stages = [tsn.StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
                 sut = oss.SearchableStages(nsa.NativeStageAdapter, stub_net_stages)
 
                 all_found = tuple(sut.find_by_display_name_with_well(to_find))

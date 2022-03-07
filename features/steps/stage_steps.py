@@ -21,12 +21,14 @@ from behave import *
 use_step_matcher("parse")
 
 from hamcrest import assert_that, equal_to
+import pendulum as pdt
 import toolz.curried as toolz
 
 import common_functions as cf
 
 from orchid import (
     native_stage_adapter as nsa,
+    net_date_time as ndt,
     reference_origins as origins,
     unit_system as units,
 )
@@ -295,6 +297,7 @@ def step_impl(context, well, stage_no, shmin, isip, pnet):
     cf.assert_that_actual_measurement_close_to_expected(actual_pnet, pnet)
 
 
+# noinspection PyBDDParameters
 @then("I see the correct {well}, {stage_no:d}, and {center_mdkb}")
 def step_impl(context, well, stage_no, center_mdkb):
     """
@@ -307,3 +310,49 @@ def step_impl(context, well, stage_no, center_mdkb):
     stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
     actual = stage_of_interest.center_location_mdkb(context.project.project_units.LENGTH)
     cf.assert_that_actual_measurement_close_to_expected(actual, center_mdkb)
+
+
+@then("I see the correct {well}, {stage_no:d}, {start_time}, and {stop_time}")
+def step_impl(context, well, stage_no, start_time, stop_time):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        well (str): The name of the well of interest.
+        stage_no (int): The displayed stage number of interest.
+        start_time (str): The start time of the stage.
+        stop_time (str): The stop time of the stage.
+    """
+    stage_of_interest = cf.find_stage_no_in_well(context, stage_no, well)
+    actual_start_time = stage_of_interest.start_time
+    assert_that(actual_start_time, equal_to(pdt.parse(start_time)))
+    actual_stop_time = stage_of_interest.stop_time
+    assert_that(actual_stop_time, equal_to(pdt.parse(stop_time)))
+
+
+@step("I change the time range of stage {stage_no:d} of {well} to the range {to_start} to {to_stop}")
+def step_impl(context, stage_no, well, to_start, to_stop):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        stage_no (int): The number used by engineers to identifying stages in a well.
+        well (str): The well containing the stage whose start time is to be changed.
+        to_start (str): The new start time of the stage.
+        to_stop (str): The new stop time of the stage.
+    """
+    stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
+    stage_of_interest.time_range = (pdt.period(pdt.parse(to_start), pdt.parse(to_stop)))
+
+
+@then("I see the changed {to_start} and {to_stop} for well, {well} and stage, {stage_no:d}")
+def step_impl(context, to_start, to_stop, well, stage_no):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+        to_start (str): The new start time of the stage.
+        to_stop (str): The new stop time of the stage.
+        stage_no (int): The number used by engineers to identifying stages in a well.
+        well (str): The well containing the stage whose stop time is to be changed.
+    """
+    stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
+    assert_that(stage_of_interest.start_time, equal_to(pdt.parse(to_start)))
+    assert_that(stage_of_interest.stop_time, equal_to(pdt.parse(to_stop)))

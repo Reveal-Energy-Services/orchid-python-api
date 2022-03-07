@@ -11,7 +11,7 @@
 # except under appropriate precautions to maintain the confidentiality hereof, 
 # and may not be used in any way not expressly authorized by the Company.
 #
-"""Wrapper function to help dealing with IDisposable classes.
+"""Wrapper function to help deal with IDisposable classes.
 
 This implementation is based on code in the discussion of
 [Python.NET issue 79](https://github.com/pythonnet/pythonnet/issues/79#issuecomment-187107566).

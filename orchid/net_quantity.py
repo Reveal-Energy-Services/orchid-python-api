@@ -193,7 +193,7 @@ def as_measurement(unknown, _maybe_net_quantity: option.Option[UnitsNet.IQuantit
         unknown: A parameter whose type is not expected.
         _maybe_net_quantity: The optional .NET `IQuantity` instance to convert. (Unused.)
     """
-    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `deprecated_as_measurement`.')
+    raise TypeError(f'First argument, {unknown}, has type {type(unknown)}, unexpected by `as_measurement`.')
 
 
 # noinspection PyUnresolvedReferences
@@ -230,8 +230,9 @@ def as_measurement_in_specified_unit(target_unit,
         The equivalent `Quantity` instance in the target unit.
     """
 
-    return maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
-                                     om.Quantity(float('NaN'), target_unit.value.unit))
+    result = maybe_net_quantity.map_or(_as_measurement_in_unit(target_unit),
+                                       om.Quantity(float('NaN'), target_unit.value.unit))
+    return result
 
 
 @toolz.curry

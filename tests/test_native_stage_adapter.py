@@ -17,17 +17,19 @@
 
 from collections import namedtuple
 import decimal
-from datetime import datetime
 import unittest.mock
 
 import deal
-from hamcrest import assert_that, equal_to, empty, contains_exactly, has_items, instance_of, calling, raises
+from hamcrest import (assert_that, equal_to, empty, contains_exactly, has_items,
+                      instance_of, calling, raises, same_instance, is_, none)
+import pendulum as pdt
 import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
     native_stage_adapter as nsa,
     native_treatment_curve_adapter as ntc,
+    net_date_time as ndt,
     net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
@@ -39,6 +41,10 @@ from tests import (
     stub_net as tsn,
 )
 
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics import IMutableStagePart
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import (DateTime, DateTimeKind)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -86,7 +92,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         bottom_mock_func = mock_subsurface_point_func(DONT_CARE_METRIC_LOCATION,
                                                       origins.WellReferenceFrameXy.WELL_HEAD,
                                                       origins.DepthDatum.KELLY_BUSHING)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_bottom=bottom_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_bottom=bottom_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.bottom_location(units.Metric.LENGTH, origins.WellReferenceFrameXy.WELL_HEAD,
@@ -96,7 +102,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                                  origins.DepthDatum.KELLY_BUSHING.value)
 
     def test_bottom_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.Metric.PRESSURE
@@ -108,7 +114,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         center_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
                                                       origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
                                                       origins.DepthDatum.GROUND_LEVEL)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_center=center_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_center=center_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.center_location(units.UsOilfield.LENGTH, origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE,
@@ -118,7 +124,7 @@ class TestNativeStageAdapter(unittest.TestCase):
             origins.WellReferenceFrameXy.ABSOLUTE_STATE_PLANE.value, origins.DepthDatum.GROUND_LEVEL.value)
 
     def test_center_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.UsOilfield.POWER
@@ -147,7 +153,8 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_center_mdkb = tsn.make_measurement(expected_center_mdkb_dto)
             with self.subTest(f'Stage center MDKB = {expected_center_mdkb:~P})'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                stub_net_stage = tsn.StageDto(md_top=actual_top_dto,
+                                              md_bottom=actual_bottom_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_center_mdkb = sut.center_location_mdkb(expected_center_mdkb_unit)
@@ -155,7 +162,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_cluster_count(self):
         expected_cluster_count = 3
-        stub_net_stage = tsn.create_stub_net_stage(cluster_count=expected_cluster_count)
+        stub_net_stage = tsn.StageDto(cluster_count=expected_cluster_count).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.cluster_count, equal_to(expected_cluster_count))
@@ -177,7 +184,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                                DONT_CARE_CLUSTER_NO,
                                                                origins.WellReferenceFrameXy.PROJECT,
                                                                origins.DepthDatum.KELLY_BUSHING)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_cluster=cluster_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_cluster=cluster_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.cluster_location(units.UsOilfield.LENGTH,
@@ -190,7 +197,7 @@ class TestNativeStageAdapter(unittest.TestCase):
             origins.DepthDatum.KELLY_BUSHING.value)
 
     def test_cluster_location_invalid_cluster_no_raises_contract_error(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(calling(sut.cluster_location).with_args(units.UsOilfield.LENGTH, -1,
@@ -199,7 +206,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                     raises(deal.PreContractError))
 
     def test_cluster_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.Metric.DENSITY
@@ -211,7 +218,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_display_stage_number(self):
         expected_display_stage_number = 11
-        stub_net_stage = tsn.create_stub_net_stage(display_stage_no=expected_display_stage_number)
+        stub_net_stage = tsn.StageDto(display_stage_no=expected_display_stage_number).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         assert_that(sut.display_stage_number, equal_to(expected_display_stage_number))
@@ -230,7 +237,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             with self.subTest(self.in_project_units_test_description('ISIP', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
-                stub_net_stage = tsn.create_stub_net_stage(isip=orchid_actual)
+                stub_net_stage = tsn.StageDto(isip=orchid_actual).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 tcm.assert_that_measurements_close_to(sut.isip, expected, tolerance)
@@ -245,14 +252,14 @@ class TestNativeStageAdapter(unittest.TestCase):
         for net_isip, expected_pair in zip(net_isips, expected_matrix):
             expected_dto, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_isip} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(isip=net_isip)
+                stub_net_stage = tsn.StageDto(isip=net_isip).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 expected = tsn.make_measurement(expected_dto)
                 tcm.assert_that_measurements_close_to(sut.isip_in_pressure_unit(expected_dto.unit), expected, tolerance)
 
     def test_isip_all_non_unit_errors(self):
         expected_pressure_dto = tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414)
-        stub_net_stage = tsn.create_stub_net_stage(isip=expected_pressure_dto)
+        stub_net_stage = tsn.StageDto(isip=expected_pressure_dto).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
         assert_that(calling(sut.isip_in_pressure_unit).with_args(units.UsOilfield.LENGTH),
                     raises(deal.PreContractError))
@@ -270,7 +277,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_bottom = tsn.make_measurement(expected_bottom_dto)
             with self.subTest(f'Test MD bottom {expected_bottom:~P}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_bottom=actual_bottom_dto)
+                stub_net_stage = tsn.StageDto(md_bottom=actual_bottom_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_bottom = sut.md_bottom(expected_bottom_dto.unit)
@@ -289,7 +296,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_top = tsn.make_measurement(expected_top_dto)
             with self.subTest(f'Test MD top {expected_top:~P}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto)
+                stub_net_stage = tsn.StageDto(md_top=actual_top_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_top = sut.md_top(expected_top_dto.unit)
@@ -309,7 +316,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             with self.subTest(self.in_project_units_test_description('PNET', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
-                stub_net_stage = tsn.create_stub_net_stage(pnet=orchid_actual)
+                stub_net_stage = tsn.StageDto(pnet=orchid_actual).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 tcm.assert_that_measurements_close_to(sut.pnet, expected, tolerance)
@@ -319,7 +326,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for net_pnet, expected_pair in zip(net_pnets, expected_matrix):
             expected_dto, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_pnet} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(pnet=net_pnet)
+                stub_net_stage = tsn.StageDto(pnet=net_pnet).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 expected = tsn.make_measurement(expected_dto)
                 tcm.assert_that_measurements_close_to(sut.pnet_in_pressure_unit(expected_dto.unit), expected, tolerance)
@@ -338,7 +345,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             with self.subTest(self.in_project_units_test_description('shmin', orchid_actual, expected, project_units)):
                 mock_as_unit_system.return_value = project_units
-                stub_net_stage = tsn.create_stub_net_stage(shmin=orchid_actual)
+                stub_net_stage = tsn.StageDto(shmin=orchid_actual).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 tcm.assert_that_measurements_close_to(sut.shmin, expected, tolerance)
@@ -348,7 +355,7 @@ class TestNativeStageAdapter(unittest.TestCase):
         for net_shmin, expected_pair in zip(net_shmins, expected_matrix):
             expected_dto, tolerance = expected_pair
             with self.subTest(f'Test .NET shmin {net_shmin} in US oilfield units, "{expected_dto.unit.value.unit:~P}"'):
-                stub_net_stage = tsn.create_stub_net_stage(shmin=net_shmin)
+                stub_net_stage = tsn.StageDto(shmin=net_shmin).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
                 expected = tsn.make_measurement(expected_dto)
                 tcm.assert_that_measurements_close_to(sut.shmin_in_pressure_unit(expected_dto.unit),
@@ -371,27 +378,74 @@ class TestNativeStageAdapter(unittest.TestCase):
         ]:
             expected_stage_length = tsn.make_measurement(expected_stage_length_dto)
             with self.subTest(f'Test stage length with expected stage length {expected_stage_length:~P}'):
-                stub_net_stage = tsn.create_stub_net_stage(md_top=actual_top_dto, md_bottom=actual_bottom_dto)
+                stub_net_stage = tsn.StageDto(md_top=actual_top_dto,
+                                              md_bottom=actual_bottom_dto).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_stage_length = sut.stage_length(expected_stage_length_dto.unit)
                 tcm.assert_that_measurements_close_to(actual_stage_length, expected_stage_length, decimal.Decimal('1'))
 
-    def test_start_time(self):
-        expected_start_time = datetime(2024, 10, 31, 7, 31, 27, 357000, tdt.utc_time_zone())
-        stub_net_stage = tsn.create_stub_net_stage(start_time=expected_start_time)
+    def test_stage_parts(self):
+        for stage_part_dtos in [
+            (),
+            (tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A),),
+            [tsn.StagePartDto(object_id=oid) for oid in [tsn.DONT_CARE_ID_A, tsn.DONT_CARE_ID_B, tsn.DONT_CARE_ID_C]],
+        ]:
+            with self.subTest(f'Expecting {len(stage_part_dtos)} stage parts'):
+                stub_net_stage = tsn.StageDto(stage_parts=stage_part_dtos).create_net_stub()
+                sut = nsa.NativeStageAdapter(stub_net_stage)
+
+                assert_that(len(sut.stage_parts()), equal_to(len(stage_part_dtos)))
+
+    def test_start_time_if_neither_nat_nor_null(self):
+        start_time_dto = tdt.TimePointDto(2024, 10, 31, 7, 31, 27, 357000 * om.registry.microseconds)
+        # TODO: Change `StageDto` `start_time` argument to expect a `TimePointDto`.
+        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_start_time = sut.start_time
-        assert_that(actual_start_time, equal_to(expected_start_time))
+        assert_that(actual_start_time, equal_to(start_time_dto.to_datetime()))
 
-    def test_stop_time(self):
-        expected_stop_time = datetime(2016, 3, 31, 3, 31, 30, 947000, tdt.utc_time_zone())
-        stub_net_stage = tsn.create_stub_net_stage(stop_time=expected_stop_time)
+    def test_start_time_if_nat(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StartTime = DateTime.MinValue
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time
+        assert_that(actual_start_time, equal_to(ndt.NAT))
+
+    def test_start_time_if_null(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StartTime = None
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_start_time = sut.start_time
+        assert_that(actual_start_time, equal_to(ndt.NAT))
+
+    def test_stop_time_if_neither_nat_nor_null(self):
+        stop_time_dto = tdt.TimePointDto(2016, 3, 31, 3, 31, 30, 947000 * om.registry.microseconds)
+        # TODO: Change `StageDto` `stop_time` argument to expect a `TimePointDto`.
+        stub_net_stage = tsn.StageDto(stop_time=stop_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_stop_time = sut.stop_time
-        assert_that(actual_stop_time, equal_to(expected_stop_time))
+        assert_that(actual_stop_time, equal_to(stop_time_dto.to_datetime()))
+
+    def test_stop_time_if_nat(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StopTime = ndt.NET_NAT
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time
+        assert_that(actual_stop_time, equal_to(ndt.NAT))
+
+    def test_stop_time_if_null(self):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.StopTime = None
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        actual_stop_time = sut.stop_time
+        assert_that(actual_stop_time, equal_to(ndt.NAT))
 
     def test_subsurface_point_in_length_unit(self):
         net_points = [
@@ -432,11 +486,22 @@ class TestNativeStageAdapter(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual.y, expected.y, tolerance.y)
                 tcm.assert_that_measurements_close_to(actual.depth, expected.depth, tolerance.depth)
 
+    def test_time_range(self):
+        start_time_dto = tdt.TimePointDto(2024, 10, 31, 7, 31, 27, 357000 * om.registry.microseconds)
+        stop_time_dto = tdt.TimePointDto(2016, 3, 31, 3, 31, 30, 947000 * om.registry.microseconds)
+        # TODO: Change `StageDto` `start_time` argument to expect a `TimePointDto`.
+        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime(),
+                                      stop_time=stop_time_dto.to_datetime()).create_net_stub()
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        assert_that(sut.time_range, equal_to(pdt.period(start_time_dto.to_datetime(),
+                                                        stop_time_dto.to_datetime())))
+
     def test_top_location_invokes_get_stage_location_top_correctly(self):
         top_mock_func = mock_subsurface_point_func(DONT_CARE_US_OILFIELD_LOCATION,
                                                    origins.WellReferenceFrameXy.PROJECT,
                                                    origins.DepthDatum.SEA_LEVEL)
-        stub_net_stage = tsn.create_stub_net_stage(stage_location_top=top_mock_func)
+        stub_net_stage = tsn.StageDto(stage_location_top=top_mock_func).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         sut.top_location(units.UsOilfield.LENGTH, origins.WellReferenceFrameXy.PROJECT,
@@ -446,7 +511,7 @@ class TestNativeStageAdapter(unittest.TestCase):
             origins.WellReferenceFrameXy.PROJECT.value, origins.DepthDatum.SEA_LEVEL.value)
 
     def test_top_location_raises_error_if_not_length_unit(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         invalid_unit = units.UsOilfield.PROPPANT_CONCENTRATION
@@ -456,7 +521,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                     raises(deal.PreContractError, pattern=f'must be a unit system length'))
 
     def test_treatment_curves_no_curves(self):
-        stub_net_stage = tsn.create_stub_net_stage()
+        stub_net_stage = tsn.StageDto().create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curve = sut.treatment_curves()
@@ -464,7 +529,7 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_treatment_curves_one_curve(self):
         expected_sampled_quantity_name = ntc.TreatmentCurveTypes.SLURRY_RATE
-        stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=[expected_sampled_quantity_name])
+        stub_net_stage = tsn.StageDto(treatment_curve_names=[expected_sampled_quantity_name]).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
         actual_curves = sut.treatment_curves()
@@ -481,7 +546,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                 expected_sampled_quantity_names = [ntc.TreatmentCurveTypes.TREATING_PRESSURE,
                                                    ntc.TreatmentCurveTypes.SLURRY_RATE,
                                                    proppant_curve_type]
-                stub_net_stage = tsn.create_stub_net_stage(treatment_curve_names=expected_sampled_quantity_names)
+                stub_net_stage = tsn.StageDto(treatment_curve_names=expected_sampled_quantity_names).create_net_stub()
                 sut = nsa.NativeStageAdapter(stub_net_stage)
 
                 actual_curves = sut.treatment_curves()
@@ -506,6 +571,172 @@ class TestNativeStageAdapter(unittest.TestCase):
             (tsn.make_measurement_dto(units.Metric.PRESSURE, 15.06), decimal.Decimal('0.01')),
         ]
         return net_pressures * 2, expected_measurements
+
+
+# TODO: Handle set start/stop edge cases
+# I have seen an error in the integration tests in which Orchid raised an exception because the `StartTime` of an
+# `IStage` was *after* the `StopTime`. However, when I tried to duplicate what I though caused this error, I could
+# not create a failing test. I am leaving this to-do reminder and these test ideas for further work.
+# Test ideas
+# - Change start time
+#   - Error when many stage parts and start after first stage start
+# - Change stop time
+#   - Error when many stage parts and stop before last stage start
+class TestNativeStageAdapterSetter(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
+
+    def test_set_start_time_if_single_part(self):
+        ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
+        stop_time_dto = tdt.TimePointDto(2025, 8, 27, 13, 46, 59, 506 * om.registry.milliseconds)
+        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
+        stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
+        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
+                                               start_time=ante_start_time_dto.to_datetime(),
+                                               stop_time=stop_time_dto.to_datetime()).create_net_stub()
+        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
+
+        stub_net_stage = tsn.StageDto(start_time=ante_start_time_dto.to_datetime(),
+                                      stage_parts=[stub_net_stage_part],
+                                      stop_time=stop_time_dto.to_datetime()).create_net_stub()
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_start_time_dto = tdt.TimePointDto(2025, 8, 27, 7, 5, 54, 66 * om.registry.milliseconds)
+        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), stop_time_dto.to_datetime())
+
+        # Expect two calls neither with any arguments
+        stub_net_stage_part.ToMutable.assert_called_once_with()
+
+        # First call contains new start and old stop
+        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+        assert_that(actual_call.args[0].ToString('o'),
+                    equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(actual_call.args[1].ToString('o'),
+                    equal_to(stop_time_dto.to_net_date_time().ToString('o')))
+
+    def test_set_stop_time_if_single_part(self):
+        start_time_dto = tdt.TimePointDto(2022, 11, 25, 4, 21, 53, 846 * om.registry.milliseconds)
+        ante_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 7, 7, 46, 31 * om.registry.milliseconds)
+        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
+        stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
+        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
+                                               start_time=start_time_dto.to_datetime(),
+                                               stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
+        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
+
+        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime(),
+                                      stage_parts=[stub_net_stage_part],
+                                      stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 5, 32, 42, 406 * om.registry.milliseconds)
+        sut.time_range = pdt.period(start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+
+        # Expect two calls neither with any arguments
+        stub_net_stage_part.ToMutable.assert_called_once_with()
+
+        # First call contains new start and old stop
+        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+        assert_that(actual_call.args[0].ToString('o'),
+                    equal_to(start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(actual_call.args[1].ToString('o'),
+                    equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+
+
+    @unittest.mock.patch('orchid.native_stage_adapter.fdf.create')
+    def test_set_start_stop_time_if_no_parts(self, stub_factory_create):
+        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A).create_net_stub()
+        stub_fd_factory = unittest.mock.MagicMock(name='stub_fd_factory')
+        stub_fd_factory.CreateStagePart = unittest.mock.MagicMock('stub_create_stage_part',
+                                                                  return_value=stub_net_stage_part)
+        stub_factory_create.return_value = stub_fd_factory
+
+        stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_start_time_dto = tdt.TimePointDto(2020, 5, 10, 22, 36, 8, 58 * om.registry.milliseconds)
+        post_stop_time_dto = tdt.TimePointDto(2020, 5, 11, 0, 55, 11, 61 * om.registry.milliseconds)
+        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+
+        # Expect one call to create a stage part with the post start and stop times
+        stub_fd_factory.CreateStagePart.assert_called_once()
+        stage_arg, start_arg, stop_arg, isip_arg = stub_fd_factory.CreateStagePart.call_args_list[0].args
+        assert_that(stage_arg, same_instance(stub_net_stage))
+        assert_that(start_arg.ToString('o'), equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(stop_arg.ToString('o'), equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+        assert_that(isip_arg, is_(none()))
+
+        # Expect calls to add the newly created stage part to the Parts of the mutable stage
+        stub_net_stage.ToMutable.assert_called_once_with()
+        stub_net_mutable_stage.Parts.Add.assert_called_once_with(stub_net_stage_part)
+
+    def test_set_start_stop_time_if_many_parts(self):
+        ante_start_time_dtos = [
+            tdt.TimePointDto(2022, 2, 14, 22, 35, 9, 273 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 2, 51, 4, 216 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 7, 17, 2, 360 * om.registry.milliseconds),
+        ]
+        ante_start_date_times = [start_time_dto.to_datetime() for start_time_dto in ante_start_time_dtos]
+        ante_stop_time_dtos = [
+            tdt.TimePointDto(2022, 2, 15, 0, 57, 49, 123 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 4, 26, 5, 21 * om.registry.milliseconds),
+            tdt.TimePointDto(2022, 2, 15, 9, 30, 57, 983 * om.registry.milliseconds),
+        ]
+        ante_stop_date_times = [stop_time_dto.to_datetime() for stop_time_dto in ante_stop_time_dtos]
+        part_object_ids = [
+            tsn.DONT_CARE_ID_A,
+            tsn.DONT_CARE_ID_B,
+            tsn.DONT_CARE_ID_C,
+        ]
+        stub_net_mutable_stage_part = [tsn.MutableStagePartDto().create_net_stub()
+                                       for _ in range(len(ante_start_time_dtos))]
+        stub_net_stage_parts = [tsn.StagePartDto(object_id=args[0],
+                                                 start_time=args[1],
+                                                 stop_time=args[2]).create_net_stub()
+                                for args in zip(part_object_ids, ante_start_date_times,
+                                                ante_stop_date_times)]
+        for i in range(len(stub_net_mutable_stage_part)):
+            # noinspection PyPep8Naming
+            stub_net_stage_parts[i].ToMutable = unittest.mock.MagicMock(
+                return_value=stub_net_mutable_stage_part[i])
+
+        stub_net_stage = tsn.StageDto(start_time=ante_start_date_times[0],
+                                      stage_parts=stub_net_stage_parts,
+                                      stop_time=ante_stop_date_times[-1]).create_net_stub()
+
+        sut = nsa.NativeStageAdapter(stub_net_stage)
+
+        post_start_time_dto = tdt.TimePointDto(2022, 2, 14, 22, 12, 12, 650 * om.registry.milliseconds)
+        post_stop_time_dto = tdt.TimePointDto(2022, 2, 15, 9, 2, 12, 912 * om.registry.milliseconds)
+        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+
+        # Expect one call to first mutable stage part
+        stub_net_stage_parts[0].ToMutable.assert_called_once_with()
+        # One call to last mutable stage part
+        stub_net_stage_parts[-1].ToMutable.assert_called_once_with()
+        # And no calls to middle mutable stage part
+        stub_net_stage_parts[1].ToMutable.assert_not_called()
+
+        # First call to `SetStartStopTimes` contains new start and old stop
+        first_call = stub_net_mutable_stage_part[0].SetStartStopTimes.call_args_list[0]
+        assert_that(first_call.args[0].ToString('o'),
+                    equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
+        assert_that(first_call.args[1].ToString('o'),
+                    equal_to(ante_stop_time_dtos[0].to_net_date_time().ToString('o')))
+
+        # Second call to `SetStartStopTimes` contains old start and new stop
+        second_call = stub_net_mutable_stage_part[-1].SetStartStopTimes.call_args_list[0]
+        assert_that(second_call.args[0].ToString('o'),
+                    equal_to(ante_start_time_dtos[-1].to_net_date_time().ToString('o')))
+        assert_that(second_call.args[1].ToString('o'),
+                    equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
 
 
 def assert_is_native_treatment_curve_facade(curve):

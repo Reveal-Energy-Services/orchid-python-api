@@ -412,3 +412,89 @@ Feature: Low-level DOM API (stage)
       | Montney | Vert_01 | 2        | 2462.75 m   |
       | Montney | Vert_01 | 3        | 2412.75 m   |
       | Montney | Vert_01 | 4        | 2362.75 m   |
+
+  Scenario Outline: Query stage start and stop times
+    Given I have loaded the project for the field, '<field>'
+    When I query the stages for each well in the project
+    Then I see the correct <well>, <stage_no>, <start_time>, and <stop_time>
+
+    Examples: Bakken
+      | field  | well    | stage_no | start_time               | stop_time                |
+      | Bakken | Demo_1H | 1        | 2018-06-06T13:37:13.273Z | 2018-06-06T16:55:21.743Z |
+      | Bakken | Demo_1H | 9        | 2018-06-12T12:40:58Z     | 2018-06-12T15:12:32Z     |
+      | Bakken | Demo_1H | 33       | 2018-06-21T22:07:43.952Z | 2018-06-21T23:46:28.989Z |
+      | Bakken | Demo_1H | 50       | 2018-06-28T12:43:08.378Z | 2018-06-28T13:52:37.360Z |
+      | Bakken | Demo_2H | 1        | 2018-06-06T06:57:39.072Z | 2018-06-06T09:11:00.113Z |
+      | Bakken | Demo_2H | 8        | 2018-06-10T07:23:46.025Z | 2018-06-10T09:48:32.530Z |
+      | Bakken | Demo_2H | 21       | 2018-06-17T13:16:00.974Z | 2018-06-17T15:22:46.754Z |
+      | Bakken | Demo_2H | 50       | 2018-06-29T23:48:10.173Z | 2018-06-30T01:24:49.306Z |
+      | Bakken | Demo_4H | 1        | 2018-06-06T09:43:37.053Z | 2018-06-06T11:56:26.370Z |
+      | Bakken | Demo_4H | 7        | 2018-06-12T08:31:14.542Z | 2018-06-12T11:53:45.201Z |
+      | Bakken | Demo_4H | 26       | 2018-06-25T08:51:22.653Z | 2018-06-25T11:06:25.949Z |
+      | Bakken | Demo_4H | 35       | 2018-06-28T18:30:42.187Z | 2018-06-28T20:32:57.209Z |
+
+    Examples: Montney
+      | field   | well    | stage_no | start_time           | stop_time            |
+      | montney | Hori_01 | 1        | 2018-04-06T18:09:28Z | 2018-04-06T21:14:58Z |
+      | montney | Hori_01 | 2        | 2018-04-07T05:23:00Z | 2018-04-07T09:00:00Z |
+      | montney | Hori_01 | 8        | 2018-04-10T21:09:38Z | 2018-04-10T23:47:37Z |
+      | montney | Hori_01 | 15       | 2018-04-19T19:47:22Z | 2018-04-19T22:41:54Z |
+      | montney | Hori_02 | 1        | 2018-04-06T10:40:00Z | 2018-04-06T13:30:00Z |
+      | montney | Hori_02 | 8        | 2018-04-13T04:46:21Z | 2018-04-13T06:12:20Z |
+      | montney | Hori_02 | 14       | 2018-04-15T08:16:00Z | 2018-04-15T10:06:00Z |
+      | montney | Hori_02 | 29       | 2018-04-19T10:13:14Z | 2018-04-19T11:21:07Z |
+      | montney | Hori_03 | 1        | 2018-04-06T21:29:15Z | 2018-04-07T00:29:35Z |
+      | montney | Hori_03 | 9        | 2018-04-14T04:25:00Z | 2018-04-14T06:05:00Z |
+      | montney | Hori_03 | 20       | 2018-04-17T16:06:39Z | 2018-04-17T17:12:01Z |
+      | montney | Hori_03 | 28       | 2018-04-20T11:31:35Z | 2018-04-20T12:50:34Z |
+      | montney | Vert_01 | 1        | 2018-04-06T13:59:00Z | 2018-04-06T16:44:00Z |
+      | montney | Vert_01 | 2        | 2018-04-10T03:20:00Z | 2018-04-10T06:38:00Z |
+      | montney | Vert_01 | 3        | 2018-04-10T12:37:14Z | 2018-04-10T15:24:41Z |
+      | montney | Vert_01 | 4        | 2018-04-10T18:41:50Z | 2018-04-10T20:29:35Z |
+
+  Scenario Outline: Change the stage start and stop times
+    Given I have loaded the changeable project for the field, '<field>'
+    And I change the time range of stage <stage_no> of <well> to the range <to_start> to <to_stop>
+    Then I see the changed <to_start> and <to_stop> for well, <well> and stage, <stage_no>
+    # The following behavior is not user visible, but I thought it was important to verify given the details of the
+    # Orchid implementation
+    And I see the changed <to_start> and <to_stop> for well, <well>, stage, <stage_no>, and part, <part_no>
+
+    # The following examples test the following conditions:
+    # - Demo_1H Stage 1: Start milliseconds earlier
+    # - Demo_1H Stage 9: Start milliseconds later
+    # - Demo_1H Stage 33: Stop milliseconds earlier
+    # - Demo_1H Stage 50: Stop milliseconds later
+    # - Demo_2H Stage 1: End earlier than total data range (this stage is the first stage in the global sequence number)
+    # - Demo_2H Stage 8: Change start seconds
+    # - Demo_2H Stage 21: Change stop seconds
+    # - Demo_2H Stage 50: Start later than total data range (this range is the last stage in the global sequence number)
+    # - Demo_4H Stage 1: Change start minute
+    # - Demo_4H Stage 7: Change stop minute
+    # - Demo_4H Stage 26: Change start hour
+    # - Demo_4H Stage 35: Change stop hour
+    Examples: Bakken
+      | field  | well    | stage_no | part_no | to_start                 | to_stop                  |
+      | Bakken | Demo_1H | 1        | 0       | 2018-06-06T13:37:13.272Z | 2018-06-06T16:55:21.743Z |
+      | Bakken | Demo_1H | 9        | 0       | 2018-06-12T12:40:58.001Z | 2018-06-12T15:12:32Z     |
+      | Bakken | Demo_1H | 33       | 0       | 2018-06-21T22:07:43.952Z | 2018-06-21T23:46:28.988Z |
+      | Bakken | Demo_1H | 50       | 0       | 2018-06-28T12:43:08.378Z | 2018-06-28T13:52:37.361Z |
+      | Bakken | Demo_2H | 1        | 0       | 2018-05-27T12:57:03.072Z | 2018-05-27T15:51:50.113Z |
+      | Bakken | Demo_2H | 8        | 0       | 2018-06-10T07:23:47.025Z | 2018-06-10T09:48:32.530Z |
+      | Bakken | Demo_2H | 21       | 0       | 2018-06-17T13:16:00.974Z | 2018-06-17T15:22:45.754Z |
+      | Bakken | Demo_2H | 50       | 0       | 2018-07-07T06:05:43.173Z | 2018-07-07T08:13:40.306Z |
+      | Bakken | Demo_4H | 1        | 0       | 2018-06-06T09:42:37.053Z | 2018-06-06T11:56:26.370Z |
+      | Bakken | Demo_4H | 7        | 0       | 2018-06-12T08:31:14.542Z | 2018-06-12T11:54:45.201Z |
+      | Bakken | Demo_4H | 26       | 0       | 2018-06-25T09:51:22.653Z | 2018-06-25T11:06:25.949Z |
+      | Bakken | Demo_4H | 35       | 0       | 2018-06-28T18:30:42.187Z | 2018-06-28T19:32:57.209Z |
+
+    # These examples primarily test error conditions
+    # - Hori_01 Stage 1: change start time to `pendulum.DateTime.min` (sentinel for `NaT`)
+    # - Hori_01 Stage 2: change stop time to `pendulum.DateTime.max` (sentinel for `NaT`)
+    # - Hori_02 Stage 3: change both start and stop time to `pendulum.DateTime.min` and
+    #   `pendulum.DateTime.max`, respectively
+    Examples: Montney
+      | field   | well    | stage_no | part_no | to_start             | to_stop                     |
+      | Montney | Hori_01 | 1        | 0       | 0001-01-01T00:00:00Z | 2018-04-06T21:14:58Z        |
+      | Montney | Hori_01 | 2        | 0       | 2018-04-07T05:23:00Z | 9999-12-31T23:59:59.999999Z |
+      | Montney | Hori_01 | 8        | 0       | 0001-01-01T00:00:00Z | 9999-12-31T23:59:59.999999Z |

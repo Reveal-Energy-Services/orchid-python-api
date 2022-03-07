@@ -13,6 +13,7 @@
 #
 
 import decimal
+import datetime as dt
 
 from hamcrest import assert_that, equal_to
 
@@ -23,6 +24,9 @@ import orchid
 
 # noinspection PyUnresolvedReferences
 from tests import (custom_matchers as tcm)
+
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import DateTime
 
 
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
@@ -72,6 +76,10 @@ def assert_that_actual_measurement_magnitude_close_to_expected(actual: float,
     tcm.assert_that_measurements_close_to(actual * expected.units, expected, tolerance=tolerance, reason=reason)
 
 
+def assert_that_net_date_times_are_equal(actual: DateTime, expected: DateTime):
+    assert_that(actual, tcm.equal_to_net_date_time(expected))
+
+
 def find_stage_by_stage_no(context, stage_no, well_of_interest):
     candidate = toolz.pipe(
         context.stages_for_wells[well_of_interest],
@@ -80,6 +88,63 @@ def find_stage_by_stage_no(context, stage_no, well_of_interest):
     assert_that(candidate is not None,
                 f'Failure for field "{context.field}", well "{well_of_interest.name}", and stage_no {stage_no}.')
     return candidate
+
+
+def find_part_by_part_no_in_stage_no_in_well_of_project(context, part_no, stage_no, well_name):
+    """
+    Return the part with `part_no` in stage , `stage_no`, in well named, `well_name`, of loaded project.
+    Args:
+        context: The test context (expected to contain the loaded project)
+        part_no (int): The number used by engineers to identify the stage part of interest.
+        stage_no (int): The number used by engineers to identify the stage of interest.
+        well_name (str): The name used by engineers to identify the well of interest.
+
+    Returns:
+        The part with `part_no` in stage , `stage_no`, in well named, `well_name`, of loaded project.
+    """
+    stage_of_interest = find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name)
+    result = stage_of_interest.stage_parts().find_by_part_number(part_no)
+    assert result is not None, (f'Expected part number, {part_no}, in stage number, {stage_no},'
+                                f' in well named, {well_name}, of loaded project. Found none.')
+
+    return result
+
+
+def find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name):
+    """
+    Return the stage number, `stage_no`, in well named, `well_name`, of loaded project.
+    Args:
+        context: The test context (expected to contain the loaded project)
+        stage_no: The number used by engineers to identify the stage of interest.
+        well_name: The name used by engineers to identify the well of interest.
+
+    Returns:
+        The stage of the well named, `well_name`. If no such stage is present, raises an `AssertionError`.
+    """
+    well_of_interest = _find_well_by_name_in_project(context, well_name)
+    result = well_of_interest.stages().find_by_display_stage_number(stage_no)
+    assert result is not None, f'Expected stage number, {stage_no}, in well named, {well_name}, of loaded project.' \
+                               ' Found none.'
+
+    return result
+
+
+def _find_well_by_name_in_project(context, well_name):
+    """
+    Return the single well, named `well_name`, of the loaded project.
+    Args:
+        context: The test context (expected to contain the loaded project).
+        well_name: The name of the well of interest.
+
+    Returns:
+        The single well named, `well_name`, in the loaded project. If no well exists or more than one well exists,
+        raises an `AssertionError`.
+    """
+    assert context.project is not None, f'Expected loaded project to be available in `context`. Found none.'
+    candidates = list(context.project.wells().find_by_name(well_name))
+    assert len(candidates) == 1, f'Found {len(candidates)} wells with name, {well_name}. Expected exactly 1.'
+
+    return candidates[0]
 
 
 def find_well_by_name_in_stages_for_wells(context, name):
@@ -94,3 +159,12 @@ def find_stage_no_in_well(context, stage_no, well):
     well_of_interest = find_well_by_name_in_stages_for_wells(context, well)
     stage_of_interest = find_stage_by_stage_no(context, stage_no, well_of_interest)
     return stage_of_interest
+
+
+def find_stage_no_in_well_of_project(context, stage_no, well):
+    candidate_wells = list(context.project.wells().find_by_name(well))
+    assert_that(len(candidate_wells), equal_to(1), f'Failure for field "{context.field}" and well "{well}".')
+    well_for_interest = candidate_wells[0]
+
+    result = well_for_interest.stages().find_by_display_stage_number(stage_no)
+    return result
