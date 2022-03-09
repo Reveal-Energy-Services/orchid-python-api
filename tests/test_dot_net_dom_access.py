@@ -52,6 +52,16 @@ class DotNetAdapterTest(unittest.TestCase):
         assert_that(sut.dom_object, equal_to(stub_adaptee))
 
     @staticmethod
+    def test_dom_object_no_adapter_raises_error():
+        assert_that(calling(dna.IdentifiedDotNetAdapter).with_args(None), raises(deal.PreContractError))
+
+
+class IdentifiedDotNetAdapterTest(unittest.TestCase):
+    @staticmethod
+    def test_canary():
+        assert_that(2 + 2, equal_to(4))
+
+    @staticmethod
     def test_object_id_returns_adaptee_object_id():
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         expected_uuid_text = '218d3a65-edbb-402c-bbd3-c241cf721031'
@@ -59,10 +69,6 @@ class DotNetAdapterTest(unittest.TestCase):
         sut = dna.IdentifiedDotNetAdapter(stub_adaptee)
 
         assert_that(sut.object_id, equal_to(uuid.UUID(expected_uuid_text)))
-
-    @staticmethod
-    def test_dom_object_no_adapter_raises_error():
-        assert_that(calling(dna.IdentifiedDotNetAdapter).with_args(None), raises(deal.PreContractError))
 
     @staticmethod
     def test_expect_project_units_raises_error_if_net_project_callable_none():

@@ -147,19 +147,16 @@ def as_object_id(guid: Guid):
     return uuid.UUID(str(guid))
 
 
-class IdentifiedDotNetAdapter:
+class DotNetAdapter:
     @deal.pre(lambda _self, adaptee, _net_project_callable=None: adaptee is not None)
-    def __init__(self, adaptee, net_project_callable: Callable = None):
+    def __init__(self, adaptee):
         """
-        Construct an instance adapting `adaptee` with access to the .NET `IProject` provided by `net_project_callable`.
+        Construct an instance adapting the .NET `adaptee`.
+
         Args:
             adaptee: The .NET DOM object to adapt.
-            net_project_callable: A callable returning the .NET `IProject` instance.
         """
         self._adaptee = adaptee
-        self._net_project_callable = net_project_callable
-
-    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
     @property
     def dom_object(self):
@@ -173,6 +170,20 @@ class IdentifiedDotNetAdapter:
             The .NET DOM object being adapted.
         """
         return self._adaptee
+
+
+class IdentifiedDotNetAdapter(DotNetAdapter):
+    def __init__(self, adaptee, net_project_callable: Callable = None):
+        """
+        Construct an instance adapting `adaptee` with access to the .NET `IProject` provided by `net_project_callable`.
+        Args:
+            adaptee: The .NET DOM object to adapt.
+            net_project_callable: A callable returning the .NET `IProject` instance.
+        """
+        super().__init__(adaptee)
+        self._net_project_callable = net_project_callable
+
+    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
     @property
     def expect_project_units(self) -> Union[units.UsOilfield, units.Metric]:
