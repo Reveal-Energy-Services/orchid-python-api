@@ -28,14 +28,17 @@ from orchid import (
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_time_series_adapter as tsa,
+    native_project_user_data_adapter as uda,
     native_well_adapter as nwa,
     net_quantity as onq,
     unit_system as units,
 )
 from orchid.project_store import ProjectStore
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IWell, UnitSystem
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Settings import IProjectUserData
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -145,6 +148,10 @@ class Project(dna.DotNetAdapter):
             An `spo.SearchableProjectObjects` for all the time series of this project.
         """
         return spo.SearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
+
+    @property
+    def user_data(self) -> uda.NativeProjectUserData:
+        return uda.NativeProjectUserData(self.dom_object.ProjectUserData)
 
     def wells(self) -> spo.SearchableProjectObjects:
         """
