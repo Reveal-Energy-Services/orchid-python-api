@@ -29,7 +29,7 @@ from orchid import (
 from Orchid.FractureDiagnostics import ISubsurfacePoint
 
 
-class SubsurfacePoint(dna.DotNetAdapter):
+class SubsurfacePoint(dna.IdentifiedDotNetAdapter):
     """An abstract base class for subsurface points."""
 
     def __init__(self, adaptee: ISubsurfacePoint, target_length_unit: Union[units.UsOilfield, units.Metric]):

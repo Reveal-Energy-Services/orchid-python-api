@@ -63,7 +63,7 @@ class NativeWellAdapter(dpo.DomProjectObject):
         super().__init__(net_well, orchid.base.constantly(net_well.Project))
 
     trajectory = dna.transformed_dom_property('trajectory', 'The trajectory of the adapted .NET well.',
-                                              nta.NativeTrajectoryAdapter)
+                                              nta.NativeTrajectoryAdapterIdentified)
     uwi = dna.transformed_dom_property('uwi', 'The UWI of the adapted .', replace_no_uwi_with_text)
 
     # The formation property **does not** check when a `None` value is passed from Orchid.

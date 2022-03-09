@@ -33,7 +33,7 @@ def increment(n):
     return n + 1
 
 
-class StubDomObject(dna.DotNetAdapter):
+class StubDomObject(dna.IdentifiedDotNetAdapter):
     stub_property = dna.dom_property('stub_property', '')
     stub_date_time = dna.transformed_dom_property('stub_date_time', '', ndt.as_date_time)
     stub_transformed_iterator = dna.transformed_dom_property_iterator('stub_transformed_iterator', '', increment)
@@ -47,7 +47,7 @@ class DotNetAdapterTest(unittest.TestCase):
     @staticmethod
     def test_dom_object_returns_adaptee():
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
-        sut = dna.DotNetAdapter(stub_adaptee)
+        sut = dna.IdentifiedDotNetAdapter(stub_adaptee)
 
         assert_that(sut.dom_object, equal_to(stub_adaptee))
 
@@ -56,18 +56,18 @@ class DotNetAdapterTest(unittest.TestCase):
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
         expected_uuid_text = '218d3a65-edbb-402c-bbd3-c241cf721031'
         stub_adaptee.ObjectId = Guid.Parse(expected_uuid_text)
-        sut = dna.DotNetAdapter(stub_adaptee)
+        sut = dna.IdentifiedDotNetAdapter(stub_adaptee)
 
         assert_that(sut.object_id, equal_to(uuid.UUID(expected_uuid_text)))
 
     @staticmethod
     def test_dom_object_no_adapter_raises_error():
-        assert_that(calling(dna.DotNetAdapter).with_args(None), raises(deal.PreContractError))
+        assert_that(calling(dna.IdentifiedDotNetAdapter).with_args(None), raises(deal.PreContractError))
 
     @staticmethod
     def test_expect_project_units_raises_error_if_net_project_callable_none():
         stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
-        sut = dna.DotNetAdapter(stub_adaptee)
+        sut = dna.IdentifiedDotNetAdapter(stub_adaptee)
 
         def project_units():
             return sut.expect_project_units
@@ -81,7 +81,7 @@ class DotNetAdapterTest(unittest.TestCase):
             with self.subTest(f'Test maybe_project_units returns {unit_system}'):
                 mock_as_unit_system.return_value = unit_system
                 stub_adaptee = unittest.mock.MagicMock(name='stub_adaptee')
-                sut = dna.DotNetAdapter(stub_adaptee, unittest.mock.MagicMock(name='net_project_callable'))
+                sut = dna.IdentifiedDotNetAdapter(stub_adaptee, unittest.mock.MagicMock(name='net_project_callable'))
 
                 assert_that(sut.expect_project_units, equal_to(unit_system))
 

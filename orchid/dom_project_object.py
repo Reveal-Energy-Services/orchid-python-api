@@ -22,7 +22,7 @@ def transform_display_name(net_display_name):
     return maybe_display_name.expect('Unexpected value, `None`, for `display_name`.')
 
 
-class DomProjectObject(dna.DotNetAdapter):
+class DomProjectObject(dna.IdentifiedDotNetAdapter):
     name = dna.dom_property('name', 'The name of this data frame.')
     display_name = dna.transformed_dom_property('display_name', 'The display name of this data frame.',
                                                 transform_display_name)

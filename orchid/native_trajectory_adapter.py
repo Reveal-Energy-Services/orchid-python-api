@@ -46,7 +46,7 @@ def _trajectory_array_in_unit(tgt_unit, raw_array):
     return result
 
 
-class NativeTrajectoryAdapter(dna.DotNetAdapter):
+class NativeTrajectoryAdapterIdentified(dna.IdentifiedDotNetAdapter):
     def __init__(self, net_trajectory: IWellTrajectory):
         """
         Construct an instance adapting a .NET `IWellTrajectory`.

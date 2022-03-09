@@ -55,14 +55,14 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
     def test_display_name_if_set(self):
         expected = 'lucrum'
         stub_net_data_frame = tsn.create_stub_net_data_frame(display_name=expected)
-        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+        sut = dfa.NativeDataFrameAdapterIdentified(stub_net_data_frame)
 
         assert_that(sut.display_name, equal_to(expected))
 
     def test_display_name_if_none(self):
         net_value = None
         stub_net_data_frame = tsn.create_stub_net_data_frame(display_name=net_value)
-        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+        sut = dfa.NativeDataFrameAdapterIdentified(stub_net_data_frame)
 
         # Because `display_name` is a `property` and not simply an attribute, one cannot simply pass
         # `sut.display_name` to `calling`. (This simple action results in sending the **result** of
@@ -72,7 +72,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_name(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(name='avus')
-        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+        sut = dfa.NativeDataFrameAdapterIdentified(stub_net_data_frame)
 
         assert_that(sut.name, equal_to('avus'))
 
@@ -176,7 +176,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
 
     def test_object_id(self):
         stub_net_data_frame = tsn.create_stub_net_data_frame(object_id='35582fd2-7499-4259-99b8-04b01876f309')
-        sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+        sut = dfa.NativeDataFrameAdapterIdentified(stub_net_data_frame)
 
         assert_that(sut.object_id, equal_to(uuid.UUID('35582fd2-7499-4259-99b8-04b01876f309')))
 
@@ -431,14 +431,14 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'{name} is {"" if expected else " not"} potentially corrupt'):
                 stub_net_data_frame = tsn.create_stub_net_data_frame(name=name)
-                sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+                sut = dfa.NativeDataFrameAdapterIdentified(stub_net_data_frame)
 
                 assert_that(sut.is_potentially_corrupt, equal_to(expected))
 
 
 def _create_sut(table_data_dto):
     stub_net_data_frame = tsn.create_stub_net_data_frame(table_data_dto=table_data_dto)
-    sut = dfa.NativeDataFrameAdapter(stub_net_data_frame)
+    sut = dfa.NativeDataFrameAdapterIdentified(stub_net_data_frame)
     return sut
 
 

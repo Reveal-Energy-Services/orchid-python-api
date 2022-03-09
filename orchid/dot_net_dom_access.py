@@ -147,7 +147,7 @@ def as_object_id(guid: Guid):
     return uuid.UUID(str(guid))
 
 
-class DotNetAdapter:
+class IdentifiedDotNetAdapter:
     @deal.pre(lambda _self, adaptee, _net_project_callable=None: adaptee is not None)
     def __init__(self, adaptee, net_project_callable: Callable = None):
         """
@@ -180,7 +180,7 @@ class DotNetAdapter:
         (PROTECTED) Return the `UnitSystem` appropriate the .NET `IProject` of this instance.
 
         Although by naming convention, this property is "public," the author intends it to be "protected";
-        that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
+        that is, only called by classes derived from `IdentifiedDotNetAdapter` (and not necessarily all of those).
 
         Returns:
             A unit system - either `units.UsOilfield` or `units.Metric`.
@@ -197,7 +197,7 @@ class DotNetAdapter:
         Return the `option.Option[UnitSystem]` appropriate the .NET `IProject` of this instance.
 
         Although by naming convention, this property is "public," the author intends it to be "protected";
-        that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
+        that is, only called by classes derived from `IdentifiedDotNetAdapter` (and not necessarily all of those).
 
         Returns:
             An `option.Option()` instance.
@@ -216,13 +216,13 @@ class DotNetAdapter:
                 else option.NONE)
 
 
-def dictionary_by_id(accumulator: Mapping[uuid.UUID, DotNetAdapter], mapped_object: DotNetAdapter):
+def dictionary_by_id(accumulator: Mapping[uuid.UUID, IdentifiedDotNetAdapter], mapped_object: IdentifiedDotNetAdapter):
     """
     Return a `Mapping` resulting from adding `mapped_object` to `accumulator`.
 
     Args:
         accumulator: The accumulated result.
-        mapped_object: The `DotNetAdapter` to be added to `accumulator`.
+        mapped_object: The `IdentifiedDotNetAdapter` to be added to `accumulator`.
 
     Returns:
         The updated `Mapping`.

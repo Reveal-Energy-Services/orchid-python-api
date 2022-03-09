@@ -112,7 +112,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         # noinspection PyTypeChecker
-        assert_that(sut.trajectory, instance_of(nta.NativeTrajectoryAdapter))
+        assert_that(sut.trajectory, instance_of(nta.NativeTrajectoryAdapterIdentified))
 
     def test_uwi(self):
         for uwi in ['01-325-88264-47-65', None]:

@@ -70,7 +70,7 @@ def transform_display_name(net_display_name):
     return maybe_display_name.expect('Unexpected value, `None`, for `display_name`.')
 
 
-class NativeDataFrameAdapter(dna.DotNetAdapter):
+class NativeDataFrameAdapterIdentified(dna.IdentifiedDotNetAdapter):
     def __init__(self, net_data_frame):
         super().__init__(net_data_frame, base.constantly(net_data_frame.Project))
 

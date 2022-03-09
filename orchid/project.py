@@ -51,7 +51,7 @@ ProjectBounds = namedtuple('ProjectBounds', [
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
 
 
-class Project(dna.DotNetAdapter):
+class Project(dna.IdentifiedDotNetAdapter):
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
     @deal.pre(lambda self, project_loader: project_loader is not None)
@@ -71,7 +71,7 @@ class Project(dna.DotNetAdapter):
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
 
     # _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
-    #                                            dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+    #                                            dfa.NativeDataFrameAdapterIdentified, dna.dictionary_by_id, {})
 
     @property
     def fluid_density(self):
@@ -85,7 +85,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             An `spo.SearchableProjectObjects` for all the data frames of this project.
         """
-        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapter, self.dom_object.DataFrames.Items)
+        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapterIdentified, self.dom_object.DataFrames.Items)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
