@@ -19,7 +19,8 @@
 import unittest
 import uuid
 
-from hamcrest import assert_that, equal_to
+import deal
+from hamcrest import assert_that, equal_to, calling, raises
 
 from orchid import native_stage_qc_adapter as qca
 
@@ -27,7 +28,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Ctor raises exception if supplied stage id not in project user data
 # - start_stop_confirmation returns status if set in project user data
 # - start_stop_confirmation returns NEW if status not set in project user data
 # - qc_notes returns notes if set in project user data
@@ -35,6 +35,19 @@ from tests import stub_net as tsn
 class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_ctor_raises_exception_if_no_stage_id(self):
+        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
+
+        assert_that(calling(qca.NativeStageQCAdapter).with_args(None, stub_project_user_data),
+                    raises(deal.PreContractError, pattern='stage_id.*required'))
+
+    def test_ctor_raises_exception_if_stage_id_not_in_project_user_data(self):
+        not_found_stage_id = tsn.DONT_CARE_ID_B
+        stub_project_user_data = tsn.ProjectUserDataDto({tsn.DONT_CARE_ID_C: {}}).create_net_stub()
+
+        assert_that(calling(qca.NativeStageQCAdapter).with_args(not_found_stage_id, stub_project_user_data),
+                    raises(deal.PreContractError, pattern='`stage_id` must be in project user data'))
 
     def test_stage_id_returns_id_set_at_construction(self):
         expected_stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'

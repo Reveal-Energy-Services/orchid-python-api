@@ -15,8 +15,11 @@
 # This file is part of Orchid and related technologies.
 #
 
+import deal
+
 from orchid import (
     dot_net_dom_access as dna,
+    net_stage_qc as nqc
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -25,7 +28,16 @@ from Orchid.FractureDiagnostics.Settings import Variant
 from System import String
 
 
+def _project_user_data_contains_stage_id(stage_id, native_project_user_data):
+    return (native_project_user_data.Contains(nqc.make_start_stop_confirmation_key(stage_id)) or
+            native_project_user_data.Contains(nqc.make_qc_notes_key(stage_id)))
+
+
 class NativeStageQCAdapter(dna.DotNetAdapter):
+    @deal.pre(lambda _, stage_id, adaptee: _project_user_data_contains_stage_id(stage_id, adaptee),
+              message='`stage_id` must be in project user data')
+    @deal.pre(lambda _, stage_id, _adaptee: stage_id is not None,
+              message='`stage_id` is required')
     def __init__(self, stage_id, adaptee):
         super().__init__(adaptee)
         self._stage_id = stage_id

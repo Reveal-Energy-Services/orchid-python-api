@@ -25,6 +25,8 @@ Orchid Python API.
 import enum
 import uuid
 
+import toolz.curried as toolz
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
 
@@ -47,3 +49,7 @@ class StageQCTags(enum.Enum):
 
 def make_key(stage_id: uuid.UUID, tag: StageQCTags) -> str:
     return f'{str(stage_id)}|{tag.value}'
+
+
+make_start_stop_confirmation_key = toolz.flip(make_key)(StageQCTags.START_STOP_CONFIRMATION)
+make_qc_notes_key = toolz.flip(make_key)(StageQCTags.QC_NOTES)
