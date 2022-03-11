@@ -19,6 +19,13 @@
 import unittest
 
 
+# Test ideas
+# - stage_id returns id set in ctor
+# - Ctor raises exception if supplied stage id not in project user data
+# - start_stop_confirmation returns status if set in project user data
+# - start_stop_confirmation returns NEW if status not set in project user data
+# - qc_notes returns notes if set in project user data
+# - qc_notes returns empty string if not set in project user data
 class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
