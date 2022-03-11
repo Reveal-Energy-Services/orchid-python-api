@@ -46,7 +46,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
                     raises(deal.PreContractError, pattern='stage_id.*required'))
 
     def test_ctor_raises_exception_if_stage_id_not_in_project_user_data(self):
-        not_found_stage_id = tsn.DONT_CARE_ID_B
+        not_found_stage_id = tsn.DONT_CARE_ID_A
         stub_project_user_data = tsn.ProjectUserDataDto({tsn.DONT_CARE_ID_C: {}}).create_net_stub()
 
         assert_that(calling(qca.NativeStageQCAdapter).with_args(not_found_stage_id, stub_project_user_data),
@@ -59,8 +59,8 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
-    def test_start_stop_confirmation_returns_correct_value_from_project_user_data(self):
-        dont_care_stage_id = tsn.DONT_CARE_ID_C
+    def test_start_stop_confirmation_returns_available_value_from_project_user_data(self):
+        dont_care_stage_id = tsn.DONT_CARE_ID_B
         expected_start_stop_confirmation = 'animus meus aedificio repudiat'
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
@@ -72,7 +72,19 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.start_stop_confirmation, equal_to(expected_start_stop_confirmation))
 
-    def test_qc_notes_returns_correct_value_from_project_user_data(self):
+    def test_start_stop_confirmation_returns_default_variant_value_from_project_user_data(self):
+        dont_care_stage_id = tsn.DONT_CARE_ID_C
+        stub_project_user_data = tsn.ProjectUserDataDto({
+            dont_care_stage_id: {
+                nqc.StageQCTags.START_STOP_CONFIRMATION: (None, 'non applicabitis'),
+            }
+        }).create_net_stub()
+
+        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
+
+        assert_that(sut.start_stop_confirmation, equal_to('non applicabitis'))
+
+    def test_qc_notes_returns_available_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_D
         expected_qc_notes = 'lucrum nugatorium provenivit'
         stub_project_user_data = tsn.ProjectUserDataDto({
@@ -84,6 +96,18 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
 
         assert_that(sut.qc_notes, equal_to(expected_qc_notes))
+
+    def test_qc_notes_returns_default_variant_value_from_project_user_data(self):
+        dont_care_stage_id = tsn.DONT_CARE_ID_E
+        stub_project_user_data = tsn.ProjectUserDataDto({
+            dont_care_stage_id: {
+                nqc.StageQCTags.QC_NOTES: (None, 'non applicabitis'),
+            }
+        }).create_net_stub()
+
+        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
+
+        assert_that(sut.qc_notes, equal_to('non applicabitis'))
 
 
 if __name__ == '__main__':
