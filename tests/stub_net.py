@@ -34,6 +34,7 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
+    native_variant_adapter as nva,
     net_date_time as ndt,
     net_quantity as onq,
     net_stage_qc as nqc,
@@ -120,6 +121,16 @@ def mock_contains(stage_qcs_dtos, key_sought):
     return toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos) is not None
 
 
+@toolz.curry
+def mock_get_value(stage_qcs_dtos, key_sought, default_variant):
+    stage_id, tag_text = key_sought.split('|')
+    search_result = toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos)
+    if search_result is not None:
+        return search_result[0]
+    else:
+        return nva.make_variant(search_result[1])
+
+
 @dc.dataclass
 class ProjectUserDataDto:
     stage_qcs: Dict[uuid.UUID,
@@ -132,6 +143,7 @@ class ProjectUserDataDto:
 
         if self.stage_qcs:
             result.Contains.side_effect = mock_contains(self.stage_qcs)
+            result.GetValue.side_effect = mock_get_value(self.stage_qcs)
 
         if self.to_json is not None:
             result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=self.to_json)

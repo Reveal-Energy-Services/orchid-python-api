@@ -22,7 +22,10 @@ import uuid
 import deal
 from hamcrest import assert_that, equal_to, calling, raises
 
-from orchid import native_stage_qc_adapter as qca
+from orchid import (
+    native_stage_qc_adapter as qca,
+    net_stage_qc as nqc,
+)
 
 from tests import stub_net as tsn
 
@@ -55,6 +58,32 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = qca.NativeStageQCAdapter(uuid.UUID(expected_stage_id), stub_project_user_data)
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
+
+    def test_start_stop_confirmation_returns_correct_value_from_project_user_data(self):
+        dont_care_stage_id = tsn.DONT_CARE_ID_C
+        expected_start_stop_confirmation = 'animus meus aedificio repudiat'
+        stub_project_user_data = tsn.ProjectUserDataDto({
+            dont_care_stage_id: {
+                nqc.StageQCTags.START_STOP_CONFIRMATION: (expected_start_stop_confirmation, 'non applicabitis'),
+            }
+        }).create_net_stub()
+
+        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
+
+        assert_that(sut.start_stop_confirmation, equal_to(expected_start_stop_confirmation))
+
+    def test_qc_notes_returns_correct_value_from_project_user_data(self):
+        dont_care_stage_id = tsn.DONT_CARE_ID_D
+        expected_qc_notes = 'lucrum nugatorium provenivit'
+        stub_project_user_data = tsn.ProjectUserDataDto({
+            dont_care_stage_id: {
+                nqc.StageQCTags.QC_NOTES: (expected_qc_notes, 'non applicabitis'),
+            }
+        }).create_net_stub()
+
+        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
+
+        assert_that(sut.qc_notes, equal_to(expected_qc_notes))
 
 
 if __name__ == '__main__':

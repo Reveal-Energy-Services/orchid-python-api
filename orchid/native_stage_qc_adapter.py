@@ -19,7 +19,8 @@ import deal
 
 from orchid import (
     dot_net_dom_access as dna,
-    net_stage_qc as nqc
+    native_variant_adapter as nva,
+    net_stage_qc as nqc,
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -34,6 +35,15 @@ def _project_user_data_contains_stage_id(stage_id, native_project_user_data):
 
 
 class NativeStageQCAdapter(dna.DotNetAdapter):
+    """
+    This class adapts the .NET IProjectUserData instance to synthesize a stage QC class.
+
+    Note that the DOM *does not* contain a stage QC class because this class is *not* considered part of the domain,
+    but, instead, is considered part of the ImageFRAC workflow.
+
+    Despite this intention, our customer has asked for access to this information for their business purposes.
+    """
+
     @deal.pre(lambda _, stage_id, adaptee: _project_user_data_contains_stage_id(stage_id, adaptee),
               message='`stage_id` must be in project user data')
     @deal.pre(lambda _, stage_id, _adaptee: stage_id is not None,
@@ -48,8 +58,10 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
 
     @property
     def start_stop_confirmation(self):
-        return None
+        return self.dom_object.GetValue(nqc.make_start_stop_confirmation_key(self._stage_id),
+                                        nva.make_variant('non applicabitis'))
 
     @property
     def qc_notes(self):
-        return None
+        return self.dom_object.GetValue(nqc.make_qc_notes_key(self._stage_id),
+                                        nva.make_variant('non applicabitis'))
