@@ -42,7 +42,7 @@ def step_impl(context):
         stage_no = int(row['stage_no'])
         stage_object_id = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well).object_id
         project_user_data = context.project.user_data
-        stage_qc = project_user_data.stage_qc()
+        stage_qc = project_user_data.stage_qc(stage_object_id)
 
         to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
         stage_qc[stage_object_id].stage_start_stop_confirmation = to_corrected_status
