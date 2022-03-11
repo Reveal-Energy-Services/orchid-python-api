@@ -32,7 +32,7 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
 
     @property
     def stage_id(self):
-        return None
+        return self._stage_id
 
     @property
     def start_stop_confirmation(self):
