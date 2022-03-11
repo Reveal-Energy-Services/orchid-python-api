@@ -59,6 +59,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
+    @unittest.skip('Awaiting lower-level code')
     def test_start_stop_confirmation_returns_available_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_B
         expected_start_stop_confirmation = 'animus meus aedificio repudiat'
@@ -73,6 +74,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.start_stop_confirmation, equal_to(expected_start_stop_confirmation))
 
+    @unittest.skip('Awaiting lower-level code')
     def test_start_stop_confirmation_returns_default_variant_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_C
         stub_project_user_data = tsn.ProjectUserDataDto({
@@ -85,6 +87,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.start_stop_confirmation, equal_to('non applicabitis'))
 
+    @unittest.skip('Awaiting lower-level code')
     def test_qc_notes_returns_available_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_D
         expected_qc_notes = 'lucrum nugatorium provenivit'
@@ -98,6 +101,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.qc_notes, equal_to(expected_qc_notes))
 
+    @unittest.skip('Awaiting lower-level code')
     def test_qc_notes_returns_default_variant_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_E
         stub_project_user_data = tsn.ProjectUserDataDto({
