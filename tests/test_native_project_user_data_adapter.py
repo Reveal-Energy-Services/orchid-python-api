@@ -19,6 +19,11 @@
 import unittest
 
 
+# Test ideas
+# - Return correct stage QC if pair, stage ID and start stop confirmation, are available
+# - Return correct stage QC if pair, stage ID and QC notes, are available
+# - Return None if no such matching stage ID exists but at least one other pair
+# - Return None if no stage ID exists but neither start stop confirmation nor QC notes
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
