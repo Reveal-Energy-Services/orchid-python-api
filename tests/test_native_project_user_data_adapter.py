@@ -43,7 +43,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         stage_id_dto = tsn.DONT_CARE_ID_A
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
             stage_id_dto: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION.value: (nqc.StageCorrectionStatus.UNCONFIRMED, None),
+                nqc.StageQCTags.START_STOP_CONFIRMATION: (nqc.StageCorrectionStatus.UNCONFIRMED, None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
@@ -56,7 +56,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         expected_start_stop_confirmation = nqc.StageCorrectionStatus.CONFIRMED
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
             stage_id_dto: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION.value: (expected_start_stop_confirmation, None),
+                nqc.StageQCTags.START_STOP_CONFIRMATION: (expected_start_stop_confirmation, None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
@@ -69,7 +69,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         stage_id_dto = tsn.DONT_CARE_ID_C
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
             stage_id_dto: {
-                nqc.StageQCTags.QC_NOTES.value: ('soror', None),
+                nqc.StageQCTags.QC_NOTES: ('soror', None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
@@ -83,7 +83,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         expected_qc_notes = 'pellet'
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
             stage_id_dto: {
-                nqc.StageQCTags.QC_NOTES.value: (expected_qc_notes, None),
+                nqc.StageQCTags.QC_NOTES: (expected_qc_notes, None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)

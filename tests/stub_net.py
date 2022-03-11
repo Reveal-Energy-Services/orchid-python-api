@@ -116,8 +116,8 @@ class StubNetSample:
 
 @toolz.curry
 def mock_contains(stage_qcs_dtos, key_sought):
-    stage_id, tag = key_sought.split('|')
-    return toolz.get_in([stage_id, tag], stage_qcs_dtos) is not None
+    stage_id, tag_text = key_sought.split('|')
+    return toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos) is not None
 
 
 @dc.dataclass
