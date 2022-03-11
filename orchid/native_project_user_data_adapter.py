@@ -16,25 +16,18 @@
 #
 
 import dataclasses
-import enum
 import uuid
 
+from orchid import net_stage_qc as nqc
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Settings import IProjectUserData
 
 
-class StageCorrectionStatus(enum.Enum):
-    CONFIRMED = NetStageCorrectionStatus.Confirmed
-    NEW = NetStageCorrectionStatus.New
-    UNCONFIRMED = NetStageCorrectionStatus.Unconfirmed
-
-
 @dataclasses.dataclass
 class StageQC:
-    stage_start_stop_confirmation: StageCorrectionStatus
+    stage_start_stop_confirmation: nqc.StageCorrectionStatus
 
 
 class NativeProjectUserData:
@@ -43,5 +36,5 @@ class NativeProjectUserData:
 
     def stage_qc(self):
         return {
-            uuid.UUID('f1cfbb26-b492-4079-88ab-5798fcc76134'): StageQC(StageCorrectionStatus.CONFIRMED),
+            uuid.UUID('f1cfbb26-b492-4079-88ab-5798fcc76134'): StageQC(nqc.StageCorrectionStatus.CONFIRMED),
         }

@@ -23,7 +23,7 @@ from hamcrest import assert_that, equal_to
 import common_functions as cf
 
 from orchid import (
-    native_project_user_data_adapter as uda,
+    net_stage_qc as nqc,
 )
 
 
@@ -44,7 +44,7 @@ def step_impl(context):
         project_user_data = context.project.user_data
         stage_qc = project_user_data.stage_qc()
 
-        to_corrected_status = uda.StageCorrectionStatus[row['to_correction_status'].upper()]
+        to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
         stage_qc[stage_object_id].stage_start_stop_confirmation = to_corrected_status
 
 
@@ -62,6 +62,6 @@ def step_impl(context):
         project_user_data = context.project.user_data
         stage_qc = project_user_data.stage_qc()
 
-        expected_corrected_status = uda.StageCorrectionStatus[row['to_correction_status'].upper()]
+        expected_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
         assert_that(stage_qc[stage_object_id].stage_start_stop_confirmation,
                     equal_to(expected_corrected_status))
