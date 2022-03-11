@@ -64,7 +64,8 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         expected_start_stop_confirmation = 'animus meus aedificio repudiat'
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: (expected_start_stop_confirmation, 'non applicabitis'),
+                nqc.StageQCTags.START_STOP_CONFIRMATION: tsn.StageQCValueDto(expected_start_stop_confirmation,
+                                                                          'non applicabitis'),
             }
         }).create_net_stub()
 
@@ -76,7 +77,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         dont_care_stage_id = tsn.DONT_CARE_ID_C
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: (None, 'non applicabitis'),
+                nqc.StageQCTags.START_STOP_CONFIRMATION: tsn.StageQCValueDto(None, 'non applicabitis'),
             }
         }).create_net_stub()
 
@@ -89,7 +90,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         expected_qc_notes = 'lucrum nugatorium provenivit'
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.QC_NOTES: (expected_qc_notes, 'non applicabitis'),
+                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(expected_qc_notes, 'non applicabitis'),
             }
         }).create_net_stub()
 
@@ -101,7 +102,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         dont_care_stage_id = tsn.DONT_CARE_ID_E
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.QC_NOTES: (None, 'non applicabitis'),
+                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(None, 'non applicabitis'),
             }
         }).create_net_stub()
 

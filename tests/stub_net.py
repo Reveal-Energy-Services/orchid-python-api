@@ -115,6 +115,12 @@ class StubNetSample:
         return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
 
 
+@dc.dataclass
+class StageQCValueDto:
+    available: Optional[object]
+    default: Optional[object]
+
+
 @toolz.curry
 def mock_contains(stage_qcs_dtos, key_sought):
     stage_id, tag_text = key_sought.split('|')
@@ -125,16 +131,16 @@ def mock_contains(stage_qcs_dtos, key_sought):
 def mock_get_value(stage_qcs_dtos, key_sought, default_variant):
     stage_id, tag_text = key_sought.split('|')
     search_result = toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos)
-    if search_result is not None:
-        return search_result[0]
-    else:
-        return nva.make_variant(search_result[1])
+    result = nva.make_variant(search_result.available
+                              if search_result.available is not None
+                              else search_result.default)
+    return result
 
 
 @dc.dataclass
 class ProjectUserDataDto:
     stage_qcs: Dict[uuid.UUID,
-                    Dict[nqc.StageQCTags, Tuple[Optional[object], Optional[object]]]] = dc.field(default_factory=dict)
+                    Dict[nqc.StageQCTags, StageQCValueDto]] = dc.field(default_factory=dict)
     to_json: str = None
 
     def create_net_stub(self):
