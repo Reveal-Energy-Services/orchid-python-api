@@ -27,7 +27,7 @@ import itertools
 import math
 import unittest.mock
 import uuid
-from typing import Callable, Iterable, Sequence, Union
+from typing import Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
 
 import pendulum as pdt
 import toolz.curried as toolz
@@ -36,6 +36,7 @@ from orchid import (
     measurement as om,
     net_date_time as ndt,
     net_quantity as onq,
+    net_stage_qc as nqc,
     unit_system as units,
 )
 
@@ -45,28 +46,27 @@ from tests import (
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import (IMonitor,
-                                        IProject,
-                                        IProjectObject,
-                                        IPlottingSettings,
-                                        IStage,
-                                        IStagePart,
-                                        IMutableStagePart,
-                                        ISubsurfacePoint,
-                                        IWell,
-                                        IWellTrajectory,
-                                        UnitSystem)
+from Orchid.FractureDiagnostics import (
+    IMonitor,
+    IProject, IProjectObject, IPlottingSettings,
+    IStage, IStagePart, IMutableStagePart,
+    ISubsurfacePoint,
+    IWell, IWellTrajectory,
+    UnitSystem,
+)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.DataFrames import IStaticDataFrame
-# noinspection PyUnresolvedReferences,PyPackageRequirementsk
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Settings import IProjectUserData
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import Array, DateTime, Guid, Type
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Data import DataColumn, DataTable
 
 
@@ -112,6 +112,31 @@ class StubNetSample:
 
     def __repr__(self):
         return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
+
+
+@toolz.curry
+def mock_contains(stage_qcs_dtos, key_sought):
+    stage_id, tag = key_sought.split('|')
+    return toolz.get_in([stage_id, tag], stage_qcs_dtos) is not None
+
+
+@dc.dataclass
+class ProjectUserDataDto:
+    stage_qcs: Dict[uuid.UUID,
+                    Dict[nqc.StageQCTags, Tuple[Optional[object], Optional[object]]]] = dc.field(default_factory=dict)
+    to_json: str = None
+
+    def create_net_stub(self):
+        result = create_stub_domain_object(stub_name='stub_net_user_data',
+                                           stub_spec=IProjectUserData)
+
+        if self.stage_qcs:
+            result.Contains.side_effect = mock_contains(self.stage_qcs)
+
+        if self.to_json is not None:
+            result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=self.to_json)
+
+        return result
 
 
 @dc.dataclass

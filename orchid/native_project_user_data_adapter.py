@@ -15,26 +15,19 @@
 # This file is part of Orchid and related technologies.
 #
 
-import dataclasses
-import uuid
-
-from orchid import net_stage_qc as nqc
+from orchid import (
+    dot_net_dom_access as dna,
+    native_stage_qc_adapter as sqa,
+)
 
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Settings import IProjectUserData
 
 
-@dataclasses.dataclass
-class StageQC:
-    stage_start_stop_confirmation: nqc.StageCorrectionStatus
+class NativeProjectUserData(dna.DotNetAdapter):
+    def __init__(self, adaptee: IProjectUserData):
+        super().__init__(adaptee)
 
-
-class NativeProjectUserData:
-    def __init__(self, net_project_user_data: IProjectUserData):
-        pass
-
-    def stage_qc(self):
-        return {
-            uuid.UUID('f1cfbb26-b492-4079-88ab-5798fcc76134'): StageQC(nqc.StageCorrectionStatus.CONFIRMED),
-        }
+    def stage_qc(self, stage_id):
+        return sqa.NativeStageQCAdapter(stage_id, self.dom_object)
