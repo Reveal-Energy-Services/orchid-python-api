@@ -20,7 +20,7 @@ from orchid import dot_net_dom_access as dna
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Settings import Variant
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import Int32
+from System import Int32, Type
 
 
 def make_variant(o):
@@ -41,4 +41,4 @@ class NativeVariantAdapter(dna.DotNetAdapter):
 
     @property
     def value(self):
-        return self.dom_object.GetValue.Overloads[Int32]()
+        return self.dom_object.GetValue[self.dom_object.Type()]()

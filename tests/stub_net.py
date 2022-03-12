@@ -27,7 +27,7 @@ import itertools
 import math
 import unittest.mock
 import uuid
-from typing import Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Iterable, Optional, Sequence, Union
 
 import pendulum as pdt
 import toolz.curried as toolz
@@ -329,15 +329,19 @@ class MutableStageDto(StagePartDto):
 
         return result
 
+
 @dc.dataclass
 class VariantDto:
     value: object  # The value of the variant
+    net_type: Type  # The .NET `Type` of the variant
 
     def create_net_stub(self):
         result = create_stub_domain_object(stub_name='stub_net_variant',
                                            stub_spec=Variant)
 
-        result.GetValue.Overloads[Int32].return_value = self.value
+        result.Type = unittest.mock.MagicMock(name='mock_get_type', return_value=self.net_type)
+        result.GetValue = {self.net_type: unittest.mock.MagicMock(name=f'mock_get_type[{self.net_type}]',
+                                                                  return_value=self.value)}
 
         return result
 

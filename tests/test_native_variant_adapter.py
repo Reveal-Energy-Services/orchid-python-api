@@ -18,17 +18,17 @@
 
 import unittest
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, close_to
 
 from orchid import native_variant_adapter as nva
 
 from tests import stub_net as tsn
 
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import Int32, Double, String
+
 
 # Test ideas
-# - Get value of int variant returns correct value
-# - Get value of double variant returns correct value
-# - Get value of str variant returns correct value
 # - Convert int variant to double
 # - Convert int variant to str
 # - Convert double variant to int
@@ -43,11 +43,23 @@ class TestNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_get_value_returns_int_in_native_variant(self):
-        stub_net_variant = tsn.VariantDto(89).create_net_stub()
+    def test_get_value_of_int_variant_returns_int_in_native_variant(self):
+        stub_net_variant = tsn.VariantDto(89, Int32).create_net_stub()
         sut = nva.NativeVariantAdapter(stub_net_variant)
 
         assert_that(sut.value, equal_to(89))
+
+    def test_get_value_of_double_variant_returns_float_in_native_variant(self):
+        stub_net_variant = tsn.VariantDto(-4.345, Double).create_net_stub()
+        sut = nva.NativeVariantAdapter(stub_net_variant)
+
+        assert_that(sut.value, close_to(-4.345, 0.001))
+
+    def test_get_value_of_str_variant_returns_str_in_native_variant(self):
+        stub_net_variant = tsn.VariantDto('vivum', String).create_net_stub()
+        sut = nva.NativeVariantAdapter(stub_net_variant)
+
+        assert_that(sut.value, equal_to('vivum'))
 
 
 if __name__ == '__main__':
