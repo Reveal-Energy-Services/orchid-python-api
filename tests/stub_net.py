@@ -66,7 +66,7 @@ from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSerie
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import Int32, Array, DateTime, Guid, Type
+from System import Int32, Array, DateTime, Guid
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Data import DataColumn, DataTable
 
@@ -333,15 +333,15 @@ class MutableStageDto(StagePartDto):
 @dc.dataclass
 class VariantDto:
     value: object  # The value of the variant
-    net_type: Type  # The .NET `Type` of the variant
+    variant_type: nva.PythonVariantTypes  # Identifies the type of the variant value
 
     def create_net_stub(self):
         result = create_stub_domain_object(stub_name='stub_net_variant',
                                            stub_spec=Variant)
 
-        result.Type = unittest.mock.MagicMock(name='mock_get_type', return_value=self.net_type)
-        result.GetValue = {self.net_type: unittest.mock.MagicMock(name=f'mock_get_type[{self.net_type}]',
-                                                                  return_value=self.value)}
+        result.Type = unittest.mock.MagicMock(name='mock_get_type', return_value=self.variant_type)
+        result.GetValue = {self.variant_type: unittest.mock.MagicMock(name=f'mock_get_type[{self.variant_type}]',
+                                                                      return_value=self.value)}
 
         return result
 

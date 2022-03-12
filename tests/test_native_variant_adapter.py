@@ -53,17 +53,35 @@ class TestNativeVariantAdapter(unittest.TestCase):
 
         assert_that(sut.value, equal_to(89))
 
+    def test_type_of_int_variant_returns_int32(self):
+        stub_net_variant = tsn.VariantDto(89, nva.PythonVariantTypes.INT32).create_net_stub()
+        sut = nva.NativeVariantAdapter(stub_net_variant)
+
+        assert_that(sut.type, equal_to(nva.PythonVariantTypes.INT32))
+
     def test_get_value_of_double_variant_returns_float_in_native_variant(self):
         stub_net_variant = tsn.VariantDto(-4.345, Double).create_net_stub()
         sut = nva.NativeVariantAdapter(stub_net_variant)
 
         assert_that(sut.value, close_to(-4.345, 0.001))
 
+    def test_typet_of_double_variant_returns_double(self):
+        stub_net_variant = tsn.VariantDto(-4.345, nva.PythonVariantTypes.DOUBLE).create_net_stub()
+        sut = nva.NativeVariantAdapter(stub_net_variant)
+
+        assert_that(sut.type, equal_to(nva.PythonVariantTypes.DOUBLE))
+
     def test_get_value_of_str_variant_returns_str_in_native_variant(self):
         stub_net_variant = tsn.VariantDto('vivum', String).create_net_stub()
         sut = nva.NativeVariantAdapter(stub_net_variant)
 
         assert_that(sut.value, equal_to('vivum'))
+
+    def test_type_of_str_variant_returns_string(self):
+        stub_net_variant = tsn.VariantDto('vivum', nva.PythonVariantTypes.STRING).create_net_stub()
+        sut = nva.NativeVariantAdapter(stub_net_variant)
+
+        assert_that(sut.type, equal_to(nva.PythonVariantTypes.STRING))
 
 
 if __name__ == '__main__':

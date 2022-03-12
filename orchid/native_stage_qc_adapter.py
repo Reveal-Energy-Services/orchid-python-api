@@ -59,9 +59,11 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
     @property
     def start_stop_confirmation(self):
         return self.dom_object.GetValue(nqc.make_start_stop_confirmation_key(self._stage_id),
-                                        nva.make_variant('non applicabitis').dom_object)
+                                        nva.create_variant('non applicabitis',
+                                                           nva.PythonVariantTypes.STRING).dom_object)
 
     @property
     def qc_notes(self):
         return self.dom_object.GetValue(nqc.make_qc_notes_key(self._stage_id),
-                                        nva.make_variant('non applicabitis').dom_object)
+                                        nva.create_variant('non applicabitis',
+                                                           nva.PythonVariantTypes.STRING).dom_object)
