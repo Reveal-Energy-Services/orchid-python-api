@@ -30,6 +30,11 @@ def make_variant(o):
 class NativeVariantAdapter(dna.DotNetAdapter):
     """Adapts a .NET Variant to python"""
 
+    # Although the .NET `Variant` provides a number of ways to convert the value of the `Variant` to other .NET types,
+    # I do not believe this interface is the most Pythonic interface. Instead, I have chosen simply to implement the
+    # `value` property and let callers convert the value using typing Python code; for example, by calling `int`,
+    # `float`, or `str`.
+
     def __init__(self, adaptee: Variant):
         """
         Construct an instance adapting `adaptee`.

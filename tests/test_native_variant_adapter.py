@@ -29,15 +29,6 @@ from System import Int32, Double, String
 
 
 # Test ideas
-# - Convert int variant to double
-# - Convert int variant to str
-# - Convert double variant to int
-# - Convert double variant to str
-# - Convert str variant to int
-# - Convert str variant to double
-# - Convert double variant to int fails
-# - Convert str variant to int fails
-# - Convert str variant to double fails
 # TODO Create other variants as needed
 class TestNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
