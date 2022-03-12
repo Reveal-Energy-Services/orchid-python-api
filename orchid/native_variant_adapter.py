@@ -15,5 +15,30 @@
 # This file is part of Orchid and related technologies.
 #
 
+from orchid import dot_net_dom_access as dna
+
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Settings import Variant
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import Int32
+
+
 def make_variant(o):
     pass
+
+
+class NativeVariantAdapter(dna.DotNetAdapter):
+    """Adapts a .NET Variant to python"""
+
+    def __init__(self, adaptee: Variant):
+        """
+        Construct an instance adapting `adaptee`.
+
+        Args:
+            adaptee: The .NET `Variant` to be adapted.
+        """
+        super().__init__(adaptee)
+
+    @property
+    def value(self):
+        return self.dom_object.GetValue.Overloads[Int32]()

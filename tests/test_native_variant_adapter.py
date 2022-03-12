@@ -20,14 +20,15 @@ import unittest
 
 from hamcrest import assert_that, equal_to
 
+from orchid import native_variant_adapter as nva
+
+from tests import stub_net as tsn
+
 
 # Test ideas
-# - Create int variant
-# - Create double variant
-# - Create str variant
-# - Get value of int variant
-# - Get value of double variant
-# - Get value of str variant
+# - Get value of int variant returns correct value
+# - Get value of double variant returns correct value
+# - Get value of str variant returns correct value
 # - Convert int variant to double
 # - Convert int variant to str
 # - Convert double variant to int
@@ -41,6 +42,12 @@ from hamcrest import assert_that, equal_to
 class TestNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_get_value_returns_int_in_native_variant(self):
+        stub_net_variant = tsn.VariantDto(89).create_net_stub()
+        sut = nva.NativeVariantAdapter(stub_net_variant)
+
+        assert_that(sut.value, equal_to(89))
 
 
 if __name__ == '__main__':

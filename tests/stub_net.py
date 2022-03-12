@@ -60,13 +60,13 @@ from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFra
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.DataFrames import IStaticDataFrame
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Settings import IProjectUserData
+from Orchid.FractureDiagnostics.Settings import IProjectUserData, Variant
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import Array, DateTime, Guid, Type
+from System import Int32, Array, DateTime, Guid, Type
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Data import DataColumn, DataTable
 
@@ -326,6 +326,18 @@ class MutableStageDto(StagePartDto):
         # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
         # block as it exits the context.
         result.Dispose = unittest.mock.Mock(name='Dispose')
+
+        return result
+
+@dc.dataclass
+class VariantDto:
+    value: object  # The value of the variant
+
+    def create_net_stub(self):
+        result = create_stub_domain_object(stub_name='stub_net_variant',
+                                           stub_spec=Variant)
+
+        result.GetValue.Overloads[Int32].return_value = self.value
 
         return result
 
