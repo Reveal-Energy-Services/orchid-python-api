@@ -35,7 +35,7 @@ from System import Int32, Double, String
 # - Type of stage correction status variant returns correct value
 # TODO Create other variants as needed
 
-class TestNativeVariantAdapter(unittest.TestCase):
+class TestCreateNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -68,6 +68,11 @@ class TestNativeVariantAdapter(unittest.TestCase):
         sut = nva.create_variant('fingo', nva.PythonVariantTypes.STRING)
 
         assert_that(sut.type, equal_to(nva.PythonVariantTypes.STRING))
+
+
+class TestNativeVariantAdapter(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
 
     def test_get_value_of_int_variant_returns_int_in_native_variant(self):
         stub_net_variant = tsn.VariantDto(89, Int32).create_net_stub()
