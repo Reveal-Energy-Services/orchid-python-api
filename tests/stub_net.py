@@ -128,12 +128,17 @@ def mock_contains(stage_qcs_dtos, key_sought):
 
 
 @toolz.curry
-def mock_get_value(stage_qcs_dtos, key_sought, default_variant):
+def mock_get_value(stage_qcs_dtos, key_sought, _default_variant):
+    # Note that the call to `GetValue` requires two arguments: the key to be found and the default variant; however,
+    # in unit testing, one specifies the "default" is part of the mock (`StageQCDto.default_value`). As a consequence,
+    # this method must accept three arguments: the DTOs supplied as part of the mock setup, and the key and variant
+    # supplied in the actual call. We use the `key_sought`; but *ignore* `_default_variant`. (We preface the argument
+    # with an underscore so that PyCharm ignores the unused argument.)
     stage_id, tag_text = key_sought.split('|')
     search_result = toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos)
-    result = nva.make_variant(search_result.available
-                              if search_result.available is not None
-                              else search_result.default)
+    result = (search_result.available.create_net_stub()
+              if search_result.available is not None
+              else search_result.default.create_net_stub())
     return result
 
 

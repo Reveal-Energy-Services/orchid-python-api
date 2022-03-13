@@ -24,6 +24,7 @@ from hamcrest import assert_that, equal_to, calling, raises
 
 from orchid import (
     native_stage_qc_adapter as qca,
+    native_variant_adapter as nva,
     net_stage_qc as nqc,
 )
 
@@ -59,13 +60,17 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
+    @unittest.skip('Awaiting lower-level code')
     def test_start_stop_confirmation_returns_available_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_B
         expected_start_stop_confirmation = 'animus meus aedificio repudiat'
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: tsn.StageQCValueDto(expected_start_stop_confirmation,
-                                                                             'non applicabitis'),
+                nqc.StageQCTags.START_STOP_CONFIRMATION:
+                    tsn.StageQCValueDto(tsn.VariantDto(expected_start_stop_confirmation,
+                                                       nva.PythonVariantTypes.INT32),
+                                        tsn.VariantDto('non applicabitis',
+                                                       nva.PythonVariantTypes.STRING)),
             }
         }).create_net_stub()
 
@@ -73,11 +78,14 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.start_stop_confirmation, equal_to(expected_start_stop_confirmation))
 
+    @unittest.skip('Awaiting lower-level code')
     def test_start_stop_confirmation_returns_default_variant_value_from_project_user_data(self):
         dont_care_stage_id = tsn.DONT_CARE_ID_C
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: tsn.StageQCValueDto(None, 'non applicabitis'),
+                nqc.StageQCTags.START_STOP_CONFIRMATION:
+                    tsn.StageQCValueDto(None, tsn.VariantDto('non applicabitis',
+                                                             nva.PythonVariantTypes.STRING)),
             }
         }).create_net_stub()
 
@@ -90,7 +98,10 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         expected_qc_notes = 'lucrum nugatorium provenivit'
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(expected_qc_notes, 'non applicabitis'),
+                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(tsn.VariantDto(expected_qc_notes,
+                                                                             nva.PythonVariantTypes.STRING),
+                                                              tsn.VariantDto('non applicabitis',
+                                                                             nva.PythonVariantTypes.STRING)),
             }
         }).create_net_stub()
 
@@ -102,7 +113,8 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         dont_care_stage_id = tsn.DONT_CARE_ID_E
         stub_project_user_data = tsn.ProjectUserDataDto({
             dont_care_stage_id: {
-                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(None, 'non applicabitis'),
+                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(None, tsn.VariantDto('non applicabitis',
+                                                                                   nva.PythonVariantTypes.STRING)),
             }
         }).create_net_stub()
 
