@@ -29,9 +29,6 @@ from System import Int32, Double, String
 
 
 # Test ideas
-# - Create new variant with int returns int value
-# - Create new variant with float returns float value
-# - Create new variant with str returns str value
 # TODO Create other variants as needed
 class TestNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
@@ -46,6 +43,26 @@ class TestNativeVariantAdapter(unittest.TestCase):
         sut = nva.create_variant(-51, nva.PythonVariantTypes.INT32)
 
         assert_that(sut.type, equal_to(nva.PythonVariantTypes.INT32))
+
+    def test_create_double_variant_returns_float_value(self):
+        sut = nva.create_variant(-136.2, nva.PythonVariantTypes.DOUBLE)
+
+        assert_that(sut.value, equal_to(-136.2))
+
+    def test_create_double_variant_returns_variant_with_double_type(self):
+        sut = nva.create_variant(12.52, nva.PythonVariantTypes.DOUBLE)
+
+        assert_that(sut.type, equal_to(nva.PythonVariantTypes.DOUBLE))
+
+    def test_create_string_variant_returns_str_value(self):
+        sut = nva.create_variant('exspatior', nva.PythonVariantTypes.STRING)
+
+        assert_that(sut.value, equal_to('exspatior'))
+
+    def test_create_string_variant_returns_variant_with_string_type(self):
+        sut = nva.create_variant('fingo', nva.PythonVariantTypes.STRING)
+
+        assert_that(sut.type, equal_to(nva.PythonVariantTypes.STRING))
 
     def test_get_value_of_int_variant_returns_int_in_native_variant(self):
         stub_net_variant = tsn.VariantDto(89, Int32).create_net_stub()
