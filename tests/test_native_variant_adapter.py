@@ -18,7 +18,7 @@
 
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to
 
 from orchid import native_variant_adapter as nva
 
@@ -39,76 +39,56 @@ class TestCreateNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_create_int_variant_returns_int_value(self):
-        sut = nva.create_variant(-79, nva.PythonVariantTypes.INT32)
+    def test_create_variant_returns_value_set_at_creation(self):
+        for variant_type, variant_value in [
+            (nva.PythonVariantTypes.INT32, -79),
+            (nva.PythonVariantTypes.DOUBLE, -136.2),
+            (nva.PythonVariantTypes.STRING, 'exspatior'),
+        ]:
+            with self.subTest(f'{variant_type.name} variant returns value {variant_value}'):
+                sut = nva.create_variant(variant_value, variant_type)
 
-        assert_that(sut.value, equal_to(-79))
+                assert_that(sut.value, equal_to(variant_value))
 
-    def test_create_int_variant_returns_variant_with_int_type(self):
-        sut = nva.create_variant(-51, nva.PythonVariantTypes.INT32)
+    def test_create_variant_returns_type_set_at_creation(self):
+        for variant_type, variant_value in [
+            (nva.PythonVariantTypes.INT32, -51),
+            (nva.PythonVariantTypes.DOUBLE, 12.52),
+            (nva.PythonVariantTypes.STRING, 'fingo'),
+        ]:
+            with self.subTest(f'{variant_type.name} variant has type {variant_type}'):
+                sut = nva.create_variant(variant_value, variant_type)
 
-        assert_that(sut.type, equal_to(nva.PythonVariantTypes.INT32))
-
-    def test_create_double_variant_returns_float_value(self):
-        sut = nva.create_variant(-136.2, nva.PythonVariantTypes.DOUBLE)
-
-        assert_that(sut.value, equal_to(-136.2))
-
-    def test_create_double_variant_returns_variant_with_double_type(self):
-        sut = nva.create_variant(12.52, nva.PythonVariantTypes.DOUBLE)
-
-        assert_that(sut.type, equal_to(nva.PythonVariantTypes.DOUBLE))
-
-    def test_create_string_variant_returns_str_value(self):
-        sut = nva.create_variant('exspatior', nva.PythonVariantTypes.STRING)
-
-        assert_that(sut.value, equal_to('exspatior'))
-
-    def test_create_string_variant_returns_variant_with_string_type(self):
-        sut = nva.create_variant('fingo', nva.PythonVariantTypes.STRING)
-
-        assert_that(sut.type, equal_to(nva.PythonVariantTypes.STRING))
+                assert_that(sut.type, equal_to(variant_type))
 
 
 class TestNativeVariantAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_get_value_of_int_variant_returns_int_in_native_variant(self):
-        stub_net_variant = tsn.VariantDto(89, Int32).create_net_stub()
-        sut = nva.NativeVariantAdapter(stub_net_variant)
+    def test_get_value_returns_value_in_net_variant(self):
+        for net_variant_type, variant_value in [
+            (Int32, 89),
+            (Double, -4.345),
+            (String, 'vivum'),
+        ]:
+            with self.subTest(f'.NET {net_variant_type} variant returns value, {variant_value}'):
+                stub_net_variant = tsn.VariantDto(variant_value, net_variant_type).create_net_stub()
+                sut = nva.NativeVariantAdapter(stub_net_variant)
 
-        assert_that(sut.value, equal_to(89))
+                assert_that(sut.value, equal_to(variant_value))
 
-    def test_type_of_int_variant_returns_int32(self):
-        stub_net_variant = tsn.VariantDto(89, nva.PythonVariantTypes.INT32).create_net_stub()
-        sut = nva.NativeVariantAdapter(stub_net_variant)
+    def test_type_returns_variant_type_corresponding_to_net_variant_type(self):
+        for net_variant_type, variant_value, variant_type in [
+            (Int32, -40, nva.PythonVariantTypes.INT32),
+            (Double, 42.53, nva.PythonVariantTypes.DOUBLE),
+            (String, 'mespilae', nva.PythonVariantTypes.DOUBLE),
+        ]:
+            with self.subTest(f'.NET {net_variant_type} variant returns type, {variant_type}'):
+                stub_net_variant = tsn.VariantDto(variant_value, variant_type).create_net_stub()
+                sut = nva.NativeVariantAdapter(stub_net_variant)
 
-        assert_that(sut.type, equal_to(nva.PythonVariantTypes.INT32))
-
-    def test_get_value_of_double_variant_returns_float_in_native_variant(self):
-        stub_net_variant = tsn.VariantDto(-4.345, Double).create_net_stub()
-        sut = nva.NativeVariantAdapter(stub_net_variant)
-
-        assert_that(sut.value, close_to(-4.345, 0.001))
-
-    def test_typet_of_double_variant_returns_double(self):
-        stub_net_variant = tsn.VariantDto(-4.345, nva.PythonVariantTypes.DOUBLE).create_net_stub()
-        sut = nva.NativeVariantAdapter(stub_net_variant)
-
-        assert_that(sut.type, equal_to(nva.PythonVariantTypes.DOUBLE))
-
-    def test_get_value_of_str_variant_returns_str_in_native_variant(self):
-        stub_net_variant = tsn.VariantDto('vivum', String).create_net_stub()
-        sut = nva.NativeVariantAdapter(stub_net_variant)
-
-        assert_that(sut.value, equal_to('vivum'))
-
-    def test_type_of_str_variant_returns_string(self):
-        stub_net_variant = tsn.VariantDto('vivum', nva.PythonVariantTypes.STRING).create_net_stub()
-        sut = nva.NativeVariantAdapter(stub_net_variant)
-
-        assert_that(sut.type, equal_to(nva.PythonVariantTypes.STRING))
+                assert_that(sut.type, equal_to(variant_type))
 
 
 if __name__ == '__main__':
