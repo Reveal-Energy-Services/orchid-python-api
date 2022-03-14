@@ -33,6 +33,25 @@ class PythonVariantTypes(enum.Enum):
     STRING = Type.GetType('System.String')
 
 
+# TODO: Remove this class
+# Originally, I began implementing this general class to support the `NativeStageQCAdapter` class. However, I
+# encountered a problem I was unable to solve. In .NET, an instance of type `Enum` is a class. For classes that do not
+# have an obvious mapping to a Python type, Python.NET exposes them to Python as a wrapper around the .NET class
+# instance having all the methods and properties of the original .NET class (discovered through reflection). However,
+# for .NET `Enum` types, Python .NET appears to "hide" the .NET `Enum` class and instead expose the `Enum` members as
+# integral values. (I assume this solution was adopted *before* addition of the `enum` module to the standard library.)
+#
+# Because the `Enum` class is *not* exposed by Python.NET, it is problematic to access the actual `Enum` type. One can
+# use `Type.GetType` as above, but for the `StageCorrectionStatus` class, one must specify the fully qualified assembly
+# name. This name includes assembly version information which may be problematic. (At least it was not obvious to the
+# author how to ensure calculation of the correct assembly version in a general way.) In addition, one cannot evaluate
+# expressions like `StageCorrectionStatus.NEW.GetType()` since Python understands that `StageCorrectionStatus.NEW` is a
+# (Python!) `int` which has no 'GetType()` method.
+#
+# My work around is to remove this class and hard-code references to the .NET `Variant` in the `NativeStageQCAdapter`
+# class. This solution is brittle in that it assumes that variants returned from `IProjectUserData` for the key,
+# `<stage-oid>|stage_start_stop_time_confirmation`, will actually have type `StageCorrectionStatus`. I think this
+# assumption is safe, but it is brittle if changes occur in this area in Orchid.
 class NativeVariantAdapter(dna.DotNetAdapter):
     """Adapts a .NET Variant to python"""
 
