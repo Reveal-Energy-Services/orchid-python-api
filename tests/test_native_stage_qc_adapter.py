@@ -31,13 +31,12 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - start_stop_confirmation returns NEW if stage exists but status not set in project user data
-# - start_stop_confirmation raises error if stage not present in project user data
+# - start_stop_confirmation raises error if stage no longer present in project user data
 # - start_stop_confirmation raises error if stage start stop confirmation not of type `System.String`
 # - qc_notes raises error if stage not present in project user data
 # - qc_notes returns notes if set in project user data
 # - qc_notes returns empty string if not set in project user data
-# - qc_notes raises error if stage not present in project user data
+# - qc_notes raises error if stage no longer present in project user data
 # - qc_notes raises error if stage QC notes not of type `System.String`
 class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
@@ -78,6 +77,14 @@ class TestNativeStageQCAdapter(unittest.TestCase):
                 sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_B, stub_project_user_data)
 
                 assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus(expected_confirmation)))
+
+    def test_stage_start_stop_confirmation_returns_new_if_stage_exists_but_not_start_stop_confirmation(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(tsn.DONT_CARE_ID_C): {}
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_C, stub_project_user_data)
+
+        assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.NEW))
 
 
 if __name__ == '__main__':
