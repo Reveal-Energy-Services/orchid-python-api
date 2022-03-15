@@ -31,7 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - start_stop_confirmation raises error if stage no longer present in project user data
 # - start_stop_confirmation raises error if stage start stop confirmation not of type `System.String`
 # - qc_notes raises error if stage not present in project user data
 # - qc_notes returns notes if set in project user data
@@ -85,6 +84,19 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_C, stub_project_user_data)
 
         assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.NEW))
+
+    def test_stage_start_stop_confirmation_raises_exception_if_stage_id_no_longer_present(self):
+        stage_id_to_remove = '15fd59d7-da16-40bd-809b-56f9680a0773'
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(stage_id_to_remove): {}
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(stage_id_to_remove, stub_project_user_data)
+        # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
+        # `stub_project_user_data.Contains` to always return False.
+        stub_project_user_data.Contains.return_value = False
+
+        assert_that(lambda: sut.start_stop_confirmation, raises(qca.StageIdNoLongerPresentError,
+                                                                pattern=stage_id_to_remove))
 
 
 if __name__ == '__main__':
