@@ -58,7 +58,7 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
     def stage_id(self):
         return self._stage_id
 
-    # Originally, I implemented this class to rely on the `NativeStageQCAdapter` class. However, I encountered a
+    # Originally, I implemented this class to rely on the `NativeVariantAdapter` class. However, I encountered a
     # problem I was unable to solve. In .NET, an instance of type `Enum` is a class. For classes that do not have an
     # obvious mapping to a Python type, Python.NET exposes them to Python as a wrapper around the .NET class instance
     # having all the methods and properties of the original .NET class (discovered through reflection). However,
