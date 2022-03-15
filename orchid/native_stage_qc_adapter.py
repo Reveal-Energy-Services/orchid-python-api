@@ -81,7 +81,7 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
                                                                              f' Found {start_stop_confirmation_json}')
 
             start_stop_confirmation_json_value = start_stop_confirmation_json['Value']
-            return nqc.StageCorrectionStatus.CONFIRMED if start_stop_confirmation_json_value == 'Confirmed' else None
+            return nqc.StageCorrectionStatus(start_stop_confirmation_json_value )
         except KeyError:
             return None
 

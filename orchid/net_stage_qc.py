@@ -31,15 +31,22 @@ import toolz.curried as toolz
 from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
 
 
-# The .NET Variant type does not seem to support a "no value" type. In .NET, this idea would typically be
-# communicated by a `null` value; however, returning `null` has its own issues.
-NOT_AVAILABLE = 'N/A'
-
-
 class StageCorrectionStatus(enum.Enum):
-    CONFIRMED = NetStageCorrectionStatus.Confirmed
-    NEW = NetStageCorrectionStatus.New
-    UNCONFIRMED = NetStageCorrectionStatus.Unconfirmed
+    # TODO: Change to use .NET `Enum` member.
+    # Python.NET always transforms .NET `Enum` members into Python `int` values. This transformation is a known issue
+    # (https://github.com/pythonnet/pythonnet/issues/1220). The Python.NET team has corrected the issue but only for
+    # Python.NET 3.x; it has no plans for a backport.
+    #
+    # Although I have successfully use the Python.NET transformation of .NET `Enum` members to `ints`; I have
+    # encountered issues with its usage in .NET `Variant` types which is used for stage QC information.
+    #
+    # To simplify the "work-around" implemented in `native_stage_qc_adapter`, I use the hard-coded string value of
+    # .NET `StageCorrectionStatus`.
+    #
+    # See also the Jupyter notebook, `features/notebooks/explore_stage_qc.py`, for attempts to use the .NET `Enum`.
+    CONFIRMED = 'Confirmed'
+    NEW = 'New'
+    UNCONFIRMED = 'Unconfirmed'
 
 
 class StageQCTags(enum.Enum):

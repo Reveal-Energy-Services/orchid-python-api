@@ -31,7 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - start_stop_confirmation returns status if set in project user data
 # - start_stop_confirmation returns NEW if stage exists but status not set in project user data
 # - start_stop_confirmation raises error if stage not present in project user data
 # - start_stop_confirmation raises error if stage start stop confirmation not of type `System.String`
@@ -65,15 +64,20 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
     def test_stage_start_stop_confirmation_returns_value_if_stage_exists_and_value_set(self):
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
-            nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_B): {
-                'Type': 'System.String',
-                'Value': 'Confirmed',
-            },
-        }).create_net_stub()
-        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_B, stub_project_user_data)
+        for expected_confirmation in [nqc.StageCorrectionStatus.CONFIRMED,
+                                      nqc.StageCorrectionStatus.NEW,
+                                      nqc.StageCorrectionStatus.UNCONFIRMED]:
+            with self.subTest(f'Verify that confirmation status, {expected_confirmation},'
+                              f' exists for stage, {tsn.DONT_CARE_ID_B}'):
+                stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+                    nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_B): {
+                        'Type': 'System.String',
+                        'Value': expected_confirmation.name.capitalize(),
+                    },
+                }).create_net_stub()
+                sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_B, stub_project_user_data)
 
-        assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.CONFIRMED))
+                assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus(expected_confirmation)))
 
 
 if __name__ == '__main__':
