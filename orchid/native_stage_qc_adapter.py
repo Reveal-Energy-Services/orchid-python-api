@@ -24,6 +24,8 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Settings import Variant
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import String
@@ -75,13 +77,24 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
     # it assumes that variants returned from `IProjectUserData` for the key,
     # `<stage-oid>|stage_start_stop_time_confirmation`, will actually have type `StageCorrectionStatus`. I think this
     # assumption is safe, but it is brittle if changes occur in this area in Orchid.
+    #
+    # See the [Python.NET issue](https://github.com/pythonnet/pythonnet/issues/1220) for details.
 
     @property
-    def start_stop_confirmation(self):
-        net_result = self.dom_object.GetValue(nqc.make_start_stop_confirmation_key(self._stage_id),
-                                              nva.create_variant('non applicabitis',
-                                                                 nva.PythonVariantTypes.STRING).dom_object)
-        return nva.NativeVariantAdapter(net_result).value
+    def start_stop_confirmation(self) -> nqc.StageCorrectionStatus:
+        net_result = self.dom_object.GetValue(
+            nqc.make_start_stop_confirmation_key(self._stage_id),
+            Variant.Create.Overloads[NetStageCorrectionStatus](nqc.StageCorrectionStatus.NEW))
+        # The following code fails at run-time with an error like the following. (The text of this error is actually
+        # copied from a run of the `scratch.ipynb` Jupyter notebook.
+        # >>> ---------------------------------------------------------------------------
+        # >>> TypeError                                 Traceback (most recent call last)
+        # >>> Input In [67], in <module>
+        # >>> ----> 1 default_status_variant = Variant.Create.Overloads[Enum](StageCorrectionStatus.New)
+        # >>>       2 default_status_variant.GetValue[StageCorrectionStatus]()
+        # >>>
+        # >>> TypeError: No method matches given arguments for Create: (<class 'int'>)
+        return net_result.GetValue[NetStageCorrectionStatus]()
 
     @property
     def qc_notes(self):
