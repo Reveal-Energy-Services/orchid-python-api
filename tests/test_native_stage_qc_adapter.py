@@ -31,7 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - qc_notes raises error if stage QC notes not of type `System.String`
 class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -136,6 +135,17 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(lambda: sut.qc_notes, raises(qca.StageIdNoLongerPresentError,
                                                  pattern=stage_id_to_remove))
+
+    def test_qc_notes_raises_error_if_type_of_value_not_net_string(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(tsn.DONT_CARE_ID_B): {
+                'Type': 'System.Strings',
+                'Value': None,
+            },
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_B, stub_project_user_data)
+
+        assert_that(lambda: sut.qc_notes, raises(AssertionError))
 
 
 if __name__ == '__main__':
