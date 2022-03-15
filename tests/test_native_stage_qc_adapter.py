@@ -31,7 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - qc_notes returns empty string if not set in project user data
 # - qc_notes raises error if stage no longer present in project user data
 # - qc_notes raises error if stage QC notes not of type `System.String`
 class TestNativeStageQCAdapter(unittest.TestCase):
@@ -117,6 +116,14 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_E, stub_project_user_data)
 
         assert_that(sut.qc_notes, equal_to(expected_qc_notes))
+
+    def test_qc_notes_returns_empty_string_if_stage_exists_but_value_not_set(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(tsn.DONT_CARE_ID_A): {},
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_A, stub_project_user_data)
+
+        assert_that(sut.qc_notes, equal_to(''))
 
 
 if __name__ == '__main__':
