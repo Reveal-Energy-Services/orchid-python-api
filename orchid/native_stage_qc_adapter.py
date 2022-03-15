@@ -15,20 +15,18 @@
 # This file is part of Orchid and related technologies.
 #
 
+import json
+
 import deal
+import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    native_variant_adapter as nva,
     net_stage_qc as nqc,
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Settings import Variant
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from System import String
 
 
 def _project_user_data_contains_stage_id(stage_id, native_project_user_data):
@@ -56,49 +54,48 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
 
     @property
     def stage_id(self):
-        return self._stage_id
+        """
+        Determines the object ID that identifies the stage of interest.
 
-    # Originally, I implemented this class to rely on the `NativeVariantAdapter` class. However, I encountered a
-    # problem I was unable to solve. In .NET, an instance of type `Enum` is a class. For classes that do not have an
-    # obvious mapping to a Python type, Python.NET exposes them to Python as a wrapper around the .NET class instance
-    # having all the methods and properties of the original .NET class (discovered through reflection). However,
-    # for .NET `Enum` types, Python .NET appears to "hide" the .NET `Enum` class and instead expose the `Enum` members
-    # as integral values. (I assume this solution was adopted *before* addition of the `enum` module to the standard
-    # library.)
-    #
-    # Because the `Enum` class is *not* exposed by Python.NET, it is problematic to access the actual `Enum` type. One
-    # can use `Type.GetType`, but for the `StageCorrectionStatus` class, one must specify the fully qualified assembly
-    # name. This name includes assembly version information which the author believes to be problematic. (It was not
-    # obvious to the author how to ensure calculation of the correct assembly version in a general way.) In addition,
-    # one cannot evaluate expressions like `StageCorrectionStatus.NEW.GetType()` since Python understands that
-    # `StageCorrectionStatus.NEW` is a (Python!) `int` which has no 'GetType()` method.
-    #
-    # My work-around is to hard-code references to the .NET `Variant` in this class. This solution is brittle in that
-    # it assumes that variants returned from `IProjectUserData` for the key,
-    # `<stage-oid>|stage_start_stop_time_confirmation`, will actually have type `StageCorrectionStatus`. I think this
-    # assumption is safe, but it is brittle if changes occur in this area in Orchid.
-    #
-    # See the [Python.NET issue](https://github.com/pythonnet/pythonnet/issues/1220) for details.
+        Returns:
+            Returns the object ID for this instance.
+        """
+        return self._stage_id
 
     @property
     def start_stop_confirmation(self) -> nqc.StageCorrectionStatus:
-        net_result = self.dom_object.GetValue(
-            nqc.make_start_stop_confirmation_key(self._stage_id),
-            Variant.Create.Overloads[NetStageCorrectionStatus](nqc.StageCorrectionStatus.NEW))
-        # The following code fails at run-time with an error like the following. (The text of this error is actually
-        # copied from a run of the `scratch.ipynb` Jupyter notebook.
-        # >>> ---------------------------------------------------------------------------
-        # >>> TypeError                                 Traceback (most recent call last)
-        # >>> Input In [67], in <module>
-        # >>> ----> 1 default_status_variant = Variant.Create.Overloads[Enum](StageCorrectionStatus.New)
-        # >>>       2 default_status_variant.GetValue[StageCorrectionStatus]()
-        # >>>
-        # >>> TypeError: No method matches given arguments for Create: (<class 'int'>)
-        return net_result.GetValue[NetStageCorrectionStatus]()
+        """
+        Calculate the stage start stop confirmation of the stage of interest.
+
+        Returns:
+            The `StageCorrectionStatus` for the stage of interest.
+        """
+        project_user_data_json = self.dom_object.ToJson()
+        user_data_json = json.loads(project_user_data_json)
+        try:
+            start_stop_confirmation_json = toolz.get(nqc.make_start_stop_confirmation_key(self._stage_id),
+                                                     user_data_json)
+            assert start_stop_confirmation_json['Type'] == 'System.String', (f'Expected start stop confirmation'
+                                                                             f' for stage, {self._stage_id},'
+                                                                             f' of type string.'
+                                                                             f' Found {start_stop_confirmation_json}')
+
+            start_stop_confirmation_json_value = start_stop_confirmation_json['Value']
+            return nqc.StageCorrectionStatus.CONFIRMED if start_stop_confirmation_json_value == 'Confirmed' else None
+        except KeyError:
+            return None
 
     @property
     def qc_notes(self):
-        net_result = self.dom_object.GetValue(nqc.make_qc_notes_key(self._stage_id),
-                                              nva.create_variant('non applicabitis',
-                                                                 nva.PythonVariantTypes.STRING).dom_object)
-        return nva.NativeVariantAdapter(net_result).value
+        project_user_data_json = self.dom_object.ToJson()
+        user_data_json = json.loads(project_user_data_json)
+        try:
+            qc_notes_json = toolz.get(nqc.make_qc_notes_key(self._stage_id), user_data_json)
+            assert qc_notes_json['Type'] == 'System.String', (f'Expected QC notes for stage, {self._stage_id},'
+                                                              f' of type string. Found {qc_notes_json}')
+
+            return qc_notes_json['Value']
+        except KeyError:
+            return ''
+
+

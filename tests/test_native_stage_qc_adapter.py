@@ -24,7 +24,6 @@ from hamcrest import assert_that, equal_to, calling, raises
 
 from orchid import (
     native_stage_qc_adapter as qca,
-    native_variant_adapter as nva,
     net_stage_qc as nqc,
 )
 
@@ -33,9 +32,14 @@ from tests import stub_net as tsn
 
 # Test ideas
 # - start_stop_confirmation returns status if set in project user data
-# - start_stop_confirmation returns NEW if status not set in project user data
+# - start_stop_confirmation returns NEW if stage exists but status not set in project user data
+# - start_stop_confirmation raises error if stage not present in project user data
+# - start_stop_confirmation raises error if stage start stop confirmation not of type `System.String`
+# - qc_notes raises error if stage not present in project user data
 # - qc_notes returns notes if set in project user data
 # - qc_notes returns empty string if not set in project user data
+# - qc_notes raises error if stage not present in project user data
+# - qc_notes raises error if stage QC notes not of type `System.String`
 class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -60,67 +64,16 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
-    @unittest.skip('Awaiting lower-level code')
-    def test_start_stop_confirmation_returns_available_value_from_project_user_data(self):
-        dont_care_stage_id = tsn.DONT_CARE_ID_B
-        expected_start_stop_confirmation = 'animus meus aedificio repudiat'
-        stub_project_user_data = tsn.ProjectUserDataDto({
-            dont_care_stage_id: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION:
-                    tsn.StageQCValueDto(tsn.VariantDto(expected_start_stop_confirmation,
-                                                       nva.PythonVariantTypes.INT32),
-                                        tsn.VariantDto('non applicabitis',
-                                                       nva.PythonVariantTypes.STRING)),
-            }
+    def test_stage_start_stop_confirmation_returns_value_if_stage_exists_and_value_set(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_B): {
+                'Type': 'System.String',
+                'Value': 'Confirmed',
+            },
         }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_B, stub_project_user_data)
 
-        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
-
-        assert_that(sut.start_stop_confirmation, equal_to(expected_start_stop_confirmation))
-
-    @unittest.skip('Awaiting lower-level code')
-    def test_start_stop_confirmation_returns_default_variant_value_from_project_user_data(self):
-        dont_care_stage_id = tsn.DONT_CARE_ID_C
-        stub_project_user_data = tsn.ProjectUserDataDto({
-            dont_care_stage_id: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION:
-                    tsn.StageQCValueDto(None, tsn.VariantDto('non applicabitis',
-                                                             nva.PythonVariantTypes.STRING)),
-            }
-        }).create_net_stub()
-
-        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
-
-        assert_that(sut.start_stop_confirmation, equal_to('non applicabitis'))
-
-    def test_qc_notes_returns_available_value_from_project_user_data(self):
-        dont_care_stage_id = tsn.DONT_CARE_ID_D
-        expected_qc_notes = 'lucrum nugatorium provenivit'
-        stub_project_user_data = tsn.ProjectUserDataDto({
-            dont_care_stage_id: {
-                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(tsn.VariantDto(expected_qc_notes,
-                                                                             nva.PythonVariantTypes.STRING),
-                                                              tsn.VariantDto('non applicabitis',
-                                                                             nva.PythonVariantTypes.STRING)),
-            }
-        }).create_net_stub()
-
-        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
-
-        assert_that(sut.qc_notes, equal_to(expected_qc_notes))
-
-    def test_qc_notes_returns_default_variant_value_from_project_user_data(self):
-        dont_care_stage_id = tsn.DONT_CARE_ID_E
-        stub_project_user_data = tsn.ProjectUserDataDto({
-            dont_care_stage_id: {
-                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(None, tsn.VariantDto('non applicabitis',
-                                                                                   nva.PythonVariantTypes.STRING)),
-            }
-        }).create_net_stub()
-
-        sut = qca.NativeStageQCAdapter(uuid.UUID(dont_care_stage_id), stub_project_user_data)
-
-        assert_that(sut.qc_notes, equal_to('non applicabitis'))
+        assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.CONFIRMED))
 
 
 if __name__ == '__main__':

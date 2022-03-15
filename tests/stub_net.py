@@ -24,6 +24,7 @@ properties required during testing but do not actually implement the .NET class 
 from collections import namedtuple
 import dataclasses as dc
 import itertools
+import json
 import math
 import unittest.mock
 import uuid
@@ -146,7 +147,7 @@ def mock_get_value(stage_qcs_dtos, key_sought, _default_variant):
 class ProjectUserDataDto:
     stage_qcs: Dict[uuid.UUID,
                     Dict[nqc.StageQCTags, StageQCValueDto]] = dc.field(default_factory=dict)
-    to_json: str = None
+    to_json: Dict = None
 
     def create_net_stub(self):
         result = create_stub_domain_object(stub_name='stub_net_user_data',
@@ -157,7 +158,7 @@ class ProjectUserDataDto:
             result.GetValue.side_effect = mock_get_value(self.stage_qcs)
 
         if self.to_json is not None:
-            result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=self.to_json)
+            result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=json.dumps(self.to_json))
 
         return result
 
