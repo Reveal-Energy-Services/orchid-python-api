@@ -126,7 +126,7 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
                                                                              f' Found {start_stop_confirmation_json}')
 
             start_stop_confirmation_json_value = start_stop_confirmation_json['Value']
-            return nqc.StageCorrectionStatus(start_stop_confirmation_json_value )
+            return nqc.StageCorrectionStatus(start_stop_confirmation_json_value)
         except KeyError:
             # TODO: perhaps relax the assumption that self._stage_id *must* exist in the project user data JSON.
             # This error can occur for two reasons: the stage id is not found or the start stop confirmation "key" is
