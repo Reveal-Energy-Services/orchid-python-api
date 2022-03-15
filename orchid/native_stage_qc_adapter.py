@@ -152,6 +152,17 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
 
             return qc_notes_json['Value']
         except KeyError:
-            return ''
+            # TODO: perhaps relax the assumption that self._stage_id *must* exist in the project user data JSON.
+            # This error can occur for two reasons: the stage id is not found or the start stop confirmation "key" is
+            # not found. Although the constructor ensures that the stage id exists at the time of construction, since
+            # we are beginning to support writable .NET data, just because this was true when constructed, it may
+            # no longer be true.
+            if _has_stage_id(self.dom_object, self._stage_id):
+                # The QC notes for this stage are not available. This logic implements the same logic
+                # as the stage QC plugin.
+                return ''
+            else:
+                raise StageIdNoLongerPresentError(f'Object ID, {self._stage_id},'
+                                                  f' no longer present in project user data.')
 
 

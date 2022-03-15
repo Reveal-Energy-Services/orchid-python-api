@@ -31,7 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - qc_notes raises error if stage no longer present in project user data
 # - qc_notes raises error if stage QC notes not of type `System.String`
 class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
@@ -81,7 +80,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.NEW))
 
-    def test_start_stop_confirmation_raises_exception_if_stage_id_no_longer_present(self):
+    def test_start_stop_confirmation_raises_error_if_stage_id_no_longer_present(self):
         stage_id_to_remove = '15fd59d7-da16-40bd-809b-56f9680a0773'
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={
             nqc.make_qc_notes_key(stage_id_to_remove): {}
@@ -94,7 +93,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         assert_that(lambda: sut.start_stop_confirmation, raises(qca.StageIdNoLongerPresentError,
                                                                 pattern=stage_id_to_remove))
 
-    def test_start_stop_confirmation_raises_exception_if_type_of_value_not_net_string(self):
+    def test_start_stop_confirmation_raises_error_if_type_of_value_not_net_string(self):
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={
             nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_D): {
                 'Type': 'System.Strings',
@@ -124,6 +123,19 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_A, stub_project_user_data)
 
         assert_that(sut.qc_notes, equal_to(''))
+
+    def test_qc_notes_raises_error_if_stage_id_no_longer_present(self):
+        stage_id_to_remove = 'f4511635-b0c1-488e-b978-e55a82c40109'
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(stage_id_to_remove): {}
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(stage_id_to_remove, stub_project_user_data)
+        # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
+        # `stub_project_user_data.Contains` to always return False.
+        stub_project_user_data.Contains.return_value = False
+
+        assert_that(lambda: sut.qc_notes, raises(qca.StageIdNoLongerPresentError,
+                                                 pattern=stage_id_to_remove))
 
 
 if __name__ == '__main__':
