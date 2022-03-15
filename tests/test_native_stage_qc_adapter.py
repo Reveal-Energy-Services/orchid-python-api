@@ -31,9 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - start_stop_confirmation raises error if stage start stop confirmation not of type `System.String`
-# - qc_notes raises error if stage not present in project user data
-# - qc_notes returns notes if set in project user data
 # - qc_notes returns empty string if not set in project user data
 # - qc_notes raises error if stage no longer present in project user data
 # - qc_notes raises error if stage QC notes not of type `System.String`
@@ -61,7 +58,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
-    def test_stage_start_stop_confirmation_returns_value_if_stage_exists_and_value_set(self):
+    def test_start_stop_confirmation_returns_value_if_stage_exists_and_value_set(self):
         for expected_confirmation in [nqc.StageCorrectionStatus.CONFIRMED,
                                       nqc.StageCorrectionStatus.NEW,
                                       nqc.StageCorrectionStatus.UNCONFIRMED]:
@@ -77,7 +74,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
                 assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus(expected_confirmation)))
 
-    def test_stage_start_stop_confirmation_returns_new_if_stage_exists_but_not_start_stop_confirmation(self):
+    def test_start_stop_confirmation_returns_new_if_stage_exists_but_not_start_stop_confirmation(self):
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={
             nqc.make_qc_notes_key(tsn.DONT_CARE_ID_C): {}
         }).create_net_stub()
@@ -85,7 +82,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.NEW))
 
-    def test_stage_start_stop_confirmation_raises_exception_if_stage_id_no_longer_present(self):
+    def test_start_stop_confirmation_raises_exception_if_stage_id_no_longer_present(self):
         stage_id_to_remove = '15fd59d7-da16-40bd-809b-56f9680a0773'
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={
             nqc.make_qc_notes_key(stage_id_to_remove): {}
@@ -97,6 +94,29 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(lambda: sut.start_stop_confirmation, raises(qca.StageIdNoLongerPresentError,
                                                                 pattern=stage_id_to_remove))
+
+    def test_start_stop_confirmation_raises_exception_if_type_of_value_not_net_string(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_D): {
+                'Type': 'System.Strings',
+                'Value': None,
+            },
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_D, stub_project_user_data)
+
+        assert_that(lambda: sut.start_stop_confirmation, raises(AssertionError))
+
+    def test_qc_notes_returns_value_if_stage_exists_and_value_set(self):
+        expected_qc_notes = 'lucrum nugatorium provenivit'
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(tsn.DONT_CARE_ID_E): {
+                'Type': 'System.String',
+                'Value': expected_qc_notes,
+            },
+        }).create_net_stub()
+        sut = qca.NativeStageQCAdapter(tsn.DONT_CARE_ID_E, stub_project_user_data)
+
+        assert_that(sut.qc_notes, equal_to(expected_qc_notes))
 
 
 if __name__ == '__main__':
