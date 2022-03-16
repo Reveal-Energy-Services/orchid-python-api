@@ -30,7 +30,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Return None if neither stage ID nor start stop confirmation nor QC notes exist
 # - Raise error if failed to supplied stage ID is None
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_canary(self):
@@ -61,6 +60,13 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         sut = uda.NativeProjectUserData(stub_project_user_data)
 
         sought_stage_id = uuid.UUID('a53695d4-df87-419a-8ede-ce151383d527')
+        assert_that(sut.stage_qc(sought_stage_id), is_(none()))
+
+    def test_stage_qc_is_none_if_neither_stage_id_nor_notes_nor_start_stop_confirmation_available(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={}).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        sought_stage_id = uuid.UUID('05573bcc-be82-4243-954e-0815bb25fa70')
         assert_that(sut.stage_qc(sought_stage_id), is_(none()))
 
 
