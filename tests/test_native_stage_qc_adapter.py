@@ -84,7 +84,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={
             nqc.make_qc_notes_key(stage_id_to_remove): {}
         }).create_net_stub()
-        sut = qca.NativeStageQCAdapter(stage_id_to_remove, stub_project_user_data)
+        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id_to_remove), stub_project_user_data)
         # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
         # `stub_project_user_data.Contains` to always return False.
         stub_project_user_data.Contains.return_value = False
@@ -128,7 +128,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={
             nqc.make_qc_notes_key(stage_id_to_remove): {}
         }).create_net_stub()
-        sut = qca.NativeStageQCAdapter(stage_id_to_remove, stub_project_user_data)
+        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id_to_remove), stub_project_user_data)
         # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
         # `stub_project_user_data.Contains` to always return False.
         stub_project_user_data.Contains.return_value = False
