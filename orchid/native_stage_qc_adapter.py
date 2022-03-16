@@ -83,6 +83,10 @@ def _has_stage_id(native_project_user_data, stage_id):
             _has_qc_notes(native_project_user_data, stage_id))
 
 
+def stage_id_is_not_none(_, stage_id, _adaptee):
+    return stage_id is not None
+
+
 class NativeStageQCAdapter(dna.DotNetAdapter):
     """
     This class adapts the .NET IProjectUserData instance to synthesize a stage QC class.
@@ -93,10 +97,12 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
     Despite this intention, our customer has asked for access to this information for their business purposes.
     """
 
-    @deal.pre(lambda _, stage_id, _adaptee: stage_id is not None,
-              message='`stage_id` is required')
     @deal.pre(lambda _, stage_id, adaptee: _has_stage_id(adaptee, stage_id),
               message='`stage_id` must be in project user data')
+    @deal.pre(stage_id_is_not_none,
+              message='`stage_id` is required')
+    # @deal.pre(lambda _, stage_id, _adaptee: stage_id is not None,
+    #           message='`stage_id` is required')
     def __init__(self, stage_id: uuid.UUID, adaptee: IProjectUserData):
         super().__init__(adaptee)
         self._stage_id = stage_id

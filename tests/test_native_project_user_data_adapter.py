@@ -19,7 +19,8 @@
 import unittest
 import uuid
 
-from hamcrest import assert_that, equal_to, is_, none
+import deal
+from hamcrest import assert_that, equal_to, is_, none, calling, raises
 
 from orchid import (
     native_project_user_data_adapter as uda,
@@ -30,7 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Raise error if failed to supplied stage ID is None
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
@@ -68,6 +68,12 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
         sought_stage_id = uuid.UUID('05573bcc-be82-4243-954e-0815bb25fa70')
         assert_that(sut.stage_qc(sought_stage_id), is_(none()))
+
+    def test_stage_qc_raises_error_if_supplied_stage_id_is_none(self):
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={tsn.DONT_CARE_ID_B: {}}).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        assert_that(calling(sut.stage_qc).with_args(None), raises(deal.PreContractError))
 
 
 if __name__ == '__main__':
