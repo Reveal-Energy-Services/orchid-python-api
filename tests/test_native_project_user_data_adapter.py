@@ -30,7 +30,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Return appropriate stage QC if stage ID and QC notes are available
 # - Return None if no such matching stage ID exists but information about other stages exist
 # - Return None if neither stage ID nor start stop confirmation nor QC notes:exist
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
@@ -46,53 +45,24 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
         assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
 
-    @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_start_stop_confirmation_if_stage_id_and_start_stop_confirmation_in_user_data_obs(self):
-        stage_id_dto = tsn.DONT_CARE_ID_B
-        expected_start_stop_confirmation = nqc.StageCorrectionStatus.CONFIRMED
-        stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            uuid.UUID(stage_id_dto): {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: tsn.StageQCValueDto(expected_start_stop_confirmation, None),
-            },
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_net_project_user_data)
+    def test_stage_qc_has_correct_stage_id_if_stage_id_and_qc_notes_in_user_data(self):
+        stage_id_dto = 'c93dcd1a-b156-46b6-b7fd-3d0c8205675c'
+        key = nqc.make_qc_notes_key(stage_id_dto)
+        value = {'Type': 'System.String', 'Value': 'animus meus aedificio repudiat'}
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={key: value}).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
 
-        assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).start_stop_confirmation,
-                    equal_to(expected_start_stop_confirmation))
+        assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
 
-    @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_stage_id_if_stage_id_and_qc_notes_in_user_data_obs(self):
-        stage_id_dto = tsn.DONT_CARE_ID_C
-        stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            uuid.UUID(stage_id_dto): {
-                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto('soror', None),
-            },
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_net_project_user_data)
+    @unittest.skip('Awaiting lower level code')
+    def test_stage_qc_is_none_if_stage_id_not_in_user_data_but_user_data_not_empty(self):
+        key = nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_A)
+        value = {'Type': 'System.String', 'Value': 'Unconfirmed'}
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={key: value}).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
 
-        assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id,
-                    equal_to(uuid.UUID(stage_id_dto)))
-
-    @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_qc_notes_if_stage_id_and_qc_notes_in_user_data_obs(self):
-        stage_id_dto = tsn.DONT_CARE_ID_C
-        expected_qc_notes = 'pellet'
-        stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            uuid.UUID(stage_id_dto): {
-                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(expected_qc_notes, None),
-            },
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_net_project_user_data)
-
-        assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).qc_notes,
-                    equal_to(expected_qc_notes))
-
-    @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_is_none_if_stage_id_not_in_user_data_obs(self):
-        stub_net_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
-        sut = uda.NativeProjectUserData(stub_net_project_user_data)
-
-        assert_that(sut.stage_qc(uuid.UUID(tsn.DONT_CARE_ID_E)), is_(none()))
+        sought_stage_id = uuid.UUID('a53695d4-df87-419a-8ede-ce151383d527')
+        assert_that(sut.stage_qc(sought_stage_id), is_(none()))
 
 
 if __name__ == '__main__':
