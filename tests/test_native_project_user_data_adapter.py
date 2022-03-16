@@ -42,8 +42,9 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_stage_qc_has_correct_stage_id_if_stage_id_and_start_stop_confirmation_in_user_data(self):
         stage_id_dto = tsn.DONT_CARE_ID_A
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            stage_id_dto: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: (nqc.StageCorrectionStatus.UNCONFIRMED, None),
+            uuid.UUID(stage_id_dto): {
+                nqc.StageQCTags.START_STOP_CONFIRMATION:
+                    tsn.StageQCValueDto(nqc.StageCorrectionStatus.UNCONFIRMED, None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
@@ -55,8 +56,8 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         stage_id_dto = tsn.DONT_CARE_ID_B
         expected_start_stop_confirmation = nqc.StageCorrectionStatus.CONFIRMED
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            stage_id_dto: {
-                nqc.StageQCTags.START_STOP_CONFIRMATION: (expected_start_stop_confirmation, None),
+            uuid.UUID(stage_id_dto): {
+                nqc.StageQCTags.START_STOP_CONFIRMATION: tsn.StageQCValueDto(expected_start_stop_confirmation, None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
@@ -68,8 +69,8 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_stage_qc_has_correct_stage_id_if_stage_id_and_qc_notes_in_user_data(self):
         stage_id_dto = tsn.DONT_CARE_ID_C
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            stage_id_dto: {
-                nqc.StageQCTags.QC_NOTES: ('soror', None),
+            uuid.UUID(stage_id_dto): {
+                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto('soror', None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
@@ -82,8 +83,8 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         stage_id_dto = tsn.DONT_CARE_ID_C
         expected_qc_notes = 'pellet'
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            stage_id_dto: {
-                nqc.StageQCTags.QC_NOTES: (expected_qc_notes, None),
+            uuid.UUID(stage_id_dto): {
+                nqc.StageQCTags.QC_NOTES: tsn.StageQCValueDto(expected_qc_notes, None),
             },
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
