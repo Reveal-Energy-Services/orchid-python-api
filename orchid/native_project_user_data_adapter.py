@@ -15,9 +15,11 @@
 # This file is part of Orchid and related technologies.
 #
 
+import uuid
+
 from orchid import (
     dot_net_dom_access as dna,
-    native_stage_qc_adapter as sqa,
+    native_stage_qc_adapter as qca,
 )
 
 
@@ -26,8 +28,18 @@ from Orchid.FractureDiagnostics.Settings import IProjectUserData
 
 
 class NativeProjectUserData(dna.DotNetAdapter):
+    """Adapts a .NET `IProjectUserData` instance to Python."""
     def __init__(self, adaptee: IProjectUserData):
         super().__init__(adaptee)
 
-    def stage_qc(self, stage_id):
-        return sqa.NativeStageQCAdapter(stage_id, self.dom_object)
+    def stage_qc(self, stage_id: uuid.UUID) -> qca.NativeStageQCAdapter:
+        """
+        Creates a `NativeStageQCAdapter` for the specified stage
+
+        Args:
+            stage_id: The object ID of the stage of interest
+
+        Returns:
+            The newly created `NativeStageQCAdapter` for the specified stage
+        """
+        return qca.NativeStageQCAdapter(stage_id, self.dom_object)
