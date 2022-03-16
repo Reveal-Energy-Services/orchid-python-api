@@ -30,8 +30,8 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Return None if no such matching stage ID exists but information about other stages exist
-# - Return None if neither stage ID nor start stop confirmation nor QC notes:exist
+# - Return None if neither stage ID nor start stop confirmation nor QC notes exist
+# - Raise error if failed to supplied stage ID is None
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
@@ -54,7 +54,6 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
         assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
 
-    @unittest.skip('Awaiting lower level code')
     def test_stage_qc_is_none_if_stage_id_not_in_user_data_but_user_data_not_empty(self):
         key = nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_A)
         value = {'Type': 'System.String', 'Value': 'Unconfirmed'}

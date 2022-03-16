@@ -17,6 +17,8 @@
 
 import uuid
 
+import deal
+
 from orchid import (
     dot_net_dom_access as dna,
     native_stage_qc_adapter as qca,
@@ -42,4 +44,10 @@ class NativeProjectUserData(dna.DotNetAdapter):
         Returns:
             The newly created `NativeStageQCAdapter` for the specified stage
         """
-        return qca.NativeStageQCAdapter(stage_id, self.dom_object)
+        try:
+            return qca.NativeStageQCAdapter(stage_id, self.dom_object)
+        except deal.PreContractError as pce:
+            if pce.message == '`stage_id` must be in project user data':
+                return None
+            else:
+                raise
