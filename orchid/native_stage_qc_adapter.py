@@ -16,6 +16,8 @@
 #
 
 import json
+from typing import Callable
+import uuid
 
 import deal
 import toolz.curried as toolz
@@ -27,6 +29,8 @@ from orchid import (
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Settings import IProjectUserData
 
 
 class StageIdNoLongerPresentError(KeyError):
@@ -93,7 +97,7 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
               message='`stage_id` must be in project user data')
     @deal.pre(lambda _, stage_id, _adaptee: stage_id is not None,
               message='`stage_id` is required')
-    def __init__(self, stage_id, adaptee):
+    def __init__(self, stage_id: uuid.UUID, adaptee: IProjectUserData):
         super().__init__(adaptee)
         self._stage_id = stage_id
 
@@ -108,61 +112,59 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
         return self._stage_id
 
     @property
-    def start_stop_confirmation(self) -> nqc.StageCorrectionStatus:
+    def start_stop_confirmation(self):
         """
         Calculate the stage start stop confirmation of the stage of interest.
 
         Returns:
             The `StageCorrectionStatus` for the stage of interest.
         """
+        try:
+            return self._calculate_stage_qc_data(nqc.make_start_stop_confirmation_key,
+                                                 'start stop confirmation',
+                                                 nqc.StageCorrectionStatus)
+        except KeyError:
+            return self._handle_stage_exists_but_no_key(nqc.StageCorrectionStatus.NEW)
+
+    def _calculate_stage_qc_data(self,
+                                 key_func: Callable[[uuid.UUID], str],
+                                 sought_message: str,
+                                 transform_func: Callable[[str], object]):
         project_user_data_json = self.dom_object.ToJson()
         user_data_json = json.loads(project_user_data_json)
-        try:
-            start_stop_confirmation_json = toolz.get(nqc.make_start_stop_confirmation_key(self._stage_id),
-                                                     user_data_json)
-            assert start_stop_confirmation_json['Type'] == 'System.String', (f'Expected start stop confirmation'
-                                                                             f' for stage, {self._stage_id},'
-                                                                             f' of type string.'
-                                                                             f' Found {start_stop_confirmation_json}')
+        value_json = toolz.get(key_func(self._stage_id), user_data_json)
+        assert value_json['Type'] == 'System.String', (f'Expected {sought_message}'
+                                                       f' for stage, {self._stage_id},'
+                                                       f' of type string.'
+                                                       f' Found {value_json}')
 
-            start_stop_confirmation_json_value = start_stop_confirmation_json['Value']
-            return nqc.StageCorrectionStatus(start_stop_confirmation_json_value)
-        except KeyError:
-            # TODO: perhaps relax the assumption that self._stage_id *must* exist in the project user data JSON.
-            # This error can occur for two reasons: the stage id is not found or the start stop confirmation "key" is
-            # not found. Although the constructor ensures that the stage id exists at the time of construction, since
-            # we are beginning to support writable .NET data, just because this was true when constructed, it may
-            # no longer be true.
-            if _has_stage_id(self.dom_object, self._stage_id):
-                # The start stop confirmation for this stage is not available. This logic implements the same logic
-                # as the stage QC plugin.
-                return nqc.StageCorrectionStatus.NEW
-            else:
-                raise StageIdNoLongerPresentError(f'Object ID, {self._stage_id},'
-                                                  f' no longer present in project user data.')
+        return transform_func(value_json['Value'])
+
+    def _handle_stage_exists_but_no_key(self, value_if_not_available):
+        # TODO: perhaps relax the assumption that self._stage_id *must* exist in the project user data JSON.
+        # This error can occur for two reasons: the stage id is not found or the start stop confirmation "key" is
+        # not found. Although the constructor ensures that the stage id exists at the time of construction, since
+        # we are beginning to support writable .NET data, just because this was true when constructed, it may
+        # no longer be true.
+        if _has_stage_id(self.dom_object, self._stage_id):
+            # The start stop confirmation for this stage is not available. This logic implements the same logic
+            # as the stage QC plugin.
+            return value_if_not_available
+        else:
+            raise StageIdNoLongerPresentError(f'Object ID, {self._stage_id},'
+                                              f' no longer present in project user data.')
 
     @property
     def qc_notes(self):
-        project_user_data_json = self.dom_object.ToJson()
-        user_data_json = json.loads(project_user_data_json)
+        """
+        Calculate the stage QC notes of the stage of interest.
+
+        Returns:
+            The QC notes for the stage of interest.
+        """
         try:
-            qc_notes_json = toolz.get(nqc.make_qc_notes_key(self._stage_id), user_data_json)
-            assert qc_notes_json['Type'] == 'System.String', (f'Expected QC notes for stage, {self._stage_id},'
-                                                              f' of type string. Found {qc_notes_json}')
-
-            return qc_notes_json['Value']
+            return self._calculate_stage_qc_data(nqc.make_qc_notes_key,
+                                                 'QC notes',
+                                                 toolz.identity)
         except KeyError:
-            # TODO: perhaps relax the assumption that self._stage_id *must* exist in the project user data JSON.
-            # This error can occur for two reasons: the stage id is not found or the start stop confirmation "key" is
-            # not found. Although the constructor ensures that the stage id exists at the time of construction, since
-            # we are beginning to support writable .NET data, just because this was true when constructed, it may
-            # no longer be true.
-            if _has_stage_id(self.dom_object, self._stage_id):
-                # The QC notes for this stage are not available. This logic implements the same logic
-                # as the stage QC plugin.
-                return ''
-            else:
-                raise StageIdNoLongerPresentError(f'Object ID, {self._stage_id},'
-                                                  f' no longer present in project user data.')
-
-
+            return self._handle_stage_exists_but_no_key('')
