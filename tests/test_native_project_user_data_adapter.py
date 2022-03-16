@@ -39,7 +39,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         self.assertEqual(2 + 2, 4)
 
     @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_stage_id_if_stage_id_and_start_stop_confirmation_in_user_data(self):
+    def test_stage_qc_has_correct_stage_id_if_stage_id_and_start_stop_confirmation_in_user_data_obs(self):
         stage_id_dto = tsn.DONT_CARE_ID_A
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
             uuid.UUID(stage_id_dto): {
@@ -52,7 +52,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
 
     @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_start_stop_confirmation_if_stage_id_and_start_stop_confirmation_in_user_data(self):
+    def test_stage_qc_has_correct_start_stop_confirmation_if_stage_id_and_start_stop_confirmation_in_user_data_obs(self):
         stage_id_dto = tsn.DONT_CARE_ID_B
         expected_start_stop_confirmation = nqc.StageCorrectionStatus.CONFIRMED
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
@@ -66,7 +66,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
                     equal_to(expected_start_stop_confirmation))
 
     @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_stage_id_if_stage_id_and_qc_notes_in_user_data(self):
+    def test_stage_qc_has_correct_stage_id_if_stage_id_and_qc_notes_in_user_data_obs(self):
         stage_id_dto = tsn.DONT_CARE_ID_C
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
             uuid.UUID(stage_id_dto): {
@@ -79,7 +79,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
                     equal_to(uuid.UUID(stage_id_dto)))
 
     @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_qc_notes_if_stage_id_and_qc_notes_in_user_data(self):
+    def test_stage_qc_has_correct_qc_notes_if_stage_id_and_qc_notes_in_user_data_obs(self):
         stage_id_dto = tsn.DONT_CARE_ID_C
         expected_qc_notes = 'pellet'
         stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
@@ -93,7 +93,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
                     equal_to(expected_qc_notes))
 
     @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_is_none_if_stage_id_not_in_user_data(self):
+    def test_stage_qc_is_none_if_stage_id_not_in_user_data_obs(self):
         stub_net_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
         sut = uda.NativeProjectUserData(stub_net_project_user_data)
 
