@@ -30,24 +30,19 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Return correct stage QC if pair, stage ID and start stop confirmation, are available
-# - Return correct stage QC if pair, stage ID and QC notes, are available
-# - Return None if no such matching stage ID exists but at least one other pair
-# - Return None if no stage ID exists but neither start stop confirmation nor QC notes
+# - Return appropriate stage QC if stage ID and QC notes are available
+# - Return None if no such matching stage ID exists but information about other stages exist
+# - Return None if neither stage ID nor start stop confirmation nor QC notes:exist
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
 
-    @unittest.skip('Awaiting lower-level code')
-    def test_stage_qc_has_correct_stage_id_if_stage_id_and_start_stop_confirmation_in_user_data_obs(self):
-        stage_id_dto = tsn.DONT_CARE_ID_A
-        stub_net_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
-            uuid.UUID(stage_id_dto): {
-                nqc.StageQCTags.START_STOP_CONFIRMATION:
-                    tsn.StageQCValueDto(nqc.StageCorrectionStatus.UNCONFIRMED, None),
-            },
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_net_project_user_data)
+    def test_stage_qc_has_correct_stage_id_if_stage_id_and_start_stop_confirmation_in_user_data(self):
+        stage_id_dto = '78edb717-0528-4710-8b61-15ebc8f283c1'
+        key = nqc.make_start_stop_confirmation_key(stage_id_dto)
+        value = {'Type': 'System.String', 'Value': 'Confirmed'}
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={key: value}).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
 
         assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
 
