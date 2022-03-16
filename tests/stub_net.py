@@ -38,7 +38,6 @@ from orchid import (
     native_variant_adapter as nva,
     net_date_time as ndt,
     net_quantity as onq,
-    net_stage_qc as nqc,
     unit_system as units,
 )
 
@@ -122,42 +121,16 @@ class StageQCValueDto:
     default: Optional[object]
 
 
-@toolz.curry
-def mock_contains(stage_qcs_dtos, key_sought):
-    stage_id, tag_text = key_sought.split('|')
-    return toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos) is not None
-
-
-@toolz.curry
-def mock_get_value(stage_qcs_dtos, key_sought, _default_variant):
-    # Note that the call to `GetValue` requires two arguments: the key to be found and the default variant; however,
-    # in unit testing, one specifies the "default" is part of the mock (`StageQCDto.default_value`). As a consequence,
-    # this method must accept three arguments: the DTOs supplied as part of the mock setup, and the key and variant
-    # supplied in the actual call. We use the `key_sought`; but *ignore* `_default_variant`. (We preface the argument
-    # with an underscore so that PyCharm ignores the unused argument.)
-    stage_id, tag_text = key_sought.split('|')
-    search_result = toolz.get_in([stage_id, nqc.StageQCTags(tag_text)], stage_qcs_dtos)
-    result = (search_result.available.create_net_stub()
-              if search_result.available is not None
-              else search_result.default.create_net_stub())
-    return result
-
-
 @dc.dataclass
 class ProjectUserDataDto:
-    stage_qcs: Dict[uuid.UUID,
-                    Dict[nqc.StageQCTags, StageQCValueDto]] = dc.field(default_factory=dict)
     to_json: Dict = None
 
     def create_net_stub(self):
         result = create_stub_domain_object(stub_name='stub_net_user_data',
                                            stub_spec=IProjectUserData)
 
-        if self.stage_qcs:
-            result.Contains.side_effect = mock_contains(self.stage_qcs)
-            result.GetValue.side_effect = mock_get_value(self.stage_qcs)
-
         if self.to_json is not None:
+            result.Contains.side_effect = lambda k: k in self.to_json
             result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=json.dumps(self.to_json))
 
         return result

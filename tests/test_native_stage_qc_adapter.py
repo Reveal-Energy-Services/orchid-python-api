@@ -36,6 +36,13 @@ class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_stage_id_returns_id_set_at_construction(self):
+        expected_stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
+        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
+        sut = qca.NativeStageQCAdapter(uuid.UUID(expected_stage_id), stub_project_user_data)
+
+        assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
+
     def test_ctor_raises_exception_if_no_stage_id(self):
         stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
 
@@ -43,18 +50,14 @@ class TestNativeStageQCAdapter(unittest.TestCase):
                     raises(deal.PreContractError, pattern='stage_id.*required'))
 
     def test_ctor_raises_exception_if_stage_id_not_in_project_user_data(self):
-        not_found_stage_id = tsn.DONT_CARE_ID_A
-        stub_project_user_data = tsn.ProjectUserDataDto({tsn.DONT_CARE_ID_C: {}}).create_net_stub()
+        not_found_stage_id = '35551512-50aa-4dc2-b041-867b93ca5487'
+        stub_project_user_data = tsn.ProjectUserDataDto({
+            nqc.make_qc_notes_key(tsn.DONT_CARE_ID_A): {},
+            nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_E): {},
+        }).create_net_stub()
 
         assert_that(calling(qca.NativeStageQCAdapter).with_args(not_found_stage_id, stub_project_user_data),
                     raises(deal.PreContractError, pattern='`stage_id` must be in project user data'))
-
-    def test_stage_id_returns_id_set_at_construction(self):
-        expected_stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
-        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(expected_stage_id), stub_project_user_data)
-
-        assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
     def test_start_stop_confirmation_returns_value_if_stage_exists_and_value_set(self):
         for expected_confirmation in [nqc.StageCorrectionStatus.CONFIRMED,
@@ -88,7 +91,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = create_sut(stage_id_to_remove, key_func, value)
         # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
         # mock `Contains` to always return False.
-        sut.dom_object.Contains.return_value = False
+        sut.dom_object.Contains.side_effect = lambda _k: False
 
         assert_that(lambda: sut.start_stop_confirmation, raises(qca.StageIdNoLongerPresentError,
                                                                 pattern=stage_id_to_remove))
@@ -131,7 +134,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         sut = create_sut(stage_id_to_remove, key_func, value)
         # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
         # mock `Contains` to always return False.
-        sut.dom_object.Contains.return_value = False
+        sut.dom_object.Contains.side_effect = lambda _k: False
 
         assert_that(lambda: sut.qc_notes, raises(qca.StageIdNoLongerPresentError,
                                                  pattern=stage_id_to_remove))
