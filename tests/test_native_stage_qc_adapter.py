@@ -16,6 +16,7 @@
 #
 
 
+from typing import Callable, Dict
 import unittest
 import uuid
 
@@ -68,9 +69,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
                     'Type': 'System.String',
                     'Value': expected_confirmation.name.capitalize(),
                 }
-                project_user_data_json = {key_func(stage_id): value}
-                stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-                sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+                sut = create_sut(stage_id, key_func, value)
 
                 assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus(expected_confirmation)))
 
@@ -78,9 +77,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         stage_id = tsn.DONT_CARE_ID_C
         key_func = nqc.make_qc_notes_key
         value = {}
-        project_user_data_json = {key_func(stage_id): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+        sut = create_sut(stage_id, key_func, value)
 
         assert_that(sut.start_stop_confirmation, equal_to(nqc.StageCorrectionStatus.NEW))
 
@@ -88,12 +85,10 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         stage_id_to_remove = '15fd59d7-da16-40bd-809b-56f9680a0773'
         key_func = nqc.make_qc_notes_key
         value = {}
-        project_user_data_json = {key_func(stage_id_to_remove): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id_to_remove), stub_project_user_data)
+        sut = create_sut(stage_id_to_remove, key_func, value)
         # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
-        # `stub_project_user_data.Contains` to always return False.
-        stub_project_user_data.Contains.return_value = False
+        # mock `Contains` to always return False.
+        sut.dom_object.Contains.return_value = False
 
         assert_that(lambda: sut.start_stop_confirmation, raises(qca.StageIdNoLongerPresentError,
                                                                 pattern=stage_id_to_remove))
@@ -105,9 +100,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
             'Type': 'System.Strings',
             'Value': None,
         }
-        project_user_data_json = {key_func(stage_id): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+        sut = create_sut(stage_id, key_func, value)
 
         assert_that(lambda: sut.start_stop_confirmation, raises(AssertionError))
 
@@ -119,9 +112,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
             'Type': 'System.String',
             'Value': expected_qc_notes,
         }
-        project_user_data_json = {key_func(stage_id): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+        sut = create_sut(stage_id, key_func, value)
 
         assert_that(sut.qc_notes, equal_to(expected_qc_notes))
 
@@ -129,9 +120,7 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         stage_id = tsn.DONT_CARE_ID_A
         key_func = nqc.make_start_stop_confirmation_key
         value = {}
-        project_user_data_json = {key_func(stage_id): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+        sut = create_sut(stage_id, key_func, value)
 
         assert_that(sut.qc_notes, equal_to(''))
 
@@ -139,12 +128,10 @@ class TestNativeStageQCAdapter(unittest.TestCase):
         stage_id_to_remove = 'f4511635-b0c1-488e-b978-e55a82c40109'
         key_func = nqc.make_start_stop_confirmation_key
         value = {}
-        project_user_data_json = {key_func(stage_id_to_remove): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id_to_remove), stub_project_user_data)
+        sut = create_sut(stage_id_to_remove, key_func, value)
         # In order to simulate removing the stage ID *after* construction, I will change the `return_value` of
-        # `stub_project_user_data.Contains` to always return False.
-        stub_project_user_data.Contains.return_value = False
+        # mock `Contains` to always return False.
+        sut.dom_object.Contains.return_value = False
 
         assert_that(lambda: sut.qc_notes, raises(qca.StageIdNoLongerPresentError,
                                                  pattern=stage_id_to_remove))
@@ -156,11 +143,27 @@ class TestNativeStageQCAdapter(unittest.TestCase):
             'Type': 'System.Strings',
             'Value': None,
         }
-        project_user_data_json = {key_func(stage_id): value}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
-        sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+        sut = create_sut(stage_id, key_func, value)
 
         assert_that(lambda: sut.qc_notes, raises(AssertionError))
+
+
+def create_sut(stage_id: str, key_func: Callable[[uuid.UUID], str], value: Dict):
+    """
+    Create the system under test.
+
+    Args:
+        stage_id: The object ID of the stage of interest.
+        key_func: Transforms the `stage_id` to a key in the project user data JSON.
+        value: The value associated with the generated key.
+
+    Returns:
+        The system under test.
+    """
+    project_user_data_json = {key_func(uuid.UUID(stage_id)): value}
+    stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
+    sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
+    return sut
 
 
 if __name__ == '__main__':
