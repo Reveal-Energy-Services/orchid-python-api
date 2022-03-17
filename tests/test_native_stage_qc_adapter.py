@@ -36,8 +36,16 @@ class TestNativeStageQCAdapter(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_stage_id_returns_id_set_at_construction(self):
+    def test_stage_id_returns_id_set_at_construction_if_id_in_project_user_data(self):
         expected_stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
+        key_func = nqc.make_qc_notes_key
+        value = {}
+        sut = create_sut(expected_stage_id, key_func, value)
+
+        assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
+
+    def test_stage_id_returns_id_set_at_construction_if_id_not_in_project_user_data(self):
+        expected_stage_id = '412e5a99-7040-4972-8b27-3ff0d1ab4d94'
         stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
         sut = qca.NativeStageQCAdapter(uuid.UUID(expected_stage_id), stub_project_user_data)
 
@@ -48,16 +56,6 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
         assert_that(calling(qca.NativeStageQCAdapter).with_args(None, stub_project_user_data),
                     raises(deal.PreContractError, pattern='stage_id.*required'))
-
-    def test_ctor_raises_exception_if_stage_id_not_in_project_user_data(self):
-        not_found_stage_id = '35551512-50aa-4dc2-b041-867b93ca5487'
-        stub_project_user_data = tsn.ProjectUserDataDto({
-            nqc.make_qc_notes_key(tsn.DONT_CARE_ID_A): {},
-            nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_E): {},
-        }).create_net_stub()
-
-        assert_that(calling(qca.NativeStageQCAdapter).with_args(not_found_stage_id, stub_project_user_data),
-                    raises(deal.PreContractError, pattern='`stage_id` must be in project user data'))
 
     def test_start_stop_confirmation_returns_value_if_stage_exists_and_value_set(self):
         for expected_confirmation in [nqc.StageCorrectionStatus.CONFIRMED,

@@ -93,8 +93,6 @@ class NativeStageQCAdapter(dna.DotNetAdapter):
     Despite this intention, our customer has asked for access to this information for their business purposes.
     """
 
-    @deal.pre(lambda _, stage_id, adaptee: _has_stage_id(adaptee, stage_id),
-              message='`stage_id` must be in project user data')
     @deal.pre(lambda _, stage_id, _adaptee: stage_id is not None,
               message='`stage_id` is required')
     def __init__(self, stage_id: uuid.UUID, adaptee: IProjectUserData):

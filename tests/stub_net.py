@@ -129,6 +129,7 @@ class ProjectUserDataDto:
         result = create_stub_domain_object(stub_name='stub_net_user_data',
                                            stub_spec=IProjectUserData)
 
+        result.Contains.return_value = False
         if self.to_json is not None:
             result.Contains.side_effect = lambda k: k in self.to_json
             result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=json.dumps(self.to_json))

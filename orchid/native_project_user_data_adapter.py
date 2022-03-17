@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
+from typing import Optional
 import uuid
 
 import deal
@@ -34,7 +35,7 @@ class NativeProjectUserData(dna.DotNetAdapter):
     def __init__(self, adaptee: IProjectUserData):
         super().__init__(adaptee)
 
-    def stage_qc(self, stage_id: uuid.UUID) -> qca.NativeStageQCAdapter:
+    def stage_qc(self, stage_id: uuid.UUID) -> Optional[qca.NativeStageQCAdapter]:
         """
         Creates a `NativeStageQCAdapter` for the specified stage
 

@@ -20,7 +20,7 @@ import unittest
 import uuid
 
 import deal
-from hamcrest import assert_that, equal_to, is_, none, calling, raises
+from hamcrest import assert_that, equal_to, calling, raises
 
 from orchid import (
     native_project_user_data_adapter as uda,
@@ -52,22 +52,6 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         sut = uda.NativeProjectUserData(stub_project_user_data)
 
         assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
-
-    def test_stage_qc_is_none_if_stage_id_not_in_user_data_but_user_data_not_empty(self):
-        key = nqc.make_start_stop_confirmation_key(tsn.DONT_CARE_ID_A)
-        value = {'Type': 'System.String', 'Value': 'Unconfirmed'}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={key: value}).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
-
-        sought_stage_id = uuid.UUID('a53695d4-df87-419a-8ede-ce151383d527')
-        assert_that(sut.stage_qc(sought_stage_id), is_(none()))
-
-    def test_stage_qc_is_none_if_neither_stage_id_nor_notes_nor_start_stop_confirmation_available(self):
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={}).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
-
-        sought_stage_id = uuid.UUID('05573bcc-be82-4243-954e-0815bb25fa70')
-        assert_that(sut.stage_qc(sought_stage_id), is_(none()))
 
     def test_stage_qc_raises_error_if_supplied_stage_id_is_none(self):
         stub_project_user_data = tsn.ProjectUserDataDto(to_json={tsn.DONT_CARE_ID_B: {}}).create_net_stub()
