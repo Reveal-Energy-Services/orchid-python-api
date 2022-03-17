@@ -152,13 +152,17 @@ def _to_json(stages_qc_dto):
 
 @dc.dataclass
 class ProjectUserDataDto:
-    stages_qc_dto: Dict = dc.field(default_factory=dict)
+    stages_qc: Dict = dc.field(default_factory=dict)
+    # The `to_json` parameter can be used to "override" the value calculated from stages_qc.
+    to_json: Dict[uuid.UUID, Dict[str, str]] = None
 
     def create_net_stub(self):
         result = create_stub_domain_object(stub_name='stub_net_user_data',
                                            stub_spec=IProjectUserData)
 
-        to_json_text = json.dumps(_to_json(self.stages_qc_dto)) if self.stages_qc_dto else json.dumps({})
+        to_json_text = json.dumps(_to_json(self.stages_qc)) if self.stages_qc else json.dumps({})
+        if self.to_json is not None:
+            to_json_text = json.dumps(self.to_json)
         result.ToJson = unittest.mock.MagicMock(name='stub_mock_to_json',
                                                 return_value=to_json_text)
 

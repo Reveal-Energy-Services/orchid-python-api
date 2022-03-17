@@ -65,6 +65,9 @@ class NativeProjectUserData(dna.DotNetAdapter):
         # return an empty string if either of stage ID or of QC notes is unavailable.
         result = ''
         if notes_key in project_user_data_json:
+            actual_value_type = toolz.get_in([notes_key, 'Type'], project_user_data_json)
+            assert actual_value_type == 'System.String', (f'Expected, "System.String",'
+                                                          f' but found "{actual_value_type}".')
             result = toolz.get_in([notes_key, 'Value'], project_user_data_json)
         return result
 
@@ -86,6 +89,9 @@ class NativeProjectUserData(dna.DotNetAdapter):
         # confirmation is unavailable.
         result = nqc.StageCorrectionStatus.NEW
         if confirmation_key in project_user_data_json:
+            actual_value_type = toolz.get_in([confirmation_key, 'Type'], project_user_data_json)
+            assert actual_value_type == 'System.String', (f'Expected, "System.String",'
+                                                          f' but found "{actual_value_type}".')
             text_status = toolz.get_in([confirmation_key, 'Value'], project_user_data_json)
             result = nqc.StageCorrectionStatus(text_status)
         return result

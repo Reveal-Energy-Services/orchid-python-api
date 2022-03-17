@@ -16,10 +16,11 @@
 #
 
 
+import re
 import unittest
 import uuid
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, calling, raises
 
 from orchid import (
     native_project_user_data_adapter as uda,
@@ -30,9 +31,6 @@ from tests import stub_net as tsn
 
 
 # Test ideas
-# - Raise error if QC notes type is not `System.String`
-# - Raise error if start stop confirmation type is not `System.String'
-# - Raise error if start stop confirmation value unrecognized
 # - Set QC notes for stage ID calls `SetValue` with correct values
 # - Set start stop confirmation for stage ID calls `SetValue` with correct values
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
@@ -42,7 +40,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_stage_qc_notes_if_qc_notes_available_for_stage(self):
         stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
         expected_qc_notes = 'lucrum nugatorium provenivit'
-        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc_dto={
+        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc={
             uuid.UUID(stage_id): {'stage_qc_notes': expected_qc_notes},
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_project_user_data)
@@ -56,10 +54,22 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
         assert_that(sut.stage_qc_notes(uuid.UUID(stage_id)), equal_to(''))
 
+    def test_stage_qc_notes_raises_error_if_value_has_unexpected_net_type(self):
+        stage_id = tsn.DONT_CARE_ID_A
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_qc_notes_key(stage_id): {'Type': 'System.Int32',
+                                              'Value': -84},
+        }).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        assert_that(calling(sut.stage_qc_notes).with_args(uuid.UUID(stage_id)),
+                    raises(AssertionError,
+                           pattern=re.compile('Expected, "System.String", but found ".*".')))
+
     def test_stage_start_stop_confirmation_if_start_stop_confirmation_available_for_stage(self):
         stage_id = '15fd59d7-da16-40bd-809b-56f9680a0773'
         expected_start_stop_confirmation = nqc.StageCorrectionStatus.UNCONFIRMED
-        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc_dto={
+        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc={
             uuid.UUID(stage_id): {'stage_start_stop_confirmation': expected_start_stop_confirmation},
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_project_user_data)
@@ -74,6 +84,31 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
         assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
                     equal_to(nqc.StageCorrectionStatus.NEW))
+
+    def test_stage_start_stop_confirmation_raises_error_if_value_has_unexpected_net_type(self):
+        stage_id = tsn.DONT_CARE_ID_B
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_start_stop_confirmation_key(stage_id): {
+                'Type': 'System.Double',
+                'Value': 129.847},
+        }).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        assert_that(calling(sut.stage_start_stop_confirmation).with_args(uuid.UUID(stage_id)),
+                    raises(AssertionError,
+                           pattern=re.compile('Expected, "System.String", but found ".*".')))
+
+    def test_stage_start_stop_confirmation_raises_error_if_value_not_stage_correction_status(self):
+        stage_id = tsn.DONT_CARE_ID_C
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+            nqc.make_start_stop_confirmation_key(stage_id): {
+                'Type': 'System.String',
+                'Value': 'Newt'},
+        }).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        assert_that(calling(sut.stage_start_stop_confirmation).with_args(uuid.UUID(stage_id)),
+                    raises(ValueError))
 
 
 if __name__ == '__main__':
