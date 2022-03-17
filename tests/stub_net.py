@@ -136,8 +136,16 @@ def _to_json(stages_qc_dto):
     for stage_id in stages_qc_dto.keys():
         for qc_key in stages_qc_dto[stage_id].keys():
             if qc_key == 'stage_qc_notes':
-                result[nqc.make_qc_notes_key(stage_id)] = {'Type': 'System.String',
-                                                           'Value': stages_qc_dto[stage_id][qc_key]}
+                result[nqc.make_qc_notes_key(stage_id)] = {
+                    'Type': 'System.String',
+                    'Value': stages_qc_dto[stage_id][qc_key]
+                }
+            elif qc_key == 'stage_start_stop_confirmation':
+                result[nqc.make_start_stop_confirmation_key(stage_id)] = {
+                    'Type': 'System.String',
+                    # Converts from nqc.StageCorrectionStatus to the enum value (a string)
+                    'Value': stages_qc_dto[stage_id][qc_key].value
+                }
 
     return result
 

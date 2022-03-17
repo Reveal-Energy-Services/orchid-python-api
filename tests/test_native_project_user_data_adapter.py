@@ -23,14 +23,16 @@ from hamcrest import assert_that, equal_to
 
 from orchid import (
     native_project_user_data_adapter as uda,
+    net_stage_qc as nqc,
 )
 
 from tests import stub_net as tsn
 
 
 # Test ideas
-# - Return start stop confirmation if start stop confirmation for stage ID available
-# - Return new start stop confirmation if start stop confirmation for stage ID not available
+# - Raise error if QC notes type is not `System.String`
+# - Raise error if start stop confirmation type is not `System.String'
+# - Raise error if start stop confirmation value unrecognized
 # - Set QC notes for stage ID calls `SetValue` with correct values
 # - Set start stop confirmation for stage ID calls `SetValue` with correct values
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
@@ -53,6 +55,25 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         sut = uda.NativeProjectUserData(stub_project_user_data)
 
         assert_that(sut.stage_qc_notes(uuid.UUID(stage_id)), equal_to(''))
+
+    def test_stage_start_stop_confirmation_if_start_stop_confirmation_available_for_stage(self):
+        stage_id = '15fd59d7-da16-40bd-809b-56f9680a0773'
+        expected_start_stop_confirmation = nqc.StageCorrectionStatus.UNCONFIRMED
+        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc_dto={
+            uuid.UUID(stage_id): {'stage_start_stop_confirmation': expected_start_stop_confirmation},
+        }).create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
+                    equal_to(expected_start_stop_confirmation))
+
+    def test_stage_start_stop_confirmation_empty_if_start_stop_confirmation_not_available_for_stage(self):
+        stage_id = 'f4511635-b0c1-488e-b978-e55a82c40109'
+        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
+        sut = uda.NativeProjectUserData(stub_project_user_data)
+
+        assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
+                    equal_to(nqc.StageCorrectionStatus.NEW))
 
 
 if __name__ == '__main__':

@@ -62,8 +62,30 @@ class NativeProjectUserData(dna.DotNetAdapter):
         notes_key = nqc.make_qc_notes_key(stage_id)
         # TODO: Replace hard-coded "copy" of logic
         # Hard-coded logic for QC notes default value from `StartStopTimeEditorViewModel`:
-        # return an empty string if either of stage ID or of QC notes is not available.
+        # return an empty string if either of stage ID or of QC notes is unavailable.
         result = ''
         if notes_key in project_user_data_json:
             result = toolz.get_in([notes_key, 'Value'], project_user_data_json)
+        return result
+
+    def stage_start_stop_confirmation(self, stage_id: uuid.UUID) -> nqc.StageCorrectionStatus:
+        """
+        Calculate the start stop confirmation for the specified stage.
+
+        Args:
+            stage_id: The object ID of the stage of interest.
+
+        Returns:
+            The requested start stop confirmation.
+        """
+        project_user_data_json = json.loads(self.dom_object.ToJson())
+        confirmation_key = nqc.make_start_stop_confirmation_key(stage_id)
+        # TODO: Replace hard-coded "copy" of logic
+        # Hard-coded logic for QC notes default value from `StartStopTimeEditorViewModel`:
+        # return .NET `StageCorrectionStatus.New` if either of stage ID or of start stop
+        # confirmation is unavailable.
+        result = nqc.StageCorrectionStatus.NEW
+        if confirmation_key in project_user_data_json:
+            text_status = toolz.get_in([confirmation_key, 'Value'], project_user_data_json)
+            result = nqc.StageCorrectionStatus(text_status)
         return result
