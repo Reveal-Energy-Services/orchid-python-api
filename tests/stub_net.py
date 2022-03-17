@@ -122,26 +122,35 @@ class StageQCValueDto:
     default: Optional[object]
 
 
-def to_json(stage_qcs):
+def _to_json(stages_qc_dto):
+    """
+    Convert DTO of QC results for one or more stages to JSON string duplicating `IProjectUserData.ToJson`.
+
+    Args:
+        stages_qc_dto: The DTO of QC results for stages.
+
+    Returns:
+        The JSON duplicating the result of `IProjectUserData.ToJson`
+    """
     result = {}
-    for stage_id in stage_qcs.keys():
-        for qc_key in stage_qcs[stage_id].keys():
+    for stage_id in stages_qc_dto.keys():
+        for qc_key in stages_qc_dto[stage_id].keys():
             if qc_key == 'stage_qc_notes':
                 result[nqc.make_qc_notes_key(stage_id)] = {'Type': 'System.String',
-                                                           'Value': stage_qcs[stage_id][qc_key]}
+                                                           'Value': stages_qc_dto[stage_id][qc_key]}
 
     return result
 
 
 @dc.dataclass
 class ProjectUserDataDto:
-    stage_qcs: Dict = dc.field(default_factory=dict)
+    stages_qc_dto: Dict = dc.field(default_factory=dict)
 
     def create_net_stub(self):
         result = create_stub_domain_object(stub_name='stub_net_user_data',
                                            stub_spec=IProjectUserData)
 
-        to_json_text = json.dumps(to_json(self.stage_qcs)) if self.stage_qcs else json.dumps({})
+        to_json_text = json.dumps(_to_json(self.stages_qc_dto)) if self.stages_qc_dto else json.dumps({})
         result.ToJson = unittest.mock.MagicMock(name='stub_mock_to_json',
                                                 return_value=to_json_text)
 

@@ -40,7 +40,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_stage_qc_notes_if_qc_notes_available_for_stage(self):
         stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
         expected_qc_notes = 'lucrum nugatorium provenivit'
-        stub_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
+        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc_dto={
             uuid.UUID(stage_id): {'stage_qc_notes': expected_qc_notes},
         }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_project_user_data)
