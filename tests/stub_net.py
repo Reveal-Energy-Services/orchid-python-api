@@ -38,6 +38,7 @@ from orchid import (
     native_variant_adapter as nva,
     net_date_time as ndt,
     net_quantity as onq,
+    net_stage_qc as nqc,
     unit_system as units,
 )
 
@@ -121,9 +122,30 @@ class StageQCValueDto:
     default: Optional[object]
 
 
+def to_json(stage_qcs):
+    result = {}
+    for stage_id in stage_qcs.keys():
+        for qc_key in stage_qcs[stage_id].keys():
+            if qc_key == 'stage_qc_notes':
+                result[nqc.make_qc_notes_key(stage_id)] = {'Type': 'System.String',
+                                                           'Value': stage_qcs[stage_id][qc_key]}
+
+    return result
+
+
 @dc.dataclass
-class ProjectUserDataDtoObs:
+class ProjectUserDataDto:
     stage_qcs: Dict = dc.field(default_factory=dict)
+
+    def create_net_stub(self):
+        result = create_stub_domain_object(stub_name='stub_net_user_data',
+                                           stub_spec=IProjectUserData)
+
+        to_json_text = json.dumps(to_json(self.stage_qcs)) if self.stage_qcs else json.dumps({})
+        result.ToJson = unittest.mock.MagicMock(name='stub_mock_to_json',
+                                                return_value=to_json_text)
+
+        return result
 
 
 @dc.dataclass

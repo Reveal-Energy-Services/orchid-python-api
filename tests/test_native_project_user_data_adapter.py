@@ -19,45 +19,40 @@
 import unittest
 import uuid
 
-import deal
-from hamcrest import assert_that, equal_to, calling, raises
+from hamcrest import assert_that, equal_to
 
 from orchid import (
     native_project_user_data_adapter as uda,
-    net_stage_qc as nqc,
 )
 
 from tests import stub_net as tsn
 
 
 # Test ideas
+# - Return start stop confirmation if start stop confirmation for stage ID available
+# - Return new start stop confirmation if start stop confirmation for stage ID not available
+# - Set QC notes for stage ID calls `SetValue` with correct values
+# - Set start stop confirmation for stage ID calls `SetValue` with correct values
 class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
 
-    def test_stage_qc_has_correct_stage_id_if_stage_id_and_start_stop_confirmation_in_user_data(self):
-        stage_id_dto = '78edb717-0528-4710-8b61-15ebc8f283c1'
-        key = nqc.make_start_stop_confirmation_key(stage_id_dto)
-        value = {'Type': 'System.String', 'Value': 'Confirmed'}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={key: value}).create_net_stub()
+    def test_stage_qc_notes_if_qc_notes_available_for_stage(self):
+        stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
+        expected_qc_notes = 'lucrum nugatorium provenivit'
+        stub_project_user_data = tsn.ProjectUserDataDto(stage_qcs={
+            uuid.UUID(stage_id): {'stage_qc_notes': expected_qc_notes},
+        }).create_net_stub()
         sut = uda.NativeProjectUserData(stub_project_user_data)
 
-        assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
+        assert_that(sut.stage_qc_notes(uuid.UUID(stage_id)), equal_to(expected_qc_notes))
 
-    def test_stage_qc_has_correct_stage_id_if_stage_id_and_qc_notes_in_user_data(self):
-        stage_id_dto = 'c93dcd1a-b156-46b6-b7fd-3d0c8205675c'
-        key = nqc.make_qc_notes_key(stage_id_dto)
-        value = {'Type': 'System.String', 'Value': 'animus meus aedificio repudiat'}
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={key: value}).create_net_stub()
+    def test_stage_qc_notes_empty_if_qc_notes_not_available_for_stage(self):
+        stage_id = '412e5a99-7040-4972-8b27-3ff0d1ab4d94'
+        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
         sut = uda.NativeProjectUserData(stub_project_user_data)
 
-        assert_that(sut.stage_qc(uuid.UUID(stage_id_dto)).stage_id, equal_to(uuid.UUID(stage_id_dto)))
-
-    def test_stage_qc_raises_error_if_supplied_stage_id_is_none(self):
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={tsn.DONT_CARE_ID_B: {}}).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
-
-        assert_that(calling(sut.stage_qc).with_args(None), raises(deal.PreContractError))
+        assert_that(sut.stage_qc_notes(uuid.UUID(stage_id)), equal_to(''))
 
 
 if __name__ == '__main__':

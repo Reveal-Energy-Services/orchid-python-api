@@ -15,14 +15,14 @@
 # This file is part of Orchid and related technologies.
 #
 
-from typing import Optional
+import json
 import uuid
 
-import deal
+import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    native_stage_qc_adapter as qca,
+    net_stage_qc as nqc,
 )
 
 
@@ -32,23 +32,38 @@ from Orchid.FractureDiagnostics.Settings import IProjectUserData
 
 class NativeProjectUserData(dna.DotNetAdapter):
     """Adapts a .NET `IProjectUserData` instance to Python."""
+
+    # TODO: Add code to `SdkAdapter` to allow handling `GetValue` and .NET `StageCorrectionStatus`
+    # Python.NET has a [known issue](https://github.com/pythonnet/pythonnet/issues/1220) with its
+    # handling of .NET Enum types. The Python.NET team has repaired this issue; however, the repair
+    # is targeted for Python.NET 3. The team has specifically stated that they will *not* backport
+    # this fix to the 2.5 version. Because .NET `StageCorrectionStatus` is a .NET `Enum` type, we
+    # *cannot* construct a .NET `Variant` of type .NET `StageCorrectionStatus`.
+    #
+    # Our work-around for this issue is to implement this class in terms of the the JSON available
+    # from the `IProjectUserData.ToJson`. This choice further requires hard-coding the logic used
+    # by `StartStopTimeEditorViewModel` default `Variant` logic for QC notes and for start stop
+    # confirmation.
+
     def __init__(self, adaptee: IProjectUserData):
         super().__init__(adaptee)
 
-    def stage_qc(self, stage_id: uuid.UUID) -> Optional[qca.NativeStageQCAdapter]:
+    def stage_qc_notes(self, stage_id: uuid.UUID) -> str:
         """
-        Creates a `NativeStageQCAdapter` for the specified stage
+        Calculate the QC notes for the specified stage.
 
         Args:
-            stage_id: The object ID of the stage of interest
+            stage_id: The object ID of the stage of interest.
 
         Returns:
-            The newly created `NativeStageQCAdapter` for the specified stage
+            The requested QC notes.
         """
-        try:
-            return qca.NativeStageQCAdapter(stage_id, self.dom_object)
-        except deal.PreContractError as pce:
-            if pce.message == '`stage_id` must be in project user data':
-                return None
-            else:
-                raise
+        project_user_data_json = json.loads(self.dom_object.ToJson())
+        notes_key = nqc.make_qc_notes_key(stage_id)
+        # TODO: Replace hard-coded "copy" of logic
+        # Hard-coded logic for QC notes default value from `StartStopTimeEditorViewModel`:
+        # return an empty string if either of stage ID or of QC notes is not available.
+        result = ''
+        if notes_key in project_user_data_json:
+            result = toolz.get_in([notes_key, 'Value'], project_user_data_json)
+        return result
