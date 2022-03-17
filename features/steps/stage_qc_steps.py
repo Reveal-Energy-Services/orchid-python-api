@@ -45,7 +45,7 @@ def step_impl(context):
         stage_qc = project_user_data.stage_qc(stage_object_id)
 
         to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
-        stage_qc[stage_object_id].stage_start_stop_confirmation = to_corrected_status
+        stage_qc.stage_start_stop_confirmation = to_corrected_status
 
 
 @then("I see the changed stage correction status")
