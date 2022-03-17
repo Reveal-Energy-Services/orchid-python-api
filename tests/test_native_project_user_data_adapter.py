@@ -18,6 +18,7 @@
 
 import re
 import unittest
+import unittest.mock
 import uuid
 
 from hamcrest import assert_that, equal_to, calling, raises
@@ -98,6 +99,40 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
         assert_that(calling(sut.stage_start_stop_confirmation).with_args(uuid.UUID(stage_id)),
                     raises(ValueError))
+
+    def test_set_stage_qc_notes_if_already_set_invokes_correct_calls(self):
+        stage_id = '35e4a85b-7b4e-44f6-9484-7286d575d22a'
+        existing_qc_notes = 'animus meus aedificio repudiat'
+        sut = create_sut(stage_id, qc_notes=existing_qc_notes)
+        stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
+        sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
+
+        sut.set_stage_qc_notes(stage_id, 'vertet paci')
+
+        # Expect single call with no arguments
+        sut.dom_object.ToMutable.assert_called_once_with()
+
+        # Expect single call with specified arguments
+        stub_net_mutable_project_user_data.SetValue.assert_called_once()
+        actual_key, actual_variant = stub_net_mutable_project_user_data.SetValue.call_args_list[0].args
+        assert_that(actual_key, equal_to(nqc.make_qc_notes_key(stage_id)))
+
+    def test_set_stage_qc_notes_if_not_set_invokes_correct_calls(self):
+        stage_id = '299536d2-736c-4052-8c53-b76615552c09'
+        sut = create_sut(stage_id)
+        stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
+        sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
+
+        sut.set_stage_qc_notes(stage_id, 'lucatori dissimulant')
+
+        # Expect single call with no arguments
+        sut.dom_object.ToMutable.assert_called_once_with()
+
+        # Expect single call with specified arguments
+        stub_net_mutable_project_user_data.SetValue.assert_called_once()
+        actual_key, actual_variant = stub_net_mutable_project_user_data.SetValue.call_args_list[0].args
+        assert_that(actual_key, equal_to(nqc.make_qc_notes_key(stage_id)))
+        assert_that(actual_variant.GetValue[str](), equal_to('lucatori dissimulant'))
 
 
 def create_sut(stage_id_text: str, qc_notes=None, start_stop_confirmation=None, to_json=None):

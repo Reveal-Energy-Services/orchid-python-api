@@ -23,12 +23,13 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
+    dot_net_disposable as dnd,
     net_stage_qc as nqc,
 )
 
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Settings import IProjectUserData
+from Orchid.FractureDiagnostics.Settings import IProjectUserData, Variant
 
 
 class NativeProjectUserData(dna.DotNetAdapter):
@@ -63,7 +64,7 @@ class NativeProjectUserData(dna.DotNetAdapter):
         transform_func = toolz.identity
         default_result = ''
 
-        return self.extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
+        return self._extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
 
     def stage_start_stop_confirmation(self, stage_id: uuid.UUID) -> nqc.StageCorrectionStatus:
         """
@@ -79,13 +80,13 @@ class NativeProjectUserData(dna.DotNetAdapter):
         transform_func = nqc.StageCorrectionStatus
         default_result = nqc.StageCorrectionStatus.NEW
 
-        return self.extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
+        return self._extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
 
-    def extract_value_for_stage_id(self,
-                                   stage_id: uuid.UUID,
-                                   key_func: Callable[[uuid.UUID], str],
-                                   default_result: Union[str, nqc.StageCorrectionStatus],
-                                   transform_func: Callable[[str], Union[str, nqc.StageCorrectionStatus]]):
+    def _extract_value_for_stage_id(self,
+                                    stage_id: uuid.UUID,
+                                    key_func: Callable[[uuid.UUID], str],
+                                    default_result: Union[str, nqc.StageCorrectionStatus],
+                                    transform_func: Callable[[str], Union[str, nqc.StageCorrectionStatus]]):
         project_user_data_json = json.loads(self.dom_object.ToJson())
         confirmation_key = key_func(stage_id)
         # TODO: Replace hard-coded "copy" of logic
@@ -100,3 +101,7 @@ class NativeProjectUserData(dna.DotNetAdapter):
             text_status = toolz.get_in([confirmation_key, 'Value'], project_user_data_json)
             result = transform_func(text_status)
         return result
+
+    def set_stage_qc_notes(self, stage_id, to_notes):
+        with dnd.disposable(self.dom_object.ToMutable()) as mutable_pud:
+            mutable_pud.SetValue(nqc.make_qc_notes_key(stage_id), Variant.Create.Overloads[str](to_notes))
