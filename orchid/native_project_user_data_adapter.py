@@ -16,6 +16,7 @@
 #
 
 import json
+from typing import Callable, Union
 import uuid
 
 import toolz.curried as toolz
@@ -58,18 +59,11 @@ class NativeProjectUserData(dna.DotNetAdapter):
         Returns:
             The requested QC notes.
         """
-        project_user_data_json = json.loads(self.dom_object.ToJson())
-        notes_key = nqc.make_qc_notes_key(stage_id)
-        # TODO: Replace hard-coded "copy" of logic
-        # Hard-coded logic for QC notes default value from `StartStopTimeEditorViewModel`:
-        # return an empty string if either of stage ID or of QC notes is unavailable.
-        result = ''
-        if notes_key in project_user_data_json:
-            actual_value_type = toolz.get_in([notes_key, 'Type'], project_user_data_json)
-            assert actual_value_type == 'System.String', (f'Expected, "System.String",'
-                                                          f' but found "{actual_value_type}".')
-            result = toolz.get_in([notes_key, 'Value'], project_user_data_json)
-        return result
+        key_func = nqc.make_qc_notes_key
+        transform_func = toolz.identity
+        default_result = ''
+
+        return self.extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
 
     def stage_start_stop_confirmation(self, stage_id: uuid.UUID) -> nqc.StageCorrectionStatus:
         """
@@ -81,17 +75,28 @@ class NativeProjectUserData(dna.DotNetAdapter):
         Returns:
             The requested start stop confirmation.
         """
+        key_func = nqc.make_start_stop_confirmation_key
+        transform_func = nqc.StageCorrectionStatus
+        default_result = nqc.StageCorrectionStatus.NEW
+
+        return self.extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
+
+    def extract_value_for_stage_id(self,
+                                   stage_id: uuid.UUID,
+                                   key_func: Callable[[uuid.UUID], str],
+                                   default_result: Union[str, nqc.StageCorrectionStatus],
+                                   transform_func: Callable[[str], Union[str, nqc.StageCorrectionStatus]]):
         project_user_data_json = json.loads(self.dom_object.ToJson())
-        confirmation_key = nqc.make_start_stop_confirmation_key(stage_id)
+        confirmation_key = key_func(stage_id)
         # TODO: Replace hard-coded "copy" of logic
         # Hard-coded logic for QC notes default value from `StartStopTimeEditorViewModel`:
         # return .NET `StageCorrectionStatus.New` if either of stage ID or of start stop
         # confirmation is unavailable.
-        result = nqc.StageCorrectionStatus.NEW
+        result = default_result
         if confirmation_key in project_user_data_json:
             actual_value_type = toolz.get_in([confirmation_key, 'Type'], project_user_data_json)
             assert actual_value_type == 'System.String', (f'Expected, "System.String",'
                                                           f' but found "{actual_value_type}".')
             text_status = toolz.get_in([confirmation_key, 'Value'], project_user_data_json)
-            result = nqc.StageCorrectionStatus(text_status)
+            result = transform_func(text_status)
         return result
