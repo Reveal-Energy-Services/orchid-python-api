@@ -21,6 +21,8 @@ import unittest
 import uuid
 
 from hamcrest import assert_that, equal_to, calling, raises
+import option
+import toolz.curried as toolz
 
 from orchid import (
     native_project_user_data_adapter as uda,
@@ -40,27 +42,20 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_stage_qc_notes_if_qc_notes_available_for_stage(self):
         stage_id = 'b64521bf-56a2-4e9c-abca-d466670c75a1'
         expected_qc_notes = 'lucrum nugatorium provenivit'
-        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc={
-            uuid.UUID(stage_id): {'stage_qc_notes': expected_qc_notes},
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        sut = create_sut(stage_id, qc_notes=expected_qc_notes)
 
         assert_that(sut.stage_qc_notes(uuid.UUID(stage_id)), equal_to(expected_qc_notes))
 
     def test_stage_qc_notes_empty_if_qc_notes_not_available_for_stage(self):
         stage_id = '412e5a99-7040-4972-8b27-3ff0d1ab4d94'
-        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        sut = create_sut(stage_id)
 
         assert_that(sut.stage_qc_notes(uuid.UUID(stage_id)), equal_to(''))
 
     def test_stage_qc_notes_raises_error_if_value_has_unexpected_net_type(self):
         stage_id = tsn.DONT_CARE_ID_A
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
-            nqc.make_qc_notes_key(stage_id): {'Type': 'System.Int32',
-                                              'Value': -84},
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        sut = create_sut(stage_id, to_json={nqc.make_qc_notes_key(stage_id): {'Type': 'System.Int32',
+                                                                              'Value': -84}})
 
         assert_that(calling(sut.stage_qc_notes).with_args(uuid.UUID(stage_id)),
                     raises(AssertionError,
@@ -69,30 +64,25 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
     def test_stage_start_stop_confirmation_if_start_stop_confirmation_available_for_stage(self):
         stage_id = '15fd59d7-da16-40bd-809b-56f9680a0773'
         expected_start_stop_confirmation = nqc.StageCorrectionStatus.UNCONFIRMED
-        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc={
-            uuid.UUID(stage_id): {'stage_start_stop_confirmation': expected_start_stop_confirmation},
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        sut = create_sut(stage_id, start_stop_confirmation=expected_start_stop_confirmation)
 
         assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
                     equal_to(expected_start_stop_confirmation))
 
     def test_stage_start_stop_confirmation_empty_if_start_stop_confirmation_not_available_for_stage(self):
         stage_id = 'f4511635-b0c1-488e-b978-e55a82c40109'
-        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        sut = create_sut(stage_id)
 
         assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
                     equal_to(nqc.StageCorrectionStatus.NEW))
 
     def test_stage_start_stop_confirmation_raises_error_if_value_has_unexpected_net_type(self):
         stage_id = tsn.DONT_CARE_ID_B
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+        sut = create_sut(stage_id, to_json={
             nqc.make_start_stop_confirmation_key(stage_id): {
                 'Type': 'System.Double',
                 'Value': 129.847},
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        })
 
         assert_that(calling(sut.stage_start_stop_confirmation).with_args(uuid.UUID(stage_id)),
                     raises(AssertionError,
@@ -100,15 +90,38 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
     def test_stage_start_stop_confirmation_raises_error_if_value_not_stage_correction_status(self):
         stage_id = tsn.DONT_CARE_ID_C
-        stub_project_user_data = tsn.ProjectUserDataDto(to_json={
+        sut = create_sut(stage_id, to_json={
             nqc.make_start_stop_confirmation_key(stage_id): {
                 'Type': 'System.String',
                 'Value': 'Newt'},
-        }).create_net_stub()
-        sut = uda.NativeProjectUserData(stub_project_user_data)
+        })
 
         assert_that(calling(sut.stage_start_stop_confirmation).with_args(uuid.UUID(stage_id)),
                     raises(ValueError))
+
+
+def create_sut(stage_id_text: str, qc_notes=None, start_stop_confirmation=None, to_json=None):
+    stage_id = uuid.UUID(stage_id_text)
+    maybe_qc_notes = option.maybe(qc_notes)
+    maybe_confirmation = option.maybe(start_stop_confirmation)
+    maybe_to_json = option.maybe(to_json)
+
+    notes_stage_qc = maybe_qc_notes.map_or(lambda notes: {stage_id: {'stage_qc_notes': notes}}, {})
+    confirmation_stage_qc = maybe_confirmation.map_or(
+        lambda confirmation: {stage_id: {'stage_start_stop_confirmation': confirmation}}, {})
+    stages_qc = toolz.merge_with(toolz.merge, [notes_stage_qc, confirmation_stage_qc])
+
+    stub_project_user_data = tsn.ProjectUserDataDto()
+    to_json = maybe_to_json.map_or(lambda json: json, {})
+    if stages_qc and to_json:
+        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc=stages_qc, to_json=to_json)
+    elif stages_qc and not to_json:
+        stub_project_user_data = tsn.ProjectUserDataDto(stages_qc=stages_qc)
+    elif not stages_qc and to_json:
+        stub_project_user_data = tsn.ProjectUserDataDto(to_json=to_json)
+
+    result = uda.NativeProjectUserData(stub_project_user_data.create_net_stub())
+    return result
 
 
 if __name__ == '__main__':
