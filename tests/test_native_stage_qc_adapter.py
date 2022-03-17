@@ -46,13 +46,13 @@ class TestNativeStageQCAdapter(unittest.TestCase):
 
     def test_stage_id_returns_id_set_at_construction_if_id_not_in_project_user_data(self):
         expected_stage_id = '412e5a99-7040-4972-8b27-3ff0d1ab4d94'
-        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
+        stub_project_user_data = tsn.ProjectUserDataDtoObs().create_net_stub()
         sut = qca.NativeStageQCAdapter(uuid.UUID(expected_stage_id), stub_project_user_data)
 
         assert_that(sut.stage_id, equal_to(uuid.UUID(expected_stage_id)))
 
     def test_ctor_raises_exception_if_no_stage_id(self):
-        stub_project_user_data = tsn.ProjectUserDataDto().create_net_stub()
+        stub_project_user_data = tsn.ProjectUserDataDtoObs().create_net_stub()
 
         assert_that(calling(qca.NativeStageQCAdapter).with_args(None, stub_project_user_data),
                     raises(deal.PreContractError, pattern='stage_id.*required'))
@@ -162,7 +162,7 @@ def create_sut(stage_id: str, key_func: Callable[[uuid.UUID], str], value: Dict)
         The system under test.
     """
     project_user_data_json = {key_func(uuid.UUID(stage_id)): value}
-    stub_project_user_data = tsn.ProjectUserDataDto(to_json=project_user_data_json).create_net_stub()
+    stub_project_user_data = tsn.ProjectUserDataDtoObs(to_json=project_user_data_json).create_net_stub()
     sut = qca.NativeStageQCAdapter(uuid.UUID(stage_id), stub_project_user_data)
     return sut
 

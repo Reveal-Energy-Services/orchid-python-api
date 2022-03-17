@@ -122,7 +122,12 @@ class StageQCValueDto:
 
 
 @dc.dataclass
-class ProjectUserDataDto:
+class ProjectUserDataDtoObs:
+    stage_qcs: Dict = dc.field(default_factory=dict)
+
+
+@dc.dataclass
+class ProjectUserDataDtoObs:
     to_json: Dict = None
 
     def create_net_stub(self):
