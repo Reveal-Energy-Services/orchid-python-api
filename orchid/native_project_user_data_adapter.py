@@ -102,6 +102,25 @@ class NativeProjectUserData(dna.DotNetAdapter):
             result = transform_func(text_status)
         return result
 
-    def set_stage_qc_notes(self, stage_id, to_notes):
+    def set_stage_qc_notes(self, stage_id: uuid.UUID, to_notes: str) -> None:
+        """
+        Set the stage QC notes `to_notes` for the specified stage.
+        Args:
+            stage_id: The object ID that identifies the stage of interest.
+            to_notes: The value to which to set the stage QC notes.
+        """
         with dnd.disposable(self.dom_object.ToMutable()) as mutable_pud:
-            mutable_pud.SetValue(nqc.make_qc_notes_key(stage_id), Variant.Create.Overloads[str](to_notes))
+            mutable_pud.SetValue(nqc.make_qc_notes_key(stage_id),
+                                 Variant.Create.Overloads[str](to_notes))
+
+    def set_stage_start_stop_confirmation(self, stage_id: uuid.UUID,
+                                          to_confirmation: nqc.StageCorrectionStatus) -> None:
+        """
+        Set the stage start stop confirmation `to_confirmation` for the specified stage.
+        Args:
+            stage_id: The object ID that identifies the stage of interest.
+            to_confirmation: The value to which to set the stage start stop confirmation.
+        """
+        with dnd.disposable(self.dom_object.ToMutable()) as mutable_pud:
+            mutable_pud.SetValue(nqc.make_start_stop_confirmation_key(stage_id),
+                                 Variant.Create.Overloads[str](to_confirmation.value))

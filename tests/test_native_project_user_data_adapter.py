@@ -107,7 +107,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
         sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
 
-        sut.set_stage_qc_notes(stage_id, 'vertet paci')
+        sut.set_stage_qc_notes(uuid.UUID(stage_id), 'vertet paci')
 
         # Expect single call with no arguments
         sut.dom_object.ToMutable.assert_called_once_with()
@@ -123,7 +123,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
         sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
 
-        sut.set_stage_qc_notes(stage_id, 'lucatori dissimulant')
+        sut.set_stage_qc_notes(uuid.UUID(stage_id), 'lucatori dissimulant')
 
         # Expect single call with no arguments
         sut.dom_object.ToMutable.assert_called_once_with()
@@ -133,6 +133,41 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         actual_key, actual_variant = stub_net_mutable_project_user_data.SetValue.call_args_list[0].args
         assert_that(actual_key, equal_to(nqc.make_qc_notes_key(stage_id)))
         assert_that(actual_variant.GetValue[str](), equal_to('lucatori dissimulant'))
+
+    def test_set_stage_start_stop_confirmation_if_already_set_invokes_correct_calls(self):
+        stage_id = '2bb41603-a246-421a-8d77-c79ebfac8cb7'
+        ante_start_stop_confirmation = nqc.StageCorrectionStatus.UNCONFIRMED
+        sut = create_sut(stage_id, start_stop_confirmation=ante_start_stop_confirmation)
+        stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
+        sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
+
+        sut.set_stage_start_stop_confirmation(uuid.UUID(stage_id), nqc.StageCorrectionStatus.CONFIRMED)
+
+        # Expect single call with no arguments
+        sut.dom_object.ToMutable.assert_called_once_with()
+
+        # Expect single call with specified arguments
+        stub_net_mutable_project_user_data.SetValue.assert_called_once()
+        actual_key, actual_variant = stub_net_mutable_project_user_data.SetValue.call_args_list[0].args
+        assert_that(actual_key, equal_to(nqc.make_start_stop_confirmation_key(stage_id)))
+        assert_that(actual_variant.GetValue[str](), equal_to(nqc.StageCorrectionStatus.CONFIRMED.value))
+
+    def test_set_stage_start_stop_confirmation_if_not_set_invokes_correct_calls(self):
+        stage_id = '29ee6679-6499-496c-9027-c018013640d6'
+        sut = create_sut(stage_id)
+        stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
+        sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
+
+        sut.set_stage_start_stop_confirmation(uuid.UUID(stage_id), nqc.StageCorrectionStatus.CONFIRMED)
+
+        # Expect single call with no arguments
+        sut.dom_object.ToMutable.assert_called_once_with()
+
+        # Expect single call with specified arguments
+        stub_net_mutable_project_user_data.SetValue.assert_called_once()
+        actual_key, actual_variant = stub_net_mutable_project_user_data.SetValue.call_args_list[0].args
+        assert_that(actual_key, equal_to(nqc.make_start_stop_confirmation_key(stage_id)))
+        assert_that(actual_variant.GetValue[str](), equal_to(nqc.StageCorrectionStatus.CONFIRMED.value))
 
 
 def create_sut(stage_id_text: str, qc_notes=None, start_stop_confirmation=None, to_json=None):
