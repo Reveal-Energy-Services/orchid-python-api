@@ -28,14 +28,17 @@ from orchid import (
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_time_series_adapter as tsa,
+    native_project_user_data_adapter as uda,
     native_well_adapter as nwa,
     net_quantity as onq,
     unit_system as units,
 )
 from orchid.project_store import ProjectStore
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import IWell, UnitSystem
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Settings import IProjectUserData
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -48,7 +51,7 @@ ProjectBounds = namedtuple('ProjectBounds', [
 SurfacePoint = namedtuple('SurfacePoint', ['x', 'y'])
 
 
-class Project(dna.DotNetAdapter):
+class Project(dna.IdentifiedDotNetAdapter):
     """Adapts a .NET `IProject` to a Pythonic interface."""
 
     @deal.pre(lambda self, project_loader: project_loader is not None)
@@ -68,7 +71,7 @@ class Project(dna.DotNetAdapter):
     project_units = dna.transformed_dom_property('project_units', 'The project unit system.', units.as_unit_system)
 
     # _data_frames = dna.map_reduce_dom_property('data_frames', 'The project data frames.',
-    #                                            dfa.NativeDataFrameAdapter, dna.dictionary_by_id, {})
+    #                                            dfa.NativeDataFrameAdapterIdentified, dna.dictionary_by_id, {})
 
     @property
     def fluid_density(self):
@@ -82,7 +85,7 @@ class Project(dna.DotNetAdapter):
         Returns:
             An `spo.SearchableProjectObjects` for all the data frames of this project.
         """
-        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapter, self.dom_object.DataFrames.Items)
+        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapterIdentified, self.dom_object.DataFrames.Items)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -145,6 +148,10 @@ class Project(dna.DotNetAdapter):
             An `spo.SearchableProjectObjects` for all the time series of this project.
         """
         return spo.SearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
+
+    @property
+    def user_data(self) -> uda.NativeProjectUserData:
+        return uda.NativeProjectUserData(self.dom_object.ProjectUserData)
 
     def wells(self) -> spo.SearchableProjectObjects:
         """

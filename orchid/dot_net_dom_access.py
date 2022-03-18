@@ -149,17 +149,14 @@ def as_object_id(guid: Guid):
 
 class DotNetAdapter:
     @deal.pre(lambda _self, adaptee, _net_project_callable=None: adaptee is not None)
-    def __init__(self, adaptee, net_project_callable: Callable = None):
+    def __init__(self, adaptee):
         """
-        Construct an instance adapting `adaptee` with access to the .NET `IProject` provided by `net_project_callable`.
+        Construct an instance adapting the .NET `adaptee`.
+
         Args:
             adaptee: The .NET DOM object to adapt.
-            net_project_callable: A callable returning the .NET `IProject` instance.
         """
         self._adaptee = adaptee
-        self._net_project_callable = net_project_callable
-
-    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
     @property
     def dom_object(self):
@@ -174,13 +171,27 @@ class DotNetAdapter:
         """
         return self._adaptee
 
+
+class IdentifiedDotNetAdapter(DotNetAdapter):
+    def __init__(self, adaptee, net_project_callable: Callable = None):
+        """
+        Construct an instance adapting `adaptee` with access to the .NET `IProject` provided by `net_project_callable`.
+        Args:
+            adaptee: The .NET DOM object to adapt.
+            net_project_callable: A callable returning the .NET `IProject` instance.
+        """
+        super().__init__(adaptee)
+        self._net_project_callable = net_project_callable
+
+    object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
+
     @property
     def expect_project_units(self) -> Union[units.UsOilfield, units.Metric]:
         """
         (PROTECTED) Return the `UnitSystem` appropriate the .NET `IProject` of this instance.
 
         Although by naming convention, this property is "public," the author intends it to be "protected";
-        that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
+        that is, only called by classes derived from `IdentifiedDotNetAdapter` (and not necessarily all of those).
 
         Returns:
             A unit system - either `units.UsOilfield` or `units.Metric`.
@@ -197,7 +208,7 @@ class DotNetAdapter:
         Return the `option.Option[UnitSystem]` appropriate the .NET `IProject` of this instance.
 
         Although by naming convention, this property is "public," the author intends it to be "protected";
-        that is, only called by classes derived from `DotNetAdapter` (and not necessarily all of those).
+        that is, only called by classes derived from `IdentifiedDotNetAdapter` (and not necessarily all of those).
 
         Returns:
             An `option.Option()` instance.
@@ -216,13 +227,13 @@ class DotNetAdapter:
                 else option.NONE)
 
 
-def dictionary_by_id(accumulator: Mapping[uuid.UUID, DotNetAdapter], mapped_object: DotNetAdapter):
+def dictionary_by_id(accumulator: Mapping[uuid.UUID, IdentifiedDotNetAdapter], mapped_object: IdentifiedDotNetAdapter):
     """
     Return a `Mapping` resulting from adding `mapped_object` to `accumulator`.
 
     Args:
         accumulator: The accumulated result.
-        mapped_object: The `DotNetAdapter` to be added to `accumulator`.
+        mapped_object: The `IdentifiedDotNetAdapter` to be added to `accumulator`.
 
     Returns:
         The updated `Mapping`.

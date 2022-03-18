@@ -71,7 +71,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
         sample_values = (16.12, -90.80, -27.59,)
         assert_equal_data_points(name, object_id, sample_values, start_time)
 
-    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
+    @unittest.mock.patch('orchid.dot_net_dom_access.IdentifiedDotNetAdapter.expect_project_units',
                          name='stub_expect_project_units',
                          new_callable=unittest.mock.PropertyMock)
     def test_sampled_quantity_units_returns_correct_units_for_pressure(self, stub_expect_project_units):
@@ -98,7 +98,7 @@ class TestBaseCurveAdapter(unittest.TestCase):
 
                     assert_that(actual, equal_to(unit_system[expected_quantity]))
 
-    @unittest.mock.patch('orchid.dot_net_dom_access.DotNetAdapter.expect_project_units',
+    @unittest.mock.patch('orchid.dot_net_dom_access.IdentifiedDotNetAdapter.expect_project_units',
                          name='stub_expect_project_units',
                          new_callable=unittest.mock.PropertyMock)
     def test_sampled_quantity_unit_calls_quantity_name_unit_map_with_correct_project_units(self,

@@ -24,10 +24,11 @@ properties required during testing but do not actually implement the .NET class 
 from collections import namedtuple
 import dataclasses as dc
 import itertools
+import json
 import math
 import unittest.mock
 import uuid
-from typing import Callable, Iterable, Sequence, Union
+from typing import Callable, Dict, Iterable, Optional, Sequence, Union
 
 import pendulum as pdt
 import toolz.curried as toolz
@@ -36,6 +37,7 @@ from orchid import (
     measurement as om,
     net_date_time as ndt,
     net_quantity as onq,
+    net_stage_qc as nqc,
     unit_system as units,
 )
 
@@ -45,28 +47,27 @@ from tests import (
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import (IMonitor,
-                                        IProject,
-                                        IProjectObject,
-                                        IPlottingSettings,
-                                        IStage,
-                                        IStagePart,
-                                        IMutableStagePart,
-                                        ISubsurfacePoint,
-                                        IWell,
-                                        IWellTrajectory,
-                                        UnitSystem)
+from Orchid.FractureDiagnostics import (
+    IMonitor,
+    IProject, IProjectObject, IPlottingSettings,
+    IStage, IStagePart, IMutableStagePart,
+    ISubsurfacePoint,
+    IWell, IWellTrajectory,
+    UnitSystem,
+)
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.DataFrames import IStaticDataFrame
-# noinspection PyUnresolvedReferences,PyPackageRequirementsk
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Settings import IProjectUserData, Variant
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.TimeSeries import IStageSampledQuantityTimeSeries, IWellSampledQuantityTimeSeries
 # noinspection PyUnresolvedReferences
 import UnitsNet
-# noinspection PyUnresolvedReferences
-from System import Array, DateTime, Guid, Type
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import Int32, Array, DateTime, Guid
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Data import DataColumn, DataTable
 
 
@@ -112,6 +113,71 @@ class StubNetSample:
 
     def __repr__(self):
         return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
+
+
+def _to_json(stages_qc_dto):
+    """
+    Convert DTO of QC results for one or more stages to JSON string duplicating `IProjectUserData.ToJson`.
+
+    Args:
+        stages_qc_dto: The DTO of QC results for stages.
+
+    Returns:
+        The JSON duplicating the result of `IProjectUserData.ToJson`
+    """
+    result = {}
+    for stage_id in stages_qc_dto.keys():
+        for qc_key in stages_qc_dto[stage_id].keys():
+            if qc_key == 'stage_qc_notes':
+                result[nqc.make_qc_notes_key(stage_id)] = {
+                    'Type': 'System.String',
+                    'Value': stages_qc_dto[stage_id][qc_key]
+                }
+            elif qc_key == 'stage_start_stop_confirmation':
+                result[nqc.make_start_stop_confirmation_key(stage_id)] = {
+                    'Type': 'System.String',
+                    # Converts from nqc.StageCorrectionStatus to the enum value (a string)
+                    'Value': stages_qc_dto[stage_id][qc_key].value
+                }
+
+    return result
+
+
+@dc.dataclass
+class ProjectUserDataDto:
+    stages_qc: Dict = dc.field(default_factory=dict)
+    # The `to_json` parameter can be used to "override" the value calculated from stages_qc.
+    to_json: Dict[uuid.UUID, Dict[str, str]] = None
+
+    def create_net_stub(self):
+        result = create_stub_domain_object(stub_name='stub_net_user_data',
+                                           stub_spec=IProjectUserData)
+
+        to_json_text = json.dumps(_to_json(self.stages_qc)) if self.stages_qc else json.dumps({})
+        if self.to_json is not None:
+            to_json_text = json.dumps(self.to_json)
+        result.ToJson = unittest.mock.MagicMock(name='stub_mock_to_json',
+                                                return_value=to_json_text)
+
+        return result
+
+
+@dc.dataclass
+class MutableProjectUserDat(ProjectUserDataDto):
+    def create_net_stub(self):
+        # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
+        # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
+        # `hasattr` will be "fooled" because `MagicMock` will report that this instance has both dunder
+        # methods `__enter__` and `__exit__`. I actually want the context manager returned by
+        # `dnd.disposable()` to return *this* mock instance, so I make it an instance of `Mock` which
+        # will not, be default, implement the `__enter__` and `__exit__` dunder methods.
+        result = unittest.mock.Mock(name='stub_mutable_net_stage_part')
+
+        # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
+        # block as it exits the context.
+        result.Dispose = unittest.mock.Mock(name='Dispose')
+
+        return result
 
 
 @dc.dataclass
