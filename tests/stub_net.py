@@ -35,7 +35,6 @@ import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
-    native_variant_adapter as nva,
     net_date_time as ndt,
     net_quantity as onq,
     net_stage_qc as nqc,
@@ -116,12 +115,6 @@ class StubNetSample:
         return f'StubNetSample(Timestamp={self.Timestamp.ToString("o")}, Value={self.Value})'
 
 
-@dc.dataclass
-class StageQCValueDto:
-    available: Optional[object]
-    default: Optional[object]
-
-
 def _to_json(stages_qc_dto):
     """
     Convert DTO of QC results for one or more stages to JSON string duplicating `IProjectUserData.ToJson`.
@@ -183,22 +176,6 @@ class MutableProjectUserDat(ProjectUserDataDto):
         # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
         # block as it exits the context.
         result.Dispose = unittest.mock.Mock(name='Dispose')
-
-        return result
-
-
-@dc.dataclass
-class ProjectUserDataDtoObs:
-    to_json: Dict = None
-
-    def create_net_stub(self):
-        result = create_stub_domain_object(stub_name='stub_net_user_data',
-                                           stub_spec=IProjectUserData)
-
-        result.Contains.return_value = False
-        if self.to_json is not None:
-            result.Contains.side_effect = lambda k: k in self.to_json
-            result.ToJson = unittest.mock.MagicMock('stub_to_json', return_value=json.dumps(self.to_json))
 
         return result
 
@@ -372,22 +349,6 @@ class MutableStageDto(StagePartDto):
         # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
         # block as it exits the context.
         result.Dispose = unittest.mock.Mock(name='Dispose')
-
-        return result
-
-
-@dc.dataclass
-class VariantDto:
-    value: object  # The value of the variant
-    variant_type: nva.PythonVariantTypes  # Identifies the type of the variant value
-
-    def create_net_stub(self):
-        result = create_stub_domain_object(stub_name='stub_net_variant',
-                                           stub_spec=Variant)
-
-        result.Type = unittest.mock.MagicMock(name='mock_get_type', return_value=self.variant_type)
-        result.GetValue = {self.variant_type: unittest.mock.MagicMock(name=f'mock_get_type[{self.variant_type}]',
-                                                                      return_value=self.value)}
 
         return result
 
