@@ -109,18 +109,29 @@ class NativeProjectUserData(dna.DotNetAdapter):
             stage_id: The object ID that identifies the stage of interest.
             to_notes: The value to which to set the stage QC notes.
         """
-        with dnd.disposable(self.dom_object.ToMutable()) as mutable_pud:
-            mutable_pud.SetValue(nqc.make_qc_notes_key(stage_id),
-                                 Variant.Create.Overloads[str](to_notes))
+        self._set_value(stage_id, nqc.make_qc_notes_key, to_notes, toolz.identity)
 
     def set_stage_start_stop_confirmation(self, stage_id: uuid.UUID,
                                           to_confirmation: nqc.StageCorrectionStatus) -> None:
         """
         Set the stage start stop confirmation `to_confirmation` for the specified stage.
+
         Args:
             stage_id: The object ID that identifies the stage of interest.
             to_confirmation: The value to which to set the stage start stop confirmation.
         """
+        self._set_value(stage_id, nqc.make_start_stop_confirmation_key, to_confirmation, lambda v: v.value)
+
+    def _set_value(self, stage_id, key_func, to_value, value_func):
+        """
+        Invoke `SetValue` on the mutable DOM object.
+
+        Args:
+            stage_id: The object ID identifying the stage whose value is to be set.
+            key_func: A callable that generates the key identifying the value.
+            to_value: The value to set.
+            value_func: A function transforming the value to the appropriate .NET value.
+        """
         with dnd.disposable(self.dom_object.ToMutable()) as mutable_pud:
-            mutable_pud.SetValue(nqc.make_start_stop_confirmation_key(stage_id),
-                                 Variant.Create.Overloads[str](to_confirmation.value))
+            mutable_pud.SetValue(key_func(stage_id),
+                                 Variant.Create.Overloads[str](value_func(to_value)))
