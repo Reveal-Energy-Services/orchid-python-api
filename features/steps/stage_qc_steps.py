@@ -46,6 +46,9 @@ def step_impl(context):
         to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
         project_user_data.set_stage_start_stop_confirmation(stage_object_id, to_corrected_status)
 
+        to_qc_notes = row['to_qc_notes']
+        project_user_data.set_stage_qc_notes(stage_object_id, to_qc_notes)
+
 
 @then("I see the changed stage correction status")
 def step_impl(context):
@@ -62,3 +65,6 @@ def step_impl(context):
 
         to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
         assert_that(project_user_data.stage_start_stop_confirmation(stage_object_id), equal_to(to_corrected_status))
+
+        to_qc_notes = row['to_qc_notes']
+        assert_that(project_user_data.stage_qc_notes(stage_object_id), equal_to(to_qc_notes))
