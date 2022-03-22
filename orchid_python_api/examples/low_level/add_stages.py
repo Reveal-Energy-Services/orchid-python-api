@@ -117,7 +117,7 @@ CreatedStageDetails = namedtuple('CreatedStageDetails', ['name', 'shmin', 'clust
                                                          'global_stage_sequence_no', 'start_time', 'stop_time'])
 
 
-def append_stages(project):
+def add_stages(project):
     # Find well to which to add stages
     candidate_well_name = 'Demo_4H'
     candidate_wells = list(project.wells().find_by_display_name(candidate_well_name))
@@ -185,7 +185,7 @@ def main(cli_args):
     # Read Orchid project
     project = orchid.load_project(cli_args.input_project)
 
-    append_stages(project)
+    add_stages(project)
 
     # Save project changes to specified .ifrac file
     target_path_name = cli_args.output_project
@@ -222,7 +222,7 @@ def make_target_file_name_from_source(source_file_name):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Automatically pick leak off observations.")
+    parser = argparse.ArgumentParser(description='Add stages to well of specified project.')
     parser.add_argument('-v', '--verbosity', type=int, choices=[0, 1, 2], default=0,
                         help='Increase output verbosity. (Default: 0; that is, least output.)')
 
