@@ -356,3 +356,21 @@ def step_impl(context, to_start, to_stop, well, stage_no):
     stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     assert_that(stage_of_interest.start_time, equal_to(pdt.parse(to_start)))
     assert_that(stage_of_interest.stop_time, equal_to(pdt.parse(to_stop)))
+
+
+@when("I add the specified stages to wells")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    raise NotImplementedError(u'STEP: When I add the specified stages to wells')
+
+
+@then("I see the added stages of wells")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    raise NotImplementedError(u'STEP: Then I see the added stages of wells')

@@ -498,3 +498,17 @@ Feature: Low-level DOM API (stage)
       | Montney | Hori_01 | 1        | 0       | 0001-01-01T00:00:00Z | 2018-04-06T21:14:58Z        |
       | Montney | Hori_01 | 2        | 0       | 2018-04-07T05:23:00Z | 9999-12-31T23:59:59.999999Z |
       | Montney | Hori_01 | 8        | 0       | 0001-01-01T00:00:00Z | 9999-12-31T23:59:59.999999Z |
+
+  # I chose to duplicate the test information to avoid multiple opening of the project file
+  Scenario: Add stages to wells
+    Given I have loaded the changeable project for the field, 'bakken'
+    When I add the specified stages to wells
+      | well    | stage_no | connection_type | md_top     | md_bottom  | start                       | stop                        | isip        |
+      | Demo_4H | 35       | Plug and perf   | 20898.2 ft | 20985.8 ft | 2018-06-06T05:34:03.6839387 | 2018-06-06T07:19:35.5601864 | 3420.32 psi |
+      | Demo_4H | 36       | Plug and perf   | 17362.2 ft | 17372.3 ft | 2018-06-15T14:11:40.450044  | 2018-06-15T15:10:11.200044  | 2172.70 psi |
+      | Demo_4H | 37       | Plug and perf   | 10627.2 ft | 10759.7 ft | 2018-06-28T23:35:54.3790545 | 2018-06-29T01:18:05.8397489 | 3192.69 psi |
+    Then I see the added stages of wells
+      | well    | stage_no | connection_type | md_top     | md_bottom  | start                   | stop                    | isip        |
+      | Demo_4H | 35       | Plug and perf   | 20898.2 ft | 20985.8 ft | 2018-06-06T05:34:03.684 | 2018-06-06T07:19:35.560 | 3420.32 psi |
+      | Demo_4H | 36       | Plug and perf   | 17362.2 ft | 17372.3 ft | 2018-06-15T14:11:40.045 | 2018-06-15T15:10:11.020 | 2172.70 psi |
+      | Demo_4H | 37       | Plug and perf   | 10627.2 ft | 10759.7 ft | 2018-06-28T23:35:54.379 | 2018-06-29T01:18:05.840 | 3192.69 psi |
