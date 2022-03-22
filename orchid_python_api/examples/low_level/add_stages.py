@@ -67,7 +67,7 @@ class CreateStageDto:
     maybe_time_range: Optional[pendulum.Period] = None
 
     # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
-    # the project saved with adding stages.
+    # the project saved with the added stages.
     maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
 
     def create_stage(self, well: nwa.NativeWellAdapter):
