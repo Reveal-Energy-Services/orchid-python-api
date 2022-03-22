@@ -110,3 +110,6 @@ class NativeWellAdapter(dpo.DomProjectObject):
             list,
         )
         return result
+
+    def add_stage(self, stage: nsa.NativeStageAdapter):
+        pass

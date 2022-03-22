@@ -21,6 +21,7 @@ from behave import *
 use_step_matcher("parse")
 
 from hamcrest import assert_that, equal_to
+import option
 import pendulum as pdt
 import toolz.curried as toolz
 
@@ -28,7 +29,6 @@ import common_functions as cf
 
 from orchid import (
     native_stage_adapter as nsa,
-    net_date_time as ndt,
     reference_origins as origins,
     unit_system as units,
 )
@@ -358,13 +358,63 @@ def step_impl(context, to_start, to_stop, well, stage_no):
     assert_that(stage_of_interest.stop_time, equal_to(pdt.parse(to_stop)))
 
 
+_STAGE_TYPE_TEXT_TO_STAGE_TYPE = {
+    'Plug and perf': nsa.ConnectionType.PLUG_AND_PERF,
+    'Sliding sleeve': nsa.ConnectionType.SLIDING_SLEEVE,
+    'Single point entry': nsa.ConnectionType.SINGLE_POINT_ENTRY,
+    'Open hole': nsa.ConnectionType.OPEN_HOLE,
+}
+
+
+def calculate_cluster_count(row):
+    return int(row['cluster_count']) if row['cluster_count'] != '' else 0
+
+
+def calculate_isip(row):
+    return cf.parse_measurement(row['isip'])
+
+
+def calculate_md_top(row):
+    return cf.parse_measurement(row['md_top'])
+
+
+def calculate_md_bottom(row):
+    return cf.parse_measurement(row['md_bottom'])
+
+
+def calculate_start_time(row):
+    return pdt.parse(row['start'], exact=True)
+
+
+def calculate_stop_time(row):
+    return pdt.parse(row['stop'], exact=True)
+
+
+def calculate_shmin(row):
+    return cf.parse_measurement(row['shmin']) if row['shmin'] != '' else None
+
+
 @when("I add the specified stages to wells")
 def step_impl(context):
     """
     Args:
         context (behave.runner.Context):
     """
-    raise NotImplementedError(u'STEP: When I add the specified stages to wells')
+    for row in context.table:
+        to_add_stage_dto = nsa.CreateStageDto(stage_no=int(row['stage_no']),
+                                              stage_type=_STAGE_TYPE_TEXT_TO_STAGE_TYPE[row['stage_type']],
+                                              md_top=calculate_md_top(row),
+                                              md_bottom=calculate_md_bottom(row),
+                                              cluster_count=calculate_cluster_count(row),
+                                              maybe_time_range=pdt.Period(calculate_start_time(row),
+                                                                          calculate_stop_time(row)),
+                                              maybe_isip=calculate_isip(row),
+                                              maybe_shmin=calculate_shmin(row))
+        candidate_wells = list(context.project.wells().find_by_name(row['well']))
+        assert len(candidate_wells) == 1, f'Expected one well named, {row["well"]}. Found {len(candidate_wells)}.'
+        well = candidate_wells[0]
+        created_stage = to_add_stage_dto.create_stage(well)
+        well.add_stage(created_stage)
 
 
 @then("I see the added stages of wells")
@@ -373,4 +423,18 @@ def step_impl(context):
     Args:
         context (behave.runner.Context):
     """
-    raise NotImplementedError(u'STEP: Then I see the added stages of wells')
+    for row in context.table:
+        well_name = row['well']
+        stage_no = int(row['stage_no'])
+        added_stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name)
+
+        assert_that(added_stage.display_stage_number, equal_to(stage_no))
+        assert_that(added_stage.cluster_count, equal_to(calculate_cluster_count(row)))
+        assert_that(added_stage.stage_type,
+                    equal_to(_STAGE_TYPE_TEXT_TO_STAGE_TYPE[row['stage_type']]))
+        assert_that(added_stage.md_top, equal_to(calculate_md_top(row)))
+        assert_that(added_stage.md_bottom, equal_to(calculate_md_bottom(row)))
+        assert_that(added_stage.start, equal_to(calculate_start_time(row)))
+        assert_that(added_stage.stop, equal_to(calculate_stop_time(row)))
+        assert_that(added_stage.isip, equal_to(calculate_isip(row)))
+        assert_that(added_stage.shmin, equal_to(calculate_shmin(row)))

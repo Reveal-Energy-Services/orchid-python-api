@@ -16,8 +16,9 @@
 #
 
 
+import dataclasses as dc
 from enum import IntEnum
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import deal
 import option
@@ -443,3 +444,26 @@ class NativeStageAdapter(dpo.DomProjectObject):
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
+
+
+@dc.dataclass
+class CreateStageDto:
+    stage_no: int  # Must be greater than or equal to 1
+    stage_type: ConnectionType
+    md_top: om.Quantity  # Must be length
+    md_bottom: om.Quantity  # Must be length
+    cluster_count: int = 0  # Must be non-negative
+    # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
+    # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
+    # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
+    # issue with Orchid.
+    #
+    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
+    maybe_time_range: Optional[pdt.Period] = None
+    # WARNING: one **must** currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
+    # the project saved with the added stages.
+    maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
+    maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
+
+    def create_stage(self, well) -> NativeStageAdapter:  # well must be of type `nwa.NativeWellAdapter`
+        pass
