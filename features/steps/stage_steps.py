@@ -414,7 +414,9 @@ def step_impl(context):
         assert len(candidate_wells) == 1, f'Expected one well named, {row["well"]}. Found {len(candidate_wells)}.'
         well = candidate_wells[0]
         created_stage = to_add_stage_dto.create_stage(well)
+        ante_add_stage_count = len(well.stages())
         well.add_stage(created_stage)
+        assert_that(len(well.stages()), equal_to(ante_add_stage_count + 1))
 
 
 @then("I see the added stages of wells")
@@ -438,3 +440,5 @@ def step_impl(context):
         assert_that(added_stage.stop, equal_to(calculate_stop_time(row)))
         assert_that(added_stage.isip, equal_to(calculate_isip(row)))
         assert_that(added_stage.shmin, equal_to(calculate_shmin(row)))
+
+        # TODO: Add other stage attributes
