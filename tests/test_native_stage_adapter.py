@@ -589,43 +589,28 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
     def test_set_start_time_if_single_part(self):
         ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
         stop_time_dto = tdt.TimePointDto(2025, 8, 27, 13, 46, 59, 506 * om.registry.milliseconds)
-        stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
-                                               start_time=ante_start_time_dto.to_datetime(),
-                                               stop_time=stop_time_dto.to_datetime()).create_net_stub()
-        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
-
-        stub_net_stage = tsn.StageDto(start_time=ante_start_time_dto.to_datetime(),
-                                      stage_parts=[stub_net_stage_part],
-                                      stop_time=stop_time_dto.to_datetime()).create_net_stub()
-
-        sut = nsa.NativeStageAdapter(stub_net_stage)
+        builder = NativeStageAdapterBuilderForSetter(ante_start_time_dto, stop_time_dto)
+        sut = builder.build()
 
         post_start_time_dto = tdt.TimePointDto(2025, 8, 27, 7, 5, 54, 66 * om.registry.milliseconds)
         sut.time_range = pdt.period(post_start_time_dto.to_datetime(), stop_time_dto.to_datetime())
 
-        assert_correct_net_calls_when_setting_time_range(stub_net_stage_part, stub_net_mutable_stage_part,
-                                                         post_start_time_dto, stop_time_dto)
+        assert_correct_net_calls_when_setting_time_range(builder.stub_net_stage_part,
+                                                         builder.stub_net_mutable_stage_part,
+                                                         post_start_time_dto,
+                                                         stop_time_dto)
 
     def test_set_stop_time_if_single_part(self):
         start_time_dto = tdt.TimePointDto(2022, 11, 25, 4, 21, 53, 846 * om.registry.milliseconds)
         ante_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 7, 7, 46, 31 * om.registry.milliseconds)
-        stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
-                                               start_time=start_time_dto.to_datetime(),
-                                               stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
-        stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage_part)
-
-        stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime(),
-                                      stage_parts=[stub_net_stage_part],
-                                      stop_time=ante_stop_time_dto.to_datetime()).create_net_stub()
-
-        sut = nsa.NativeStageAdapter(stub_net_stage)
+        builder = NativeStageAdapterBuilderForSetter(start_time_dto, ante_stop_time_dto)
+        sut = builder.build()
 
         post_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 5, 32, 42, 406 * om.registry.milliseconds)
         sut.time_range = pdt.period(start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
 
-        assert_correct_net_calls_when_setting_time_range(stub_net_stage_part, stub_net_mutable_stage_part,
+        assert_correct_net_calls_when_setting_time_range(builder.stub_net_stage_part,
+                                                         builder.stub_net_mutable_stage_part,
                                                          start_time_dto, post_stop_time_dto)
 
     @unittest.mock.patch('orchid.native_stage_adapter.fdf.create')
@@ -741,8 +726,24 @@ class NativeStageAdapterBuilderForSetter:
     `IStagePart` instances, this class exposes the `mock` instances for those .NET instances.
     """
 
+    def __init__(self, start_time_dto, stop_time_dto):
+        self.start_time_dto = start_time_dto
+        self.stop_time_dto = stop_time_dto
+        self.stub_net_mutable_stage_part = None
+        self.stub_net_stage_part = None
+
     def build(self) -> nsa.NativeStageAdapter:
-        pass
+        self.stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
+        self.stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
+                                                    start_time=self.start_time_dto.to_datetime(),
+                                                    stop_time=self.stop_time_dto.to_datetime()).create_net_stub()
+        self.stub_net_stage_part.ToMutable = unittest.mock.MagicMock(return_value=self.stub_net_mutable_stage_part)
+
+        stub_net_stage = tsn.StageDto(start_time=self.start_time_dto.to_datetime(),
+                                      stage_parts=[self.stub_net_stage_part],
+                                      stop_time=self.stop_time_dto.to_datetime()).create_net_stub()
+
+        return nsa.NativeStageAdapter(stub_net_stage)
 
 
 def assert_is_native_treatment_curve_facade(curve):
