@@ -589,7 +589,6 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
     def test_set_start_time_if_single_part(self):
         ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
         stop_time_dto = tdt.TimePointDto(2025, 8, 27, 13, 46, 59, 506 * om.registry.milliseconds)
-        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
         stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
         stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
                                                start_time=ante_start_time_dto.to_datetime(),
@@ -605,21 +604,12 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         post_start_time_dto = tdt.TimePointDto(2025, 8, 27, 7, 5, 54, 66 * om.registry.milliseconds)
         sut.time_range = pdt.period(post_start_time_dto.to_datetime(), stop_time_dto.to_datetime())
 
-        # Expect two calls neither with any arguments
-        stub_net_stage_part.ToMutable.assert_called_once_with()
-
-        # First call contains new start and old stop
-        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
-        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
-        assert_that(actual_call.args[0].ToString('o'),
-                    equal_to(post_start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(actual_call.args[1].ToString('o'),
-                    equal_to(stop_time_dto.to_net_date_time().ToString('o')))
+        assert_correct_net_calls_when_setting_time_range(stub_net_stage_part, stub_net_mutable_stage_part,
+                                                         post_start_time_dto, stop_time_dto)
 
     def test_set_stop_time_if_single_part(self):
         start_time_dto = tdt.TimePointDto(2022, 11, 25, 4, 21, 53, 846 * om.registry.milliseconds)
         ante_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 7, 7, 46, 31 * om.registry.milliseconds)
-        # TODO: Change `StageDto` and `StagePartDto` `start_time` argument to expect a `TimePointDto`.
         stub_net_mutable_stage_part = tsn.MutableStagePartDto().create_net_stub()
         stub_net_stage_part = tsn.StagePartDto(object_id=tsn.DONT_CARE_ID_A,
                                                start_time=start_time_dto.to_datetime(),
@@ -635,16 +625,8 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         post_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 5, 32, 42, 406 * om.registry.milliseconds)
         sut.time_range = pdt.period(start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
 
-        # Expect two calls neither with any arguments
-        stub_net_stage_part.ToMutable.assert_called_once_with()
-
-        # First call contains new start and old stop
-        stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
-        actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
-        assert_that(actual_call.args[0].ToString('o'),
-                    equal_to(start_time_dto.to_net_date_time().ToString('o')))
-        assert_that(actual_call.args[1].ToString('o'),
-                    equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
+        assert_correct_net_calls_when_setting_time_range(stub_net_stage_part, stub_net_mutable_stage_part,
+                                                         start_time_dto, post_stop_time_dto)
 
     @unittest.mock.patch('orchid.native_stage_adapter.fdf.create')
     def test_set_start_stop_time_if_no_parts(self, stub_factory_create):
@@ -736,7 +718,32 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
                     equal_to(ante_start_time_dtos[-1].to_net_date_time().ToString('o')))
         assert_that(second_call.args[1].ToString('o'),
                     equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
-    
+
+
+def assert_correct_net_calls_when_setting_time_range(stub_net_stage_part, stub_net_mutable_stage_part,
+                                                     expected_start_time_dto, expected_stop_time_dto):
+    # Expect one call with no arguments
+    stub_net_stage_part.ToMutable.assert_called_once_with()
+    # First call contains new start and old stop
+    stub_net_mutable_stage_part.SetStartStopTimes.assert_called_once()
+    actual_call = stub_net_mutable_stage_part.SetStartStopTimes.call_args_list[0]
+    assert_that(actual_call.args[0].ToString('o'),
+                equal_to(expected_start_time_dto.to_net_date_time().ToString('o')))
+    assert_that(actual_call.args[1].ToString('o'),
+                equal_to(expected_stop_time_dto.to_net_date_time().ToString('o')))
+
+
+class NativeStageAdapterBuilderForSetter:
+    """
+    This class builds `NativeStageAdapter` instances for testing.
+
+    However, to support testing the calls made to the underlying .NET `IStage` and
+    `IStagePart` instances, this class exposes the `mock` instances for those .NET instances.
+    """
+
+    def build(self) -> nsa.NativeStageAdapter:
+        pass
+
 
 def assert_is_native_treatment_curve_facade(curve):
     assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
