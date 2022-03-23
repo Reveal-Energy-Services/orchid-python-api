@@ -448,7 +448,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
 @dc.dataclass
 class CreateStageDto:
-    stage_no: int  # Must be greater than or equal to 1
+    stage_no: int  # Must be greater than 0
     stage_type: ConnectionType
     md_top: om.Quantity  # Must be length
     md_bottom: om.Quantity  # Must be length
@@ -464,6 +464,10 @@ class CreateStageDto:
     # the project saved with the added stages.
     maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
     maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
+
+    def __post_init__(self):
+        if self.stage_no < 1:
+            raise ValueError(f'Expected `stage_no` greater than 0. Found {self.stage_no}')
 
     def create_stage(self, well) -> NativeStageAdapter:  # well must be of type `nwa.NativeWellAdapter`
         pass

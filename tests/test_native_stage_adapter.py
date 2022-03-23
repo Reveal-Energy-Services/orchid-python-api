@@ -772,6 +772,14 @@ class TestCreateStageDto(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    def test_ctor_raises_error_if_stage_no_less_than_1(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=0,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=units.make_us_oilfield_length_measurement(11389.3),
+            md_bottom=units.make_us_oilfield_length_measurement(11550.0),
+        ), raises(ValueError, pattern=f'`stage_no` greater than 0.*Found 0'))
+
 
 if __name__ == '__main__':
     unittest.main()
