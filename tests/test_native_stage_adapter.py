@@ -751,13 +751,6 @@ def assert_is_native_treatment_curve_facade(curve):
 
 
 # Test ideas
-# - Constructor raises error if stage_no < 1
-# - Constructor raises error if md_top not length
-# - Constructor raises error if md_bottom not length
-# - Constructor raises error if cluster_count < 0
-# - Constructor raises error if maybe_isip supplied but not pressure
-# - Constructor raises error if maybe_isip not supplied
-# - Constructor raises error if maybe_shmin supplied but not pressure
 # - Created stage has stage_no supplied to constructor
 # - Created stage has stage_type supplied to constructor
 # - Created stage has md_top supplied to constructor
@@ -773,12 +766,70 @@ class TestCreateStageDto(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_ctor_raises_error_if_stage_no_less_than_1(self):
+        erroneous_stage_no = 0
         assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=0,
+            stage_no=erroneous_stage_no,
             stage_type=nsa.ConnectionType.PLUG_AND_PERF,
             md_top=units.make_us_oilfield_length_measurement(11389.3),
             md_bottom=units.make_us_oilfield_length_measurement(11550.0),
-        ), raises(ValueError, pattern=f'`stage_no` greater than 0.*Found 0'))
+        ), raises(ValueError, pattern=f'`stage_no` greater than 0.*Found {erroneous_stage_no}'))
+
+    def test_ctor_raises_error_if_md_top_is_not_a_length_unit(self):
+        erroneous_md_top = units.make_us_oilfield_pressure_measurement(5246.7)
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=32,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=erroneous_md_top,
+            md_bottom=units.make_us_oilfield_length_measurement(11550.0),
+        ), raises(ValueError, pattern=f'`md_top` to be a length measurement. Found {erroneous_md_top:~P}'))
+
+    def test_ctor_raises_error_if_md_bottom_is_not_a_length_unit(self):
+        erroneous_md_bottom = units.make_us_oilfield_pressure_measurement(5246.7)
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=32,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=units.make_us_oilfield_length_measurement(11389.3),
+            md_bottom=erroneous_md_bottom,
+        ), raises(ValueError, pattern=f'`md_bottom` to be a length measurement. Found {erroneous_md_bottom:~P}'))
+
+    def test_ctor_raises_error_if_cluster_count_less_than_0(self):
+        erroneous_cluster_count = -1
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=32,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=units.make_us_oilfield_length_measurement(11389.3),
+            md_bottom=units.make_us_oilfield_length_measurement(11550.0),
+            cluster_count=erroneous_cluster_count,
+        ), raises(ValueError, pattern=f'`cluster_count` to be non-negative.*Found {erroneous_cluster_count}'))
+
+    def test_ctor_raises_error_if_maybe_isip_is_not_a_pressure_unit(self):
+        erroneous_isip = units.make_metric_length_measurement(4419.58)
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=32,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=units.make_us_oilfield_length_measurement(11389.3),
+            md_bottom=units.make_us_oilfield_length_measurement(11550.0),
+            maybe_isip=erroneous_isip,
+        ), raises(ValueError, pattern=f'`maybe_isip` to be a pressure measurement. Found {erroneous_isip:~P}'))
+
+    def test_ctor_raises_error_if_maybe_isip_is_not_supplied(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=32,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=units.make_us_oilfield_length_measurement(11389.3),
+            md_bottom=units.make_us_oilfield_length_measurement(11550.0),
+        ), raises(TypeError, pattern=f'`maybe_isip` to be supplied. Found `None`'))
+
+    def test_ctor_raises_error_if_maybe_shmin_is_not_a_pressure_unit(self):
+        erroneous_shmin = units.make_metric_length_measurement(4473.45)
+        assert_that(calling(nsa.CreateStageDto).with_args(
+            stage_no=32,
+            stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+            md_top=units.make_us_oilfield_length_measurement(11389.3),
+            md_bottom=units.make_us_oilfield_length_measurement(11550.0),
+            maybe_isip=units.make_us_oilfield_pressure_measurement(2.217),
+            maybe_shmin=erroneous_shmin,
+        ), raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement. Found {erroneous_shmin:~P}'))
 
 
 if __name__ == '__main__':

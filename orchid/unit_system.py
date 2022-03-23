@@ -144,6 +144,18 @@ def make_measurement(unit: UnitSystem, magnitude: numbers.Real) -> om.Quantity:
 
 
 make_us_oilfield_length_measurement = make_measurement(UsOilfield.LENGTH)
+make_us_oilfield_pressure_measurement = make_measurement(UsOilfield.PRESSURE)
+
+make_metric_length_measurement = make_measurement(Metric.LENGTH)
+make_metric_pressure_measurement = make_measurement(Metric.PRESSURE)
+
+
+def is_length_unit(candidate) -> bool:
+    return candidate.check('[length]')
+
+
+def is_pressure_unit(candidate) -> bool:
+    return candidate.check('[pressure]')
 
 
 def abbreviation(unit: UnitSystem):

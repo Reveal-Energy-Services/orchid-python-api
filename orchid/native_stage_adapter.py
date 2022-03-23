@@ -469,5 +469,23 @@ class CreateStageDto:
         if self.stage_no < 1:
             raise ValueError(f'Expected `stage_no` greater than 0. Found {self.stage_no}')
 
+        if not units.is_length_unit(self.md_top):
+            raise ValueError(f'Expected `md_top` to be a length measurement. Found {self.md_top:~P}')
+
+        if not units.is_length_unit(self.md_bottom):
+            raise ValueError(f'Expected `md_bottom` to be a length measurement. Found {self.md_bottom:~P}')
+
+        if self.cluster_count < 0:
+            raise ValueError(f'Expected `cluster_count` to be non-negative. Found {self.cluster_count}')
+
+        if self.maybe_isip is None:
+            raise TypeError(f'Expected `maybe_isip` to be supplied. Found `{self.maybe_isip}`')
+
+        if not units.is_pressure_unit(self.maybe_isip):
+            raise ValueError(f'Expected `maybe_isip` to be a pressure measurement. Found {self.maybe_isip:~P}')
+
+        if not units.is_pressure_unit(self.maybe_shmin):
+            raise ValueError(f'Expected `maybe_shmin` to be a pressure measurement. Found {self.maybe_shmin:~P}')
+
     def create_stage(self, well) -> NativeStageAdapter:  # well must be of type `nwa.NativeWellAdapter`
         pass
