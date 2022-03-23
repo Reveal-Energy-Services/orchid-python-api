@@ -399,7 +399,6 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_start_time_if_neither_nat_nor_null(self):
         start_time_dto = tdt.TimePointDto(2024, 10, 31, 7, 31, 27, 357000 * om.registry.microseconds)
-        # TODO: Change `StageDto` `start_time` argument to expect a `TimePointDto`.
         stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -424,7 +423,6 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     def test_stop_time_if_neither_nat_nor_null(self):
         stop_time_dto = tdt.TimePointDto(2016, 3, 31, 3, 31, 30, 947000 * om.registry.microseconds)
-        # TODO: Change `StageDto` `stop_time` argument to expect a `TimePointDto`.
         stub_net_stage = tsn.StageDto(stop_time=stop_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
@@ -489,7 +487,6 @@ class TestNativeStageAdapter(unittest.TestCase):
     def test_time_range(self):
         start_time_dto = tdt.TimePointDto(2024, 10, 31, 7, 31, 27, 357000 * om.registry.microseconds)
         stop_time_dto = tdt.TimePointDto(2016, 3, 31, 3, 31, 30, 947000 * om.registry.microseconds)
-        # TODO: Change `StageDto` `start_time` argument to expect a `TimePointDto`.
         stub_net_stage = tsn.StageDto(start_time=start_time_dto.to_datetime(),
                                       stop_time=stop_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
