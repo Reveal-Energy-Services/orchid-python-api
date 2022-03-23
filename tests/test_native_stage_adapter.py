@@ -743,5 +743,28 @@ def assert_is_native_treatment_curve_facade(curve):
     assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
 
 
+# Test ideas
+# - Constructor raises error if stage_no < 1
+# - Constructor raises error if md_top not length
+# - Constructor raises error if md_bottom not length
+# - Constructor raises error if cluster_count < 0
+# - Constructor raises error if maybe_isip supplied but not pressure
+# - Constructor raises error if maybe_isip not supplied
+# - Constructor raises error if maybe_shmin supplied but not pressure
+# - Created stage has stage_no supplied to constructor
+# - Created stage has stage_type supplied to constructor
+# - Created stage has md_top supplied to constructor
+# - Created stage has md_bottom supplied to constructor
+# - Created stage has cluster_count supplied to constructor
+# - Created stage has time_range supplied to constructor
+# - Created stage has isip supplied to constructor
+# - Created stage has shmin supplied to constructor
+# - Created stage has .NET "not a time" time range if maybe_time_range has no value
+# - Created stage has no shmin if maybe_shmin has no value
+class TestCreateStageDto(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
+
+
 if __name__ == '__main__':
     unittest.main()
