@@ -28,13 +28,14 @@ import json
 import math
 import unittest.mock
 import uuid
-from typing import Callable, Dict, Iterable, Optional, Sequence, Union
+from typing import Callable, Dict, Iterable, Sequence, Union
 
 import pendulum as pdt
 import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
+    native_treatment_curve_adapter as ntc,
     net_date_time as ndt,
     net_quantity as onq,
     net_stage_qc as nqc,
@@ -258,7 +259,7 @@ class StageDto:
     # TODO: Change `start_time` and `stop_time` defaults to `ndt.DATETIME_NAT`
     start_time: pdt.DateTime = None
     stop_time: pdt.DateTime = None
-    treatment_curve_names: Iterable[str] = None
+    treatment_curve_names: Iterable[ntc.TreatmentCurveTypes] = None
 
     def create_net_stub(self):
         stub_net_stage_name = 'stub_net_stage'

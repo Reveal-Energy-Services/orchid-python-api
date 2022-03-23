@@ -554,9 +554,12 @@ class TestNativeStageAdapter(unittest.TestCase):
 
     @staticmethod
     def _make_pressure_test_pairs():
+        # noinspection PyUnresolvedReferences
         net_pressures = [
             tsn.make_measurement_dto(units.UsOilfield.PRESSURE, 1414),
             tsn.make_measurement_dto(units.Metric.PRESSURE, 3.142),
+            # Remember, functions like `onq.net_pressure_from_bars` are created *dynamically* when the
+            # module is loaded. See the comments preceding `onq.net_creator_attributes`.
             onq.net_pressure_from_bars(0.1506),
         ]
         expected_measurements = [
@@ -642,7 +645,6 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
                     equal_to(start_time_dto.to_net_date_time().ToString('o')))
         assert_that(actual_call.args[1].ToString('o'),
                     equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
-
 
     @unittest.mock.patch('orchid.native_stage_adapter.fdf.create')
     def test_set_start_stop_time_if_no_parts(self, stub_factory_create):
@@ -734,7 +736,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
                     equal_to(ante_start_time_dtos[-1].to_net_date_time().ToString('o')))
         assert_that(second_call.args[1].ToString('o'),
                     equal_to(post_stop_time_dto.to_net_date_time().ToString('o')))
-
+    
 
 def assert_is_native_treatment_curve_facade(curve):
     assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
