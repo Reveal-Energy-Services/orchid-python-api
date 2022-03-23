@@ -143,6 +143,9 @@ def make_measurement(unit: UnitSystem, magnitude: numbers.Real) -> om.Quantity:
     return om.Quantity(magnitude, unit.value.unit)
 
 
+make_us_oilfield_length_measurement = make_measurement(UsOilfield.LENGTH)
+
+
 def abbreviation(unit: UnitSystem):
     """
     Return the abbreviation of `unit`.
