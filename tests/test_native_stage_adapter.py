@@ -16,6 +16,7 @@
 #
 
 from collections import namedtuple
+import dataclasses as dc
 import decimal
 import unittest.mock
 
@@ -750,6 +751,22 @@ def assert_is_native_treatment_curve_facade(curve):
     assert_that(curve, instance_of(ntc.NativeTreatmentCurveAdapter))
 
 
+DONT_CARE_STAGE_NO = 32
+DONT_CARE_STAGE_TYPE = nsa.ConnectionType.PLUG_AND_PERF
+DONT_CARE_MD_TOP = units.make_us_oilfield_length_measurement(11389.3)
+DONT_CARE_MD_BOTTOM = units.make_us_oilfield_length_measurement(11550.0)
+DONT_CARE_ISIP = units.make_us_oilfield_pressure_measurement(2.217)
+
+
+@dc.dataclass
+class CreateStageDtoArgs:
+    stage_no: int = DONT_CARE_STAGE_NO
+    stage_type: nsa.ConnectionType = DONT_CARE_STAGE_TYPE
+    md_top: om.Quantity = DONT_CARE_MD_TOP
+    md_bottom: om.Quantity = DONT_CARE_MD_BOTTOM
+    isip: om.Quantity = DONT_CARE_ISIP
+
+
 # Test ideas
 # - Created stage has stage_no supplied to constructor
 # - Created stage has stage_type supplied to constructor
@@ -762,80 +779,70 @@ def assert_is_native_treatment_curve_facade(curve):
 # - Created stage has .NET "not a time" time range if maybe_time_range has no value
 # - Created stage has no shmin if maybe_shmin has no value
 class TestCreateStageDto(unittest.TestCase):
-    DONT_CARE_STAGE_NO = 32
-    DONT_CARE_STAGE_TYPE = nsa.ConnectionType.PLUG_AND_PERF
-    DONT_CARE_MD_TOP = units.make_us_oilfield_length_measurement(11389.3)
-    DONT_CARE_MD_BOTTOM = units.make_us_oilfield_length_measurement(11550.0)
-    DONT_CARE_ISIP = units.make_us_oilfield_pressure_measurement(2.217)
 
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
     def test_ctor_raises_error_if_stage_no_less_than_1(self):
         erroneous_stage_no = 0
-        assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=erroneous_stage_no,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=self.DONT_CARE_MD_TOP,
-            md_bottom=self.DONT_CARE_MD_BOTTOM,
-        ), raises(ValueError, pattern=f'`stage_no` greater than 0.*Found {erroneous_stage_no}'))
+        create_dto_args = dc.astuple(CreateStageDtoArgs(stage_no=erroneous_stage_no))
+        assert_that(calling(nsa.CreateStageDto).with_args(*create_dto_args),
+                    raises(ValueError, pattern=f'`stage_no` greater than 0.*Found {erroneous_stage_no}'))
 
     def test_ctor_raises_error_if_md_top_is_not_a_length_unit(self):
         erroneous_md_top = units.make_us_oilfield_pressure_measurement(5246.7)
-        assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=self.DONT_CARE_STAGE_NO,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=erroneous_md_top,
-            md_bottom=self.DONT_CARE_MD_BOTTOM,
-        ), raises(ValueError, pattern=f'`md_top` to be a length measurement. Found {erroneous_md_top:~P}'))
+        create_dto_args = dc.astuple(CreateStageDtoArgs(md_top=erroneous_md_top))
+        assert_that(calling(nsa.CreateStageDto).with_args(*create_dto_args),
+                    raises(ValueError, pattern=f'`md_top` to be a length measurement. Found {erroneous_md_top:~P}'))
 
     def test_ctor_raises_error_if_md_bottom_is_not_a_length_unit(self):
         erroneous_md_bottom = units.make_us_oilfield_pressure_measurement(5246.7)
-        assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=self.DONT_CARE_STAGE_NO,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=self.DONT_CARE_MD_TOP,
-            md_bottom=erroneous_md_bottom,
-        ), raises(ValueError, pattern=f'`md_bottom` to be a length measurement. Found {erroneous_md_bottom:~P}'))
+        create_dto_args = dc.astuple(CreateStageDtoArgs(md_bottom=erroneous_md_bottom))
+        assert_that(calling(nsa.CreateStageDto).with_args(*create_dto_args),
+                    raises(ValueError, pattern=f'`md_bottom` to be a length measurement.'
+                                               f' Found {erroneous_md_bottom:~P}'))
 
     def test_ctor_raises_error_if_cluster_count_less_than_0(self):
         erroneous_cluster_count = -1
         assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=self.DONT_CARE_STAGE_NO,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=self.DONT_CARE_MD_TOP,
-            md_bottom=self.DONT_CARE_MD_BOTTOM,
+            stage_no=DONT_CARE_STAGE_NO,
+            stage_type=DONT_CARE_STAGE_TYPE,
+            md_top=DONT_CARE_MD_TOP,
+            md_bottom=DONT_CARE_MD_BOTTOM,
             cluster_count=erroneous_cluster_count,
         ), raises(ValueError, pattern=f'`cluster_count` to be non-negative.*Found {erroneous_cluster_count}'))
 
     def test_ctor_raises_error_if_maybe_isip_is_not_a_pressure_unit(self):
         erroneous_isip = units.make_metric_length_measurement(4419.58)
         assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=self.DONT_CARE_STAGE_NO,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=self.DONT_CARE_MD_TOP,
-            md_bottom=self.DONT_CARE_MD_BOTTOM,
+            stage_no=DONT_CARE_STAGE_NO,
+            stage_type=DONT_CARE_STAGE_TYPE,
+            md_top=DONT_CARE_MD_TOP,
+            md_bottom=DONT_CARE_MD_BOTTOM,
             maybe_isip=erroneous_isip,
         ), raises(ValueError, pattern=f'`maybe_isip` to be a pressure measurement. Found {erroneous_isip:~P}'))
 
     def test_ctor_raises_error_if_maybe_isip_is_not_supplied(self):
         assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=self.DONT_CARE_STAGE_NO,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=self.DONT_CARE_MD_TOP,
-            md_bottom=self.DONT_CARE_MD_BOTTOM,
+            stage_no=DONT_CARE_STAGE_NO,
+            stage_type=DONT_CARE_STAGE_TYPE,
+            md_top=DONT_CARE_MD_TOP,
+            md_bottom=DONT_CARE_MD_BOTTOM,
         ), raises(TypeError, pattern=f'`maybe_isip` to be supplied. Found `None`'))
 
     def test_ctor_raises_error_if_maybe_shmin_is_not_a_pressure_unit(self):
         erroneous_shmin = units.make_metric_length_measurement(4473.45)
         assert_that(calling(nsa.CreateStageDto).with_args(
-            stage_no=self.DONT_CARE_STAGE_NO,
-            stage_type=self.DONT_CARE_STAGE_TYPE,
-            md_top=self.DONT_CARE_MD_TOP,
-            md_bottom=self.DONT_CARE_MD_BOTTOM,
-            maybe_isip=self.DONT_CARE_ISIP,
+            stage_no=DONT_CARE_STAGE_NO,
+            stage_type=DONT_CARE_STAGE_TYPE,
+            md_top=DONT_CARE_MD_TOP,
+            md_bottom=DONT_CARE_MD_BOTTOM,
+            maybe_isip=DONT_CARE_ISIP,
             maybe_shmin=erroneous_shmin,
         ), raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement. Found {erroneous_shmin:~P}'))
+
+    def test_created_stage_has_stage_no_from_ctor(self):
+        pass
 
 
 if __name__ == '__main__':
