@@ -15,9 +15,12 @@
 # This file is part of Orchid and related technologies.
 #
 
-from typing import Iterable
+import dataclasses as dc
+from collections import namedtuple
+from typing import Iterable, Optional
 
 import option
+import pendulum as pdt
 import toolz.curried as toolz
 
 import orchid.base
@@ -29,8 +32,10 @@ from orchid import (
     native_stage_adapter as nsa,
     native_subsurface_point as nsp,
     native_trajectory_adapter as nta,
+    net_fracture_diagnostics_factory as fdf,
     net_quantity as onq,
     reference_origins as origins,
+    unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences
@@ -38,16 +43,103 @@ from Orchid.FractureDiagnostics import IWell
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
-from System import Array
-
-from collections import namedtuple
+from System import Array, UInt32
 
 WellHeadLocation = namedtuple('WellHeadLocation',
                               ['easting', 'northing', 'depth'])
 
 
+_object_factory = fdf.create()
+
+
 def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
+
+
+@dc.dataclass
+class CreateStageDto:
+    stage_no: int  # Must be greater than 0
+    stage_type: nsa.ConnectionType
+    md_top: om.Quantity  # Must be length
+    md_bottom: om.Quantity  # Must be length
+    cluster_count: int = 0  # Must be non-negative
+    # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
+    # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
+    # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
+    # issue with Orchid.
+    #
+    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
+    maybe_time_range: Optional[pdt.Period] = None
+    # WARNING: one **must** currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
+    # the project saved with the added stages.
+    maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
+    maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
+
+    def __post_init__(self):
+        if self.stage_no < 1:
+            raise ValueError(f'Expected `stage_no` greater than 0. Found {self.stage_no}')
+
+        if not units.is_length_unit(self.md_top):
+            raise ValueError(f'Expected `md_top` to be a length measurement.'
+                             f' Found {self.md_top:~P}')
+
+        if not units.is_length_unit(self.md_bottom):
+            raise ValueError(f'Expected `md_bottom` to be a length measurement.'
+                             f' Found {self.md_bottom:~P}')
+
+        if self.cluster_count < 0:
+            raise ValueError(f'Expected `cluster_count` to be non-negative.'
+                             f' Found {self.cluster_count}')
+
+        if self.maybe_isip is None:
+            raise TypeError(f'Expected `maybe_isip` to be supplied. Found'
+                            f' `{self.maybe_isip}`')
+
+        if not units.is_pressure_unit(self.maybe_isip):
+            raise ValueError(f'Expected `maybe_isip` to be a pressure measurement.'
+                             f' Found {self.maybe_isip:~P}')
+
+        if self.maybe_shmin is not None:
+            if not units.is_pressure_unit(self.maybe_shmin):
+                raise ValueError(f'Expected `maybe_shmin` to be a pressure measurement.'
+                                 f' Found {self.maybe_shmin:~P}')
+
+    @property
+    def order_of_completion_on_well(self):
+        """Return the order (beginning at zero) in which this stage was completed on its well."""
+        return self.stage_no - 1
+
+    def create_stage(self, well) -> nsa.NativeStageAdapter:
+        """
+        Create a stage with the using the properties of this class on `well`.
+
+        Although this is a public method, the author intends it to only be called in the implementation of
+        the methods, `NativeWellAdapter.add_stage()` and `NativeWellAdapter.add_stages()`.
+
+        Args:
+            well: The well of this stage.
+
+        Returns:
+            The newly created stage. Remember that, at this point in time, the specified `well`
+            is **unaware** of this newly added stage. To add this created stage to the well,
+            one must invoke
+        """
+        # `well` must be of type `nwa.NativeWellAdapter` but we cannot specify its type in order to
+        # avoid cyclic dependencies.
+        project_units = well.expect_project_units(f'Expected to find project units for well'
+                                                  f' with name={well.name},'
+                                                  f' display_name={well.display_name},'
+                                                  f' and object_id={well.object - id}')
+        net_md_top = onq.as_net_quantity(well.maybe_project_units.LENGTH)
+        net_md_bottom = onq.as_net_quantity(well.maybe_project_units.LENGTH)
+        net_shmin = onq.as_net_quantity(well.maybe_project_units.PRESSURE)
+        net_stage_without_time_range = _object_factory.CreateStage(UInt32(self.order_of_completion_on_well),
+                                                                   self.stage_type,
+                                                                   self.md_top,
+                                                                   self.md_bottom, )
+
+        result = None
+        return result
 
 
 class NativeWellAdapter(dpo.DomProjectObject):
@@ -111,5 +203,5 @@ class NativeWellAdapter(dpo.DomProjectObject):
         )
         return result
 
-    def add_stage(self, stage: nsa.NativeStageAdapter):
+    def add_stage(self, create_stage_dto: CreateStageDto):
         pass
