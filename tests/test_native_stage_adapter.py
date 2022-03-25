@@ -854,7 +854,7 @@ class TestCreateStageDto(unittest.TestCase):
         stub_well = tsn.create_stub_net_well()
         actual_stage = nsa.CreateStageDto(**create_dto_args).create_stage(stub_well)
 
-        assert_that(actual_stage.stage_no, equal_to(stage_no))
+        assert_that(actual_stage.display_stage_number, equal_to(stage_no))
 
 
 if __name__ == '__main__':

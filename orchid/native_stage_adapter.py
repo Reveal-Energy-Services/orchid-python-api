@@ -353,7 +353,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
-        Return the measured depth of the bottom of this stage (farthest from the well head / closest to the toe)
+        Return the measured depth of the bottom of this stage (farthest from the wellhead / closest to the toe)
         in the specified unit.
 
         Args:
@@ -366,7 +366,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
-        Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
+        Return the measured depth of the top of this stage (closest to the wellhead / farthest from the toe)
         in the specified unit.
 
         Args:
@@ -500,6 +500,20 @@ class CreateStageDto:
         return self.stage_no - 1
 
     def create_stage(self, well) -> NativeStageAdapter:
+        """
+        Create a stage with the using the properties of this class on `well`.
+
+        Although this is a public method, the author intends it to only be called in the implementation of
+        the methods, `NativeWellAdapter.add_stage()` and `NativeWellAdapter.add_stages()`.
+
+        Args:
+            well: The well of this stage.
+
+        Returns:
+            The newly created stage. Remember that, at this point in time, the specified `well`
+            is **unaware** of this newly added stage. To add this created stage to the well,
+            one must invoke
+        """
         # `well` must be of type `nwa.NativeWellAdapter` but we cannot specify its type in order to
         # avoid cyclic dependencies.
         project_units = well.expect_project_units(f'Expected to find project units for well'
@@ -510,5 +524,9 @@ class CreateStageDto:
         net_md_bottom = onq.as_net_quantity(well.maybe_project_units.LENGTH)
         net_shmin = onq.as_net_quantity(well.maybe_project_units.PRESSURE)
         net_stage_without_time_range = _object_factory.CreateStage(UInt32(self.order_of_completion_on_well),
-                                                                   self.stage_type, self.md_top,
-                                                            self.md_bottom,)
+                                                                   self.stage_type,
+                                                                   self.md_top,
+                                                                   self.md_bottom, )
+
+        result = None
+        return result
