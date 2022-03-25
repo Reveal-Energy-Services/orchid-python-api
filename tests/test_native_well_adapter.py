@@ -332,6 +332,8 @@ class CreateStageDtoArgs:
 
 
 # Test ideas
+# - Added stage is present on well
+# - Added stages are all present on well
 # - Added stage has stage_no supplied to constructor
 # - Added stage has stage_type supplied to constructor
 # - Added stage has md_top supplied to constructor
@@ -345,15 +347,6 @@ class CreateStageDtoArgs:
 class TestNativeWellAdapterAddStages(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
-
-    @unittest.skip('Not yet implemented')
-    def test_added_stage_has_display_stage_number_from_ctor(self):
-        stage_no = 27
-        create_dto_args = dc.asdict(CreateStageDtoArgs(stage_no=stage_no))
-        stub_well = tsn.create_stub_net_well()
-        actual_stage = nwa.CreateStageDto(**create_dto_args).create_stage(stub_well)
-
-        assert_that(actual_stage.display_stage_number, equal_to(stage_no))
 
 
 # Test ideas

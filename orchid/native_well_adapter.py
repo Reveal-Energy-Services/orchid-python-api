@@ -109,38 +109,6 @@ class CreateStageDto:
         """Return the order (beginning at zero) in which this stage was completed on its well."""
         return self.stage_no - 1
 
-    def create_stage(self, well) -> nsa.NativeStageAdapter:
-        """
-        Create a stage with the using the properties of this class on `well`.
-
-        Although this is a public method, the author intends it to only be called in the implementation of
-        the methods, `NativeWellAdapter.add_stage()` and `NativeWellAdapter.add_stages()`.
-
-        Args:
-            well: The well of this stage.
-
-        Returns:
-            The newly created stage. Remember that, at this point in time, the specified `well`
-            is **unaware** of this newly added stage. To add this created stage to the well,
-            one must invoke
-        """
-        # `well` must be of type `nwa.NativeWellAdapter` but we cannot specify its type in order to
-        # avoid cyclic dependencies.
-        project_units = well.expect_project_units(f'Expected to find project units for well'
-                                                  f' with name={well.name},'
-                                                  f' display_name={well.display_name},'
-                                                  f' and object_id={well.object - id}')
-        net_md_top = onq.as_net_quantity(well.maybe_project_units.LENGTH)
-        net_md_bottom = onq.as_net_quantity(well.maybe_project_units.LENGTH)
-        net_shmin = onq.as_net_quantity(well.maybe_project_units.PRESSURE)
-        net_stage_without_time_range = _object_factory.CreateStage(UInt32(self.order_of_completion_on_well),
-                                                                   self.stage_type,
-                                                                   self.md_top,
-                                                                   self.md_bottom, )
-
-        result = None
-        return result
-
 
 class NativeWellAdapter(dpo.DomProjectObject):
     """Adapts a native IWell to python."""
@@ -204,4 +172,34 @@ class NativeWellAdapter(dpo.DomProjectObject):
         return result
 
     def add_stage(self, create_stage_dto: CreateStageDto):
-        pass
+        created_stage = self._create_stage(create_stage_dto)
+
+    def create_stage(self, create_stage_dto: CreateStageDto) -> nsa.NativeStageAdapter:
+        """
+        Create a stage with the using the properties of this class on `well`.
+
+        Although this is a public method, the author intends it to only be called in the implementation of
+        the methods, `NativeWellAdapter.add_stage()` and `NativeWellAdapter.add_stages()`.
+
+        Args:
+            create_stage_dto: The details to be used to create the stage on this well.
+
+        Returns:
+            The newly created stage. Remember that, at this point in time, the specified `well`
+            is **unaware** of this newly added stage.
+        """
+        project_units = self.expect_project_units(f'Expected to find project units for well'
+                                                  f' with name={self.name},'
+                                                  f' display_name={self.display_name},'
+                                                  f' and object_id={self.object - id}')
+        net_md_top = onq.as_net_quantity(project_units.LENGTH)
+        net_md_bottom = onq.as_net_quantity(project_units.LENGTH)
+        net_shmin = onq.as_net_quantity(project_units.PRESSURE)
+        net_stage_without_time_range = _object_factory.CreateStage(
+            UInt32(create_stage_dto.order_of_completion_on_self),
+            create_stage_dto.stage_type,
+            create_stage_dto.md_top,
+            create_stage_dto.md_bottom, )
+
+        result = None
+        return result
