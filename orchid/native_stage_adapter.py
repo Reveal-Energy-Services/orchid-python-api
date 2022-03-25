@@ -47,8 +47,14 @@ from orchid import (
 from Orchid.FractureDiagnostics import FormationConnectionType
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import UInt32
+
 
 VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit system length.'
+
+
+_object_factory = fdf.create()
 
 
 class ConnectionType(IntEnum):
@@ -484,8 +490,25 @@ class CreateStageDto:
         if not units.is_pressure_unit(self.maybe_isip):
             raise ValueError(f'Expected `maybe_isip` to be a pressure measurement. Found {self.maybe_isip:~P}')
 
-        if not units.is_pressure_unit(self.maybe_shmin):
-            raise ValueError(f'Expected `maybe_shmin` to be a pressure measurement. Found {self.maybe_shmin:~P}')
+        if self.maybe_shmin is not None:
+            if not units.is_pressure_unit(self.maybe_shmin):
+                raise ValueError(f'Expected `maybe_shmin` to be a pressure measurement. Found {self.maybe_shmin:~P}')
 
-    def create_stage(self, well) -> NativeStageAdapter:  # well must be of type `nwa.NativeWellAdapter`
-        pass
+    @property
+    def order_of_completion_on_well(self):
+        """Return the order (beginning at zero) in which this stage was completed on its well."""
+        return self.stage_no - 1
+
+    def create_stage(self, well) -> NativeStageAdapter:
+        # `well` must be of type `nwa.NativeWellAdapter` but we cannot specify its type in order to
+        # avoid cyclic dependencies.
+        project_units = well.expect_project_units(f'Expected to find project units for well'
+                                                  f' with name={well.name},'
+                                                  f' display_name={well.display_name},'
+                                                  f' and object_id={well.object - id}')
+        net_md_top = onq.as_net_quantity(well.maybe_project_units.LENGTH)
+        net_md_bottom = onq.as_net_quantity(well.maybe_project_units.LENGTH)
+        net_shmin = onq.as_net_quantity(well.maybe_project_units.PRESSURE)
+        net_stage_without_time_range = _object_factory.CreateStage(UInt32(self.order_of_completion_on_well),
+                                                                   self.stage_type, self.md_top,
+                                                            self.md_bottom,)

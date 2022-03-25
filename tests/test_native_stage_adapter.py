@@ -764,7 +764,7 @@ class CreateStageDtoArgs:
     stage_type: nsa.ConnectionType = DONT_CARE_STAGE_TYPE
     md_top: om.Quantity = DONT_CARE_MD_TOP
     md_bottom: om.Quantity = DONT_CARE_MD_BOTTOM
-    isip: om.Quantity = DONT_CARE_ISIP
+    maybe_isip: om.Quantity = DONT_CARE_ISIP
 
 
 # Test ideas
@@ -782,6 +782,12 @@ class TestCreateStageDto(unittest.TestCase):
 
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
+
+    def test_order_of_completion_on_well_is_one_less_than_stage_no_to_ctor(self):
+        create_dto_args = dc.asdict(CreateStageDtoArgs(stage_no=24))
+        sut = nsa.CreateStageDto(**create_dto_args)
+
+        assert_that(sut.order_of_completion_on_well, equal_to(24 - 1))
 
     def test_ctor_raises_error_if_stage_no_less_than_1(self):
         erroneous_stage_no = 0
@@ -841,8 +847,14 @@ class TestCreateStageDto(unittest.TestCase):
             maybe_shmin=erroneous_shmin,
         ), raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement. Found {erroneous_shmin:~P}'))
 
+    @unittest.skip('Not yet implemented')
     def test_created_stage_has_stage_no_from_ctor(self):
-        pass
+        stage_no = 27
+        create_dto_args = dc.asdict(CreateStageDtoArgs(stage_no=stage_no))
+        stub_well = tsn.create_stub_net_well()
+        actual_stage = nsa.CreateStageDto(**create_dto_args).create_stage(stub_well)
+
+        assert_that(actual_stage.stage_no, equal_to(stage_no))
 
 
 if __name__ == '__main__':

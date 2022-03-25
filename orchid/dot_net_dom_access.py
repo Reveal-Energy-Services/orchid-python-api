@@ -186,7 +186,7 @@ class IdentifiedDotNetAdapter(DotNetAdapter):
     object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
     @property
-    def expect_project_units(self) -> Union[units.UsOilfield, units.Metric]:
+    def expect_project_units(self, msg=option.NONE) -> Union[units.UsOilfield, units.Metric]:
         """
         (PROTECTED) Return the `UnitSystem` appropriate the .NET `IProject` of this instance.
 
@@ -200,7 +200,7 @@ class IdentifiedDotNetAdapter(DotNetAdapter):
             ValueError if the derived instances, for example, a `BaseTimeSeriesAdapter` is **not** associated with
             an `IProject`.
         """
-        return self._maybe_project_units.expect('Expected associated project')
+        return self._maybe_project_units.expect(msg.map_or(toolz.identity, 'Expected associated project'))
 
     @property
     def _maybe_project_units(self) -> option.Option[Union[units.UsOilfield, units.Metric]]:
