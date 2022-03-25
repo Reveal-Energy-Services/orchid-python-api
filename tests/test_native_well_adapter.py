@@ -332,18 +332,32 @@ class CreateStageDtoArgs:
 
 
 # Test ideas
-# - Created stage has stage_no supplied to constructor
-# - Created stage has stage_type supplied to constructor
-# - Created stage has md_top supplied to constructor
-# - Created stage has md_bottom supplied to constructor
-# - Created stage has cluster_count supplied to constructor
-# - Created stage has time_range supplied to constructor
-# - Created stage has isip supplied to constructor
-# - Created stage has shmin supplied to constructor
-# - Created stage has .NET "not a time" time range if maybe_time_range has no value
-# - Created stage has no shmin if maybe_shmin has no value
-class TestCreateStageDto(unittest.TestCase):
+# - Added stage has stage_no supplied to constructor
+# - Added stage has stage_type supplied to constructor
+# - Added stage has md_top supplied to constructor
+# - Added stage has md_bottom supplied to constructor
+# - Added stage has cluster_count supplied to constructor
+# - Added stage has time_range supplied to constructor
+# - Added stage has isip supplied to constructor
+# - Added stage has shmin supplied to constructor
+# - Added stage has .NET "not a time" time range if maybe_time_range has no value
+# - Added stage has no shmin if maybe_shmin has no value
+class TestNativeWellAdapterAddStages(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
 
+    @unittest.skip('Not yet implemented')
+    def test_added_stage_has_display_stage_number_from_ctor(self):
+        stage_no = 27
+        create_dto_args = dc.asdict(CreateStageDtoArgs(stage_no=stage_no))
+        stub_well = tsn.create_stub_net_well()
+        actual_stage = nwa.CreateStageDto(**create_dto_args).create_stage(stub_well)
+
+        assert_that(actual_stage.display_stage_number, equal_to(stage_no))
+
+
+# Test ideas
+class TestCreateStageDto(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
@@ -410,15 +424,6 @@ class TestCreateStageDto(unittest.TestCase):
             maybe_isip=DONT_CARE_ISIP,
             maybe_shmin=erroneous_shmin,
         ), raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement. Found {erroneous_shmin:~P}'))
-
-    @unittest.skip('Not yet implemented')
-    def test_created_stage_has_stage_no_from_ctor(self):
-        stage_no = 27
-        create_dto_args = dc.asdict(CreateStageDtoArgs(stage_no=stage_no))
-        stub_well = tsn.create_stub_net_well()
-        actual_stage = nwa.CreateStageDto(**create_dto_args).create_stage(stub_well)
-
-        assert_that(actual_stage.display_stage_number, equal_to(stage_no))
 
 
 if __name__ == '__main__':
