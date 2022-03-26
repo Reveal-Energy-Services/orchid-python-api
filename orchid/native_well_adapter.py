@@ -170,3 +170,6 @@ class NativeWellAdapter(dpo.DomProjectObject):
             list,
         )
         return result
+
+    def add_stages(self, create_stage_dto: Iterable[CreateStageDto]):
+        pass

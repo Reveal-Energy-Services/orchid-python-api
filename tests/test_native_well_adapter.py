@@ -28,6 +28,7 @@ from orchid import (
     native_trajectory_adapter as nta,
     native_stage_adapter as nsa,
     native_well_adapter as nwa,
+    net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
 )
@@ -332,16 +333,57 @@ class CreateStageDtoArgs:
 
 
 # Test ideas
+# - Calling add_stages with no CreateStageDto calls neither AddStages nor CreateStage
 # - Calling add_stages with single CreateStageDto calls AddStages with correct arguments
 # - Calling add_stages with many CreateStageDtos calls AddStages with correct arguments
 class TestNativeWellAdapterAddStages(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.skip('Not yet implemented')
-    def test_add_stages_with_single_create_stage_dto_calls_add_stages_with_single_created_stage(self):
+    @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
+    def test_add_stages_with_no_items_calls_neither_add_stages_nor_create_stage(self, stub_object_factory):
         stub_net_well = tsn.WellDto().create_net_stub()
+        sut = nwa.NativeWellAdapter(stub_net_well)
 
+        to_add_dto = nwa.CreateStageDto(stage_no=28, stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+                                        md_top=3917.39 * om.registry('m'),
+                                        md_bottom=4020.48 * om.registry('m'),
+                                        maybe_isip=34025.2 * om.registry('kPa'))
+        sut.add_stages([to_add_dto])
+
+        # Verify that we neither created a stage nor added stages
+        stub_object_factory.CreateStage.assert_not_called()
+        stub_net_well.AddStages.assert_not_called()
+
+    # @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
+    @unittest.skip('Not yet implemented')
+    def test_add_stages_with_one_item_calls_add_stages_with_single_created_stage(self, stub_object_factory):
+        project_units = units.Metric
+        stub_net_well = tsn.WellDto(project_units=project_units).create_net_stub()
+        sut = nwa.NativeWellAdapter(stub_net_well)
+
+        to_add_dto = nwa.CreateStageDto()
+        sut.add_stages(to_add_dto)
+
+        # Verify that we created the stage with the correct details
+        stub_object_factory.CreateStage.assert_called_once()
+        actual_create_stage_args = stub_object_factory.CreateStage.call_args_list[0].args
+        (actual_stage_no, actual_well, actual_stage_type, actual_md_top,
+         actual_md_bottom, actual_shmin, actual_cluster_count) = actual_create_stage_args
+
+        assert_that(actual_stage_no, equal_to(to_add_dto.stage_no))
+        assert_that(actual_well, equal_to(stub_net_well))
+        assert_that(actual_stage_type, equal_to(to_add_dto.stage_type))
+        expected_net_md_top = onq.as_net_quantity_in_specified_unit(project_units.LENGTH,
+                                                                    to_add_dto.md_top)
+        tcm.assert_that_net_quantities_close_to(actual_md_top, expected_net_md_top)
+        expected_net_md_bottom = onq.as_net_quantity_in_specified_unit(project_units.LENGTH,
+                                                                       to_add_dto.md_bottom)
+        tcm.assert_that_net_quantities_close_to(actual_md_bottom, expected_net_md_bottom)
+        expected_net_shmin = onq.as_net_quantity_in_specified_unit(project_units.LENGTH,
+                                                                   to_add_dto.shmin)
+        tcm.assert_that_net_quantities_close_to(actual_shmin, expected_net_shmin)
+        assert_that(actual_cluster_count, equal_to(to_add_dto.cluster_count))
 
 # Test ideas
 # - Created stage has stage_no supplied to constructor
