@@ -188,11 +188,6 @@ class NativeWellAdapter(dpo.DomProjectObject):
             The newly created stage. Remember that, at this point in time, the specified `well`
             is **unaware** of this newly added stage.
         """
-        # TODO: Consider a mechanism to specify the `expect` message
-        # project_units = self.expect_project_units(f'Expected to find project units for well'
-        #                                           f' with name={self.name},'
-        #                                           f' display_name={self.display_name},'
-        #                                           f' and object_id={self.object - id}')
         project_units = self.expect_project_units
         net_md_top = onq.as_net_quantity(project_units.LENGTH)
         net_md_bottom = onq.as_net_quantity(project_units.LENGTH)
