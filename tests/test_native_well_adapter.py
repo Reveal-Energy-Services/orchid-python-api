@@ -22,6 +22,7 @@ import uuid
 
 from hamcrest import (assert_that, equal_to, instance_of, is_, empty, contains_exactly,
                       calling, raises)
+import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
@@ -318,18 +319,26 @@ class TestNativeWellAdapter(unittest.TestCase):
 
 DONT_CARE_STAGE_NO = 32
 DONT_CARE_STAGE_TYPE = nsa.ConnectionType.PLUG_AND_PERF
-DONT_CARE_MD_TOP = units.make_us_oilfield_length_measurement(11389.3)
-DONT_CARE_MD_BOTTOM = units.make_us_oilfield_length_measurement(11550.0)
-DONT_CARE_ISIP = units.make_us_oilfield_pressure_measurement(2.217)
+DONT_CARE_MD_TOP_US = units.make_us_oilfield_length_measurement(11389.3)
+DONT_CARE_MD_BOTTOM_US = units.make_us_oilfield_length_measurement(11550.0)
+DONT_CARE_ISIP_US = units.make_us_oilfield_pressure_measurement(2.217)
 
 
 @dc.dataclass
 class CreateStageDtoArgs:
     stage_no: int = DONT_CARE_STAGE_NO
     stage_type: nsa.ConnectionType = DONT_CARE_STAGE_TYPE
-    md_top: om.Quantity = DONT_CARE_MD_TOP
-    md_bottom: om.Quantity = DONT_CARE_MD_BOTTOM
-    maybe_isip: om.Quantity = DONT_CARE_ISIP
+    md_top: om.Quantity = DONT_CARE_MD_TOP_US
+    md_bottom: om.Quantity = DONT_CARE_MD_BOTTOM_US
+    maybe_isip: om.Quantity = DONT_CARE_ISIP_US
+
+
+DONT_CARE_US_STAGE_DTO_ARGS = CreateStageDtoArgs()
+DONT_CARE_METRIC_STAGE_DTO_ARGS = CreateStageDtoArgs(stage_no=28,
+                                                     stage_type=nsa.ConnectionType.PLUG_AND_PERF,
+                                                     md_top=3917.39 * om.registry('m'),
+                                                     md_bottom=4020.48 * om.registry('m'),
+                                                     maybe_isip=34025.2 * om.registry('kPa'))
 
 
 # Test ideas
@@ -345,24 +354,24 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
         stub_net_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_net_well)
 
-        to_add_dto = nwa.CreateStageDto(stage_no=28, stage_type=nsa.ConnectionType.PLUG_AND_PERF,
-                                        md_top=3917.39 * om.registry('m'),
-                                        md_bottom=4020.48 * om.registry('m'),
-                                        maybe_isip=34025.2 * om.registry('kPa'))
+        to_add_dto = nwa.CreateStageDto(**dc.asdict(DONT_CARE_METRIC_STAGE_DTO_ARGS))
         sut.add_stages([to_add_dto])
 
         # Verify that we neither created a stage nor added stages
         stub_object_factory.CreateStage.assert_not_called()
         stub_net_well.AddStages.assert_not_called()
 
-    # @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
-    @unittest.skip('Not yet implemented')
-    def test_add_stages_with_one_item_calls_add_stages_with_single_created_stage(self, stub_object_factory):
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
+    def test_add_stages_with_one_item_calls_add_stages_with_single_created_stage(self,
+                                                                                 stub_object_factory,
+                                                                                 stub_as_unit_system):
         project_units = units.Metric
-        stub_net_well = tsn.WellDto(project_units=project_units).create_net_stub()
+        stub_as_unit_system.return_value = project_units
+        stub_net_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_net_well)
 
-        to_add_dto = nwa.CreateStageDto()
+        to_add_dto = nwa.CreateStageDto(**dc.asdict(DONT_CARE_METRIC_STAGE_DTO_ARGS))
         sut.add_stages(to_add_dto)
 
         # Verify that we created the stage with the correct details
@@ -384,6 +393,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
                                                                    to_add_dto.shmin)
         tcm.assert_that_net_quantities_close_to(actual_shmin, expected_net_shmin)
         assert_that(actual_cluster_count, equal_to(to_add_dto.cluster_count))
+
 
 # Test ideas
 # - Created stage has stage_no supplied to constructor
@@ -427,42 +437,31 @@ class TestCreateStageDto(unittest.TestCase):
 
     def test_ctor_raises_error_if_cluster_count_less_than_0(self):
         erroneous_cluster_count = -1
-        assert_that(calling(nwa.CreateStageDto).with_args(
-            stage_no=DONT_CARE_STAGE_NO,
-            stage_type=DONT_CARE_STAGE_TYPE,
-            md_top=DONT_CARE_MD_TOP,
-            md_bottom=DONT_CARE_MD_BOTTOM,
-            cluster_count=erroneous_cluster_count,
-        ), raises(ValueError, pattern=f'`cluster_count` to be non-negative.*Found {erroneous_cluster_count}'))
+        create_stage_dto_args = toolz.merge({'cluster_count': erroneous_cluster_count},
+                                            dc.asdict(CreateStageDtoArgs()))
+        assert_that(calling(nwa.CreateStageDto).with_args(**create_stage_dto_args),
+                    raises(ValueError, pattern=f'`cluster_count` to be non-negative.*'
+                                               f'Found {erroneous_cluster_count}'))
 
     def test_ctor_raises_error_if_maybe_isip_is_not_a_pressure_unit(self):
         erroneous_isip = units.make_metric_length_measurement(4419.58)
-        assert_that(calling(nwa.CreateStageDto).with_args(
-            stage_no=DONT_CARE_STAGE_NO,
-            stage_type=DONT_CARE_STAGE_TYPE,
-            md_top=DONT_CARE_MD_TOP,
-            md_bottom=DONT_CARE_MD_BOTTOM,
-            maybe_isip=erroneous_isip,
-        ), raises(ValueError, pattern=f'`maybe_isip` to be a pressure measurement. Found {erroneous_isip:~P}'))
+        create_stage_dto_args = dc.asdict(CreateStageDtoArgs(maybe_isip=erroneous_isip))
+        assert_that(calling(nwa.CreateStageDto).with_args(**create_stage_dto_args),
+                    raises(ValueError, pattern=f'`maybe_isip` to be a pressure measurement.'
+                                               f' Found {erroneous_isip:~P}'))
 
     def test_ctor_raises_error_if_maybe_isip_is_not_supplied(self):
-        assert_that(calling(nwa.CreateStageDto).with_args(
-            stage_no=DONT_CARE_STAGE_NO,
-            stage_type=DONT_CARE_STAGE_TYPE,
-            md_top=DONT_CARE_MD_TOP,
-            md_bottom=DONT_CARE_MD_BOTTOM,
-        ), raises(TypeError, pattern=f'`maybe_isip` to be supplied. Found `None`'))
+        create_stage_dto_args = dc.asdict(CreateStageDtoArgs(maybe_isip=None))
+        assert_that(calling(nwa.CreateStageDto).with_args(**create_stage_dto_args),
+                    raises(TypeError, pattern=f'`maybe_isip` to be supplied. Found `None`'))
 
     def test_ctor_raises_error_if_maybe_shmin_is_not_a_pressure_unit(self):
         erroneous_shmin = units.make_metric_length_measurement(4473.45)
-        assert_that(calling(nwa.CreateStageDto).with_args(
-            stage_no=DONT_CARE_STAGE_NO,
-            stage_type=DONT_CARE_STAGE_TYPE,
-            md_top=DONT_CARE_MD_TOP,
-            md_bottom=DONT_CARE_MD_BOTTOM,
-            maybe_isip=DONT_CARE_ISIP,
-            maybe_shmin=erroneous_shmin,
-        ), raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement. Found {erroneous_shmin:~P}'))
+        create_stage_dto_args = toolz.merge({'maybe_shmin': erroneous_shmin},
+                                            dc.asdict(CreateStageDtoArgs()))
+        assert_that(calling(nwa.CreateStageDto).with_args(**create_stage_dto_args),
+                    raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement.'
+                                               f' Found {erroneous_shmin:~P}'))
 
 
 if __name__ == '__main__':
