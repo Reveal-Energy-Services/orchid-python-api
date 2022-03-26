@@ -332,24 +332,28 @@ class CreateStageDtoArgs:
 
 
 # Test ideas
-# - Added stage is present on well
-# - Added stages are all present on well
-# - Added stage has stage_no supplied to constructor
-# - Added stage has stage_type supplied to constructor
-# - Added stage has md_top supplied to constructor
-# - Added stage has md_bottom supplied to constructor
-# - Added stage has cluster_count supplied to constructor
-# - Added stage has time_range supplied to constructor
-# - Added stage has isip supplied to constructor
-# - Added stage has shmin supplied to constructor
-# - Added stage has .NET "not a time" time range if maybe_time_range has no value
-# - Added stage has no shmin if maybe_shmin has no value
+# - Calling add_stages with single CreateStageDto calls AddStages with correct arguments
+# - Calling add_stages with many CreateStageDtos calls AddStages with correct arguments
 class TestNativeWellAdapterAddStages(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
+    @unittest.skip('Not yet implemented')
+    def test_add_stages_with_single_create_stage_dto_calls_add_stages_with_single_created_stage(self):
+        stub_net_well = tsn.WellDto()
+
 
 # Test ideas
+# - Created stage has stage_no supplied to constructor
+# - Created stage has stage_type supplied to constructor
+# - Created stage has md_top supplied to constructor
+# - Created stage has md_bottom supplied to constructor
+# - Created stage has cluster_count supplied to constructor
+# - Created stage has time_range supplied to constructor
+# - Created stage has isip supplied to constructor
+# - Created stage has shmin supplied to constructor
+# - Created stage has .NET "not a time" time range if maybe_time_range has no value
+# - Created stage has no shmin if maybe_shmin has no value
 class TestCreateStageDto(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
