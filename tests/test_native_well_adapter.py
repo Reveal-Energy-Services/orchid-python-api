@@ -64,7 +64,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test ground level elevation, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(ground_level_elevation_above_sea_level=orchid_actual)
+                stub_native_well = tsn.WellDto(ground_level_elevation_above_sea_level=orchid_actual).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.ground_level_elevation_above_sea_level, expected, tolerance)
@@ -83,7 +83,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test kelly bushing height above ground level, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(kelly_bushing_height_above_ground_level=orchid_actual)
+                stub_native_well = tsn.WellDto(kelly_bushing_height_above_ground_level=orchid_actual).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.kelly_bushing_height_above_ground_level, expected, tolerance)
@@ -102,7 +102,7 @@ class TestNativeWellAdapter(unittest.TestCase):
             expected_names = get_stage_dtos_property('name')
             with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
                               f' and names, {expected_names}'):
-                stub_native_well = tsn.create_stub_net_well(stage_dtos=stage_dtos)
+                stub_native_well = tsn.WellDto(stage_dtos=stage_dtos).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 assert_that(sut.stages().all_object_ids(), contains_exactly(*expected_object_ids))
@@ -130,7 +130,7 @@ class TestNativeWellAdapter(unittest.TestCase):
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_empty_locations_for_md_kb_values_if_empty_md_kb_values(self, mock_as_unit_system):
         mock_as_unit_system.return_value = units.Metric
-        stub_native_well = tsn.create_stub_net_well()
+        stub_native_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         actual = sut.locations_for_md_kb_values([], origins.WellReferenceFrameXy.PROJECT, origins.DepthDatum.SEA_LEVEL)
@@ -182,8 +182,8 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(f'Test single location, {expected.x:~P} at md_kb value, {md_kb_dto.magnitude}'
                               f' {md_kb_dto.unit.value.unit:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(
-                    locations_for_md_kb_values={((md_kb_dto,), frame, datum): [orchid_actual]})
+                stub_native_well = tsn.WellDto(
+                    locations_for_md_kb_values={((md_kb_dto,), frame, datum): [orchid_actual]}).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
@@ -245,8 +245,8 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(f'Test many locations, {expected[0]}..., in project_units {project_units}'
                               f' at values, {md_kb_values[0]}...'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(
-                    locations_for_md_kb_values={(md_kb_values, frame, datum): orchid_actual})
+                stub_native_well = tsn.WellDto(
+                    locations_for_md_kb_values={(md_kb_values, frame, datum): orchid_actual}).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
@@ -262,12 +262,12 @@ class TestNativeWellAdapter(unittest.TestCase):
 
     def test_formation_returns_expected_formation_when_initialized(self):
         expected_formation = 'Bakken'
-        stub_native_well = tsn.create_stub_net_well(formation=expected_formation)
+        stub_native_well = tsn.WellDto(formation=expected_formation).create_net_stub()
         sut = nwa.NativeWellAdapter(stub_native_well)
         assert_that(sut.formation, equal_to(expected_formation))
 
     def test_formation_returns_empty_string_when_net_formation_uninitialized(self):
-        stub_native_well = tsn.create_stub_net_well()
+        stub_native_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_native_well)
         # TODO Add custom matcher 'empty_string()', test would be "assert_that(sut.formation, equal_to(empty_string())"
         assert_that(sut.formation, equal_to(''))
@@ -303,7 +303,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         for input_location, expected_location, tolerances in zip(inputs, expected, comparison_tolerances):
             whl_input = [input_location.easting, input_location.northing, input_location.depth]
             mock_as_unit_system.return_value = units.UsOilfield
-            stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_input)
+            stub_native_well = tsn.WellDto(wellhead_location=whl_input).create_net_stub()
             sut = nwa.NativeWellAdapter(stub_native_well)
             whl_actual = sut.wellhead_location
             with self.subTest(f'Testing Wellhead Location'):
@@ -340,7 +340,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
 
     @unittest.skip('Not yet implemented')
     def test_add_stages_with_single_create_stage_dto_calls_add_stages_with_single_created_stage(self):
-        stub_net_well = tsn.WellDto()
+        stub_net_well = tsn.WellDto().create_net_stub()
 
 
 # Test ideas
