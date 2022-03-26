@@ -171,5 +171,10 @@ class NativeWellAdapter(dpo.DomProjectObject):
         )
         return result
 
-    def add_stages(self, create_stage_dto: Iterable[CreateStageDto]):
+    def add_stages(self, create_stage_dtos: Iterable[CreateStageDto]):
+        """
+        Adds stage(s) to this well, each with details specified by items in `create_stages_dtos`.
+        Args:
+            create_stage_dtos: An iterable whose items contain the details af the stage to add.
+        """
         pass
