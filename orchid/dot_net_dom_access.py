@@ -185,6 +185,7 @@ class IdentifiedDotNetAdapter(DotNetAdapter):
 
     object_id = transformed_dom_property('object_id', 'The object ID of the adapted .NET DOM object.', as_object_id)
 
+    # TODO: Consider a mechanism allowing the caller to specify the expect message.
     @property
     def expect_project_units(self, msg=option.NONE) -> Union[units.UsOilfield, units.Metric]:
         """
