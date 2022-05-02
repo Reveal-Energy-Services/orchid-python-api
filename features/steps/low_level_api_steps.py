@@ -16,9 +16,15 @@
 #
 
 # noinspection PyPackageRequirements
+import clr
 from behave import *
 
 use_step_matcher("parse")
+
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnotics.Factories.Implementations.Attributes import Attribute
+# noinspection PyUnresolvedReferences
+from System import Double, Integer, String
 
 
 # noinspection PyBDDParameters
@@ -30,7 +36,14 @@ def step_impl(context, attr_name, type_name):
         attr_name (str): The name of the attribute to add.
         type_name (str): The name of the type of the attribute.
     """
-    raise NotImplementedError(f'STEP: I create a stage attribute named "{attr_name}" for a(n) {type_name} value')
+    type_name_to_net_type = {
+        'double': Double,
+        'integer': Integer,
+        'string': String,
+    }
+    to_add = Attribute[type_name_to_net_type('type_name')].Create(attr_name)
+    assert to_add is not None
+    context.stage_attributes[attr_name] = to_add
 
 
 # noinspection PyBDDParameters
