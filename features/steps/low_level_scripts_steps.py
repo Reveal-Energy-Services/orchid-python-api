@@ -24,37 +24,18 @@ import pathlib
 import shutil
 
 
-# # noinspection PyBDDParameters
-@given("I have copied the low-level script, '<script_file_name>', to the repository root")
+# noinspection PyBDDParameters
+@given("I have copied the low-level script, '<{script_file_name}>', to the repository root")
 def step_impl(context, script_file_name):
     """
     Args:
         context (behave.runner.Context): The test context.
         script_file_name (str): The file name of the script to copy.
     """
-    raise NotImplementedError(f"STEP: Given I have copied the low-level script, '<{script_file_name}>',"
-                              f" to the repository root")
-
-
-# noinspection PyBDDParameters
-@when("I execute the script")
-def step_impl(context):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-    """
-    raise NotImplementedError(u'STEP: When I execute the script')
-
-
-# noinspection PyBDDParameters
-@then("I see that <{picked_observation_count:d}> observations were picked")
-def step_impl(context, picked_observation_count):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        picked_observation_count (int): The number of picked observations.
-    """
-    raise NotImplementedError(f"STEP: Then I see that <{picked_observation_count}> observations were picked")
+    repository_root = pathlib.Path()
+    low_level_example_scripts_dirname = repository_root.joinpath('orchid_python_api', 'examples', 'low_level')
+    to_copy_path_name = low_level_example_scripts_dirname.joinpath(script_file_name)
+    shutil.copy(to_copy_path_name, repository_root)
 
 
 # noinspection PyBDDParameters
