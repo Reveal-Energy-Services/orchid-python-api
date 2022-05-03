@@ -20,8 +20,13 @@ Feature: Low-level example scripts
   I want to access Orchid projects using the low-level API exemplified by scripts
   In order to complete my work in a timely manner
 
-  Scenario: Automatically pick observations and create stage attributes
-    Given I have copied the low-level script, '<auto_pick_and_create_stage_attribute.py>', to the repository root
+  Scenario: Automatically pick observations
+    Given I have copied the low-level script, '<auto_pick.py>', to the repository root
     When I execute the script
     Then I see that <120> observations were picked
-    And I see that <2> attributes were created for each stage of each well
+
+#  Scenario: Automatically pick observations and create stage attributes
+#    Given I have copied the low-level script, '<auto_pick_and_create_stage_attribute.py>', to the repository root
+#    When I execute the script
+#    Then I see that <120> observations were picked
+#    And I see that <2> attributes were created for each stage of each well
