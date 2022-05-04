@@ -16,19 +16,27 @@
 #
 
 # noinspection PyPackageRequirements
-import clr
 from behave import *
 
 use_step_matcher("parse")
 
+from hamcrest import assert_that, equal_to, is_, not_none
+import toolz.curried as toolz
+
+from orchid import (
+    dot_net_disposable as dnd,
+)
+
+import common_functions as cf
+
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnotics.Factories.Implementations.Attributes import Attribute
+from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
 # noinspection PyUnresolvedReferences
-from System import Double, Integer, String
+from System import Double, Int32, String
 
 
 # noinspection PyBDDParameters
-@step("I create a stage attribute named '{attr_name}' for a(n) {type_name} value")
+@step("I create a stage attribute named '{attr_name}' for a(n) <{type_name}> value")
 def step_impl(context, attr_name, type_name):
     """
     Args:
@@ -38,11 +46,13 @@ def step_impl(context, attr_name, type_name):
     """
     type_name_to_net_type = {
         'double': Double,
-        'integer': Integer,
+        'integer': Int32,
         'string': String,
     }
-    to_add = Attribute[type_name_to_net_type('type_name')].Create(attr_name)
-    assert to_add is not None
+    to_add = Attribute[type_name_to_net_type[type_name]].Create(attr_name)
+    assert_that(to_add, is_(not_none()))
+    if 'stage_attributes' not in context:
+        context.stage_attributes = {}
     context.stage_attributes[attr_name] = to_add
 
 
@@ -54,7 +64,17 @@ def step_impl(context, well):
         context (behave.runner.Context): The test context.
         well (str): The well of interest.
     """
-    raise NotImplementedError(f"STEP: And I add the created attributes to the well, '{well}', of the project")
+    to_add_to_well = cf.find_well_by_name_in_project(context, well)
+
+    with dnd.disposable(to_add_to_well.dom_object.ToMutable()) as mutable_well:
+        for attribute in context.stage_attributes.values():
+            mutable_well.AddStageAttribute(attribute)
+
+    for attribute_name in context.stage_attributes.keys():
+        candidate_attributes = list(toolz.filter(lambda a: a.Name == attribute_name,
+                                                 to_add_to_well.dom_object.StageAttributes.Items))
+        assert_that(len(candidate_attributes), equal_to(1))
+        assert_that(candidate_attributes[0], equal_to(context.stage_attributes[attribute_name]))
 
 
 # noinspection PyBDDParameters

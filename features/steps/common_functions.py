@@ -121,7 +121,7 @@ def find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name):
     Returns:
         The stage of the well named, `well_name`. If no such stage is present, raises an `AssertionError`.
     """
-    well_of_interest = _find_well_by_name_in_project(context, well_name)
+    well_of_interest = find_well_by_name_in_project(context, well_name)
     result = well_of_interest.stages().find_by_display_stage_number(stage_no)
     assert result is not None, f'Expected stage number, {stage_no}, in well named, {well_name}, of loaded project.' \
                                ' Found none.'
@@ -129,7 +129,7 @@ def find_stage_by_stage_no_in_well_of_project(context, stage_no, well_name):
     return result
 
 
-def _find_well_by_name_in_project(context, well_name):
+def find_well_by_name_in_project(context, well_name):
     """
     Return the single well, named `well_name`, of the loaded project.
     Args:
