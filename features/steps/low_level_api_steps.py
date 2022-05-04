@@ -80,6 +80,10 @@ def step_impl(context, well):
         candidate_attributes = list(toolz.filter(lambda a: a.Name == attribute_name,
                                                  to_add_to_well.dom_object.StageAttributes.Items))
         assert_that(len(candidate_attributes), equal_to(1))
+        # Beware: if one fails to include the `Name` attribute, the test will fail, but because the .NET implementation
+        # of `Attribute.ToString()` prints the name, the failure will seem to report that it expected the name and it
+        # **also** found the name.
+        print(candidate_attributes[0] == context.stage_attributes[attribute_name])
         assert_that(candidate_attributes[0], equal_to(context.stage_attributes[attribute_name]))
 
 
@@ -93,22 +97,15 @@ def step_impl(context, stage_no, well, length):
         well (str): The well of interest.
         length (str): The value of the stage length attribute of stage to set.
     """
-    stage = cf.find_stage_no_in_well_of_project(context, stage_no, well)
+    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
         expected_length = om.Quantity(length)
         mutable_stage.SetAttribute(context.stage_attributes['My Stage Length'],
                                    onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, expected_length))
 
-    ignored_object = object()
-    _, actual_attribute_value = stage.dom_object.TryGetAttributeValue(context.stage_attributes['My Stage Length'],
-                                                                      ignored_object)
-    cf.assert_that_actual_measurement_close_to_expected(onq.as_measurement(units.UsOilfield.LENGTH,
-                                                                           option.maybe(actual_attribute_value)),
-                                                        length)
-
 
 # noinspection PyBDDParameters
-@step("I set the value of the sequence number attribute of stage, {stage_no}, of '{well}' to {global_seq_no:d}")
+@step("I set the value of the sequence number attribute of stage, {stage_no:d}, of '{well}' to {global_seq_no:d}")
 def step_impl(context, stage_no, well, global_seq_no):
     """
     Args:
@@ -117,8 +114,9 @@ def step_impl(context, stage_no, well, global_seq_no):
         well (str): The well of interest.
         global_seq_no (int): The value of the global stage sequence number attribute.
     """
-    raise NotImplementedError(f"STEP: And I set the value of the sequence number attribute of stage, {stage_no},"
-                              f" of '{well}' to {global_seq_no}")
+    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
+    with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
+        mutable_stage.SetAttribute(context.stage_attributes['My Global Stage Sequence Number'], global_seq_no)
 
 
 # noinspection PyBDDParameters
@@ -131,12 +129,18 @@ def step_impl(context, stage_no, well, length):
         well (str): The well of interest.
         length (str): The value of the stage length attribute of stage to set.
     """
-    raise NotImplementedError(f"STEP: Then I see the value of the stage length attribute of stage, {stage_no},"
-                              f" of '{well}' equals {length}")
+    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
+    ignored_object = object()
+    _, actual_attribute_value = stage.dom_object.TryGetAttributeValue(context.stage_attributes['My Stage Length'],
+                                                                      ignored_object)
+    cf.assert_that_actual_measurement_close_to_expected(onq.as_measurement(units.UsOilfield.LENGTH,
+                                                                           option.maybe(actual_attribute_value)),
+                                                        length)
 
 
 # noinspection PyBDDParameters
-@step("I see the value of the sequence number attribute for stage, {stage_no:d}, of '{well}' equal to {global_seq_no}")
+@step("I see the value of the sequence number attribute for stage, {stage_no:d}, of '{well}' equal to"
+      " {global_seq_no:d}")
 def step_impl(context, stage_no, well, global_seq_no):
     """
     Args:
@@ -145,6 +149,9 @@ def step_impl(context, stage_no, well, global_seq_no):
         well (str): The well of interest.
         global_seq_no (int): The value of the global stage sequence number attribute.
     """
-    raise NotImplementedError(
-        f"STEP: And I see the value of the sequence number attribute for stage, {stage_no},"
-        f" of '{well}' equal to {global_seq_no}")
+    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
+
+    ignored_object = object()
+    _, actual_attribute_value = stage.dom_object.TryGetAttributeValue(
+        context.stage_attributes['My Global Stage Sequence Number'], ignored_object)
+    assert_that(actual_attribute_value, equal_to(global_seq_no))
