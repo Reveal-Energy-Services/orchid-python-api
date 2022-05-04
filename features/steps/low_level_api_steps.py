@@ -21,10 +21,16 @@ from behave import *
 use_step_matcher("parse")
 
 from hamcrest import assert_that, equal_to, is_, not_none
+import option
 import toolz.curried as toolz
+
 
 from orchid import (
     dot_net_disposable as dnd,
+    measurement as om,
+    net_quantity as onq,
+    physical_quantity as opq,
+    unit_system as units,
 )
 
 import common_functions as cf
@@ -36,7 +42,7 @@ from System import Double, Int32, String
 
 
 # noinspection PyBDDParameters
-@step("I create a stage attribute named '{attr_name}' for a(n) <{type_name}> value")
+@step("I create a stage attribute named '<{attr_name}>' for a(n) <{type_name}> value")
 def step_impl(context, attr_name, type_name):
     """
     Args:
@@ -87,8 +93,18 @@ def step_impl(context, stage_no, well, length):
         well (str): The well of interest.
         length (str): The value of the stage length attribute of stage to set.
     """
-    raise NotImplementedError(f"STEP: And I set the value of the stage length attribute of stage, {stage_no},"
-                              f" of '{well}' to the {length}")
+    stage = cf.find_stage_no_in_well_of_project(context, stage_no, well)
+    with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
+        expected_length = om.Quantity(length)
+        mutable_stage.SetAttribute(context.stage_attributes['My Stage Length'],
+                                   onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, expected_length))
+
+    ignored_object = object()
+    _, actual_attribute_value = stage.dom_object.TryGetAttributeValue(context.stage_attributes['My Stage Length'],
+                                                                      ignored_object)
+    cf.assert_that_actual_measurement_close_to_expected(onq.as_measurement(units.UsOilfield.LENGTH,
+                                                                           option.maybe(actual_attribute_value)),
+                                                        length)
 
 
 # noinspection PyBDDParameters
