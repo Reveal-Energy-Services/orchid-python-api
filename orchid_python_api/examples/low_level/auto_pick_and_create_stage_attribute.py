@@ -30,13 +30,11 @@ from random import seed
 from random import random
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation, StageAttribute)
+from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
+from Orchid.FractureDiagnostics.Factories.Implementations import (Attribute, LeakoffCurves)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.SDKFacade import (
-    ScriptAdapter,
-)
+from Orchid.FractureDiagnostics.SDKFacade import (ScriptAdapter)
 # noinspection PyUnresolvedReferences
 from System import (Array, Double, Int32, DateTime, String)
 # noinspection PyUnresolvedReferences
@@ -258,8 +256,8 @@ def auto_pick_observations(native_project, native_monitor):
     wells = native_project.Wells.Items
 
     # Create a new "Stage Attribute"
-    pick_attribute_1 = StageAttribute[Double]("My Attribute 1", 0.0)
-    pick_attribute_2 = StageAttribute[Int32]("My Attribute 2", 0)
+    pick_attribute_1 = Attribute[Double].Create("My Attribute 1", 0.0)
+    pick_attribute_2 = Attribute[Int32].Create("My Attribute 2", 0)
 
     for well in wells:
         stages = well.Stages.Items
@@ -274,7 +272,11 @@ def auto_pick_observations(native_project, native_monitor):
             # Set the attribute for the stage
             with dnd.disposable(stage.ToMutable()) as mutable_stage:
                 mutable_stage.SetAttribute(pick_attribute_1, random()*100.0)
+                logging.info(f'Set value for attribute {pick_attribute_1.Name} for stage {stage.DisplayStageNumber} of '
+                             f'well {well.Name}')
                 mutable_stage.SetAttribute(pick_attribute_2, stage.GlobalStageSequenceNumber)
+                logging.info(f'Set value for attribute {pick_attribute_2.Name} for stage {stage.DisplayStageNumber} of '
+                             f'well {well.Name}')
 
             if is_stage_visible_to_monitor(native_monitor, stage):
 

@@ -83,7 +83,7 @@ def step_impl(context, observation_count):
     # `context.script_process.stdout` contains an empty string.
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    script_lines = script_output.split()
+    script_lines = script_output.split('\n')
     pattern = re.compile(r'len\(observation_set.GetObservations\(\)\)=(\d+)$')
     candidate_get_observations_matches = toolz.pipe(
         script_lines,
@@ -97,6 +97,7 @@ def step_impl(context, observation_count):
         to_test_count = int(candidate_get_observations_matches[-1].group(1))
         assert_that(to_test_count, equal_to(observation_count), (f'Expected second observation count to'
                                                                  f' equal {observation_count}. Found {to_test_count}'))
+        print('Clean up script in repository root!')
     except AssertionError:
         print(f'Output:\n{script_output}')
         raise
@@ -110,7 +111,27 @@ def step_impl(context, attribute_count):
         context (behave.runner.Context): The test context
         attribute_count (int): The number of attributes added to each stage of each well
     """
-    # script_output = script_process.stdout
-    # print(script_output)
-    raise NotImplementedError(f"STEP: Then I see that <{attribute_count}> attributes were added"
-                              f" for each stage and well")
+    # TODO: I believe the following, commented out code, is correct.
+    # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+    # `context.script_process.stdout` contains an empty string.
+    # script_output = context.script_process.stdout
+    script_output = context.script_process.stderr
+    script_lines = script_output.split('\n')
+    pattern = 'Set value for attribute My Attribute'
+    actual_count = toolz.pipe(
+        script_lines,
+        toolz.filter(lambda l: pattern in l),
+        list,
+        len,
+    )
+    try:
+        # Calculate the expected count of matches: `attribute_count` * sum of stages for each well
+        # The Bakken project has four well; however, well "Demo_3H" has **no** stages. Wells "Demo_1H" and "Demo_2H"
+        # have 50 stages each and well "Demo_4H" has 35 stages.
+        expected_count = attribute_count * (50 + 50 + 35)
+        assert_that(actual_count, equal_to(expected_count),
+                    f'Expected exactly {expected_count} matches in output. Found {actual_count}')
+        print('Clean up script in repository root!')
+    except AssertionError:
+        print(f'Output:\n{script_output}')
+        raise

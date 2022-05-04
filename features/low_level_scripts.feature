@@ -25,8 +25,8 @@ Feature: Low-level example scripts
     When I execute the script
     Then I see that <120> observations were picked
 
-#  Scenario: Automatically pick observations and create stage attributes
-#    Given I have copied the low-level script, '<auto_pick_and_create_stage_attribute.py>', to the repository root
-#    When I execute the script
-#    Then I see that <120> observations were picked
-#    And I see that <2> attributes were created for each stage of each well
+  Scenario: Automatically pick observations and create stage attributes
+    Given I have copied the low-level script, '<auto_pick_and_create_stage_attribute.py>', to the repository root
+    When I execute the script
+    Then I see that <120> observations were picked
+    And I see that <2> attributes were created for each stage of each well
