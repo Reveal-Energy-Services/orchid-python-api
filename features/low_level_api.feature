@@ -33,7 +33,7 @@ Feature: Low-level DOM API
     Examples: Bakken
       | field  | well    | stage_no | length    | global_seq_no |
       | Bakken | Demo_1H | 1        | 50.66 ft  | 4             |
-      | Bakken | Demo_1H | 50       | 147.11 ft | 128           |
+#      | Bakken | Demo_1H | 50       | 147.11 ft | 128           |
 #      | Bakken | Demo_1H | 4        | 147.22 ft | 10            |
 #      | Bakken | Demo_2H | 1        | 147.22 ft | 2             |
 #      | Bakken | Demo_2H | 50       | 75.08 ft  | 136           |

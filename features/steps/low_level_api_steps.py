@@ -20,7 +20,7 @@ from behave import *
 
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to, is_, not_none
+from hamcrest import assert_that, equal_to, is_, not_none, is_in
 import option
 import toolz.curried as toolz
 
@@ -75,6 +75,7 @@ def step_impl(context, well):
     with dnd.disposable(to_add_to_well.dom_object.ToMutable()) as mutable_well:
         for attribute in context.stage_attributes.values():
             mutable_well.AddStageAttribute(attribute)
+            assert_that(attribute, is_in(list(to_add_to_well.dom_object.StageAttributes.Items)))
 
     for attribute_name in context.stage_attributes.keys():
         candidate_attributes = list(toolz.filter(lambda a: a.Name == attribute_name,
@@ -83,7 +84,6 @@ def step_impl(context, well):
         # Beware: if one fails to include the `Name` attribute, the test will fail, but because the .NET implementation
         # of `Attribute.ToString()` prints the name, the failure will seem to report that it expected the name and it
         # **also** found the name.
-        print(candidate_attributes[0] == context.stage_attributes[attribute_name])
         assert_that(candidate_attributes[0], equal_to(context.stage_attributes[attribute_name]))
 
 
