@@ -33,7 +33,7 @@ import orchid
 
 
 # noinspection PyBDDParameters
-@given("I have copied the low-level script, '<{script_file_name}>', to the repository root")
+@given("I have copied the low-level script, '{script_file_name}', to the repository root")
 def step_impl(context, script_file_name):
     """
     Args:
@@ -71,7 +71,7 @@ def step_impl(context):
 
 
 # noinspection PyBDDParameters
-@then("I see that <{observation_count:d}> observations were picked")
+@then("I see that {observation_count:d} observations were picked")
 def step_impl(context, observation_count):
     """
     Args:
@@ -104,7 +104,7 @@ def step_impl(context, observation_count):
 
 
 # noinspection PyBDDParameters
-@step("I see that <{attribute_count:d}> attributes were created for each stage of each well")
+@step("I see that {attribute_count:d} attributes were created for each stage of each well")
 def step_impl(context, attribute_count):
     """
     Args:
