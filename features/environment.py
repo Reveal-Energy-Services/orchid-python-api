@@ -15,6 +15,8 @@
 # This file is part of Orchid and related technologies.
 #
 
+import pathlib
+
 
 def before_all(context):
     context.loaded_projects = {}
@@ -22,3 +24,13 @@ def before_all(context):
 
 def after_all(context):
     context.loaded_projects = {}
+
+
+def after_feature(context, feature):
+    if feature.name == 'Low-level example scripts':
+        repository_root = pathlib.Path()
+        for script_file_name in ['auto_pick.py',
+                                 'auto_pick_iterate_example.py ',
+                                 'auto_pick_and_create_stage_attribute.py ']:
+            script_path = repository_root.joinpath(script_file_name)
+            script_path.unlink(missing_ok=False)

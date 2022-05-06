@@ -97,7 +97,6 @@ def step_impl(context, observation_count):
         to_test_count = int(candidate_get_observations_matches[-1].group(1))
         assert_that(to_test_count, equal_to(observation_count), (f'Expected second observation count to'
                                                                  f' equal {observation_count}. Found {to_test_count}'))
-        print('Clean up script in repository root!')
     except AssertionError:
         print(f'Output:\n{script_output}')
         raise
@@ -131,7 +130,6 @@ def step_impl(context, attribute_count):
         expected_count = attribute_count * (50 + 50 + 35)
         assert_that(actual_count, equal_to(expected_count),
                     f'Expected exactly {expected_count} matches in output. Found {actual_count}')
-        print('Clean up script in repository root!')
     except AssertionError:
         print(f'Output:\n{script_output}')
         raise
