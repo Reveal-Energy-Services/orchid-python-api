@@ -20,13 +20,15 @@ from behave import *
 
 use_step_matcher("parse")
 
+import dataclasses as dc
 import pathlib
 import re
 import shutil
 import subprocess
 import sys
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, is_, not_none
+import pendulum as pdt
 import toolz.curried as toolz
 
 import orchid
@@ -134,3 +136,60 @@ def step_impl(context, attribute_count):
     except AssertionError:
         print(f'Output:\n{script_output}')
         raise
+
+
+@dc.dataclass
+class AddedStageDetails:
+    """Models details of an added stage output by the `add_stages.py` low-level example script."""
+    stage_name: str = 'Stage-36'
+    shmin: str = '8144.498 psi'
+    cluster_count: int = 0
+    global_stage_sequence_no: int = 0
+    start_time: pdt.DateTime = pdt.from_format('2018-06-06T05:34:03:684000+00:00', 'YYYY-MM-DDTHH:mm:ss:SSSSSSZ')
+    stop_time: pdt.DateTime = pdt.from_format('2018-06-06T07:19:35:560000+00:00', 'YYYY-MM-DDTHH:mm:ss:SSSSSSZ')
+
+
+def _parse_added_stage_details(details_text):
+    pattern = re.compile(r"INFO:root:CreatedStageDetails\(name='(Stage-\d{2})', shmin='(\d+.\d+ psi)',"
+                         r" cluster_count=(\d+), global_stage_sequence_no=(\d+),"
+                         r" start_time='([^']+)', stop_time='([^']+)'\)")
+    match = re.match(pattern, details_text)
+    assert_that(match, is_(not_none()))
+    # Groups are inside unescaped parentheses of the pattern. The zeroth group is the entire match; the first group
+    # is the stage name, and so on. See
+    # [Python help on regular expressions](https://docs.python.org/3.8/library/re.html) for details. Note that I used
+    # the [Pythex website](https://pythex.org/) to test my regular expression.
+    time_stamp_format = 'YYYY-MM-DDTHH:mm:ss.SSSSSSZ'
+    start_time = pdt.from_format(match.group(5), time_stamp_format)
+    stop_time = pdt.from_format(match.group(6), time_stamp_format)
+    return AddedStageDetails(stage_name=match.group(1), shmin=match.group(2),
+                             cluster_count=int(match.group(3)), global_stage_sequence_no=int(match.group(4)),
+                             start_time=start_time, stop_time=stop_time)
+
+
+@step("I see the following added stages")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+    """
+    # TODO: I believe the following, commented out code, is correct.
+    # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+    # `context.script_process.stdout` contains an empty string.
+    # script_output = context.script_process.stdout
+    script_output = context.script_process.stderr
+    script_lines = script_output.split('\n')
+    expected_added_stage_details = context.table
+
+    # One line for each stage plus two lines for output file path.
+    assert_that(len(script_lines), equal_to(len(expected_added_stage_details.rows) + 2))
+
+    for expected_details_row, actual_details_text in zip(expected_added_stage_details.rows, script_lines[:-1]):
+        actual_details = _parse_added_stage_details(actual_details_text)
+        assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))
+        assert_that(actual_details.shmin, equal_to(expected_details_row['shmin']))
+        assert_that(actual_details.cluster_count, equal_to(int(expected_details_row['clusters'])))
+        assert_that(actual_details.global_stage_sequence_no, equal_to(int(expected_details_row['global_seq_no'])))
+        expected_stage_time_range = pdt.parse(expected_details_row['stage_time_range'])
+        assert_that(actual_details.start_time, equal_to(expected_stage_time_range.start))
+        assert_that(actual_details.stop_time, equal_to(expected_stage_time_range.end))
