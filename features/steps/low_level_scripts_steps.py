@@ -64,6 +64,7 @@ def step_impl(context):
         assert_that(script_process.returncode, equal_to(0), f'{" ".join(command_line)}'
                                                             f' returns {script_process.returncode}')
         context.script_process = script_process
+        pathlib.Path(context.script_path).unlink()
     except AssertionError:
         script_error = script_process.stderr
         print(script_error)
