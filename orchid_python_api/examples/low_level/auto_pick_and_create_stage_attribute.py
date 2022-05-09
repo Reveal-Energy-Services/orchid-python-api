@@ -272,11 +272,11 @@ def auto_pick_observations(native_project, native_monitor):
             # Set the attribute for the stage
             with dnd.disposable(stage.ToMutable()) as mutable_stage:
                 mutable_stage.SetAttribute(pick_attribute_1, random()*100.0)
-                logging.info(f'Set value for attribute {pick_attribute_1.Name} for stage {stage.DisplayStageNumber} of '
-                             f'well {well.Name}')
+                # logging.info(f'Set value for attribute {pick_attribute_1.Name} for stage {stage.DisplayStageNumber} of '
+                #              f'well {well.Name}')
                 mutable_stage.SetAttribute(pick_attribute_2, stage.GlobalStageSequenceNumber)
-                logging.info(f'Set value for attribute {pick_attribute_2.Name} for stage {stage.DisplayStageNumber} of '
-                             f'well {well.Name}')
+                # logging.info(f'Set value for attribute {pick_attribute_2.Name} for stage {stage.DisplayStageNumber} of '
+                #              f'well {well.Name}')
 
             if is_stage_visible_to_monitor(native_monitor, stage):
 

@@ -28,6 +28,7 @@ import subprocess
 import sys
 
 from hamcrest import assert_that, equal_to, is_, not_none
+import parsy
 import pendulum as pdt
 import toolz.curried as toolz
 
@@ -86,20 +87,31 @@ def step_impl(context, observation_count):
     # `context.script_process.stdout` contains an empty string.
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    script_lines = script_output.split('\n')
-    pattern = re.compile(r'len\(observation_set.GetObservations\(\)\)=(\d+)$')
-    candidate_get_observations_matches = toolz.pipe(
-        script_lines,
-        toolz.map(lambda l: re.search(pattern, l)),
-        toolz.filter(lambda m: m is not None),
-        list,
-    )
+
+    newline = parsy.string('\n')
+    get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
+    output_path_name = (parsy.string('INFO:root:Wrote changes to') >>
+                        parsy.regex(
+                            r' "c:\\src\\Orchid.IntegrationTestData\\frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac"'))
+
+    @parsy.generate
+    def get_second_observations_count():
+        yield parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
+        yield newline >> parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
+        yield newline >> parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
+        yield newline >> get_observations
+        yield newline >> parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
+        get_observations_count = yield newline >> get_observations
+        yield newline >> output_path_name
+        yield newline
+
+        return get_observations_count
+
+    actual_observations_count = get_second_observations_count.parse(script_output)
     try:
-        assert_that(len(candidate_get_observations_matches), equal_to(2),
-                    f'Expected exactly two matches in output. Found {candidate_get_observations_matches}')
-        to_test_count = int(candidate_get_observations_matches[-1].group(1))
-        assert_that(to_test_count, equal_to(observation_count), (f'Expected second observation count to'
-                                                                 f' equal {observation_count}. Found {to_test_count}'))
+        assert_that(actual_observations_count, equal_to(observation_count),
+                    (f'Expected second observation count to' f' equal {observation_count}.'
+                     f' Found {actual_observations_count}'))
     except AssertionError:
         print(f'Output:\n{script_output}')
         raise
