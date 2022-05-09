@@ -241,6 +241,10 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     return picked_observation
 
 
+# Only for testing. Not needed for production code.
+attribute_count_per_stage_per_well = {}
+
+
 def auto_pick_observations(native_project, native_monitor):
     """
         Automatically pick observations for each treatment stage of `native_project` observed by `native_monitor`.
@@ -259,6 +263,9 @@ def auto_pick_observations(native_project, native_monitor):
     pick_attribute_1 = Attribute[Double].Create("My Attribute 1", 0.0)
     pick_attribute_2 = Attribute[Int32].Create("My Attribute 2", 0)
 
+    def make_well_stage_key(well_name, stage_name):
+        return f'{well.Name}: {stage.Name}'
+
     for well in wells:
         stages = well.Stages.Items
 
@@ -268,15 +275,15 @@ def auto_pick_observations(native_project, native_monitor):
             mutable_well.AddStageAttribute(pick_attribute_2)
 
         for stage in stages:
+            count_key = make_well_stage_key(well.Name, stage.Name)
+            attribute_count_per_stage_per_well[count_key] = 0
 
             # Set the attribute for the stage
             with dnd.disposable(stage.ToMutable()) as mutable_stage:
                 mutable_stage.SetAttribute(pick_attribute_1, random()*100.0)
-                # logging.info(f'Set value for attribute {pick_attribute_1.Name} for stage {stage.DisplayStageNumber} of '
-                #              f'well {well.Name}')
+                attribute_count_per_stage_per_well[count_key] += 1
                 mutable_stage.SetAttribute(pick_attribute_2, stage.GlobalStageSequenceNumber)
-                # logging.info(f'Set value for attribute {pick_attribute_2.Name} for stage {stage.DisplayStageNumber} of '
-                #              f'well {well.Name}')
+                attribute_count_per_stage_per_well[count_key] += 1
 
             if is_stage_visible_to_monitor(native_monitor, stage):
 
@@ -324,7 +331,6 @@ def main(cli_args):
         cli_args: The command line arguments from `argparse.ArgumentParser`.
     """
 
-
     logging.basicConfig(level=logging.INFO)
 
     seed(1)
@@ -351,6 +357,9 @@ def main(cli_args):
             # TODO: Remove when >~ 2021.4
             # logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
             logging.info(f'{len(observation_set.GetObservations())=}')
+
+    unique_attributes_per_stage_per_well_counts = set(attribute_count_per_stage_per_well.values())
+    logging.info(f'Unique counts of attributes per stage per well={unique_attributes_per_stage_per_well_counts}')
 
     # Save project changes to specified .ifrac file
     target_path_name = cli_args.output_project

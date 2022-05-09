@@ -34,6 +34,8 @@ import toolz.curried as toolz
 
 import orchid
 
+import parse_script_output as pso
+
 
 # noinspection PyBDDParameters
 @given("I have copied the low-level script, '{script_file_name}', to the repository root")
@@ -87,27 +89,7 @@ def step_impl(context, observation_count):
     # `context.script_process.stdout` contains an empty string.
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-
-    newline = parsy.string('\n')
-    get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
-    output_path_name = (parsy.string('INFO:root:Wrote changes to') >>
-                        parsy.regex(
-                            r' "c:\\src\\Orchid.IntegrationTestData\\frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac"'))
-
-    @parsy.generate
-    def get_second_observations_count():
-        yield parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
-        yield newline >> parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
-        yield newline >> parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
-        yield newline >> get_observations
-        yield newline >> parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
-        get_observations_count = yield newline >> get_observations
-        yield newline >> output_path_name
-        yield newline
-
-        return get_observations_count
-
-    actual_observations_count = get_second_observations_count.parse(script_output)
+    actual_observations_count = pso.get_second_observations_count.parse(script_output)
     try:
         assert_that(actual_observations_count, equal_to(observation_count),
                     (f'Expected second observation count to' f' equal {observation_count}.'
@@ -130,21 +112,11 @@ def step_impl(context, attribute_count):
     # `context.script_process.stdout` contains an empty string.
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    script_lines = script_output.split('\n')
-    pattern = 'Set value for attribute My Attribute'
-    actual_count = toolz.pipe(
-        script_lines,
-        toolz.filter(lambda l: pattern in l),
-        list,
-        len,
-    )
+    actual_attributes_count_per_stage_per_well = pso.get_attribute_count_for_each_stage_and_well.parse(script_output)
     try:
-        # Calculate the expected count of matches: `attribute_count` * sum of stages for each well
-        # The Bakken project has four well; however, well "Demo_3H" has **no** stages. Wells "Demo_1H" and "Demo_2H"
-        # have 50 stages each and well "Demo_4H" has 35 stages.
-        expected_count = attribute_count * (50 + 50 + 35)
-        assert_that(actual_count, equal_to(expected_count),
-                    f'Expected exactly {expected_count} matches in output. Found {actual_count}')
+        assert_that(actual_attributes_count_per_stage_per_well, equal_to(attribute_count),
+                    (f'Expected second observation count to' f' equal {attribute_count}.'
+                     f' Found {actual_attributes_count_per_stage_per_well}'))
     except AssertionError:
         print(f'Output:\n{script_output}')
         raise
