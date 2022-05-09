@@ -20,17 +20,13 @@ from behave import *
 
 use_step_matcher("parse")
 
-import dataclasses as dc
 import pathlib
-import re
 import shutil
 import subprocess
 import sys
 
-from hamcrest import assert_that, equal_to, is_, not_none
-import parsy
+from hamcrest import assert_that, equal_to
 import pendulum as pdt
-import toolz.curried as toolz
 
 import orchid
 
@@ -86,7 +82,9 @@ def step_impl(context, observation_count):
     """
     # TODO: I believe the following, commented out code, is correct.
     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-    # `context.script_process.stdout` contains an empty string.
+    # `context.script_process.stdout` contains an empty string. Based on the behavior of the `monitor_time_series`
+    # script, I believe this anomaly results from using the Python logger (perhaps it is configured to pipe standard
+    # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     actual_observations_count = pso.get_second_observations_count.parse(script_output)
@@ -109,7 +107,9 @@ def step_impl(context, attribute_count):
     """
     # TODO: I believe the following, commented out code, is correct.
     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-    # `context.script_process.stdout` contains an empty string.
+    # `context.script_process.stdout` contains an empty string. Based on the behavior of the `monitor_time_series`
+    # script, I believe this anomaly results from using the Python logger (perhaps it is configured to pipe standard
+    # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     actual_attributes_count_per_stage_per_well = pso.get_attribute_count_for_each_stage_and_well.parse(script_output)
@@ -130,7 +130,9 @@ def step_impl(context):
     """
     # TODO: I believe the following, commented out code, is correct.
     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-    # `context.script_process.stdout` contains an empty string.
+    # `context.script_process.stdout` contains an empty string. Based on the behavior of the `monitor_time_series`
+    # script, I believe this anomaly results from using the Python logger (perhaps it is configured to pipe standard
+    # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     actual_added_stages_details = pso.get_added_stages.parse(script_output)
@@ -146,3 +148,110 @@ def step_impl(context):
         expected_stage_time_range = pdt.parse(expected_details_row['stage_time_range'])
         assert_that(actual_details.start_time, equal_to(expected_stage_time_range.start))
         assert_that(actual_details.stop_time, equal_to(expected_stage_time_range.end))
+
+
+def sections(all_output):
+    return all_output.split('\n\n')
+
+
+@then("I see all time series in the project")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+    """
+    script_output = context.script_process.stdout
+    # Sections are separated by an empty line.
+    raw_sections = sections(script_output)
+    # The time series are in the first section.
+    all_time_series_in_project_output = raw_sections[0]
+    actual_time_series_in_project = pso.all_times_series_in_project.parse(all_time_series_in_project_output)
+    expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
+
+    assert_that(actual_time_series_in_project, equal_to(expected_time_series_in_project))
+
+
+@step("I see all monitors in the project")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+#     # TODO: I believe the following, commented out code, is correct.
+#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+#     # `context.script_process.stdout` contains an empty string.
+#     # script_output = context.script_process.stdout
+#     script_output = context.script_process.stderr
+#     actual_monitors_in_project = _parse_monitors_in_project(script_output.split('\n'))
+#     expected_monitors_in_project = _parse_monitors_in_project(context.text.split('\n'))
+#
+#     assert_that(actual_monitors_in_project, equal_to(expected_monitors_in_project))
+#
+#
+# def _parse_monitor_time_series_of_interest(text_lines):
+#     return ''
+#
+#
+@step("I see the object ID of the monitor time series")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+#     # TODO: I believe the following, commented out code, is correct.
+#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+#     # `context.script_process.stdout` contains an empty string.
+#     # script_output = context.script_process.stdout
+#     script_output = context.script_process.stderr
+#     actual_monitor_time_series_of_interest = _parse_monitor_time_series_of_interest(script_output.split('\n'))
+#     expected_monitor_time_series_of_interest = _parse_monitor_time_series_of_interest(context.text.split('\n'))
+#
+#     assert_that(actual_monitor_time_series_of_interest, equal_to(expected_monitor_time_series_of_interest))
+#
+#
+# @dc.dataclass
+# class TimeSeriesSamples:
+#     id: uuid.UUID = uuid.UUID('14607f23-95f4-4405-b34b-daa0f924c2be')
+#     adapter_type: str = 'orchid.native_monitor_adapter.NativeMonitorAdapter'
+#
+#
+# def _parse_monitors_in_project(text_lines):
+#     return ProjectMonitorsDetails()
+#
+#
+@step("I see the first few time series samples for the monitor")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+#     # TODO: I believe the following, commented out code, is correct.
+#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+#     # `context.script_process.stdout` contains an empty string.
+#     # script_output = context.script_process.stdout
+#     script_output = context.script_process.stderr
+#     actual_time_series_samples = _parse_time_series_samples(script_output.split('\n'))
+#     expected_time_series_samples = _parse_time_series_samples(context.text.split('\n'))
+#
+#     assert_that(actual_time_series_samples, equal_to(expected_time_series_samples))
+#
+#
+# def _parse_time_series_name_and_type(text_lines):
+#     return ''
+#
+#
+@step("I see the time series name and data type")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+#     # TODO: I believe the following, commented out code, is correct.
+#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+#     # `context.script_process.stdout` contains an empty string.
+#     # script_output = context.script_process.stdout
+#     script_output = context.script_process.stderr
+#     actual_time_series_name_and_type = _parse_time_series_name_and_type(script_output.split('\n'))
+#     expected_time_series_name_and_type = _parse_time_series_name_and_type(context.text.split('\n'))
+#
+#     assert_that(actual_time_series_name_and_type, equal_to(expected_time_series_name_and_type))

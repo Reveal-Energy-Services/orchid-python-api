@@ -20,31 +20,43 @@ Common functions for parsing the output of the low-level example script integrat
 """
 
 import dataclasses as dc
+import uuid
 
 import pendulum as pdt
 import parsy
 
+
 # Utility parsers
+colon = parsy.string(':') << parsy.whitespace.many()
 comma = parsy.string(',') << parsy.whitespace.many()
+dot = parsy.string('.')
 equals = parsy.string('=')
+greater_than = parsy.string('>')
+hex_literal = parsy.string('0x') >> parsy.regex(r'[\da-fA-F]+').map(lambda hds: int(hds, 16))
 integer = parsy.regex(r'\d+').map(int)
 newline = parsy.string('\n')
 left_brace = parsy.string('{')
 left_paren = parsy.string('(')
+less_than = parsy.string('<')
 right_brace = parsy.string('}')
 right_paren = parsy.string(')')
 single_quote = parsy.string("'")
 
 # Single-line parsers
-project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
-observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
+single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
+
+auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
 parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
-auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
+observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
+oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
 output_path_name = (parsy.string('INFO:root:Wrote changes to') >>
                     parsy.regex(r' "c:\\src\\Orchid.IntegrationTestData\\frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac"'))
-unique_attribute_count_per_stage_per_well_equals = parsy.string(r'INFO:root:Unique counts of'
-                                                                r' attributes per stage per well=')
+project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
+unique_attribute_count_per_stage_per_well_equals = parsy.string(
+    r'INFO:root:Unique counts of attributes per stage per well=')
+python_var_name = parsy.regex(r'[\w_\d]+')
+python_attribute_name = (python_var_name << dot.optional()).many().map(lambda ns: '.'.join(ns))
 
 
 # Parser generators
@@ -90,9 +102,8 @@ def get_attribute_count_for_each_stage_and_well():
 
 @parsy.generate
 def key_value_pair():
-    yield parsy.regex(r'[\w_\d]+').desc('key')
-    value = yield equals >> ((single_quote >> parsy.regex(r"[^']+") << single_quote) |
-                             integer)
+    yield python_var_name.desc('key')
+    value = yield equals >> (single_quoted_text | integer)
     return value
 
 
@@ -130,3 +141,41 @@ def get_added_stages():
     yield newline
 
     return added_stages_details
+
+
+@dc.dataclass
+class BriefOrchidObject:
+    object_id: uuid.UUID
+    class_name: str
+
+
+@parsy.generate
+def brief_orchid_object():
+    oid = yield oid_parser
+    yield colon
+    class_name = yield (less_than >> python_attribute_name
+                        << parsy.string(' object at ')
+                        << hex_literal
+                        << greater_than)
+
+    return BriefOrchidObject(object_id=oid, class_name=class_name)
+
+
+@parsy.generate
+def brief_orchid_objects():
+    yield parsy.whitespace.optional()
+    yield left_brace
+    brief_objects = yield (brief_orchid_object << comma.optional()).many()
+    yield right_brace
+
+    return brief_objects
+
+
+@parsy.generate
+def all_times_series_in_project():
+    yield newline
+    yield parsy.string('All time series in project')
+    yield newline
+    brief_objects = yield brief_orchid_objects
+
+    return brief_objects
