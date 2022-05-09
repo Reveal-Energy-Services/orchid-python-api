@@ -19,13 +19,21 @@
 Common functions for parsing the output of the low-level example script integration tests.
 """
 
+import dataclasses as dc
+
+import pendulum as pdt
 import parsy
 
 # Utility parsers
+comma = parsy.string(',') << parsy.whitespace.many()
+equals = parsy.string('=')
+integer = parsy.regex(r'\d+').map(int)
 newline = parsy.string('\n')
 left_brace = parsy.string('{')
+left_paren = parsy.string('(')
 right_brace = parsy.string('}')
-integer = parsy.regex(r'\d+').map(int)
+right_paren = parsy.string(')')
+single_quote = parsy.string("'")
 
 # Single-line parsers
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
@@ -78,3 +86,47 @@ def get_attribute_count_for_each_stage_and_well():
     yield newline
 
     return attribute_count_for_each_stage_and_well
+
+
+@parsy.generate
+def key_value_pair():
+    yield parsy.regex(r'[\w_\d]+').desc('key')
+    value = yield equals >> ((single_quote >> parsy.regex(r"[^']+") << single_quote) |
+                             integer)
+    return value
+
+
+@dc.dataclass
+class AddedStageDetails:
+    stage_name: str
+    shmin: str
+    cluster_count: int
+    global_stage_sequence_no: int
+    start_time: str
+    stop_time: str
+
+
+@parsy.generate
+def added_stage_details():
+    yield parsy.string('INFO:root:CreatedStageDetails')
+    yield left_paren
+    stage_name = yield key_value_pair
+    shmin = yield comma >> key_value_pair
+    cluster_count = yield comma >> key_value_pair
+    global_stage_sequence_no = yield comma >> key_value_pair
+    start_time = yield (comma >> key_value_pair).map(pdt.parse).desc('start_time')
+    stop_time = yield (comma >> key_value_pair).map(pdt.parse).desc('stop_time')
+    yield right_paren
+
+    return AddedStageDetails(stage_name=stage_name, shmin=shmin, cluster_count=cluster_count,
+                             global_stage_sequence_no=global_stage_sequence_no,
+                             start_time=start_time, stop_time=stop_time)
+
+
+@parsy.generate
+def get_added_stages():
+    added_stages_details = yield (added_stage_details << newline).at_least(1)
+    yield output_path_name
+    yield newline
+
+    return added_stages_details
