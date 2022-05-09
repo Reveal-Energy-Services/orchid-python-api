@@ -179,3 +179,12 @@ def all_times_series_in_project():
     brief_objects = yield brief_orchid_objects
 
     return brief_objects
+
+
+@parsy.generate
+def all_monitors_in_project():
+    yield parsy.string('All monitors in project')
+    yield newline
+    brief_objects = yield brief_orchid_objects
+
+    return brief_objects

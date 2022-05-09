@@ -177,21 +177,17 @@ def step_impl(context):
     Args:
         context (behave.runner.Context):
     """
-#     # TODO: I believe the following, commented out code, is correct.
-#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-#     # `context.script_process.stdout` contains an empty string.
-#     # script_output = context.script_process.stdout
-#     script_output = context.script_process.stderr
-#     actual_monitors_in_project = _parse_monitors_in_project(script_output.split('\n'))
-#     expected_monitors_in_project = _parse_monitors_in_project(context.text.split('\n'))
-#
-#     assert_that(actual_monitors_in_project, equal_to(expected_monitors_in_project))
-#
-#
-# def _parse_monitor_time_series_of_interest(text_lines):
-#     return ''
-#
-#
+    script_output = context.script_process.stdout
+    # Sections are separated by an empty line.
+    raw_sections = sections(script_output)
+    # The monitors are in the second section.
+    all_monitors_in_project = raw_sections[1]
+    actual_monitors_in_project = pso.all_monitors_in_project.parse(all_monitors_in_project)
+    expected_monitors_in_project = pso.brief_orchid_objects.parse(context.text)
+
+    assert_that(actual_monitors_in_project, equal_to(expected_monitors_in_project))
+
+
 @step("I see the object ID of the monitor time series")
 def step_impl(context):
     """
