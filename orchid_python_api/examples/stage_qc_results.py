@@ -58,8 +58,8 @@ def read_stage_qc(project: op.Project, sample_stages: Iterable[WellStagePair]) -
     """
     def read_stage_cq_result(project: op.Project, well_name_stage_pair: WellStagePair) -> StageQCResult:
         candidate_wells = list(project.wells().find_by_name(well_name_stage_pair.well_name))
-        assert len(candidate_wells) == 1, f'Expected 1 well with name, {well_name_stage_pair.well_name}.' \
-                                          f' Found {len(candidate_wells)}.'
+        assert len(candidate_wells) == 1, (f'Expected 1 well with name, {well_name_stage_pair.well_name}.'
+                                           f' Found {len(candidate_wells)}.')
         well = candidate_wells[0]
         stage = well.stages().find_by_display_stage_number(well_name_stage_pair.stage_no)
 
@@ -74,19 +74,17 @@ def read_stage_qc(project: op.Project, sample_stages: Iterable[WellStagePair]) -
     return result
 
 
-def log_stage_qc_results(stage_qc_results: Iterable[StageQCResult], prefix: str, verbosity: int) -> None:
+def log_stage_qc_results(stage_qc_results: Iterable[StageQCResult], prefix: str) -> None:
     """
     Logs each item in `stage_qc_results`.
 
     Args:
         stage_qc_results: An iterable of `StageQCResult` instances.
         prefix: Text to write before writing the results.
-        verbosity: The verbosity of the output.
     """
-    if verbosity >= 1:
-        logging.info(prefix)
-        for stage_qc_result in stage_qc_results:
-            logging.info(stage_qc_result)
+    logging.info(prefix)
+    for stage_qc_result in stage_qc_results:
+        logging.info(stage_qc_result)
 
 
 def change_stage_qc(project: op.Project, to_stage_qc_results: Iterable[StageQCResult]) -> None:
@@ -97,7 +95,18 @@ def change_stage_qc(project: op.Project, to_stage_qc_results: Iterable[StageQCRe
         project: The project whose stage QC results are to be changed.
         to_stage_qc_results: The revised stage QC results.
     """
-    pass
+    for to_stage_qc_result in to_stage_qc_results:
+        candidate_wells = list(project.wells().find_by_name(to_stage_qc_result.well_stage_pair.well_name))
+        assert len(candidate_wells) == 1, (f'Expected 1 well with name,'
+                                           f' {to_stage_qc_result.well_stage_pair.well_name}.'
+                                           f' Found {len(candidate_wells)}.')
+        well = candidate_wells[0]
+        stage = well.stages().find_by_display_stage_number(to_stage_qc_result.well_stage_pair.stage_no)
+
+        project_user_data = project.user_data
+        project_user_data.set_stage_qc_notes(stage.object_id, to_stage_qc_result.stage_qc_info.stage_qc_notes)
+        project_user_data.set_stage_start_stop_confirmation(stage.object_id,
+                                                            to_stage_qc_result.stage_qc_info.start_stop_confirmation)
 
 
 def main(cli_args):
@@ -118,8 +127,9 @@ def main(cli_args):
                      WellStagePair('Demo_2H', 7),
                      WellStagePair('Demo_4H', 23)]
     uninteresting_stage_qc_results = read_stage_qc(project, sample_stages)
-    log_stage_qc_results(uninteresting_stage_qc_results,
-                         f'Reading results from input file: {cli_args.input_project}', cli_args.verbosity)
+    if cli_args.verbosity >= 1:
+        log_stage_qc_results(uninteresting_stage_qc_results,
+                             f'Reading results from input file: {cli_args.input_project}')
 
     if not cli_args.read_only:
         # Change the stage QC information of these same stages to be "interesting"
@@ -131,7 +141,8 @@ def main(cli_args):
 
         # Reading these same stages now produces "interesting" results
         interesting_stage_qc_results = read_stage_qc(project, sample_stages)
-        log_stage_qc_results(interesting_stage_qc_results, cli_args.verbosity)
+        if cli_args.verbosity >= 1:
+            log_stage_qc_results(interesting_stage_qc_results, f'Reading results after change:')
 
         # Save project changes to specified .ifrac file
         target_path_name = cli_args.output_project
