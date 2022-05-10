@@ -74,15 +74,17 @@ def read_stage_qc(project: op.Project, sample_stages: Iterable[WellStagePair]) -
     return result
 
 
-def log_stage_qc_results(stage_qc_results: Iterable[StageQCResult], verbosity: int) -> None:
+def log_stage_qc_results(stage_qc_results: Iterable[StageQCResult], prefix: str, verbosity: int) -> None:
     """
     Logs each item in `stage_qc_results`.
 
     Args:
         stage_qc_results: An iterable of `StageQCResult` instances.
+        prefix: Text to write before writing the results.
         verbosity: The verbosity of the output.
     """
     if verbosity >= 1:
+        logging.info(prefix)
         for stage_qc_result in stage_qc_results:
             logging.info(stage_qc_result)
 
@@ -116,7 +118,8 @@ def main(cli_args):
                      WellStagePair('Demo_2H', 7),
                      WellStagePair('Demo_4H', 23)]
     uninteresting_stage_qc_results = read_stage_qc(project, sample_stages)
-    log_stage_qc_results(uninteresting_stage_qc_results, cli_args.verbosity)
+    log_stage_qc_results(uninteresting_stage_qc_results,
+                         f'Reading results from input file: {cli_args.input_project}', cli_args.verbosity)
 
     if not cli_args.read_only:
         # Change the stage QC information of these same stages to be "interesting"
