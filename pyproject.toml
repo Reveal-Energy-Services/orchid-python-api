@@ -54,7 +54,7 @@ include=[
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = "^3.8.10"
 pythonnet = "^2.5.1"
 numpy = "^1.19.3"
 # Allow consumers to create `datetime` instances using `dateutil`, for example, by calling `dateutil.parse()`, and
