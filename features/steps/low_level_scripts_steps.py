@@ -221,51 +221,41 @@ def step_impl(context):
     expected_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(context.text)
 
     assert_that(actual_monitor_time_series_of_interest, equal_to(expected_monitor_time_series_of_interest))
-#
-#
-# @dc.dataclass
-# class TimeSeriesSamples:
-#     id: uuid.UUID = uuid.UUID('14607f23-95f4-4405-b34b-daa0f924c2be')
-#     adapter_type: str = 'orchid.native_monitor_adapter.NativeMonitorAdapter'
-#
-#
-# def _parse_monitors_in_project(text_lines):
-#     return ProjectMonitorsDetails()
-#
-#
+
+
 @step("I see the first few time series samples for the monitor")
 def step_impl(context):
     """
     Args:
         context (behave.runner.Context):
     """
-#     # TODO: I believe the following, commented out code, is correct.
-#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-#     # `context.script_process.stdout` contains an empty string.
-#     # script_output = context.script_process.stdout
-#     script_output = context.script_process.stderr
-#     actual_time_series_samples = _parse_time_series_samples(script_output.split('\n'))
-#     expected_time_series_samples = _parse_time_series_samples(context.text.split('\n'))
-#
-#     assert_that(actual_time_series_samples, equal_to(expected_time_series_samples))
-#
-#
-# def _parse_time_series_name_and_type(text_lines):
-#     return ''
-#
-#
+    script_output = context.script_process.stdout
+    # Sections are separated by an empty line.
+    raw_sections = sections(script_output)
+    # The time series samples are in the fifth section
+    time_series_samples_output = raw_sections[4]
+    actual_time_series_samples = pso.monitor_time_series_samples.parse(time_series_samples_output)
+
+    assert_that(len(actual_time_series_samples.samples), equal_to(len(context.table.rows)))
+    for actual_samples, expected_samples in zip(actual_time_series_samples.samples, context.table.rows):
+        assert_that(actual_samples,
+                    equal_to(pso.TimeSeriesSample(pdt.parse(expected_samples['sample_time']),
+                                                  float(expected_samples['sample_value']))))
+
+
 @step("I see the time series name and data type")
 def step_impl(context):
     """
     Args:
         context (behave.runner.Context):
     """
-#     # TODO: I believe the following, commented out code, is correct.
-#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-#     # `context.script_process.stdout` contains an empty string.
-#     # script_output = context.script_process.stdout
-#     script_output = context.script_process.stderr
-#     actual_time_series_name_and_type = _parse_time_series_name_and_type(script_output.split('\n'))
-#     expected_time_series_name_and_type = _parse_time_series_name_and_type(context.text.split('\n'))
-#
-#     assert_that(actual_time_series_name_and_type, equal_to(expected_time_series_name_and_type))
+    script_output = context.script_process.stdout
+    # Sections are separated by an empty line.
+    raw_sections = sections(script_output)
+    # The time series samples are in the fifth section
+    time_series_samples_output = raw_sections[4]
+    actual_time_series_samples = pso.monitor_time_series_samples.parse(time_series_samples_output)
+
+    expected_about_time_series_samples = pso.about_monitor_time_series_samples.parse(context.text)
+    assert_that(actual_time_series_samples.about.name, equal_to(expected_about_time_series_samples.name))
+    assert_that(actual_time_series_samples.about.dtype, equal_to(expected_about_time_series_samples.dtype))

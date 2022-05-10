@@ -20,8 +20,10 @@ Common functions for parsing the output of the low-level example script integrat
 """
 
 import dataclasses as dc
+from typing import List
 import uuid
 
+import numpy as np
 import pendulum as pdt
 import parsy
 
@@ -32,6 +34,7 @@ comma = parsy.string(',') << parsy.whitespace.many()
 dash = parsy.string('-')
 dot = parsy.string('.')
 equals = parsy.string('=')
+float_parser = parsy.regex(r'\d+\.\d*').map(float)
 greater_than = parsy.string('>')
 hex_digits = parsy.regex(r'[\da-fA-F]+')
 hex_literal = parsy.string('0x') >> hex_digits
@@ -57,6 +60,8 @@ parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentW
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
 python_var_name = parsy.regex(r'[\w_\d]+')
 python_attribute_name = (python_var_name << dot.optional()).many().map(lambda ns: '.'.join(ns))
+rfc_date_time_text = parsy.regex('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\+|-)\d{2}:\d{2}')
+rfc_date_time = rfc_date_time_text.map(pdt.parse)
 unique_attribute_count_per_stage_per_well_equals = parsy.string(
     r'INFO:root:Unique counts of attributes per stage per well=')
 uuid_parser = (hex_digits + dash  # 8 digit block
@@ -216,3 +221,53 @@ def monitor_time_series_of_interest():
     object_id = yield uuid_parser
 
     return object_id
+
+
+@dc.dataclass
+class TimeSeriesSample:
+    sample_time: pdt.DateTime
+    sample_value: float
+
+
+@parsy.generate
+def monitor_time_series_sample():
+    sample_time = yield rfc_date_time
+    yield parsy.whitespace
+    yield parsy.whitespace.many()
+    sample_value = yield float_parser
+
+    return TimeSeriesSample(sample_time=sample_time, sample_value=sample_value)
+
+
+@dc.dataclass
+class AboutTimeSeriesSample:
+    name: str
+    dtype: np.dtype
+
+
+@dc.dataclass
+class TimeSeriesSamples:
+    samples: List[TimeSeriesSample]
+    about: AboutTimeSeriesSample
+
+
+@parsy.generate
+def about_monitor_time_series_samples():
+    yield parsy.string('Name: ')
+    name = yield parsy.regex('[^,]+')
+    yield parsy.seq(comma, parsy.whitespace.many())
+    yield parsy.string('dtype: ')
+    dtype = yield python_var_name.map(np.dtype)
+
+    return AboutTimeSeriesSample(name=name, dtype=dtype)
+
+
+@parsy.generate
+def monitor_time_series_samples():
+    yield parsy.string('Head of time series')
+    samples = yield (newline >> monitor_time_series_sample).many()
+    yield newline
+    about_time_series_samples = yield about_monitor_time_series_samples
+    yield newline
+
+    return TimeSeriesSamples(samples=samples, about=about_time_series_samples)
