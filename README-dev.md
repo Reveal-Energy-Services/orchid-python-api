@@ -629,7 +629,7 @@ If using the command line,
 
 - Create a new, clean virtual environment by:
   - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the
-    Python interpreter to use for  the environment (currently Python 3.8.7 for the Orchid Python API).
+    Python interpreter to use for  the environment (currently Python 3.8.10 for the Orchid Python API).
 
 If using `python invoke`,
 
@@ -689,7 +689,7 @@ If using the command line,
 
 - Create a new, clean virtual environment by:
   - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
-    used by the Orchid Python API (currently 3.8.7).
+    used by the Orchid Python API (currently 3.8.10).
 
 If using `python invoke`,
 
@@ -764,7 +764,7 @@ tested these instructions in that environment.
 
 - Create a new, clean virtual environment by:
   - Execute the command `conda create --name orchid python=<python-version>` where `python_ver` is the
-    version of Python used by the Orchid Python API (currently 3.8.7).
+    version of Python used by the Orchid Python API (currently 3.8.10).
   - If you see errors or warnings, attempt to [resolve conda create issues](#resolve-conda-create-issues)
     and then execute the previous command.
 
@@ -795,52 +795,6 @@ Ensure that the `orchid` environment exists.
   ```
 
   Enter 'y' to overwrite the existing directory.
-- If you see a message like
-
-  ```
-  Solving environment: failed
-
-  PackagesNotFoundError: The following packages are not available from current channels:
-
-    - python=3.8.7
-
-  Current channels:
-
-    - https://repo.anaconda.com/pkgs/main/win-64
-    - https://repo.anaconda.com/pkgs/main/noarch
-    - https://repo.anaconda.com/pkgs/r/win-64
-    - https://repo.anaconda.com/pkgs/r/noarch
-    - https://repo.anaconda.com/pkgs/msys2/win-64
-    - https://repo.anaconda.com/pkgs/msys2/noarch
-
-  To search for alternate channels that may provide the conda package you're
-  looking for, navigate to
-
-      https://anaconda.org
-
-  and use the search bar at the top of the page.
-  ```
-
-  This message is expected for Python 3.8.7.
-
-  - List the available Python packages by executing the command
-    `conda search --full-name python | findstr /r '3.8.[0-9]'`
-
-    This command will produce output similar to the following:
-
-    ```
-    python                         3.8.3      he1778fa_0  pkgs/main
-    python                         3.8.3      he1778fa_2  pkgs/main
-    python                         3.8.5      h5fd99cc_1  pkgs/main
-    python                         3.8.5      he1778fa_0  pkgs/main
-    python                         3.8.8      hdbf39b2_4  pkgs/main
-    python                         3.8.8      hdbf39b2_5  pkgs/main
-    python                        3.8.10      hdbf39b2_7  pkgs/main
-    python                        3.8.11      h6244533_1  pkgs/main
-    python                        3.8.12      h6244533_0  pkgs/main 
-    ```
-  - Select any version > 3.8.7 and create the environment using that version. For example, if I want to use
-    Python 3.8.12, I would execute the command `conda create --name orchid python=3.8.12`.
 
 ### Run all Orchid tests
 

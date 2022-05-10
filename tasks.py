@@ -355,13 +355,13 @@ def pipfile_to_poetry(_context):
 
 
 @task
-def pipenv_create_venv(context, dirname='.', python_ver='3.8.7'):
+def pipenv_create_venv(context, dirname='.', python_ver='3.8.10'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
         context: The task context.
         dirname (str): The pathname of the directory whose virtual environment is to be created. (Default '.')
-        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.7).
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.10).
     """
     with context.cd(dirname):
         context.run(f'pipenv install --python={python_ver}')
@@ -438,19 +438,19 @@ def poetry_configure_test_pypi(context):
 
 
 @task
-def poetry_create_venv(context, dirname='.', python_ver='3.8.7'):
+def poetry_create_venv(context, dirname='.', python_ver='3.8.10'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
         context: The task context.
         dirname (str): The pathname of the directory whose virtual environment is to be created. (Default '.')
-        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.7).
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.10).
     """
     python_minor_versions = ['37', '38']
     python_exe_relative_paths = [pathlib.Path('Programs').joinpath('Python', f'Python{v}', 'python.exe') for
                                  v in python_minor_versions]
     python_paths = [pathlib.Path(os.environ['LOCALAPPDATA']).joinpath(rp) for rp in python_exe_relative_paths]
-    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.7'), python_paths)}
+    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.10'), python_paths)}
     python_option = python_option_map.get(python_ver, '')
     with context.cd(dirname):
         context.run(f'poetry env use {python_option}')
