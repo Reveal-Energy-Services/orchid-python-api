@@ -200,13 +200,14 @@ def examples_copy(context, target_dir='.'):
 def examples_stem_names():
     """Returns the sequence of example stem names."""
     example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
-                     'plot_treatment', 'search_data_frames', 'volume_2_first_response']
+                     'plot_treatment', 'search_data_frames', 'volume_2_first_response',
+                     'stage_qc_results']
     return example_stems
 
 
 def example_notebooks_names():
     """Returns the sequence of example notebook names."""
-    result = map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), examples_stem_names())
+    result = toolz.map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), examples_stem_names())
     return result
 
 
@@ -233,14 +234,18 @@ def examples_copy_notebooks(_context, target_dir='.'):
         _context: The task context (unused).
         target_dir: The directory into which I copy the example notebooks. (Default: current directory)
     """
-    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_notebooks_names())
+    source_files = toolz.pipe(
+        example_notebooks_names(),
+        toolz.map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn)),
+        toolz.filter(lambda p: p.exists()),
+    )
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
 
 
 def example_scripts_names():
     """Returns the sequence of example script names."""
-    result = map(lambda s: pathlib.Path(s).with_suffix('.py'), examples_stem_names())
+    result = toolz.map(lambda s: pathlib.Path(s).with_suffix('.py'), examples_stem_names())
     return result
 
 
@@ -267,7 +272,11 @@ def examples_copy_scripts(_context, target_dir='.'):
         _context: The task context (unused).
         target_dir: The directory into which I copy the example scripts. (Default: current directory)
     """
-    source_files = map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn), example_scripts_names())
+    source_files = toolz.pipe(
+        example_scripts_names(),
+        toolz.map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn)),
+        toolz.filter(lambda p: p.exists()),
+    )
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
 
@@ -282,7 +291,12 @@ def examples_run_scripts(context):
     """
     source_files = examples.ordered_script_names()
     for source_file in source_files:
-        context.run(f'python {source_file}', echo=True)
+        # The `stage_qc_results` example script requires arguments to run and produce output
+        if not str(source_file).endswith('stage_qc_results.py'):
+            context.run(f'python {source_file}', echo=True)
+        else:
+            context.run(f'python {source_file} --verbosity=2'
+                        f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
         print()
 
 
