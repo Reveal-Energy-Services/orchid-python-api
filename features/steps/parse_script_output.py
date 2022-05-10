@@ -208,3 +208,11 @@ def monitor_of_interest():
     yield parsy.string('  - Display Name: Demo_2H - stage 1')
 
     return object_id
+
+
+@parsy.generate
+def monitor_time_series_of_interest():
+    yield parsy.string('Object ID of monitor time series of interest: ')
+    object_id = yield uuid_parser
+
+    return object_id

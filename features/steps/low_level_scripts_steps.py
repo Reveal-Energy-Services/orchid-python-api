@@ -211,15 +211,16 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context
     """
-    # script_output = context.script_process.stdout
-    # # Sections are separated by an empty line.
-    # raw_sections = sections(script_output)
-    # # The monitor time series are in the third section.
-    # monitor_of_interest_output = raw_sections[2]
-    # actual_monitors_of_interest = pso.monitor_of_interest.parse(monitor_of_interest_output)
-    # expected_monitors_of_interest = pso.monitor_of_interest.parse(context.text)
-    #
-    # assert_that(actual_monitors_of_interest, equal_to(expected_monitors_of_interest))
+    script_output = context.script_process.stdout
+    # Sections are separated by an empty line.
+    raw_sections = sections(script_output)
+    # The monitor time series are in the fourth section.
+    monitor_time_series_of_interest_output = raw_sections[3]
+    actual_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(
+        monitor_time_series_of_interest_output)
+    expected_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(context.text)
+
+    assert_that(actual_monitor_time_series_of_interest, equal_to(expected_monitor_time_series_of_interest))
 #
 #
 # @dc.dataclass
