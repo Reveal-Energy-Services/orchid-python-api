@@ -29,10 +29,12 @@ import parsy
 # Utility parsers
 colon = parsy.string(':') << parsy.whitespace.many()
 comma = parsy.string(',') << parsy.whitespace.many()
+dash = parsy.string('-')
 dot = parsy.string('.')
 equals = parsy.string('=')
 greater_than = parsy.string('>')
-hex_literal = parsy.string('0x') >> parsy.regex(r'[\da-fA-F]+').map(lambda hds: int(hds, 16))
+hex_digits = parsy.regex(r'[\da-fA-F]+')
+hex_literal = parsy.string('0x') >> hex_digits
 integer = parsy.regex(r'\d+').map(int)
 newline = parsy.string('\n')
 left_brace = parsy.string('{')
@@ -46,17 +48,23 @@ single_quote = parsy.string("'")
 single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
 
 auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
-parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
 observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
 output_path_name = (parsy.string('INFO:root:Wrote changes to') >>
                     parsy.regex(r' "c:\\src\\Orchid.IntegrationTestData\\frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac"'))
+parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
-unique_attribute_count_per_stage_per_well_equals = parsy.string(
-    r'INFO:root:Unique counts of attributes per stage per well=')
 python_var_name = parsy.regex(r'[\w_\d]+')
 python_attribute_name = (python_var_name << dot.optional()).many().map(lambda ns: '.'.join(ns))
+unique_attribute_count_per_stage_per_well_equals = parsy.string(
+    r'INFO:root:Unique counts of attributes per stage per well=')
+uuid_parser = (hex_digits + dash  # 8 digit block
+               + hex_digits + dash  # 4 digit block
+               + hex_digits + dash  # 4 digit block
+               + hex_digits + dash  # 4 digit block
+               + hex_digits  # 12 digit block
+               ).map(uuid.UUID)
 
 
 # Parser generators
@@ -188,3 +196,15 @@ def all_monitors_in_project():
     brief_objects = yield brief_orchid_objects
 
     return brief_objects
+
+
+@parsy.generate
+def monitor_of_interest():
+    yield parsy.string('Monitor of interest:')
+    yield newline
+    yield parsy.string('  - Object ID: ')
+    object_id = yield uuid_parser
+    yield newline
+    yield parsy.string('  - Display Name: Demo_2H - stage 1')
+
+    return object_id

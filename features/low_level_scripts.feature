@@ -80,6 +80,12 @@ Feature: Low-level example scripts
        UUID('be89b07b-e37f-4222-9759-acd5682dc7a0'): <orchid.native_monitor_adapter.NativeMonitorAdapter object at 0x000001A747926400>,
        UUID('c1d35d86-a8a1-4e46-a303-f2f1011a399f'): <orchid.native_monitor_adapter.NativeMonitorAdapter object at 0x000001A7479262B0>}
       """
+    And I see the monitor of interest
+    """
+    Monitor of interest:
+      - Object ID: 5b68d8c4-a578-44e7-bc08-b1d83483c4ec
+      - Display Name: Demo_2H - stage 1
+    """
     And I see the object ID of the monitor time series
       """
       Object ID of monitor time series of interest: 07d3cc41-1040-4125-8e2e-71726a124181

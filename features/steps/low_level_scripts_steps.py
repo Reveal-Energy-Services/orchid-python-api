@@ -175,7 +175,7 @@ def step_impl(context):
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context):
+        context (behave.runner.Context): The test context
     """
     script_output = context.script_process.stdout
     # Sections are separated by an empty line.
@@ -188,21 +188,38 @@ def step_impl(context):
     assert_that(actual_monitors_in_project, equal_to(expected_monitors_in_project))
 
 
+@step("I see the monitor of interest")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context
+    """
+    script_output = context.script_process.stdout
+    # Sections are separated by an empty line.
+    raw_sections = sections(script_output)
+    # The monitor time series are in the third section.
+    monitor_of_interest_output = raw_sections[2]
+    actual_monitors_of_interest = pso.monitor_of_interest.parse(monitor_of_interest_output)
+    expected_monitors_of_interest = pso.monitor_of_interest.parse(context.text)
+
+    assert_that(actual_monitors_of_interest, equal_to(expected_monitors_of_interest))
+
+
 @step("I see the object ID of the monitor time series")
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context):
+        context (behave.runner.Context): The test context
     """
-#     # TODO: I believe the following, commented out code, is correct.
-#     # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
-#     # `context.script_process.stdout` contains an empty string.
-#     # script_output = context.script_process.stdout
-#     script_output = context.script_process.stderr
-#     actual_monitor_time_series_of_interest = _parse_monitor_time_series_of_interest(script_output.split('\n'))
-#     expected_monitor_time_series_of_interest = _parse_monitor_time_series_of_interest(context.text.split('\n'))
-#
-#     assert_that(actual_monitor_time_series_of_interest, equal_to(expected_monitor_time_series_of_interest))
+    # script_output = context.script_process.stdout
+    # # Sections are separated by an empty line.
+    # raw_sections = sections(script_output)
+    # # The monitor time series are in the third section.
+    # monitor_of_interest_output = raw_sections[2]
+    # actual_monitors_of_interest = pso.monitor_of_interest.parse(monitor_of_interest_output)
+    # expected_monitors_of_interest = pso.monitor_of_interest.parse(context.text)
+    #
+    # assert_that(actual_monitors_of_interest, equal_to(expected_monitors_of_interest))
 #
 #
 # @dc.dataclass
