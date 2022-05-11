@@ -15,6 +15,8 @@
 # This file is part of Orchid and related technologies.
 #
 
+import pathlib
+
 
 def before_all(context):
     context.loaded_projects = {}
