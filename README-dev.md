@@ -13,47 +13,51 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 
 ### High-level examples
 
-This project includes six scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
+This project includes seven scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
 
-| Name                            | Demonstrates...                                                                        |
-|---------------------------------|----------------------------------------------------------------------------------------|
-| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project    |
-| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                           |
-| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                              |
-| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project              | 
-| `search_data_frames.ipynb`      | Searching object collections (like all wells for a project) and our data frame access  | 
-| `volume_2_first_response.ipynb` | Calculating derivatives to calculate the fluid volume pumped before the first response | 
+| Name                            | Demonstrates...                                                                     |
+|---------------------------------|-------------------------------------------------------------------------------------|
+| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project |
+| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                        |
+| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                           |
+| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project           | 
+| `search_data_frames.ipynb`      | Searching object collections and our data frame access                              | 
+| `volume_2_first_response.ipynb` | Using derivatives to calculate the fluid volume pumped before the first response    | 
 
-The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
+Six of the seven scripts contain the same code as the notebooks but run either at the command line or in a REPL. The
+seventh script, `stage_qc_results.py`, demonstrates how to use the high-level Python API to read and write QC results
+for a stage. This script replaces `stage_qc_status.py`, an example of using the low-level Python API to perform the
+same tasks.
 
 ### Low-level examples
 
-In addition, this project includes four scripts and a notebook in the `examples/low_level` directory of the
+In addition, this project includes five scripts and a notebook in the `examples/low_level` directory of the
 `orchid-python-api` package:
 
-| Name                                      | Demonstrates...                                                   |
-|-------------------------------------------|-------------------------------------------------------------------|
-| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file   |
-| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes.                                 |
-| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method       |
-| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series. | 
+| Name                                      | Demonstrates...                                                  |
+|-------------------------------------------|------------------------------------------------------------------|
+| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file  |
+| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes                                 |
+| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method      |
+| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series | 
+| `add_stages.py`                           | Adds newly created stages to a well of a project                 | 
 
 The notebook, `auto_pick.ipynb` contain the same code as the script, `auto_pick.py`, but runs in a Jupyter
 notebook.
- 
-To use these examples: 
 
-- You may need to 
+To use these examples:
+
+- You may need to
   [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
-- You **must** 
+- You **must**
   [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - You may need to [view the Orchid API configuration details](#view-orchid-configuration-details)
 - You may want to invoke the command, `copy_orchid_examples`
 
-    This command copies the example files into an optionally specified (virtual environment) directory. (The 
-    default destination is your current working directory.) Note that this command is a command-line script 
-    that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
-    provide you with help on running this command.
+  This command copies the example files into an optionally specified (virtual environment) directory. (The
+  default destination is your current working directory.) Note that this command is a command-line script
+  that runs in a console or terminal. Additionally, this command supports a help flag, `-h` or `--help`, to
+  provide you with help on running this command.
 
 More detailed instructions for running the examples can be found at:
 
@@ -98,7 +102,7 @@ To use these tutorials:
 
   This command copies the tutorial files into an optionally specified (virtual environment) directory. (The
   default destination is your current working directory.) Note that this command is a command-line script
-  that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to
+  that runs in a console or terminal. Additionally, this command supports a help flag, `-h` or `--help`, to
   provide you with help on running this command.
 
 More detailed instructions for running the tutorials can be found at:
@@ -162,6 +166,17 @@ you need to install it. To determine if python 3 is installed:
 - If you see an item named "Python 3.x", you have python 3 installed.
 
 To install `poetry`:
+
+If using Powershell (recommended):
+
+- Open a Powershell terminal
+- Execute the command
+
+  ```
+  (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -UseBasicParsing).Content | python -
+  ```
+  
+If using Windows command shell:
 
 - Open a command prompt
 - Invoke the command `pip install poetry`.
@@ -339,15 +354,16 @@ the error.
 To work around this issue, one may need to uninstall `poetry` by:
 
 - Navigate to the repository root
+- If using a `Powershell` command prompt (recommended):
+  - Download the poetry installer by executing
+    ```
+    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -UseBasicParsing).Content | python - --uninstall
+    ```
+    
 - If using a `bash` shell:
   - Download the poetry installer by executing
     ```
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py >get-poetry.py
-    ```
-- If using a `Powershell` command prompt:
-  - Download the poetry installer by executing
-    ```
-    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content > get-poetry.py
     ```
 
 See [Poetry Issue 2245](https://github.com/python-poetry/poetry/issues/2245) for similar instructions. After
@@ -825,13 +841,30 @@ To run all orchid tests
   - Wait patiently for the `matplotlib` plot window to appear.
   - Ensure the plot is correct.
   - Dismiss the `matplotlib` window.
-- Repeat for remaining notebooks:
+- Repeat for these scripts:
   - `plot_treatment.py`
   - `plot_time_series.py`
   - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
     You must dismiss each plot to continue.)
   - `volume_2_first_response.py`
   - `search_data_frames.py`
+- Finally, run the `stage_qc_results.py` script.
+
+The script, `stage_qc_results.py`, differs from the other scripts. It requires a number of command line
+arguments to run correctly.
+
+For example, to see an explanation of these arguments, execute the command
+`python stage_qc_results.py --help`. The most typical arguments are described in the following paragraphs.
+
+To both read and write stage QC results, run the command:
+```
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
+
+To only read the existing stage QC data, run the command
+```
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+```
 
 #### Run example notebooks
 
@@ -871,13 +904,14 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `plot_treatment.ipynb`
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
-    - Verify that the current directory has six example scripts:
+    - Verify that the current directory has seven example scripts:
         - `completion_analysis.py`
         - `plot_time_series.py`
         - `plot_trajectories.py`
         - `plot_treatment.py`
         - `search_data_frames.py`
         - `volume_2_first_response.py`
+        - `stage_qc_results.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -888,17 +922,34 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 #### Run example scripts
 
 - Run the first script
-    - Execute the command `python plot_trajectories.py`
-    - Wait patiently for the `matplotlib` plot window to appear.
-    - Ensure the plot is correct.
-    - Dismiss the `matplotlib` window.
-- Repeat for remaining scripts:
-    - `plot_treatment.py`
-    - `plot_time_series.py` 
-    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
-       You must dismiss each plot to continue.)
-    - `volume_2_first_response.py`
-    - `search_data_frames.py`
+  - Execute the command `python plot_trajectories.py`
+  - Wait patiently for the `matplotlib` plot window to appear.
+  - Ensure the plot is correct.
+  - Dismiss the `matplotlib` window.
+- Repeat for these scripts:
+  - `plot_treatment.py`
+  - `plot_time_series.py`
+  - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+    You must dismiss each plot to continue.)
+  - `volume_2_first_response.py`
+  - `search_data_frames.py`
+- Finally, run the `stage_qc_results.py` script.
+
+The script, `stage_qc_results.py`, differs from the other scripts. It requires a number of command line
+arguments to run correctly.
+
+For example, to see an explanation of these arguments, execute the command
+`python stage_qc_results.py --help`. The most typical arguments are described in the following paragraphs.
+
+To both read and write stage QC results, run the command:
+```
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
+
+To only read the existing stage QC data, run the command
+```
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+```
 
 #### Run example notebooks
 
@@ -956,12 +1007,24 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
-    python auto_pick_and_create_stage_attribute.py --verbosity=2 --output=/path/to/training-data/frankNstein_Bakken_UTM13_FEET.998.ifrac /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    ```
+  - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
+  - Execute the command
+    ```
+    python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command `python monitor_time_series.py`
   - Review the output and ensure the script finishes without errors.
+  - Execute the command
+    ```
+    python add_stages.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    ```
+  - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
 
 #### Run low-level example notebooks
 
@@ -1338,7 +1401,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_TRAINING_DATA".
-(These two words are separated by the underscore symbol.)
+(These three words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
@@ -1381,8 +1444,10 @@ the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or th
 To use this configuration file as an example:
 
 - Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
-  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
-  /path/to/home-directory/.orchid/python_api.yaml`
+  ```
+  copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml`
+  ```
+  
 - Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
 
 The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash),
