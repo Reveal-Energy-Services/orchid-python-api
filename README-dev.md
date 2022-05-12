@@ -1150,6 +1150,12 @@ To test the generated requirements file using a `pipenv` virtual environment,
   [require hashes error when installing dependencies](#require-hashes-error-when-installing-dependencies)
   for possible resolutions.
 - Execute the command, `pip list --local`. 
+  - If you have `git-bash` installed, you may be able to use the `less` command to search for package names;
+    for example, by executing the following command and searching by entering `/<package_name>` at the prompt (':')
+
+    ```
+    pip list --local | & 'C:\Program Files\Git\usr\bin\less.exe'
+    ```
 
 Sample the package list. You should see output like the following (but with different version numbers)
 
@@ -1174,7 +1180,7 @@ To test the generated requirements file using a `conda` environment,
   - Execute the command:
     - `pip list --local`
   - If you have `git-bash` installed, you may be able to use the `less` command to search for package names;
-    for example, by executing the following command and searching by entering `/numpy` at the prompt (':')
+    for example, by executing the following command and searching by entering `/<package_name>` at the prompt (':')
     
     ```
     pip list --local | & 'C:\Program Files\Git\usr\bin\less.exe'
