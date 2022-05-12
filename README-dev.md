@@ -539,8 +539,7 @@ Once published, test the published distribution by:
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
-- Install the package distribution by running the command,
-  `pip install orchid-python-api`.
+- Install the package distribution by running the command, `pip install orchid-python-api`.
 
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
@@ -551,8 +550,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
-- Install the package distribution by running the command,
-  `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
+- Install the package distribution by running the command, `pip install orchid-python-api`.
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
