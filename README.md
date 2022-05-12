@@ -154,7 +154,7 @@ Then, change into that project directory.
 
 ### Step-by-step pipenv install
 
-- Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To 
+- Install python 3.8 by following [these installation instructions](https://docs.python.org/3/using/windows.html). To 
   ensure access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
   [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 - Open a console using either `powershell` or the Windows console.
@@ -197,7 +197,7 @@ An alternative method used by customers uses a requirements file, `requirements.
 release process but **do not** include in our distribution. 
 [This file](https://github.com/Reveal-Energy-Services/orchid-python-api/blob/master/requirements.txt) is available
 from our GitHub repository. For `pipenv`, use 
-[these instructions](https://pipenv-fork.readthedocs.io/en/latest/basics.html#importing-from-requirements-txt). For
+[these import instructions](https://pipenv-fork.readthedocs.io/en/latest/basics.html#importing-from-requirements-txt). For
 `conda`, read the accepted answer to this 
 [Stack Overflow post](https://stackoverflow.com/questions/63379968/using-requirements-txt-to-automatically-install-packages-from-conda-channels-and)
 for the correct command and additional options you may need to consider.

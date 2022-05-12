@@ -317,7 +317,7 @@ Publishing a release has a number of general steps. These steps are optional exc
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
 - [Generate requirements file](#generate-requirements-file)
-- Generate and test html documentation
+- [Generate documentation](#generate-documentation)
 - [Build and test locally](#build-and-test-locally)
 - [Publish to TestPyPI](#publish-to-testpypi)
 - [Publish to PyPI](#publish-to-pypi)
@@ -1181,7 +1181,7 @@ To test the generated requirements file using a `conda` environment,
     - `pip list --local`
   - If you have `git-bash` installed, you may be able to use the `less` command to search for package names;
     for example, by executing the following command and searching by entering `/<package_name>` at the prompt (':')
-    
+
     ```
     pip list --local | & 'C:\Program Files\Git\usr\bin\less.exe'
     ```
@@ -1195,6 +1195,21 @@ Sample the package list. You should see output like the following (but with diff
 | numpy      | 1.22.0  |
 | pandas     | 1.3.5   |
 | scipy      | 1.6.1   |
+
+### Generate documentation
+
+- Navigate to the repository root within your virtual development environment
+- If necessary, activate the virtual environment by executing `poetry shell`
+- Change to the `docs` directory by executing `chdir docs`
+- Clean the build directory by executing `make.bat clean`
+- Ensure that the `_build` directory is clean by executing `gci _build`
+- Generate the latest documentation by executing `make.bat html`
+- If you see a warning message like, "WARNING: html_static_path entry '_static' does not exist", you can ignore it
+- Resolve any other warnings or errors
+- Sample the documentation by opening the file, `/path-to/repository/docs/_build/html/index.html`, and navigating the
+  generated documentation to ensure it is correct. Specifically, check for **new** classes and methods and ensure we
+  have generated documentation for these items. 
+- If necessary, correct any errors and repeat the "clean, make html and test" steps.
 
 ## Possible installation errors and resolutions
 
