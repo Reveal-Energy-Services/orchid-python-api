@@ -1133,7 +1133,10 @@ To generate a `requirements.txt` file,
 
 - Navigate to the repository root
 - Activate the virtualenv (run `poetry shell`)
-- Run the command, `poetry export --without-hashes -f requirements.txt --output requirements.txt`
+- Run the command 
+  ```
+  poetry export --without-hashes -f requirements.txt --output requirements.txt
+  ```
 
 #### Test the requirements file in  a pipenv virtual environment
 
