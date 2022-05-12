@@ -24,7 +24,7 @@ to render the file, you can much more easily navigate the document links.
 
 ### High-level examples
 
-This project includes seven scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
+This project includes eight scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
 
 | Name                            | Demonstrates...                                                                     |
 |---------------------------------|-------------------------------------------------------------------------------------|
@@ -35,10 +35,13 @@ This project includes seven scripts and six notebooks in the `examples` director
 | `search_data_frames.ipynb`      | Searching object collections and our data frame access                              | 
 | `volume_2_first_response.ipynb` | Using derivatives to calculate the fluid volume pumped before the first response    | 
 
-Six of the seven scripts contain the same code as the notebooks but run either at the command line or in a REPL. The
-seventh script, `stage_qc_results.py`, demonstrates how to use the high-level Python API to read and write QC results
-for a stage. This script replaces `stage_qc_status.py`, an example of using the low-level Python API to perform the
-same tasks.
+Six of the eight scripts contain the same code as the notebooks but run either at the command line or in a REPL. The
+last two scripts:
+
+| Name                            | Demonstrates using the high-level Python API to...                               |
+|---------------------------------|----------------------------------------------------------------------------------|
+| `stage_qc_results.py`           | Read and write QC results for a stage. (Replaces low-level `stage_qc_status.py`) |
+| `change_stage_times.py`         | Change the start and stop times (the time range) of a stage                      |
 
 ### Low-level examples
 
@@ -423,7 +426,7 @@ The import should complete with no errors.
     - `plot_treatment.ipynb`
     - `search_data_frames.ipynb`
     - `volume_2_first_response.ipynb`
-- Verify that the current directory has seven example scripts:
+- Verify that the current directory has eight example scripts:
     - `completion_analysis.py`
     - `plot_time_series.py`
     - `plot_trajectories.py`
@@ -431,6 +434,7 @@ The import should complete with no errors.
     - `search_data_frames.py`
     - `volume_2_first_response.py`
     - `stage_qc_results.py`
+    - `change_stage_times.py`
 
 ### Run high-level example scripts
 
@@ -446,13 +450,15 @@ The import should complete with no errors.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
     - `search_data_frames.py`
-- Finally, run the `stage_qc_results.py` script.
+- Run the `stage_qc_results.py` script.
+- Run the `change_stage_times.py` script.
 
-The script, `stage_qc_results.py`, differs from the other scripts. It requires a number of command line
-arguments to run correctly.
+The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
+command line arguments to run correctly.
 
 For example, to see an explanation of these arguments, execute the command 
-`python stage_qc_results.py --help`. The most typical arguments are described in the following paragraphs.
+`python stage_qc_results.py --help` or `python stage_qc_results.py --help`. The most typical arguments are described in
+the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
@@ -462,6 +468,11 @@ python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UT
 To only read the existing stage QC data, run the command
 ```
 python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+```
+
+To change the stage start and stop times (the time range), run the command
+```
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
 ```
 
 ### Run high-level example notebooks
