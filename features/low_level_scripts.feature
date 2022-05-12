@@ -53,7 +53,6 @@ Feature: Low-level example scripts
       | script_file_name |
       | add_stages.py    |
 
-  @wip
   Scenario Outline: Monitor time series
     Given I have copied the low-level script, '<script_file_name>', to the repository root
     When I execute the script
