@@ -150,8 +150,8 @@ class Project(dna.IdentifiedDotNetAdapter):
         return spo.SearchableProjectObjects(tsa.NativeTimeSeriesAdapter, self.dom_object.WellTimeSeriesList.Items)
 
     @property
-    def user_data(self) -> uda.NativeProjectUserData:
-        return uda.NativeProjectUserData(self.dom_object.ProjectUserData)
+    def user_data(self) -> uda.NativeProjectUserDataAdapter:
+        return uda.NativeProjectUserDataAdapter(self.dom_object.ProjectUserData)
 
     def wells(self) -> spo.SearchableProjectObjects:
         """
