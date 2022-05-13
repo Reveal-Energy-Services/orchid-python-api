@@ -884,8 +884,8 @@ python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_
     3. Wait patiently
     4. Verify that no exceptions occurred
   - Repeat for remaining notebooks:
-    - `plot_time_series.ipynb`
     - `plot_treatment.ipynb`
+    - `plot_time_series.ipynb`
     - `completion_analysis.ipynb`
     - `volume_2_first_response.ipynb`
     - `search_data_frames.ipynb`
@@ -902,9 +902,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
     - Navigate to the directory associated with the virtual environment
     - If necessary, activate the virtual environment.
-    - Run `copy_orchid_examples.exe`.
+    - Run `copy_orchid_examples`.
     - If the executable reports that it skipped files, repeat the command with an additional argument:  
-      `copy_orchid_examples.exe --overwrite`
+      `copy_orchid_examples --overwrite`
     - Verify that the current directory has six example notebooks:
         - `completion_analysis.ipynb`
         - `plot_time_series.ipynb`
@@ -913,14 +913,14 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
     - Verify that the current directory has eight example scripts:
+        - `change_stage_times.py`
         - `completion_analysis.py`
         - `plot_time_series.py`
         - `plot_trajectories.py`
         - `plot_treatment.py`
         - `search_data_frames.py`
-        - `volume_2_first_response.py`
         - `stage_qc_results.py`
-        - `change_stage_times.py`
+        - `volume_2_first_response.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -977,8 +977,8 @@ python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_
         3. Wait patiently
         4. Verify that no exceptions occurred
     - Repeat for remaining notebooks:
+      - `plot_treatment.ipynb`
         - `plot_time_series.ipynb`
-        - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
@@ -995,15 +995,16 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
   - Navigate to the directory associated with the virtual environment
   - If necessary, activate the virtual environment.
-  - Run `copy_orchid_low_level_examples.exe`.
+  - Run `copy_orchid_low_level_examples`.
   - If the executable reports that it skipped files, repeat the command with an additional argument:  
-    `copy_orchid_low_level_examples.exe --overwrite`
+    `copy_orchid_low_level_examples --overwrite`
   - Verify that the current directory has one example notebooks:
     - `auto_pick.ipynb`
   - Verify that the current directory has three example scripts:
     - `auto_pick.py`
     - `auto_pick_and_create_stage_attribute.py`
     - `monitor_time_series.py`
+    - `add_stages.py`
 - If you are testing a `poetry` virtual environment
   - If orchid-python-api is installed in the virtual environment,
     - Run `python ./copy_orchid_low_level_examples.py` to copy the examples to the current directory
@@ -1042,7 +1043,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
 
-#### Run low-level example notebooks
+#### Run low-level example notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -1097,9 +1098,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - If you are testing a `pipenv` virtual environment or a `conda` environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
-        - Run `copy_orchid_tutorials.exe`.
+        - Run `copy_orchid_tutorials`.
         - If the executable reports that it skipped files, repeat the command with an additional argument:  
-          `copy_orchid_tutorials.exe --overwrite`
+          `copy_orchid_tutorials --overwrite`
         - Verify that the current directory has one tutorial notebooks:
             - `dom_navigation_tutorial.ipynb`
         - Verify that the current directory has one tutorial scripts:
