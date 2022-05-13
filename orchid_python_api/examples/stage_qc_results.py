@@ -35,7 +35,7 @@ class WellStagePair:
 
 @dc.dataclass
 class StageQCInfo:
-    start_stop_confirmation: nqc.StageCorrectionStatus
+    start_stop_confirmation: nqc.CorrectionStatus
     stage_qc_notes: str
 
 
@@ -133,9 +133,9 @@ def main(cli_args):
 
     if not cli_args.read_only:
         # Change the stage QC information of these same stages to be "interesting"
-        to_stage_qc_info = [StageQCInfo(nqc.StageCorrectionStatus.UNCONFIRMED, stage_qc_notes='Strange'),
-                            StageQCInfo(nqc.StageCorrectionStatus.CONFIRMED, stage_qc_notes='Good stage'),
-                            StageQCInfo(nqc.StageCorrectionStatus.NEW, stage_qc_notes='')]
+        to_stage_qc_info = [StageQCInfo(nqc.CorrectionStatus.UNCONFIRMED, stage_qc_notes='Strange'),
+                            StageQCInfo(nqc.CorrectionStatus.CONFIRMED, stage_qc_notes='Good stage'),
+                            StageQCInfo(nqc.CorrectionStatus.NEW, stage_qc_notes='')]
         to_stage_qc_results = [StageQCResult(wsp, info) for wsp, info in zip(sample_stages, to_stage_qc_info)]
         change_stage_qc(project, to_stage_qc_results)
 
