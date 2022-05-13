@@ -101,7 +101,7 @@ orchid.native\_monitor\_adapter module
    :show-inheritance:
 
 orchid.native\_project\_user\_data\_adapter module
-------------------------------------
+--------------------------------------------------
 
 .. automodule:: orchid.native_project_user_data_adapter
    :members:
