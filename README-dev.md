@@ -449,7 +449,9 @@ introduction to the process (but some different steps), review the
   [Publish distribution to TestPyP](#publish-distribution-to-testpypi)
 - To configure the TestPyPI repository, run either
   - `invoke poetry.config.test-pypi` or
-  - `poetry config repositories.test-pypi https://test.pypi.org/legacy/`
+    ```
+    poetry config repositories.test-pypi https://test.pypi.org/legacy/
+    ```
 
 Once configured, you will also need to configure the API token for the TestPyPI website. Because the API
 token is a security token, the author is unaware of any way to examine if the token has already been
@@ -655,7 +657,6 @@ If using `python invoke`,
   - Run `invoke poetry.venv.remove --venv=<virtual-env>`. NOTE: If no such virtualenv exists, running this
     task will produce a message like:
     ```
-    invoke poetry.venv.remove --dirname=c:/inst/orchid/pipenv
     No virtualenv has been created for this project yet!
     Aborted!
     ```
@@ -716,15 +717,16 @@ If using `python invoke`,
     exists, running this task will produce a message like:
 
     ```
-    invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
     No virtualenv has been created for this project yet!
     Aborted!
     ```
 
 - If present, delete all leftover files from the virtualenv directory.
 
-- Create a new skeleton virtual environment
-  - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+- Create a new skeleton virtual environment by running
+  ```
+  invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>
+  ```
 
 To test that you were successful,
 
@@ -780,8 +782,11 @@ tested these instructions in that environment.
 
 
 - Create a new, clean virtual environment by:
-  - Execute the command `conda create --name orchid python=<python-version>` where `python_ver` is the
-    version of Python used by the Orchid Python API (currently 3.8.10).
+  - Execute the command 
+    ```
+    conda create --name orchid python=<python-version>
+    ```
+    where `python_ver` is the version of Python used by the Orchid Python API (currently 3.8.10).
   - If you see errors or warnings, attempt to [resolve conda create issues](#resolve-conda-create-issues)
     and then execute the previous command.
 
@@ -832,7 +837,9 @@ To run all orchid tests
     - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
   - If orchid-python-api not (yet) installed,
     - Copy the example notebooks to the orchid project repository root
-      - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+      ```
+      copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>
+      ```
 - Activate `poetry shell` if not activated
 
 #### Run example scripts
@@ -855,9 +862,8 @@ To run all orchid tests
 The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
 command line arguments to run correctly.
 
-For example, to see an explanation of these arguments, execute the command
-`python stage_qc_results.py --help` or `python stage_qc_results.py --help`. The most typical arguments are described in
-the following paragraphs.
+For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
+command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
@@ -926,7 +932,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
     - If orchid-python-api not (yet) installed,
         - Copy the example notebooks to the orchid project repository root
-            - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+          ```
+          copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>
+          ```
 
 #### Run example scripts
 
@@ -948,9 +956,8 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
 command line arguments to run correctly.
 
-For example, to see an explanation of these arguments, execute the command
-`python stage_qc_results.py --help` or `python stage_qc_results.py --help`. The most typical arguments are described in
-the following paragraphs.
+For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
+command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
@@ -1003,15 +1010,18 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Verify that the current directory has three example scripts:
     - `auto_pick.py`
     - `auto_pick_and_create_stage_attribute.py`
+    - `auto_pick_iterate_example.py`
     - `monitor_time_series.py`
     - `add_stages.py`
 - If you are testing a `poetry` virtual environment
   - If orchid-python-api is installed in the virtual environment,
     - Run `python ./copy_orchid_low_level_examples.py` to copy the examples to the current directory
   - If orchid-python-api not (yet) installed,
-    - Copy the example notebooks to the orchid project repository root
-      - `copy ./orchid_python_api/examples/low_level/*.ipynb </path/to/orchid_repo>`
-      - `copy ./orchid_python_api/examples/low_level/*.py </path/to/orchid_repo>`
+    - Copy the low-level examples to the orchid project repository root by executing the commands:
+      ```
+      copy ./orchid_python_api/examples/low_level/*.ipynb </path/to/orchid_repo>
+      copy ./orchid_python_api/examples/low_level/*.py </path/to/orchid_repo>
+      ```
 
 #### Run low-level example scripts
 
@@ -1020,18 +1030,21 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     ```
     python auto_pick.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
     python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
     python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command `python monitor_time_series.py`
@@ -1040,6 +1053,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     ```
     python add_stages.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
 
@@ -1067,7 +1081,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
     - If orchid-python-api not (yet) installed,
         - Copy the tutorial notebooks to the orchid project repository root
-            - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
+          ```
+          copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>
+          ```
 - Activate `poetry shell` if not activated
 
 #### Run tutorial script
@@ -1110,7 +1126,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
         - If orchid-python-api not (yet) installed,
             - Copy the tutorial notebooks to the orchid project repository root
-                - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
+              ```
+              copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>
+              ```
 
 #### Run tutorial script
 
@@ -1146,8 +1164,11 @@ To test the generated requirements file using a `pipenv` virtual environment,
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
-- Install the package requirements by running `pip install -r /path/to/repo/requirements.txt`. If you see an
-  error when executing this command, see 
+- Install the package requirements by running 
+  ```
+  pip install -r /path/to/repo/requirements.txt
+  ```
+  If you see an error when executing this command, see 
   [require hashes error when installing dependencies](#require-hashes-error-when-installing-dependencies)
   for possible resolutions.
 - Execute the command, `pip list --local`. 
@@ -1404,7 +1425,8 @@ the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or th
 
 To use this configuration file as an example:
 
-- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute:
+- If this file is not already in the expected location, copy the file. For example, assuming the symbolic names
+  referenced above, execute
   ```
   copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml
   ```
@@ -1484,7 +1506,8 @@ the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or th
 
 To use this configuration file as an example:
 
-- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
+- If this file is not already in the expected location, copy the file. For example, assuming the symbolic names
+  referenced above, execute
   ```
   copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml`
   ```
