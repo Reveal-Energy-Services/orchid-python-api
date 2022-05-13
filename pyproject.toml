@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "2021.4.283"
+version = "2022.1.360"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -54,7 +54,7 @@ include=[
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
-python = "^3.8.10"
+python = ">=3.8.10,<3.11"
 pythonnet = "^2.5.1"
 numpy = "^1.19.3"
 # Allow consumers to create `datetime` instances using `dateutil`, for example, by calling `dateutil.parse()`, and

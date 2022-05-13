@@ -13,6 +13,58 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 2022.1.360
+
+This release is the production release of the Orchid Python API corresponding to Orchid 2021.4. This release:
+
+- Provides high-level access to downhole proppant concentrations
+- Adds a high-level API property to change the stage time range
+- Add a high-level example script to illustrate using the high-level API to change the stage time range
+- Expose stage QC results via the high-level API
+- Replace low-level script to read and write stage QC results with script invoking the high-level API
+  (`stage_qc_results.py`)
+- Repaired the low-level example script to create stage attributes to reflect changes to the .NET API
+  (`auto_pick_and_create_stage_attribute.py`)
+- Clarify documentation of the `PythonApiLibs` directory in configuration documentation
+
+#### Resolved Issues
+
+- [GitHub issue 25](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/25)
+- [GitHub issue 26](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/26)
+- [GitHub issue 28](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/28)
+- [GitHub issue 30](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/30)
+- [GitHub issue 31](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/31)
+
+#### Features
+
+- Project
+  - Expose `user_data` property containing stage QC results
+
+- Stage
+  - Change the stage start and stop times (time range)
+
+- Treatment curves
+  - Add enumeration `DOWNHOLE_PROPPANT_CONCENTRATION` to access this data from the API
+
+- Project user data
+  - Create class `NativeUserDataAdapter` to provide read and write access to this information
+
+- Examples (high-level)
+  - Add script to read and write stage QC results
+  - Add script to change the stage start and stop times
+  - 
+- Examples (low-level)
+  - Repaired script to create stage attributes
+  - Removed script to query the stage QC results using the low-level API
+
+- Distribution
+  - None
+
+#### Known Issues
+
+- [GitHub issue 27](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/27)
+- [GitHub issue 29](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/29)
+
 ### Release notes for 2021.4.283
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2021.4. This release:

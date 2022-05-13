@@ -100,6 +100,14 @@ orchid.native\_monitor\_adapter module
    :undoc-members:
    :show-inheritance:
 
+orchid.native\_project\_user\_data\_adapter module
+--------------------------------------------------
+
+.. automodule:: orchid.native_project_user_data_adapter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 orchid.native\_stage\_adapter module
 ------------------------------------
 

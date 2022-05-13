@@ -32,7 +32,7 @@ from orchid import (
 from Orchid.FractureDiagnostics.Settings import IProjectUserData, Variant
 
 
-class NativeProjectUserData(dna.DotNetAdapter):
+class NativeProjectUserDataAdapter(dna.DotNetAdapter):
     """Adapts a .NET `IProjectUserData` instance to Python."""
 
     # TODO: Add code to `SdkAdapter` to allow handling `GetValue` and .NET `StageCorrectionStatus`

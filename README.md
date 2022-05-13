@@ -24,30 +24,37 @@ to render the file, you can much more easily navigate the document links.
 
 ### High-level examples
 
-This project includes six scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
+This project includes eight scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
 
-| Name                            | Demonstrates...                                                                        |
-|---------------------------------|----------------------------------------------------------------------------------------|
-| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project    |
-| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                           |
-| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                              |
-| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project              | 
-| `search_data_frames.ipynb`      | Searching object collections (like all wells for a project) and our data frame access  | 
-| `volume_2_first_response.ipynb` | Calculating derivatives to calculate the fluid volume pumped before the first response | 
+| Name                            | Demonstrates...                                                                     |
+|---------------------------------|-------------------------------------------------------------------------------------|
+| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project |
+| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                        |
+| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                           |
+| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project           | 
+| `search_data_frames.ipynb`      | Searching object collections and our data frame access                              | 
+| `volume_2_first_response.ipynb` | Using derivatives to calculate the fluid volume pumped before the first response    | 
 
-The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
+Six of the eight scripts contain the same code as the notebooks but run either at the command line or in a REPL. The
+last two scripts:
+
+| Name                            | Demonstrates using the high-level Python API to...                               |
+|---------------------------------|----------------------------------------------------------------------------------|
+| `stage_qc_results.py`           | Read and write QC results for a stage. (Replaces low-level `stage_qc_status.py`) |
+| `change_stage_times.py`         | Change the start and stop times (the time range) of a stage                      |
 
 ### Low-level examples
 
-In addition, this project includes four scripts and a notebook in the `examples/low_level` directory of the
+In addition, this project includes five scripts and a notebook in the `examples/low_level` directory of the
 `orchid-python-api` package:
 
-| Name                                      | Demonstrates...                                                   |
-|-------------------------------------------|-------------------------------------------------------------------|
-| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file   |
-| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes.                                 |
-| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method       |
-| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series. | 
+| Name                                      | Demonstrates...                                                  |
+|-------------------------------------------|------------------------------------------------------------------|
+| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file  |
+| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes                                 |
+| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method      |
+| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series | 
+| `add_stages.py`                           | Adds newly created stages to a well of a project                 | 
 
 The notebook, `auto_pick.ipynb` contain the same code as the script, `auto_pick.py`, but runs in a Jupyter
 notebook.
@@ -63,7 +70,7 @@ To use these examples:
 
     This command copies the example files into an optionally specified (virtual environment) directory. (The 
     default destination is your current working directory.) Note that this command is a command-line script 
-    that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
+    that runs in a console or terminal. Additionally, this command supports a help flag, `-h` or `--help`, to 
     provide you with help on running this command.
 
 More detailed instructions for running the examples can be found at:
@@ -108,7 +115,7 @@ To use these tutorials:
 
   This command copies the tutorial files into an optionally specified (virtual environment) directory. (The
   default destination is your current working directory.) Note that this command is a command-line script
-  that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to
+  that runs in a console or terminal. Additionally, this command supports a help flag, `-h` or `--help`, to
   provide you with help on running this command.
 
 More detailed instructions for running the tutorials can be found at:
@@ -147,7 +154,7 @@ Then, change into that project directory.
 
 ### Step-by-step pipenv install
 
-- Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To 
+- Install python 3.8 by following [these installation instructions](https://docs.python.org/3/using/windows.html). To 
   ensure access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
   [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 - Open a console using either `powershell` or the Windows console.
@@ -183,6 +190,17 @@ ecosystem and, within that virtual environment, use `pip` to install `orchid-pyt
 - Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.8`.
 - Activate the virtual environment by running `conda activate <your-virtualenv_name>`
 - Install Orchid by running `pip install orchid-python-api`.
+
+### Using a requirements file
+
+An alternative method used by customers uses a requirements file, `requirements.txt`, that we create as part of our
+release process but **do not** include in our distribution. 
+[This file](https://github.com/Reveal-Energy-Services/orchid-python-api/blob/master/requirements.txt) is available
+from our GitHub repository. For `pipenv`, use 
+[these import instructions](https://pipenv-fork.readthedocs.io/en/latest/basics.html#importing-from-requirements-txt). For
+`conda`, read the accepted answer to this 
+[Stack Overflow post](https://stackoverflow.com/questions/63379968/using-requirements-txt-to-automatically-install-packages-from-conda-channels-and)
+for the correct command and additional options you may need to consider.
 
 ### Configure the Orchid Python API
 
@@ -259,7 +277,7 @@ To create a configuration file used by the Orchid Python API, you must:
 
 Technically, the format of the file is `YAML` ("YAML Ain't Markup Language"), a "human friendly data
 serialization standard". (For technical details, visit [the website](https://yaml.org/). For a gentler
-introduction, visit [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch on of the many
+introduction, visit [the Wikipedia entry](https://en.wikipedia.org/wiki/YAML) or read / watch one of the many
 `YAML` introductions / tutorials.)
 
 Because these articles describe `YAML` generally, they **do not** describe the details of the `YAML` document
@@ -288,7 +306,7 @@ If you want to ensure your configuration is correct,
 ### Configure the Orchid training data
 
 Using the Orchid Python API **requires** a licensed Orchid installation on your workstation. However,
-to use the example Jupyter notebooks or scripts, you must configure the Orchid Python API to find the
+to use the example Jupyter notebooks or scripts, you **must** configure the Orchid Python API to find the
 Orchid training data.
 
 #### Using an environment variable
@@ -310,7 +328,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_TRAINING_DATA".
-(These two words are separated by the underscore symbol.)
+(These three words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
@@ -382,7 +400,7 @@ The import should complete with no errors.
 
 ### Python REPL
 
-- In your activated virtual environment, run `python` to open a REPL.
+- In your activated virtual environment, run either `python` or `ipython` to open a REPL.
 - Enter `import orchid`.
 - Wait patiently.
 
@@ -398,9 +416,9 @@ The import should complete with no errors.
 - If necessary, activate the virtual environment by executing either 
     - `pipenv shell` or 
     - `conda activate <your-virtualenv_name>`.
-- Run `copy_orchid_examples.exe`
+- Run `copy_orchid_examples`
 - If the script reports that it skipped notebooks or scripts, repeat the command with an additional argument:  
-  `python </path/to/virtualenv/Lib/site-packages/copy_orchid_examples.py --overwrite`
+  `copy_orchid_examples --overwrite`
 - Verify that the current directory has six example notebooks:
     - `completion_analysis.ipynb`
     - `plot_time_series.ipynb`
@@ -408,13 +426,15 @@ The import should complete with no errors.
     - `plot_treatment.ipynb`
     - `search_data_frames.ipynb`
     - `volume_2_first_response.ipynb`
-- Verify that the current directory has six example scripts:
+- Verify that the current directory has eight example scripts:
     - `completion_analysis.py`
     - `plot_time_series.py`
     - `plot_trajectories.py`
     - `plot_treatment.py`
     - `search_data_frames.py`
     - `volume_2_first_response.py`
+    - `stage_qc_results.py`
+    - `change_stage_times.py`
 
 ### Run high-level example scripts
 
@@ -423,13 +443,37 @@ The import should complete with no errors.
     - Wait patiently for the `matplotlib` plot window to appear.
     - Ensure the plot is correct.
     - Dismiss the `matplotlib` window.
-- Repeat for remaining notebooks:
+- Repeat for these scripts:
     - `plot_treatment.py`
     - `plot_time_series.py` 
     - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
        You must dismiss each plot to continue.)
     - `volume_2_first_response.py`
     - `search_data_frames.py`
+- Run the `stage_qc_results.py` script.
+- Run the `change_stage_times.py` script.
+
+The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
+command line arguments to run correctly.
+
+For example, to see an explanation of these arguments, execute the command 
+`python stage_qc_results.py --help` or `python stage_qc_results.py --help`. The most typical arguments are described in
+the following paragraphs.
+
+To both read and write stage QC results, run the command:
+```
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
+
+To only read the existing stage QC data, run the command
+```
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+```
+
+To change the stage start and stop times (the time range), run the command
+```
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
 
 ### Run high-level example notebooks
 

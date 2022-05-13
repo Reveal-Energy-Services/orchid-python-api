@@ -13,47 +13,54 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 
 ### High-level examples
 
-This project includes six scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
+This project includes eight scripts and six notebooks in the `examples` directory of the `orchid-python-api` package:
 
-| Name                            | Demonstrates...                                                                        |
-|---------------------------------|----------------------------------------------------------------------------------------|
-| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project    |
-| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                           |
-| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                              |
-| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project              | 
-| `search_data_frames.ipynb`      | Searching object collections (like all wells for a project) and our data frame access  | 
-| `volume_2_first_response.ipynb` | Calculating derivatives to calculate the fluid volume pumped before the first response | 
+| Name                            | Demonstrates...                                                                     |
+|---------------------------------|-------------------------------------------------------------------------------------|
+| `completion_analysis.ipynb`     | A detailed analysis of the completion performed on two different wells in a project |
+| `plot_trajectories.ipynb`       | Plotting the well trajectories for a project                                        |
+| `plot_time_series.ipynb`        | Plotting the monitor curves for a project                                           |
+| `plot_treatment.ipynb`          | Plotting the treatment curves for a specific stage of a well in a project           | 
+| `search_data_frames.ipynb`      | Searching object collections and our data frame access                              | 
+| `volume_2_first_response.ipynb` | Using derivatives to calculate the fluid volume pumped before the first response    | 
 
-The scripts contain the same code as the notebooks but run either at the command line or in a REPL.
+Six of the eight scripts contain the same code as the notebooks but run either at the command line or in a REPL. The
+last two scripts:
+
+| Name                            | Demonstrates using the high-level Python API to...                               |
+|---------------------------------|----------------------------------------------------------------------------------|
+| `stage_qc_results.py`           | Read and write QC results for a stage. (Replaces low-level `stage_qc_status.py`) |
+| `change_stage_times.py`         | Change the start and stop times (the time range) of a stage                      |
 
 ### Low-level examples
 
-In addition, this project includes four scripts and a notebook in the `examples/low_level` directory of the
+In addition, this project includes five scripts and a notebook in the `examples/low_level` directory of the
 `orchid-python-api` package:
 
-| Name                                      | Demonstrates...                                                   |
-|-------------------------------------------|-------------------------------------------------------------------|
-| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file   |
-| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes.                                 |
-| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method       |
-| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series. | 
+| Name                                      | Demonstrates...                                                  |
+|-------------------------------------------|------------------------------------------------------------------|
+| `auto_pick.py`                            | Automatically pick observations and save them to an .ifrac file  |
+| `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes                                 |
+| `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method      |
+| `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series | 
+| `add_stages.py`                           | Adds newly created stages to a well of a project                 | 
 
 The notebook, `auto_pick.ipynb` contain the same code as the script, `auto_pick.py`, but runs in a Jupyter
 notebook.
- 
-To use these examples: 
 
-- You may need to 
+To use these examples:
+
+- You may need to
   [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
-- You **must** 
+- You **must**
   [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - You may need to [view the Orchid API configuration details](#view-orchid-configuration-details)
 - You may want to invoke the command, `copy_orchid_examples`
 
-    This command copies the example files into an optionally specified (virtual environment) directory. (The 
-    default destination is your current working directory.) Note that this command is a command-line script 
-    that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to 
-    provide you with help on running this command.
+  This command copies the example files into an optionally specified (virtual environment) directory. (The
+  default destination is your current working directory.) Note that this command is a command-line script
+  that runs in a console or terminal. Additionally, this command supports a help flag, `-h` or `--help`, to
+  provide you with help on running this command.
 
 More detailed instructions for running the examples can be found at:
 
@@ -98,7 +105,7 @@ To use these tutorials:
 
   This command copies the tutorial files into an optionally specified (virtual environment) directory. (The
   default destination is your current working directory.) Note that this command is a command-line script
-  that runs in a console or terminal. Additionally, this command supports a help flag (`-h` / `--help`) to
+  that runs in a console or terminal. Additionally, this command supports a help flag, `-h` or `--help`, to
   provide you with help on running this command.
 
 More detailed instructions for running the tutorials can be found at:
@@ -162,6 +169,17 @@ you need to install it. To determine if python 3 is installed:
 - If you see an item named "Python 3.x", you have python 3 installed.
 
 To install `poetry`:
+
+If using Powershell (recommended):
+
+- Open a Powershell terminal
+- Execute the command
+
+  ```
+  (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -UseBasicParsing).Content | python -
+  ```
+  
+If using Windows command shell:
 
 - Open a command prompt
 - Invoke the command `pip install poetry`.
@@ -299,7 +317,7 @@ Publishing a release has a number of general steps. These steps are optional exc
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
 - [Generate requirements file](#generate-requirements-file)
-- Generate and test html documentation
+- [Generate documentation](#generate-documentation)
 - [Build and test locally](#build-and-test-locally)
 - [Publish to TestPyPI](#publish-to-testpypi)
 - [Publish to PyPI](#publish-to-pypi)
@@ -339,15 +357,16 @@ the error.
 To work around this issue, one may need to uninstall `poetry` by:
 
 - Navigate to the repository root
+- If using a `Powershell` command prompt (recommended):
+  - Download the poetry installer by executing
+    ```
+    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -UseBasicParsing).Content | python - --uninstall
+    ```
+    
 - If using a `bash` shell:
   - Download the poetry installer by executing
     ```
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py >get-poetry.py
-    ```
-- If using a `Powershell` command prompt:
-  - Download the poetry installer by executing
-    ```
-    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content > get-poetry.py
     ```
 
 See [Poetry Issue 2245](https://github.com/python-poetry/poetry/issues/2245) for similar instructions. After
@@ -430,7 +449,9 @@ introduction to the process (but some different steps), review the
   [Publish distribution to TestPyP](#publish-distribution-to-testpypi)
 - To configure the TestPyPI repository, run either
   - `invoke poetry.config.test-pypi` or
-  - `poetry config repositories.test-pypi https://test.pypi.org/legacy/`
+    ```
+    poetry config repositories.test-pypi https://test.pypi.org/legacy/
+    ```
 
 Once configured, you will also need to configure the API token for the TestPyPI website. Because the API
 token is a security token, the author is unaware of any way to examine if the token has already been
@@ -520,8 +541,7 @@ Once published, test the published distribution by:
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
-- Install the package distribution by running the command,
-  `pip install orchid-python-api`.
+- Install the package distribution by running the command, `pip install orchid-python-api`.
 
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
@@ -532,8 +552,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
-- Install the package distribution by running the command,
-  `pip install --index-url https://test.pypi.org/simple/ orchid-python-api`.
+- Install the package distribution by running the command, `pip install orchid-python-api`.
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
@@ -638,7 +657,6 @@ If using `python invoke`,
   - Run `invoke poetry.venv.remove --venv=<virtual-env>`. NOTE: If no such virtualenv exists, running this
     task will produce a message like:
     ```
-    invoke poetry.venv.remove --dirname=c:/inst/orchid/pipenv
     No virtualenv has been created for this project yet!
     Aborted!
     ```
@@ -699,15 +717,16 @@ If using `python invoke`,
     exists, running this task will produce a message like:
 
     ```
-    invoke pipenv.venv.remove --dirname=c:/inst/orchid/pipenv
     No virtualenv has been created for this project yet!
     Aborted!
     ```
 
 - If present, delete all leftover files from the virtualenv directory.
 
-- Create a new skeleton virtual environment
-  - Run `invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>`.
+- Create a new skeleton virtual environment by running
+  ```
+  invoke pipenv.venv.create --dirname=<path/to/inst/orchid/pipenv>
+  ```
 
 To test that you were successful,
 
@@ -763,8 +782,11 @@ tested these instructions in that environment.
 
 
 - Create a new, clean virtual environment by:
-  - Execute the command `conda create --name orchid python=<python-version>` where `python_ver` is the
-    version of Python used by the Orchid Python API (currently 3.8.10).
+  - Execute the command 
+    ```
+    conda create --name orchid python=<python-version>
+    ```
+    where `python_ver` is the version of Python used by the Orchid Python API (currently 3.8.10).
   - If you see errors or warnings, attempt to [resolve conda create issues](#resolve-conda-create-issues)
     and then execute the previous command.
 
@@ -815,7 +837,9 @@ To run all orchid tests
     - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
   - If orchid-python-api not (yet) installed,
     - Copy the example notebooks to the orchid project repository root
-      - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+      ```
+      copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>
+      ```
 - Activate `poetry shell` if not activated
 
 #### Run example scripts
@@ -825,13 +849,36 @@ To run all orchid tests
   - Wait patiently for the `matplotlib` plot window to appear.
   - Ensure the plot is correct.
   - Dismiss the `matplotlib` window.
-- Repeat for remaining notebooks:
+- Repeat for these scripts:
   - `plot_treatment.py`
   - `plot_time_series.py`
   - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
     You must dismiss each plot to continue.)
   - `volume_2_first_response.py`
   - `search_data_frames.py`
+- Run the `stage_qc_results.py` script.
+- Run the `change_stage_times.py` script.
+
+The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
+command line arguments to run correctly.
+
+For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
+command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
+
+To both read and write stage QC results, run the command:
+```
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
+
+To only read the existing stage QC data, run the command
+```
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+```
+
+To change the stage start and stop times (the time range), run the command
+```
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
 
 #### Run example notebooks
 
@@ -843,8 +890,8 @@ To run all orchid tests
     3. Wait patiently
     4. Verify that no exceptions occurred
   - Repeat for remaining notebooks:
-    - `plot_time_series.ipynb`
     - `plot_treatment.ipynb`
+    - `plot_time_series.ipynb`
     - `completion_analysis.ipynb`
     - `volume_2_first_response.ipynb`
     - `search_data_frames.ipynb`
@@ -861,9 +908,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
     - Navigate to the directory associated with the virtual environment
     - If necessary, activate the virtual environment.
-    - Run `copy_orchid_examples.exe`.
+    - Run `copy_orchid_examples`.
     - If the executable reports that it skipped files, repeat the command with an additional argument:  
-      `copy_orchid_examples.exe --overwrite`
+      `copy_orchid_examples --overwrite`
     - Verify that the current directory has six example notebooks:
         - `completion_analysis.ipynb`
         - `plot_time_series.ipynb`
@@ -871,34 +918,61 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `plot_treatment.ipynb`
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
-    - Verify that the current directory has six example scripts:
+    - Verify that the current directory has eight example scripts:
+        - `change_stage_times.py`
         - `completion_analysis.py`
         - `plot_time_series.py`
         - `plot_trajectories.py`
         - `plot_treatment.py`
         - `search_data_frames.py`
+        - `stage_qc_results.py`
         - `volume_2_first_response.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
     - If orchid-python-api not (yet) installed,
         - Copy the example notebooks to the orchid project repository root
-            - `copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>`
+          ```
+          copy ./orchid_python_api/examples/*.ipynb </path/to/orchid_repo>
+          ```
 
 #### Run example scripts
 
 - Run the first script
-    - Execute the command `python plot_trajectories.py`
-    - Wait patiently for the `matplotlib` plot window to appear.
-    - Ensure the plot is correct.
-    - Dismiss the `matplotlib` window.
-- Repeat for remaining scripts:
-    - `plot_treatment.py`
-    - `plot_time_series.py` 
-    - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
-       You must dismiss each plot to continue.)
-    - `volume_2_first_response.py`
-    - `search_data_frames.py`
+  - Execute the command `python plot_trajectories.py`
+  - Wait patiently for the `matplotlib` plot window to appear.
+  - Ensure the plot is correct.
+  - Dismiss the `matplotlib` window.
+- Repeat for these scripts:
+  - `plot_treatment.py`
+  - `plot_time_series.py`
+  - `completion_analysis.py` (This script prints multiple messages and presents **multiple** plots.
+    You must dismiss each plot to continue.)
+  - `volume_2_first_response.py`
+  - `search_data_frames.py`
+- Run the `stage_qc_results.py` script.
+- Run the `change_stage_times.py` script.
+
+The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
+command line arguments to run correctly.
+
+For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
+command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
+
+To both read and write stage QC results, run the command:
+```
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
+
+To only read the existing stage QC data, run the command
+```
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+```
+
+To change the stage start and stop times (the time range), run the command
+```
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+```
 
 #### Run example notebooks
 
@@ -910,8 +984,8 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         3. Wait patiently
         4. Verify that no exceptions occurred
     - Repeat for remaining notebooks:
+      - `plot_treatment.ipynb`
         - `plot_time_series.ipynb`
-        - `plot_treatment.ipynb`
         - `completion_analysis.ipynb`
         - `volume_2_first_response.ipynb`
         - `search_data_frames.ipynb`
@@ -928,22 +1002,26 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
   - Navigate to the directory associated with the virtual environment
   - If necessary, activate the virtual environment.
-  - Run `copy_orchid_low_level_examples.exe`.
+  - Run `copy_orchid_low_level_examples`.
   - If the executable reports that it skipped files, repeat the command with an additional argument:  
-    `copy_orchid_low_level_examples.exe --overwrite`
+    `copy_orchid_low_level_examples --overwrite`
   - Verify that the current directory has one example notebooks:
     - `auto_pick.ipynb`
   - Verify that the current directory has three example scripts:
     - `auto_pick.py`
     - `auto_pick_and_create_stage_attribute.py`
+    - `auto_pick_iterate_example.py`
     - `monitor_time_series.py`
+    - `add_stages.py`
 - If you are testing a `poetry` virtual environment
   - If orchid-python-api is installed in the virtual environment,
     - Run `python ./copy_orchid_low_level_examples.py` to copy the examples to the current directory
   - If orchid-python-api not (yet) installed,
-    - Copy the example notebooks to the orchid project repository root
-      - `copy ./orchid_python_api/examples/low_level/*.ipynb </path/to/orchid_repo>`
-      - `copy ./orchid_python_api/examples/low_level/*.py </path/to/orchid_repo>`
+    - Copy the low-level examples to the orchid project repository root by executing the commands:
+      ```
+      copy ./orchid_python_api/examples/low_level/*.ipynb </path/to/orchid_repo>
+      copy ./orchid_python_api/examples/low_level/*.py </path/to/orchid_repo>
+      ```
 
 #### Run low-level example scripts
 
@@ -952,18 +1030,34 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     ```
     python auto_pick.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
-    python auto_pick_and_create_stage_attribute.py --verbosity=2 --output=/path/to/training-data/frankNstein_Bakken_UTM13_FEET.998.ifrac /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
+  - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
+  - Execute the command
+    ```
+    python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command `python monitor_time_series.py`
   - Review the output and ensure the script finishes without errors.
+  - Execute the command
+    ```
+    python add_stages.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
+  - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
 
-#### Run low-level example notebooks
+#### Run low-level example notebook
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
@@ -987,7 +1081,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
     - If orchid-python-api not (yet) installed,
         - Copy the tutorial notebooks to the orchid project repository root
-            - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
+          ```
+          copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>
+          ```
 - Activate `poetry shell` if not activated
 
 #### Run tutorial script
@@ -1018,9 +1114,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - If you are testing a `pipenv` virtual environment or a `conda` environment
         - Navigate to the directory associated with the virtual environment
         - If necessary, activate the virtual environment.
-        - Run `copy_orchid_tutorials.exe`.
+        - Run `copy_orchid_tutorials`.
         - If the executable reports that it skipped files, repeat the command with an additional argument:  
-          `copy_orchid_tutorials.exe --overwrite`
+          `copy_orchid_tutorials --overwrite`
         - Verify that the current directory has one tutorial notebooks:
             - `dom_navigation_tutorial.ipynb`
         - Verify that the current directory has one tutorial scripts:
@@ -1030,7 +1126,9 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
             - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
         - If orchid-python-api not (yet) installed,
             - Copy the tutorial notebooks to the orchid project repository root
-                - `copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>`
+              ```
+              copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>
+              ```
 
 #### Run tutorial script
 
@@ -1054,7 +1152,10 @@ To generate a `requirements.txt` file,
 
 - Navigate to the repository root
 - Activate the virtualenv (run `poetry shell`)
-- Run the command, `poetry export --without-hashes -f requirements.txt --output requirements.txt`
+- Run the command 
+  ```
+  poetry export --without-hashes -f requirements.txt --output requirements.txt
+  ```
 
 #### Test the requirements file in  a pipenv virtual environment
 
@@ -1063,11 +1164,20 @@ To test the generated requirements file using a `pipenv` virtual environment,
 - [Create a new, clean virtualenv](#create-a-new-clean-virtualenv)
 - In a Powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `pipenv shell`)
-- Install the package requirements by running `pip install -r /path/to/repo/requirements.txt`. If you see an
-  error when executing this command, see 
+- Install the package requirements by running 
+  ```
+  pip install -r /path/to/repo/requirements.txt
+  ```
+  If you see an error when executing this command, see 
   [require hashes error when installing dependencies](#require-hashes-error-when-installing-dependencies)
   for possible resolutions.
 - Execute the command, `pip list --local`. 
+  - If you have `git-bash` installed, you may be able to use the `less` command to search for package names;
+    for example, by executing the following command and searching by entering `/<package_name>` at the prompt (':')
+
+    ```
+    pip list --local | & 'C:\Program Files\Git\usr\bin\less.exe'
+    ```
 
 Sample the package list. You should see output like the following (but with different version numbers)
 
@@ -1092,8 +1202,8 @@ To test the generated requirements file using a `conda` environment,
   - Execute the command:
     - `pip list --local`
   - If you have `git-bash` installed, you may be able to use the `less` command to search for package names;
-    for example, by executing the following command and searching by entering `/numpy` at the prompt (':')
-    
+    for example, by executing the following command and searching by entering `/<package_name>` at the prompt (':')
+
     ```
     pip list --local | & 'C:\Program Files\Git\usr\bin\less.exe'
     ```
@@ -1107,6 +1217,21 @@ Sample the package list. You should see output like the following (but with diff
 | numpy      | 1.22.0  |
 | pandas     | 1.3.5   |
 | scipy      | 1.6.1   |
+
+### Generate documentation
+
+- Navigate to the repository root within your virtual development environment
+- If necessary, activate the virtual environment by executing `poetry shell`
+- Change to the `docs` directory by executing `chdir docs`
+- Clean the build directory by executing `make.bat clean`
+- Ensure that the `_build` directory is clean by executing `gci _build`
+- Generate the latest documentation by executing `make.bat html`
+- If you see a warning message like, "WARNING: html_static_path entry '_static' does not exist", you can ignore it
+- Resolve any other warnings or errors
+- Sample the documentation by opening the file, `/path-to/repository/docs/_build/html/index.html`, and navigating the
+  generated documentation to ensure it is correct. Specifically, check for **new** classes and methods and ensure we
+  have generated documentation for these items. 
+- If necessary, correct any errors and repeat the "clean, make html and test" steps.
 
 ## Possible installation errors and resolutions
 
@@ -1300,7 +1425,8 @@ the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or th
 
 To use this configuration file as an example:
 
-- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute:
+- If this file is not already in the expected location, copy the file. For example, assuming the symbolic names
+  referenced above, execute
   ```
   copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml
   ```
@@ -1338,7 +1464,7 @@ To create the required environment variable, enter the search term "environment 
 search box and select the item named, "Edit environment variables for your account." The system will then 
 present your with the "Environment Variables" dialog. Under the section named "User variables for 
 <your.username>", click the "New" button. In the "Variable name" text box, enter "ORCHID_TRAINING_DATA".
-(These two words are separated by the underscore symbol.)
+(These three words are separated by the underscore symbol.)
 
 Navigate to the "Variable Value" text box. Click the "Browse Directory" button to select the directory 
 containing the Orchid training data, `/path-to/orchid/training-data`. This action pastes the directory name
@@ -1380,9 +1506,12 @@ the [step-by-step pipenv install](./README.md#step-by-step-pipenv-install) or th
 
 To use this configuration file as an example:
 
-- Copy the file to the expected location. For example, assuming the symbolic names referenced above, execute
-  `copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example
-  /path/to/home-directory/.orchid/python_api.yaml`
+- If this file is not already in the expected location, copy the file. For example, assuming the symbolic names
+  referenced above, execute
+  ```
+  copy /path/to/orchid-virtualenv/Lib/site-packages/orchid_python_api/examples/python_api.yaml.example /path/to/home-directory/.orchid/python_api.yaml`
+  ```
+  
 - Edit the copied file, `/path/to/home-directory/.orchid/python_api.yaml`, using your favorite **text** editor.
 
 The example file, contains comments, introduced by a leading octothorpe character (#, number sign, or hash),

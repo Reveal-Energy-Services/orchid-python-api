@@ -39,7 +39,7 @@ copyright = '2019-2021, Reveal Energy Services'
 author = 'Reveal Energy Services'
 
 # The full version, including alpha/beta/rc tags
-release = '2021.4.283'
+release = '2022.1.360'
 
 
 # -- General configuration ---------------------------------------------------
