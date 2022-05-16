@@ -19,7 +19,7 @@ def _stem_names():
     """Returns the sequence of example stem names."""
     example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
                      'plot_treatment', 'search_data_frames', 'volume_2_first_response',
-                     'stage_qc_results']
+                     'stage_qc_results', 'change_stage_times', ]
     return example_stems
 
 
@@ -38,6 +38,7 @@ def ordered_script_names():
         ('volume_2_first_response.py', 4),
         ('search_data_frames.py', 5),
         ('stage_qc_results.py', 6),
+        ('change_stage_times.py', 6),
     ]
     ordered_pairs = sorted(script_name_pairs, key=lambda op: op[1])
     ordered_names = [op[0] for op in ordered_pairs]

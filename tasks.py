@@ -201,7 +201,7 @@ def examples_stem_names():
     """Returns the sequence of example stem names."""
     example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
                      'plot_treatment', 'search_data_frames', 'volume_2_first_response',
-                     'stage_qc_results']
+                     'stage_qc_results', 'change_stage_times', ]
     return example_stems
 
 
@@ -291,12 +291,15 @@ def examples_run_scripts(context):
     """
     source_files = examples.ordered_script_names()
     for source_file in source_files:
-        # The `stage_qc_results` example script requires arguments to run and produce output
-        if not str(source_file).endswith('stage_qc_results.py'):
-            context.run(f'python {source_file}', echo=True)
-        else:
+        # The `stage_qc_results` and `change_stage_times` example scripts require arguments to run and produce output
+        if str(source_file).endswith('stage_qc_results.py'):
             context.run(f'python {source_file} --verbosity=2'
                         f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
+        elif str(source_file).endswith('change_stage_times.py'):
+            context.run(f'python {source_file} --verbosity=2'
+                        f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
+        else:
+            context.run(f'python {source_file}', echo=True)
         print()
 
 

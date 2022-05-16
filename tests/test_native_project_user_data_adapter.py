@@ -175,7 +175,7 @@ def create_sut(stage_id_text: str, qc_notes=None, start_stop_confirmation=None, 
     elif not stages_qc and to_json:
         stub_project_user_data = tsn.ProjectUserDataDto(to_json=to_json)
 
-    result = uda.NativeProjectUserData(stub_project_user_data.create_net_stub())
+    result = uda.NativeProjectUserDataAdapter(stub_project_user_data.create_net_stub())
     return result
 
 
