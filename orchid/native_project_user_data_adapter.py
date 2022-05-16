@@ -35,12 +35,12 @@ from Orchid.FractureDiagnostics.Settings import IProjectUserData, Variant
 class NativeProjectUserDataAdapter(dna.DotNetAdapter):
     """Adapts a .NET `IProjectUserData` instance to Python."""
 
-    # TODO: Add code to `SdkAdapter` to allow handling `GetValue` and .NET `StageCorrectionStatus`
+    # TODO: Add code to `SdkAdapter` to allow handling `GetValue` and .NET `CorrectionStatus`
     # Python.NET has a [known issue](https://github.com/pythonnet/pythonnet/issues/1220) with its
     # handling of .NET Enum types. The Python.NET team has repaired this issue; however, the repair
     # is targeted for Python.NET 3. The team has specifically stated that they will *not* backport
-    # this fix to the 2.5 version. Because .NET `StageCorrectionStatus` is a .NET `Enum` type, we
-    # *cannot* construct a .NET `Variant` of type .NET `StageCorrectionStatus`.
+    # this fix to the 2.5 version. Because .NET `CorrectionStatus` is a .NET `Enum` type, we
+    # *cannot* construct a .NET `Variant` of type .NET `CorrectionStatus`.
     #
     # Our work-around for this issue is to implement this class in terms of the the JSON available
     # from the `IProjectUserData.ToJson`. This choice further requires hard-coding the logic used
@@ -66,7 +66,7 @@ class NativeProjectUserDataAdapter(dna.DotNetAdapter):
 
         return self._extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
 
-    def stage_start_stop_confirmation(self, stage_id: uuid.UUID) -> nqc.StageCorrectionStatus:
+    def stage_start_stop_confirmation(self, stage_id: uuid.UUID) -> nqc.CorrectionStatus:
         """
         Calculate the start stop confirmation for the specified stage.
 
@@ -77,21 +77,21 @@ class NativeProjectUserDataAdapter(dna.DotNetAdapter):
             The requested start stop confirmation.
         """
         key_func = nqc.make_start_stop_confirmation_key
-        transform_func = nqc.StageCorrectionStatus
-        default_result = nqc.StageCorrectionStatus.NEW
+        transform_func = nqc.CorrectionStatus
+        default_result = nqc.CorrectionStatus.NEW
 
         return self._extract_value_for_stage_id(stage_id, key_func, default_result, transform_func)
 
     def _extract_value_for_stage_id(self,
                                     stage_id: uuid.UUID,
                                     key_func: Callable[[uuid.UUID], str],
-                                    default_result: Union[str, nqc.StageCorrectionStatus],
-                                    transform_func: Callable[[str], Union[str, nqc.StageCorrectionStatus]]):
+                                    default_result: Union[str, nqc.CorrectionStatus],
+                                    transform_func: Callable[[str], Union[str, nqc.CorrectionStatus]]):
         project_user_data_json = json.loads(self.dom_object.ToJson())
         confirmation_key = key_func(stage_id)
         # TODO: Replace hard-coded "copy" of logic
         # Hard-coded logic for QC notes default value from `StartStopTimeEditorViewModel`:
-        # return .NET `StageCorrectionStatus.New` if either of stage ID or of start stop
+        # return .NET `CorrectionStatus.New` if either of stage ID or of start stop
         # confirmation is unavailable.
         result = default_result
         if confirmation_key in project_user_data_json:
@@ -112,7 +112,7 @@ class NativeProjectUserDataAdapter(dna.DotNetAdapter):
         self._set_value(stage_id, nqc.make_qc_notes_key, to_notes, toolz.identity)
 
     def set_stage_start_stop_confirmation(self, stage_id: uuid.UUID,
-                                          to_confirmation: nqc.StageCorrectionStatus) -> None:
+                                          to_confirmation: nqc.CorrectionStatus) -> None:
         """
         Set the stage start stop confirmation `to_confirmation` for the specified stage.
 

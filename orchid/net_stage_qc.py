@@ -28,10 +28,10 @@ import uuid
 import toolz.curried as toolz
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.Common import StageCorrectionStatus as NetStageCorrectionStatus
+from Orchid.Common import CorrectionStatus as NetCorrectionStatus
 
 
-class StageCorrectionStatus(enum.Enum):
+class CorrectionStatus(enum.Enum):
     # TODO: Change to use .NET `Enum` member.
     # Python.NET always transforms .NET `Enum` members into Python `int` values. This transformation is a known issue
     # (https://github.com/pythonnet/pythonnet/issues/1220). The Python.NET team has corrected the issue but only for
@@ -41,7 +41,7 @@ class StageCorrectionStatus(enum.Enum):
     # encountered issues with its usage in .NET `Variant` types which is used for stage QC information.
     #
     # To simplify the "work-around" implemented in `native_stage_qc_adapter`, I use the hard-coded string value of
-    # .NET `StageCorrectionStatus`.
+    # .NET `CorrectionStatus`.
     #
     # See also the Jupyter notebook, `features/notebooks/explore_stage_qc.py`, for attempts to use the .NET `Enum`.
     CONFIRMED = 'Confirmed'

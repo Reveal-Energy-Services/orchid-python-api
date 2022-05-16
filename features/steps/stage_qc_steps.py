@@ -43,7 +43,7 @@ def step_impl(context):
         stage_object_id = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well).object_id
         project_user_data = context.project.user_data
 
-        to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
+        to_corrected_status = nqc.CorrectionStatus[row['to_correction_status'].upper()]
         project_user_data.set_stage_start_stop_confirmation(stage_object_id, to_corrected_status)
 
         to_qc_notes = row['to_qc_notes']
@@ -63,7 +63,7 @@ def step_impl(context):
         stage_object_id = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well).object_id
         project_user_data = context.project.user_data
 
-        to_corrected_status = nqc.StageCorrectionStatus[row['to_correction_status'].upper()]
+        to_corrected_status = nqc.CorrectionStatus[row['to_correction_status'].upper()]
         assert_that(project_user_data.stage_start_stop_confirmation(stage_object_id), equal_to(to_corrected_status))
 
         to_qc_notes = row['to_qc_notes']
