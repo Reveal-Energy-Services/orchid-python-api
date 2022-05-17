@@ -20,6 +20,7 @@ Common functions for parsing the output of the low-level example script integrat
 """
 
 import dataclasses as dc
+import pathlib
 from typing import List
 import uuid
 
@@ -53,6 +54,7 @@ single_quote = parsy.string("'")
 
 # Single-line parsers
 single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
+double_quoted_text = (double_quote >> parsy.regex(r"[^']+") << double_quote)
 
 auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
@@ -72,17 +74,16 @@ uuid_parser = (hex_digits + dash  # 8 digit block
                + hex_digits + dash  # 4 digit block
                + hex_digits  # 12 digit block
                ).map(uuid.UUID)
-
-# Parsers involving Windows paths
-# These parsers are based on a recipe from
+# The next three parsers are based on a recipe from
 # [The Regular Expression Cookbook]https://www.oreilly.com/library/view/regular-expressions-cookbook/9780596802837/ch07s18.html)
 drive_letter = parsy.regex(r'[a-zA-Z]:\\')
-# The next expression is *not* a parser
+folders = parsy.regex(r'(?:[^\\/:*?"<>|\r\n]+\\)*')
+filename = parsy.regex(r'[^\\/:*?"<>|\r\n]*')
 output_path_name = (parsy.string('INFO:root:Wrote changes to ') >>
                     double_quote >>
-                    drive_letter >>
-                    parsy.regex(r'(?:[^\\/:*?"<>|\r\n]+\\)*Orchid.IntegrationTestData\\') >>  # one or more folders
-                    parsy.regex(r'frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac') <<  # filename
+                    parsy.seq(drive_letter, folders, filename)
+                         .combine(lambda d, fs, fn: ''.join([d, fs, fn]))
+                         .map(pathlib.Path) >>
                     double_quote)
 
 
