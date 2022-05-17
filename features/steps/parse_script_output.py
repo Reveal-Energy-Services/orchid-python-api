@@ -195,7 +195,24 @@ def brief_orchid_objects():
     yield left_brace
     brief_objects = yield (brief_orchid_object << comma.optional()).many()
     yield right_brace
-
+    # TODO: Consider replacing all `newline` parsers with `whitespace`
+    # The step, "I see all time series in the project", passes in a development environment but fails in the build
+    # pipeline. When it fails, the next character in the input stream is `\r`. Larry, the author, has never seen a
+    # carriage return character in all his testing locally, but his environment for testing is
+    # - `bash`
+    # - `PyCharm`
+    # - A `poetry` virtual environment running under `Powershell` (and usually Powershell Core).
+    # Larry's working hypothesis is that the build environment is truly a Windows environment in which a "newline" is
+    # not a single character but the string `\r\n`. In debug output of the failures in the build environment, one sees
+    # the Windows newline in the representation of the `behave` `context.text`.
+    #
+    # Another alternative would be to switch the parsing package from `parsy` to `pyparsing`. I believe that
+    # `pyparsing`, by default, ignores whitespace.
+    #
+    # A final option would be to change the implementation altogether in one of two ways. Either complete forget parsing
+    # or, the best option, stop testing the output of scripts (which, by it's nature, can produce these kinds of
+    # issues, and move to integration tests of the .NET API).
+    yield parsy.whitespace.optional()
     return brief_objects
 
 
