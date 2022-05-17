@@ -28,11 +28,15 @@ import pendulum as pdt
 import parsy
 
 
+# If you need to test the regular expressions used in this parse, consider using [Pythex](https://pythex.org/)
+
+
 # Utility parsers
 colon = parsy.string(':') << parsy.whitespace.many()
 comma = parsy.string(',') << parsy.whitespace.many()
 dash = parsy.string('-')
 dot = parsy.string('.')
+double_quote = parsy.string('"')
 equals = parsy.string('=')
 float_parser = parsy.regex(r'\d+\.\d*').map(float)
 greater_than = parsy.string('>')
@@ -54,13 +58,11 @@ auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
 observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
-output_path_name = (parsy.string('INFO:root:Wrote changes to') >>
-                    parsy.regex(r' "c:\\src\\Orchid.IntegrationTestData\\frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac"'))
 parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
 python_var_name = parsy.regex(r'[\w_\d]+')
 python_attribute_name = (python_var_name << dot.optional()).many().map(lambda ns: '.'.join(ns))
-rfc_date_time_text = parsy.regex('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\+|-)\d{2}:\d{2}')
+rfc_date_time_text = parsy.regex(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\+|-)\d{2}:\d{2}')
 rfc_date_time = rfc_date_time_text.map(pdt.parse)
 unique_attribute_count_per_stage_per_well_equals = parsy.string(
     r'INFO:root:Unique counts of attributes per stage per well=')
@@ -70,6 +72,18 @@ uuid_parser = (hex_digits + dash  # 8 digit block
                + hex_digits + dash  # 4 digit block
                + hex_digits  # 12 digit block
                ).map(uuid.UUID)
+
+# Parsers involving Windows paths
+# These parsers are based on a recipe from
+# [The Regular Expression Cookbook]https://www.oreilly.com/library/view/regular-expressions-cookbook/9780596802837/ch07s18.html)
+drive_letter = parsy.regex(r'[a-zA-Z]:\\')
+# The next expression is *not* a parser
+output_path_name = (parsy.string('INFO:root:Wrote changes to ') >>
+                    double_quote >>
+                    drive_letter >>
+                    parsy.regex(r'(?:[^\\/:*?"<>|\r\n]+\\)*Orchid.IntegrationTestData\\') >>  # one or more folders
+                    parsy.regex(r'frankNstein_Bakken_UTM13_FEET.\d{3}.ifrac') <<  # filename
+                    double_quote)
 
 
 # Parser generators

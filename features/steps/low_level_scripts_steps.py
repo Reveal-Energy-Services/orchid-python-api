@@ -26,6 +26,7 @@ import subprocess
 import sys
 
 from hamcrest import assert_that, equal_to
+import parsy
 import pendulum as pdt
 
 import orchid
@@ -87,7 +88,12 @@ def step_impl(context, observation_count):
     # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    actual_observations_count = pso.get_second_observations_count.parse(script_output)
+    try:
+        actual_observations_count = pso.get_second_observations_count.parse(script_output)
+    except parsy.ParseError as pe:
+        print(f'Consumed: {pe.stream[:pe.index]}')
+        print(f'Parsing: {pe.stream[pe.index:]}')
+        raise
     try:
         assert_that(actual_observations_count, equal_to(observation_count),
                     (f'Expected second observation count to' f' equal {observation_count}.'
