@@ -181,7 +181,7 @@ def step_impl(context):
     try:
         expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
     except parsy.ParseError as pe:
-        print(f'Script output:\n{repr(script_output)}')
+        print(f'context.text:\n{repr(context.text)}')
         print(f'Consumed: {repr(pe.stream[:pe.index])}')
         print(f'Parsing: {repr(pe.stream[pe.index:])}')
         raise
