@@ -171,8 +171,18 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The time series are in the first section.
     all_time_series_in_project_output = raw_sections[0]
-    actual_time_series_in_project = pso.all_times_series_in_project.parse(all_time_series_in_project_output)
-    expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
+    try:
+        actual_time_series_in_project = pso.all_times_series_in_project.parse(all_time_series_in_project_output)
+    except parsy.ParseError as pe:
+        print(f'Consumed: {pe.stream[:pe.index]}')
+        print(f'Parsing: {pe.stream[pe.index:]}')
+        raise
+    try:
+        expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
+    except parsy.ParseError as pe:
+        print(f'Consumed: {pe.stream[:pe.index]}')
+        print(f'Parsing: {pe.stream[pe.index:]}')
+        raise
 
     assert_that(actual_time_series_in_project, equal_to(expected_time_series_in_project))
 
