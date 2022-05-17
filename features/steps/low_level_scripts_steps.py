@@ -174,14 +174,16 @@ def step_impl(context):
     try:
         actual_time_series_in_project = pso.all_times_series_in_project.parse(all_time_series_in_project_output)
     except parsy.ParseError as pe:
-        print(f'Consumed: {pe.stream[:pe.index]}')
-        print(f'Parsing: {pe.stream[pe.index:]}')
+        print(f'Script output:\n{repr(script_output)}')
+        print(f'Consumed: {repr(pe.stream[:pe.index])}')
+        print(f'Parsing: {repr(pe.stream[pe.index:])}')
         raise
     try:
         expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
     except parsy.ParseError as pe:
-        print(f'Consumed: {pe.stream[:pe.index]}')
-        print(f'Parsing: {pe.stream[pe.index:]}')
+        print(f'Script output:\n{repr(script_output)}')
+        print(f'Consumed: {repr(pe.stream[:pe.index])}')
+        print(f'Parsing: {repr(pe.stream[pe.index:])}')
         raise
 
     assert_that(actual_time_series_in_project, equal_to(expected_time_series_in_project))
