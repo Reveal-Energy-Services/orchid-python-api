@@ -243,6 +243,7 @@ def monitor_of_interest():
     object_id = yield uuid_parser
     yield parsy.whitespace.optional()
     yield parsy.string('- Display Name: Demo_2H - stage 1')
+    yield parsy.whitespace.optional()
 
     return object_id
 
