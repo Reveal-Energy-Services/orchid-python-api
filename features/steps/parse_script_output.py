@@ -252,6 +252,7 @@ def monitor_of_interest():
 def monitor_time_series_of_interest():
     yield parsy.string('Object ID of monitor time series of interest: ')
     object_id = yield uuid_parser
+    yield parsy.whitespace.optional()
 
     return object_id
 
