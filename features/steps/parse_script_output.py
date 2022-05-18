@@ -292,6 +292,7 @@ def about_monitor_time_series_samples():
     yield parsy.seq(comma, parsy.whitespace.many())
     yield parsy.string('dtype: ')
     dtype = yield python_var_name.map(np.dtype)
+    yield parsy.whitespace.optional()
 
     return AboutTimeSeriesSample(name=name, dtype=dtype)
 
@@ -302,6 +303,5 @@ def monitor_time_series_samples():
     samples = yield (parsy.whitespace >> monitor_time_series_sample).many()
     yield parsy.whitespace
     about_time_series_samples = yield about_monitor_time_series_samples
-    yield parsy.whitespace.optional()
 
     return TimeSeriesSamples(samples=samples, about=about_time_series_samples)
