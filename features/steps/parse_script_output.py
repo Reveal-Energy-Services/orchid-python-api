@@ -299,9 +299,9 @@ def about_monitor_time_series_samples():
 @parsy.generate
 def monitor_time_series_samples():
     yield parsy.string('Head of time series')
-    samples = yield (newline >> monitor_time_series_sample).many()
-    yield newline
+    samples = yield (parsy.whitespace >> monitor_time_series_sample).many()
+    yield parsy.whitespace
     about_time_series_samples = yield about_monitor_time_series_samples
-    yield newline
+    yield parsy.whitespace
 
     return TimeSeriesSamples(samples=samples, about=about_time_series_samples)
