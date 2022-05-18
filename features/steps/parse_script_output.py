@@ -218,9 +218,9 @@ def brief_orchid_objects():
 
 @parsy.generate
 def all_times_series_in_project():
-    yield newline
+    yield parsy.whitespace.optional()
     yield parsy.string('All time series in project')
-    yield newline
+    yield parsy.whitespace.optional()
     brief_objects = yield brief_orchid_objects
 
     return brief_objects
@@ -229,7 +229,7 @@ def all_times_series_in_project():
 @parsy.generate
 def all_monitors_in_project():
     yield parsy.string('All monitors in project')
-    yield newline
+    yield parsy.whitespace.optional()
     brief_objects = yield brief_orchid_objects
 
     return brief_objects
@@ -238,11 +238,11 @@ def all_monitors_in_project():
 @parsy.generate
 def monitor_of_interest():
     yield parsy.string('Monitor of interest:')
-    yield newline
-    yield parsy.string('  - Object ID: ')
+    yield parsy.whitespace.optional()
+    yield parsy.string('- Object ID: ')
     object_id = yield uuid_parser
-    yield newline
-    yield parsy.string('  - Display Name: Demo_2H - stage 1')
+    yield parsy.whitespace.optional()
+    yield parsy.string('- Display Name: Demo_2H - stage 1')
 
     return object_id
 
