@@ -26,11 +26,25 @@ import subprocess
 import sys
 
 from hamcrest import assert_that, equal_to
+import parsy
 import pendulum as pdt
 
 import orchid
 
 import parse_script_output as pso
+
+
+class ExtendedParseError(Exception):
+    """An error providing better error information to diagnose issues."""
+    def __str__(self):
+        indent = '  '
+        # noinspection PyUnresolvedReferences
+        return ('\n'
+                f'{indent}Consumed:'
+                f'\n{indent * 2}{repr(self.__context__.stream[self.__context__.index -64 :self.__context__.index])}'
+                '\n'
+                f'{indent}Parsing:'
+                f'\n{indent * 2}{repr(self.__context__.stream[self.__context__.index:])}\n')
 
 
 # noinspection PyBDDParameters
@@ -87,7 +101,10 @@ def step_impl(context, observation_count):
     # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    actual_observations_count = pso.get_second_observations_count.parse(script_output)
+    try:
+        actual_observations_count = pso.get_second_observations_count.parse(script_output)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
     try:
         assert_that(actual_observations_count, equal_to(observation_count),
                     (f'Expected second observation count to' f' equal {observation_count}.'
@@ -112,7 +129,11 @@ def step_impl(context, attribute_count):
     # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    actual_attributes_count_per_stage_per_well = pso.get_attribute_count_for_each_stage_and_well.parse(script_output)
+    try:
+        actual_attributes_count_per_stage_per_well = \
+            pso.get_attribute_count_for_each_stage_and_well.parse(script_output)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
     try:
         assert_that(actual_attributes_count_per_stage_per_well, equal_to(attribute_count),
                     (f'Expected second observation count to' f' equal {attribute_count}.'
@@ -135,7 +156,10 @@ def step_impl(context):
     # output to standard error).
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
-    actual_added_stages_details = pso.get_added_stages.parse(script_output)
+    try:
+        actual_added_stages_details = pso.get_added_stages.parse(script_output)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
     expected_added_stage_details = context.table
 
     assert_that(len(actual_added_stages_details), equal_to(len(expected_added_stage_details.rows)))
@@ -165,8 +189,14 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The time series are in the first section.
     all_time_series_in_project_output = raw_sections[0]
-    actual_time_series_in_project = pso.all_times_series_in_project.parse(all_time_series_in_project_output)
-    expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
+    try:
+        actual_time_series_in_project = pso.all_times_series_in_project.parse(all_time_series_in_project_output)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
+    try:
+        expected_time_series_in_project = pso.brief_orchid_objects.parse(context.text)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
 
     assert_that(actual_time_series_in_project, equal_to(expected_time_series_in_project))
 
@@ -182,8 +212,11 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The monitors are in the second section.
     all_monitors_in_project = raw_sections[1]
-    actual_monitors_in_project = pso.all_monitors_in_project.parse(all_monitors_in_project)
-    expected_monitors_in_project = pso.brief_orchid_objects.parse(context.text)
+    try:
+        actual_monitors_in_project = pso.all_monitors_in_project.parse(all_monitors_in_project)
+        expected_monitors_in_project = pso.brief_orchid_objects.parse(context.text)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
 
     assert_that(actual_monitors_in_project, equal_to(expected_monitors_in_project))
 
@@ -199,8 +232,11 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The monitor time series are in the third section.
     monitor_of_interest_output = raw_sections[2]
-    actual_monitors_of_interest = pso.monitor_of_interest.parse(monitor_of_interest_output)
-    expected_monitors_of_interest = pso.monitor_of_interest.parse(context.text)
+    try:
+        actual_monitors_of_interest = pso.monitor_of_interest.parse(monitor_of_interest_output)
+        expected_monitors_of_interest = pso.monitor_of_interest.parse(context.text)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
 
     assert_that(actual_monitors_of_interest, equal_to(expected_monitors_of_interest))
 
@@ -216,9 +252,12 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The monitor time series are in the fourth section.
     monitor_time_series_of_interest_output = raw_sections[3]
-    actual_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(
-        monitor_time_series_of_interest_output)
-    expected_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(context.text)
+    try:
+        actual_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(
+            monitor_time_series_of_interest_output)
+        expected_monitor_time_series_of_interest = pso.monitor_time_series_of_interest.parse(context.text)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
 
     assert_that(actual_monitor_time_series_of_interest, equal_to(expected_monitor_time_series_of_interest))
 
@@ -234,7 +273,10 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The time series samples are in the fifth section
     time_series_samples_output = raw_sections[4]
-    actual_time_series_samples = pso.monitor_time_series_samples.parse(time_series_samples_output)
+    try:
+        actual_time_series_samples = pso.monitor_time_series_samples.parse(time_series_samples_output)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
 
     assert_that(len(actual_time_series_samples.samples), equal_to(len(context.table.rows)))
     for actual_samples, expected_samples in zip(actual_time_series_samples.samples, context.table.rows):
@@ -254,8 +296,11 @@ def step_impl(context):
     raw_sections = sections(script_output)
     # The time series samples are in the fifth section
     time_series_samples_output = raw_sections[4]
-    actual_time_series_samples = pso.monitor_time_series_samples.parse(time_series_samples_output)
+    try:
+        actual_time_series_samples = pso.monitor_time_series_samples.parse(time_series_samples_output)
+        expected_about_time_series_samples = pso.about_monitor_time_series_samples.parse(context.text)
 
-    expected_about_time_series_samples = pso.about_monitor_time_series_samples.parse(context.text)
-    assert_that(actual_time_series_samples.about.name, equal_to(expected_about_time_series_samples.name))
-    assert_that(actual_time_series_samples.about.dtype, equal_to(expected_about_time_series_samples.dtype))
+        assert_that(actual_time_series_samples.about.name, equal_to(expected_about_time_series_samples.name))
+        assert_that(actual_time_series_samples.about.dtype, equal_to(expected_about_time_series_samples.dtype))
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
