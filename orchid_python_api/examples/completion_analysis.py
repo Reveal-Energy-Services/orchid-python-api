@@ -34,7 +34,7 @@ import orchid
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-# The following import is included for its "side-effects" of an improved color schemes and
+# The following import is included for its "side effects" of an improved color schemes and
 # plot styles. (See the "Tip" in section 9.2 of "Python for Data Analysis" for details.)
 import seaborn as sns
 
@@ -356,7 +356,7 @@ def analyze_completions():
 
     print_elided_data_frame(montney_us_summaries, 'Montney summaries in US Oilfield units')
 
-    combined = bakken_summaries[bakken_summaries[bakken_columns['stage']] > 5].append(montney_us_summaries)
+    combined = pd.concat([bakken_summaries[bakken_summaries[bakken_columns['stage']] > 5], montney_us_summaries])
     print_elided_data_frame(combined, 'Combined Bakken and Montney summaries')
 
     combined[[bakken_columns['well'],
