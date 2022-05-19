@@ -39,6 +39,8 @@ import common_functions as cf
 from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
 # noinspection PyUnresolvedReferences
 from System import Double, Int32, String
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 # noinspection PyBDDParameters
@@ -53,6 +55,7 @@ def step_impl(context, attr_name, type_name):
     type_name_to_net_type = {
         'double': Double,
         'integer': Int32,
+        'length_measurement': UnitsNet.Length,
         'string': String,
     }
     to_add = Attribute[type_name_to_net_type[type_name]].Create(attr_name)

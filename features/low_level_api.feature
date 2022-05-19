@@ -22,7 +22,7 @@ Feature: Low-level DOM API
 
   Scenario Outline: Create stage attribute using the .NET API
     Given I have loaded the project for the field, '<field>'
-    When I create a stage attribute named '<My Stage Length>' for a(n) <double> value
+    When I create a stage attribute named '<My Stage Length>' for a(n) <length_measurement> value
     And I create a stage attribute named '<My Global Stage Sequence Number>' for a(n) <integer> value
     And I add the created attributes to the well, '<well>', of the project
     And I set the value of the stage length attribute of stage, <stage_no>, of '<well>' to the <length>
