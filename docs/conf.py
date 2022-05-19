@@ -35,7 +35,7 @@ sys.path.insert(0, os.path.abspath('../'))  # repository root
 # -- Project information -----------------------------------------------------
 
 project = 'Orchid Python Api'
-copyright = '2019-2021, Reveal Energy Services'
+copyright = '2019-2022, Reveal Energy Services'
 author = 'Reveal Energy Services'
 
 # The full version, including alpha/beta/rc tags
