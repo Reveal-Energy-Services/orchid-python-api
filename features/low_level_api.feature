@@ -22,17 +22,36 @@ Feature: Low-level DOM API
 
   Scenario Outline: Create stage attribute using the .NET API
     Given I have loaded the project for the field, '<field>'
-    When I create a stage attribute named '<My Stage Length>' for a(n) <length_measurement> value
-    And I create a stage attribute named '<My Global Stage Sequence Number>' for a(n) <integer> value
-    And I add the created attributes to the well, '<well>', of the project
-    And I set the value of the stage length attribute of stage, <stage_no>, of '<well>' to the <length>
-    And I set the value of the sequence number attribute of stage, <stage_no>, of '<well>' to <global_seq_no>
-    Then I see the value of the stage length attribute of stage, <stage_no>, of '<well>' equals <length>
-    And I see the value of the sequence number attribute for stage, <stage_no>, of '<well>' equal to <global_seq_no>
+    When I add the attribute named '<attribute_name>' of type `<attribute_type>' to well, `<well>', of the project
+#    When I create a stage attribute named '<My Stage Length>' for a(n) <length_measurement> value
+#    And I create a stage attribute named '<My Global Stage Sequence Number>' for a(n) <integer> value
+#    And I add the created attributes to the well, '<well>', of the project
+    And I set the attribute value of '<attribute_name>' of stage, <stage_no>, of '<well>' to the <attribute_value>
+#    And I set the value of the stage length attribute of stage, <stage_no>, of '<well>' to the <length>
+#    And I set the value of the sequence number attribute of stage, <stage_no>, of '<well>' to <global_seq_no>
+#    Then I see the value of the stage length attribute of stage, <stage_no>, of '<well>' equals <length>
+#    And I see the value of the sequence number attribute for stage, <stage_no>, of '<well>' equal to <global_seq_no>
+    Then I see the attribute value of '<attribute_name>' of stage, <stage_no>, of '<well>' equals <attribute_value>
 
-    Examples: Bakken
-      | field  | well    | stage_no | length    | global_seq_no |
-      | Bakken | Demo_1H | 1        | 50.66 ft  | 4             |
+    Examples: Bakken stage length
+      | field  | well    | stage_no | attribute_name  | attribute_type | attribute_value |
+      | Bakken | Demo_1H | 1        | My Stage Length | length         | 50.66 ft        |
+
+    Examples: Bakken global stage sequence number
+      | field  | well    | stage_no | attribute_name                  | attribute_type | attribute_value |
+      | Bakken | Demo_1H | 1        | My Global Stage Sequence Number | integer        | 4               |
+
+    Examples: Montney stage length
+      | field   | well    | stage_no | attribute_name  | attribute_type | attribute_value |
+      | Montney | Hori_01 | 1        | My Stage Length | length         | 174.5 m         |
+
+    Examples: Montney global stage sequence number
+      | field   | well    | stage_no | attribute_name                  | attribute_type | attribute_value |
+      | Montney | Hori_01 | 1        | My Global Stage Sequence Number | integer        | 4               |
+
+#    Examples: Bakken
+#      | field  | well    | stage_no | length    | global_seq_no |
+#      | Bakken | Demo_1H | 1        | 50.66 ft  | 4             |
 #      | Bakken | Demo_1H | 50       | 147.11 ft | 128           |
 #      | Bakken | Demo_1H | 4        | 147.22 ft | 10            |
 #      | Bakken | Demo_2H | 1        | 147.22 ft | 2             |
