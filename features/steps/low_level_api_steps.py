@@ -160,11 +160,6 @@ import UnitsNet
 #     assert_that(actual_attribute_value, equal_to(global_seq_no))
 
 
-def _well_find_attributes_with_name(well, attribute_name):
-    result = list(toolz.filter(lambda a: a.Name == attribute_name, well.dom_object.StageAttributes.Items))
-    return result
-
-
 def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type):
     type_name_to_net_type = {
         'double': Double,
@@ -178,6 +173,21 @@ def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type
     with dnd.disposable(well.dom_object.ToMutable()) as mutable_well:
         mutable_well.AddStageAttribute(attribute)
         assert_that(attribute, is_in(list(well.dom_object.StageAttributes.Items)))
+
+
+def _set_global_stage_seq_no(mutable_stage, to_set_attribute, attribute_value):
+    to_set_value = int(attribute_value)
+    mutable_stage.SetAttribute(to_set_attribute, to_set_value)
+
+
+def _set_stage_length(mutable_stage, to_set_attribute, attribute_value):
+    to_set_value = om.Quantity(attribute_value)
+    mutable_stage.SetAttribute(to_set_attribute, onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, to_set_value))
+
+
+def _well_find_attributes_with_name(well, attribute_name):
+    result = list(toolz.filter(lambda a: a.Name == attribute_name, well.dom_object.StageAttributes.Items))
+    return result
 
 
 @when("I add the attribute named '{attribute_name}' of type `{attribute_type}' to well, `{well}', of the project")
@@ -196,18 +206,29 @@ def step_impl(context, attribute_name, attribute_type, well):
             f'Expected exactly one attribute named {attribute_name} in well, {to_add_to_well.name}'
 
 
-@step("I set the attribute value of '{attribute_name}' of stage, {stage_no}, of '{well}' to the {attribute_value}")
+@step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to the {attribute_value}")
 def step_impl(context, attribute_name, stage_no, well, attribute_value):
     """
     Args:
-        context (behave.runner.Context):
-        attribute_name (str):
-        stage_no (str):
-        well (str):
-        attribute_value (str):
+        context (behave.runner.Context): The test context.
+        attribute_name (str): The name of the stage attribute to set.
+        stage_no (int): The number used by engineers to identify stages in a well.
+        well (str): The name of the well to which to add the stage attribute.
+        attribute_value (str): The value to which to set the stage attribute
     """
-    raise NotImplementedError(
-        u'STEP: And I set the attribute value of \'<attribute_name>\' of stage, <stage_no>, of \'<well>\' to the <attribute_value>')
+    well_with_attributes = cf.find_well_by_name_in_project(context, well)
+    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
+    candidate_attributes = _well_find_attributes_with_name(well_with_attributes, attribute_name)
+    assert len(candidate_attributes) == 1, (f'Expected single attribute of well {well},'
+                                            f' but found {len(candidate_attributes)}')
+    to_set_attribute = candidate_attributes[0]
+
+    attribute_name_to_set_func = {
+        'My Stage Length': _set_stage_length,
+        'My Global Stage Sequence Number': _set_global_stage_seq_no,
+    }
+    with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
+        attribute_name_to_set_func[attribute_name](mutable_stage, to_set_attribute, attribute_value)
 
 
 @then("I see the attribute value of '{attribute_name}' of stage, {stage_no}, of '{well}' equals {attribute_value}")
