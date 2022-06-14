@@ -160,17 +160,40 @@ import UnitsNet
 #     assert_that(actual_attribute_value, equal_to(global_seq_no))
 
 
+def _well_find_attributes_with_name(well, attribute_name):
+    result = list(toolz.filter(lambda a: a.Name == attribute_name, well.dom_object.StageAttributes.Items))
+    return result
+
+
+def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type):
+    type_name_to_net_type = {
+        'double': Double,
+        'integer': Int32,
+        'length': UnitsNet.Length,
+        'string': String,
+    }
+    attribute = Attribute[type_name_to_net_type[attribute_type]].Create(attribute_name)
+    assert_that(attribute, is_(not_none()))
+
+    with dnd.disposable(well.dom_object.ToMutable()) as mutable_well:
+        mutable_well.AddStageAttribute(attribute)
+        assert_that(attribute, is_in(list(well.dom_object.StageAttributes.Items)))
+
+
 @when("I add the attribute named '{attribute_name}' of type `{attribute_type}' to well, `{well}', of the project")
 def step_impl(context, attribute_name, attribute_type, well):
     """
     Args:
-        context (behave.runner.Context):
-        attribute_name (str):
-        attribute_type (str):
-        well (str):
+        context (behave.runner.Context): The test context.
+        attribute_name (str): The name of the stage attribute to add.
+        attribute_type (str): The type of the stage attribute to add
+        well (str): The name of the well to which to add the stage attribute.
     """
-    raise NotImplementedError(
-        u'STEP: When I add the attribute named \'<attribute_name>\' of type `<attribute_type>\' to well, `<well>\', of the project')
+    to_add_to_well = cf.find_well_by_name_in_project(context, well)
+    if len(_well_find_attributes_with_name(to_add_to_well, attribute_name)) == 0:
+        _add_attribute_of_name_and_type_to_well(to_add_to_well, attribute_name, attribute_type)
+        assert len(_well_find_attributes_with_name(to_add_to_well, attribute_name)) == 1,\
+            f'Expected exactly one attribute named {attribute_name} in well, {to_add_to_well.name}'
 
 
 @step("I set the attribute value of '{attribute_name}' of stage, {stage_no}, of '{well}' to the {attribute_value}")
