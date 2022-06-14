@@ -175,14 +175,14 @@ def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type
         assert_that(attribute, is_in(list(well.dom_object.StageAttributes.Items)))
 
 
-def _set_global_stage_seq_no(mutable_stage, to_set_attribute, attribute_value):
-    to_set_value = int(attribute_value)
-    mutable_stage.SetAttribute(to_set_attribute, to_set_value)
+@toolz.curry
+def _set_stage_attribute(to_set_attribute, make_attribute_value_func, mutable_stage, attribute_value):
+    mutable_stage.SetAttribute(to_set_attribute, make_attribute_value_func(attribute_value))
 
 
-def _set_stage_length(mutable_stage, to_set_attribute, attribute_value):
-    to_set_value = om.Quantity(attribute_value)
-    mutable_stage.SetAttribute(to_set_attribute, onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, to_set_value))
+def _to_length_measurement(value):
+    to_set_value = om.Quantity(value)
+    onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, to_set_value)
 
 
 def _well_find_attributes_with_name(well, attribute_name):
@@ -206,6 +206,7 @@ def step_impl(context, attribute_name, attribute_type, well):
             f'Expected exactly one attribute named {attribute_name} in well, {to_add_to_well.name}'
 
 
+# noinspection PyBDDParameters
 @step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to the {attribute_value}")
 def step_impl(context, attribute_name, stage_no, well, attribute_value):
     """
@@ -217,18 +218,18 @@ def step_impl(context, attribute_name, stage_no, well, attribute_value):
         attribute_value (str): The value to which to set the stage attribute
     """
     well_with_attributes = cf.find_well_by_name_in_project(context, well)
-    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     candidate_attributes = _well_find_attributes_with_name(well_with_attributes, attribute_name)
     assert len(candidate_attributes) == 1, (f'Expected single attribute of well {well},'
                                             f' but found {len(candidate_attributes)}')
     to_set_attribute = candidate_attributes[0]
-
     attribute_name_to_set_func = {
-        'My Stage Length': _set_stage_length,
-        'My Global Stage Sequence Number': _set_global_stage_seq_no,
+        'My Stage Length': _set_stage_attribute(to_set_attribute, _to_length_measurement),
+        'My Global Stage Sequence Number': _set_stage_attribute(to_set_attribute, int),
     }
+
+    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
-        attribute_name_to_set_func[attribute_name](mutable_stage, to_set_attribute, attribute_value)
+        attribute_name_to_set_func[attribute_name](mutable_stage, attribute_value)
 
 
 @then("I see the attribute value of '{attribute_name}' of stage, {stage_no}, of '{well}' equals {attribute_value}")
