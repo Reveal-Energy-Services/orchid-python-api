@@ -31,6 +31,8 @@ from orchid import (
 from tests import (custom_matchers as tcm)
 
 # noinspection PyUnresolvedReferences
+from Optional import Option
+# noinspection PyUnresolvedReferences
 from System import Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -241,6 +243,26 @@ class TestNetQuantity(unittest.TestCase):
                               f' {expected.units:~P}'):
                 actual = onq.as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_optional_energy(self):
+        to_convert_optional_net_quantity = Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378))
+        expected = 4.579 * om.registry.J
+        to_unit = units.Metric.ENERGY
+        tolerance = decimal.Decimal('0.001')
+
+        actual = onq.as_measurement_from_optional(to_unit, to_convert_optional_net_quantity)
+        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_optional_pressure(self):
+        to_convert_optional_net_quantity = Option.Some[UnitsNet.Pressure](onq.net_pressure_from_psi(7874.24))
+        expected = 54291.0 * om.registry.kPa
+        to_unit = units.Metric.PRESSURE
+        tolerance = decimal.Decimal('0.1')
+
+        actual = onq.as_measurement_from_optional(to_unit, to_convert_optional_net_quantity)
+        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
     def test_as_net_quantity(self):

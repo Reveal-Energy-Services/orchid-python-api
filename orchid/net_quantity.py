@@ -33,7 +33,9 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import Decimal
+from Optional import Option
+# noinspection PyUnresolvedReferences
+import System
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
@@ -253,13 +255,47 @@ def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
     return result
 
 
-#
-# Although Pint supports the unit `cu_ft`, we have chosen to use the synonym, `ft ** 3` (which is
-# printed as 'ft\u00b3` (that is, 'ft' followed by a Unicode superscript 3)). According to a
-# citation on [Wikipedia article](https://en.wikipedia.org/wiki/Cubic_foot), this "is the IEEE
-# symbol for the cubic foot." Our general rule: we accept the Pint unit `cu_ft` as **input**,
-# but, on various conversion, produce the Pint unit `ft**3`.
-#
+# noinspection PyUnresolvedReferences
+_physical_quantity_to_net_physical_quantity = {
+    opq.PhysicalQuantity.ENERGY: UnitsNet.Energy,
+    opq.PhysicalQuantity.PRESSURE: UnitsNet.Pressure,
+}
+
+
+@toolz.curry
+def _python_measurement_option(target_unit: Union[units.Metric, units.UsOilfield],
+                               optional_net_quantity: Option[UnitsNet.IQuantity]):
+    @toolz.curry
+    def net_option_as_pythonic(net_option):
+        # If we are **not** an instance of `Option<Pressure>`
+        if not hasattr(net_option, 'HasValue'):
+            # Simply return the value (which may be `null` / `None`)
+            return net_option
+
+        # If we **are** an instance of `Option<Pressure>` yet have no value
+        if not net_option.HasValue:
+            return None
+
+        # The variable, `net_quantity`, will contain a zero value in the `UnitsNet` unit corresponding to the Python
+        # physical quantity of the `target_unit`. However, because of the preceding `if` statement, I expect this
+        # value to **not** be returned. (It is actually an error if it is returned; unfortunately, it is an
+        # undetectable error because I cannot distinguish the zero value from a zero value actually wrapped in
+        # the `Option<T>.Some` expression.
+        net_physical_quantity = _physical_quantity_to_net_physical_quantity[target_unit.value.physical_quantity]
+        result = net_option.ValueOr.Overloads[net_physical_quantity](net_physical_quantity.Zero)
+        return result
+
+    return toolz.pipe(
+        optional_net_quantity,
+        net_option_as_pythonic,
+        option.maybe,
+    )
+
+
+def as_measurement_from_optional(target_unit: Union[units.Metric, units.UsOilfield],
+                                 optional_net_quantity: Option[UnitsNet.IQuantity]):
+    maybe_python_measurement = _python_measurement_option(target_unit, optional_net_quantity)
+    return as_measurement(target_unit, maybe_python_measurement)
 
 
 @singledispatch
@@ -418,7 +454,7 @@ def equal_net_quantities(left_quantity: UnitsNet.IQuantity, right_quantity: Unit
     return left_quantity.Equals(right_quantity, comparison_details.tolerance, comparison_details.comparison_type)
 
 
-def net_decimal_to_float(net_decimal: Decimal) -> float:
+def net_decimal_to_float(net_decimal: System.Decimal) -> float:
     """
     Convert a .NET Decimal value to a Python float.
 
@@ -434,7 +470,7 @@ def net_decimal_to_float(net_decimal: Decimal) -> float:
         A value of type `float` that is "equivalent" to the .NET `Decimal` value. Note that this conversion is
         "lossy" because .NET `Decimal` values are exact, but `float` values are not.
     """
-    return Decimal.ToDouble(net_decimal)
+    return System.Decimal.ToDouble(net_decimal)
 
 
 _UNIT_NET_UNITS = {
@@ -481,7 +517,7 @@ def _convert_net_quantity_to_different_unit(target_unit: units.UnitSystem,
     return result
 
 
-def _net_decimal_to_float(net_decimal: Decimal) -> float:
+def _net_decimal_to_float(net_decimal: System.Decimal) -> float:
     """
     Convert a .NET Decimal value to a Python float.
 
@@ -497,7 +533,7 @@ def _net_decimal_to_float(net_decimal: Decimal) -> float:
         A value of type `float` that is "equivalent" to the .NET `Decimal` value. Note that this conversion is
         "lossy" because .NET `Decimal` values are exact, but `float` values are not.
     """
-    return Decimal.ToDouble(net_decimal)
+    return System.Decimal.ToDouble(net_decimal)
 
 
 _PHYSICAL_QUANTITY_NET_UNIT_PINT_UNITS = {
