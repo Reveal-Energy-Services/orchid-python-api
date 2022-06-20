@@ -245,33 +245,33 @@ class TestNetQuantity(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_optional_density(self):
-        to_convert_optional_net_quantity = Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3))
+    def test_as_measurement_from_some_density(self):
+        to_convert_some_net_quantity = Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3))
         expected = 436.1e-3 * (om.registry.kg / om.registry.m ** 3)
         to_unit = units.Metric.DENSITY
         tolerance = decimal.Decimal('0.0001')
 
-        actual = onq.as_measurement_from_option(to_unit, to_convert_optional_net_quantity)
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
         tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_optional_energy(self):
-        to_convert_optional_net_quantity = Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378))
+    def test_as_measurement_from_some_energy(self):
+        to_convert_some_net_quantity = Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378))
         expected = 4.579 * om.registry.J
         to_unit = units.Metric.ENERGY
         tolerance = decimal.Decimal('0.001')
 
-        actual = onq.as_measurement_from_option(to_unit, to_convert_optional_net_quantity)
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
         tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_optional_pressure(self):
-        to_convert_optional_net_quantity = Option.Some[UnitsNet.Pressure](onq.net_pressure_from_psi(7874.24))
+    def test_as_measurement_from_some_pressure(self):
+        to_convert_some_net_quantity = Option.Some[UnitsNet.Pressure](onq.net_pressure_from_psi(7874.24))
         expected = 54291.0 * om.registry.kPa
         to_unit = units.Metric.PRESSURE
         tolerance = decimal.Decimal('0.1')
 
-        actual = onq.as_measurement_from_option(to_unit, to_convert_optional_net_quantity)
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
         tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
