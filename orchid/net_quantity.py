@@ -257,6 +257,7 @@ def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
 
 # noinspection PyUnresolvedReferences
 _physical_quantity_to_net_physical_quantity = {
+    opq.PhysicalQuantity.DENSITY: UnitsNet.Density,
     opq.PhysicalQuantity.ENERGY: UnitsNet.Energy,
     opq.PhysicalQuantity.PRESSURE: UnitsNet.Pressure,
 }

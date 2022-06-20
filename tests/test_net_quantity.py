@@ -245,6 +245,16 @@ class TestNetQuantity(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_optional_density(self):
+        to_convert_optional_net_quantity = Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3))
+        expected = 436.1e-3 * (om.registry.kg / om.registry.m ** 3)
+        to_unit = units.Metric.DENSITY
+        tolerance = decimal.Decimal('0.0001')
+
+        actual = onq.as_measurement_from_option(to_unit, to_convert_optional_net_quantity)
+        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
     def test_as_measurement_from_optional_energy(self):
         to_convert_optional_net_quantity = Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378))
         expected = 4.579 * om.registry.J
