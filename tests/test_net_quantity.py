@@ -251,7 +251,7 @@ class TestNetQuantity(unittest.TestCase):
         to_unit = units.Metric.ENERGY
         tolerance = decimal.Decimal('0.001')
 
-        actual = onq.as_measurement_from_optional(to_unit, to_convert_optional_net_quantity)
+        actual = onq.as_measurement_from_option(to_unit, to_convert_optional_net_quantity)
         tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
@@ -261,7 +261,7 @@ class TestNetQuantity(unittest.TestCase):
         to_unit = units.Metric.PRESSURE
         tolerance = decimal.Decimal('0.1')
 
-        actual = onq.as_measurement_from_optional(to_unit, to_convert_optional_net_quantity)
+        actual = onq.as_measurement_from_option(to_unit, to_convert_optional_net_quantity)
         tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences

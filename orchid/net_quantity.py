@@ -292,8 +292,8 @@ def _python_measurement_option(target_unit: Union[units.Metric, units.UsOilfield
     )
 
 
-def as_measurement_from_optional(target_unit: Union[units.Metric, units.UsOilfield],
-                                 optional_net_quantity: Option[UnitsNet.IQuantity]):
+def as_measurement_from_option(target_unit: Union[units.Metric, units.UsOilfield],
+                               optional_net_quantity: Option[UnitsNet.IQuantity]):
     maybe_python_measurement = _python_measurement_option(target_unit, optional_net_quantity)
     return as_measurement(target_unit, maybe_python_measurement)
 
