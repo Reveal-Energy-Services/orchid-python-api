@@ -46,6 +46,10 @@ from orchid import (
 from Orchid.FractureDiagnostics import FormationConnectionType
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
+# noinspection PyUnresolvedReferences
+import UnitsNet
+# noinspection PyUnresolvedReferences
+import System
 
 VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit system length.'
 
@@ -178,7 +182,33 @@ class NativeStageAdapter(dpo.DomProjectObject):
         """
         Return the minimum horizontal stress of this stage in project units.
         """
-        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Shmin))
+        @toolz.curry
+        def net_option_as_pythonic(net_option):
+            # If we are **not** an instance of `Option<Pressure>`
+            if not hasattr(net_option, 'HasValue'):
+                # Simply return the value (which may be `null` / `None`)
+                return net_option
+
+            # If we **are** an instance of `Option<Pressure>` yet have no value
+            if not net_option.HasValue:
+                return None
+
+            # The value, `net_option`, is of type `Option<Pressure>` and this instance **has** a value. Consequently,
+            # we extract it using two callables passed to `Option<Pressure>.Match()`
+            some_pressure_converter = System.Func[UnitsNet.Pressure, UnitsNet.Pressure](toolz.identity)
+            # The following callable will raise an exception if actually called; however, the previous guard clause,
+            # `not net_option.HasValue`, will prevent invoking this callable at run-time.
+            none_pressure_converter = System.Func[UnitsNet.Pressure](lambda: None)
+            return net_option.Match[UnitsNet.Pressure](some_pressure_converter, none_pressure_converter)
+
+        def python_measurement_option(net_quantity):
+            return toolz.pipe(
+                net_quantity,
+                net_option_as_pythonic,
+                option.maybe,
+            )
+
+        return onq.as_measurement(self.expect_project_units.PRESSURE, python_measurement_option(self.dom_object.Shmin))
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
