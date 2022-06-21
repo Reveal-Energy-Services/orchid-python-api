@@ -248,9 +248,11 @@ class TestNetQuantity(unittest.TestCase):
 
     def test_as_measurement_from_none(self):
         for to_convert_unit, to_unit in [
+            (UnitsNet.Duration, units.Common.DURATION),
             (UnitsNet.Density, units.Metric.DENSITY),
             (UnitsNet.Force, units.Metric.FORCE),
             (UnitsNet.MassConcentration, units.Metric.PROPPANT_CONCENTRATION),
+            (UnitsNet.Temperature, units.Metric.TEMPERATURE),
         ]:
             to_convert_none = ScriptAdapter.MakeOptionNone[to_convert_unit]()
             with self.subTest(msg=f'Convert no net quantity with unit, {to_convert_unit}, to {to_unit}'):
@@ -260,6 +262,10 @@ class TestNetQuantity(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     def test_as_measurement_from_some(self):
         for some_to_convert, to_unit, expected, tolerance in [
+            (Option.Some[UnitsNet.Angle](onq.net_angle_from_deg(298.6)),
+             units.Common.ANGLE, 298.6 * om.registry.deg, decimal.Decimal('0.1')),
+            (Option.Some[UnitsNet.Duration](onq.net_duration_from_min(57.82)),
+             units.Common.DURATION, 57.82 * om.registry.min, decimal.Decimal('0.01')),
             (Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3)),
              units.Metric.DENSITY, 436.1e-3 * (om.registry.kg / om.registry.m ** 3), decimal.Decimal('0.0001')),
             (Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378)),
