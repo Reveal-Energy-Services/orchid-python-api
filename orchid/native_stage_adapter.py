@@ -165,7 +165,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
         """
         Return the instantaneous shut in pressure of this stage in project units.
         """
-        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Isip))
+        return onq.as_measurement_from_option(self.expect_project_units.PRESSURE, self.dom_object.Isip)
 
     @property
     def pnet(self) -> om.Quantity:
@@ -175,40 +175,15 @@ class NativeStageAdapter(dpo.DomProjectObject):
         The net pressure of a stage is calculated by the formula:
             pnet = isip + fluid-density * tvd - shmin (where tvd is the true vertical depth)
         """
-        return onq.as_measurement(self.expect_project_units.PRESSURE, option.maybe(self.dom_object.Pnet))
+        return onq.as_measurement_from_option(self.expect_project_units.PRESSURE, self.dom_object.Pnet)
 
     @property
     def shmin(self) -> om.Quantity:
         """
         Return the minimum horizontal stress of this stage in project units.
         """
-        @toolz.curry
-        def net_option_as_pythonic(net_option):
-            # If we are **not** an instance of `Option<Pressure>`
-            if not hasattr(net_option, 'HasValue'):
-                # Simply return the value (which may be `null` / `None`)
-                return net_option
 
-            # If we **are** an instance of `Option<Pressure>` yet have no value
-            if not net_option.HasValue:
-                return None
-
-            # The value, `net_option`, is of type `Option<Pressure>` and this instance **has** a value. Consequently,
-            # we extract it using two callables passed to `Option<Pressure>.Match()`
-            some_pressure_converter = System.Func[UnitsNet.Pressure, UnitsNet.Pressure](toolz.identity)
-            # The following callable will raise an exception if actually called; however, the previous guard clause,
-            # `not net_option.HasValue`, will prevent invoking this callable at run-time.
-            none_pressure_converter = System.Func[UnitsNet.Pressure](lambda: None)
-            return net_option.Match[UnitsNet.Pressure](some_pressure_converter, none_pressure_converter)
-
-        def python_measurement_option(net_quantity):
-            return toolz.pipe(
-                net_quantity,
-                net_option_as_pythonic,
-                option.maybe,
-            )
-
-        return onq.as_measurement(self.expect_project_units.PRESSURE, python_measurement_option(self.dom_object.Shmin))
+        return onq.as_measurement_from_option(self.expect_project_units.PRESSURE, self.dom_object.Shmin)
 
     @staticmethod
     def _sampled_quantity_name_curve_map(sampled_quantity_name):
@@ -372,7 +347,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def isip_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Isip))
+        return onq.as_measurement_from_option(target_unit, self.dom_object.Isip)
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
@@ -402,11 +377,11 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def pnet_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Pnet))
+        return onq.as_measurement_from_option(target_unit, self.dom_object.Pnet)
 
     @deal.pre(validation.arg_is_acceptable_pressure_unit)
     def shmin_in_pressure_unit(self, target_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
-        return onq.as_measurement(target_unit, option.maybe(self.dom_object.Shmin))
+        return onq.as_measurement_from_option(target_unit, self.dom_object.Shmin)
 
     def stage_length(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
