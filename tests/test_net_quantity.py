@@ -18,7 +18,7 @@
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to, close_to, is_, none
 import option
 
 from orchid import (
@@ -30,6 +30,8 @@ from orchid import (
 
 from tests import (custom_matchers as tcm)
 
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
 from Optional import Option
 # noinspection PyUnresolvedReferences
@@ -245,6 +247,30 @@ class TestNetQuantity(unittest.TestCase):
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_none_density(self):
+        to_convert_some_net_quantity = ScriptAdapter.MakeOptionNone[UnitsNet.Density]()
+        to_unit = units.Metric.DENSITY
+
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
+        tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_none_force(self):
+        to_convert_some_net_quantity = ScriptAdapter.MakeOptionNone[UnitsNet.Force]()
+        to_unit = units.UsOilfield.FORCE
+
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
+        tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_none_proppant_concentration(self):
+        to_convert_some_net_quantity = ScriptAdapter.MakeOptionNone[UnitsNet.MassConcentration]()
+        to_unit = units.Metric.PROPPANT_CONCENTRATION
+
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
+        tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
+
+    # noinspection PyUnresolvedReferences
     def test_as_measurement_from_some_density(self):
         to_convert_some_net_quantity = Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3))
         expected = 436.1e-3 * (om.registry.kg / om.registry.m ** 3)
@@ -260,6 +286,16 @@ class TestNetQuantity(unittest.TestCase):
         expected = 4.579 * om.registry.J
         to_unit = units.Metric.ENERGY
         tolerance = decimal.Decimal('0.001')
+
+        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
+        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_some_power(self):
+        to_convert_some_net_quantity = Option.Some[UnitsNet.Power](onq.net_power_from_W(8807.))
+        expected = 8807. * om.registry.W
+        to_unit = units.Metric.POWER
+        tolerance = decimal.Decimal('0.1')
 
         actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
         tcm.assert_that_measurements_close_to(actual, expected, tolerance)

@@ -260,6 +260,7 @@ _physical_quantity_to_net_physical_quantity = {
     opq.PhysicalQuantity.DENSITY: UnitsNet.Density,
     opq.PhysicalQuantity.ENERGY: UnitsNet.Energy,
     opq.PhysicalQuantity.PRESSURE: UnitsNet.Pressure,
+    opq.PhysicalQuantity.POWER: UnitsNet.Power,
 }
 
 
