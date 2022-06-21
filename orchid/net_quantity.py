@@ -259,8 +259,15 @@ def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
 _physical_quantity_to_net_physical_quantity = {
     opq.PhysicalQuantity.DENSITY: UnitsNet.Density,
     opq.PhysicalQuantity.ENERGY: UnitsNet.Energy,
-    opq.PhysicalQuantity.PRESSURE: UnitsNet.Pressure,
+    opq.PhysicalQuantity.FORCE: UnitsNet.Force,
+    opq.PhysicalQuantity.LENGTH: UnitsNet.Length,
+    opq.PhysicalQuantity.MASS: UnitsNet.Mass,
     opq.PhysicalQuantity.POWER: UnitsNet.Power,
+    opq.PhysicalQuantity.PRESSURE: UnitsNet.Pressure,
+    opq.PhysicalQuantity.PROPPANT_CONCENTRATION: UnitsNet.MassConcentration,
+    opq.PhysicalQuantity.TEMPERATURE: UnitsNet.Temperature,
+    opq.PhysicalQuantity.SLURRY_RATE: UnitsNet.VolumeFlow,
+    opq.PhysicalQuantity.VOLUME: UnitsNet.Volume,
 }
 
 
