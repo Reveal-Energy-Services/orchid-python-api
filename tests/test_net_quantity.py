@@ -18,7 +18,7 @@
 import decimal
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to, is_, none
+from hamcrest import assert_that, equal_to, close_to
 import option
 
 from orchid import (
@@ -246,69 +246,32 @@ class TestNetQuantity(unittest.TestCase):
                 actual = onq.as_measurement(to_unit, to_convert_net_quantity)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
-    # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_none_density(self):
-        to_convert_some_net_quantity = ScriptAdapter.MakeOptionNone[UnitsNet.Density]()
-        to_unit = units.Metric.DENSITY
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
-
-    # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_none_force(self):
-        to_convert_some_net_quantity = ScriptAdapter.MakeOptionNone[UnitsNet.Force]()
-        to_unit = units.UsOilfield.FORCE
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
+    def test_as_measurement_from_none(self):
+        for to_convert_unit, to_unit in [
+            (UnitsNet.Density, units.Metric.DENSITY),
+            (UnitsNet.Force, units.Metric.FORCE),
+            (UnitsNet.MassConcentration, units.Metric.PROPPANT_CONCENTRATION),
+        ]:
+            to_convert_none = ScriptAdapter.MakeOptionNone[to_convert_unit]()
+            with self.subTest(msg=f'Convert no net quantity with unit, {to_convert_unit}, to {to_unit}'):
+                actual = onq.as_measurement_from_option(to_unit, to_convert_none)
+                tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
 
     # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_none_proppant_concentration(self):
-        to_convert_some_net_quantity = ScriptAdapter.MakeOptionNone[UnitsNet.MassConcentration]()
-        to_unit = units.Metric.PROPPANT_CONCENTRATION
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
-
-    # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_some_density(self):
-        to_convert_some_net_quantity = Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3))
-        expected = 436.1e-3 * (om.registry.kg / om.registry.m ** 3)
-        to_unit = units.Metric.DENSITY
-        tolerance = decimal.Decimal('0.0001')
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
-
-    # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_some_energy(self):
-        to_convert_some_net_quantity = Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378))
-        expected = 4.579 * om.registry.J
-        to_unit = units.Metric.ENERGY
-        tolerance = decimal.Decimal('0.001')
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
-
-    # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_some_power(self):
-        to_convert_some_net_quantity = Option.Some[UnitsNet.Power](onq.net_power_from_W(8807.))
-        expected = 8807. * om.registry.W
-        to_unit = units.Metric.POWER
-        tolerance = decimal.Decimal('0.1')
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
-
-    # noinspection PyUnresolvedReferences
-    def test_as_measurement_from_some_pressure(self):
-        to_convert_some_net_quantity = Option.Some[UnitsNet.Pressure](onq.net_pressure_from_psi(7874.24))
-        expected = 54291.0 * om.registry.kPa
-        to_unit = units.Metric.PRESSURE
-        tolerance = decimal.Decimal('0.1')
-
-        actual = onq.as_measurement_from_option(to_unit, to_convert_some_net_quantity)
-        tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+    def test_as_measurement_from_some(self):
+        for some_to_convert, to_unit, expected, tolerance in [
+            (Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3)),
+             units.Metric.DENSITY, 436.1e-3 * (om.registry.kg / om.registry.m ** 3), decimal.Decimal('0.0001')),
+            (Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378)),
+             units.Metric.ENERGY, 4.579 * om.registry.J, decimal.Decimal('0.001')),
+            (Option.Some[UnitsNet.Power](onq.net_power_from_W(8807.)),
+             units.Metric.POWER, 8807. * om.registry.W, decimal.Decimal('0.1')),
+            (Option.Some[UnitsNet.Pressure](onq.net_pressure_from_psi(7874.24)),
+             units.Metric.PRESSURE, 54291.0 * om.registry.kPa, decimal.Decimal('0.1')),
+        ]:
+            with self.subTest(msg=f'Convert {some_to_convert} to {to_unit} correctly.'):
+                actual = onq.as_measurement_from_option(to_unit, some_to_convert)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences
     def test_as_net_quantity(self):
