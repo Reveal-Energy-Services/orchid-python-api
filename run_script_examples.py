@@ -21,6 +21,8 @@ from typing import Optional, Sequence
 
 import examples
 
+import orchid
+
 
 def run_script_examples() -> None:
     """
@@ -33,7 +35,25 @@ def run_script_examples() -> None:
         return
 
     for example_script_name in example_script_names:
-        subprocess.call(f'{sys.executable} {example_script_name}')
+        # Treat `stage_qc_results.py` specially
+        if example_script_name != 'stage_qc_results.py':
+            subprocess.call(f'{sys.executable} {example_script_name}')
+        else:
+            verbosity = '-v2'
+            ifrac_filename = 'frankNstein_Bakken_UTM13_FEET.ifrac'
+            read_only_command_line = (f'{sys.executable} {example_script_name} {verbosity}'
+                                      f' --read-only {orchid.training_data_path().joinpath(ifrac_filename)}')
+            print()
+            print('Demonstrate reading stage QC results')
+            print(read_only_command_line)
+            subprocess.call(read_only_command_line)
+
+            read_write_command_line = (f'{sys.executable} {example_script_name} {verbosity}'
+                                       f' {orchid.training_data_path().joinpath(ifrac_filename)}')
+            print()
+            print('Demonstrate reading and writing stage QC results')
+            print(read_write_command_line)
+            subprocess.call(read_write_command_line)
 
 
 def main(cli_args: Optional[Sequence[str]] = None):

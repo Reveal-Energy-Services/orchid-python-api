@@ -130,8 +130,10 @@ def find_well_by_name_in_project(context, well_name):
         well_name: The name of the well of interest.
 
     Returns:
-        The single well named, `well_name`, in the loaded project. If no well exists or more than one well exists,
-        raises an `AssertionError`.
+        The single well named, `well_name`, in the loaded project.
+
+    Raises:
+        AssertionError if no such well exists or more than one well exists.
     """
     assert context.project is not None, f'Expected loaded project to be available in `context`. Found none.'
     candidates = list(context.project.wells().find_by_name(well_name))
@@ -155,6 +157,21 @@ def find_stage_no_in_well(context, stage_no, well):
 
 
 def find_stage_no_in_well_of_project(context, stage_no, well):
+    """
+    Find the stage identified by `stage_no` in the well named, `well`, in the project in `context`
+    Args:
+        context: The test context (containing the project)
+        stage_no: The number used by an engineer to identify a stage in a well.
+        well: The name of the well of interest.
+
+    Returns:
+        The stage identified by `stage_no` in `well` of the project.
+
+    Raises:
+        AssertionError: Raised if
+        - No such stage exists or more than one stage exists in the well
+        - No such well exists or more than one well exists in the project.
+    """
     candidate_wells = list(context.project.wells().find_by_name(well))
     assert_that(len(candidate_wells), equal_to(1), f'Failure for field "{context.field}" and well "{well}".')
     well_for_interest = candidate_wells[0]

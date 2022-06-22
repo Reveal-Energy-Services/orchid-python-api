@@ -17,6 +17,7 @@ from collections import namedtuple
 import dataclasses as dc
 import logging
 import pathlib
+import pprint
 from typing import Optional
 
 import pendulum  # Used for creating time-zone aware date times (UTC by default)
@@ -221,7 +222,7 @@ def make_target_file_name_from_source(source_file_name):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Add stages to well of specified project.')
+    parser = argparse.ArgumentParser(description="Adds newly created stages to a well in a project")
     parser.add_argument('-v', '--verbosity', type=int, choices=[0, 1, 2], default=0,
                         help='Increase output verbosity. (Default: 0; that is, least output.)')
 

@@ -1,4 +1,4 @@
-#  Copyright 2017-2021 Reveal Energy Services, Inc 
+#  Copyright 2017-2022 Reveal Energy Services, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -64,7 +64,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
 
     def test_stage_start_stop_confirmation_if_start_stop_confirmation_available_for_stage(self):
         stage_id = '15fd59d7-da16-40bd-809b-56f9680a0773'
-        expected_start_stop_confirmation = nqc.StageCorrectionStatus.UNCONFIRMED
+        expected_start_stop_confirmation = nqc.CorrectionStatus.UNCONFIRMED
         sut = create_sut(stage_id, start_stop_confirmation=expected_start_stop_confirmation)
 
         assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
@@ -75,7 +75,7 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         sut = create_sut(stage_id)
 
         assert_that(sut.stage_start_stop_confirmation(uuid.UUID(stage_id)),
-                    equal_to(nqc.StageCorrectionStatus.NEW))
+                    equal_to(nqc.CorrectionStatus.NEW))
 
     def test_stage_start_stop_confirmation_raises_error_if_value_has_unexpected_net_type(self):
         stage_id = tsn.DONT_CARE_ID_B
@@ -128,17 +128,17 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
                                  nqc.make_qc_notes_key, toolz.identity)
 
     def test_set_stage_start_stop_confirmation_if_already_set_invokes_correct_calls(self):
-        ante_start_stop_confirmation = nqc.StageCorrectionStatus.NEW
+        ante_start_stop_confirmation = nqc.CorrectionStatus.NEW
         sut = create_sut('2bb41603-a246-421a-8d77-c79ebfac8cb7', start_stop_confirmation=ante_start_stop_confirmation)
         stub_net_mutable_project_user_data = tsn.MutableProjectUserDat().create_net_stub()
         sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
 
         sut.set_stage_start_stop_confirmation(uuid.UUID('2bb41603-a246-421a-8d77-c79ebfac8cb7'),
-                                              nqc.StageCorrectionStatus.CONFIRMED)
+                                              nqc.CorrectionStatus.CONFIRMED)
 
         assert_single_call_to_mutable(sut)
         assert_call_to_set_value(stub_net_mutable_project_user_data,
-                                 '2bb41603-a246-421a-8d77-c79ebfac8cb7', nqc.StageCorrectionStatus.CONFIRMED,
+                                 '2bb41603-a246-421a-8d77-c79ebfac8cb7', nqc.CorrectionStatus.CONFIRMED,
                                  nqc.make_start_stop_confirmation_key, lambda v: v.value)
 
     def test_set_stage_start_stop_confirmation_if_not_set_invokes_correct_calls(self):
@@ -147,11 +147,11 @@ class TestNativeProjectUserDataAdapter(unittest.TestCase):
         sut.dom_object.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_project_user_data)
 
         sut.set_stage_start_stop_confirmation(uuid.UUID('29ee6679-6499-496c-9027-c018013640d6'),
-                                              nqc.StageCorrectionStatus.CONFIRMED)
+                                              nqc.CorrectionStatus.CONFIRMED)
 
         assert_single_call_to_mutable(sut)
         assert_call_to_set_value(stub_net_mutable_project_user_data,
-                                 '29ee6679-6499-496c-9027-c018013640d6', nqc.StageCorrectionStatus.CONFIRMED,
+                                 '29ee6679-6499-496c-9027-c018013640d6', nqc.CorrectionStatus.CONFIRMED,
                                  nqc.make_start_stop_confirmation_key, lambda v: v.value)
 
 
@@ -175,7 +175,7 @@ def create_sut(stage_id_text: str, qc_notes=None, start_stop_confirmation=None, 
     elif not stages_qc and to_json:
         stub_project_user_data = tsn.ProjectUserDataDto(to_json=to_json)
 
-    result = uda.NativeProjectUserData(stub_project_user_data.create_net_stub())
+    result = uda.NativeProjectUserDataAdapter(stub_project_user_data.create_net_stub())
     return result
 
 

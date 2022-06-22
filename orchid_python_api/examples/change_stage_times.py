@@ -12,6 +12,10 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+"""
+Changes the start and stop times (time range) of a stage using the high-level Python API.
+"""
+
 import argparse
 import logging
 import pathlib
@@ -94,7 +98,7 @@ def make_target_file_name_from_source(source_file_name):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Automatically pick leak off observations.")
+    parser = argparse.ArgumentParser(description="Change stage start and stop times using the high-level API.")
     parser.add_argument('-v', '--verbosity', type=int, choices=[0, 1, 2], default=0,
                         help='Increase output verbosity. (Default: 0; that is, least output.)')
 
