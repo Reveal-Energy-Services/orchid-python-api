@@ -31,6 +31,10 @@ from orchid import (
 from tests import (custom_matchers as tcm)
 
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+# noinspection PyUnresolvedReferences
+from Optional import Option
+# noinspection PyUnresolvedReferences
 from System import Decimal
 # noinspection PyUnresolvedReferences
 import UnitsNet
@@ -240,6 +244,55 @@ class TestNetQuantity(unittest.TestCase):
             with self.subTest(f'Test as_measurement_in_specified_different_unit for {expected.magnitude}'
                               f' {expected.units:~P}'):
                 actual = onq.as_measurement(to_unit, to_convert_net_quantity)
+                tcm.assert_that_measurements_close_to(actual, expected, tolerance)
+
+    def test_as_measurement_from_none(self):
+        for to_convert_unit, to_unit in [
+            (UnitsNet.Duration, units.Common.DURATION),
+            (UnitsNet.Density, units.Metric.DENSITY),
+            (UnitsNet.Force, units.Metric.FORCE),
+            (UnitsNet.MassConcentration, units.Metric.PROPPANT_CONCENTRATION),
+            (UnitsNet.Temperature, units.Metric.TEMPERATURE),
+        ]:
+            to_convert_none = ScriptAdapter.MakeOptionNone[to_convert_unit]()
+            with self.subTest(msg=f'Convert no net quantity with unit, {to_convert_unit}, to {to_unit}'):
+                actual = onq.as_measurement_from_option(to_unit, to_convert_none)
+                tcm.assert_that_measurement_is_nan(actual, to_unit.value.unit)
+
+    # noinspection PyUnresolvedReferences
+    def test_as_measurement_from_some(self):
+        for some_to_convert, to_unit, expected, tolerance in [
+            (Option.Some[UnitsNet.Angle](onq.net_angle_from_deg(298.6)),
+             units.Common.ANGLE, 298.6 * om.registry.deg, decimal.Decimal('0.1')),
+            (Option.Some[UnitsNet.Duration](onq.net_duration_from_min(57.82)),
+             units.Common.DURATION, 57.82 * om.registry.min, decimal.Decimal('0.01')),
+            (Option.Some[UnitsNet.Density](onq.net_density_from_lbs_per_cu_ft(27.22e-3)),
+             units.Metric.DENSITY, 436.1e-3 * (om.registry.kg / om.registry.m ** 3), decimal.Decimal('0.0001')),
+            (Option.Some[UnitsNet.Energy](onq.net_energy_from_ft_lbs(3.378)),
+             units.Metric.ENERGY, 4.579 * om.registry.J, decimal.Decimal('0.001')),
+            (Option.Some[UnitsNet.Force](onq.net_force_from_lbf(117.2e3)),
+             units.Metric.FORCE, 521.3e3 * om.registry.N, decimal.Decimal('0.1e3')),
+            (Option.Some[UnitsNet.Length](onq.net_length_from_m(45.96)),
+             units.Metric.LENGTH, 45.95 * om.registry.m, decimal.Decimal('0.01')),
+            (Option.Some[UnitsNet.Mass](onq.net_mass_from_kg(120.2e3)),
+             units.UsOilfield.MASS, 265.0e3 * om.registry.lb, decimal.Decimal('0.1e3')),
+            (Option.Some[UnitsNet.Power](onq.net_power_from_W(8807.)),
+             units.Metric.POWER, 8807. * om.registry.W, decimal.Decimal('0.1')),
+            (Option.Some[UnitsNet.Pressure](onq.net_pressure_from_psi(7874.24)),
+             units.Metric.PRESSURE, 54291.0 * om.registry.kPa, decimal.Decimal('0.1')),
+            (Option.Some[UnitsNet.MassConcentration](onq.net_mass_concentration_from_kg_per_cu_m(588.0)),
+             units.UsOilfield.PROPPANT_CONCENTRATION, 4.907 * (om.registry.lbs / om.registry.gal),
+             decimal.Decimal('0.001')),
+            (Option.Some[UnitsNet.Temperature](onq.net_temperature_from_deg_F(74.38)),
+             units.Metric.TEMPERATURE, om.Quantity(23.54, om.registry.degC), decimal.Decimal('0.01')),
+            (Option.Some[UnitsNet.VolumeFlow](onq.net_volume_flow_from_oil_bbl_per_min(91.62)),
+             units.UsOilfield.SLURRY_RATE, 91.62 * (om.registry.oil_bbl / om.registry.min),
+             decimal.Decimal('0.01')),
+            (Option.Some[UnitsNet.Volume](onq.net_volume_from_oil_bbl(5548.)),
+             units.Metric.VOLUME, 882.0 * om.registry.m ** 3, decimal.Decimal('0.1')),
+        ]:
+            with self.subTest(msg=f'Convert {some_to_convert} to {to_unit} correctly.'):
+                actual = onq.as_measurement_from_option(to_unit, some_to_convert)
                 tcm.assert_that_measurements_close_to(actual, expected, tolerance)
 
     # noinspection PyUnresolvedReferences

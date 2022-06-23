@@ -39,6 +39,8 @@ clr.AddReference('System.Collections')
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (IStage, IStagePart)
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+# noinspection PyUnresolvedReferences
 from System import (Array, UInt32, Nullable,)
 # noinspection PyUnresolvedReferences
 from System.Collections.Generic import List
@@ -73,9 +75,10 @@ class CreateStageDto:
         # Must supply the unit system for conversions
         native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_top)
         native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_bottom)
-        native_shmin = (onq.as_net_quantity(units.UsOilfield.PRESSURE, self.maybe_shmin)
+        native_shmin = (ScriptAdapter.MakeOptionSome(onq.as_net_quantity(units.UsOilfield.PRESSURE,
+                                                                         self.maybe_shmin))
                         if self.maybe_shmin is not None
-                        else None)
+                        else ScriptAdapter.MakeOptionNone[Pressure]())
         no_time_range_native_stage = object_factory.CreateStage(
             UInt32(self.order_of_completion_on_well),
             well.dom_object,
