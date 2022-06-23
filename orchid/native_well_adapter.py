@@ -50,65 +50,8 @@ WellHeadLocation = namedtuple('WellHeadLocation',
                               ['easting', 'northing', 'depth'])
 
 
-_object_factory = fdf.create()
-
-
 def replace_no_uwi_with_text(uwi):
     return uwi if uwi else 'No UWI'
-
-
-@dc.dataclass
-class CreateStageDto:
-    stage_no: int  # Must be greater than 0
-    stage_type: nsa.ConnectionType
-    md_top: om.Quantity  # Must be length
-    md_bottom: om.Quantity  # Must be length
-    shmin: om.Quantity  # Must be pressure but its magnitude may be `NaN`
-    cluster_count: int = 0  # Must be non-negative
-    # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
-    # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
-    # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
-    # issue with Orchid.
-    #
-    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range in the created stage.
-    maybe_time_range: Optional[pdt.Period] = None
-    # WARNING: one **must** currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
-    # the project saved with the added stages.
-    maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
-
-    def __post_init__(self):
-        if self.stage_no < 1:
-            raise ValueError(f'Expected `stage_no` greater than 0. Found {self.stage_no}')
-
-        if not units.is_length_unit(self.md_top):
-            raise ValueError(f'Expected `md_top` to be a length measurement.'
-                             f' Found {self.md_top:~P}')
-
-        if not units.is_length_unit(self.md_bottom):
-            raise ValueError(f'Expected `md_bottom` to be a length measurement.'
-                             f' Found {self.md_bottom:~P}')
-
-        if self.cluster_count < 0:
-            raise ValueError(f'Expected `cluster_count` to be non-negative.'
-                             f' Found {self.cluster_count}')
-
-        if self.maybe_isip is None:
-            raise TypeError(f'Expected `maybe_isip` to be supplied. Found'
-                            f' `{self.maybe_isip}`')
-
-        if not units.is_pressure_unit(self.maybe_isip):
-            raise ValueError(f'Expected `maybe_isip` to be a pressure measurement.'
-                             f' Found {self.maybe_isip:~P}')
-
-        if self.shmin is not None:
-            if not units.is_pressure_unit(self.shmin):
-                raise ValueError(f'Expected `shmin` to be a pressure measurement.'
-                                 f' Found {self.shmin:~P}')
-
-    @property
-    def order_of_completion_on_well(self):
-        """Return the order (beginning at zero) in which this stage was completed on its well."""
-        return self.stage_no - 1
 
 
 class NativeWellAdapter(dpo.DomProjectObject):
@@ -171,21 +114,3 @@ class NativeWellAdapter(dpo.DomProjectObject):
             list,
         )
         return result
-
-    def add_stages(self, create_stage_dtos: Iterable[CreateStageDto]):
-        """
-        Adds stage(s) to this well, each with details specified by items in `create_stages_dtos`.
-        Args:
-            create_stage_dtos: An iterable whose items contain the details af the stage to add.
-        """
-        for stage_dto in create_stage_dtos:
-            sequence_number = UInt32(stage_dto.order_of_completion_on_well)
-            well = self.dom_object
-            stage_type = stage_dto.stage_type
-            net_md_top = onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, stage_dto.md_top)
-            net_md_bottom = onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, stage_dto.md_bottom)
-            net_shmin = onq.as_net_quantity(opq.PhysicalQuantity.PRESSURE, stage_dto.shmin)
-            cluster_count = UInt32(stage_dto.cluster_count)
-
-            _object_factory.CreateStage(sequence_number, well, stage_type,
-                                        net_md_top, net_md_bottom, net_shmin, cluster_count)
