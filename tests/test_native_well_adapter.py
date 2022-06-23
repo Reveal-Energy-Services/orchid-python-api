@@ -22,6 +22,7 @@ import uuid
 
 from hamcrest import (assert_that, equal_to, instance_of, is_, empty, contains_exactly,
                       calling, raises)
+import pendulum as pdt
 import toolz.curried as toolz
 
 from orchid import (
@@ -344,9 +345,13 @@ DONT_CARE_METRIC_STAGE_DTO_ARGS = CreateStageDtoArgs(stage_no=28,
 
 
 # Test ideas
-# - Calling add_stages with no CreateStageDto calls neither AddStages nor CreateStage
-# - Calling add_stages with single CreateStageDto calls AddStages with correct arguments
-# - Calling add_stages with many CreateStageDtos calls AddStages with correct arguments
+# - Calling add_stages with no CreateStageDto does not call FractureDiagnosticsFactory.CreateStage
+# - Calling add_stages with single CreateStageDto calls FractureDiagnosticsFactory.CreateStage with correct arguments
+# - Calling add_stages with many CreateStageDtos calls FractureDiagnosticsFactory.CreateStage with correct arguments
+# - Calling add_stages with no CreateStageDto does not call FractureDiagnosticsFactory.CreateStagePart
+# - Calling add_stages with single CreateStageDto calls FractureDiagnosticsFactory.CreateStagePart with correct
+#   arguments
+# - Calling add_stages with many CreateStageDtos calls FractureDiagnosticsFactory.CreateStagePart with correct arguments
 class TestNativeWellAdapterAddStages(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -400,15 +405,13 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
 
 
 # Test ideas
-# - Created stage has stage_type supplied to constructor
-# - Created stage has md_top supplied to constructor
-# - Created stage has md_bottom supplied to constructor
-# - Created stage has cluster_count supplied to constructor
-# - Created stage has time_range supplied to constructor
-# - Created stage has isip supplied to constructor
-# - Created stage has shmin supplied to constructor
-# - Created stage has .NET "not a time" time range if maybe_time_range has no value
-# - Created stage has no shmin if shmin has no value
+# - Calling add_stages with no CreateStageDto does not call FractureDiagnosticsFactory.CreateStage
+# - Calling add_stages with single CreateStageDto calls FractureDiagnosticsFactory.CreateStage with correct arguments
+# - Calling add_stages with many CreateStageDtos calls FractureDiagnosticsFactory.CreateStage with correct arguments
+# - Calling add_stages with no CreateStageDto does not call FractureDiagnosticsFactory.CreateStagePart
+# - Calling add_stages with single CreateStageDto calls FractureDiagnosticsFactory.CreateStagePart with correct
+#   arguments
+# - Calling add_stages with many CreateStageDtos calls FractureDiagnosticsFactory.CreateStagePart with correct arguments
 class TestCreateStageDto(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))

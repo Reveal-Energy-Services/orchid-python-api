@@ -70,7 +70,7 @@ class CreateStageDto:
     # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
     # issue with Orchid.
     #
-    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
+    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range in the created stage.
     maybe_time_range: Optional[pdt.Period] = None
     # WARNING: one **must** currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
     # the project saved with the added stages.
