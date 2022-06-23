@@ -34,6 +34,7 @@ from orchid import (
     native_trajectory_adapter as nta,
     net_fracture_diagnostics_factory as fdf,
     net_quantity as onq,
+    physical_quantity as opq,
     reference_origins as origins,
     unit_system as units,
 )
@@ -62,6 +63,7 @@ class CreateStageDto:
     stage_type: nsa.ConnectionType
     md_top: om.Quantity  # Must be length
     md_bottom: om.Quantity  # Must be length
+    shmin: om.Quantity  # Must be pressure but its magnitude may be `NaN`
     cluster_count: int = 0  # Must be non-negative
     # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
     # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
@@ -73,7 +75,6 @@ class CreateStageDto:
     # WARNING: one **must** currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
     # the project saved with the added stages.
     maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
-    maybe_shmin: Optional[om.Quantity] = None  # If not None, must be pressure
 
     def __post_init__(self):
         if self.stage_no < 1:
@@ -99,10 +100,10 @@ class CreateStageDto:
             raise ValueError(f'Expected `maybe_isip` to be a pressure measurement.'
                              f' Found {self.maybe_isip:~P}')
 
-        if self.maybe_shmin is not None:
-            if not units.is_pressure_unit(self.maybe_shmin):
-                raise ValueError(f'Expected `maybe_shmin` to be a pressure measurement.'
-                                 f' Found {self.maybe_shmin:~P}')
+        if self.shmin is not None:
+            if not units.is_pressure_unit(self.shmin):
+                raise ValueError(f'Expected `shmin` to be a pressure measurement.'
+                                 f' Found {self.shmin:~P}')
 
     @property
     def order_of_completion_on_well(self):
@@ -177,4 +178,14 @@ class NativeWellAdapter(dpo.DomProjectObject):
         Args:
             create_stage_dtos: An iterable whose items contain the details af the stage to add.
         """
-        pass
+        for stage_dto in create_stage_dtos:
+            sequence_number = UInt32(stage_dto.order_of_completion_on_well)
+            well = self.dom_object
+            stage_type = stage_dto.stage_type
+            net_md_top = onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, stage_dto.md_top)
+            net_md_bottom = onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, stage_dto.md_bottom)
+            net_shmin = onq.as_net_quantity(opq.PhysicalQuantity.PRESSURE, stage_dto.shmin)
+            cluster_count = UInt32(stage_dto.cluster_count)
+
+            _object_factory.CreateStage(sequence_number, well, stage_type,
+                                        net_md_top, net_md_bottom, net_shmin, cluster_count)

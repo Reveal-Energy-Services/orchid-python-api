@@ -321,6 +321,7 @@ DONT_CARE_STAGE_NO = 32
 DONT_CARE_STAGE_TYPE = nsa.ConnectionType.PLUG_AND_PERF
 DONT_CARE_MD_TOP_US = units.make_us_oilfield_length_measurement(11389.3)
 DONT_CARE_MD_BOTTOM_US = units.make_us_oilfield_length_measurement(11550.0)
+DONT_CARE_SHMIN_METRIC = units.make_metric_pressure_measurement(67.76)
 DONT_CARE_ISIP_US = units.make_us_oilfield_pressure_measurement(2.217)
 
 
@@ -330,6 +331,7 @@ class CreateStageDtoArgs:
     stage_type: nsa.ConnectionType = DONT_CARE_STAGE_TYPE
     md_top: om.Quantity = DONT_CARE_MD_TOP_US
     md_bottom: om.Quantity = DONT_CARE_MD_BOTTOM_US
+    shmin: om.Quantity = DONT_CARE_SHMIN_METRIC
     maybe_isip: om.Quantity = DONT_CARE_ISIP_US
 
 
@@ -350,6 +352,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
+    @unittest.skip('WIP paused for other unit tests')
     def test_add_stages_with_no_items_calls_neither_add_stages_nor_create_stage(self, stub_object_factory):
         stub_net_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_net_well)
@@ -363,6 +366,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
+    @unittest.skip('WIP paused for other unit tests')
     def test_add_stages_with_one_item_calls_add_stages_with_single_created_stage(self,
                                                                                  stub_object_factory,
                                                                                  stub_as_unit_system):
@@ -396,7 +400,6 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
 
 
 # Test ideas
-# - Created stage has stage_no supplied to constructor
 # - Created stage has stage_type supplied to constructor
 # - Created stage has md_top supplied to constructor
 # - Created stage has md_bottom supplied to constructor
@@ -405,7 +408,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
 # - Created stage has isip supplied to constructor
 # - Created stage has shmin supplied to constructor
 # - Created stage has .NET "not a time" time range if maybe_time_range has no value
-# - Created stage has no shmin if maybe_shmin has no value
+# - Created stage has no shmin if shmin has no value
 class TestCreateStageDto(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
@@ -455,12 +458,11 @@ class TestCreateStageDto(unittest.TestCase):
         assert_that(calling(nwa.CreateStageDto).with_args(**create_stage_dto_args),
                     raises(TypeError, pattern=f'`maybe_isip` to be supplied. Found `None`'))
 
-    def test_ctor_raises_error_if_maybe_shmin_is_not_a_pressure_unit(self):
+    def test_ctor_raises_error_if_shmin_is_not_a_pressure_unit(self):
         erroneous_shmin = units.make_metric_length_measurement(4473.45)
-        create_stage_dto_args = toolz.merge({'maybe_shmin': erroneous_shmin},
-                                            dc.asdict(CreateStageDtoArgs()))
+        create_stage_dto_args = dc.asdict(CreateStageDtoArgs(shmin=erroneous_shmin))
         assert_that(calling(nwa.CreateStageDto).with_args(**create_stage_dto_args),
-                    raises(ValueError, pattern=f'`maybe_shmin` to be a pressure measurement.'
+                    raises(ValueError, pattern=f'`shmin` to be a pressure measurement.'
                                                f' Found {erroneous_shmin:~P}'))
 
 
