@@ -15,22 +15,23 @@
 # This file is part of Orchid and related technologies.
 #
 
-import dataclasses as dc
 import decimal
 import unittest.mock
 import uuid
 
-from hamcrest import (assert_that, equal_to, instance_of, is_, empty, contains_exactly,
-                      calling, raises)
-import pendulum as pdt
-import toolz.curried as toolz
+from hamcrest import (
+    assert_that,
+    equal_to,
+    instance_of,
+    is_,
+    empty,
+    contains_exactly,
+)
 
 from orchid import (
     measurement as om,
     native_trajectory_adapter as nta,
-    native_stage_adapter as nsa,
     native_well_adapter as nwa,
-    net_quantity as onq,
     reference_origins as origins,
     unit_system as units,
 )
@@ -316,6 +317,27 @@ class TestNativeWellAdapter(unittest.TestCase):
                                                       tolerances.northing)
                 tcm.assert_that_measurements_close_to(whl_actual.depth, expected_location.depth,
                                                       tolerances.depth)
+
+
+# Test ideas
+# - Call add_stages with no stage DTOs calls neither `CreateStage` nor `AddStages`
+# - Call add_stages with one stage DTO calls `CreateStage` once
+# - Call add_stages with many stage DTOs calls `CreateStage` many times
+# - Call add_stages with one stage DTO calls `CreateStage` with correct arguments
+class TestNativeWellAdapterAddStages(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
+
+    @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
+    def test_add_stages_with_no_items_does_not_call_create_stage(self, stub_object_factory):
+        stub_net_well = tsn.WellDto().create_net_stub()
+        sut = nwa.NativeWellAdapter(stub_net_well)
+
+        to_add_dto = nwa.CreateStageDto()
+        sut.add_stages([to_add_dto])
+
+        stub_object_factory.CreateStage.assert_not_called()
+        stub_net_well.AddStages.assert_not_called()
 
 
 if __name__ == '__main__':

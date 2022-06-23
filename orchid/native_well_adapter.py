@@ -17,10 +17,9 @@
 
 import dataclasses as dc
 from collections import namedtuple
-from typing import Iterable, Optional
+from typing import Iterable
 
 import option
-import pendulum as pdt
 import toolz.curried as toolz
 
 import orchid.base
@@ -32,11 +31,8 @@ from orchid import (
     native_stage_adapter as nsa,
     native_subsurface_point as nsp,
     native_trajectory_adapter as nta,
-    net_fracture_diagnostics_factory as fdf,
     net_quantity as onq,
-    physical_quantity as opq,
     reference_origins as origins,
-    unit_system as units,
 )
 
 # noinspection PyUnresolvedReferences
@@ -48,6 +44,11 @@ from System import Array, UInt32
 
 WellHeadLocation = namedtuple('WellHeadLocation',
                               ['easting', 'northing', 'depth'])
+
+
+@dc.dataclass
+class CreateStageDto:
+    pass
 
 
 def replace_no_uwi_with_text(uwi):
@@ -114,3 +115,6 @@ class NativeWellAdapter(dpo.DomProjectObject):
             list,
         )
         return result
+
+    def add_stages(self, create_stage_dtos: Iterable[CreateStageDto]):
+        pass
