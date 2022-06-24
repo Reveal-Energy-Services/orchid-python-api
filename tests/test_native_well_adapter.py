@@ -320,7 +320,6 @@ class TestNativeWellAdapter(unittest.TestCase):
 
 
 # Test ideas
-# - Call add_stages with no stage DTOs calls neither `CreateStage` nor `AddStages`
 # - Call add_stages with one stage DTO calls `CreateStage` once
 # - Call add_stages with many stage DTOs calls `CreateStage` many times
 # - Call add_stages with one stage DTO calls `CreateStage` with correct arguments
@@ -329,7 +328,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
-    def test_add_stages_with_no_items_does_not_call_create_stage(self, stub_object_factory):
+    def test_add_stages_with_no_items_calls_neither_create_stage_nor_well_add_stages(self, stub_object_factory):
         stub_net_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_net_well)
 
