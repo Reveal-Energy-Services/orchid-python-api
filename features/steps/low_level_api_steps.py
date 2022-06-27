@@ -43,118 +43,115 @@ from System import Double, Int32, String
 import UnitsNet
 
 
-# noinspection PyBDDParameters
-@step("I create a stage attribute named '<{attr_name}>' for a(n) <{type_name}> value")
-def step_impl(context, attr_name, type_name):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        attr_name (str): The name of the attribute to add.
-        type_name (str): The name of the type of the attribute.
-    """
+def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type):
     type_name_to_net_type = {
         'double': Double,
         'integer': Int32,
-        'length_measurement': UnitsNet.Length,
+        'length': UnitsNet.Length,
         'string': String,
     }
-    to_add = Attribute[type_name_to_net_type[type_name]].Create(attr_name)
-    assert_that(to_add, is_(not_none()))
-    if 'stage_attributes' not in context:
-        context.stage_attributes = {}
-    context.stage_attributes[attr_name] = to_add
+    attribute = Attribute[type_name_to_net_type[attribute_type]].Create(attribute_name)
+    assert_that(attribute, is_(not_none()))
+
+    with dnd.disposable(well.dom_object.ToMutable()) as mutable_well:
+        mutable_well.AddStageAttribute(attribute)
+        assert_that(attribute, is_in(list(well.dom_object.StageAttributes.Items)))
 
 
-# noinspection PyBDDParameters
-@step("I add the created attributes to the well, '{well}', of the project")
-def step_impl(context, well):
+@toolz.curry
+def _set_stage_attribute(to_set_attribute, make_attribute_value_func, mutable_stage, attribute_value):
+    mutable_stage.SetAttribute(to_set_attribute, make_attribute_value_func(attribute_value))
+
+
+def _to_length_measurement(value):
+    to_set_value = om.Quantity(value)
+    result = onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, to_set_value)
+    return result
+
+
+def _to_length_unit(value):
+    length_measurement = om.Quantity(value)
+    if length_measurement.units == om.registry('ft'):
+        return units.UsOilfield.LENGTH
+    elif length_measurement.units == om.registry('m'):
+        return units.Metric.LENGTH
+
+
+def _well_find_attributes_with_name(well, attribute_name):
+    result = list(toolz.filter(lambda a: a.Name == attribute_name, well.dom_object.StageAttributes.Items))
+    return result
+
+
+@when("I add the attribute named '{attribute_name}' of type `{attribute_type}' to well, `{well}', of the project")
+def step_impl(context, attribute_name, attribute_type, well):
     """
     Args:
         context (behave.runner.Context): The test context.
-        well (str): The well of interest.
+        attribute_name (str): The name of the stage attribute to add.
+        attribute_type (str): The type of the stage attribute to add
+        well (str): The name of the well to which to add the stage attribute.
     """
     to_add_to_well = cf.find_well_by_name_in_project(context, well)
-
-    with dnd.disposable(to_add_to_well.dom_object.ToMutable()) as mutable_well:
-        for attribute in context.stage_attributes.values():
-            mutable_well.AddStageAttribute(attribute)
-            assert_that(attribute, is_in(list(to_add_to_well.dom_object.StageAttributes.Items)))
-
-    for attribute_name in context.stage_attributes.keys():
-        candidate_attributes = list(toolz.filter(lambda a: a.Name == attribute_name,
-                                                 to_add_to_well.dom_object.StageAttributes.Items))
-        assert_that(len(candidate_attributes), equal_to(1))
-        # Beware: if one fails to include the `Name` attribute, the test will fail, but because the .NET implementation
-        # of `Attribute.ToString()` prints the name, the failure will seem to report that it expected the name and it
-        # **also** found the name.
-        assert_that(candidate_attributes[0], equal_to(context.stage_attributes[attribute_name]))
+    if len(_well_find_attributes_with_name(to_add_to_well, attribute_name)) == 0:
+        _add_attribute_of_name_and_type_to_well(to_add_to_well, attribute_name, attribute_type)
+        assert len(_well_find_attributes_with_name(to_add_to_well, attribute_name)) == 1,\
+            f'Expected exactly one attribute named {attribute_name} in well, {to_add_to_well.name}'
 
 
 # noinspection PyBDDParameters
-@step("I set the value of the stage length attribute of stage, {stage_no:d}, of '{well}' to the {length}")
-def step_impl(context, stage_no, well, length):
+@step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to the {attribute_value}")
+def step_impl(context, attribute_name, stage_no, well, attribute_value):
     """
     Args:
         context (behave.runner.Context): The test context.
-        stage_no (int): The integer identifying the stage of interest.
-        well (str): The well of interest.
-        length (str): The value of the stage length attribute of stage to set.
+        attribute_name (str): The name of the stage attribute to set.
+        stage_no (int): The number used by engineers to identify stages in a well.
+        well (str): The name of the well to which to add the stage attribute.
+        attribute_value (str): The value to which to set the stage attribute
     """
+    well_with_attributes = cf.find_well_by_name_in_project(context, well)
+    candidate_attributes = _well_find_attributes_with_name(well_with_attributes, attribute_name)
+    assert len(candidate_attributes) == 1, (f'Expected single attribute of well {well},'
+                                            f' but found {len(candidate_attributes)}')
+    to_set_attribute = candidate_attributes[0]
+    attribute_name_to_set_func = {
+        'My Stage Length': _set_stage_attribute(to_set_attribute, _to_length_measurement),
+        'My Global Stage Sequence Number': _set_stage_attribute(to_set_attribute, int),
+    }
+
     stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
-        expected_length = om.Quantity(length)
-        mutable_stage.SetAttribute(context.stage_attributes['My Stage Length'],
-                                   onq.as_net_quantity(opq.PhysicalQuantity.LENGTH, expected_length))
+        attribute_name_to_set_func[attribute_name](mutable_stage, attribute_value)
 
 
 # noinspection PyBDDParameters
-@step("I set the value of the sequence number attribute of stage, {stage_no:d}, of '{well}' to {global_seq_no:d}")
-def step_impl(context, stage_no, well, global_seq_no):
+@then("I see the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' equals {attribute_value}")
+def step_impl(context, attribute_name, stage_no, well, attribute_value):
     """
     Args:
         context (behave.runner.Context): The test context.
-        stage_no (int): The integer identifying the stage of interest.
-        well (str): The well of interest.
-        global_seq_no (int): The value of the global stage sequence number attribute.
+        attribute_name (str): The name of the stage attribute to set.
+        stage_no (int): The number used by engineers to identify stages in a well.
+        well (str): The name of the well to which to add the stage attribute.
+        attribute_value (str): The value to which to set the stage attribute
     """
-    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
-    with dnd.disposable(stage.dom_object.ToMutable()) as mutable_stage:
-        mutable_stage.SetAttribute(context.stage_attributes['My Global Stage Sequence Number'], global_seq_no)
+    well_with_attributes = cf.find_well_by_name_in_project(context, well)
+    candidate_attributes = _well_find_attributes_with_name(well_with_attributes, attribute_name)
+    assert len(candidate_attributes) == 1, (f'Expected single attribute of well {well},'
+                                            f' but found {len(candidate_attributes)}')
+    to_query_attribute = candidate_attributes[0]
 
-
-# noinspection PyBDDParameters
-@then("I see the value of the stage length attribute of stage, {stage_no:d}, of '{well}' equals {length}")
-def step_impl(context, stage_no, well, length):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        stage_no (int): The integer identifying the stage of interest.
-        well (str): The well of interest.
-        length (str): The value of the stage length attribute of stage to set.
-    """
     stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
     ignored_object = object()
-    _, actual_attribute_value = stage.dom_object.TryGetAttributeValue(context.stage_attributes['My Stage Length'],
-                                                                      ignored_object)
-    cf.assert_that_actual_measurement_close_to_expected(onq.as_measurement(units.UsOilfield.LENGTH,
-                                                                           option.maybe(actual_attribute_value)),
-                                                        length)
+    is_attribute_present, actual_attribute_value = stage.dom_object.TryGetAttributeValue(to_query_attribute,
+                                                                                         ignored_object)
+    assert_that(is_attribute_present, equal_to(True))
 
-
-# noinspection PyBDDParameters
-@step("I see the value of the sequence number attribute for stage, {stage_no:d}, of '{well}' equal to"
-      " {global_seq_no:d}")
-def step_impl(context, stage_no, well, global_seq_no):
-    """
-    Args:
-        context (behave.runner.Context): The test context.
-        stage_no (int): The integer identifying the stage of interest.
-        well (str): The well of interest.
-        global_seq_no (int): The value of the global stage sequence number attribute.
-    """
-    stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
-
-    ignored_object = object()
-    _, actual_attribute_value = stage.dom_object.TryGetAttributeValue(
-        context.stage_attributes['My Global Stage Sequence Number'], ignored_object)
-    assert_that(actual_attribute_value, equal_to(global_seq_no))
+    if attribute_name == 'My Stage Length':
+        cf.assert_that_actual_measurement_close_to_expected(onq.as_measurement(_to_length_unit(attribute_value),
+                                                                               option.maybe(actual_attribute_value)),
+                                                            attribute_value)
+    elif attribute_name == 'My Global Stage Sequence Number':
+        assert_that(actual_attribute_value, equal_to(int(attribute_value)))
+    else:
+        raise NotImplementedError(f'Unexpected attribute_name "{attribute_name}".')
