@@ -35,7 +35,7 @@ from orchid import (
 # - Create stage DTO with maybe_shmin not a pressure throws exception
 class TestCreateStageDto(unittest.TestCase):
     DONT_CARE_STAGE_DETAILS = {
-            'stage_no': 222,
+            'stage_no': 22,
             'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
             'md_top': 14582.1 * om.registry.ft,
             'md_bottom': 14720.1 * om.registry.ft,
@@ -54,6 +54,12 @@ class TestCreateStageDto(unittest.TestCase):
         assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                                         {'stage_no': 0})),
                     raises(ValueError, pattern='Found 0'))
+
+    def test_create_stage_dto_throws_exception_if_md_top_not_length(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                                        {'md_top': 227.661 * om.registry.deg})),
+                    raises(ValueError,
+                           pattern=f'Expected md_top to be an angle. Found {(227.661 * om.registry.deg):~P}'))
 
 
 if __name__ == '__main__':

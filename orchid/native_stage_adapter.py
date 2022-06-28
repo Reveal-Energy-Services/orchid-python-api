@@ -484,6 +484,8 @@ class CreateStageDto:
         # [StackOverflow post](https://stackoverflow.com/questions/54488765/validating-input-when-mutating-a-dataclass)
         if self.stage_no <= 0:
             raise ValueError(f'Expected positive stage number. Found {self.stage_no}')
+        if not self.md_top.check('[length]'):
+            raise ValueError(f'Expected md_top to be an angle. Found {self.md_top}')
 
     def create_stage(self, well) -> NativeStageAdapter:
         """
