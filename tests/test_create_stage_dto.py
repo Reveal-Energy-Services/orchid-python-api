@@ -124,6 +124,17 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_stage_number = actual_call_args.args[0]  # transformed stage_no
         assert_that(actual_transformed_stage_number, equal_to(System.UInt32(22)))
 
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self, stub_object_factory):
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        create_stage_details = self.DONT_CARE_STAGE_DETAILS
+        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+        actual_call_args = stub_object_factory.CreateStage.call_args
+        actual_transformed_well = actual_call_args.args[1]  # well_object
+        assert_that(actual_transformed_well, equal_to(stub_net_well))
+
 
 if __name__ == '__main__':
     unittest.main()
