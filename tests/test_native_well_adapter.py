@@ -30,6 +30,7 @@ from hamcrest import (
 
 from orchid import (
     measurement as om,
+    native_stage_adapter as nsa,
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
     reference_origins as origins,
@@ -331,9 +332,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
     def test_add_stages_with_no_items_calls_neither_create_stage_nor_well_add_stages(self, stub_object_factory):
         stub_net_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_net_well)
-
-        to_add_dto = nwa.CreateStageDto()
-        sut.add_stages([to_add_dto])
+        sut.add_stages([])
 
         stub_object_factory.CreateStage.assert_not_called()
         stub_net_well.AddStages.assert_not_called()
