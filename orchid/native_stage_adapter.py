@@ -479,6 +479,12 @@ class CreateStageDto:
 
     order_of_completion_on_well = property(fget=lambda self: self.stage_no - 1)
 
+    def __post_init__(self):
+        # See the
+        # [StackOverflow post](https://stackoverflow.com/questions/54488765/validating-input-when-mutating-a-dataclass)
+        if self.stage_no <= 0:
+            raise ValueError(f'Expected positive stage number. Found {self.stage_no}')
+
     def create_stage(self, well) -> NativeStageAdapter:
         """
         Creates a stage from this DTO.
