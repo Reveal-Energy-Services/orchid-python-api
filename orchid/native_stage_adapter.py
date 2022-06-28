@@ -490,6 +490,9 @@ class CreateStageDto:
             raise ValueError(f'Expected md_bottom to be a length. Found {self.md_bottom:~P}')
         if self.cluster_count < 0:
             raise ValueError(f'Expected cluster_count to be non-negative. Found {self.cluster_count}')
+        if self.maybe_isip is not None:
+            if not self.maybe_isip.check('[pressure]'):
+                raise ValueError(f'Expected maybe_isip to be a pressure if not None. Found {self.maybe_isip:~P}')
 
     def create_stage(self, well) -> NativeStageAdapter:
         """

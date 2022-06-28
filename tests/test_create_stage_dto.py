@@ -28,7 +28,6 @@ from orchid import (
 
 
 # Test ideas
-# - Create stage DTO with maybe_isip not a pressure throws exception
 # - Create stage DTO with maybe_shmin not a pressure throws exception
 class TestCreateStageDto(unittest.TestCase):
     DONT_CARE_STAGE_DETAILS = {
@@ -70,6 +69,13 @@ class TestCreateStageDto(unittest.TestCase):
                                                                         {'cluster_count': -1})),
                     raises(ValueError,
                            pattern=f'Expected cluster_count to be non-negative. Found -1'))
+
+    def test_create_stage_dto_throws_exception_if_maybe_isip_has_value_but_is_not_pressure(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(
+            self.DONT_CARE_STAGE_DETAILS, {'maybe_isip': om.Quantity(5.22410, om.registry.degC)})),
+                    raises(ValueError,
+                           pattern=f'Expected maybe_isip to be a pressure if not None.'
+                                   f' Found {om.Quantity(5.22410, om.registry.degC):~P}'))
 
 
 if __name__ == '__main__':
