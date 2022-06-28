@@ -477,7 +477,7 @@ class CreateStageDto:
     # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
     maybe_time_range: Optional[pdt.Period] = None
 
-    order_of_completion_on_well = property(fget=lambda self: self.stage_no)
+    order_of_completion_on_well = property(fget=lambda self: self.stage_no - 1)
 
     def create_stage(self, well) -> NativeStageAdapter:
         """
