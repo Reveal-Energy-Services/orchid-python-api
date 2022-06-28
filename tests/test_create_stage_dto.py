@@ -28,7 +28,6 @@ from orchid import (
 
 
 # Test ideas
-# - Create stage DTO with negative cluster count throws exception
 # - Create stage DTO with maybe_isip not a pressure throws exception
 # - Create stage DTO with maybe_shmin not a pressure throws exception
 class TestCreateStageDto(unittest.TestCase):
@@ -51,7 +50,8 @@ class TestCreateStageDto(unittest.TestCase):
     def test_create_stage_dto_throws_exception_if_stage_no_not_positive(self):
         assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                                         {'stage_no': 0})),
-                    raises(ValueError, pattern='Found 0'))
+                    raises(ValueError,
+                           pattern=f'Expected stage_no to be positive. Found 0'))
 
     def test_create_stage_dto_throws_exception_if_md_top_not_length(self):
         assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
@@ -64,6 +64,12 @@ class TestCreateStageDto(unittest.TestCase):
                                                                         {'md_bottom': 7260.14 * om.registry.psi})),
                     raises(ValueError,
                            pattern=f'Expected md_bottom to be a length. Found {(7260.14 * om.registry.psi):~P}'))
+
+    def test_create_stage_dto_throws_exception_if_cluster_count_is_negative(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                                        {'cluster_count': -1})),
+                    raises(ValueError,
+                           pattern=f'Expected cluster_count to be non-negative. Found -1'))
 
 
 if __name__ == '__main__':
