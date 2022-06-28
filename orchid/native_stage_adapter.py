@@ -493,6 +493,9 @@ class CreateStageDto:
         if self.maybe_isip is not None:
             if not self.maybe_isip.check('[pressure]'):
                 raise ValueError(f'Expected maybe_isip to be a pressure if not None. Found {self.maybe_isip:~P}')
+        if self.maybe_shmin is not None:
+            if not self.maybe_shmin.check('[pressure]'):
+                raise ValueError(f'Expected maybe_shmin to be a pressure if not None. Found {self.maybe_shmin:~P}')
 
     def create_stage(self, well) -> NativeStageAdapter:
         """

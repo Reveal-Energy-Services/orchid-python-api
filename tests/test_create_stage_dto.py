@@ -28,7 +28,6 @@ from orchid import (
 
 
 # Test ideas
-# - Create stage DTO with maybe_shmin not a pressure throws exception
 class TestCreateStageDto(unittest.TestCase):
     DONT_CARE_STAGE_DETAILS = {
             'stage_no': 22,
@@ -76,6 +75,13 @@ class TestCreateStageDto(unittest.TestCase):
                     raises(ValueError,
                            pattern=f'Expected maybe_isip to be a pressure if not None.'
                                    f' Found {om.Quantity(5.22410, om.registry.degC):~P}'))
+
+    def test_create_stage_dto_throws_exception_if_maybe_shmin_has_value_but_is_not_pressure(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(
+            self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': 172.8 * om.registry.ft})),
+                    raises(ValueError,
+                           pattern=f'Expected maybe_shmin to be a pressure if not None.'
+                                   f' Found {172.8 * om.registry.ft:~P}'))
 
 
 if __name__ == '__main__':
