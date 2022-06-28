@@ -358,7 +358,7 @@ def step_impl(context, to_start, to_stop, well, stage_no):
     assert_that(stage_of_interest.stop_time, equal_to(pdt.parse(to_stop)))
 
 
-_STAGE_TYPE_TEXT_TO_STAGE_TYPE = {
+_STAGE_TYPE_TEXT_TO_CONNECTION_TYPE = {
     'Plug and perf': nsa.ConnectionType.PLUG_AND_PERF,
     'Sliding sleeve': nsa.ConnectionType.SLIDING_SLEEVE,
     'Single point entry': nsa.ConnectionType.SINGLE_POINT_ENTRY,
@@ -402,7 +402,7 @@ def step_impl(context):
     """
     for row in context.table:
         to_add_stage_dto = nsa.CreateStageDto(stage_no=int(row['stage_no']),
-                                              stage_type=_STAGE_TYPE_TEXT_TO_STAGE_TYPE[row['stage_type']],
+                                              connection_type=_STAGE_TYPE_TEXT_TO_CONNECTION_TYPE[row['stage_type']],
                                               md_top=calculate_md_top(row),
                                               md_bottom=calculate_md_bottom(row),
                                               cluster_count=calculate_cluster_count(row),
@@ -415,7 +415,7 @@ def step_impl(context):
         well = candidate_wells[0]
         created_stage = to_add_stage_dto.create_stage(well)
         ante_add_stage_count = len(well.stages())
-        well.add_stage(created_stage)
+        well.add_stages([created_stage])
         assert_that(len(well.stages()), equal_to(ante_add_stage_count + 1))
 
 
@@ -433,7 +433,7 @@ def step_impl(context):
         assert_that(added_stage.display_stage_number, equal_to(stage_no))
         assert_that(added_stage.cluster_count, equal_to(calculate_cluster_count(row)))
         assert_that(added_stage.stage_type,
-                    equal_to(_STAGE_TYPE_TEXT_TO_STAGE_TYPE[row['stage_type']]))
+                    equal_to(_STAGE_TYPE_TEXT_TO_CONNECTION_TYPE[row['stage_type']]))
         assert_that(added_stage.md_top, equal_to(calculate_md_top(row)))
         assert_that(added_stage.md_bottom, equal_to(calculate_md_bottom(row)))
         assert_that(added_stage.start, equal_to(calculate_start_time(row)))

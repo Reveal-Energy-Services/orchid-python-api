@@ -15,7 +15,6 @@
 # This file is part of Orchid and related technologies.
 #
 
-import dataclasses as dc
 from collections import namedtuple
 from typing import Iterable
 
@@ -44,11 +43,6 @@ from System import Array, UInt32
 
 WellHeadLocation = namedtuple('WellHeadLocation',
                               ['easting', 'northing', 'depth'])
-
-
-@dc.dataclass
-class CreateStageDto:
-    pass
 
 
 def replace_no_uwi_with_text(uwi):
@@ -116,5 +110,5 @@ class NativeWellAdapter(dpo.DomProjectObject):
         )
         return result
 
-    def add_stages(self, create_stage_dtos: Iterable[CreateStageDto]):
+    def add_stages(self, create_stage_dtos: Iterable[nsa.NativeStageAdapter]):
         pass

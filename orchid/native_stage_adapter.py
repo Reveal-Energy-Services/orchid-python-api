@@ -16,8 +16,9 @@
 #
 
 
+import dataclasses as dc
 from enum import IntEnum
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import deal
 import option
@@ -47,12 +48,17 @@ from Orchid.FractureDiagnostics import FormationConnectionType
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+# noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
 import System
 
 
 VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit system length.'
+
+
+_object_factory = fdf.create()
 
 
 class ConnectionType(IntEnum):
@@ -449,3 +455,54 @@ class NativeStageAdapter(dpo.DomProjectObject):
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
+
+
+@dc.dataclass
+class CreateStageDto:
+    stage_no: int  # Must be positive
+    connection_type: ConnectionType
+    md_top: om.Quantity  # Must be length
+    md_bottom: om.Quantity  # Must be length
+
+    cluster_count: int = 0  # Must be non-negative
+    # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
+    # the project saved with the added stages.
+    maybe_isip: Optional[om.Quantity] = None  # If not `None`, must be a pressure
+    maybe_shmin: Optional[om.Quantity] = None  # If not `None`, must be pressure
+    # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
+    # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
+    # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
+    # issue with Orchid.
+    #
+    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
+    maybe_time_range: Optional[pdt.Period] = None
+
+    order_of_completion_on_well = property(fget=lambda self: self.stage_no)
+
+    def create_stage(self, well) -> NativeStageAdapter:
+        """
+        Creates a stage from this DTO.
+
+        Args:
+            well (NativeWellAdapter): The well of the created `NativeStageAdapter`
+
+        Returns:
+            The `NativeStageAdapter` wrapping the created .NET `IStage` instance.
+
+        """
+        native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_top)
+        native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_bottom)
+        native_shmin = (ScriptAdapter.MakeOptionSome(onq.as_net_quantity(units.UsOilfield.PRESSURE,
+                                                                         self.maybe_shmin))
+                        if self.maybe_shmin is not None
+                        else ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]())
+        no_time_range_native_stage = _object_factory.CreateStage(
+            System.UInt32(self.order_of_completion_on_well),
+            well.dom_object,
+            self.connection_type.value,
+            native_md_top,
+            native_md_bottom,
+            native_shmin,
+            System.UInt32(self.cluster_count)
+        )
+        return NativeStageAdapter(no_time_range_native_stage)
