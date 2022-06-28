@@ -28,8 +28,6 @@ from orchid import (
 
 
 # Test ideas
-# - Create stage DTO with md_top not a length throws exception
-# - Create stage DTO with md_bottom not a length throws exception
 # - Create stage DTO with negative cluster count throws exception
 # - Create stage DTO with maybe_isip not a pressure throws exception
 # - Create stage DTO with maybe_shmin not a pressure throws exception
@@ -59,7 +57,13 @@ class TestCreateStageDto(unittest.TestCase):
         assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                                         {'md_top': 227.661 * om.registry.deg})),
                     raises(ValueError,
-                           pattern=f'Expected md_top to be an angle. Found {(227.661 * om.registry.deg):~P}'))
+                           pattern=f'Expected md_top to be a length. Found {(227.661 * om.registry.deg):~P}'))
+
+    def test_create_stage_dto_throws_exception_if_md_bottom_not_length(self):
+        assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                                        {'md_bottom': 7260.14 * om.registry.psi})),
+                    raises(ValueError,
+                           pattern=f'Expected md_bottom to be a length. Found {(7260.14 * om.registry.psi):~P}'))
 
 
 if __name__ == '__main__':

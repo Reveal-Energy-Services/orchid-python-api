@@ -485,7 +485,9 @@ class CreateStageDto:
         if self.stage_no <= 0:
             raise ValueError(f'Expected positive stage number. Found {self.stage_no}')
         if not self.md_top.check('[length]'):
-            raise ValueError(f'Expected md_top to be an angle. Found {self.md_top}')
+            raise ValueError(f'Expected md_top to be a length. Found {self.md_top:~P}')
+        if not self.md_bottom.check('[length]'):
+            raise ValueError(f'Expected md_bottom to be a length. Found {self.md_bottom:~P}')
 
     def create_stage(self, well) -> NativeStageAdapter:
         """
