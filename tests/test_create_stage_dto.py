@@ -110,14 +110,6 @@ class TestCreateStageDto(unittest.TestCase):
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'stage_no': 23})
-        # create_stage_details = {
-        #     'stage_no': 23,
-        #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
-        #     'md_top': 3714.60 * om.registry.m,
-        #     'md_bottom': 3761.62 * om.registry.m,
-        #     'maybe_shmin': 2.27576 * om.registry.psi,
-        #     'cluster_count': 4,
-        # }
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
         actual_call_args = stub_object_factory.CreateStage.call_args
@@ -134,6 +126,26 @@ class TestCreateStageDto(unittest.TestCase):
         actual_call_args = stub_object_factory.CreateStage.call_args
         actual_transformed_well = actual_call_args.args[1]  # well_object
         assert_that(actual_transformed_well, equal_to(stub_net_well))
+
+    # create_stage_details = {
+    #     'stage_no': 23,
+    #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+    #     'md_top': 3714.60 * om.registry.m,
+    #     'md_bottom': 3761.62 * om.registry.m,
+    #     'maybe_shmin': 2.27576 * om.registry.psi,
+    #     'cluster_count': 4,
+    # }
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self, stub_object_factory):
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                           {'connection_type': nsa.ConnectionType.PLUG_AND_PERF})
+        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+        actual_call_args = stub_object_factory.CreateStage.call_args
+        actual_transformed_connection_type = actual_call_args.args[2]  # transformed connection_type
+        assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.PLUG_AND_PERF))
 
 
 if __name__ == '__main__':
