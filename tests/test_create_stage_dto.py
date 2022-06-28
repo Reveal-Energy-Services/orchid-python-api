@@ -19,6 +19,7 @@
 import unittest
 
 from hamcrest import assert_that, equal_to, calling, raises
+import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
@@ -33,33 +34,25 @@ from orchid import (
 # - Create stage DTO with maybe_isip not a pressure throws exception
 # - Create stage DTO with maybe_shmin not a pressure throws exception
 class TestCreateStageDto(unittest.TestCase):
+    DONT_CARE_STAGE_DETAILS = {
+            'stage_no': 222,
+            'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+            'md_top': 14582.1 * om.registry.ft,
+            'md_bottom': 14720.1 * om.registry.ft,
+        }
+
     def test_canary(self):
         self.assertEqual(2 + 2, 4)
 
     def test_create_stage_dto_returns_correct_order_of_completion_on_well(self):
-        stage_no = 34
-        dont_care_connection_type = nsa.ConnectionType.PLUG_AND_PERF
-        dont_care_md_top = 14582.1 * om.registry.ft
-        dont_care_md_bottom = 14720.1 * om.registry.ft
-        created_stage = nsa.CreateStageDto(stage_no=stage_no,
-                                           connection_type=dont_care_connection_type,
-                                           md_top=dont_care_md_top,
-                                           md_bottom=dont_care_md_bottom)
+        created_stage = nsa.CreateStageDto(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                         {'stage_no': 34}))
 
         assert_that(created_stage.order_of_completion_on_well, equal_to(33))
 
     def test_create_stage_dto_throws_exception_if_stage_no_not_positive(self):
-        dont_care_connection_type = nsa.ConnectionType.PLUG_AND_PERF
-        dont_care_md_top = 14582.1 * om.registry.ft
-        dont_care_md_bottom = 14720.1 * om.registry.ft
-
-        create_stage_dto_args = {
-            'stage_no': 0,
-            'connection_type': dont_care_connection_type,
-            'md_top': dont_care_md_top,
-            'md_bottom': dont_care_md_bottom,
-        }
-        assert_that(calling(nsa.CreateStageDto).with_args(**create_stage_dto_args),
+        assert_that(calling(nsa.CreateStageDto).with_args(**toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                                        {'stage_no': 0})),
                     raises(ValueError, pattern='Found 0'))
 
 
