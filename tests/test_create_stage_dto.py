@@ -24,10 +24,23 @@ import toolz.curried as toolz
 from orchid import (
     measurement as om,
     native_stage_adapter as nsa,
+    native_well_adapter as nwa,
+    net_quantity as onq,
+    unit_system as units,
 )
+
+from tests import (
+    stub_net as tsn,
+)
+
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+# noinspection PyUnresolvedReferences
+import System
 
 
 # Test ideas
+# - create_stage calls object factory CreateStage with correct arguments
 class TestCreateStageDto(unittest.TestCase):
     DONT_CARE_STAGE_DETAILS = {
             'stage_no': 22,
@@ -82,6 +95,34 @@ class TestCreateStageDto(unittest.TestCase):
                     raises(ValueError,
                            pattern=f'Expected maybe_shmin to be a pressure if not None.'
                                    f' Found {172.8 * om.registry.ft:~P}'))
+
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_once(self, stub_object_factory):
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        create_stage_details = self.DONT_CARE_STAGE_DETAILS
+        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+        stub_object_factory.CreateStage.assert_called_once()
+
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self, stub_object_factory):
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'stage_no': 23})
+        # create_stage_details = {
+        #     'stage_no': 23,
+        #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+        #     'md_top': 3714.60 * om.registry.m,
+        #     'md_bottom': 3761.62 * om.registry.m,
+        #     'maybe_shmin': 2.27576 * om.registry.psi,
+        #     'cluster_count': 4,
+        # }
+        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+        actual_call_args = stub_object_factory.CreateStage.call_args
+        actual_transformed_stage_number = actual_call_args.args[0]  # transformed stage_no
+        assert_that(actual_transformed_stage_number, equal_to(System.UInt32(22)))
 
 
 if __name__ == '__main__':
