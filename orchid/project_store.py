@@ -115,12 +115,10 @@ class ProjectStore:
         """
         with sac.ScriptAdapterContext():
             reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
-            # TODO: These arguments are *copied* from `ProjectFileReaderWriterV2`
-            stream_reader = FileStream(self._project_pathname, FileMode.Open, FileAccess.Read, FileShare.Read)
             try:
-                self._native_project = reader.Read(stream_reader)
-            finally:
-                stream_reader.Close()
+                self._native_project = reader.Read(self._project_pathname)
+            except:
+                raise
 
     def save_project(self, project):
         """
