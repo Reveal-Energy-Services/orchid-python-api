@@ -16,6 +16,7 @@
 #
 
 
+import math
 import unittest
 
 from hamcrest import assert_that, equal_to, calling, raises
@@ -96,8 +97,10 @@ class TestCreateStageDto(unittest.TestCase):
                            pattern=f'Expected maybe_shmin to be a pressure if not None.'
                                    f' Found {172.8 * om.registry.ft:~P}'))
 
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_once(self, stub_object_factory):
+    def test_dto_create_stage_calls_factory_create_stage_once(self, stub_object_factory, stub_as_unit_system):
+        stub_as_unit_system.return_value = units.Metric
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
@@ -105,8 +108,11 @@ class TestCreateStageDto(unittest.TestCase):
 
         stub_object_factory.CreateStage.assert_called_once()
 
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self, stub_object_factory):
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self, stub_object_factory,
+                                                                                   stub_as_unit_system):
+        stub_as_unit_system.return_value = units.UsOilfield
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'stage_no': 23})
@@ -116,8 +122,11 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_stage_number = actual_call_args.args[0]  # transformed stage_no
         assert_that(actual_transformed_stage_number, equal_to(System.UInt32(22)))
 
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self, stub_object_factory):
+    def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self, stub_object_factory,
+                                                                              stub_as_unit_system):
+        stub_as_unit_system.return_value = units.UsOilfield
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
@@ -127,16 +136,11 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_well = actual_call_args.args[1]  # well_object
         assert_that(actual_transformed_well, equal_to(stub_net_well))
 
-    # create_stage_details = {
-    #     'stage_no': 23,
-    #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
-    #     'md_top': 3714.60 * om.registry.m,
-    #     'md_bottom': 3761.62 * om.registry.m,
-    #     'maybe_shmin': 2.27576 * om.registry.psi,
-    #     'cluster_count': 4,
-    # }
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self, stub_object_factory):
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self, stub_object_factory,
+                                                                                          stub_as_unit_system):
+        stub_as_unit_system.return_value = units.UsOilfield
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
@@ -146,6 +150,37 @@ class TestCreateStageDto(unittest.TestCase):
         actual_call_args = stub_object_factory.CreateStage.call_args
         actual_transformed_connection_type = actual_call_args.args[2]  # transformed connection_type
         assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.PLUG_AND_PERF))
+
+    # create_stage_details = {
+    #     'stage_no': 23,
+    #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+    #     'md_top': 3714.60 * om.registry.m,
+    #     'md_bottom': 3761.62 * om.registry.m,
+    #     'maybe_shmin': 2.27576 * om.registry.psi,
+    #     'cluster_count': 4,
+    # }
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self, stub_object_factory,
+                                                                                 stub_as_unit_system):
+        for magnitude, unit, project_unit_system in [
+            (3714.60, om.registry.m, units.Metric),
+            (3714.60, om.registry.m, units.UsOilfield),
+            (math.nan, om.registry.ft, units.Metric),
+            (math.nan, om.registry.ft, units.UsOilfield),
+        ]:
+            with self.subTest(f'Create stage transformed md_top={(magnitude * unit)} in {project_unit_system.LENGTH}'):
+                stub_as_unit_system.return_value = project_unit_system
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                   {'md_top': 3714.60 * om.registry.m})
+                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+                actual_call_args = stub_object_factory.CreateStage.call_args
+                actual_transformed_md_top = actual_call_args.args[3]  # transformed md_top
+                assert_that(actual_transformed_md_top, equal_to(onq.as_net_quantity(project_unit_system.LENGTH,
+                                                                                    create_stage_details['md_top'])))
 
 
 if __name__ == '__main__':

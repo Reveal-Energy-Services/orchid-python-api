@@ -508,9 +508,10 @@ class CreateStageDto:
             The `NativeStageAdapter` wrapping the created .NET `IStage` instance.
 
         """
-        native_md_top = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_top)
-        native_md_bottom = onq.as_net_quantity(units.UsOilfield.LENGTH, self.md_bottom)
-        native_shmin = (ScriptAdapter.MakeOptionSome(onq.as_net_quantity(units.UsOilfield.PRESSURE,
+        project_unit_system = units.as_unit_system(well.dom_object.Project.UnitSystem)
+        native_md_top = onq.as_net_quantity(project_unit_system.LENGTH, self.md_top)
+        native_md_bottom = onq.as_net_quantity(project_unit_system.LENGTH, self.md_bottom)
+        native_shmin = (ScriptAdapter.MakeOptionSome(onq.as_net_quantity(project_unit_system.PRESSURE,
                                                                          self.maybe_shmin))
                         if self.maybe_shmin is not None
                         else ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]())
