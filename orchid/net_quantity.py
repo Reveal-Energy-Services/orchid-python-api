@@ -19,9 +19,10 @@
 instances of .NET classes like `UnitsNet.Quantity` and `DateTime`."""
 
 from functools import singledispatch
+import math
 from numbers import Real
 import operator
-from typing import Union
+from typing import Optional, Union
 
 import option
 import toolz.curried as toolz
@@ -311,7 +312,7 @@ def as_measurement_from_option(target_unit: Union[units.Common, units.Metric, un
 
 @singledispatch
 @toolz.curry
-def as_net_quantity(unknown, _measurement: om.Quantity) -> UnitsNet.IQuantity:
+def as_net_quantity(unknown, _measurement: om.Quantity) -> Optional[UnitsNet.IQuantity]:
     """
     Convert a .NET UnitsNet.IQuantity to a `pint` `Quantity` instance.
 
@@ -374,7 +375,8 @@ _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS = {
 # noinspection PyUnresolvedReferences
 @as_net_quantity.register(opq.PhysicalQuantity)
 @toolz.curry
-def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Quantity) -> UnitsNet.IQuantity:
+def as_net_quantity_using_physical_quantity(physical_quantity,
+                                            measurement: om.Quantity) -> Optional[UnitsNet.IQuantity]:
     """
     Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance.
 
@@ -388,6 +390,9 @@ def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Q
     Returns:
         The equivalent `UnitsNet.IQuantity` instance.
     """
+    if math.isnan(measurement.magnitude):
+        return None
+
     quantity = UnitsNet.QuantityValue.op_Implicit(measurement.magnitude)
     if physical_quantity == opq.PhysicalQuantity.DENSITY:
         return toolz.get_in([physical_quantity, measurement.units], _PHYSICAL_QUANTITY_PINT_UNIT_NET_UNITS)(quantity)
@@ -405,7 +410,7 @@ def as_net_quantity_using_physical_quantity(physical_quantity, measurement: om.Q
 # noinspection PyUnresolvedReferences
 @as_net_quantity.register(units.Common)
 @toolz.curry
-def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
+def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity) -> Optional[UnitsNet.IQuantity]:
     """
     Convert a `Quantity` instance to a .NET `UnitsNet.IQuantity` instance corresponding `to_unit`.
 
@@ -424,7 +429,7 @@ def as_net_quantity_using_common_units(to_common_unit, measurement: om.Quantity)
 @as_net_quantity.register(units.Metric)
 @as_net_quantity.register(units.UsOilfield)
 @toolz.curry
-def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) -> UnitsNet.IQuantity:
+def as_net_quantity_in_specified_unit(specified_unit, measurement: om.Quantity) -> Optional[UnitsNet.IQuantity]:
     """
     Convert a `pint` `Quantity` to a .NET UnitsNet.IQuantity instance in a specified, but compatible unit.
 
