@@ -27,7 +27,6 @@ from orchid import (
     measurement as om,
     native_stage_adapter as nsa,
     native_well_adapter as nwa,
-    net_quantity as onq,
     unit_system as units,
 )
 
@@ -45,7 +44,9 @@ import UnitsNet
 
 
 # Test ideas
-# - create_stage calls object factory CreateStage with correct arguments
+# - create_stage calls object factory CreateStage with correct arguments all specified
+# - create_stage calls object factory CreateStage with correct arguments without cluster_count
+# - create_stage calls object factory CreateStage with correct arguments without shmin
 class TestCreateStageDto(unittest.TestCase):
     DONT_CARE_STAGE_DETAILS = {
             'stage_no': 22,
@@ -101,6 +102,7 @@ class TestCreateStageDto(unittest.TestCase):
                            pattern=f'Expected maybe_shmin to be a pressure if not None.'
                                    f' Found {172.8 * om.registry.ft:~P}'))
 
+    # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_once(self, stub_object_factory, stub_as_unit_system):
@@ -112,6 +114,7 @@ class TestCreateStageDto(unittest.TestCase):
 
         stub_object_factory.CreateStage.assert_called_once()
 
+    # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self, stub_object_factory,
@@ -126,6 +129,7 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_stage_number = actual_call_args.args[0]  # transformed stage_no
         assert_that(actual_transformed_stage_number, equal_to(System.UInt32(22)))
 
+    # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self, stub_object_factory,
@@ -140,6 +144,7 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_well = actual_call_args.args[1]  # well_object
         assert_that(actual_transformed_well, equal_to(stub_net_well))
 
+    # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self, stub_object_factory,
@@ -155,6 +160,7 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_connection_type = actual_call_args.args[2]  # transformed connection_type
         assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.PLUG_AND_PERF))
 
+    # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self, stub_object_factory,
@@ -188,6 +194,7 @@ class TestCreateStageDto(unittest.TestCase):
     #     'maybe_shmin': 2.27576 * om.registry.psi,
     #     'cluster_count': 4,
     # }
+    # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self, stub_object_factory,
