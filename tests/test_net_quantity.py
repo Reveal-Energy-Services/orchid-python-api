@@ -16,9 +16,10 @@
 #
 
 import decimal
+import math
 import unittest
 
-from hamcrest import assert_that, equal_to, close_to
+from hamcrest import assert_that, equal_to, close_to, is_, none
 import option
 
 from orchid import (
@@ -485,6 +486,16 @@ class TestNetQuantity(unittest.TestCase):
                     assert_that_net_power_quantities_close_to(actual, expected_net_quantity, tolerance)
                 else:
                     tcm.assert_that_net_quantities_close_to(actual, expected_net_quantity, tolerance)
+
+    def test_as_net_quantity_measurement_has_nan_magnitude_returns_none(self):
+        for to_convert, convert_to in [
+            (math.nan * om.registry.J, units.Metric.ENERGY),
+            (math.nan * om.registry.hp, opq.PhysicalQuantity.POWER),
+            (math.nan * om.registry.m, units.UsOilfield.LENGTH)
+        ]:
+            with self.subTest(f'as_net_measurement({convert_to}, {to_convert})'):
+                optional_net_quantity = onq.as_net_quantity(convert_to, to_convert)
+                assert_that(optional_net_quantity, is_(none()))
 
 
 if __name__ == '__main__':
