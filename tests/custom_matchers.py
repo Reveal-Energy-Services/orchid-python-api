@@ -71,6 +71,9 @@ def assert_that_measurement_is_nan(actual, expected_unit, reason=''):
 
 
 def assert_that_net_quantities_close_to(actual, expected, tolerance=None, reason=''):
+    if actual is None:
+        return expected is None
+
     assert_that(get_net_unit(actual), equal_to(get_net_unit(expected)))
     _assert_magnitudes_close_to(actual.Value, expected.Value, tolerance, reason)
 

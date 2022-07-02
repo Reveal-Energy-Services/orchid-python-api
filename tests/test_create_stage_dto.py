@@ -16,6 +16,7 @@
 #
 
 
+import decimal
 import math
 import unittest
 
@@ -31,6 +32,7 @@ from orchid import (
 )
 
 from tests import (
+    custom_matchers as tcm,
     stub_net as tsn,
 )
 
@@ -38,6 +40,8 @@ from tests import (
 from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
 import System
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 
 # Test ideas
@@ -151,30 +155,30 @@ class TestCreateStageDto(unittest.TestCase):
         actual_transformed_connection_type = actual_call_args.args[2]  # transformed connection_type
         assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.PLUG_AND_PERF))
 
-    @unittest.skip('Incorrect handling of NaN')
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self, stub_object_factory,
                                                                                  stub_as_unit_system):
-        for magnitude, unit, project_unit_system in [
-            (3714.60, om.registry.m, units.Metric),
-            (3714.60, om.registry.m, units.UsOilfield),
-            (math.nan, om.registry.ft, units.Metric),
-            (math.nan, om.registry.ft, units.UsOilfield),
+        for source, project_unit_system, expected in [
+            (3714.60 * om.registry.m, units.Metric,
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(3714.60))),
+            (3714.60 * om.registry.m,
+             units.UsOilfield, UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(12187.00))),
+            (math.nan * om.registry.ft, units.Metric, None),
+            (math.nan * om.registry.ft, units.UsOilfield, None),
         ]:
-            with self.subTest(f'Create stage transformed md_top={(magnitude * unit)}'
+            with self.subTest(f'Create stage transformed md_top={source}'
                               f' in {project_unit_system.LENGTH}'):
                 stub_as_unit_system.return_value = project_unit_system
                 stub_net_well = tsn.WellDto().create_net_stub()
                 stub_well = nwa.NativeWellAdapter(stub_net_well)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_top': magnitude * unit})
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_top': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
                 actual_call_args = stub_object_factory.CreateStage.call_args
                 actual_transformed_md_top = actual_call_args.args[3]  # transformed md_top
-                assert_that(actual_transformed_md_top,
-                            equal_to(onq.as_net_quantity(project_unit_system.LENGTH,
-                                                         create_stage_details['md_top'])))
+                tcm.assert_that_net_quantities_close_to(actual_transformed_md_top, expected,
+                                                        tolerance=decimal.Decimal('0.01'))
 
     # create_stage_details = {
     #     'stage_no': 23,
@@ -184,30 +188,30 @@ class TestCreateStageDto(unittest.TestCase):
     #     'maybe_shmin': 2.27576 * om.registry.psi,
     #     'cluster_count': 4,
     # }
-    @unittest.skip('Incorrect handling of NaN and md_bottom')
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self, stub_object_factory,
                                                                                     stub_as_unit_system):
-        for magnitude, unit, project_unit_system in [
-            (16329.7, om.registry.ft, units.Metric),
-            (16329.7, om.registry.ft, units.UsOilfield),
-            (math.nan, om.registry.m, units.Metric),
-            (math.nan, om.registry.m, units.UsOilfield),
+        for source, project_unit_system, expected in [
+            (16329.7 * om.registry.ft, units.Metric,
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(4977.29))),
+            (16329.7 * om.registry.ft,
+             units.UsOilfield, UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(16329.7))),
+            (math.nan * om.registry.m, units.Metric, None),
+            (math.nan * om.registry.m, units.UsOilfield, None),
         ]:
-            with self.subTest(f'Create stage transformed md_bottom={(magnitude * unit)}'
+            with self.subTest(f'Create stage transformed md_bottom={source}'
                               f' in {project_unit_system.LENGTH}'):
                 stub_as_unit_system.return_value = project_unit_system
                 stub_net_well = tsn.WellDto().create_net_stub()
                 stub_well = nwa.NativeWellAdapter(stub_net_well)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_bottom': magnitude * unit})
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_bottom': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
                 actual_call_args = stub_object_factory.CreateStage.call_args
-                actual_transformed_md_bottom = actual_call_args.args[3]  # transformed md_bottom
-                assert_that(actual_transformed_md_bottom,
-                            equal_to(onq.as_net_quantity(project_unit_system.LENGTH,
-                                                         create_stage_details['md_bottom'])))
+                actual_transformed_md_bottom = actual_call_args.args[4]  # transformed md_bottom
+                tcm.assert_that_net_quantities_close_to(actual_transformed_md_bottom, expected,
+                                                        tolerance=decimal.Decimal('0.01'))
 
 
 if __name__ == '__main__':
