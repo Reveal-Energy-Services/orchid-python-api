@@ -57,7 +57,14 @@ def assert_transformed_net_quantities_close_to(stub_object_factory, actual_argum
     tcm.assert_that_net_quantities_close_to(actual_transformed_md_top, expected, tolerance=tolerance)
 
 
-def create_stub_well(stub_as_unit_system, stub_unit_system):
+def create_stub_well(stub_as_unit_system, stub_object_factory, stub_unit_system):
+    stub_net_stage_part = tsn.StagePartDto().create_net_stub()
+    stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
+
+    stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
+    stub_net_stage = tsn.StageDto().create_net_stub()
+    stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
+    stub_object_factory.CreateStage.return_value = stub_net_stage
     stub_as_unit_system.return_value = stub_unit_system
     stub_net_well = tsn.WellDto().create_net_stub()
     stub_well = nwa.NativeWellAdapter(stub_net_well)
@@ -135,8 +142,12 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_once(self, stub_object_factory, stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, units.Metric)
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_once(self,
+                                                              stub_make_stage_part_list,
+                                                              stub_object_factory,
+                                                              stub_as_unit_system):
+        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.Metric)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -145,9 +156,12 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self,
+                                                                                   stub_make_stage_part_list,
+                                                                                   stub_object_factory,
                                                                                    stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, units.UsOilfield)
+        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'stage_no': 23})
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -157,8 +171,19 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self,
+                                                                              stub_make_stage_part_list,
+                                                                              stub_object_factory,
                                                                               stub_as_unit_system):
+        stub_net_stage_part = tsn.StagePartDto().create_net_stub()
+        stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
+
+        stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
+        stub_object_factory.CreateStage.return_value = stub_net_stage
+
         stub_as_unit_system.return_value = units.Metric
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
@@ -171,9 +196,12 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self,
+                                                                                          stub_make_stage_part_list,
+                                                                                          stub_object_factory,
                                                                                           stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, units.UsOilfield)
+        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                            {'connection_type': nsa.ConnectionType.PLUG_AND_PERF})
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
@@ -184,7 +212,10 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self,
+                                                                                 stub_make_stage_part_list,
+                                                                                 stub_object_factory,
                                                                                  stub_as_unit_system):
         for source, project_unit_system, expected in [
             (3714.60 * om.registry.m, units.Metric,
@@ -196,7 +227,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed md_top={source}'
                               f' in {project_unit_system.LENGTH}'):
-                stub_well = create_stub_well(stub_as_unit_system, project_unit_system)
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_top': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -207,7 +238,10 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self,
+                                                                                    stub_make_stage_part_list,
+                                                                                    stub_object_factory,
                                                                                     stub_as_unit_system):
         for source, project_unit_system, expected in [
             (16329.7 * om.registry.ft, units.Metric,
@@ -219,7 +253,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed md_bottom={source}'
                               f' in {project_unit_system.LENGTH}'):
-                stub_well = create_stub_well(stub_as_unit_system, project_unit_system)
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_bottom': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -230,9 +264,12 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_supplied_cluster_count(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_supplied_cluster_count(self,
+                                                                                     stub_make_stage_part_list,
+                                                                                     stub_object_factory,
                                                                                      stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, units.UsOilfield)
+        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'cluster_count': 4})
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -241,7 +278,10 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_shmin(self, stub_object_factory,
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_shmin(self,
+                                                                                stub_make_stage_part_list,
+                                                                                stub_object_factory,
                                                                                 stub_as_unit_system):
         for source, project_unit_system, expected, tolerance in [
             (2.27576 * om.registry.psi, units.UsOilfield,
@@ -253,7 +293,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed shmin={source}'
                               f' in {project_unit_system.PRESSURE}'):
-                stub_well = create_stub_well(stub_as_unit_system, project_unit_system)
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -273,15 +313,18 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_nan_shmin(
-            self, stub_object_factory, stub_as_unit_system):
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_nan_shmin(self,
+                                                                                    stub_make_stage_part_list,
+                                                                                    stub_object_factory,
+                                                                                    stub_as_unit_system):
         for source, project_unit_system in [
             (math.nan * om.registry.kPa, units.Metric),
             (math.nan * om.registry.kPa, units.UsOilfield),
         ]:
             with self.subTest(f'Create stage transformed nan shmin={source}'
                               f' in {project_unit_system.PRESSURE}'):
-                stub_well = create_stub_well(stub_as_unit_system, project_unit_system)
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -297,25 +340,29 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                           stub_make_stage_part_list,
                                                                                           stub_object_factory,
                                                                                           stub_as_unit_system):
-        stub_net_stage_part = tsn.StagePartDto().create_net_stub()
-        stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
+        for actual_time_range, expected_start_time in [
+            (pdt.parse('2019-12-29T12:35:15/2019-12-29T14:38:55', tz='UTC'),
+             make_net_date_time(2019, 12, 29, 12, 35, 15)),
+        ]:
+            with self.subTest(f'Actual time range={actual_time_range}, expected start time={expected_start_time}'):
+                stub_net_stage_part = tsn.StagePartDto().create_net_stub()
+                stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
 
-        stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage = tsn.StageDto().create_net_stub()
-        stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
-        stub_object_factory.CreateStage.return_value = stub_net_stage
+                stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
+                stub_net_stage = tsn.StageDto().create_net_stub()
+                stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
+                stub_object_factory.CreateStage.return_value = stub_net_stage
 
-        stub_well = create_stub_well(stub_as_unit_system, units.UsOilfield)
-        create_stage_details = toolz.merge(
-            self.DONT_CARE_STAGE_DETAILS,
-            {'maybe_time_range': pdt.parse('2019-12-29T12:35:15/2019-12-29T14:38:55', tz='UTC')})
-        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                   {'maybe_time_range': actual_time_range})
+                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
-        # transformed time range of stage part
-        expected = make_net_date_time(2019, 12, 29, 12, 35, 15)
-        actual_call_args = stub_object_factory.CreateStagePart.call_args
-        actual_transformed_maybe_time_range_start = actual_call_args.args[1]
-        assert_that(actual_transformed_maybe_time_range_start, tcm.equal_to_net_date_time(expected))
+                # transformed time range of stage part
+                actual_call_args = stub_object_factory.CreateStagePart.call_args
+                actual_transformed_maybe_time_range_start = actual_call_args.args[1]
+                assert_that(actual_transformed_maybe_time_range_start,
+                            tcm.equal_to_net_date_time(expected_start_time))
 
 
 if __name__ == '__main__':
