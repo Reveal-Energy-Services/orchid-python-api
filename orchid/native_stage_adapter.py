@@ -45,13 +45,15 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import FormationConnectionType
+from Orchid.FractureDiagnostics import FormationConnectionType, IStagePart
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
 # noinspection PyUnresolvedReferences
 import UnitsNet
+# noinspection PyUnresolvedReferences
+from System.Collections.Generic import List
 # noinspection PyUnresolvedReferences
 import System
 
@@ -60,6 +62,19 @@ VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit sys
 
 
 _object_factory = fdf.create()
+
+
+def _make_stage_part_list():
+    """
+    Make an empty .NET `IList<IStagePart>`.
+
+    This method exists primarily so that unit tests can mock the "created" value.
+
+    Returns:
+        An empty .NET `IList<IStagePart>` instance.
+    """
+    result = List[IStagePart]()
+    return result
 
 
 class ConnectionType(IntEnum):
@@ -466,9 +481,6 @@ class CreateStageDto:
     md_bottom: om.Quantity  # Must be length
 
     cluster_count: int = 0  # Must be non-negative
-    # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
-    # the project saved with the added stages.
-    maybe_isip: Optional[om.Quantity] = None  # If not `None`, must be a pressure
     maybe_shmin: Optional[om.Quantity] = None  # If not `None`, must be pressure
     # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
     # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
@@ -477,6 +489,9 @@ class CreateStageDto:
     #
     # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
     maybe_time_range: Optional[pdt.Period] = None
+    # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
+    # the project saved with the added stages.
+    maybe_isip: Optional[om.Quantity] = None  # If not `None`, must be a pressure
 
     order_of_completion_on_well = property(fget=lambda self: self.stage_no - 1)
 
@@ -528,4 +543,28 @@ class CreateStageDto:
             native_shmin,
             System.UInt32(self.cluster_count)
         )
+
+        with dnd.disposable(no_time_range_native_stage.ToMutable()) as mutable_stage:
+            native_start_time = (ndt.as_net_date_time(self.maybe_time_range.start)
+                                 if self.maybe_time_range is not None
+                                 else pdt.DateTime.max)
+            native_stop_time = (ndt.as_net_date_time(self.maybe_time_range.end)
+                                if self.maybe_time_range is not None
+                                else pdt.DateTime.max)
+            if self.maybe_isip is None:
+                native_isip = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+            elif math.isnan(self.maybe_isip.magnitude):
+                native_isip = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+            else:
+                native_isip = ScriptAdapter.MakeOptionSome(
+                    onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_isip))
+
+            stage_part = _object_factory.CreateStagePart(no_time_range_native_stage,
+                                                         native_start_time,
+                                                         native_stop_time,
+                                                         native_isip)
+            stage_parts = _make_stage_part_list()
+            stage_parts.Add(stage_part)
+            mutable_stage.Parts = stage_parts
+
         return NativeStageAdapter(no_time_range_native_stage)
