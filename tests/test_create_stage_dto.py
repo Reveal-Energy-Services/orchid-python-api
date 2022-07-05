@@ -215,14 +215,6 @@ class TestCreateStageDto(unittest.TestCase):
                 tcm.assert_that_net_quantities_close_to(actual_transformed_md_bottom, expected,
                                                         tolerance=decimal.Decimal('0.01'))
 
-    # create_stage_details = {
-    #     'stage_no': 23,
-    #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
-    #     'md_top': 3714.60 * om.registry.m,
-    #     'md_bottom': 3761.62 * om.registry.m,
-    #     'maybe_shmin': 2.27576 * om.registry.psi,
-    #     'cluster_count': 4,
-    # }
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
@@ -235,10 +227,8 @@ class TestCreateStageDto(unittest.TestCase):
             (2.27576 * om.registry.psi,
              units.Metric, UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(15.6908)),
              decimal.Decimal('0.0001')),
-            # (math.nan * om.registry.m, units.Metric, None),
-            # (math.nan * om.registry.m, units.UsOilfield, None),
         ]:
-            with self.subTest(f'Create stage transformed md_bottom={source}'
+            with self.subTest(f'Create stage transformed shmin={source}'
                               f' in {project_unit_system.PRESSURE}'):
                 stub_as_unit_system.return_value = project_unit_system
                 stub_net_well = tsn.WellDto().create_net_stub()
@@ -258,6 +248,35 @@ class TestCreateStageDto(unittest.TestCase):
                 actual_transformed_shmin.Match(
                     System.Action[UnitsNet.Pressure](assert_actual_close_to),
                     System.Action(assert_actual_not_none))
+
+    # create_stage_details = {
+    #     'stage_no': 23,
+    #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+    #     'md_top': 3714.60 * om.registry.m,
+    #     'md_bottom': 3761.62 * om.registry.m,
+    #     'maybe_shmin': 2.27576 * om.registry.psi,
+    #     'cluster_count': 4,
+    # }
+    # noinspection PyUnresolvedReferences
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_nan_shmin(
+            self, stub_object_factory, stub_as_unit_system):
+        for source, project_unit_system in [
+            (math.nan * om.registry.kPa, units.Metric),
+            (math.nan * om.registry.kPa, units.UsOilfield),
+        ]:
+            with self.subTest(f'Create stage transformed nan shmin={source}'
+                              f' in {project_unit_system.PRESSURE}'):
+                stub_as_unit_system.return_value = project_unit_system
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
+                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+                actual_call_args = stub_object_factory.CreateStage.call_args
+                actual_transformed_shmin = actual_call_args.args[5]  # transformed shmin
+                assert_that(actual_transformed_shmin.HasValue, equal_to(False))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')

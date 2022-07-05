@@ -18,6 +18,7 @@
 
 import dataclasses as dc
 from enum import IntEnum
+import math
 from typing import Optional, Tuple, Union
 
 import deal
@@ -511,10 +512,13 @@ class CreateStageDto:
         project_unit_system = units.as_unit_system(well.dom_object.Project.ProjectUnits)
         native_md_top = onq.as_net_quantity(project_unit_system.LENGTH, self.md_top)
         native_md_bottom = onq.as_net_quantity(project_unit_system.LENGTH, self.md_bottom)
-        native_shmin = (ScriptAdapter.MakeOptionSome(onq.as_net_quantity(project_unit_system.PRESSURE,
-                                                                         self.maybe_shmin))
-                        if self.maybe_shmin is not None
-                        else ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]())
+        if self.maybe_shmin is None:
+            native_shmin = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+        elif math.isnan(self.maybe_shmin.magnitude):
+            native_shmin = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+        else:
+            native_shmin = ScriptAdapter.MakeOptionSome(
+                onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_shmin))
         no_time_range_native_stage = _object_factory.CreateStage(
             System.UInt32(self.order_of_completion_on_well),
             well.dom_object,
