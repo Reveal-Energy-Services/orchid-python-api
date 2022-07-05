@@ -20,7 +20,7 @@ import decimal
 import math
 import unittest
 
-from hamcrest import assert_that, equal_to, calling, raises, is_, not_none
+from hamcrest import assert_that, equal_to, calling, raises
 import toolz.curried as toolz
 
 from orchid import (
@@ -218,6 +218,21 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    def test_dto_create_stage_calls_factory_create_stage_with_supplied_cluster_count(self, stub_object_factory,
+                                                                                     stub_as_unit_system):
+        stub_as_unit_system.return_value = units.UsOilfield
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'cluster_count': 4})
+        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+        actual_call_args = stub_object_factory.CreateStage.call_args
+        actual_transformed_cluster_count = actual_call_args.args[6]  # transformed cluster_count
+        assert_that(actual_transformed_cluster_count, equal_to(System.UInt32(4)))
+
+    # noinspection PyUnresolvedReferences
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_shmin(self, stub_object_factory,
                                                                                 stub_as_unit_system):
         for source, project_unit_system, expected, tolerance in [
@@ -249,14 +264,6 @@ class TestCreateStageDto(unittest.TestCase):
                     System.Action[UnitsNet.Pressure](assert_actual_close_to),
                     System.Action(assert_actual_not_none))
 
-    # create_stage_details = {
-    #     'stage_no': 23,
-    #     'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
-    #     'md_top': 3714.60 * om.registry.m,
-    #     'md_bottom': 3761.62 * om.registry.m,
-    #     'maybe_shmin': 2.27576 * om.registry.psi,
-    #     'cluster_count': 4,
-    # }
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
@@ -277,21 +284,6 @@ class TestCreateStageDto(unittest.TestCase):
                 actual_call_args = stub_object_factory.CreateStage.call_args
                 actual_transformed_shmin = actual_call_args.args[5]  # transformed shmin
                 assert_that(actual_transformed_shmin.HasValue, equal_to(False))
-
-    # noinspection PyUnresolvedReferences
-    @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    def test_dto_create_stage_calls_factory_create_stage_with_supplied_cluster_count(self, stub_object_factory,
-                                                                                     stub_as_unit_system):
-        stub_as_unit_system.return_value = units.UsOilfield
-        stub_net_well = tsn.WellDto().create_net_stub()
-        stub_well = nwa.NativeWellAdapter(stub_net_well)
-        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'cluster_count': 4})
-        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
-
-        actual_call_args = stub_object_factory.CreateStage.call_args
-        actual_transformed_cluster_count = actual_call_args.args[6]  # transformed cluster_count
-        assert_that(actual_transformed_cluster_count, equal_to(System.UInt32(4)))
 
 
 if __name__ == '__main__':
