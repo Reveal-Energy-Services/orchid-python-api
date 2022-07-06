@@ -19,6 +19,7 @@
 import decimal
 import math
 import unittest
+import unittest.mock
 
 from hamcrest import assert_that, equal_to, calling, raises
 import pendulum as pdt
@@ -345,14 +346,6 @@ class TestCreateStageDto(unittest.TestCase):
              make_net_date_time(2019, 12, 29, 12, 35, 15)),
         ]:
             with self.subTest(f'Actual time range={actual_time_range}, expected start time={expected_start_time}'):
-                stub_net_stage_part = tsn.StagePartDto().create_net_stub()
-                stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
-
-                stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
-                stub_net_stage = tsn.StageDto().create_net_stub()
-                stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
-                stub_object_factory.CreateStage.return_value = stub_net_stage
-
                 stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                    {'maybe_time_range': actual_time_range})
@@ -363,6 +356,30 @@ class TestCreateStageDto(unittest.TestCase):
                 actual_transformed_maybe_time_range_start = actual_call_args.args[1]
                 assert_that(actual_transformed_maybe_time_range_start,
                             tcm.equal_to_net_date_time(expected_start_time))
+
+    # noinspection PyUnresolvedReferences
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_stop_time(self,
+                                                                                         stub_make_stage_part_list,
+                                                                                         stub_object_factory,
+                                                                                         stub_as_unit_system):
+        for actual_time_range, expected_stop_time in [
+            (pdt.parse('2019-12-29T12:35:15/2019-12-29T14:38:55', tz='UTC'),
+             make_net_date_time(2019, 12, 29, 14, 38, 55)),
+        ]:
+            with self.subTest(f'Actual time range={actual_time_range}, expected stop time={expected_stop_time}'):
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                   {'maybe_time_range': actual_time_range})
+                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+                # transformed time range of stage part
+                actual_call_args = stub_object_factory.CreateStagePart.call_args
+                actual_transformed_maybe_time_range_start = actual_call_args.args[2]
+                assert_that(actual_transformed_maybe_time_range_start,
+                            tcm.equal_to_net_date_time(expected_stop_time))
 
 
 if __name__ == '__main__':
