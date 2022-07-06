@@ -58,7 +58,7 @@ def assert_transformed_net_quantities_close_to(stub_object_factory, actual_argum
     tcm.assert_that_net_quantities_close_to(actual_transformed_md_top, expected, tolerance=tolerance)
 
 
-def create_stub_well(stub_as_unit_system, stub_object_factory, stub_unit_system):
+def create_stub_well_obs(stub_as_unit_system, stub_object_factory, stub_unit_system):
     stub_net_stage_part = tsn.StagePartDto().create_net_stub()
     stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
 
@@ -148,7 +148,7 @@ class TestCreateStageDto(unittest.TestCase):
                                                               stub_add_stage_part_to_stage,
                                                               stub_object_factory,
                                                               stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.Metric)
+        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.Metric)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -162,7 +162,7 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                    stub_add_stage_part_to_stage,
                                                                                    stub_object_factory,
                                                                                    stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'stage_no': 23})
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -177,7 +177,7 @@ class TestCreateStageDto(unittest.TestCase):
                                                                               stub_add_stage_part_to_stage,
                                                                               stub_object_factory,
                                                                               stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.Metric)
+        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.Metric)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -195,7 +195,7 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                           stub_add_stage_part_to_stage,
                                                                                           stub_object_factory,
                                                                                           stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                            {'connection_type': nsa.ConnectionType.PLUG_AND_PERF})
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
@@ -221,7 +221,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed md_top={source}'
                               f' in {project_unit_system.LENGTH}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_top': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -247,7 +247,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed md_bottom={source}'
                               f' in {project_unit_system.LENGTH}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_bottom': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -263,7 +263,7 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                      stub_add_stage_part_to_stage,
                                                                                      stub_object_factory,
                                                                                      stub_as_unit_system):
-        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
         create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'cluster_count': 4})
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -287,7 +287,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed shmin={source}'
                               f' in {project_unit_system.PRESSURE}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -318,7 +318,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'Create stage transformed nan shmin={source}'
                               f' in {project_unit_system.PRESSURE}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
@@ -339,7 +339,7 @@ class TestCreateStageDto(unittest.TestCase):
              make_net_date_time(2019, 12, 29, 12, 35, 15)),
         ]:
             with self.subTest(f'Actual time range={actual_time_range}, expected start time={expected_start_time}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                    {'maybe_time_range': actual_time_range})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
@@ -363,7 +363,7 @@ class TestCreateStageDto(unittest.TestCase):
              make_net_date_time(2019, 12, 29, 14, 38, 55)),
         ]:
             with self.subTest(f'Actual time range={actual_time_range}, expected stop time={expected_stop_time}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.UsOilfield)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                    {'maybe_time_range': actual_time_range})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
@@ -391,7 +391,7 @@ class TestCreateStageDto(unittest.TestCase):
              decimal.Decimal('0.1')),
         ]:
             with self.subTest(f'{actual_isip=:~P}, {project_unit_system=}, {expected_isip.ToString()}'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                    {'maybe_isip': actual_isip})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
@@ -420,7 +420,7 @@ class TestCreateStageDto(unittest.TestCase):
         ]:
             with self.subTest(f'actual_isip={actual_isip if actual_isip is not None else "None"},'
                               f' {project_unit_system=}, expected_isip=None'):
-                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
                 create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
                                                    {'maybe_isip': actual_isip})
                 nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
