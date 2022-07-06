@@ -142,22 +142,29 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
-    def test_dto_create_stage_calls_factory_create_stage_once(self,
-                                                              stub_add_stage_part_to_stage,
-                                                              stub_object_factory,
-                                                              stub_as_unit_system):
-        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.Metric)
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
+    def test_dto_create_stage_calls_create_net_stage_once(self,
+                                                          stub_add_stage_part_to_stage,
+                                                          stub_create_net_stage_part,
+                                                          stub_create_net_stage,
+                                                          stub_as_unit_system):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.ToMutable = tsn.MutableStageDto().create_net_stub()
+        stub_create_net_stage.return_value = stub_net_stage
+        stub_as_unit_system.return_value = units.Metric
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
-        stub_object_factory.CreateStage.assert_called_once()
+        stub_create_net_stage.assert_called_once()
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_stage_no(self,
                                                                                    stub_add_stage_part_to_stage,
                                                                                    stub_object_factory,
@@ -172,7 +179,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self,
                                                                               stub_add_stage_part_to_stage,
                                                                               stub_object_factory,
@@ -190,7 +197,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self,
                                                                                           stub_add_stage_part_to_stage,
                                                                                           stub_object_factory,
@@ -206,7 +213,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self,
                                                                                  stub_add_stage_part_to_stage,
                                                                                  stub_object_factory,
@@ -232,7 +239,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self,
                                                                                     stub_add_stage_part_to_stage,
                                                                                     stub_object_factory,
@@ -258,7 +265,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_supplied_cluster_count(self,
                                                                                      stub_add_stage_part_to_stage,
                                                                                      stub_object_factory,
@@ -272,7 +279,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_shmin(self,
                                                                                 stub_add_stage_part_to_stage,
                                                                                 stub_object_factory,
@@ -307,7 +314,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_nan_shmin(self,
                                                                                     stub_add_stage_part_to_stage,
                                                                                     stub_object_factory,
@@ -329,7 +336,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_start_time(self,
                                                                                           stub_add_stage_part_to_stage,
                                                                                           stub_object_factory,
@@ -353,7 +360,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_stop_time(self,
                                                                                          stub_add_stage_part_to_stage,
                                                                                          stub_object_factory,
@@ -377,7 +384,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_some_isip(self,
                                                                                          stub_add_stage_part_to_stage,
                                                                                          stub_object_factory,
@@ -407,7 +414,7 @@ class TestCreateStageDto(unittest.TestCase):
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_none_isip(self,
                                                                                          stub_add_stage_part_to_stage,
                                                                                          stub_object_factory,
@@ -435,7 +442,7 @@ class TestCreateStageDto(unittest.TestCase):
     @unittest.skip('Refactoring other tests')
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
-    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_created_stage_part_to_created_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_adds_created_stage_part_to_created_stage_parts_list(self,
                                                                                   stub_add_stage_part_to_stage,
                                                                                   stub_object_factory,
