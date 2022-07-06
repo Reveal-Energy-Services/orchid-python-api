@@ -177,22 +177,15 @@ class TestCreateStageDto(unittest.TestCase):
                                                                               stub_make_stage_part_list,
                                                                               stub_object_factory,
                                                                               stub_as_unit_system):
-        stub_net_stage_part = tsn.StagePartDto().create_net_stub()
-        stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
-
-        stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage = tsn.StageDto().create_net_stub()
-        stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
-        stub_object_factory.CreateStage.return_value = stub_net_stage
-
-        stub_as_unit_system.return_value = units.Metric
-        stub_net_well = tsn.WellDto().create_net_stub()
-        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, units.Metric)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
         # well_object
-        assert_transformed_argument_equals_expected(stub_object_factory, 1, stub_net_well)
+        # TODO: Uncertain if querying `dom_object` on `stub_well` is best choice
+        # But I do not think I want to add a `stub_net_well` argument to `create_stub_well` is
+        # a better choice.
+        assert_transformed_argument_equals_expected(stub_object_factory, 1, stub_well.dom_object)
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
