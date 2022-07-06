@@ -552,12 +552,11 @@ class CreateStageDto:
                                 if self.maybe_time_range is not None
                                 else pdt.DateTime.max)
             if self.maybe_isip is None:
-                native_isip = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+                native_isip = None
             elif math.isnan(self.maybe_isip.magnitude):
-                native_isip = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+                native_isip = None
             else:
-                native_isip = ScriptAdapter.MakeOptionSome(
-                    onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_isip))
+                native_isip = onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_isip)
 
             stage_part = _object_factory.CreateStagePart(no_time_range_native_stage,
                                                          native_start_time,
