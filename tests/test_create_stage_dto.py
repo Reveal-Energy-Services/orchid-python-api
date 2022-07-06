@@ -163,21 +163,26 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
-    def test_dto_create_stage_calls_factory_create_stage_with_well_dom_object(self,
-                                                                              stub_add_stage_part_to_stage,
-                                                                              stub_object_factory,
-                                                                              stub_as_unit_system):
-        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.Metric)
+    def test_dto_create_stage_calls_create_net_stage_once(self,
+                                                          stub_add_stage_part_to_stage,
+                                                          stub_create_net_stage_part,
+                                                          stub_create_net_stage,
+                                                          stub_as_unit_system):
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.ToMutable = tsn.MutableStageDto().create_net_stub()
+        stub_create_net_stage.return_value = stub_net_stage
+        stub_as_unit_system.return_value = units.Metric
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
         create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
         # well_object
-        # TODO: Uncertain if querying `dom_object` on `stub_well` is best choice
-        # But I do not think I want to add a `stub_net_well` argument to `create_stub_well` is
-        # a better choice.
-        assert_transformed_argument_equals_expected_obs(stub_object_factory, 1, stub_well.dom_object)
+        actual_net_well = stub_create_net_stage.call_args.args[0]
+        assert_that(actual_net_well, equal_to(stub_net_well))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
