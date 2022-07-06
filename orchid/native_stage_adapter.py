@@ -64,19 +64,6 @@ VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit sys
 _object_factory = fdf.create()
 
 
-def _make_stage_part_list():
-    """
-    Make an empty .NET `IList<IStagePart>`.
-
-    This method exists primarily so that unit tests can mock the "created" value.
-
-    Returns:
-        An empty .NET `IList<IStagePart>` instance.
-    """
-    result = List[IStagePart]()
-    return result
-
-
 class ConnectionType(IntEnum):
     PLUG_AND_PERF = FormationConnectionType.PlugAndPerf,
     SLIDING_SLEEVE = FormationConnectionType.SlidingSleeve,
@@ -534,15 +521,11 @@ class CreateStageDto:
         else:
             native_shmin = ScriptAdapter.MakeOptionSome(
                 onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_shmin))
-        no_time_range_native_stage = _object_factory.CreateStage(
-            System.UInt32(self.order_of_completion_on_well),
-            well.dom_object,
-            self.connection_type.value,
-            native_md_top,
-            native_md_bottom,
-            native_shmin,
-            System.UInt32(self.cluster_count)
-        )
+        completion_order_on_well = self.order_of_completion_on_well
+        connection_type = self.connection_type.value
+        cluster_count = self.cluster_count
+        no_time_range_native_stage = self.create_net_stage(well, completion_order_on_well, connection_type,
+                                                           native_md_top, native_md_bottom, native_shmin, cluster_count)
 
         with dnd.disposable(no_time_range_native_stage.ToMutable()) as mutable_stage:
             native_start_time = (ndt.as_net_date_time(self.maybe_time_range.start)
@@ -558,12 +541,78 @@ class CreateStageDto:
             else:
                 native_isip = onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_isip)
 
-            stage_part = _object_factory.CreateStagePart(no_time_range_native_stage,
-                                                         native_start_time,
-                                                         native_stop_time,
-                                                         native_isip)
-            stage_parts = _make_stage_part_list()
-            stage_parts.Add(stage_part)
-            mutable_stage.Parts = stage_parts
+            stage_part = self.create_net_stage_part(no_time_range_native_stage, native_start_time, native_stop_time,
+                                                    native_isip)
+            self.add_created_stage_part_to_created_stage(mutable_stage, stage_part)
 
-        return NativeStageAdapter(no_time_range_native_stage)
+        # Alias to better communicate intent
+        created_native_stage = no_time_range_native_stage
+        return NativeStageAdapter(created_native_stage)
+
+    @staticmethod
+    def create_net_stage(native_well, completion_order_on_well, connection_type, native_md_top, native_md_bottom,
+                         native_shmin, cluster_count):
+        """
+        Create a .NET `IStage`.
+
+        This method primarily exists so that I can mock the call in unit tests.
+
+        Args:
+            native_well: The .NET `IWell` instance to which the created `IStage` refers.
+            completion_order_on_well: The order of completion of this stage of the referenced `IWell`.
+            connection_type: The .NET `FormationConnectionType` of the created .NET stage.
+            native_md_top: The measured depth of the top (toward the heel) of the created .NET stage.
+            native_md_bottom: The measured depth of the bottom (toward the toe) of the created .NET stage.
+            native_shmin: The minimum horizontal stress of the created .NET stage.
+            cluster_count: The cluster count of the created .NET stage.
+
+        Returns:
+            The newly created .NET `IStage` instance.
+        """
+        no_time_range_native_stage = _object_factory.CreateStage(
+            System.UInt32(completion_order_on_well),
+            native_well.dom_object,
+            connection_type,
+            native_md_top,
+            native_md_bottom,
+            native_shmin,
+            System.UInt32(cluster_count)
+        )
+        return no_time_range_native_stage
+
+    @staticmethod
+    def create_net_stage_part(native_stage, native_start_time, native_stop_time, native_isip):
+        """
+        Create . .NET `IStagePart` instance.
+
+        This method primarily exists so that I can mock the call in unit tests.
+
+        Args:
+            native_stage: The .NET `IStage` to which the created `IStagePart` refers.
+            native_start_time: The start time of the created `IStagePart`.
+            native_stop_time: The stop time of the created `IStagePart`.
+            native_isip: The ISIP of the created `IStagePart`.
+
+        Returns:
+            The newly created `IStagePart` with the specified details.
+        """
+        stage_part = _object_factory.CreateStagePart(native_stage,
+                                                     native_start_time,
+                                                     native_stop_time,
+                                                     native_isip)
+        return stage_part
+
+    @staticmethod
+    def add_created_stage_part_to_created_stage(mutable_stage, stage_part):
+        """
+        Add a newly created `stage_part` to a newly created `mutable_stage`.
+
+        This method exists primarily so that I can mock it for unit tests.
+
+        Args:
+            mutable_stage: The newly created stage supporting mutability.
+            stage_part: The newly created stage part.
+        """
+        stage_parts = List[IStagePart]()
+        stage_parts.Add(stage_part)
+        mutable_stage.Parts = stage_parts
