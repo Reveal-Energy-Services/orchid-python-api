@@ -374,6 +374,36 @@ class TestCreateStageDto(unittest.TestCase):
                 assert_that(actual_transformed_maybe_time_range_start,
                             tcm.equal_to_net_date_time(expected_stop_time))
 
+    # noinspection PyUnresolvedReferences
+    @unittest.mock.patch('orchid.unit_system.as_unit_system')
+    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter._make_stage_part_list')
+    def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_isip(self,
+                                                                                    stub_make_stage_part_list,
+                                                                                    stub_object_factory,
+                                                                                    stub_as_unit_system):
+        for actual_isip, project_unit_system, expected_isip, tolerance in [
+            (5082.46 * om.registry.psi, units.UsOilfield,
+             UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(5082.46)),
+             decimal.Decimal('0.01')),
+            (5082.46 * om.registry.psi, units.Metric,
+             UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(35042.4)),
+             decimal.Decimal('0.1')),
+        ]:
+            with self.subTest(f'{actual_isip=:~P}, {project_unit_system=}, {expected_isip.ToString()}'):
+                stub_well = create_stub_well(stub_as_unit_system, stub_object_factory, project_unit_system)
+                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
+                                                   {'maybe_isip': actual_isip})
+                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+
+                # transformed time range of stage part
+                actual_call_args = stub_object_factory.CreateStagePart.call_args
+                actual_transformed_maybe_isip_start = actual_call_args.args[3]
+                assert_that(actual_transformed_maybe_isip_start,
+                            tcm.assert_that_net_quantities_close_to(actual_transformed_maybe_isip_start,
+                                                                    expected_isip,
+                                                                    tolerance))
+
 
 if __name__ == '__main__':
     unittest.main()
