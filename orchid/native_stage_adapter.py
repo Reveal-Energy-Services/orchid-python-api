@@ -524,8 +524,10 @@ class CreateStageDto:
         completion_order_on_well = self.order_of_completion_on_well
         connection_type = self.connection_type.value
         cluster_count = self.cluster_count
-        no_time_range_native_stage = self.create_net_stage(well, completion_order_on_well, connection_type,
-                                                           native_md_top, native_md_bottom, native_shmin, cluster_count)
+        no_time_range_native_stage = self.create_net_stage(well.dom_object, completion_order_on_well,
+                                                           connection_type, native_md_top,
+                                                           native_md_bottom, native_shmin,
+                                                           cluster_count)
 
         with dnd.disposable(no_time_range_native_stage.ToMutable()) as mutable_stage:
             native_start_time = (ndt.as_net_date_time(self.maybe_time_range.start)
@@ -571,7 +573,7 @@ class CreateStageDto:
         """
         no_time_range_native_stage = _object_factory.CreateStage(
             System.UInt32(completion_order_on_well),
-            native_well.dom_object,
+            native_well,
             connection_type,
             native_md_top,
             native_md_bottom,
