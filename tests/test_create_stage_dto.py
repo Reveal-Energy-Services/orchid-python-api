@@ -211,19 +211,26 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_connection_type(self,
                                                                                           stub_add_stage_part_to_stage,
-                                                                                          stub_object_factory,
+                                                                                          stub_create_net_stage_part,
+                                                                                          stub_create_net_stage,
                                                                                           stub_as_unit_system):
-        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
-        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
-                                           {'connection_type': nsa.ConnectionType.PLUG_AND_PERF})
+        stub_net_stage = tsn.StageDto().create_net_stub()
+        stub_net_stage.ToMutable = tsn.MutableStageDto().create_net_stub()
+        stub_create_net_stage.return_value = stub_net_stage
+        stub_as_unit_system.return_value = units.UsOilfield
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        create_stage_details = self.DONT_CARE_STAGE_DETAILS
         nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
 
         # transformed connection_type
-        assert_transformed_argument_equals_expected_obs(stub_object_factory, 2, nsa.ConnectionType.PLUG_AND_PERF)
+        actual_transformed_stage_number = stub_create_net_stage.call_args.args[2]
+        assert_that(actual_transformed_stage_number, equal_to(nsa.ConnectionType.PLUG_AND_PERF))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
