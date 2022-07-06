@@ -543,7 +543,7 @@ class CreateStageDto:
 
             stage_part = self.create_net_stage_part(no_time_range_native_stage, native_start_time, native_stop_time,
                                                     native_isip)
-            self.add_created_stage_part_to_created_stage(mutable_stage, stage_part)
+            self.add_stage_part_to_stage(mutable_stage, stage_part)
 
         # Alias to better communicate intent
         created_native_stage = no_time_range_native_stage
@@ -603,7 +603,7 @@ class CreateStageDto:
         return stage_part
 
     @staticmethod
-    def add_created_stage_part_to_created_stage(mutable_stage, stage_part):
+    def add_stage_part_to_stage(mutable_stage, stage_part):
         """
         Add a newly created `stage_part` to a newly created `mutable_stage`.
 
