@@ -227,18 +227,19 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                           stub_create_net_stage_part,
                                                                                           stub_create_net_stage,
                                                                                           stub_as_unit_system):
-        stub_net_stage = tsn.StageDto().create_net_stub()
-        stub_net_stage.ToMutable = tsn.MutableStageDto().create_net_stub()
-        stub_create_net_stage.return_value = stub_net_stage
+        stub_create_net_stage.return_value = make_created_net_stage()
         stub_as_unit_system.return_value = units.UsOilfield
+
+        builder = CreateStageDtoBuilder().with_connection_type(nsa.ConnectionType.SINGLE_POINT_ENTRY)
+        sut = builder.build()
+
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
-        create_stage_details = self.DONT_CARE_STAGE_DETAILS
-        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+        sut.create_stage(stub_well)
 
         # transformed connection_type
-        actual_transformed_stage_number = stub_create_net_stage.call_args.args[2]
-        assert_that(actual_transformed_stage_number, equal_to(nsa.ConnectionType.PLUG_AND_PERF))
+        actual_transformed_connection_type = stub_create_net_stage.call_args.args[2]
+        assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.SINGLE_POINT_ENTRY))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
@@ -525,6 +526,10 @@ class CreateStageDtoBuilder:
 
     def with_stage_no(self, stage_no):
         self._stage_no = stage_no
+        return self
+
+    def with_connection_type(self, connection_type):
+        self._connection_type = connection_type
         return self
 
 
