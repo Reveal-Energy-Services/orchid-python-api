@@ -484,12 +484,14 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
-    def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_some_isip(self,
-                                                                                         stub_add_stage_part_to_stage,
-                                                                                         stub_object_factory,
-                                                                                         stub_as_unit_system):
+    def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_isip(self,
+                                                                                    stub_add_stage_part_to_stage,
+                                                                                    stub_create_net_stage_part,
+                                                                                    stub_create_net_stage,
+                                                                                    stub_as_unit_system):
         for actual, project_unit_system, expected, tolerance in [
             (5082.46 * om.registry.psi, units.UsOilfield,
              UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(5082.46)),
@@ -505,14 +507,18 @@ class TestCreateStageDto(unittest.TestCase):
             actual_text = f'{actual:~P}' if actual is not None else 'None'
             expected_text = f'{expected.ToString()}' if expected is not None else 'None'
             with self.subTest(f'{actual_text}, {project_unit_system=}, {expected_text}'):
-                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
-                                                   {'maybe_isip': actual})
-                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+                stub_create_net_stage.return_value = make_created_net_stage()
+                stub_as_unit_system.return_value = project_unit_system
+
+                builder = CreateStageDtoBuilder().with_maybe_isip(actual)
+                sut = builder.build()
+
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                sut.create_stage(stub_well)
 
                 # transformed time range of stage part
-                actual_call_args = stub_object_factory.CreateStagePart.call_args
-                actual_transformed_maybe_isip_start = actual_call_args.args[3]
+                actual_transformed_maybe_isip_start = stub_create_net_stage_part.call_args.args[3]
                 if expected is not None:
                     assert_that(actual_transformed_maybe_isip_start,
                                 tcm.assert_that_net_quantities_close_to(actual_transformed_maybe_isip_start,
@@ -605,6 +611,10 @@ class CreateStageDtoBuilder:
 
     def with_maybe_time_range(self, maybe_time_range):
         self._options = toolz.assoc(self._options, 'maybe_time_range', maybe_time_range)
+        return self
+
+    def with_maybe_isip(self, maybe_isip):
+        self._options = toolz.assoc(self._options, 'maybe_isip', maybe_isip)
         return self
 
 
