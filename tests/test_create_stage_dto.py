@@ -423,25 +423,31 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_part_with_transformed_start_time(self,
                                                                                           stub_add_stage_part_to_stage,
-                                                                                          stub_object_factory,
+                                                                                          stub_create_net_stage_part,
+                                                                                          stub_create_net_stage,
                                                                                           stub_as_unit_system):
         for actual_time_range, expected_start_time in [
             (pdt.parse('2019-12-29T12:35:15/2019-12-29T14:38:55', tz='UTC'),
              make_net_date_time(2019, 12, 29, 12, 35, 15)),
         ]:
             with self.subTest(f'Actual time range={actual_time_range}, expected start time={expected_start_time}'):
-                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
-                                                   {'maybe_time_range': actual_time_range})
-                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+                stub_create_net_stage.return_value = make_created_net_stage()
+                stub_as_unit_system.return_value = units.UsOilfield
+
+                builder = CreateStageDtoBuilder().with_maybe_time_range(actual_time_range)
+                sut = builder.build()
+
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                sut.create_stage(stub_well)
 
                 # transformed time range of stage part
-                actual_call_args = stub_object_factory.CreateStagePart.call_args
-                actual_transformed_maybe_time_range_start = actual_call_args.args[1]
+                actual_transformed_maybe_time_range_start = stub_create_net_stage_part.call_args.args[1]
                 assert_that(actual_transformed_maybe_time_range_start,
                             tcm.equal_to_net_date_time(expected_start_time))
 
@@ -606,6 +612,10 @@ class CreateStageDtoBuilder:
 
     def with_shmin(self, shmin):
         self._options = toolz.assoc(self._options, 'maybe_shmin', shmin)
+        return self
+
+    def with_maybe_time_range(self, maybe_time_range):
+        self._options = toolz.assoc(self._options, 'maybe_time_range', maybe_time_range)
         return self
 
 
