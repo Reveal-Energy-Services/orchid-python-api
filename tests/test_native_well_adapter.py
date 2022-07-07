@@ -357,6 +357,7 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
         stub_net_well.ToMutable.return_value = stub_net_mutable_well
         sut = nwa.NativeWellAdapter(stub_net_well)
 
+        # noinspection PyTypeChecker
         dont_care_stage_dto = nsa.CreateStageDto(25, nsa.ConnectionType.PLUG_AND_PERF,
                                                  15147.3 * om.registry.ft, 15283.3 * om.registry.ft,
                                                  5, 2.29883 * om.registry.psi,
@@ -364,7 +365,64 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
                                                  34718.7 * om.registry.kPa)
         sut.add_stages([dont_care_stage_dto])
 
+        # noinspection PyUnresolvedReferences
         sut._create_net_stages.assert_called_once_with([created_stage])
+        stub_net_mutable_well.AddStages.assert_called_once_with(created_net_stages)
+
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
+    @unittest.mock.patch('orchid.native_well_adapter.NativeWellAdapter._create_net_stages')
+    def test_add_stages_with_many_items_calls_both_create_stage_add_well_add_stages_many(self,
+                                                                                         stub_create_net_stages,
+                                                                                         stub_create_stage,
+                                                                                         ):
+        created_net_stages = [tsn.StageDto().create_net_stub() for _ in range(3)]
+        created_stages = [nsa.NativeStageAdapter(created_net_stage)
+                          for created_net_stage in created_net_stages]
+        # Use `side_effect` because `nsa.CreateStageDto.create_stage` call **multiple** times
+        # each with a single argument.
+        stub_create_stage.side_effect = created_stages
+
+        # Use `return_value` because `nwa._create_net_stages` called **once** with a **single** argument
+        # that is an `Iterable`.
+        stub_create_net_stages.return_value = created_net_stages
+
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_net_mutable_well = tsn.MutableWellDto().create_net_stub()
+        stub_net_well.ToMutable.return_value = stub_net_mutable_well
+        sut = nwa.NativeWellAdapter(stub_net_well)
+
+        dont_care_stage_dtos_details = [
+            {'stage_no': 9,
+             'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+             'md_top': 15762.9 * om.registry.ft,
+             'md_bottom': 15898.8 * om.registry.ft,
+             'cluster_count': 5,
+             'maybe_shmin': 16.24 * om.registry.kPa,
+             'maybe_time_range': pdt.parse('2019-01-08T10:57:31/2019-01-08T12:39:14', tz='UTC'),
+             'maybe_isip': 5109.66 * om.registry.psi},
+            {'stage_no': 27,
+             'connection_type': nsa.ConnectionType.SLIDING_SLEEVE,
+             'md_top': 12658.8 * om.registry.ft,
+             'md_bottom': 12795.8 * om.registry.ft,
+             'cluster_count': 3,
+             'maybe_shmin': 2.275 * om.registry.psi,
+             'maybe_time_range': pdt.parse('2020-04-21T08:29:33/2020-04-21T10:20:29', tz='UTC'),
+             'maybe_isip': 34566.8 * om.registry.kPa},
+            {'stage_no': 47,
+             'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+             'md_top': 3553.9 * om.registry.m,
+             'md_bottom': 3591.8 * om.registry.m,
+             'cluster_count': 7,
+             'maybe_shmin': 2.307 * om.registry.psi,
+             'maybe_time_range': pdt.parse('2025-11-19T12:14:52/2025-11-19T13:42:49', tz='UTC'),
+             'maybe_isip': 33949.6 * om.registry.kPa},
+        ]
+
+        dont_care_stage_dtos = [nsa.CreateStageDto(**details) for details in dont_care_stage_dtos_details]
+        sut.add_stages(dont_care_stage_dtos)
+
+        # noinspection PyUnresolvedReferences
+        sut._create_net_stages.assert_called_once_with(created_stages)
         stub_net_mutable_well.AddStages.assert_called_once_with(created_net_stages)
 
 

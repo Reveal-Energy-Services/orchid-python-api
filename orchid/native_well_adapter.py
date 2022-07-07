@@ -112,7 +112,7 @@ class NativeWellAdapter(dpo.DomProjectObject):
         return result
 
     def add_stages(self, create_stage_dtos: Iterable[nsa.CreateStageDto]):
-        created_stages = [csd.create_stage() for csd in create_stage_dtos]
+        created_stages = [csd.create_stage(self) for csd in create_stage_dtos]
 
         with dnd.disposable(self.dom_object.ToMutable()) as mutable_well:
             native_created_stages = self._create_net_stages(created_stages)
