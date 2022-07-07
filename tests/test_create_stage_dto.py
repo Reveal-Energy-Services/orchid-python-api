@@ -324,17 +324,27 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_supplied_cluster_count(self,
                                                                                      stub_add_stage_part_to_stage,
-                                                                                     stub_object_factory,
+                                                                                     stub_create_net_stage_part,
+                                                                                     stub_create_net_stage,
                                                                                      stub_as_unit_system):
-        stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, units.UsOilfield)
-        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'cluster_count': 4})
-        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+        stub_create_net_stage.return_value = make_created_net_stage()
+        stub_as_unit_system.return_value = units.UsOilfield
 
-        assert_transformed_argument_equals_expected_obs(stub_object_factory, 6, UInt32(4))
+        builder = CreateStageDtoBuilder().with_cluster_count(7)
+        sut = builder.build()
+
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        sut.create_stage(stub_well)
+
+        # transformed stage_no
+        actual_transformed_cluster_count = stub_create_net_stage.call_args.args[6]
+        assert_that(actual_transformed_cluster_count, equal_to(7))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
@@ -543,6 +553,8 @@ class CreateStageDtoBuilder:
         self._md_top = md_top
         self._md_bottom = md_bottom
 
+        self._options = {}
+
     @property
     def order_of_completion_on_well(self):
         return self._stage_no - 1
@@ -551,7 +563,8 @@ class CreateStageDtoBuilder:
         return nsa.CreateStageDto(stage_no=self._stage_no,
                                   connection_type=self._connection_type,
                                   md_top=self._md_top,
-                                  md_bottom=self._md_bottom)
+                                  md_bottom=self._md_bottom,
+                                  **self._options)
 
     def with_stage_no(self, stage_no):
         self._stage_no = stage_no
@@ -567,6 +580,10 @@ class CreateStageDtoBuilder:
 
     def with_md_bottom(self, md_bottom):
         self._md_bottom = md_bottom
+        return self
+
+    def with_cluster_count(self, cluster_count):
+        self._options = toolz.assoc(self._options, 'cluster_count', cluster_count)
         return self
 
 
