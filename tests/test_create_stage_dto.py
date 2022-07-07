@@ -357,7 +357,7 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                 stub_create_net_stage_part,
                                                                                 stub_create_net_stage,
                                                                                 stub_as_unit_system):
-        for shmin, project_unit_system, expected, tolerance in [
+        for maybe_shmin, project_unit_system, expected, tolerance in [
             (2.27576 * om.registry.psi, units.UsOilfield,
              UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(2.27576)),
              decimal.Decimal('0.00001')),
@@ -365,11 +365,12 @@ class TestCreateStageDto(unittest.TestCase):
              units.Metric, UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(15.6908)),
              decimal.Decimal('0.0001')),
         ]:
-            with self.subTest(f'Create stage transformed shmin={shmin} in {project_unit_system.PRESSURE}'):
+            with self.subTest(f'Create stage transformed shmin={maybe_shmin}'
+                              f' in {project_unit_system.PRESSURE}'):
                 stub_create_net_stage.return_value = make_created_net_stage()
                 stub_as_unit_system.return_value = project_unit_system
 
-                builder = CreateStageDtoBuilder().with_shmin(shmin)
+                builder = CreateStageDtoBuilder().with_maybe_shmin(maybe_shmin)
                 sut = builder.build()
 
                 stub_net_well = tsn.WellDto().create_net_stub()
@@ -399,18 +400,18 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                    stub_create_net_stage_part,
                                                                                    stub_create_net_stage,
                                                                                    stub_as_unit_system):
-        for shmin, project_unit_system in [
+        for maybe_shmin, project_unit_system in [
             (math.nan * om.registry.kPa, units.Metric),
             (math.nan * om.registry.kPa, units.UsOilfield),
             (None, units.Metric),
             (None, units.UsOilfield),
         ]:
-            with self.subTest(f'Create stage transformed nan shmin={shmin}'
+            with self.subTest(f'Create stage transformed nan shmin={maybe_shmin}'
                               f' in {project_unit_system.PRESSURE}'):
                 stub_create_net_stage.return_value = make_created_net_stage()
                 stub_as_unit_system.return_value = project_unit_system
 
-                builder = CreateStageDtoBuilder().with_shmin(shmin)
+                builder = CreateStageDtoBuilder().with_maybe_shmin(maybe_shmin)
                 sut = builder.build()
 
                 stub_net_well = tsn.WellDto().create_net_stub()
@@ -610,7 +611,7 @@ class CreateStageDtoBuilder:
         self._options = toolz.assoc(self._options, 'cluster_count', cluster_count)
         return self
 
-    def with_shmin(self, shmin):
+    def with_maybe_shmin(self, shmin):
         self._options = toolz.assoc(self._options, 'maybe_shmin', shmin)
         return self
 
