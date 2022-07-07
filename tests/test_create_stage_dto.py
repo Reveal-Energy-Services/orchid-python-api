@@ -155,9 +155,9 @@ class TestCreateStageDto(unittest.TestCase):
     def test_dto_create_stage_calls_create_net_stage_once(self,
                                                           stub_add_stage_part_to_stage,
                                                           stub_create_net_stage_part,
-                                                          stub_created_net_stage,
+                                                          stub_create_net_stage,
                                                           stub_as_unit_system):
-        stub_created_net_stage.return_value = make_created_net_stage()
+        stub_create_net_stage.return_value = make_created_net_stage()
         stub_as_unit_system.return_value = units.Metric
 
         builder = CreateStageDtoBuilder()
@@ -167,7 +167,7 @@ class TestCreateStageDto(unittest.TestCase):
         stub_well = nwa.NativeWellAdapter(stub_net_well)
         sut.create_stage(stub_well)
 
-        stub_created_net_stage.assert_called_once()
+        stub_create_net_stage.assert_called_once()
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
@@ -177,9 +177,9 @@ class TestCreateStageDto(unittest.TestCase):
     def test_dto_create_stage_calls_create_net_stage_with_net_well(self,
                                                                    stub_add_stage_part_to_stage,
                                                                    stub_create_net_stage_part,
-                                                                   stub_created_net_stage,
+                                                                   stub_create_net_stage,
                                                                    stub_as_unit_system):
-        stub_created_net_stage.return_value = make_created_net_stage()
+        stub_create_net_stage.return_value = make_created_net_stage()
         stub_as_unit_system.return_value = units.Metric
 
         builder = CreateStageDtoBuilder()
@@ -190,7 +190,7 @@ class TestCreateStageDto(unittest.TestCase):
         sut.create_stage(stub_well)
 
         # well_object
-        actual_net_well = stub_created_net_stage.call_args.args[0]
+        actual_net_well = stub_create_net_stage.call_args.args[0]
         assert_that(actual_net_well, equal_to(stub_net_well))
 
     # noinspection PyUnresolvedReferences
@@ -203,20 +203,19 @@ class TestCreateStageDto(unittest.TestCase):
                                                                                stub_create_net_stage_part,
                                                                                stub_create_net_stage,
                                                                                stub_as_unit_system):
-        stub_net_stage = tsn.StageDto().create_net_stub()
-        stub_net_stage.ToMutable = tsn.MutableStageDto().create_net_stub()
-        stub_create_net_stage.return_value = stub_net_stage
-        stub_as_unit_system.return_value = units.UsOilfield
+        stub_create_net_stage.return_value = make_created_net_stage()
+        stub_as_unit_system.return_value = units.Metric
+
+        builder = CreateStageDtoBuilder().with_stage_no(21)
+        sut = builder.build()
+
         stub_net_well = tsn.WellDto().create_net_stub()
         stub_well = nwa.NativeWellAdapter(stub_net_well)
-        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'stage_no': 23})
-        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+        sut.create_stage(stub_well)
 
         # transformed stage_no
-        expected = 22
-        actual_call_args = stub_create_net_stage.call_args
-        actual_transformed_stage_number = actual_call_args.args[1]
-        assert_that(actual_transformed_stage_number, equal_to(expected))
+        actual_transformed_stage_number = stub_create_net_stage.call_args.args[1]
+        assert_that(actual_transformed_stage_number, equal_to(builder.order_of_completion_on_well))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
@@ -514,11 +513,19 @@ class CreateStageDtoBuilder:
         self._md_top = md_top
         self._md_bottom = md_bottom
 
+    @property
+    def order_of_completion_on_well(self):
+        return self._stage_no - 1
+
     def build(self) -> nsa.CreateStageDto:
         return nsa.CreateStageDto(stage_no=self._stage_no,
                                   connection_type=self._connection_type,
                                   md_top=self._md_top,
                                   md_bottom=self._md_bottom)
+
+    def with_stage_no(self, stage_no):
+        self._stage_no = stage_no
+        return self
 
 
 if __name__ == '__main__':
