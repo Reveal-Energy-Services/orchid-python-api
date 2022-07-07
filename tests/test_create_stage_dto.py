@@ -283,29 +283,44 @@ class TestCreateStageDto(unittest.TestCase):
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self,
-                                                                                    stub_add_stage_part_to_stage,
-                                                                                    stub_object_factory,
-                                                                                    stub_as_unit_system):
-        for source, project_unit_system, expected in [
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_some_md_bottom(self,
+                                                                                         stub_add_stage_part_to_stage,
+                                                                                         stub_create_net_stage_part,
+                                                                                         stub_create_net_stage,
+                                                                                         stub_as_unit_system):
+        for md_bottom, project_unit_system, expected, tolerance in [
             (16329.7 * om.registry.ft, units.Metric,
-             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(4977.29))),
+             UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(4977.29)),
+             decimal.Decimal('0.01')),
             (16329.7 * om.registry.ft,
-             units.UsOilfield, UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(16329.7))),
-            (math.nan * om.registry.m, units.Metric, None),
-            (math.nan * om.registry.m, units.UsOilfield, None),
+             units.UsOilfield, UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(16329.7)),
+             decimal.Decimal('0.1')),
+            (math.nan * om.registry.ft, units.Metric, None, None),
+            (math.nan * om.registry.ft, units.UsOilfield, None, None),
         ]:
-            with self.subTest(f'Create stage transformed md_bottom={source}'
-                              f' in {project_unit_system.LENGTH}'):
-                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'md_bottom': source})
-                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+            expected_text = f'{expected.ToString()}' if expected is not None else 'None'
+            with self.subTest(f'Create stage {md_bottom=} in {project_unit_system.LENGTH}'
+                              f' expected={expected_text}'):
+                stub_create_net_stage.return_value = make_created_net_stage()
+                stub_as_unit_system.return_value = project_unit_system
 
-                # transformed md_bottom
-                assert_transformed_net_quantities_close_to(stub_object_factory, 4,
-                                                           expected, decimal.Decimal('0.01'))
+                builder = CreateStageDtoBuilder().with_md_bottom(md_bottom)
+                sut = builder.build()
+
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                sut.create_stage(stub_well)
+
+                # transformed md_top
+                actual_transformed_md_bottom = stub_create_net_stage.call_args.args[4]
+                if expected is not None:
+                    tcm.assert_that_net_quantities_close_to(actual_transformed_md_bottom,
+                                                            expected, tolerance=tolerance)
+                else:
+                    assert_that(actual_transformed_md_bottom, is_(none()))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
@@ -548,6 +563,10 @@ class CreateStageDtoBuilder:
 
     def with_md_top(self, md_top):
         self._md_top = md_top
+        return self
+
+    def with_md_bottom(self, md_bottom):
+        self._md_bottom = md_bottom
         return self
 
 
