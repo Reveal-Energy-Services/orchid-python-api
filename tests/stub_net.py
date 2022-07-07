@@ -334,7 +334,7 @@ class StageDto:
 
 
 @dc.dataclass
-class MutableStageDto(StagePartDto):
+class MutableStageDto(StageDto):
     def create_net_stub(self):
         # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
         # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
@@ -435,6 +435,27 @@ class WellDto:
 
         result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
         result.GetLocationsForMdKbValues.side_effect = get_location_for
+
+        return result
+
+
+@dc.dataclass
+class MutableWellDto(WellDto):
+    def create_net_stub(self):
+        # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
+        # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
+        # `hasattr` will be "fooled" because `MagicMock` will report that this instance has both dunder
+        # methods `__enter__` and `__exit__`. I actually want the context manager returned by
+        # `dnd.disposable()` to return *this* mock instance, so I make it an instance of `Mock` which
+        # will not, be default, implement the `__enter__` and `__exit__` dunder methods.
+        result = unittest.mock.Mock(name='stub_mutable_net_well')
+
+        # This attribute allows callers to monitor calls to `Add`
+        result.Add = unittest.mock.Mock(name='Add')
+
+        # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
+        # block as it exits the context.
+        result.Dispose = unittest.mock.Mock(name='Dispose')
 
         return result
 

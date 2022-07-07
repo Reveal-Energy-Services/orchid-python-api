@@ -24,6 +24,7 @@ import toolz.curried as toolz
 import orchid.base
 from orchid import (
     dot_net_dom_access as dna,
+    dot_net_disposable as dnd,
     dom_project_object as dpo,
     searchable_stages as oss,
     measurement as om,
@@ -35,7 +36,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IWell
+from Orchid.FractureDiagnostics import IStage, IWell
 # noinspection PyUnresolvedReferences
 import UnitsNet
 # noinspection PyUnresolvedReferences
@@ -110,5 +111,24 @@ class NativeWellAdapter(dpo.DomProjectObject):
         )
         return result
 
-    def add_stages(self, create_stage_dtos: Iterable[nsa.NativeStageAdapter]):
-        pass
+    def add_stages(self, create_stage_dtos: Iterable[nsa.CreateStageDto]):
+        created_stages = [csd.create_stage() for csd in create_stage_dtos]
+
+        with dnd.disposable(self.dom_object.ToMutable()) as mutable_well:
+            native_created_stages = self._create_net_stages(created_stages)
+            mutable_well.AddStages(native_created_stages)
+
+    @staticmethod
+    def _create_net_stages(created_stages):
+        """
+        Create a .NET `Array<IStage>`.
+
+        This method primarily exists so that I can mock the call in unit tests.
+
+        Args:
+            created_stages: The `NativeStageAdapter` iterable over the created stages to add.
+
+        Returns:
+            The newly created .NET `Array<IStage>` instance.
+        """
+        return Array[IStage]([created_stage.dom_object for created_stage in created_stages])

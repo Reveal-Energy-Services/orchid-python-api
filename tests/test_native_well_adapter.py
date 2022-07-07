@@ -27,6 +27,7 @@ from hamcrest import (
     empty,
     contains_exactly,
 )
+import pendulum as pdt
 
 from orchid import (
     measurement as om,
@@ -328,14 +329,43 @@ class TestNativeWellAdapterAddStages(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    @unittest.mock.patch('orchid.net_fracture_diagnostics_factory.create')
-    def test_add_stages_with_no_items_calls_neither_create_stage_nor_well_add_stages(self, stub_object_factory):
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
+    def test_add_stages_with_no_items_calls_neither_create_stage_nor_well_add_stages(self, stub_create_stage):
         stub_net_well = tsn.WellDto().create_net_stub()
+        stub_net_mutable_well = tsn.MutableWellDto().create_net_stub()
+        stub_net_well.ToMutable.return_value = stub_net_mutable_well
         sut = nwa.NativeWellAdapter(stub_net_well)
         sut.add_stages([])
 
-        stub_object_factory.CreateStage.assert_not_called()
-        stub_net_well.AddStages.assert_not_called()
+        stub_create_stage.assert_not_called()
+        stub_net_mutable_well.Add.assert_not_called()
+
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
+    @unittest.mock.patch('orchid.native_well_adapter.NativeWellAdapter._create_net_stages')
+    def test_add_stages_with_one_item_calls_both_create_stage_add_well_add_stages_once(self,
+                                                                                       stub_create_net_stages,
+                                                                                       stub_create_stage,
+                                                                                       ):
+        created_stage = nsa.NativeStageAdapter(tsn.StageDto().create_net_stub())
+        stub_create_stage.return_value = created_stage
+
+        created_net_stages = unittest.mock.MagicMock('created_net_stages')
+        stub_create_net_stages.return_value = created_net_stages
+
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_net_mutable_well = tsn.MutableWellDto().create_net_stub()
+        stub_net_well.ToMutable.return_value = stub_net_mutable_well
+        sut = nwa.NativeWellAdapter(stub_net_well)
+
+        dont_care_stage_dto = nsa.CreateStageDto(25, nsa.ConnectionType.PLUG_AND_PERF,
+                                                 15147.3 * om.registry.ft, 15283.3 * om.registry.ft,
+                                                 5, 2.29883 * om.registry.psi,
+                                                 pdt.parse('2021-07-12T05:29:34/2021-07-12T07:13:09', tz='UTC'),
+                                                 34718.7 * om.registry.kPa)
+        sut.add_stages([dont_care_stage_dto])
+
+        sut._create_net_stages.assert_called_once_with([created_stage])
+        stub_net_mutable_well.AddStages.assert_called_once_with(created_net_stages)
 
 
 if __name__ == '__main__':
