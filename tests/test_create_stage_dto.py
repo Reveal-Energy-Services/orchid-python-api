@@ -215,7 +215,8 @@ class TestCreateStageDto(unittest.TestCase):
 
         # transformed stage_no
         actual_transformed_stage_number = stub_create_net_stage.call_args.args[1]
-        assert_that(actual_transformed_stage_number, equal_to(builder.order_of_completion_on_well))
+        assert_that(actual_transformed_stage_number,
+                    equal_to(UInt32(builder.order_of_completion_on_well)))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
@@ -246,11 +247,11 @@ class TestCreateStageDto(unittest.TestCase):
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_some_md_top(self,
-                                                                                      stub_add_stage_part_to_stage,
-                                                                                      stub_create_net_stage_part,
-                                                                                      stub_create_net_stage,
-                                                                                      stub_as_unit_system):
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_top(self,
+                                                                                 stub_add_stage_part_to_stage,
+                                                                                 stub_create_net_stage_part,
+                                                                                 stub_create_net_stage,
+                                                                                 stub_as_unit_system):
         for md_top, project_unit_system, expected, tolerance in [
             (3714.60 * om.registry.m, units.Metric,
              UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(3714.60)),
@@ -286,11 +287,11 @@ class TestCreateStageDto(unittest.TestCase):
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_some_md_bottom(self,
-                                                                                         stub_add_stage_part_to_stage,
-                                                                                         stub_create_net_stage_part,
-                                                                                         stub_create_net_stage,
-                                                                                         stub_as_unit_system):
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_md_bottom(self,
+                                                                                    stub_add_stage_part_to_stage,
+                                                                                    stub_create_net_stage_part,
+                                                                                    stub_create_net_stage,
+                                                                                    stub_as_unit_system):
         for md_bottom, project_unit_system, expected, tolerance in [
             (16329.7 * om.registry.ft, units.Metric,
              UnitsNet.Length.FromMeters(UnitsNet.QuantityValue.op_Implicit(4977.29)),
@@ -344,17 +345,19 @@ class TestCreateStageDto(unittest.TestCase):
 
         # transformed stage_no
         actual_transformed_cluster_count = stub_create_net_stage.call_args.args[6]
-        assert_that(actual_transformed_cluster_count, equal_to(7))
+        assert_that(actual_transformed_cluster_count, equal_to(UInt32(7)))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_calls_factory_create_stage_with_transformed_shmin(self,
                                                                                 stub_add_stage_part_to_stage,
-                                                                                stub_object_factory,
+                                                                                stub_create_net_stage_part,
+                                                                                stub_create_net_stage,
                                                                                 stub_as_unit_system):
-        for source, project_unit_system, expected, tolerance in [
+        for shmin, project_unit_system, expected, tolerance in [
             (2.27576 * om.registry.psi, units.UsOilfield,
              UnitsNet.Pressure.FromPoundsForcePerSquareInch(UnitsNet.QuantityValue.op_Implicit(2.27576)),
              decimal.Decimal('0.00001')),
@@ -362,45 +365,60 @@ class TestCreateStageDto(unittest.TestCase):
              units.Metric, UnitsNet.Pressure.FromKilopascals(UnitsNet.QuantityValue.op_Implicit(15.6908)),
              decimal.Decimal('0.0001')),
         ]:
-            with self.subTest(f'Create stage transformed shmin={source}'
-                              f' in {project_unit_system.PRESSURE}'):
-                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
-                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+            with self.subTest(f'Create stage transformed shmin={shmin} in {project_unit_system.PRESSURE}'):
+                stub_create_net_stage.return_value = make_created_net_stage()
+                stub_as_unit_system.return_value = project_unit_system
+
+                builder = CreateStageDtoBuilder().with_shmin(shmin)
+                sut = builder.build()
+
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                sut.create_stage(stub_well)
 
                 def assert_actual_close_to(actual):
                     tcm.assert_that_net_quantities_close_to(actual, expected,
                                                             tolerance=tolerance)
 
                 def assert_actual_not_none():
-                    self.fail('Expected some pressure but found none.')
+                    self.fail('Expected some shmin but found none.')
 
-                actual_call_args = stub_object_factory.CreateStage.call_args
-                actual_transformed_shmin = actual_call_args.args[5]  # transformed shmin
+                # transformed shmin
+                actual_transformed_shmin = stub_create_net_stage.call_args.args[5]
                 actual_transformed_shmin.Match(
                     Action[UnitsNet.Pressure](assert_actual_close_to),
                     Action(assert_actual_not_none))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
-    def test_dto_create_stage_calls_factory_create_stage_with_transformed_nan_shmin(self,
-                                                                                    stub_add_stage_part_to_stage,
-                                                                                    stub_object_factory,
-                                                                                    stub_as_unit_system):
-        for source, project_unit_system in [
+    def test_dto_create_stage_calls_factory_create_stage_with_transformed_no_shmin(self,
+                                                                                   stub_add_stage_part_to_stage,
+                                                                                   stub_create_net_stage_part,
+                                                                                   stub_create_net_stage,
+                                                                                   stub_as_unit_system):
+        for shmin, project_unit_system in [
             (math.nan * om.registry.kPa, units.Metric),
             (math.nan * om.registry.kPa, units.UsOilfield),
+            (None, units.Metric),
+            (None, units.UsOilfield),
         ]:
-            with self.subTest(f'Create stage transformed nan shmin={source}'
+            with self.subTest(f'Create stage transformed nan shmin={shmin}'
                               f' in {project_unit_system.PRESSURE}'):
-                stub_well = create_stub_well_obs(stub_as_unit_system, stub_object_factory, project_unit_system)
-                create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS, {'maybe_shmin': source})
-                nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+                stub_create_net_stage.return_value = make_created_net_stage()
+                stub_as_unit_system.return_value = project_unit_system
 
-                actual_call_args = stub_object_factory.CreateStage.call_args
-                actual_transformed_shmin = actual_call_args.args[5]  # transformed shmin
+                builder = CreateStageDtoBuilder().with_shmin(shmin)
+                sut = builder.build()
+
+                stub_net_well = tsn.WellDto().create_net_stub()
+                stub_well = nwa.NativeWellAdapter(stub_net_well)
+                sut.create_stage(stub_well)
+
+                # transformed shmin
+                actual_transformed_shmin = stub_create_net_stage.call_args.args[5]
                 assert_that(actual_transformed_shmin.HasValue, equal_to(False))
 
     # noinspection PyUnresolvedReferences
@@ -584,6 +602,10 @@ class CreateStageDtoBuilder:
 
     def with_cluster_count(self, cluster_count):
         self._options = toolz.assoc(self._options, 'cluster_count', cluster_count)
+        return self
+
+    def with_shmin(self, shmin):
+        self._options = toolz.assoc(self._options, 'maybe_shmin', shmin)
         return self
 
 
