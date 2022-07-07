@@ -87,11 +87,6 @@ def make_net_date_time(year, month, day, hour, minute, second):
 
 
 # Test ideas
-# - create_stage calls object factory CreateStageParts with correct arguments all specified
-#   - Time range (specified)
-#   - Time range (not-specified)
-#   - Isip (specified)
-#   - Isip (non-specified)
 class TestCreateStageDto(unittest.TestCase):
     DONT_CARE_STAGE_DETAILS = {
             'stage_no': 22,
@@ -528,33 +523,38 @@ class TestCreateStageDto(unittest.TestCase):
                     assert_that(actual_transformed_maybe_isip_start, is_(none()))
 
     # noinspection PyUnresolvedReferences
-    @unittest.skip('Refactoring other tests')
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
-    @unittest.mock.patch('orchid.native_stage_adapter._object_factory')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage')
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_net_stage_part')
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.add_stage_part_to_stage')
     def test_dto_create_stage_adds_created_stage_part_to_created_stage_parts_list(self,
                                                                                   stub_add_stage_part_to_stage,
-                                                                                  stub_object_factory,
+                                                                                  stub_create_net_stage_part,
+                                                                                  stub_create_net_stage,
                                                                                   stub_as_unit_system):
         stub_net_stage_part = tsn.StagePartDto().create_net_stub()
-        stub_object_factory.CreateStagePart.return_value = stub_net_stage_part
+        stub_create_net_stage_part.return_value = stub_net_stage_part
 
+        stub_net_stage = make_created_net_stage()
+        stub_create_net_stage.return_value = stub_net_stage
         stub_net_mutable_stage = tsn.MutableStagePartDto().create_net_stub()
-        stub_net_stage = tsn.StageDto().create_net_stub()
         stub_net_stage.ToMutable = unittest.mock.MagicMock(return_value=stub_net_mutable_stage)
-        stub_object_factory.CreateStage.return_value = stub_net_stage
+
         stub_as_unit_system.return_value = units.UsOilfield
-        stub_net_well = tsn.WellDto().create_net_stub()
-        stub_well = nwa.NativeWellAdapter(stub_net_well)
+
         dont_care_time_range = pdt.parse('2028-12-20T05:35:51/2028-12-20T08:59:38', tz='UTC')
         dont_care_isip = 5164.78 * om.registry.psi
-        create_stage_details = toolz.merge(self.DONT_CARE_STAGE_DETAILS,
-                                           {'maybe_time_range': dont_care_time_range},
-                                           {'maybe_isip': dont_care_isip})
-        nsa.CreateStageDto(**create_stage_details).create_stage(stub_well)
+        builder = (CreateStageDtoBuilder()
+                   .with_maybe_time_range(dont_care_time_range)
+                   .with_maybe_isip(dont_care_isip))
+        sut = builder.build()
 
-        stub_add_stage_part_to_stage.Add.assert_called_once_with(stub_net_mutable_stage,
-                                                                 stub_created_stage_part)
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_well = nwa.NativeWellAdapter(stub_net_well)
+        sut.create_stage(stub_well)
+
+        stub_add_stage_part_to_stage.assert_called_once_with(stub_net_mutable_stage,
+                                                             stub_net_stage_part)
 
 
 class CreateStageDtoBuilder:
