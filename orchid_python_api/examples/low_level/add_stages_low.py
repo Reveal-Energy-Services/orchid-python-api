@@ -12,12 +12,17 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+
+"""
+Example of adding stages to a project using the low-level (Python.NET) API.
+"""
+
+
 import argparse
 from collections import namedtuple
 import dataclasses as dc
 import logging
 import pathlib
-import pprint
 from typing import Optional
 
 import pendulum  # Used for creating time-zone aware date times (UTC by default)
