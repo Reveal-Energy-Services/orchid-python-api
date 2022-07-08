@@ -504,11 +504,11 @@ Feature: Low-level DOM API (stage)
     Given I have loaded the changeable project for the field, 'bakken'
     When I add the specified stages to wells
       | well    | stage_no | stage_type    | cluster_count | md_top     | md_bottom  | start                       | stop                        | isip        | shmin     |
-      | Demo_4H | 35       | Plug and perf |               | 20898.2 ft | 20985.8 ft | 2018-06-06T05:34:03.6839387 | 2018-06-06T07:19:35.5601864 | 3420.32 psi |           |
-      | Demo_4H | 36       | Plug and perf | 1             | 17362.2 ft | 17372.3 ft | 2018-06-15T14:11:40.450044  | 2018-06-15T15:10:11.200044  | 2172.70 psi | 2.272 psi |
-      | Demo_4H | 37       | Plug and perf | 5             | 10627.2 ft | 10759.7 ft | 2018-06-28T23:35:54.3790545 | 2018-06-29T01:18:05.8397489 |             | 2.219 psi |
+      | Demo_4H | 36       | Plug and perf |               | 20898.2 ft | 20985.8 ft | 2018-06-06T05:34:03.6839387 | 2018-06-06T07:19:35.5601864 | 3420.32 psi |           |
+      | Demo_4H | 37       | Plug and perf | 1             | 17362.2 ft | 17372.3 ft | 2018-06-15T14:11:40.0450044 | 2018-06-15T15:10:11.0200044 | 2172.70 psi | 2.272 psi |
+      | Demo_4H | 38       | Plug and perf | 5             | 10627.2 ft | 10759.7 ft | 2018-06-28T23:35:54.3790545 | 2018-06-29T01:18:05.8397489 |             | 2.219 psi |
     Then I see the added stages of wells
       | well    | stage_no | stage_type    | cluster_count | md_top     | md_bottom  | start                   | stop                    | isip        | shmin     |
-      | Demo_4H | 35       | Plug and perf |               | 20898.2 ft | 20985.8 ft | 2018-06-06T05:34:03.684 | 2018-06-06T07:19:35.560 | 3420.32 psi |           |
-      | Demo_4H | 36       | Plug and perf | 1             | 17362.2 ft | 17372.3 ft | 2018-06-15T14:11:40.045 | 2018-06-15T15:10:11.020 | 2172.70 psi | 2.272 psi |
-      | Demo_4H | 37       | Plug and perf | 5             | 10627.2 ft | 10759.7 ft | 2018-06-28T23:35:54.379 | 2018-06-29T01:18:05.840 |             | 2.219 psi |
+      | Demo_4H | 36       | Plug and perf |               | 20898.2 ft | 20985.8 ft | 2018-06-06T05:34:03.684 | 2018-06-06T07:19:35.560 | 3420.32 psi |           |
+      | Demo_4H | 37       | Plug and perf | 1             | 17362.2 ft | 17372.3 ft | 2018-06-15T14:11:40.045 | 2018-06-15T15:10:11.020 | 2172.70 psi | 2.272 psi |
+      | Demo_4H | 38       | Plug and perf | 5             | 10627.2 ft | 10759.7 ft | 2018-06-28T23:35:54.379 | 2018-06-29T01:18:05.840 | nan psi     | 2.219 psi |

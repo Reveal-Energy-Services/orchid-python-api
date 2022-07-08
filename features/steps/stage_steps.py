@@ -20,14 +20,16 @@ from behave import *
 
 use_step_matcher("parse")
 
-from hamcrest import assert_that, equal_to
-import option
+import math
+
+from hamcrest import assert_that, equal_to, is_, not_none
 import pendulum as pdt
 import toolz.curried as toolz
 
 import common_functions as cf
 
 from orchid import (
+    measurement as om,
     native_stage_adapter as nsa,
     reference_origins as origins,
     unit_system as units,
@@ -312,6 +314,7 @@ def step_impl(context, well, stage_no, center_mdkb):
     cf.assert_that_actual_measurement_close_to_expected(actual, center_mdkb)
 
 
+# noinspection PyBDDParameters
 @then("I see the correct {well}, {stage_no:d}, {start_time}, and {stop_time}")
 def step_impl(context, well, stage_no, start_time, stop_time):
     """
@@ -329,6 +332,7 @@ def step_impl(context, well, stage_no, start_time, stop_time):
     assert_that(actual_stop_time, equal_to(pdt.parse(stop_time)))
 
 
+# noinspection PyBDDParameters
 @step("I change the time range of stage {stage_no:d} of {well} to the range {to_start} to {to_stop}")
 def step_impl(context, stage_no, well, to_start, to_stop):
     """
@@ -343,6 +347,7 @@ def step_impl(context, stage_no, well, to_start, to_stop):
     stage_of_interest.time_range = (pdt.period(pdt.parse(to_start), pdt.parse(to_stop)))
 
 
+# noinspection PyBDDParameters
 @then("I see the changed {to_start} and {to_stop} for well, {well} and stage, {stage_no:d}")
 def step_impl(context, to_start, to_stop, well, stage_no):
     """
@@ -371,7 +376,7 @@ def calculate_cluster_count(row):
 
 
 def calculate_isip(row):
-    return cf.parse_measurement(row['isip'])
+    return cf.parse_measurement(row['isip']) if row['isip'] != '' else None
 
 
 def calculate_md_top(row):
@@ -413,9 +418,8 @@ def step_impl(context):
         candidate_wells = list(context.project.wells().find_by_name(row['well']))
         assert len(candidate_wells) == 1, f'Expected one well named, {row["well"]}. Found {len(candidate_wells)}.'
         well = candidate_wells[0]
-        created_stage = to_add_stage_dto.create_stage(well)
         ante_add_stage_count = len(well.stages())
-        well.add_stages([created_stage])
+        well.add_stages([to_add_stage_dto])
         assert_that(len(well.stages()), equal_to(ante_add_stage_count + 1))
 
 
@@ -434,11 +438,24 @@ def step_impl(context):
         assert_that(added_stage.cluster_count, equal_to(calculate_cluster_count(row)))
         assert_that(added_stage.stage_type,
                     equal_to(_STAGE_TYPE_TEXT_TO_CONNECTION_TYPE[row['stage_type']]))
-        assert_that(added_stage.md_top, equal_to(calculate_md_top(row)))
-        assert_that(added_stage.md_bottom, equal_to(calculate_md_bottom(row)))
-        assert_that(added_stage.start, equal_to(calculate_start_time(row)))
-        assert_that(added_stage.stop, equal_to(calculate_stop_time(row)))
-        assert_that(added_stage.isip, equal_to(calculate_isip(row)))
-        assert_that(added_stage.shmin, equal_to(calculate_shmin(row)))
+        cf.assert_that_actual_measurement_close_to_expected(
+            added_stage.md_top(added_stage.expect_project_units.LENGTH), row['md_top'])
+        cf.assert_that_actual_measurement_close_to_expected(
+            added_stage.md_bottom(added_stage.expect_project_units.LENGTH), row['md_bottom'])
+        assert_that(added_stage.start_time, equal_to(calculate_start_time(row)))
+        assert_that(added_stage.stop_time, equal_to(calculate_stop_time(row)))
+        if row['isip'] == 'nan psi':
+            # Since creating the stage **did not** set the `isip`, the returned `isip` from .NET is `null`.
+            # The `null` value is converted to `None` by Python.NET which is then converted to `math.nan()`
+            assert_that(math.isnan(added_stage.isip.magnitude))
+            assert_that(added_stage.isip.units, equal_to(om.registry.psi))
+        else:
+            cf.assert_that_actual_measurement_close_to_expected(added_stage.isip, row['isip'])
+        if row['shmin'] == '':
+            # Since creating the stage **did not** set the `shmin`, the stage actually calculates an `shmin` value.
+            assert_that(added_stage.shmin, is_(not_none()))
+        else:
+            cf.assert_that_actual_measurement_close_to_expected(
+                added_stage.shmin, row['shmin'])
 
         # TODO: Add other stage attributes
