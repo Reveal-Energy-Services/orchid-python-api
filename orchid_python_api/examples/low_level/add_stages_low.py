@@ -12,6 +12,12 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+
+"""
+Example of adding stages to a project using the low-level (Python.NET) API.
+"""
+
+
 import argparse
 from collections import namedtuple
 import dataclasses as dc
@@ -68,7 +74,7 @@ class CreateStageDto:
     maybe_time_range: Optional[pendulum.Period] = None
 
     # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
-    # the project saved with adding stages.
+    # the project saved with the added stages.
     maybe_isip: Optional[om.Quantity] = None  # The actual value must be a pressure
 
     def create_stage(self, well: nwa.NativeWellAdapter):
@@ -119,7 +125,7 @@ CreatedStageDetails = namedtuple('CreatedStageDetails', ['name', 'shmin', 'clust
                                                          'global_stage_sequence_no', 'start_time', 'stop_time'])
 
 
-def append_stages(project):
+def add_stages(project):
     # Find well to which to add stages
     candidate_well_name = 'Demo_4H'
     candidate_wells = list(project.wells().find_by_display_name(candidate_well_name))
@@ -187,7 +193,7 @@ def main(cli_args):
     # Read Orchid project
     project = orchid.load_project(cli_args.input_project)
 
-    append_stages(project)
+    add_stages(project)
 
     # Save project changes to specified .ifrac file
     target_path_name = cli_args.output_project

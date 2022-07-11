@@ -51,7 +51,7 @@ Feature: Low-level example scripts
 
     Examples: add_stages
       | script_file_name |
-      | add_stages.py    |
+      | add_stages_low.py    |
 
   Scenario Outline: Monitor time series
     Given I have copied the low-level script, '<script_file_name>', to the repository root

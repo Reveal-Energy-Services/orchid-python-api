@@ -29,18 +29,7 @@ from System import DateTime
 
 
 def assert_that_actual_measurement_close_to_expected(actual, expected_text, tolerance=None, reason=''):
-    try:
-        expected = orchid.unit_registry.Quantity(expected_text)
-    except pint.errors.OffsetUnitCalculusError:
-        # Unit most likely temperature
-        magnitude_text, unit = expected_text.split(maxsplit=1)
-        expected = orchid.unit_registry.Quantity(float(magnitude_text), unit)
-    except pint.errors.UndefinedUnitError:
-        expected_magnitude_text, expected_unit_text = expected_text.split(maxsplit=1)
-        if expected_unit_text == 'bpm':
-            expected = orchid.unit_registry.Quantity(f'{expected_magnitude_text} oil_bbl/min')
-        else:
-            raise
+    expected = parse_measurement(expected_text)
 
     # Allow error of +/- 1 in last significant figure of expected value.
     expected_magnitude_text = expected_text.split(maxsplit=1)[0]
@@ -50,22 +39,27 @@ def assert_that_actual_measurement_close_to_expected(actual, expected_text, tole
     tcm.assert_that_measurements_close_to(actual, expected, tolerance=tolerance, reason=reason)
 
 
+def parse_measurement(measurement_text):
+    try:
+        result = orchid.unit_registry.Quantity(measurement_text)
+    except pint.errors.OffsetUnitCalculusError:
+        # Unit most likely temperature
+        magnitude_text, unit = measurement_text.split(maxsplit=1)
+        result = orchid.unit_registry.Quantity(float(magnitude_text), unit)
+    except pint.errors.UndefinedUnitError:
+        expected_magnitude_text, expected_unit_text = measurement_text.split(maxsplit=1)
+        if expected_unit_text == 'bpm':
+            result = orchid.unit_registry.Quantity(f'{expected_magnitude_text} oil_bbl/min')
+        else:
+            raise
+    return result
+
+
 def assert_that_actual_measurement_magnitude_close_to_expected(actual: float,
                                                                expected_text: str,
                                                                tolerance:  decimal.Decimal = None,
                                                                reason: str = ''):
-    try:
-        expected = orchid.unit_registry.Quantity(expected_text)
-    except pint.errors.OffsetUnitCalculusError:
-        # Unit most likely temperature
-        magnitude_text, unit = expected_text.split(maxsplit=1)
-        expected = orchid.unit_registry.Quantity(float(magnitude_text), unit)
-    except pint.errors.UndefinedUnitError:
-        expected_magnitude_text, expected_unit_text = expected_text.split(maxsplit=1)
-        if expected_unit_text == 'bpm':
-            expected = orchid.unit_registry.Quantity(f'{expected_magnitude_text} oil_bbl/min')
-        else:
-            raise
+    expected = parse_measurement(expected_text)
 
     # Allow error of +/- 1 in last significant figure of expected value.
     expected_magnitude_text = expected_text.split(maxsplit=1)[0]

@@ -28,13 +28,14 @@ import json
 import math
 import unittest.mock
 import uuid
-from typing import Callable, Dict, Iterable, Optional, Sequence, Union
+from typing import Callable, Dict, Iterable, Sequence, Union
 
 import pendulum as pdt
 import toolz.curried as toolz
 
 from orchid import (
     measurement as om,
+    native_treatment_curve_adapter as ntc,
     net_date_time as ndt,
     net_quantity as onq,
     net_stage_qc as nqc,
@@ -258,7 +259,7 @@ class StageDto:
     # TODO: Change `start_time` and `stop_time` defaults to `ndt.DATETIME_NAT`
     start_time: pdt.DateTime = None
     stop_time: pdt.DateTime = None
-    treatment_curve_names: Iterable[str] = None
+    treatment_curve_names: Iterable[ntc.TreatmentCurveTypes] = None
 
     def create_net_stub(self):
         stub_net_stage_name = 'stub_net_stage'
@@ -333,7 +334,7 @@ class StageDto:
 
 
 @dc.dataclass
-class MutableStageDto(StagePartDto):
+class MutableStageDto(StageDto):
     def create_net_stub(self):
         # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
         # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
@@ -345,6 +346,112 @@ class MutableStageDto(StagePartDto):
 
         # This attribute allows callers to monitor calls to `Parts.Add`
         result.Parts.Add = unittest.mock.Mock(name='Parts.Add')
+
+        # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
+        # block as it exits the context.
+        result.Dispose = unittest.mock.Mock(name='Dispose')
+
+        return result
+
+
+@dc.dataclass
+class WellDto:
+    object_id: uuid.UUID = None
+    name: str = ''
+    display_name: str = ''
+    ground_level_elevation_above_sea_level: om.Quantity = None
+    kelly_bushing_height_above_ground_level: om.Quantity = None
+    uwi: str = None
+    locations_for_md_kb_values: Iterable[om.Quantity] = None
+    formation: str = None
+    stage_dtos: Iterable[Dict] = ()
+    wellhead_location: Iterable[om.Quantity] = None
+
+    def create_net_stub(self):
+        try:
+            result = unittest.mock.MagicMock(name=self.name, spec=IWell)
+        except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
+            result = unittest.mock.MagicMock(name=self.name)
+
+        if self.object_id is not None:
+            result.ObjectId = Guid(self.object_id)
+
+        if self.name:
+            result.Name = self.name
+
+        if self.display_name:
+            result.DisplayName = self.display_name
+
+        if self.ground_level_elevation_above_sea_level is not None:
+            result.GroundLevelElevationAboveSeaLevel = make_net_measurement(
+                self.ground_level_elevation_above_sea_level)
+
+        if self.kelly_bushing_height_above_ground_level is not None:
+            result.KellyBushingHeightAboveGroundLevel = make_net_measurement(
+                self.kelly_bushing_height_above_ground_level)
+
+        if self.uwi:
+            result.Uwi = self.uwi
+
+        if self.formation:
+            result.Formation = self.formation
+        else:
+            result.Formation = ''
+
+        result.Stages.Items = [StageDto(**stage_dto).create_net_stub() for stage_dto in self.stage_dtos]
+
+        if self.wellhead_location:
+            # wellhead_location (whl) will be a list of 3 quantities (easting, northing, depth)
+            whl = toolz.pipe(self.wellhead_location,
+                             toolz.map(make_net_measurement),
+                             list,)
+            result.WellHeadLocation = whl
+
+        locations_for_net_values = _convert_locations_for_md_kb_values(self.locations_for_md_kb_values)
+
+        def get_location_for(md_kb_values, frame, datum):
+            # return an empty list if nothing configured
+            if not locations_for_net_values:
+                return []
+
+            def is_matching_args(to_test):
+                to_test_samples, to_test_frame, to_test_datum = to_test
+                if to_test_frame != frame:
+                    return False
+
+                if to_test_datum != datum:
+                    return False
+
+                each_equals = toolz.map(onq.equal_net_quantities, to_test_samples, md_kb_values)
+                return all(each_equals)
+
+            candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
+            if len(candidates) == 0:
+                return None
+            elif len(candidates) > 1:
+                raise ValueError(f'Multiple items matching {(md_kb_values, frame, datum)}.')
+
+            return list(candidates.items())[0][1]
+
+        result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
+        result.GetLocationsForMdKbValues.side_effect = get_location_for
+
+        return result
+
+
+@dc.dataclass
+class MutableWellDto(WellDto):
+    def create_net_stub(self):
+        # Because the .NET stub is returned as a call to `ToMutable` and because this result is passed to
+        # `dnd.disposable`, it cannot be a `MagicMock` instance. If it is a `MagicMock`, the calls to
+        # `hasattr` will be "fooled" because `MagicMock` will report that this instance has both dunder
+        # methods `__enter__` and `__exit__`. I actually want the context manager returned by
+        # `dnd.disposable()` to return *this* mock instance, so I make it an instance of `Mock` which
+        # will not, be default, implement the `__enter__` and `__exit__` dunder methods.
+        result = unittest.mock.Mock(name='stub_mutable_net_well')
+
+        # This attribute allows callers to monitor calls to `Add`
+        result.Add = unittest.mock.Mock(name='Add')
 
         # This attribute allows `dnd.disposable` to invoke this stub `Dispose` method in its `finally`
         # block as it exits the context.
@@ -702,79 +809,6 @@ def _convert_locations_for_md_kb_values(locations_for_md_kb_values):
     return toolz.valmap(make_net_subsurface_points, locations_with_net_keys)
 
 
-def create_stub_net_well(object_id=None, name='', display_name='', ground_level_elevation_above_sea_level=None,
-                         kelly_bushing_height_above_ground_level=None, uwi=None, locations_for_md_kb_values=None,
-                         formation=None, stage_dtos=(), wellhead_location=None):
-    try:
-        result = unittest.mock.MagicMock(name=name, spec=IWell)
-    except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
-        result = unittest.mock.MagicMock(name=name)
-
-    if object_id is not None:
-        result.ObjectId = Guid(object_id)
-
-    if name:
-        result.Name = name
-
-    if display_name:
-        result.DisplayName = display_name
-
-    if ground_level_elevation_above_sea_level is not None:
-        result.GroundLevelElevationAboveSeaLevel = make_net_measurement(ground_level_elevation_above_sea_level)
-
-    if kelly_bushing_height_above_ground_level is not None:
-        result.KellyBushingHeightAboveGroundLevel = make_net_measurement(kelly_bushing_height_above_ground_level)
-
-    if uwi:
-        result.Uwi = uwi
-
-    if formation:
-        result.Formation = formation
-    else:
-        result.Formation = ''
-
-    # Initialize the .NET `Wells.Items` property using `well_dtos`
-    result.Stages.Items = [StageDto(**stage_dto).create_net_stub() for stage_dto in stage_dtos]
-
-    if wellhead_location:
-        # wellhead_location (whl) will be a list of 3 quantities (easting, northing, depth)
-        whl = toolz.pipe(wellhead_location,
-                         toolz.map(make_net_measurement),
-                         list, )
-        result.WellHeadLocation = whl
-
-    locations_for_net_values = _convert_locations_for_md_kb_values(locations_for_md_kb_values)
-
-    def get_location_for(md_kb_values, frame, datum):
-        # return an empty list if nothing configured
-        if not locations_for_net_values:
-            return []
-
-        def is_matching_args(to_test):
-            to_test_samples, to_test_frame, to_test_datum = to_test
-            if to_test_frame != frame:
-                return False
-
-            if to_test_datum != datum:
-                return False
-
-            each_equals = toolz.map(onq.equal_net_quantities, to_test_samples, md_kb_values)
-            return all(each_equals)
-
-        candidates = toolz.keyfilter(is_matching_args, locations_for_net_values)
-        if len(candidates) == 0:
-            return None
-        elif len(candidates) > 1:
-            raise ValueError(f'Multiple items matching {(md_kb_values, frame, datum)}.')
-
-        return list(candidates.items())[0][1]
-
-    result.GetLocationsForMdKbValues = unittest.mock.MagicMock(name='get_locations_for_md_kb_values')
-    result.GetLocationsForMdKbValues.side_effect = get_location_for
-
-    return result
-
-
 def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_physical_quantities=None,
                             data_frame_dtos=(), default_well_colors=None, fluid_density=None,
                             monitor_dtos=(), project_bounds=None, project_center=None,
@@ -843,7 +877,7 @@ def create_stub_net_project(name='', azimuth=None, curve_names=None, curves_phys
 
     # Initialize the .NET `Wells.Items` property using `well_dtos`
     if len(well_dtos) > 0:
-        stub_net_project.Wells.Items = [create_stub_net_well(**well_dto) for well_dto in well_dtos]
+        stub_net_project.Wells.Items = [WellDto(**well_dto).create_net_stub() for well_dto in well_dtos]
 
     # TODO: this code assumes that a caller initializes either `curve_names` or `time_series_dtos`.
     if len(curve_names) > 0:

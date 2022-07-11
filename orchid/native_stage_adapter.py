@@ -16,8 +16,10 @@
 #
 
 
+import dataclasses as dc
 from enum import IntEnum
-from typing import Tuple, Union
+import math
+from typing import Optional, Tuple, Union
 
 import deal
 import option
@@ -43,15 +45,23 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics import FormationConnectionType
+from Orchid.FractureDiagnostics import FormationConnectionType, IStagePart
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories import Calculations
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.SDKFacade import ScriptAdapter
+# noinspection PyUnresolvedReferences
 import UnitsNet
+# noinspection PyUnresolvedReferences
+from System.Collections.Generic import List
 # noinspection PyUnresolvedReferences
 import System
 
+
 VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit system length.'
+
+
+_object_factory = fdf.create()
 
 
 class ConnectionType(IntEnum):
@@ -351,7 +361,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def md_bottom(self, in_length_unit: Union[units.UsOilfield, units.Metric]):
         """
-        Return the measured depth of the bottom of this stage (farthest from the well head / closest to the toe)
+        Return the measured depth of the bottom of this stage (farthest from the wellhead / closest to the toe)
         in the specified unit.
 
         Args:
@@ -364,7 +374,7 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
     def md_top(self, in_length_unit: Union[units.UsOilfield, units.Metric]) -> om.Quantity:
         """
-        Return the measured depth of the top of this stage (closest to the well head / farthest from the toe)
+        Return the measured depth of the top of this stage (closest to the wellhead / farthest from the toe)
         in the specified unit.
 
         Args:
@@ -448,3 +458,163 @@ class NativeStageAdapter(dpo.DomProjectObject):
                             # Transform the map to a dictionary keyed by the sampled quantity name
                             lambda cs: toolz.reduce(add_curve, cs, {}))
         return result
+
+
+@dc.dataclass
+class CreateStageDto:
+    stage_no: int  # Must be positive
+    connection_type: ConnectionType
+    md_top: om.Quantity  # Must be length
+    md_bottom: om.Quantity  # Must be length
+
+    cluster_count: int = 0  # Must be non-negative
+    maybe_shmin: Optional[om.Quantity] = None  # If not `None`, must be pressure
+    # WARNING: one need supply neither a start time nor a stop time; however, not supplying this data can
+    # produce unexpected behavior for the `global_stage_sequence_number` property. For example, one can
+    # generate duplicate values for the `global_stage_sequence_number`. This unexpected behavior is a known
+    # issue with Orchid.
+    #
+    # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
+    maybe_time_range: Optional[pdt.Period] = None
+    # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
+    # the project saved with the added stages.
+    maybe_isip: Optional[om.Quantity] = None  # If not `None`, must be a pressure
+
+    order_of_completion_on_well = property(fget=lambda self: self.stage_no - 1)
+
+    def __post_init__(self):
+        # See the
+        # [StackOverflow post](https://stackoverflow.com/questions/54488765/validating-input-when-mutating-a-dataclass)
+        if self.stage_no <= 0:
+            raise ValueError(f'Expected stage_no to be positive. Found {self.stage_no}')
+        if not self.md_top.check('[length]'):
+            raise ValueError(f'Expected md_top to be a length. Found {self.md_top:~P}')
+        if not self.md_bottom.check('[length]'):
+            raise ValueError(f'Expected md_bottom to be a length. Found {self.md_bottom:~P}')
+        if self.cluster_count < 0:
+            raise ValueError(f'Expected cluster_count to be non-negative. Found {self.cluster_count}')
+        if self.maybe_isip is not None:
+            if not self.maybe_isip.check('[pressure]'):
+                raise ValueError(f'Expected maybe_isip to be a pressure if not None. Found {self.maybe_isip:~P}')
+        if self.maybe_shmin is not None:
+            if not self.maybe_shmin.check('[pressure]'):
+                raise ValueError(f'Expected maybe_shmin to be a pressure if not None. Found {self.maybe_shmin:~P}')
+
+    def create_stage(self, well) -> NativeStageAdapter:
+        """
+        Creates a stage from this DTO.
+
+        Args:
+            well (NativeWellAdapter): The well of the created `NativeStageAdapter`
+
+        Returns:
+            The `NativeStageAdapter` wrapping the created .NET `IStage` instance.
+
+        """
+        project_unit_system = units.as_unit_system(well.dom_object.Project.ProjectUnits)
+        native_md_top = onq.as_net_quantity(project_unit_system.LENGTH, self.md_top)
+        native_md_bottom = onq.as_net_quantity(project_unit_system.LENGTH, self.md_bottom)
+        if self.maybe_shmin is None:
+            native_shmin = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+        elif math.isnan(self.maybe_shmin.magnitude):
+            native_shmin = ScriptAdapter.MakeOptionNone[UnitsNet.Pressure]()
+        else:
+            native_shmin = ScriptAdapter.MakeOptionSome(
+                onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_shmin))
+        completion_order_on_well = System.UInt32(self.order_of_completion_on_well)
+        connection_type = self.connection_type.value
+        cluster_count = System.UInt32(self.cluster_count)
+        no_time_range_native_stage = self.create_net_stage(well.dom_object, completion_order_on_well,
+                                                           connection_type, native_md_top,
+                                                           native_md_bottom, native_shmin,
+                                                           cluster_count)
+
+        with dnd.disposable(no_time_range_native_stage.ToMutable()) as mutable_stage:
+            native_start_time = (ndt.as_net_date_time(self.maybe_time_range.start)
+                                 if self.maybe_time_range is not None
+                                 else pdt.DateTime.max)
+            native_stop_time = (ndt.as_net_date_time(self.maybe_time_range.end)
+                                if self.maybe_time_range is not None
+                                else pdt.DateTime.max)
+            if self.maybe_isip is None:
+                native_isip = None
+            elif math.isnan(self.maybe_isip.magnitude):
+                native_isip = None
+            else:
+                native_isip = onq.as_net_quantity(project_unit_system.PRESSURE, self.maybe_isip)
+
+            stage_part = self.create_net_stage_part(no_time_range_native_stage, native_start_time, native_stop_time,
+                                                    native_isip)
+            self.add_stage_part_to_stage(mutable_stage, stage_part)
+
+        # Alias to better communicate intent
+        created_native_stage = no_time_range_native_stage
+        return NativeStageAdapter(created_native_stage)
+
+    @staticmethod
+    def create_net_stage(native_well, completion_order_on_well, connection_type, native_md_top, native_md_bottom,
+                         native_shmin, cluster_count):
+        """
+        Create a .NET `IStage`.
+
+        This method primarily exists so that I can mock the call in unit tests.
+
+        Args:
+            native_well: The .NET `IWell` instance to which the created `IStage` refers.
+            completion_order_on_well: The order of completion of this stage of the referenced `IWell`.
+            connection_type: The .NET `FormationConnectionType` of the created .NET stage.
+            native_md_top: The measured depth of the top (toward the heel) of the created .NET stage.
+            native_md_bottom: The measured depth of the bottom (toward the toe) of the created .NET stage.
+            native_shmin: The minimum horizontal stress of the created .NET stage.
+            cluster_count: The cluster count of the created .NET stage.
+
+        Returns:
+            The newly created .NET `IStage` instance.
+        """
+        no_time_range_native_stage = _object_factory.CreateStage(
+            System.UInt32(completion_order_on_well),
+            native_well,
+            connection_type,
+            native_md_top,
+            native_md_bottom,
+            native_shmin,
+            System.UInt32(cluster_count)
+        )
+        return no_time_range_native_stage
+
+    @staticmethod
+    def create_net_stage_part(native_stage, native_start_time, native_stop_time, native_isip):
+        """
+        Create . .NET `IStagePart` instance.
+
+        This method primarily exists so that I can mock the call in unit tests.
+
+        Args:
+            native_stage: The .NET `IStage` to which the created `IStagePart` refers.
+            native_start_time: The start time of the created `IStagePart`.
+            native_stop_time: The stop time of the created `IStagePart`.
+            native_isip: The ISIP of the created `IStagePart`.
+
+        Returns:
+            The newly created `IStagePart` with the specified details.
+        """
+        stage_part = _object_factory.CreateStagePart(native_stage,
+                                                     native_start_time,
+                                                     native_stop_time,
+                                                     native_isip)
+        return stage_part
+
+    @staticmethod
+    def add_stage_part_to_stage(mutable_stage, stage_part):
+        """
+        Add a newly created `stage_part` to a newly created `mutable_stage`.
+
+        This method exists primarily so that I can mock it for unit tests.
+
+        Args:
+            mutable_stage: The newly created stage supporting mutability.
+            stage_part: The newly created stage part.
+        """
+        stage_parts = List[IStagePart]()
+        stage_parts.Add(stage_part)
+        mutable_stage.Parts = stage_parts

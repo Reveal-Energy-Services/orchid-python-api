@@ -19,10 +19,19 @@ import decimal
 import unittest.mock
 import uuid
 
-from hamcrest import assert_that, equal_to, instance_of, is_, empty, contains_exactly
+from hamcrest import (
+    assert_that,
+    equal_to,
+    instance_of,
+    is_,
+    empty,
+    contains_exactly,
+)
+import pendulum as pdt
 
 from orchid import (
     measurement as om,
+    native_stage_adapter as nsa,
     native_trajectory_adapter as nta,
     native_well_adapter as nwa,
     reference_origins as origins,
@@ -61,7 +70,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test ground level elevation, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(ground_level_elevation_above_sea_level=orchid_actual)
+                stub_native_well = tsn.WellDto(ground_level_elevation_above_sea_level=orchid_actual).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.ground_level_elevation_above_sea_level, expected, tolerance)
@@ -80,7 +89,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         ]:
             with self.subTest(f'Test kelly bushing height above ground level, {expected:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(kelly_bushing_height_above_ground_level=orchid_actual)
+                stub_native_well = tsn.WellDto(kelly_bushing_height_above_ground_level=orchid_actual).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
                 tcm.assert_that_measurements_close_to(
                     sut.kelly_bushing_height_above_ground_level, expected, tolerance)
@@ -99,7 +108,7 @@ class TestNativeWellAdapter(unittest.TestCase):
             expected_names = get_stage_dtos_property('name')
             with self.subTest(f'Verify monitors object IDs, {expected_object_ids}'
                               f' and names, {expected_names}'):
-                stub_native_well = tsn.create_stub_net_well(stage_dtos=stage_dtos)
+                stub_native_well = tsn.WellDto(stage_dtos=stage_dtos).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 assert_that(sut.stages().all_object_ids(), contains_exactly(*expected_object_ids))
@@ -127,7 +136,7 @@ class TestNativeWellAdapter(unittest.TestCase):
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_empty_locations_for_md_kb_values_if_empty_md_kb_values(self, mock_as_unit_system):
         mock_as_unit_system.return_value = units.Metric
-        stub_native_well = tsn.create_stub_net_well()
+        stub_native_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_native_well)
 
         actual = sut.locations_for_md_kb_values([], origins.WellReferenceFrameXy.PROJECT, origins.DepthDatum.SEA_LEVEL)
@@ -179,8 +188,8 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(f'Test single location, {expected.x:~P} at md_kb value, {md_kb_dto.magnitude}'
                               f' {md_kb_dto.unit.value.unit:~P}'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(
-                    locations_for_md_kb_values={((md_kb_dto,), frame, datum): [orchid_actual]})
+                stub_native_well = tsn.WellDto(
+                    locations_for_md_kb_values={((md_kb_dto,), frame, datum): [orchid_actual]}).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
@@ -242,8 +251,8 @@ class TestNativeWellAdapter(unittest.TestCase):
             with self.subTest(f'Test many locations, {expected[0]}..., in project_units {project_units}'
                               f' at values, {md_kb_values[0]}...'):
                 mock_as_unit_system.return_value = project_units
-                stub_native_well = tsn.create_stub_net_well(
-                    locations_for_md_kb_values={(md_kb_values, frame, datum): orchid_actual})
+                stub_native_well = tsn.WellDto(
+                    locations_for_md_kb_values={(md_kb_values, frame, datum): orchid_actual}).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
@@ -259,12 +268,12 @@ class TestNativeWellAdapter(unittest.TestCase):
 
     def test_formation_returns_expected_formation_when_initialized(self):
         expected_formation = 'Bakken'
-        stub_native_well = tsn.create_stub_net_well(formation=expected_formation)
+        stub_native_well = tsn.WellDto(formation=expected_formation).create_net_stub()
         sut = nwa.NativeWellAdapter(stub_native_well)
         assert_that(sut.formation, equal_to(expected_formation))
 
     def test_formation_returns_empty_string_when_net_formation_uninitialized(self):
-        stub_native_well = tsn.create_stub_net_well()
+        stub_native_well = tsn.WellDto().create_net_stub()
         sut = nwa.NativeWellAdapter(stub_native_well)
         # TODO Add custom matcher 'empty_string()', test would be "assert_that(sut.formation, equal_to(empty_string())"
         assert_that(sut.formation, equal_to(''))
@@ -300,7 +309,7 @@ class TestNativeWellAdapter(unittest.TestCase):
         for input_location, expected_location, tolerances in zip(inputs, expected, comparison_tolerances):
             whl_input = [input_location.easting, input_location.northing, input_location.depth]
             mock_as_unit_system.return_value = units.UsOilfield
-            stub_native_well = tsn.create_stub_net_well(wellhead_location=whl_input)
+            stub_native_well = tsn.WellDto(wellhead_location=whl_input).create_net_stub()
             sut = nwa.NativeWellAdapter(stub_native_well)
             whl_actual = sut.wellhead_location
             with self.subTest(f'Testing Wellhead Location'):
@@ -310,6 +319,111 @@ class TestNativeWellAdapter(unittest.TestCase):
                                                       tolerances.northing)
                 tcm.assert_that_measurements_close_to(whl_actual.depth, expected_location.depth,
                                                       tolerances.depth)
+
+
+# Test ideas
+# - Call add_stages with one stage DTO calls `CreateStage` once
+# - Call add_stages with many stage DTOs calls `CreateStage` many times
+# - Call add_stages with one stage DTO calls `CreateStage` with correct arguments
+class TestNativeWellAdapterAddStages(unittest.TestCase):
+    def test_canary(self):
+        assert_that(2 + 2, equal_to(4))
+
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
+    def test_add_stages_with_no_items_calls_neither_create_stage_nor_well_add_stages(self, stub_create_stage):
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_net_mutable_well = tsn.MutableWellDto().create_net_stub()
+        stub_net_well.ToMutable.return_value = stub_net_mutable_well
+        sut = nwa.NativeWellAdapter(stub_net_well)
+        sut.add_stages([])
+
+        stub_create_stage.assert_not_called()
+        stub_net_mutable_well.Add.assert_not_called()
+
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
+    @unittest.mock.patch('orchid.native_well_adapter.NativeWellAdapter._create_net_stages')
+    def test_add_stages_with_one_item_calls_both_create_stage_add_well_add_stages_once(self,
+                                                                                       stub_create_net_stages,
+                                                                                       stub_create_stage,
+                                                                                       ):
+        created_stage = nsa.NativeStageAdapter(tsn.StageDto().create_net_stub())
+        stub_create_stage.return_value = created_stage
+
+        created_net_stages = unittest.mock.MagicMock('created_net_stages')
+        stub_create_net_stages.return_value = created_net_stages
+
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_net_mutable_well = tsn.MutableWellDto().create_net_stub()
+        stub_net_well.ToMutable.return_value = stub_net_mutable_well
+        sut = nwa.NativeWellAdapter(stub_net_well)
+
+        # noinspection PyTypeChecker
+        dont_care_stage_dto = nsa.CreateStageDto(25, nsa.ConnectionType.PLUG_AND_PERF,
+                                                 15147.3 * om.registry.ft, 15283.3 * om.registry.ft,
+                                                 5, 2.29883 * om.registry.psi,
+                                                 pdt.parse('2021-07-12T05:29:34/2021-07-12T07:13:09', tz='UTC'),
+                                                 34718.7 * om.registry.kPa)
+        sut.add_stages([dont_care_stage_dto])
+
+        # noinspection PyUnresolvedReferences
+        sut._create_net_stages.assert_called_once_with([created_stage])
+        stub_net_mutable_well.AddStages.assert_called_once_with(created_net_stages)
+
+    @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
+    @unittest.mock.patch('orchid.native_well_adapter.NativeWellAdapter._create_net_stages')
+    def test_add_stages_with_many_items_calls_both_create_stage_add_well_add_stages_many(self,
+                                                                                         stub_create_net_stages,
+                                                                                         stub_create_stage,
+                                                                                         ):
+        created_net_stages = [tsn.StageDto().create_net_stub() for _ in range(3)]
+        created_stages = [nsa.NativeStageAdapter(created_net_stage)
+                          for created_net_stage in created_net_stages]
+        # Use `side_effect` because `nsa.CreateStageDto.create_stage` call **multiple** times
+        # each with a single argument.
+        stub_create_stage.side_effect = created_stages
+
+        # Use `return_value` because `nwa._create_net_stages` called **once** with a **single** argument
+        # that is an `Iterable`.
+        stub_create_net_stages.return_value = created_net_stages
+
+        stub_net_well = tsn.WellDto().create_net_stub()
+        stub_net_mutable_well = tsn.MutableWellDto().create_net_stub()
+        stub_net_well.ToMutable.return_value = stub_net_mutable_well
+        sut = nwa.NativeWellAdapter(stub_net_well)
+
+        dont_care_stage_dtos_details = [
+            {'stage_no': 9,
+             'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+             'md_top': 15762.9 * om.registry.ft,
+             'md_bottom': 15898.8 * om.registry.ft,
+             'cluster_count': 5,
+             'maybe_shmin': 16.24 * om.registry.kPa,
+             'maybe_time_range': pdt.parse('2019-01-08T10:57:31/2019-01-08T12:39:14', tz='UTC'),
+             'maybe_isip': 5109.66 * om.registry.psi},
+            {'stage_no': 27,
+             'connection_type': nsa.ConnectionType.SLIDING_SLEEVE,
+             'md_top': 12658.8 * om.registry.ft,
+             'md_bottom': 12795.8 * om.registry.ft,
+             'cluster_count': 3,
+             'maybe_shmin': 2.275 * om.registry.psi,
+             'maybe_time_range': pdt.parse('2020-04-21T08:29:33/2020-04-21T10:20:29', tz='UTC'),
+             'maybe_isip': 34566.8 * om.registry.kPa},
+            {'stage_no': 47,
+             'connection_type': nsa.ConnectionType.PLUG_AND_PERF,
+             'md_top': 3553.9 * om.registry.m,
+             'md_bottom': 3591.8 * om.registry.m,
+             'cluster_count': 7,
+             'maybe_shmin': 2.307 * om.registry.psi,
+             'maybe_time_range': pdt.parse('2025-11-19T12:14:52/2025-11-19T13:42:49', tz='UTC'),
+             'maybe_isip': 33949.6 * om.registry.kPa},
+        ]
+
+        dont_care_stage_dtos = [nsa.CreateStageDto(**details) for details in dont_care_stage_dtos_details]
+        sut.add_stages(dont_care_stage_dtos)
+
+        # noinspection PyUnresolvedReferences
+        sut._create_net_stages.assert_called_once_with(created_stages)
+        stub_net_mutable_well.AddStages.assert_called_once_with(created_net_stages)
 
 
 if __name__ == '__main__':

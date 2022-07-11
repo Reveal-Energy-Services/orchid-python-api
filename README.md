@@ -54,7 +54,7 @@ In addition, this project includes five scripts and a notebook in the `examples/
 | `auto_pick_and_create_stage_attribute.py` | Create and save stage attributes                                 |
 | `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method      |
 | `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series | 
-| `add_stages.py`                           | Adds newly created stages to a well of a project                 | 
+| `add_stages_low.py`                       | Adds newly created stages to a well of a project                 | 
 
 The notebook, `auto_pick.ipynb` contain the same code as the script, `auto_pick.py`, but runs in a Jupyter
 notebook.
