@@ -15,21 +15,42 @@ to render the file, you can much more easily navigate the document links.
 
 ### Release notes for 2022.2.304-b1
 
-This release is the production release of the Orchid Python API corresponding to Orchid 2022.2. This release:
+This release is a beta release of the Orchid Python API corresponding to Orchid 2022.2. This release:
 
-- 
+- Implements a high-level (Pythonic) API to create stages and add them to a well
+- Improves performance of loading an Orchid project by using a new .NET feature to load projects in parallel
+- Restore minimum Python version to 3.8.3
+- Repaired `pandas.DataFrame.append` "Future Warning" in examples
+
+#### Possible breaking .NET API changes
+
+- .NET API renames `StageCorrectionStatus` to `CorrectionStatus`
+- Added comments describing work around the integer-valued stage attribute limitation
+- Change Python API for stages to handle optional .NET values for `Isip`, `PNet` and `Shmin`
 
 #### Resolved Issues
 
-- 
+- [GitHub issue 35](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/35)
+- [GitHub issue 33](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/33)
+- [GitHub issue 32](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/32)
 
 #### Features
 
-- 
+- Well and Stage
+  - Implements a high-level (Pythonic) API to create stages and add them to a well
+
+- Examples (high-level)
+  - Add tutorial script to create stages and add them to a well
+
+- Examples (low-level)
+  - Repaired low-level (Python.NET) script to create stages and add them to a well
+
+- Distribution
+  - None
 
 #### Known Issues
 
-- 
+- [GitHub issue 34](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/34)
 
 ### Release notes for 2022.1.360
 
