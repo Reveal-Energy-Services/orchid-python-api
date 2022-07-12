@@ -366,7 +366,7 @@ To work around this issue, one may need to uninstall `poetry` by:
 - If using a `bash` shell:
   - Download the poetry installer by executing
     ```
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py >get-poetry.py
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python - 
     ```
 
 See [Poetry Issue 2245](https://github.com/python-poetry/poetry/issues/2245) for similar instructions. After
