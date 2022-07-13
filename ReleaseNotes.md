@@ -13,7 +13,7 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
-### Release notes for 2022.2.304-b1
+### Release notes for 2022.2.304b1 (2022-07-11)
 
 This release is a beta release of the Orchid Python API corresponding to Orchid 2022.2. This release:
 

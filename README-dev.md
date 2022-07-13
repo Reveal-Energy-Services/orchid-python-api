@@ -402,8 +402,8 @@ To update the project dependencies:
     [post-release](https://www.python.org/dev/peps/pep-0440/#post-releases) or a
     [pre-release](https://www.python.org/dev/peps/pep-0440/#post-releases) segment, append this segment to the
     version identifier in `orchid/VERSION`. This action results in an API version identifier like
-    - `2021.1.399.post1` - a post-release or
-    - `2021.1.399.b3` - a "beta-3" pre-release
+    - `2021.1.399post1` - a post-release or
+    - `2021.1.399b3` - a "beta-3" pre-release
 
 #### Edit the package version number
 
