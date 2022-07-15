@@ -14,7 +14,7 @@
 
 
 """
-Low-level example of creating a multi-picking event.
+Low-level example of creating multi-picking events.
 """
 
 import argparse
@@ -186,7 +186,7 @@ def make_target_file_name_from_source(source_file_name):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Create a multi-picking event observation.")
+    parser = argparse.ArgumentParser(description="Create multi-picking events.")
     parser.add_argument('-v', '--verbosity', type=int, choices=[0, 1, 2], default=0,
                         help='Increase output verbosity. (Default: 0; that is, least output.)')
 
