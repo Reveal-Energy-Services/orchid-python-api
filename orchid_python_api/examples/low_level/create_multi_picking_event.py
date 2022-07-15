@@ -18,7 +18,6 @@ Low-level example of creating a multi-picking event.
 """
 
 import argparse
-import functools
 import logging
 import pathlib
 
@@ -47,7 +46,13 @@ import UnitsNet
 clr.AddReference('Orchid.Math')
 clr.AddReference('System.Collections')
 # noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import IStagePart
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics.MultiPickingObservation import Classification as MultiPickingObservationClassification
+# noinspection PyUnresolvedReferences
 from Orchid.Math import Interpolation
+# noinspection PyUnresolvedReferences
+from System import DateTime
 # noinspection PyUnresolvedReferences
 from System.Collections.Generic import List
 
@@ -65,7 +70,54 @@ def multi_pick_observations(native_project, native_monitor):
     Returns:
 
     """
-    pass
+    observation_set = object_factory.CreateObservationSet(native_project, 'Multi-pick Observation Set')
+
+    # Arbitrarily select well, 'Demo_1H'
+    monitored_well = [well for well in native_project.Wells.Items if well.Name == 'Demo_1H'][0]
+    # Arbitrarily select stages and classifications. All stages are visible with a single stage part.
+    monitored_stage_numbers = {
+        37: MultiPickingObservationClassification.Spacer,
+        38: MultiPickingObservationClassification.DiverterDrop,
+        44: MultiPickingObservationClassification.Chemical,
+        16: MultiPickingObservationClassification.RateChange,
+        33: MultiPickingObservationClassification.BadData,
+    }
+    monitored_stages = [stage for stage in monitored_well.Stages.Items if
+                        stage.DisplayStageNumber in monitored_stage_numbers]
+    for stage in monitored_stages:
+        if is_stage_visible_to_monitor(native_monitor, stage):
+            stage_parts = stage.Parts
+            for part in stage_parts:
+                # Create multi-pick observation
+                picked_observation = object_factory.CreateMultiPickingEventObservation(
+                    part, part.StartTime, monitored_stage_numbers[stage.DisplayStageNumber],
+                    f'auto-pick: {monitored_stage_numbers[stage.DisplayStageNumber]}')
+
+                # Add picked observation to observation set
+                with dnd.disposable(observation_set.ToMutable()) as mutable_observation_set:
+                    mutable_observation_set.AddEvent(picked_observation)
+
+    # Add observation set to project
+    project_with_observation_set = native_project  # An alias to better communicate intent
+    with dnd.disposable(native_project.ToMutable()) as mutable_project:
+        mutable_project.AddObservationSet(observation_set)
+
+    return project_with_observation_set
+
+
+def is_stage_visible_to_monitor(native_monitor, stage):
+    """
+    Determine if the stage treatment is visible to the specified monitor.
+
+    Args:
+        native_monitor: The .NET `IMonitor` that may "see" the stage treatment.
+        stage: The stage of interest.
+
+    Returns:
+        True if the stage is being treated while the monitor is actively monitoring pressures.
+    """
+    return (stage.StartTime.Ticks > native_monitor.StartTime.Ticks and
+            stage.StopTime.Ticks < native_monitor.StopTime.Ticks)
 
 
 def main(cli_args):
@@ -96,7 +148,8 @@ def main(cli_args):
         logging.info(f'{len(native_project.ObservationSets.Items)=}')
         for observation_set in native_project.ObservationSets.Items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(observation_set.GetObservations())=}')
+            logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
+            logging.info(f'{len(observation_set.MultiPickingObservations.Items)=}')
 
     # Save project changes to specified .ifrac file
     target_path_name = cli_args.output_project
