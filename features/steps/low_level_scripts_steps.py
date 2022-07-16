@@ -321,12 +321,17 @@ def step_impl(context, set_name):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_leak_off_count, actual_multi_pick_count = pso.get_observations_counts.parse(script_output)
+        actual_results = pso.get_observations_counts.parse(script_output)
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_observation_counts = context.table
 
-    assert_that(2, equal_to(len(expected_observation_counts.rows)))
+    assert_that(len(actual_results['ParentWellObservations']),
+                equal_to(len(expected_observation_counts.headings)),
+                f'ParentWellObservations columns')
+    assert_that(len(actual_results['MultiPickingObservations']),
+                equal_to(len(expected_observation_counts.headings)),
+                f'MultiPickingObservations columns')
 
     # for expected_details_row, actual_details in zip(expected_added_stage_details.rows, actual_added_stages_details):
     #     assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))

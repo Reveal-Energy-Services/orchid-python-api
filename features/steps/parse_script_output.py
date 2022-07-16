@@ -29,6 +29,12 @@ import pendulum as pdt
 import parsy
 
 
+LEAK_OFF_COUNTS = 'leak_off_counts'
+MULTI_PICKING_OBSERVATIONS_TEXT = 'MultiPickingObservations'
+MULTI_PICK_COUNTS = 'multi_pick_counts'
+PARENT_WELL_OBSERVATIONS_TEXT = 'ParentWellObservations'
+
+
 # If you need to test the regular expressions used in this parse, consider using [Pythex](https://pythex.org/)
 
 
@@ -65,7 +71,7 @@ get_observations = parsy.string("INFO:root:len(observation_set.GetObservations()
 multi_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Multi-pick Observation Set'")
 observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
-parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
+parent_well_observations = parsy.string(f"INFO:root:observation_set.Name='{PARENT_WELL_OBSERVATIONS_TEXT}'")
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
 python_var_name = parsy.regex(r'[\w_\d]+')
 python_attribute_name = (python_var_name << dot.optional()).many().map(lambda ns: '.'.join(ns))
@@ -317,10 +323,17 @@ def get_observations_counts():
     yield project_name
     yield newline >> observation_set_items
     yield newline >> parent_well_observations
-    leak_off_counts = yield newline >> get_leak_off_observations
-    multi_pick_counts = yield newline >> get_multi_pick_observations
+    parent_leak_off_counts = yield newline >> get_leak_off_observations
+    parent_multi_pick_counts = yield newline >> get_multi_pick_observations
     yield newline >> multi_picked_observation_set
+    multi_leak_off_counts = yield newline >> get_leak_off_observations
+    multi_multi_pick_counts = yield newline >> get_multi_pick_observations
     yield newline >> output_path_name
     yield newline
 
-    return leak_off_counts, multi_pick_counts
+    return {
+        PARENT_WELL_OBSERVATIONS_TEXT: {LEAK_OFF_COUNTS: parent_leak_off_counts,
+                                        MULTI_PICK_COUNTS: parent_multi_pick_counts},
+        MULTI_PICKING_OBSERVATIONS_TEXT: {LEAK_OFF_COUNTS: multi_leak_off_counts,
+                                          MULTI_PICK_COUNTS: multi_multi_pick_counts},
+    }
