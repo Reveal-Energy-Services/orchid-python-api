@@ -57,7 +57,12 @@ single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
 double_quoted_text = (double_quote >> parsy.regex(r"[^']+") << double_quote)
 
 auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
+get_leak_off_observations = (parsy.string("INFO:root:len(observation_set.LeakOffObservations.Items)=") >>
+                             parsy.regex(r'\d+').map(int))
+get_multi_pick_observations = (parsy.string("INFO:root:len(observation_set.MultiPickingObservations.Items)=") >>
+                               parsy.regex(r'\d+').map(int))
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
+multi_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Multi-pick Observation Set'")
 observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
 parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
@@ -305,3 +310,17 @@ def monitor_time_series_samples():
     about_time_series_samples = yield about_monitor_time_series_samples
 
     return TimeSeriesSamples(samples=samples, about=about_time_series_samples)
+
+
+@parsy.generate
+def get_observations_counts():
+    yield project_name
+    yield newline >> observation_set_items
+    yield newline >> parent_well_observations
+    leak_off_counts = yield newline >> get_leak_off_observations
+    multi_pick_counts = yield newline >> get_multi_pick_observations
+    yield newline >> multi_picked_observation_set
+    yield newline >> output_path_name
+    yield newline
+
+    return leak_off_counts, multi_pick_counts

@@ -104,3 +104,17 @@ Feature: Low-level example scripts
     Examples: monitor_time_series
       | script_file_name       |
       | monitor_time_series.py |
+
+  Scenario Outline: Automatically create multi-pick observations
+    Given I have copied the low-level script, '<script_file_name>', to the repository root
+    When I execute the script
+    Then I see that the <"ParentWellObservations"> set has observations
+      | leak_off_count | multi_pick_count |
+      | 17             | 0                |
+    And I see that the <"Multi-Pick Observation Set"> set has observations
+      | leak_off_count | multi_pick_count |
+      | 0              | 5                |
+
+    Examples: auto_pick_and_create_stage_attributes
+      | script_file_name        |
+      | multi_picking_events.py |
