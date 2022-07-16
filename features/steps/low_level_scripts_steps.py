@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2022 Reveal Energy Services, Inc
+
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import sys
 from hamcrest import assert_that, equal_to
 import parsy
 import pendulum as pdt
+import toolz.curried as toolz
 
 import orchid
 
@@ -326,12 +327,12 @@ def step_impl(context, set_name):
         raise ExtendedParseError from pe
     expected_observation_counts = context.table
 
-    assert_that(len(actual_results['ParentWellObservations']),
-                equal_to(len(expected_observation_counts.headings)),
-                f'ParentWellObservations columns')
-    assert_that(len(actual_results['MultiPickingObservations']),
-                equal_to(len(expected_observation_counts.headings)),
-                f'MultiPickingObservations columns')
+    assert_that(len(actual_results[pso.PARENT_WELLS]),
+                equal_to(len(expected_observation_counts.headings)), f'{pso.PARENT_WELLS} columns')
+    assert_that(len(actual_results[pso.MULTI_PICKING]),
+                equal_to(len(expected_observation_counts.headings)), f'{pso.MULTI_PICKING} columns')
+
+    # assert_that(toolz.get_in(actual_results, [''])
 
     # for expected_details_row, actual_details in zip(expected_added_stage_details.rows, actual_added_stages_details):
     #     assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))
