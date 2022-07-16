@@ -307,7 +307,7 @@ def step_impl(context):
         raise ExtendedParseError from pe
 
 
-@then("I see that the {set_name} set has observations")
+@then('I see that the "{set_name}" set has observations')
 def step_impl(context, set_name):
     """
     Args:
@@ -327,12 +327,19 @@ def step_impl(context, set_name):
         raise ExtendedParseError from pe
     expected_observation_counts = context.table
 
-    assert_that(len(actual_results[pso.PARENT_WELLS]),
-                equal_to(len(expected_observation_counts.headings)), f'{pso.PARENT_WELLS} columns')
-    assert_that(len(actual_results[pso.MULTI_PICKING]),
-                equal_to(len(expected_observation_counts.headings)), f'{pso.MULTI_PICKING} columns')
+    print(f'{actual_results[set_name]=}')
+    print(f'{expected_observation_counts.rows=}')
+    # assert_that(len(actual_results[pso.PARENT_WELLS]),
+    #             equal_to(len(expected_observation_counts.headings)), f'{pso.PARENT_WELLS} columns')
+    # assert_that(len(list(actual_results[pso.PARENT_WELLS].values())),
+    #             equal_to(len(expected_observation_counts.rows)), f'{pso.PARENT_WELLS} rows')
+    # assert_that(len(actual_results[pso.MULTI_PICKING]),
+    #             equal_to(len(expected_observation_counts.headings)), f'{pso.MULTI_PICKING} columns')
+    # assert_that(len(list(actual_results[pso.MULTI_PICKING].values())),
+    #             equal_to(len(expected_observation_counts.rows)), f'{pso.MULTI_PICKING} rows')
 
-    # assert_that(toolz.get_in(actual_results, [''])
+    # assert_that(toolz.get_in(actual_results, [pso.PARENT_WELLS, pso.LEAK_OFF_COUNTS],
+    #                          expected_observation_counts.rows[0])
 
     # for expected_details_row, actual_details in zip(expected_added_stage_details.rows, actual_added_stages_details):
     #     assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))

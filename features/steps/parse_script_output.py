@@ -30,7 +30,7 @@ import parsy
 
 
 LEAK_OFF_COUNTS = 'leak_off_counts'
-MULTI_PICKING = 'MultiPickingObservations'
+MULTI_PICKING = 'Multi-pick Observation Set'
 MULTI_PICK_COUNTS = 'multi_pick_counts'
 PARENT_WELLS = 'ParentWellObservations'
 

@@ -108,10 +108,10 @@ Feature: Low-level example scripts
   Scenario Outline: Automatically create multi-pick observations
     Given I have copied the low-level script, '<script_file_name>', to the repository root
     When I execute the script
-    Then I see that the <"ParentWellObservations"> set has observations
+    Then I see that the "ParentWellObservations" set has observations
       | leak_off_count | multi_pick_count |
       | 17             | 0                |
-    And I see that the <"Multi-Pick Observation Set"> set has observations
+    And I see that the "Multi-pick Observation Set" set has observations
       | leak_off_count | multi_pick_count |
       | 0              | 5                |
 
