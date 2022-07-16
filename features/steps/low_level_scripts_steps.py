@@ -88,7 +88,7 @@ def step_impl(context):
 
 
 # noinspection PyBDDParameters
-@then("I see that {leak_off_count:d} observations were picked")
+@then("I see that {observation_count:d} observations were picked")
 def step_impl(context, observation_count):
     """
     Args:
