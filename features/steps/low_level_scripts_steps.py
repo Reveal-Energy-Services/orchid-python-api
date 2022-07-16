@@ -327,30 +327,14 @@ def step_impl(context, set_name):
         raise ExtendedParseError from pe
     expected_observation_counts = context.table
 
-    print(f'{actual_results[set_name]=}')
-    print(f'{expected_observation_counts.rows=}')
-    # assert_that(len(actual_results[pso.PARENT_WELLS]),
-    #             equal_to(len(expected_observation_counts.headings)), f'{pso.PARENT_WELLS} columns')
-    # assert_that(len(list(actual_results[pso.PARENT_WELLS].values())),
-    #             equal_to(len(expected_observation_counts.rows)), f'{pso.PARENT_WELLS} rows')
-    # assert_that(len(actual_results[pso.MULTI_PICKING]),
-    #             equal_to(len(expected_observation_counts.headings)), f'{pso.MULTI_PICKING} columns')
-    # assert_that(len(list(actual_results[pso.MULTI_PICKING].values())),
-    #             equal_to(len(expected_observation_counts.rows)), f'{pso.MULTI_PICKING} rows')
+    assert_that(len(actual_results[set_name]),
+                equal_to(len(expected_observation_counts.headings)), f'{pso.PARENT_WELLS} columns')
+    assert_that(len(actual_results[set_name]),
+                equal_to(len(expected_observation_counts.headings)), f'{pso.MULTI_PICKING} columns')
 
-    # assert_that(toolz.get_in(actual_results, [pso.PARENT_WELLS, pso.LEAK_OFF_COUNTS],
-    #                          expected_observation_counts.rows[0])
-
-    # for expected_details_row, actual_details in zip(expected_added_stage_details.rows, actual_added_stages_details):
-    #     assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))
-    #     assert_that(actual_details.shmin, equal_to(expected_details_row['shmin']))
-    #     assert_that(actual_details.cluster_count, equal_to(int(expected_details_row['clusters'])))
-    #     assert_that(actual_details.global_stage_sequence_no, equal_to(int(expected_details_row['global_seq_no'])))
-    #     expected_stage_time_range = pdt.parse(expected_details_row['stage_time_range'])
-    #     assert_that(actual_details.start_time, equal_to(expected_stage_time_range.start))
-    #     assert_that(actual_details.stop_time, equal_to(expected_stage_time_range.end))
-    # try:
-    #     assert_that(True, equal_to(False))
-    # except AssertionError:
-    #     print(f'Output:\n{script_output}')
-    #     raise
+    assert_that(toolz.get_in([set_name, pso.LEAK_OFF_COUNT], actual_results),
+                equal_to(int(expected_observation_counts.rows[0]['leak_off_count'])),
+                f'Leak off count for {set_name}')
+    assert_that(toolz.get_in([set_name, pso.MULTI_PICK_COUNT], actual_results),
+                equal_to(int(expected_observation_counts.rows[0]['multi_pick_count'])),
+                f'Multi-pick count for {set_name}')

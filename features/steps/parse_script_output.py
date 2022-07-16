@@ -29,9 +29,9 @@ import pendulum as pdt
 import parsy
 
 
-LEAK_OFF_COUNTS = 'leak_off_counts'
+LEAK_OFF_COUNT = 'LeakOffObservations'
 MULTI_PICKING = 'Multi-pick Observation Set'
-MULTI_PICK_COUNTS = 'multi_pick_counts'
+MULTI_PICK_COUNT = 'MultiPickingObservations'
 PARENT_WELLS = 'ParentWellObservations'
 
 
@@ -63,12 +63,12 @@ single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
 double_quoted_text = (double_quote >> parsy.regex(r"[^']+") << double_quote)
 
 auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
-get_leak_off_observations = (parsy.string("INFO:root:len(observation_set.LeakOffObservations.Items)=") >>
+get_leak_off_observations = (parsy.string(f"INFO:root:len(observation_set.{LEAK_OFF_COUNT}.Items)=") >>
                              parsy.regex(r'\d+').map(int))
-get_multi_pick_observations = (parsy.string("INFO:root:len(observation_set.MultiPickingObservations.Items)=") >>
+get_multi_pick_observations = (parsy.string(f"INFO:root:len(observation_set.{MULTI_PICK_COUNT}.Items)=") >>
                                parsy.regex(r'\d+').map(int))
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
-multi_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Multi-pick Observation Set'")
+multi_picked_observation_set = parsy.string(f"INFO:root:observation_set.Name='{MULTI_PICKING}'")
 observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
 parent_well_observations = parsy.string(f"INFO:root:observation_set.Name='{PARENT_WELLS}'")
@@ -332,8 +332,8 @@ def get_observations_counts():
     yield newline
 
     return {
-        PARENT_WELLS: {LEAK_OFF_COUNTS: parent_leak_off_counts,
-                       MULTI_PICK_COUNTS: parent_multi_pick_counts},
-        MULTI_PICKING: {LEAK_OFF_COUNTS: multi_leak_off_counts,
-                        MULTI_PICK_COUNTS: multi_multi_pick_counts},
+        PARENT_WELLS: {LEAK_OFF_COUNT: parent_leak_off_counts,
+                       MULTI_PICK_COUNT: parent_multi_pick_counts},
+        MULTI_PICKING: {LEAK_OFF_COUNT: multi_leak_off_counts,
+                        MULTI_PICK_COUNT: multi_multi_pick_counts},
     }
