@@ -14,7 +14,7 @@
 
 
 """
-Low-level example of creating multi-picking events.
+Low-level example of creating multi-picking events using the low-level API.
 """
 
 import argparse

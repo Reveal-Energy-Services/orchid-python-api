@@ -44,6 +44,7 @@ In addition, this project includes five scripts and a notebook in the `examples/
 | `auto_pick_iterate_example.py`            | Use iteration to find visible stages instead of .NET method      |
 | `monitor_time_series.py`                  | Find high-level time series from a low-level monitor time series | 
 | `add_stages_low.py`                       | Adds newly created stages to a well of a project                 | 
+| `multi_picking_events.py`                 | Creates and adds a number of multi-picking events                |
 
 The notebook, `auto_pick.ipynb` contain the same code as the script, `auto_pick.py`, but runs in a Jupyter
 notebook.
@@ -1013,6 +1014,7 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     - `auto_pick_iterate_example.py`
     - `monitor_time_series.py`
     - `add_stages_low.py`
+    - `multi_picking_events.py`
 - If you are testing a `poetry` virtual environment
   - If orchid-python-api is installed in the virtual environment,
     - Run `python ./copy_orchid_low_level_examples.py` to copy the examples to the current directory
@@ -1049,9 +1051,17 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command `python monitor_time_series.py`
   - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
     python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    ```
+    where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
+  - Review the output and ensure the script finishes without errors.
+  - Optionally test the newly created `.ifrac` file in Orchid
+  - Execute the command
+    ```
+    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
