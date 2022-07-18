@@ -105,6 +105,11 @@ def multi_pick_observations(native_project, native_monitor):
     return project_with_observation_set
 
 
+# TODO: Move this utility function to the high-level API
+# Since I copied the skeleton of this code from `auto_pick.py`, this function is probably copied in
+# - `auto_pick.py`
+# - `auto_pick_and_create_attributes.py`
+# - `auto_pick_iterate_example.py`
 def is_stage_visible_to_monitor(native_monitor, stage):
     """
     Determine if the stage treatment is visible to the specified monitor.
