@@ -29,6 +29,12 @@ import pendulum as pdt
 import parsy
 
 
+LEAK_OFF_COUNT = 'LeakOffObservations'
+MULTI_PICKING = 'Multi-pick Observation Set'
+MULTI_PICK_COUNT = 'MultiPickingObservations'
+PARENT_WELLS = 'ParentWellObservations'
+
+
 # If you need to test the regular expressions used in this parse, consider using [Pythex](https://pythex.org/)
 
 
@@ -57,10 +63,15 @@ single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
 double_quoted_text = (double_quote >> parsy.regex(r"[^']+") << double_quote)
 
 auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
+get_leak_off_observations = (parsy.string(f"INFO:root:len(observation_set.{LEAK_OFF_COUNT}.Items)=") >>
+                             parsy.regex(r'\d+').map(int))
+get_multi_pick_observations = (parsy.string(f"INFO:root:len(observation_set.{MULTI_PICK_COUNT}.Items)=") >>
+                               parsy.regex(r'\d+').map(int))
 get_observations = parsy.string("INFO:root:len(observation_set.GetObservations())=") >> parsy.regex(r'\d+').map(int)
+multi_picked_observation_set = parsy.string(f"INFO:root:observation_set.Name='{MULTI_PICKING}'")
 observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
-parent_well_observations = parsy.string("INFO:root:observation_set.Name='ParentWellObservations'")
+parent_well_observations = parsy.string(f"INFO:root:observation_set.Name='{PARENT_WELLS}'")
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
 python_var_name = parsy.regex(r'[\w_\d]+')
 python_attribute_name = (python_var_name << dot.optional()).many().map(lambda ns: '.'.join(ns))
@@ -305,3 +316,24 @@ def monitor_time_series_samples():
     about_time_series_samples = yield about_monitor_time_series_samples
 
     return TimeSeriesSamples(samples=samples, about=about_time_series_samples)
+
+
+@parsy.generate
+def get_observations_counts():
+    yield project_name
+    yield newline >> observation_set_items
+    yield newline >> parent_well_observations
+    parent_leak_off_counts = yield newline >> get_leak_off_observations
+    parent_multi_pick_counts = yield newline >> get_multi_pick_observations
+    yield newline >> multi_picked_observation_set
+    multi_leak_off_counts = yield newline >> get_leak_off_observations
+    multi_multi_pick_counts = yield newline >> get_multi_pick_observations
+    yield newline >> output_path_name
+    yield newline
+
+    return {
+        PARENT_WELLS: {LEAK_OFF_COUNT: parent_leak_off_counts,
+                       MULTI_PICK_COUNT: parent_multi_pick_counts},
+        MULTI_PICKING: {LEAK_OFF_COUNT: multi_leak_off_counts,
+                        MULTI_PICK_COUNT: multi_multi_pick_counts},
+    }
