@@ -161,6 +161,69 @@ class ProjectStore:
             writer.Write(project.dom_object, str(self._project_pathname), use_binary_format)
         self._native_project = project.dom_object
 
+    def optimized_but_possibly_unsafe_save(self, project, to_pathname):
+        """
+        Saves `project` `to_pathname` is an optimized, but possibly "unsafe" manner.
+
+        This method is unsafe because it only writes some data from `project`; the remainder of the data is simply
+        (bulk) copied from the `project_pathname` supplied to the constructor.
+
+        This method assumes that `project` was originally loaded from `project_pathname` and was then changed in
+        such a way that the "bulk" data **was not** changed. If this assumption is not true, the project saved in
+        `to_pathname` will **not** contain all the changes to `project`.
+
+        Specifically, this method **does not** save changes to data like:
+
+        - Trajectories
+        - Treatment curves
+        - Monitor curves
+
+        We believe that this method will generally finish more quickly than `save_project`; however, we cannot
+        guarantee this behavior. We encourage the developer calling this method to perform her own performance tests
+        and to understand if his use case meets the assumptions made by this method.
+
+        >>> # Test saving changed project
+        >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+        >>> loaded_project = orchid.load_project(str(load_path))
+        >>> # TODO: move this code to the property eventually, I think.
+        >>> with (dnd.disposable(loaded_project.dom_object.ToMutable())) as mnp:
+        ...     mnp.Name = 'nomen mutatum'
+        >>> save_path = load_path.with_name(f'{loaded_project.name}{load_path.suffix}')
+        >>> store = ProjectStore(str(load_path))
+        >>> store.optimized_but_possibly_unsafe_save(loaded_project, str(save_path))
+        >>> save_path.exists()
+        True
+        >>> with zipfile.ZipFile(save_path) as archive:
+        ...     content = json.loads(archive.read('project.json'))
+        ...     content['Object']['Name']
+        'nomen mutatum'
+        >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
+        >>> # I do not expect end users to utilize this side-effect.
+        >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
+        >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+        >>> source_project = orchid.load_project(str(load_path))
+        >>> # TODO: move this code to the property eventually, I think.
+        >>> with (dnd.disposable(source_project.dom_object.ToMutable())) as mnp:
+        ...     mnp.Name = 'mutatio project'
+        >>> save_path = load_path.with_name(f'{source_project.name}{load_path.suffix}')
+        >>> save_store = ProjectStore(str(save_path))
+        >>> save_store.optimized_but_possibly_unsafe_save(source_project, str(save_path))
+        >>> source_project.dom_object == save_store.native_project()
+        True
+
+        Args:
+            project: The project to be saved.
+            to_pathname: The "target" pathname for the newly saved data.
+
+            Note that this pathname **cannot** refer to the same pathname as the "source pathname" supplied to the
+            class constructor.
+        """
+        with sac.ScriptAdapterContext():
+            writer = ScriptAdapter.CreateProjectFileWriter()
+            use_binary_format = False
+            writer.Write(project.dom_object, str(self._project_pathname), to_pathname, use_binary_format)
+        self._native_project = project.dom_object
+
 
 if __name__ == '__main__':
     import doctest
