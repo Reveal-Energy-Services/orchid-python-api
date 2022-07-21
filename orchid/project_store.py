@@ -80,6 +80,7 @@ def native_treatment_calculations():
 class ProjectStore:
     """Provides an .NET IProject to be adapted."""
 
+    # TODO: consider changing `project_pathname` to be `pathlib.Path`
     @deal.pre(validation.arg_not_none)
     @deal.pre(validation.arg_neither_empty_nor_all_whitespace)
     def __init__(self, project_pathname: str):
@@ -145,6 +146,7 @@ class ProjectStore:
             ...     content = json.loads(archive.read('project.json'))
             ...     content['Object']['Name']
             'nomen mutatum'
+            >>> save_path.unlink()
             >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
             >>> # I do not expect end users to utilize this side-effect.
             >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
@@ -159,6 +161,7 @@ class ProjectStore:
             >>> save_store.save_project(changed_project)
             >>> changed_project.dom_object == save_store.native_project()
             True
+            >>> save_path.unlink()
         """
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
@@ -195,6 +198,40 @@ class ProjectStore:
             class constructor.
 
         Examples:
+            >>> # Test optimized saving of changed project
+            >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+            >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
+            >>> changed_project = orchid.load_project(str(load_path))
+            >>> # TODO: eventually move this code to a project property, I think.
+            >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
+            ...     mnp.Name = 'permanet melius'
+            >>> save_path = load_path.with_name(f'permanet melius{load_path.suffix}')
+            >>> # Remember original path used to load `changed_project`
+            >>> changed_project_store = ProjectStore(str(load_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, str(save_path))
+            >>> save_path.exists()
+            True
+            >>> with zipfile.ZipFile(save_path) as archive:
+            ...     content = json.loads(archive.read('project.json'))
+            ...     content['Object']['Name']
+            'permanet melius'
+            >>> save_path.unlink()
+            >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
+            >>> # I do not expect end users to utilize this side-effect.
+            >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
+            >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+            >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
+            >>> changed_project = orchid.load_project(str(load_path))
+            >>> # TODO: move this code to the property eventually, I think.
+            >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
+            ...     mnp.Name = 'mutatio project melius'
+            >>> save_path = load_path.with_name(f'mutatio project melius{load_path.suffix}')
+            >>> # Remember original path used to load `changed_project`
+            >>> changed_project_store = ProjectStore(str(load_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, str(save_path))
+            >>> changed_project.dom_object == changed_project_store.native_project()
+            True
+            >>> save_path.unlink()
         """
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()

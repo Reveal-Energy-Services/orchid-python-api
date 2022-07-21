@@ -27,6 +27,7 @@ from orchid.project_store import ProjectStore
 import orchid
 
 
+# TODO: change `ifrac_pathname` to be `str` or `pathlib.Path`
 @deal.pre(lambda ifrac_pathname: len(ifrac_pathname.strip()) != 0)
 @deal.pre(lambda ifrac_pathname: ifrac_pathname is not None)
 def load_project(ifrac_pathname: str) -> Project:
@@ -50,6 +51,7 @@ def load_project(ifrac_pathname: str) -> Project:
     return result
 
 
+# TODO: change `ifrac_pathname` to be `str` or `pathlib.Path`
 @deal.pre(lambda project, _: project is not None)
 @deal.pre(lambda _, ifrac_pathname: ifrac_pathname is not None)
 @deal.pre(lambda _, ifrac_pathname: len(ifrac_pathname) != 0)
