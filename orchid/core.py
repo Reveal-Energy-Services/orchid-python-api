@@ -27,6 +27,8 @@ from orchid.project import Project
 from orchid.project_store import ProjectStore
 
 # To support doctests only
+import shutil
+
 import orchid
 
 
@@ -96,7 +98,8 @@ def optimize_but_possibly_unsafe_save(project: Project, source_pathname: str,
     """
     Saves `project`, optionally to `maybe_to_pathname` is an optimized, but possibly "unsafe" manner.
 
-    If `maybe_to_pathname` is supplied and is not `None`, it must be a string representing a valid pathname.
+    If `maybe_to_pathname` is supplied and is not `None`, it must be a string representing a valid pathname. If a file
+    with that pathname already exists, it will be overwritten (unless it is the same path as `source_pathname`)
 
     This method is unsafe because it only writes some data from `project`; the remainder of the data is simply
     (bulk) copied from the `.ifrac` file, `source_pathname`.
@@ -121,6 +124,24 @@ def optimize_but_possibly_unsafe_save(project: Project, source_pathname: str,
         maybe_target_pathname: The optional pathname of the `.ifrac` file in which to store `project`.
 
     Examples:
+        >>> # Test optimized but possibly unsafe save of project
+        >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+        >>> loaded_project = orchid.load_project(str(load_path))
+        >>> save_path = load_path.with_name(f'salva intuta{load_path.suffix}')
+        >>> orchid.optimize_but_possibly_unsafe_save(loaded_project, str(load_path), str(save_path))
+        >>> save_path.exists()
+        True
+        >>> save_path.unlink()
+        >>> # Test optimized but possibly unsafe save of project in loaded location
+        >>> source_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+        >>> load_path = source_path.with_name(f'idem salvum filum{source_path.suffix}')
+        >>> # ignore returned result for doctest
+        >>> _to_path = shutil.copyfile(str(source_path), str(load_path))
+        >>> loaded_project = orchid.load_project(str(load_path))
+        >>> orchid.optimize_but_possibly_unsafe_save(loaded_project, str(load_path))
+        >>> load_path.exists()
+        True
+        >>> load_path.unlink()
     """
     store = ProjectStore(source_pathname.strip())
     store.optimized_but_possibly_unsafe_save(project, option.maybe(maybe_target_pathname))
