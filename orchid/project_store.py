@@ -110,16 +110,15 @@ class ProjectStore:
 
         Examples:
             >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-            >>> loaded_project = orchid.load_project(str(load_path))
-            >>> loaded_project.name
+            >>> store = ProjectStore(str(load_path))
+            >>> store.load_project()
+            >>> loaded_project = store.native_project()
+            >>> loaded_project.Name
             'frankNstein_Bakken_UTM13_FEET'
         """
         with sac.ScriptAdapterContext():
             reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
-            try:
-                self._native_project = reader.Read(self._project_pathname)
-            except:
-                raise
+            self._native_project = reader.Read(self._project_pathname)
 
     def save_project(self, project):
         """
