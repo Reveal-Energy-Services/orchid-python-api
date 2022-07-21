@@ -18,7 +18,10 @@
 #
 
 
+from typing import Optional
+
 import deal
+import option
 
 from orchid.project import Project
 from orchid.project_store import ProjectStore
@@ -76,3 +79,47 @@ def save_project(project: Project, ifrac_pathname: str) -> None:
 
     store = ProjectStore(ifrac_pathname.strip())
     store.save_project(project)
+
+
+# TODO: change `ifrac_pathname` to be `str` or `pathlib.Path`
+@deal.pre(lambda project, _source_pathname, _maybe_target_pathname: project is not None)
+@deal.pre(lambda _project, source_pathname, _maybe_target_pathname: source_pathname is not None)
+@deal.pre(lambda _project, source_pathname, _maybe_target_pathname: len(source_pathname) != 0)
+@deal.pre(lambda _project, source_pathname, _maybe_target_pathname: len(source_pathname.strip()) != 0)
+@deal.pre(lambda _project, _source_pathname, maybe_target_pathname: (maybe_target_pathname is not None and
+                                                                     len(maybe_target_pathname) != 0))
+@deal.pre(lambda _project, _source_pathname, maybe_target_pathname: (maybe_target_pathname is not None and
+                                                                     len(maybe_target_pathname.strip()) != 0))
+def optimize_but_possibly_unsafe_save(project: Project, source_pathname: str,
+                                      maybe_target_pathname: Optional[str] = None):
+    """
+    Saves `project`, optionally to `maybe_to_pathname` is an optimized, but possibly "unsafe" manner.
+
+    If `maybe_to_pathname` is supplied and is not `None`, it must be a string representing a valid pathname.
+
+    This method is unsafe because it only writes some data from `project`; the remainder of the data is simply
+    (bulk) copied from the `.ifrac` file, `source_pathname`.
+
+    This method assumes that `project` was originally loaded from `project_pathname` and was then changed in
+    such a way that the "bulk" data **was not** changed. If this assumption is not true, the project saved in
+    `to_pathname` will **not** contain all the changes to `project`.
+
+    Specifically, this method **does not** save changes to data like:
+
+    - Trajectories
+    - Treatment curves
+    - Monitor curves
+
+    We believe that this method will generally finish more quickly than `save_project`; however, we cannot
+    guarantee this behavior. We encourage the developer calling this method to perform her own performance tests
+    and to understand if his use case meets the assumptions made by this method.
+
+    Args:
+        project: The project to be saved.
+        source_pathname: The pathname of the `.ifrac` file from which `project` was loaded.
+        maybe_target_pathname: The optional pathname of the `.ifrac` file in which to store `project`.
+
+    Examples:
+    """
+    store = ProjectStore(source_pathname.strip())
+    store.optimized_but_possibly_unsafe_save(project, option.maybe(maybe_target_pathname))
