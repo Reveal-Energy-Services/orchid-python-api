@@ -16,8 +16,10 @@
 #
 
 import functools
+import pathlib
 
 import deal
+import toolz.curried as toolz
 
 from orchid import (
     dot_net,
@@ -46,6 +48,10 @@ import orchid
 
 class OrchidError(Exception):
     pass
+
+
+# Ensure that a pathname is a string. Useful especially for converting `pathlib.Path` instances.
+pathname_to_str = toolz.compose(str, toolz.identity)
 
 
 def as_python_time_series_arrays(native_time_series: IQuantityTimeSeries):
@@ -90,7 +96,7 @@ class ProjectStore:
         Args:
             project_pathname: Identifies the data file for the project of interest.
         """
-        self._project_pathname = project_pathname
+        self._project_pathname = pathlib.Path(project_pathname)
         self._native_project = None
         self._in_context = False
 
@@ -111,7 +117,7 @@ class ProjectStore:
 
         Examples:
             >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-            >>> store = ProjectStore(str(load_path))
+            >>> store = ProjectStore(pathname_to_str(load_path))
             >>> store.load_project()
             >>> loaded_project = store.native_project()
             >>> loaded_project.Name
@@ -119,7 +125,7 @@ class ProjectStore:
         """
         with sac.ScriptAdapterContext():
             reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
-            self._native_project = reader.Read(self._project_pathname)
+            self._native_project = reader.Read(pathname_to_str(self._project_pathname))
 
     def save_project(self, project):
         """
@@ -133,12 +139,12 @@ class ProjectStore:
             >>> # Test saving changed project
             >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
             >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
-            >>> changed_project = orchid.load_project(str(load_path))
+            >>> changed_project = orchid.load_project(pathname_to_str(load_path))
             >>> # TODO: move this code to the property eventually, I think.
             >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
             ...     mnp.Name = 'nomen mutatum'
             >>> save_path = load_path.with_name(f'nomen mutatum{load_path.suffix}')
-            >>> save_store = ProjectStore(str(save_path))
+            >>> save_store = ProjectStore(pathname_to_str(save_path))
             >>> save_store.save_project(changed_project)
             >>> save_path.exists()
             True
@@ -152,12 +158,12 @@ class ProjectStore:
             >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
             >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
             >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
-            >>> changed_project = orchid.load_project(str(load_path))
+            >>> changed_project = orchid.load_project(pathname_to_str(load_path))
             >>> # TODO: move this code to the property eventually, I think.
             >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
             ...     mnp.Name = 'mutatio project'
             >>> save_path = load_path.with_name(f'mutatio project{load_path.suffix}')
-            >>> save_store = ProjectStore(str(save_path))
+            >>> save_store = ProjectStore(pathname_to_str(save_path))
             >>> save_store.save_project(changed_project)
             >>> changed_project.dom_object == save_store.native_project()
             True
@@ -166,7 +172,7 @@ class ProjectStore:
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
             use_binary_format = False
-            writer.Write(project.dom_object, str(self._project_pathname), use_binary_format)
+            writer.Write(project.dom_object, pathname_to_str(self._project_pathname), use_binary_format)
         self._native_project = project.dom_object
 
     def optimized_but_possibly_unsafe_save(self, project, to_pathname):
@@ -201,14 +207,14 @@ class ProjectStore:
             >>> # Test optimized saving of changed project
             >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
             >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
-            >>> changed_project = orchid.load_project(str(load_path))
+            >>> changed_project = orchid.load_project(pathname_to_str(load_path))
             >>> # TODO: eventually move this code to a project property, I think.
             >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
             ...     mnp.Name = 'permanet melius'
             >>> save_path = load_path.with_name(f'permanet melius{load_path.suffix}')
             >>> # Remember original path used to load `changed_project`
-            >>> changed_project_store = ProjectStore(str(load_path))
-            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, str(save_path))
+            >>> changed_project_store = ProjectStore(pathname_to_str(load_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, pathname_to_str(save_path))
             >>> save_path.exists()
             True
             >>> with zipfile.ZipFile(save_path) as archive:
@@ -221,14 +227,14 @@ class ProjectStore:
             >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
             >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
             >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
-            >>> changed_project = orchid.load_project(str(load_path))
+            >>> changed_project = orchid.load_project(pathname_to_str(load_path))
             >>> # TODO: move this code to the property eventually, I think.
             >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
             ...     mnp.Name = 'mutatio project melius'
             >>> save_path = load_path.with_name(f'mutatio project melius{load_path.suffix}')
             >>> # Remember original path used to load `changed_project`
-            >>> changed_project_store = ProjectStore(str(load_path))
-            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, str(save_path))
+            >>> changed_project_store = ProjectStore(pathname_to_str(load_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, pathname_to_str(save_path))
             >>> changed_project.dom_object == changed_project_store.native_project()
             True
             >>> save_path.unlink()
@@ -236,7 +242,7 @@ class ProjectStore:
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
             use_binary_format = False
-            writer.Write(project.dom_object, str(self._project_pathname), to_pathname, use_binary_format)
+            writer.Write(project.dom_object, pathname_to_str(self._project_pathname), to_pathname, use_binary_format)
         self._native_project = project.dom_object
 
 
