@@ -75,6 +75,7 @@ def save_project(project: Project, ifrac_pathname: str) -> None:
         >>> orchid.save_project(loaded_project, str(save_path))
         >>> save_path.exists()
         True
+        >>> save_path.unlink()
     """
 
     store = ProjectStore(ifrac_pathname.strip())
