@@ -44,7 +44,9 @@ from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 
 # To support doctests only
 import json
+import shutil
 import zipfile
+
 import orchid
 
 
@@ -240,6 +242,21 @@ class ProjectStore:
             >>> changed_project.dom_object == changed_project_store.native_project()
             True
             >>> save_path.unlink()
+            >>> # Test supplying **no** `maybe_to_pathname`
+            >>> source_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
+            >>> load_path = source_path.with_name(f'idem filum{source_path.suffix}')
+            >>> # ignore returned result for doctest
+            >>> _to_path = shutil.copyfile(pathname_to_str(source_path), pathname_to_str(load_path))
+            >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
+            >>> changed_project = orchid.load_project(pathname_to_str(load_path))
+            >>> # TODO: eventually move this code to a project property, I think.
+            >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
+            ...     mnp.Name = 'idem filum'
+            >>> changed_project_store = ProjectStore(pathname_to_str(load_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, option.NONE)
+            >>> load_path.exists()
+            True
+            >>> load_path.unlink()
         """
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
