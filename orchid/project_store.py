@@ -41,7 +41,7 @@ from Orchid.FractureDiagnostics.TimeSeries import IQuantityTimeSeries
 # To support doctests only
 import json
 import zipfile
-import orchid  # to support doctests only
+import orchid
 
 
 class OrchidError(Exception):
@@ -108,10 +108,11 @@ class ProjectStore:
         """
         Load a project from the path, `self._project_pathname`.
 
-        >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-        >>> loaded_project = orchid.load_project(str(load_path))
-        >>> loaded_project.name
-        'frankNstein_Bakken_UTM13_FEET'
+        Examples:
+            >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+            >>> loaded_project = orchid.load_project(str(load_path))
+            >>> loaded_project.name
+            'frankNstein_Bakken_UTM13_FEET'
         """
         with sac.ScriptAdapterContext():
             reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
@@ -124,36 +125,39 @@ class ProjectStore:
         """
         Save the specified project to `self._project_pathname`.
 
-        >>> # Test saving changed project
-        >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-        >>> loaded_project = orchid.load_project(str(load_path))
-        >>> # TODO: move this code to the property eventually, I think.
-        >>> with (dnd.disposable(loaded_project.dom_object.ToMutable())) as mnp:
-        ...     mnp.Name = 'nomen mutatum'
-        >>> save_path = load_path.with_name(f'{loaded_project.name}{load_path.suffix}')
-        >>> orchid.save_project(loaded_project, str(save_path))
-        >>> save_path.exists()
-        True
-        >>> with zipfile.ZipFile(save_path) as archive:
-        ...     content = json.loads(archive.read('project.json'))
-        ...     content['Object']['Name']
-        'nomen mutatum'
-        >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
-        >>> # I do not expect end users to utilize this side-effect.
-        >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
-        >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-        >>> to_save_project = orchid.load_project(str(load_path))
-        >>> # TODO: move this code to the property eventually, I think.
-        >>> with (dnd.disposable(to_save_project.dom_object.ToMutable())) as mnp:
-        ...     mnp.Name = 'mutatio project'
-        >>> save_path = load_path.with_name(f'{to_save_project.name}{load_path.suffix}')
-        >>> save_store = ProjectStore(str(save_path))
-        >>> save_store.save_project(to_save_project)
-        >>> to_save_project.dom_object == save_store.native_project()
-        True
 
         Args:
             project: The project to be saved.
+
+        Examples:
+            >>> # Test saving changed project
+            >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+            >>> loaded_project = orchid.load_project(str(load_path))
+            >>> # TODO: move this code to the property eventually, I think.
+            >>> with (dnd.disposable(loaded_project.dom_object.ToMutable())) as mnp:
+            ...     mnp.Name = 'nomen mutatum'
+            >>> save_path = load_path.with_name(f'{loaded_project.name}{load_path.suffix}')
+            >>> orchid.save_project(loaded_project, str(save_path))
+            >>> save_path.exists()
+            True
+            >>> with zipfile.ZipFile(save_path) as archive:
+            ...     content = json.loads(archive.read('project.json'))
+            ...     content['Object']['Name']
+            'nomen mutatum'
+            >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
+            >>> # I do not expect end users to utilize this side-effect.
+            >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
+            >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+            >>> to_save_project = orchid.load_project(str(load_path))
+            >>> # TODO: move this code to the property eventually, I think.
+            >>> with (dnd.disposable(to_save_project.dom_object.ToMutable())) as mnp:
+            ...     mnp.Name = 'mutatio project'
+            >>> save_path = load_path.with_name(f'{to_save_project.name}{load_path.suffix}')
+            >>> save_store = ProjectStore(str(save_path))
+            >>> save_store.save_project(to_save_project)
+            >>> to_save_project.dom_object == save_store.native_project()
+            True
+
         """
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
@@ -181,35 +185,6 @@ class ProjectStore:
         We believe that this method will generally finish more quickly than `save_project`; however, we cannot
         guarantee this behavior. We encourage the developer calling this method to perform her own performance tests
         and to understand if his use case meets the assumptions made by this method.
-
-        >>> # Test saving changed project
-        >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
-        >>> loaded_project = orchid.load_project(str(load_path))
-        >>> # TODO: move this code to the property eventually, I think.
-        >>> with (dnd.disposable(loaded_project.dom_object.ToMutable())) as mnp:
-        ...     mnp.Name = 'nomen mutatum'
-        >>> save_path = load_path.with_name(f'{loaded_project.name}{load_path.suffix}')
-        >>> store = ProjectStore(str(load_path))
-        >>> store.optimized_but_possibly_unsafe_save(loaded_project, str(save_path))
-        >>> save_path.exists()
-        True
-        >>> with zipfile.ZipFile(save_path) as archive:
-        ...     content = json.loads(archive.read('project.json'))
-        ...     content['Object']['Name']
-        'nomen mutatum'
-        >>> # Test side_effect of `save_project`: `native_project` returns project that was saved
-        >>> # I do not expect end users to utilize this side-effect.
-        >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
-        >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
-        >>> source_project = orchid.load_project(str(load_path))
-        >>> # TODO: move this code to the property eventually, I think.
-        >>> with (dnd.disposable(source_project.dom_object.ToMutable())) as mnp:
-        ...     mnp.Name = 'mutatio project'
-        >>> save_path = load_path.with_name(f'{source_project.name}{load_path.suffix}')
-        >>> save_store = ProjectStore(str(save_path))
-        >>> save_store.optimized_but_possibly_unsafe_save(source_project, str(save_path))
-        >>> source_project.dom_object == save_store.native_project()
-        True
 
         Args:
             project: The project to be saved.
