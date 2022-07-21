@@ -17,8 +17,10 @@
 
 import functools
 import pathlib
+from typing import Union
 
 import deal
+import option
 import toolz.curried as toolz
 
 from orchid import (
@@ -175,7 +177,7 @@ class ProjectStore:
             writer.Write(project.dom_object, pathname_to_str(self._project_pathname), use_binary_format)
         self._native_project = project.dom_object
 
-    def optimized_but_possibly_unsafe_save(self, project, to_pathname):
+    def optimized_but_possibly_unsafe_save(self, project, maybe_to_pathname: option.Option[Union[str, pathlib.Path]]):
         """
         Saves `project` `to_pathname` is an optimized, but possibly "unsafe" manner.
 
@@ -198,7 +200,7 @@ class ProjectStore:
 
         Args:
             project: The project to be saved.
-            to_pathname: The "target" pathname for the newly saved data.
+            maybe_to_pathname: The "target" pathname for the newly saved data.
 
             Note that this pathname **cannot** refer to the same pathname as the "source pathname" supplied to the
             class constructor.
@@ -214,7 +216,7 @@ class ProjectStore:
             >>> save_path = load_path.with_name(f'permanet melius{load_path.suffix}')
             >>> # Remember original path used to load `changed_project`
             >>> changed_project_store = ProjectStore(pathname_to_str(load_path))
-            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, pathname_to_str(save_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, option.maybe(save_path))
             >>> save_path.exists()
             True
             >>> with zipfile.ZipFile(save_path) as archive:
@@ -234,7 +236,7 @@ class ProjectStore:
             >>> save_path = load_path.with_name(f'mutatio project melius{load_path.suffix}')
             >>> # Remember original path used to load `changed_project`
             >>> changed_project_store = ProjectStore(pathname_to_str(load_path))
-            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, pathname_to_str(save_path))
+            >>> changed_project_store.optimized_but_possibly_unsafe_save(changed_project, option.maybe(save_path))
             >>> changed_project.dom_object == changed_project_store.native_project()
             True
             >>> save_path.unlink()
@@ -242,7 +244,9 @@ class ProjectStore:
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
             use_binary_format = False
-            writer.Write(project.dom_object, pathname_to_str(self._project_pathname), to_pathname, use_binary_format)
+            writer.Write(project.dom_object, pathname_to_str(self._project_pathname),
+                         maybe_to_pathname.map_or(pathname_to_str, pathname_to_str(self._project_pathname)),
+                         use_binary_format)
         self._native_project = project.dom_object
 
 
