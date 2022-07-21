@@ -131,12 +131,14 @@ class ProjectStore:
         Examples:
             >>> # Test saving changed project
             >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-            >>> loaded_project = orchid.load_project(str(load_path))
+            >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
+            >>> changed_project = orchid.load_project(str(load_path))
             >>> # TODO: move this code to the property eventually, I think.
-            >>> with (dnd.disposable(loaded_project.dom_object.ToMutable())) as mnp:
+            >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
             ...     mnp.Name = 'nomen mutatum'
-            >>> save_path = load_path.with_name(f'{loaded_project.name}{load_path.suffix}')
-            >>> orchid.save_project(loaded_project, str(save_path))
+            >>> save_path = load_path.with_name(f'nomen mutatum{load_path.suffix}')
+            >>> save_store = ProjectStore(str(save_path))
+            >>> save_store.save_project(changed_project)
             >>> save_path.exists()
             True
             >>> with zipfile.ZipFile(save_path) as archive:
@@ -147,16 +149,16 @@ class ProjectStore:
             >>> # I do not expect end users to utilize this side-effect.
             >>> # TODO: Because this code tests a side-effect, an actual unit test might be better.
             >>> load_path = orchid.training_data_path().joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
-            >>> to_save_project = orchid.load_project(str(load_path))
+            >>> # Use `orchid.core.load_project` to avoid circular dependency with `orchid.project`
+            >>> changed_project = orchid.load_project(str(load_path))
             >>> # TODO: move this code to the property eventually, I think.
-            >>> with (dnd.disposable(to_save_project.dom_object.ToMutable())) as mnp:
+            >>> with (dnd.disposable(changed_project.dom_object.ToMutable())) as mnp:
             ...     mnp.Name = 'mutatio project'
-            >>> save_path = load_path.with_name(f'{to_save_project.name}{load_path.suffix}')
+            >>> save_path = load_path.with_name(f'mutatio project{load_path.suffix}')
             >>> save_store = ProjectStore(str(save_path))
-            >>> save_store.save_project(to_save_project)
-            >>> to_save_project.dom_object == save_store.native_project()
+            >>> save_store.save_project(changed_project)
+            >>> changed_project.dom_object == save_store.native_project()
             True
-
         """
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
@@ -191,6 +193,8 @@ class ProjectStore:
 
             Note that this pathname **cannot** refer to the same pathname as the "source pathname" supplied to the
             class constructor.
+
+        Examples:
         """
         with sac.ScriptAdapterContext():
             writer = ScriptAdapter.CreateProjectFileWriter()
