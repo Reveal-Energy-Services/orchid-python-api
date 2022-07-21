@@ -204,9 +204,6 @@ class ProjectStore:
             project: The project to be saved.
             maybe_to_pathname: The "target" pathname for the newly saved data.
 
-            Note that this pathname **cannot** refer to the same pathname as the "source pathname" supplied to the
-            class constructor.
-
         Examples:
             >>> # Test optimized saving of changed project
             >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
