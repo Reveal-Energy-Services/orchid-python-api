@@ -860,25 +860,25 @@ To run all orchid tests
 - Run the `stage_qc_results.py` script.
 - Run the `change_stage_times.py` script.
 
-The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
-command line arguments to run correctly.
+The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. These scripts require
+a number of command line arguments to run correctly.
 
 For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
 command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
-python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 To only read the existing stage QC data, run the command
 ```
-python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
 ```
 
 To change the stage start and stop times (the time range), run the command
 ```
-python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 #### Run example notebooks
@@ -962,17 +962,17 @@ command, `python change_stage_times.py --help`. The most typical arguments are d
 
 To both read and write stage QC results, run the command:
 ```
-python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 To only read the existing stage QC data, run the command
 ```
-python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
 ```
 
 To change the stage start and stop times (the time range), run the command
 ```
-python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 #### Run example notebooks
