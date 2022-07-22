@@ -26,7 +26,9 @@ def test_save_project(benchmark):
     load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
     loaded_project = orchid.load_project(str(load_path))
     save_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.benchmark.ifrac')
+    save_path.unlink(missing_ok=True)
     benchmark(orchid.save_project, loaded_project, str(save_path))
+    assert save_path.exists()
     save_path.unlink()
 
 
@@ -34,7 +36,9 @@ def test_optimized_but_possibly_unsafe_save_new_file(benchmark):
     load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
     loaded_project = orchid.load_project(str(load_path))
     save_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.benchmark.ifrac')
+    save_path.unlink(missing_ok=True)
     benchmark(orchid.optimized_but_possibly_unsafe_save, loaded_project, str(load_path), str(save_path))
+    assert save_path.exists()
     save_path.unlink()
 
 
@@ -42,6 +46,8 @@ def test_optimized_but_possibly_unsafe_save_same_file(benchmark):
     source_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
     load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.benchmark.ifrac')
     shutil.copyfile(source_path, load_path)
+    pre_file_stat = load_path.stat()
     loaded_project = orchid.load_project(str(load_path))
     benchmark(orchid.optimized_but_possibly_unsafe_save, loaded_project, str(load_path))
+    assert load_path.stat().st_mtime > pre_file_stat.st_mtime
     load_path.unlink()
