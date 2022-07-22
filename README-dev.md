@@ -1030,21 +1030,21 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 - Run the scripts
   - Execute the command 
     ```
-    python auto_pick.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
-    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
@@ -1054,14 +1054,14 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
