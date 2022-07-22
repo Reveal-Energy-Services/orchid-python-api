@@ -85,19 +85,20 @@ def save_project(project: Project, ifrac_pathname: str) -> None:
 
 
 # TODO: change `ifrac_pathname` to be `str` or `pathlib.Path`
-@deal.pre(lambda project, _source_pathname, _maybe_target_pathname: project is not None)
-@deal.pre(lambda _project, source_pathname, _maybe_target_pathname: source_pathname is not None)
-@deal.pre(lambda _project, source_pathname, _maybe_target_pathname: len(source_pathname) != 0)
-@deal.pre(lambda _project, source_pathname, _maybe_target_pathname: len(source_pathname.strip()) != 0)
-@deal.pre(lambda _project, _source_pathname, maybe_target_pathname: (maybe_target_pathname is not None and
-                                                                     len(maybe_target_pathname) != 0))
-@deal.pre(lambda _project, _source_pathname, maybe_target_pathname: (maybe_target_pathname is not None and
-                                                                     len(maybe_target_pathname.strip()) != 0))
-def optimize_but_possibly_unsafe_save(project: Project, source_pathname: str,
-                                      maybe_target_pathname: Optional[str] = None):
+@deal.pre(lambda _: _.project is not None)
+@deal.pre(lambda _: _.project is not None)
+@deal.pre(lambda _: _.source_pathname is not None)
+@deal.pre(lambda _: len(_.source_pathname) != 0)
+@deal.pre(lambda _: len(_.source_pathname.strip()) != 0)
+@deal.pre(lambda _: (_.maybe_target_pathname is None or
+                     (_.maybe_target_pathname is not None and len(_.maybe_target_pathname) != 0)))
+@deal.pre(lambda _: (_.maybe_target_pathname is None or
+                     (_.maybe_target_pathname is not None and len(_.maybe_target_pathname.strip()) != 0)))
+def optimized_but_possibly_unsafe_save(project: Project, source_pathname: str,
+                                       maybe_target_pathname: Optional[str] = None):
     """
     Saves `project`, optionally to `maybe_to_pathname` is an optimized, but possibly "unsafe" manner.
-
+)
     If `maybe_to_pathname` is supplied and is not `None`, it must be a string representing a valid pathname. If a file
     with that pathname already exists, it will be overwritten (unless it is the same path as `source_pathname`)
 
@@ -128,7 +129,7 @@ def optimize_but_possibly_unsafe_save(project: Project, source_pathname: str,
         >>> load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
         >>> loaded_project = orchid.load_project(str(load_path))
         >>> save_path = load_path.with_name(f'salva intuta{load_path.suffix}')
-        >>> orchid.optimize_but_possibly_unsafe_save(loaded_project, str(load_path), str(save_path))
+        >>> orchid.optimized_but_possibly_unsafe_save(loaded_project, str(load_path), str(save_path))
         >>> save_path.exists()
         True
         >>> save_path.unlink()
@@ -138,7 +139,7 @@ def optimize_but_possibly_unsafe_save(project: Project, source_pathname: str,
         >>> # ignore returned result for doctest
         >>> _to_path = shutil.copyfile(str(source_path), str(load_path))
         >>> loaded_project = orchid.load_project(str(load_path))
-        >>> orchid.optimize_but_possibly_unsafe_save(loaded_project, str(load_path))
+        >>> orchid.optimized_but_possibly_unsafe_save(loaded_project, str(load_path))
         >>> load_path.exists()
         True
         >>> load_path.unlink()
