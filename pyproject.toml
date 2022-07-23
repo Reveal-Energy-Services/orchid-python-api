@@ -98,11 +98,3 @@ copy_orchid_low_level_examples = "copy_orchid_low_level_examples:main"
 
 [tool.poetry.urls]
 Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
-
-[tool.pytest.ini_options]
-addopts = [
-    "--strict-markers",
-    "--strict-config",
-    "-ra",
-]
-testpaths = "benchmark_tests"
