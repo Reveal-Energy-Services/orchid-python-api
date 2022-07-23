@@ -31,6 +31,7 @@ last two scripts:
 |---------------------------------|----------------------------------------------------------------------------------|
 | `stage_qc_results.py`           | Read and write QC results for a stage. (Replaces low-level `stage_qc_status.py`) |
 | `change_stage_times.py`         | Change the start and stop times (the time range) of a stage                      |
+| `add_stages.py`                 | Add one or more stages to a well. (Improvement over `add_stages_low.py`)         |
 
 ### Low-level examples
 
@@ -859,12 +860,13 @@ To run all orchid tests
   - `search_data_frames.py`
 - Run the `stage_qc_results.py` script.
 - Run the `change_stage_times.py` script.
+- Run the `add_stages.py` script.
 
-The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. These scripts require
-a number of command line arguments to run correctly.
+The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
+scripts require a number of command line arguments to run correctly.
 
-For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
-command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
+For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
+The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
@@ -879,6 +881,11 @@ python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNste
 To change the stage start and stop times (the time range), run the command
 ```
 python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+```
+
+To add stages to a well, run the command
+```
+python add_stages.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 #### Run example notebooks
@@ -919,15 +926,16 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `plot_treatment.ipynb`
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
-    - Verify that the current directory has eight example scripts:
-        - `change_stage_times.py`
-        - `completion_analysis.py`
-        - `plot_time_series.py`
-        - `plot_trajectories.py`
-        - `plot_treatment.py`
-        - `search_data_frames.py`
-        - `stage_qc_results.py`
-        - `volume_2_first_response.py`
+    - Verify that the current directory has nine example scripts:
+      - `completion_analysis.py`
+      - `plot_time_series.py`
+      - `plot_trajectories.py`
+      - `plot_treatment.py`
+      - `search_data_frames.py`
+      - `volume_2_first_response.py`
+      - `stage_qc_results.py`
+      - `change_stage_times.py`
+      - `add_stages.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -953,12 +961,13 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - `search_data_frames.py`
 - Run the `stage_qc_results.py` script.
 - Run the `change_stage_times.py` script.
+- Run the `add_stages.py` script.
 
-The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
-command line arguments to run correctly.
+The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
+scripts require a number of command line arguments to run correctly.
 
-For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
-command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
+For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
+The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
@@ -973,6 +982,11 @@ python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNste
 To change the stage start and stop times (the time range), run the command
 ```
 python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+```
+
+To add stages to a well, run the command
+```
+python add_stages.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 #### Run example notebooks
