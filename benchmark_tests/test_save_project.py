@@ -16,12 +16,12 @@
 #
 
 
-import shutil
-
+import pytest
 
 import orchid
 
 
+@pytest.mark.slow
 def test_save_project(benchmark):
     load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
     loaded_project = orchid.load_project(str(load_path))

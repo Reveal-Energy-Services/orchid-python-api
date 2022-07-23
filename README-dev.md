@@ -115,7 +115,32 @@ More detailed instructions for running the tutorials can be found at:
 - [Run development Orchid tutorials](#run-development-orchid-tutorials) or at
 - [Run installed Orchid tutorials](#run-installed-orchid-tutorials)
 
-### A Reading Suggestion
+## Tests
+
+This project contains a large number of unit tests in the `tests` directory and three benchmark tests in the 
+`benchmark_tests` directory. The unit tests can be run using a development environment like PyCharm. Consult the 
+documentation for the development environment to understand how to run these different tests.
+
+At the command line, one can also run the unit tests at the command line by executing 
+`python -m unittest discover --start-directory=tests`.
+
+Additionally, the project includes [pytest](https://docs.pytest.org/en/stable/) as  development dependency. `pytest`
+supports executing both our unit tests and our benchmark tests. Our benchmark tests are marked as "slow" allowing a
+developer to run unit tests and benchmark tests separately if desired.
+
+To run these tests using `pytest`,
+
+- In a Powershell window, navigate to the directory of a development virtualenv if not there already
+- Activate the virtualenv (run `poetry shell`)
+- Then in the root directory of the development virtualenv:
+
+| To run...       | Execute the command... |
+|-----------------|------------------------|
+| Unit tests      | `pytest -m "not slow"` |
+ | Benchmark tests | `pytest -m "slow"`     |
+ | All tests       | `pytest`               |
+
+## A Reading Suggestion
 
 This document is one of several documents you may want to read:
 

@@ -105,4 +105,8 @@ addopts = [
     "--strict-config",
     "-ra",
 ]
-testpaths = "benchmark_tests"
+markers = ["slow"]
+testpaths = [
+    "tests",
+    "benchmark_tests",
+]

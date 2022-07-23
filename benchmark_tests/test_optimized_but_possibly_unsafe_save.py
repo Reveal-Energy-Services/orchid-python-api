@@ -18,10 +18,12 @@
 
 import shutil
 
+import pytest
 
 import orchid
 
 
+@pytest.mark.slow
 def test_optimized_but_possibly_unsafe_save_new_file(benchmark):
     load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
     loaded_project = orchid.load_project(str(load_path))
@@ -32,6 +34,7 @@ def test_optimized_but_possibly_unsafe_save_new_file(benchmark):
     save_path.unlink()
 
 
+@pytest.mark.slow
 def test_optimized_but_possibly_unsafe_save_same_file(benchmark):
     source_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.ifrac')
     load_path = orchid.training_data_path().joinpath('Project_frankNstein_Permian_UTM13_FEET.benchmark.ifrac')
