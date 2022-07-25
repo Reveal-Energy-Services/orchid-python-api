@@ -28,6 +28,7 @@ import sys
 from hamcrest import assert_that, equal_to
 import parsy
 import pendulum as pdt
+import toolz.curried as toolz
 
 import orchid
 
@@ -72,7 +73,7 @@ def step_impl(context):
         context (behave.runner.Context):
     """
     training_data_dir = pathlib.Path(orchid.configuration.training_data_path())
-    training_data_path = training_data_dir.joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+    training_data_path = training_data_dir.joinpath('frankNstein_Bakken_UTM13_FEET.v11.ifrac')
     command_line = [sys.executable, str(context.script_path), '-v2', str(training_data_path)]
     script_process = subprocess.run(command_line, capture_output=True, text=True)
     try:
@@ -304,3 +305,36 @@ def step_impl(context):
         assert_that(actual_time_series_samples.about.dtype, equal_to(expected_about_time_series_samples.dtype))
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
+
+
+@then('I see that the "{set_name}" set has observations')
+def step_impl(context, set_name):
+    """
+    Args:
+        context (behave.runner.Context): The test context containing the expected observation counts.
+        set_name (str): The name of the observation set.
+    """
+    # TODO: I believe the following, commented out code, is correct.
+    # However, at run-time, `context.script_process.stderr` has the output text (from the Python logger) and
+    # `context.script_process.stdout` contains an empty string. Based on the behavior of the `monitor_time_series`
+    # script, I believe this anomaly results from using the Python logger (perhaps it is configured to pipe standard
+    # output to standard error).
+    # script_output = context.script_process.stdout
+    script_output = context.script_process.stderr
+    try:
+        actual_results = pso.get_observations_counts.parse(script_output)
+    except parsy.ParseError as pe:
+        raise ExtendedParseError from pe
+    expected_observation_counts = context.table
+
+    assert_that(len(actual_results[set_name]),
+                equal_to(len(expected_observation_counts.headings)), f'{pso.PARENT_WELLS} columns')
+    assert_that(len(actual_results[set_name]),
+                equal_to(len(expected_observation_counts.headings)), f'{pso.MULTI_PICKING} columns')
+
+    assert_that(toolz.get_in([set_name, pso.LEAK_OFF_COUNT], actual_results),
+                equal_to(int(expected_observation_counts.rows[0]['leak_off_count'])),
+                f'Leak off count for {set_name}')
+    assert_that(toolz.get_in([set_name, pso.MULTI_PICK_COUNT], actual_results),
+                equal_to(int(expected_observation_counts.rows[0]['multi_pick_count'])),
+                f'Multi-pick count for {set_name}')

@@ -304,10 +304,9 @@ def main(cli_args):
             logging.info(f'{len(observation_set.GetObservations())=}')
 
     # Save project changes to specified .ifrac file
-    target_path_name = cli_args.output_project
-    orchid.save_project(project, target_path_name)
+    orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
     if cli_args.verbosity >= 1:
-        logging.info(f'Wrote changes to "{target_path_name}"')
+        logging.info(f'Wrote changes to "{cli_args.output_project}"')
 
 
 def make_project_path_name(project_dir_name, project_file_name):
@@ -344,6 +343,8 @@ if __name__ == '__main__':
 
     parser.add_argument('input_project', help=f'Path name of project to read.')
 
+    # Although input file must be 'frankNstein_Bakken_UTM13_FEET.v11.ifrac', I use the original version as the
+    # default for the correct output file name.
     default_file_name_to_read = pathlib.Path('frankNstein_Bakken_UTM13_FEET.ifrac')
     default_project_path_name_to_read = make_project_path_name(orchid.training_data_path(),
                                                                default_file_name_to_read)
