@@ -41,6 +41,7 @@ def add_orchid_assemblies() -> None:
     clr.AddReference('Orchid.FractureDiagnostics')
     clr.AddReference('Orchid.FractureDiagnostics.Factories')
     clr.AddReference('UnitsNet')
+    clr.AddReference('System.Collections')
     return None
 
 

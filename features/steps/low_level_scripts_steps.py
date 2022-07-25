@@ -73,7 +73,7 @@ def step_impl(context):
         context (behave.runner.Context):
     """
     training_data_dir = pathlib.Path(orchid.configuration.training_data_path())
-    training_data_path = training_data_dir.joinpath('frankNstein_Bakken_UTM13_FEET.ifrac')
+    training_data_path = training_data_dir.joinpath('frankNstein_Bakken_UTM13_FEET.v11.ifrac')
     command_line = [sys.executable, str(context.script_path), '-v2', str(training_data_path)]
     script_process = subprocess.run(command_line, capture_output=True, text=True)
     try:

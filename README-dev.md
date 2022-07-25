@@ -31,6 +31,7 @@ last two scripts:
 |---------------------------------|----------------------------------------------------------------------------------|
 | `stage_qc_results.py`           | Read and write QC results for a stage. (Replaces low-level `stage_qc_status.py`) |
 | `change_stage_times.py`         | Change the start and stop times (the time range) of a stage                      |
+| `add_stages.py`                 | Add one or more stages to a well. (Improvement over `add_stages_low.py`)         |
 
 ### Low-level examples
 
@@ -114,7 +115,32 @@ More detailed instructions for running the tutorials can be found at:
 - [Run development Orchid tutorials](#run-development-orchid-tutorials) or at
 - [Run installed Orchid tutorials](#run-installed-orchid-tutorials)
 
-### A Reading Suggestion
+## Tests
+
+This project contains a large number of unit tests in the `tests` directory and three benchmark tests in the 
+`benchmark_tests` directory. The unit tests can be run using a development environment like PyCharm. Consult the 
+documentation for the development environment to understand how to run these different tests.
+
+At the command line, one can also run the unit tests at the command line by executing 
+`python -m unittest discover --start-directory=tests`.
+
+Additionally, the project includes [pytest](https://docs.pytest.org/en/stable/) as  development dependency. `pytest`
+supports executing both our unit tests and our benchmark tests. Our benchmark tests are marked as "slow" allowing a
+developer to run unit tests and benchmark tests separately if desired.
+
+To run these tests using `pytest`,
+
+- In a Powershell window, navigate to the directory of a development virtualenv if not there already
+- Activate the virtualenv (run `poetry shell`)
+- Then in the root directory of the development virtualenv:
+
+| To run...       | Execute the command... |
+|-----------------|------------------------|
+| Unit tests      | `pytest -m "not slow"` |
+ | Benchmark tests | `pytest -m "slow"`     |
+ | All tests       | `pytest`               |
+
+## A Reading Suggestion
 
 This document is one of several documents you may want to read:
 
@@ -859,26 +885,32 @@ To run all orchid tests
   - `search_data_frames.py`
 - Run the `stage_qc_results.py` script.
 - Run the `change_stage_times.py` script.
+- Run the `add_stages.py` script.
 
-The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
-command line arguments to run correctly.
+The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
+scripts require a number of command line arguments to run correctly.
 
-For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
-command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
+For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
+The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
-python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 To only read the existing stage QC data, run the command
 ```
-python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
 ```
 
 To change the stage start and stop times (the time range), run the command
 ```
-python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+```
+
+To add stages to a well, run the command
+```
+python add_stages.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 #### Run example notebooks
@@ -919,15 +951,16 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `plot_treatment.ipynb`
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
-    - Verify that the current directory has eight example scripts:
-        - `change_stage_times.py`
-        - `completion_analysis.py`
-        - `plot_time_series.py`
-        - `plot_trajectories.py`
-        - `plot_treatment.py`
-        - `search_data_frames.py`
-        - `stage_qc_results.py`
-        - `volume_2_first_response.py`
+    - Verify that the current directory has nine example scripts:
+      - `completion_analysis.py`
+      - `plot_time_series.py`
+      - `plot_trajectories.py`
+      - `plot_treatment.py`
+      - `search_data_frames.py`
+      - `volume_2_first_response.py`
+      - `stage_qc_results.py`
+      - `change_stage_times.py`
+      - `add_stages.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -953,26 +986,32 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - `search_data_frames.py`
 - Run the `stage_qc_results.py` script.
 - Run the `change_stage_times.py` script.
+- Run the `add_stages.py` script.
 
-The scripts, `stage_qc_results.py` and `change_stage_times.py`, differs from the other scripts. The require a number of
-command line arguments to run correctly.
+The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
+scripts require a number of command line arguments to run correctly.
 
-For example, to see an explanation of these arguments, execute the command, `python stage_qc_results.py --help`, or the
-command, `python change_stage_times.py --help`. The most typical arguments are described in the following paragraphs.
+For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
+The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
-python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 To only read the existing stage QC data, run the command
 ```
-python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
 ```
 
 To change the stage start and stop times (the time range), run the command
 ```
-python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+```
+
+To add stages to a well, run the command
+```
+python add_stages.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
 ```
 
 #### Run example notebooks
@@ -1030,21 +1069,21 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 - Run the scripts
   - Execute the command 
     ```
-    python auto_pick.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
-    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python auto_pick_iterate_example.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
@@ -1054,14 +1093,14 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
+    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
