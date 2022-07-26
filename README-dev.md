@@ -952,15 +952,15 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
     - Verify that the current directory has nine example scripts:
+      - `add_stages.py`
+      - `change_stage_times.py`
       - `completion_analysis.py`
       - `plot_time_series.py`
       - `plot_trajectories.py`
       - `plot_treatment.py`
       - `search_data_frames.py`
-      - `volume_2_first_response.py`
       - `stage_qc_results.py`
-      - `change_stage_times.py`
-      - `add_stages.py`
+      - `volume_2_first_response.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
