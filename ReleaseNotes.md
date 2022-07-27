@@ -67,7 +67,7 @@ This release is the production release of the Orchid Python API corresponding to
 
 #### Known Issues
 
-- No additional known issues.
+- [GitHub issue 36](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/36)
 
 ### Release notes for 2022.1.360
 
