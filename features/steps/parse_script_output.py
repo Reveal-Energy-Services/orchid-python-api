@@ -96,7 +96,7 @@ get_output_path_name = (parsy.string(f'INFO:root:{WROTE_CHANGES_TO} ') >>
                         double_quote >>
                         parsy.seq(drive_letter, folders, filename)
                         .combine(lambda d, fs, fn: ''.join([d, fs, fn]))
-                        .map(pathlib.Path) >>
+                        .map(pathlib.Path) <<
                         double_quote)
 
 
