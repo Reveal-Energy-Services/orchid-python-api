@@ -1048,11 +1048,11 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Verify that the current directory has one example notebooks:
     - `auto_pick.ipynb`
   - Verify that the current directory has three example scripts:
+    - `add_stages_low.py`
     - `auto_pick.py`
     - `auto_pick_and_create_stage_attribute.py`
     - `auto_pick_iterate_example.py`
     - `monitor_time_series.py`
-    - `add_stages_low.py`
     - `multi_picking_events.py`
 - If you are testing a `poetry` virtual environment
   - If orchid-python-api is installed in the virtual environment,
