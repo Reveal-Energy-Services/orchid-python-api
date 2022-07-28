@@ -25,7 +25,7 @@ import shutil
 import subprocess
 import sys
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, is_, not_none
 import parsy
 import pendulum as pdt
 import toolz.curried as toolz
@@ -338,3 +338,15 @@ def step_impl(context, set_name):
     assert_that(toolz.get_in([set_name, pso.MULTI_PICK_COUNT], actual_results),
                 equal_to(int(expected_observation_counts.rows[0]['multi_pick_count'])),
                 f'Multi-pick count for {set_name}')
+
+    context.save_project_path = actual_results[pso.WROTE_CHANGES_TO]
+
+
+@step("I can successfully load the file after saving")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): Test context (contains saved project path)
+    """
+    loaded_project = orchid.load_project(str(context.save_project_path))
+    assert_that(loaded_project, is_(not_none()))
