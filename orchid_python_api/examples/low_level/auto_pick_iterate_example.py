@@ -321,9 +321,7 @@ def main(cli_args):
         logging.info(f'{len(native_project.ObservationSets.Items)=}')
         for observation_set in native_project.ObservationSets.Items:
             logging.info(f'{observation_set.Name=}')
-            # TODO: Remove when >~ 2021.4
-            # logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
-            logging.info(f'{len(observation_set.GetObservations())=}')
+            logging.info(f'{len(observation_set.GetLeakOffObservations())=}')
 
     # Save project changes to specified .ifrac file
     orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
