@@ -31,7 +31,7 @@ from orchid import (
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
+from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves, MultiPickingObservation
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,
@@ -92,6 +92,22 @@ def multi_pick_observations(native_project, native_monitor):
                 picked_observation = object_factory.CreateMultiPickingEventObservation(
                     part, part.StartTime, monitored_stage_numbers[stage.DisplayStageNumber],
                     f'auto-pick: {monitored_stage_numbers[stage.DisplayStageNumber]}')
+
+                # One must supply a value for `picked_observation.Name`. If no value is supplied, no error occurs when:
+                # - Creating the observation
+                # - Adding the observation to the observation set
+                # - Adding the observation set to the project
+                # - Saving the project.
+                #
+                # However, if one attempts to load such a project into Orchid, Orchid will report a "corrupted
+                # project" because at "object name is empty".
+                with dnd.disposable(picked_observation.ToMutable()) as mutable_observation:
+                    # The function `MultiPickingObservation` generates a name using the second argument as a "template".
+                    # The returned name is guaranteed to be unique within the specified observation set. One can
+                    # actually use any name that is unique within the observation set and is meaningful to engineers.
+                    unique_observation_name = MultiPickingObservation.GetUniqueName(observation_set,
+                                                                                    native_monitor.Name)
+                    mutable_observation.Name = unique_observation_name
 
                 # Add picked observation to observation set
                 with dnd.disposable(observation_set.ToMutable()) as mutable_observation_set:

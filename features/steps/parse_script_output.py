@@ -29,6 +29,8 @@ import pendulum as pdt
 import parsy
 
 
+WROTE_CHANGES_TO = 'Wrote changes to'
+
 LEAK_OFF_COUNT = 'LeakOffObservations'
 MULTI_PICKING = 'Multi-pick Observation Set'
 MULTI_PICK_COUNT = 'MultiPickingObservations'
@@ -90,12 +92,12 @@ uuid_parser = (hex_digits + dash  # 8 digit block
 drive_letter = parsy.regex(r'[a-zA-Z]:\\')
 folders = parsy.regex(r'(?:[^\\/:*?"<>|\r\n]+\\)*')
 filename = parsy.regex(r'[^\\/:*?"<>|\r\n]*')
-output_path_name = (parsy.string('INFO:root:Wrote changes to ') >>
-                    double_quote >>
-                    parsy.seq(drive_letter, folders, filename)
-                         .combine(lambda d, fs, fn: ''.join([d, fs, fn]))
-                         .map(pathlib.Path) >>
-                    double_quote)
+get_output_path_name = (parsy.string(f'INFO:root:{WROTE_CHANGES_TO} ') >>
+                        double_quote >>
+                        parsy.seq(drive_letter, folders, filename)
+                        .combine(lambda d, fs, fn: ''.join([d, fs, fn]))
+                        .map(pathlib.Path) <<
+                        double_quote)
 
 
 # Parser generators
@@ -118,7 +120,7 @@ def get_second_observations_count():
     yield newline >> auto_picked_observation_set
     get_observations_count = yield newline >> get_observations
     yield (newline >> attribute_count_per_stage_per_well).optional()
-    yield newline >> output_path_name
+    yield newline >> get_output_path_name
     yield newline
 
     return get_observations_count
@@ -133,7 +135,7 @@ def get_attribute_count_for_each_stage_and_well():
     yield newline >> auto_picked_observation_set
     yield newline >> get_observations
     attribute_count_for_each_stage_and_well = yield newline >> attribute_count_per_stage_per_well
-    yield newline >> output_path_name
+    yield newline >> get_output_path_name
     yield newline
 
     return attribute_count_for_each_stage_and_well
@@ -176,7 +178,7 @@ def added_stage_details():
 @parsy.generate
 def get_added_stages():
     added_stages_details = yield (added_stage_details << newline).at_least(1)
-    yield output_path_name
+    yield get_output_path_name
     yield newline
 
     return added_stages_details
@@ -328,7 +330,7 @@ def get_observations_counts():
     yield newline >> multi_picked_observation_set
     multi_leak_off_counts = yield newline >> get_leak_off_observations
     multi_multi_pick_counts = yield newline >> get_multi_pick_observations
-    yield newline >> output_path_name
+    output_path_name = yield newline >> get_output_path_name
     yield newline
 
     return {
@@ -336,4 +338,5 @@ def get_observations_counts():
                        MULTI_PICK_COUNT: parent_multi_pick_counts},
         MULTI_PICKING: {LEAK_OFF_COUNT: multi_leak_off_counts,
                         MULTI_PICK_COUNT: multi_multi_pick_counts},
+        WROTE_CHANGES_TO: output_path_name,
     }

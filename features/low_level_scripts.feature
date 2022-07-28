@@ -114,6 +114,7 @@ Feature: Low-level example scripts
     And I see that the "Multi-pick Observation Set" set has observations
       | leak_off_count | multi_pick_count |
       | 0              | 5                |
+    And I can successfully load the file after saving
 
     Examples: auto_pick_and_create_stage_attributes
       | script_file_name        |
