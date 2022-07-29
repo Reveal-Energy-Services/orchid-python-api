@@ -13,9 +13,72 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 2022.2.324
+
+This release is the production release of the Orchid Python API corresponding to Orchid 2022.2. This release:
+
+- Implements a high-level (Pythonic) API to create stages and add them to a well
+- Improves performance when loading an Orchid project by using a new .NET feature to load projects in parallel
+- Implements a high-level "fast save" API. This API provides an optimized way of saving Orchid projects when
+  certain conditions are met.
+- Restore minimum Python version to 3.8.3
+- Repaired `pandas.DataFrame.append` "Future Warning" in examples
+- Add low-level example demonstrating creating and adding multi-picking observations to an observation set
+
+#### Possible breaking .NET API changes
+
+- .NET API renames `StageCorrectionStatus` to `CorrectionStatus`
+- Added comments describing a work-around for the integer-valued stage attribute limitation
+- Change the implementation of the Python API for stages to handle optional .NET values for the stage properties,
+  `Isip`, `PNet` and `Shmin`
+- When installing 2022.2.324 in an orchid environment using Python 3.8.3 that has spyder installed using `conda`, 
+  `conda` reports the following error:
+
+  >>> ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+  >>> spyder-kernels 2.1.3 requires jupyter-client<7,>=5.3.4, but you have jupyter-client 7.3.4 which is incompatible.
+  >>> pylint 2.9.6 requires astroid<2.7,>=2.6.5, but you have astroid 2.12.2 which is incompatible. 
+
+#### Resolved Issues
+
+- [GitHub issue 35](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/35)
+- [GitHub issue 34](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/34)
+- [GitHub issue 33](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/33)
+- [GitHub issue 32](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/32)
+
+#### Features
+
+- Well and Stage
+  - Implements a high-level (Pythonic) API to create stages and add them to a well
+  - Adds an example illustrating use of this API
+  - Renames the original low-level example to `add_stages_low.py` to better communicate intent
+
+- Saving projects
+  - Implements an optimized but possibly unsafe function to save Orchid projects. If certain conditions are met
+    (described in the docstring for `orchid.core.optimized_but_possibly_unsafe_save()`), one can use this function to
+    save Orchid projects. The developer must determine if the particular use case meets the conditions to safely save
+    the project using the optimized but possibly unsafe function.
+    
+    If the use case does not meet the conditions, the function, `orchid.core.save_project()`, safely saves the
+    complete project, but, most likely, takes additional time over the optimized but possibly unsafe save function.
+
+- Examples (high-level)
+  - Add tutorial script to create stages and add them to a well
+
+- Examples (low-level)
+  - Repaired low-level (Python.NET) script to create stages and add them to a well
+  - Add a low-level script demonstrating adding multi-picking observations to an observation set.
+
+- Distribution
+  - Reduce minimum required Python version to 3.8.3.
+
+#### Known Issues
+
+- [GitHub issue 36](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/36)
+- [GitHub issue 37](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/37)
+
 ### Release notes for 2022.1.360
 
-This release is the production release of the Orchid Python API corresponding to Orchid 2021.4. This release:
+This release is the production release of the Orchid Python API corresponding to Orchid 2022.1. This release:
 
 - Provides high-level access to downhole proppant concentrations
 - Adds a high-level API property to change the stage time range

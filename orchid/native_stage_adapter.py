@@ -462,6 +462,16 @@ class NativeStageAdapter(dpo.DomProjectObject):
 
 @dc.dataclass
 class CreateStageDto:
+    """
+    A data-transfer object (DTO) containing the required and optional data used to create new stages.
+
+    This class enforces a number of constraints on the data needed to create a stage. Consider viewing the source
+    code of the class to understand those constraints. (The class will throw exceptions if the constraints are not met
+    at run-time.)
+
+    Additionally, the comments of this class contain a number of "warnings" for situations where data is not required,
+    but the consequences for **not** supplying the data may not be desirable or may not be expected.
+    """
     stage_no: int  # Must be positive
     connection_type: ConnectionType
     md_top: om.Quantity  # Must be length

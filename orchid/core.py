@@ -98,7 +98,7 @@ def optimized_but_possibly_unsafe_save(project: Project, source_pathname: str,
                                        maybe_target_pathname: Optional[str] = None):
     """
     Saves `project`, optionally to `maybe_to_pathname` is an optimized, but possibly "unsafe" manner.
-)
+
     If `maybe_to_pathname` is supplied and is not `None`, it must be a string representing a valid pathname. If a file
     with that pathname already exists, it will be overwritten (unless it is the same path as `source_pathname`)
 
@@ -143,6 +143,7 @@ def optimized_but_possibly_unsafe_save(project: Project, source_pathname: str,
         >>> load_path.exists()
         True
         >>> load_path.unlink()
+
     """
     store = ProjectStore(source_pathname.strip())
     store.optimized_but_possibly_unsafe_save(project, option.maybe(maybe_target_pathname))

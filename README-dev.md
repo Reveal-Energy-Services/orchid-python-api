@@ -324,6 +324,7 @@ Finally,
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In an Anaconda Powershell window, navigate to the directory of the test directory
 - Activate the virtualenv (run `conda activate orchid`)
+- Optionally install `spyder`
 - Install the package distribution by running `pip install </path/to/package-distribution>`
 - [Ensure installation of correct Orchid version](#ensure-correct-orchid)
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
@@ -393,7 +394,7 @@ To work around this issue, one may need to uninstall `poetry` by:
 - If using a `bash` shell:
   - Download the poetry installer by executing
     ```
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py >get-poetry.py
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python - 
     ```
 
 See [Poetry Issue 2245](https://github.com/python-poetry/poetry/issues/2245) for similar instructions. After
@@ -429,8 +430,8 @@ To update the project dependencies:
     [post-release](https://www.python.org/dev/peps/pep-0440/#post-releases) or a
     [pre-release](https://www.python.org/dev/peps/pep-0440/#post-releases) segment, append this segment to the
     version identifier in `orchid/VERSION`. This action results in an API version identifier like
-    - `2021.1.399.post1` - a post-release or
-    - `2021.1.399.b3` - a "beta-3" pre-release
+    - `2021.1.399post1` - a post-release or
+    - `2021.1.399b3` - a "beta-3" pre-release
 
 #### Edit the package version number
 
@@ -523,6 +524,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
+- Optionally install `spyder`
 - Install the package distribution by running the command,
   ```
   pip install --index-url https://test.pypi.org/simple/ orchid-python-api
@@ -579,6 +581,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
+- Optionally install `spyder`
 - Install the package distribution by running the command, `pip install orchid-python-api`.
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
@@ -952,15 +955,15 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
         - `search_data_frames.ipynb`
         - `volume_2_first_response.ipynb`
     - Verify that the current directory has nine example scripts:
+      - `add_stages.py`
+      - `change_stage_times.py`
       - `completion_analysis.py`
       - `plot_time_series.py`
       - `plot_trajectories.py`
       - `plot_treatment.py`
       - `search_data_frames.py`
-      - `volume_2_first_response.py`
       - `stage_qc_results.py`
-      - `change_stage_times.py`
-      - `add_stages.py`
+      - `volume_2_first_response.py`
 - If you are testing a `poetry` virtual environment
     - If orchid-python-api is installed in the virtual environment,
         - Run `python ./copy_orchid_examples.py` to copy the examples to the current directory
@@ -1048,11 +1051,11 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
   - Verify that the current directory has one example notebooks:
     - `auto_pick.ipynb`
   - Verify that the current directory has three example scripts:
+    - `add_stages_low.py`
     - `auto_pick.py`
     - `auto_pick_and_create_stage_attribute.py`
     - `auto_pick_iterate_example.py`
     - `monitor_time_series.py`
-    - `add_stages_low.py`
     - `multi_picking_events.py`
 - If you are testing a `poetry` virtual environment
   - If orchid-python-api is installed in the virtual environment,
