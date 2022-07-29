@@ -362,9 +362,7 @@ def main(cli_args):
         logging.info(f'{len(native_project.ObservationSets.Items)=}')
         for observation_set in native_project.ObservationSets.Items:
             logging.info(f'{observation_set.Name=}')
-            # TODO: Remove when >~ 2021.4
-            # logging.info(f'{len(observation_set.LeakOffObservations.Items)=}')
-            logging.info(f'{len(observation_set.GetObservations())=}')
+            logging.info(f'{len(observation_set.GetLeakOffObservations())=}')
 
     unique_attributes_per_stage_per_well_counts = set(attribute_count_per_stage_per_well.values())
     logging.info(f'Unique counts of attributes per stage per well={unique_attributes_per_stage_per_well_counts}')
