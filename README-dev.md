@@ -324,6 +324,7 @@ Finally,
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In an Anaconda Powershell window, navigate to the directory of the test directory
 - Activate the virtualenv (run `conda activate orchid`)
+- Optionally install `spyder`
 - Install the package distribution by running `pip install </path/to/package-distribution>`
 - [Ensure installation of correct Orchid version](#ensure-correct-orchid)
 - [Configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
@@ -523,6 +524,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
+- Optionally install `spyder`
 - Install the package distribution by running the command,
   ```
   pip install --index-url https://test.pypi.org/simple/ orchid-python-api
@@ -579,6 +581,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Create a clean conda environment](#create-a-clean-conda-environment)
 - In a powershell window, navigate to the directory of the new virtualenv
 - Activate the virtualenv (run `conda activate orchid`)
+- Optionally install `spyder`
 - Install the package distribution by running the command, `pip install orchid-python-api`.
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
