@@ -31,6 +31,12 @@ This release is the production release of the Orchid Python API corresponding to
 - Added comments describing a work-around for the integer-valued stage attribute limitation
 - Change the implementation of the Python API for stages to handle optional .NET values for the stage properties,
   `Isip`, `PNet` and `Shmin`
+- When installing 2022.2.324 in an orchid environment using Python 3.8.3 that has spyder installed using `conda`, 
+  `conda` reports the following error:
+
+  >>> ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+  >>> spyder-kernels 2.1.3 requires jupyter-client<7,>=5.3.4, but you have jupyter-client 7.3.4 which is incompatible.
+  >>> pylint 2.9.6 requires astroid<2.7,>=2.6.5, but you have astroid 2.12.2 which is incompatible. 
 
 #### Resolved Issues
 
@@ -68,6 +74,7 @@ This release is the production release of the Orchid Python API corresponding to
 #### Known Issues
 
 - [GitHub issue 36](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/36)
+- [GitHub issue 37](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/37)
 
 ### Release notes for 2022.1.360
 
