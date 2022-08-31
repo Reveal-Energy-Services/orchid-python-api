@@ -349,6 +349,11 @@ Publishing a release has a number of general steps. These steps are optional exc
 - [Build and test locally](#build-and-test-locally)
 - [Publish to TestPyPI](#publish-to-testpypi)
 - [Publish to PyPI](#publish-to-pypi)
+- Merge `develop` into `master`
+- Push `master` to GitHub
+- Merge `master` into `master-reveal` (that is, `reveal-energy/master`)
+- Push `master-reveal` to Azure DevOps
+- Send email announcing release
 
 Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 
@@ -546,6 +551,10 @@ Once installed,
 - All outstanding PR's have been completed.
 - You have merged all changes to the `develop` branch
 - You have changed your current branch to the `develop` branch
+- You have tagged `develop` with the release API version
+- You have pushed the tags to our repositories, GitHub and Azure DevOps, by executing commands like:
+  - `git push origin 2022.2.324` (assumes `origin` maps to GitHub)
+  - `git push reveal-origin 2022.2.324` (assumes `reveal-energy` maps to Azure DevOps)
 
 You will most likely need to configure the API token for PyPI.
 
