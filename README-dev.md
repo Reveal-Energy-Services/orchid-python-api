@@ -1707,6 +1707,17 @@ If you are using the "opposite" mapping, one must
 - Merge the local `master` to local `master-github`
 - Push changes to local `master-github` to remote `github/master` (GitHub)
 
+Finally, when pushing the tags for a release one must also use a similar process. For example, if we have tagged a
+commit with `2022.2.234` and one is using the author's set up, one must:
+
+- Push the tags to the remote `origin` (GitHub) using the command, `git push origin 2022.2.234`
+- Push the tags to the remote `reveal-energy` (Azure DevOps) using the command, `git push reveal-energy 2022.2.234`
+
+For the "opposite" set up, one must:
+
+- Push the tags to the remote `origin` (Azure DevOps) using the command, `git push origin 2022.2.234`
+- Push the tags to the remote `github` (GitHub) using the command, `git push 'github' 2022.2.234`
+
 If you have questions about synchronizing these repositories, please talk to other members of the team. Strongly
 consider using "pair programming" during this synchronization process to avoid "fast" but more error-prone habits.
 Since this synchronization is **not** part of the typical Orchid workflow, this synchronization is outside all of our
