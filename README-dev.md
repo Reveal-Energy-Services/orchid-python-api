@@ -9,6 +9,16 @@ Specifically, the `orchid` package makes Orchid features available to Python app
 
 (*Orchid is a mark of Reveal Energy Services, Inc.)
 
+## Caution Multiple Repositories
+
+The Orchid Python API is different from other products in terms of its source code. The source code is present is Azure
+DevOps but is also available from GitHub. The benefit of this dichotomy is that consumers of the Python API can access 
+the source code without access to our internal repositories. The difficulty with this choice is that developers must
+coordinate changes between these two repositories. Consequently, working with these two repositories are similar to
+forking a GitHub repository and working with both `origin` (the forked repository) and the original repository (often
+called the `upstream` repository). The main synchronization point of these two repositories are releases. For more
+details, read the section [Managing multiple code repositories](#managing-multiple-code-repositories).
+
 ## Examples
 
 ### High-level examples
@@ -299,7 +309,7 @@ and stick to it."
         - A source distribution (`.tar.gz` file)
         - A binary (wheel) distribution (`.whl` file)
     - The distribution contains the correct `ReleaseNotes.md` For example one can view the file contents by
-      using the command `vim dist/<package>.tar.gz` or by using an tool like 7-zip.
+      using the command `vim dist/<package>.tar.gz` or by using a tool like 7-zip.
         
 ### Install local package
 
@@ -377,7 +387,7 @@ to perform these tasks.
 When the author attempted to execute this command, he encountered an error that the update **could not**
 update a library. This same message occurred both in a Git Bash shell and in a Powershell (1.0) shell. After
 receiving this message, the installation of was corrupted. (The author received a message like "Could not
-import poetry.console".) To resolve this issue, the author simply installed `poetry` again. This repaired the
+import `poetry.console`".) To resolve this issue, the author simply installed `poetry` again. This repaired the
 `poetry.console` error and updated `poetry` to the latest version.
 
 When encountering this error a second time, the author noticed an "access denied" error in the stack trace.
@@ -1619,6 +1629,88 @@ This output describes four details of the configuration.
 | file          | The configuration specified in your configuration file (may be empty)  |
 | environment   | The configuration specified using environment variables (may be empty) | 
 | result        | The configuration used by the Orchid Python API (should not be empty)  |
+
+## Managing multiple code repositories
+
+As mentioned earlier, the source code for the Orchid Python API exists in two synchronized repositories. The "working"
+repository for most developers is the
+[Azure DevOps PythonApi repository](https://reveal-energy.visualstudio.com/ImageFrac/_git/PythonApi). However, for 
+developers (and "readers") outside of Reveal, the primary repository is
+[the GitHub repository](https://github.com/Reveal-Energy-Services/orchid-python-api). Two repositories introduces an
+additional task for developers: coordinating these repositories so that they are "synchronized". 
+
+The key issue with two repositories, similar to managing a fork of an existing repository is coordinating branches with
+the same name on two different remotes. Specifically, both the Azure DevOps repository and the GitHub repository have
+branches named:
+
+- `master`
+- `develop`
+
+As a developer, whenever you work with these branches locally, you must be very aware of which remote branch you are
+tracking. The author currently tracks these branches as follows:
+
+- The remote, `origin`, refers to the GitHub repository
+- The remote, `reveal-energy`, refers to the Azure DevOps repository
+- Local `develop` tracks the remote `origin/develop`
+- Local `develop-reveal` tracks `reveal-energy/develop`
+- Local `master` tracks the remote `origin/master`
+- Local `master-reveal` tracks `reveal-energy/master`
+
+Other developers prefer the "opposite" mapping
+
+- The remote, `origin`, refers to the Azure DevOps repository
+- The remote, `github`, refers to the GitHub repository
+- Local `develop` tracks the remote `origin/develop`
+- A local branch named, for example, `develop-githib` tracks `github/develop`
+- Local `master` tracks the remote `origin/master`
+- Local `master-github` tracks `github/master`
+
+The author does not believe that either mapping provides a better developer experience; the key is to be **aware** of 
+the mapping and the required coordination.
+
+We have two coordination points: completing PR requests and publishing a release. When we complete a PR, it is valuable
+to ensure that this latest "accepted" code is available from either Azure DevOps or from GitHub. Consequently, when we
+complete a PR, we must ensure that:
+
+- `github/develop` and `reveal-energy/develop` refer to the same commit.
+
+For the author's set up, this involves:
+
+- Merging the latest commits to `reveal-energy/develop` to the local `develop-reveal` 
+- Merging local `develop-reveal` into local `develop`
+- Push changes from local `develop` to remote `origin/develop` (GitHub)
+
+If you are using the "opposite" mapping, one must
+
+- Merging the latest commits to `origin/develop` to the local `develop`
+- Merging local `develop` into local `develop-github`
+- Push changes from local `develop-github` to remote `github/develop` (GitHub)
+
+The second coordination point is a release. In addition to the previous steps (since the last step before publishing to
+a distribution to PyPI is completing a PR), we must ensure that:
+
+- `github/master` and `reveal-energy/master` refer to the same commit (which should be the same as `github/develop` and
+  `reveal-energy/develop`).
+
+To ensure this end state, one must use similar steps to synchronizing a completed PR. For the author's set up, this
+coordination involves:
+
+- Merge the local `develop` commits to local `master`
+- Push local `master` to remote `origin/master` (GitHub)
+- Merge the local `master` to local `master-reveal`
+- Push changes to `master-reveal` to remote `reveal-energy/master` (Azure DevOps)
+
+If you are using the "opposite" mapping, one must
+
+- Merge the local `develop` commits to local `master`
+- Push local `master` to remote `origin/master` (Azure DevOps)
+- Merge the local `master` to local `master-github`
+- Push changes to local `master-github` to remote `github/master` (GitHub)
+
+If you have questions about synchronizing these repositories, please talk to other members of the team. Strongly
+consider using "pair programming" during this synchronization process to avoid "fast" but more error-prone habits.
+Since this synchronization is **not** part of the typical Orchid workflow, this synchronization is outside all of our
+typical GitHub / Azure DevOps experience.
 
 ## Contribute
 
