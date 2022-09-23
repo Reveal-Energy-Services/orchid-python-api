@@ -806,9 +806,8 @@ tested these instructions in that environment.
       remove-item /path/to/conda-environments/orchid -recurse
       ```
     - Remove any other files remaining in the test directory.
-    - Be sure to remove any **hidden** files or directories in the test directory. For example, a file or a
-      directory starting with a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of
-      Unix-like shells. The Powershell command will be something like
+    - Be sure to remove any **hidden** files or directories. For example, a file or a directory starting with
+      a dot ("."), like `.ipynb_checkpoints`, is hidden to typical listings of Unix-like shells.
 
 
 - Create a new, clean virtual environment by:
@@ -891,7 +890,12 @@ To run all orchid tests
 - Run the `add_stages.py` script.
 
 The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
-scripts require a number of command line arguments to run correctly.
+scripts require a number of command line arguments to run correctly. 
+
+**!!! WARNING !!!** 
+
+Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
+start by reading a project version **greater than or equal to `v11`**.
 
 For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
 The most typical arguments are described in the following paragraphs.
@@ -994,6 +998,11 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
 scripts require a number of command line arguments to run correctly.
 
+**!!! WARNING !!!**
+
+Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
+start by reading a project version **greater than or equal to `v11`**.
+
 For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
 The most typical arguments are described in the following paragraphs.
 
@@ -1068,6 +1077,11 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       ```
 
 #### Run low-level example scripts
+
+**!!! WARNING !!!**
+
+Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
+start by reading a project version **greater than or equal to `v11`**.
 
 - Run the scripts
   - Execute the command 
