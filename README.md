@@ -460,6 +460,11 @@ The import should complete with no errors.
 The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
 scripts require a number of command line arguments to run correctly.
 
+**!!! WARNING !!!**
+
+Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
+start by reading a project version **greater than or equal to `v11`**.
+
 For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
 The most typical arguments are described in the following paragraphs.
 
