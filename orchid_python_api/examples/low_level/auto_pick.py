@@ -225,7 +225,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
-    with dnd.disposable(picked_observation.ToMutable()) as mutable_observation :
+    with dnd.disposable(picked_observation.ToMutable()) as mutable_observation:
         mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
         mutable_observation.ControlPointTimes = create_leak_off_curve_control_points(leak_off_curve_times)
         (mutable_observation.VisibleRangeXminTime,
