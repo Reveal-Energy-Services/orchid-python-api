@@ -341,8 +341,6 @@ if __name__ == '__main__':
 
     parser.add_argument('input_project', help=f'Path name of project to read.')
 
-    # Although input file must be 'frankNstein_Bakken_UTM13_FEET.v11.ifrac', I use the original version as the
-    # default for the correct output file name.
     default_file_name_to_read = pathlib.Path('frankNstein_Bakken_UTM13_FEET.ifrac')
     default_project_path_name_to_read = make_project_path_name(orchid.training_data_path(),
                                                                default_file_name_to_read)
