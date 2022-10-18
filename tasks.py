@@ -197,20 +197,6 @@ def examples_copy(context, target_dir='.'):
     examples_copy_scripts(context, target_dir)
 
 
-def examples_stem_names():
-    """Returns the sequence of example stem names."""
-    example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
-                     'plot_treatment', 'search_data_frames', 'volume_2_first_response',
-                     'stage_qc_results', 'change_stage_times', ]
-    return example_stems
-
-
-def example_notebooks_names():
-    """Returns the sequence of example notebook names."""
-    result = toolz.map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), examples_stem_names())
-    return result
-
-
 @task
 def examples_clean_notebooks(_context, directory='.'):
     """
@@ -220,7 +206,7 @@ def examples_clean_notebooks(_context, directory='.'):
         _context: The task context (unused).
         directory: The directory from which I remove the example notebooks. (Default: current directory)
     """
-    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_notebooks_names())
+    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), examples.notebook_names())
     for notebook_path_to_remove in notebook_paths_to_remove:
         notebook_path_to_remove.unlink(missing_ok=True)
 
@@ -235,18 +221,11 @@ def examples_copy_notebooks(_context, target_dir='.'):
         target_dir: The directory into which I copy the example notebooks. (Default: current directory)
     """
     source_files = toolz.pipe(
-        example_notebooks_names(),
+        examples.notebook_names(),
         toolz.map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn)),
-        toolz.filter(lambda p: p.exists()),
     )
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
-
-
-def example_scripts_names():
-    """Returns the sequence of example script names."""
-    result = toolz.map(lambda s: pathlib.Path(s).with_suffix('.py'), examples_stem_names())
-    return result
 
 
 @task
@@ -258,7 +237,7 @@ def examples_clean_scripts(_context, directory='.'):
         _context: The task context (unused).
         directory: The directory from which I remove the example scripts. (Default: current directory)
     """
-    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_scripts_names())
+    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), examples.script_names())
     for script_path_to_remove in script_paths_to_remove:
         script_path_to_remove.unlink(missing_ok=True)
 
@@ -273,9 +252,8 @@ def examples_copy_scripts(_context, target_dir='.'):
         target_dir: The directory into which I copy the example scripts. (Default: current directory)
     """
     source_files = toolz.pipe(
-        example_scripts_names(),
+        examples.script_names(),
         toolz.map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn)),
-        toolz.filter(lambda p: p.exists()),
     )
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
@@ -291,11 +269,9 @@ def examples_run_scripts(context):
     """
     source_files = examples.ordered_script_names()
     for source_file in source_files:
-        # The `stage_qc_results` and `change_stage_times` example scripts require arguments to run and produce output
-        if str(source_file).endswith('stage_qc_results.py'):
-            context.run(f'python {source_file} --verbosity=2'
-                        f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
-        elif str(source_file).endswith('change_stage_times.py'):
+        # The `add_stages`, `stage_qc_results`, and `change_stage_times` example scripts require arguments to run and
+        # produce output
+        if source_file in {'add_stages.py', 'stage_qc_results.py', 'change_stage_times.py'}:
             context.run(f'python {source_file} --verbosity=2'
                         f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
         else:
