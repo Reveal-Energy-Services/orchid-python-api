@@ -66,14 +66,15 @@ def step_impl(context, script_file_name):
 
 
 # noinspection PyBDDParameters
-@when("I execute the script")
-def step_impl(context):
+@when("I execute the script using project version {ifrac_version}")
+def step_impl(context, ifrac_version):
     """
     Args:
         context (behave.runner.Context):
+        ifrac_version (str): The value identifying the version of the `.ifrac` file.
     """
     training_data_dir = pathlib.Path(orchid.configuration.training_data_path())
-    training_data_path = training_data_dir.joinpath('frankNstein_Bakken_UTM13_FEET.v11.ifrac')
+    training_data_path = training_data_dir.joinpath(f'frankNstein_Bakken_UTM13_FEET.{ifrac_version}.ifrac')
     command_line = [sys.executable, str(context.script_path), '-v2', str(training_data_path)]
     script_process = subprocess.run(command_line, capture_output=True, text=True)
     try:

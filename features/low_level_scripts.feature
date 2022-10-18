@@ -22,27 +22,27 @@ Feature: Low-level example scripts
 
   Scenario Outline: Automatically pick observations
     Given I have copied the low-level script, '<script_file_name>', to the repository root
-    When I execute the script
+    When I execute the script using project version <ifrac_version>
     Then I see that <observation_count> observations were picked
 
     Examples:
-      | script_file_name             | observation_count |
-      | auto_pick.py                 | 120               |
-      | auto_pick_iterate_example.py | 120               |
+      | script_file_name             | ifrac_version | observation_count |
+      | auto_pick.py                 | v11           | 120               |
+      | auto_pick_iterate_example.py | v11           | 120               |
 
   Scenario Outline: Automatically pick observations and create stage attributes
     Given I have copied the low-level script, '<script_file_name>', to the repository root
-    When I execute the script
+    When I execute the script using project version <ifrac_version>
     Then I see that <observation_count> observations were picked
     And I see that <attribute_count> attributes were created for each stage of each well
 
     Examples: auto_pick_and_create_stage_attributes
-      | script_file_name                        | observation_count | attribute_count |
-      | auto_pick_and_create_stage_attribute.py | 120               | 2               |
+      | script_file_name                        | ifrac_version | observation_count | attribute_count |
+      | auto_pick_and_create_stage_attribute.py | v11           | 120               | 2               |
 
   Scenario Outline: Add stages
     Given I have copied the low-level script, '<script_file_name>', to the repository root
-    When I execute the script
+    When I execute the script using project version <ifrac_version>
     And I see the following added stages
       | stage_name | shmin        | clusters | global_seq_no | stage_time_range                                |
       | Stage-36   | 8144.498 psi | 0        | 0             | 2018-06-06T05:34:03.684/2018-06-06T07:19:35.560 |
@@ -50,12 +50,12 @@ Feature: Low-level example scripts
       | Stage-38   | 8041.893 psi | 7        | 0             | 2018-06-28T23:35:54.379/2018-06-29T01:18:05.840 |
 
     Examples: add_stages
-      | script_file_name |
-      | add_stages_low.py    |
+      | script_file_name  | ifrac_version |
+      | add_stages_low.py | v11           |
 
   Scenario Outline: Monitor time series
     Given I have copied the low-level script, '<script_file_name>', to the repository root
-    When I execute the script
+    When I execute the script using project version <ifrac_version>
     Then I see all time series in the project
       """
       {UUID('07d3cc41-1040-4125-8e2e-71726a124181'): <orchid.native_time_series_adapter.NativeTimeSeriesAdapter object at 0x000001A74791DF70>,
@@ -102,12 +102,12 @@ Feature: Low-level example scripts
       """
 
     Examples: monitor_time_series
-      | script_file_name       |
-      | monitor_time_series.py |
+      | script_file_name       | ifrac_version |
+      | monitor_time_series.py | v11           |
 
   Scenario Outline: Automatically create multi-pick observations
     Given I have copied the low-level script, '<script_file_name>', to the repository root
-    When I execute the script
+    When I execute the script using project version <ifrac_version>
     Then I see that the "ParentWellObservations" set has observations
       | leak_off_count | multi_pick_count |
       | 17             | 0                |
@@ -117,5 +117,5 @@ Feature: Low-level example scripts
     And I can successfully load the file after saving
 
     Examples: auto_pick_and_create_stage_attributes
-      | script_file_name        |
-      | multi_picking_events.py |
+      | script_file_name        | ifrac_version |
+      | multi_picking_events.py | v11           |
