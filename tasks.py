@@ -279,6 +279,28 @@ def examples_run_scripts(context):
         print()
 
 
+def _low_level_ordered_script_names():
+    script_name_pairs = [
+        ('auto_pick.py', 0),
+        ('auto_pick_and_create_stage_attribute.py', 1),
+        ('auto_pick_iterate_example.py', 2),
+        ('add_stages_low.py', 3),
+        ('monitor_time_series.py', 4),
+        ('multi_picking_events.py', 5),
+    ]
+    ordered_pairs = sorted(script_name_pairs, key=lambda op: op[1])
+    ordered_names = [op[0] for op in ordered_pairs]
+    script_names = toolz.pipe(
+        low_level_scripts_names(),
+        toolz.map(lambda pn: pn.name),
+    )
+    difference = set(script_names).difference(set(ordered_names))
+    assert len(difference) == 0, f'Ordered set, {ordered_names},' \
+                                 f' differs from, set {script_names}' \
+                                 f' by, {difference}.'
+    return ordered_names
+
+
 def low_level_stem_names():
     """Returns the sequence of low-level example stem names."""
     low_level_stems = ['add_stages_low', 'auto_pick', 'auto_pick_iterate_example',
@@ -320,6 +342,21 @@ def low_level_copy_scripts(_context, target_dir='.'):
                        low_level_scripts_names())
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
+
+
+@task
+def low_level_run_scripts(context):
+    """
+    Run all the low-level example scripts in the current directory.
+
+    Args:
+        context: The task context.
+    """
+    source_files = _low_level_ordered_script_names()
+    for source_file in source_files:
+        context.run(f'python {source_file} --verbosity=2'
+                    f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
+        print()
 
 
 @task
@@ -545,6 +582,7 @@ examples_ns.add_task(examples_run_scripts, name='run-scripts')
 low_level_ns = Collection('low-level')
 low_level_ns.add_task(low_level_clean_scripts, name='clean')
 low_level_ns.add_task(low_level_copy_scripts, name='copy-scripts')
+low_level_ns.add_task(low_level_run_scripts, name='run-scripts')
 
 pipenv_ns = Collection('pipenv')
 
