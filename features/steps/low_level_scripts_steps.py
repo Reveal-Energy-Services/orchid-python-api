@@ -74,7 +74,8 @@ def step_impl(context, ifrac_version):
         ifrac_version (str): The value identifying the version of the `.ifrac` file.
     """
     training_data_dir = pathlib.Path(orchid.configuration.training_data_path())
-    training_data_path = training_data_dir.joinpath(f'frankNstein_Bakken_UTM13_FEET.{ifrac_version}.ifrac')
+    version_suffix = f'.{ifrac_version}' if ifrac_version != 'v2' else ''
+    training_data_path = training_data_dir.joinpath(f'frankNstein_Bakken_UTM13_FEET{version_suffix}.ifrac')
     command_line = [sys.executable, str(context.script_path), '-v2', str(training_data_path)]
     script_process = subprocess.run(command_line, capture_output=True, text=True)
     try:

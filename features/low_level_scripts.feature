@@ -27,6 +27,8 @@ Feature: Low-level example scripts
 
     Examples:
       | script_file_name             | ifrac_version | observation_count |
+      | auto_pick.py                 | v2            | 120               |
+      | auto_pick_iterate_example.py | v2            | 120               |
       | auto_pick.py                 | v11           | 120               |
       | auto_pick_iterate_example.py | v11           | 120               |
 
@@ -38,6 +40,7 @@ Feature: Low-level example scripts
 
     Examples: auto_pick_and_create_stage_attributes
       | script_file_name                        | ifrac_version | observation_count | attribute_count |
+      | auto_pick_and_create_stage_attribute.py | v2            | 120               | 2               |
       | auto_pick_and_create_stage_attribute.py | v11           | 120               | 2               |
 
   Scenario Outline: Add stages
@@ -51,6 +54,7 @@ Feature: Low-level example scripts
 
     Examples: add_stages
       | script_file_name  | ifrac_version |
+      | add_stages_low.py | v2            |
       | add_stages_low.py | v11           |
 
   Scenario Outline: Monitor time series
@@ -103,6 +107,7 @@ Feature: Low-level example scripts
 
     Examples: monitor_time_series
       | script_file_name       | ifrac_version |
+      | monitor_time_series.py | v2            |
       | monitor_time_series.py | v11           |
 
   Scenario Outline: Automatically create multi-pick observations
