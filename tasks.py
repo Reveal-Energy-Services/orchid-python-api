@@ -259,24 +259,52 @@ def examples_copy_scripts(_context, target_dir='.'):
         shutil.copy2(source_file, target_dir)
 
 
-@task
-def examples_run_scripts(context):
+def _version_suffix(file_version: int):
+    """
+    Calculate the "version suffix" to be embedded in the `.ifrac` file to externally identify the `.ifrac` file version.
+
+    Specifically, if the name of the `.ifrac` file is `foo.ifrac` and the version requested is 11, then the "version
+    suffix" returned will be '.v11'. Note that version 2 is the default and is mapped to an empty suffix.
+
+    Args:
+        file_version: The symbolic version of the `.ifrac` file.
+
+    Returns:
+        The appropriate "version suffix"
+    """
+    if file_version == 2:
+        return ''
+    elif file_version == 11:
+        return '.v11'
+    else:
+        raise ValueError(f'Unexpected `.ifrac` file version: "{file_version}"')
+
+
+@task(iterable=['ifrac_version'])
+def examples_run_scripts(context, ifrac_version):
     """
     Run all the example scripts in the current directory.
 
     Args:
         context: The task context.
+        ifrac_version: Specify the version of the .ifrac file to use. Specify multiple versions by repeating
+        the flag with different values. Remember that this flag only applies to specific scripts that expect
+        the user to supply the pathname to an `.ifrac` file. (Default: a list containing versions 2 and 11).
     """
+
     source_files = examples.ordered_script_names()
     for source_file in source_files:
-        # The `add_stages`, `stage_qc_results`, and `change_stage_times` example scripts require arguments to run and
-        # produce output
         if source_file in {'add_stages.py', 'stage_qc_results.py', 'change_stage_times.py'}:
-            context.run(f'python {source_file} --verbosity=2'
-                        f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
+            # The `add_stages`, `stage_qc_results`, and `change_stage_times` example scripts require arguments to run
+            # and produce output
+            ifrac_versions = [int(v) for v in ifrac_version] if len(ifrac_version) > 0 else [2, 11]
+            for file_version in ifrac_versions:
+                print()
+                context.run(f'python {source_file} --verbosity=2 c:/src/Orchid.IntegrationTestData/'
+                            f'frankNstein_Bakken_UTM13_FEET{_version_suffix(file_version)}.ifrac', echo=True)
         else:
+            print()
             context.run(f'python {source_file}', echo=True)
-        print()
 
 
 def _low_level_ordered_script_names():
@@ -344,19 +372,30 @@ def low_level_copy_scripts(_context, target_dir='.'):
         shutil.copy2(source_file, target_dir)
 
 
-@task
-def low_level_run_scripts(context):
+@task(iterable=['ifrac_version'])
+def low_level_run_scripts(context, ifrac_version):
     """
     Run all the low-level example scripts in the current directory.
 
     Args:
         context: The task context.
+        ifrac_version: Specify the version of the .ifrac file to use. Specify multiple versions by repeating
+        the flag with different values. Remember that this flag only applies to specific scripts that expect
+        the user to supply the pathname to an `.ifrac` file. (Default: a list containing versions 2 and 11).
     """
     source_files = _low_level_ordered_script_names()
     for source_file in source_files:
-        context.run(f'python {source_file} --verbosity=2'
-                    f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
-        print()
+        if source_file in {'monitor_time_series.py'}:
+            # The `add_stages`, `stage_qc_results`, and `change_stage_times` example scripts require no arguments to run
+            # and produce output
+            print()
+            context.run(f'python {source_file}', echo=True)
+        else:
+            ifrac_versions = [int(v) for v in ifrac_version] if len(ifrac_version) > 0 else [2, 11]
+            for file_version in ifrac_versions:
+                print()
+                context.run(f'python {source_file} --verbosity=2 c:/src/Orchid.IntegrationTestData/'
+                            f'frankNstein_Bakken_UTM13_FEET{_version_suffix(file_version)}.ifrac', echo=True)
 
 
 @task
