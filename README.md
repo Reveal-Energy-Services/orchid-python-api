@@ -460,11 +460,6 @@ The import should complete with no errors.
 The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
 scripts require a number of command line arguments to run correctly.
 
-**!!! WARNING !!!**
-
-Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
-start by reading a project version **greater than or equal to `v11`**.
-
 For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
 The most typical arguments are described in the following paragraphs.
 
@@ -475,12 +470,12 @@ python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UT
 
 To only read the existing stage QC data, run the command
 ```
-python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
 ```
 
 To change the stage start and stop times (the time range), run the command
 ```
-python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
 ```
 
 To add stages to a well, run the command
