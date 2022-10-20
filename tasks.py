@@ -197,20 +197,6 @@ def examples_copy(context, target_dir='.'):
     examples_copy_scripts(context, target_dir)
 
 
-def examples_stem_names():
-    """Returns the sequence of example stem names."""
-    example_stems = ['completion_analysis', 'plot_time_series', 'plot_trajectories',
-                     'plot_treatment', 'search_data_frames', 'volume_2_first_response',
-                     'stage_qc_results', 'change_stage_times', ]
-    return example_stems
-
-
-def example_notebooks_names():
-    """Returns the sequence of example notebook names."""
-    result = toolz.map(lambda s: pathlib.Path(s).with_suffix('.ipynb'), examples_stem_names())
-    return result
-
-
 @task
 def examples_clean_notebooks(_context, directory='.'):
     """
@@ -220,7 +206,7 @@ def examples_clean_notebooks(_context, directory='.'):
         _context: The task context (unused).
         directory: The directory from which I remove the example notebooks. (Default: current directory)
     """
-    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_notebooks_names())
+    notebook_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), examples.notebook_names())
     for notebook_path_to_remove in notebook_paths_to_remove:
         notebook_path_to_remove.unlink(missing_ok=True)
 
@@ -235,18 +221,11 @@ def examples_copy_notebooks(_context, target_dir='.'):
         target_dir: The directory into which I copy the example notebooks. (Default: current directory)
     """
     source_files = toolz.pipe(
-        example_notebooks_names(),
+        examples.notebook_names(),
         toolz.map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn)),
-        toolz.filter(lambda p: p.exists()),
     )
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
-
-
-def example_scripts_names():
-    """Returns the sequence of example script names."""
-    result = toolz.map(lambda s: pathlib.Path(s).with_suffix('.py'), examples_stem_names())
-    return result
 
 
 @task
@@ -258,7 +237,7 @@ def examples_clean_scripts(_context, directory='.'):
         _context: The task context (unused).
         directory: The directory from which I remove the example scripts. (Default: current directory)
     """
-    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), example_scripts_names())
+    script_paths_to_remove = map(lambda n: pathlib.Path(directory).joinpath(n), examples.script_names())
     for script_path_to_remove in script_paths_to_remove:
         script_path_to_remove.unlink(missing_ok=True)
 
@@ -273,34 +252,86 @@ def examples_copy_scripts(_context, target_dir='.'):
         target_dir: The directory into which I copy the example scripts. (Default: current directory)
     """
     source_files = toolz.pipe(
-        example_scripts_names(),
+        examples.script_names(),
         toolz.map(lambda fn: pathlib.Path('./orchid_python_api/examples').joinpath(fn)),
-        toolz.filter(lambda p: p.exists()),
     )
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
 
 
-@task
-def examples_run_scripts(context):
+def _version_suffix(file_version: int):
+    """
+    Calculate the "version suffix" to be embedded in the `.ifrac` file to externally identify the `.ifrac` file version.
+
+    Specifically, if the name of the `.ifrac` file is `foo.ifrac` and the version requested is 11, then the "version
+    suffix" returned will be '.v11'. Note that version 2 is the default and is mapped to an empty suffix.
+
+    Args:
+        file_version: The symbolic version of the `.ifrac` file.
+
+    Returns:
+        The appropriate "version suffix"
+    """
+    if file_version == 2:
+        return ''
+    elif file_version == 11:
+        return '.v11'
+    else:
+        raise ValueError(f'Unexpected `.ifrac` file version: "{file_version}"')
+
+
+def _run_script(context, are_args_required_func, ifrac_version, script_name):
+    if are_args_required_func(script_name):
+        ifrac_versions = [int(v) for v in ifrac_version] if len(ifrac_version) > 0 else [2, 11]
+        for file_version in ifrac_versions:
+            print()
+            context.run(f'python {script_name} --verbosity=2 c:/src/Orchid.IntegrationTestData/'
+                        f'frankNstein_Bakken_UTM13_FEET{_version_suffix(file_version)}.ifrac', echo=True)
+    else:
+        print()
+        context.run(f'python {script_name}', echo=True)
+
+
+def _run_scripts(context, are_args_required_func, ifrac_versions, script_names_func):
+    for script_name in script_names_func():
+        _run_script(context, are_args_required_func, ifrac_versions, script_name)
+
+
+@task(iterable=['ifrac_version'])
+def examples_run_scripts(context, ifrac_version):
     """
     Run all the example scripts in the current directory.
 
     Args:
         context: The task context.
+        ifrac_version: Specify the versions of the .ifrac file to use. Specify multiple versions by repeating
+        the flag with different values. Remember that this flag only applies to specific scripts that expect
+        the user to supply the pathname to an `.ifrac` file. (Default: a list containing versions 2 and 11).
     """
-    source_files = examples.ordered_script_names()
-    for source_file in source_files:
-        # The `stage_qc_results` and `change_stage_times` example scripts require arguments to run and produce output
-        if str(source_file).endswith('stage_qc_results.py'):
-            context.run(f'python {source_file} --verbosity=2'
-                        f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
-        elif str(source_file).endswith('change_stage_times.py'):
-            context.run(f'python {source_file} --verbosity=2'
-                        f' c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac', echo=True)
-        else:
-            context.run(f'python {source_file}', echo=True)
-        print()
+    _run_scripts(context, lambda sn: sn in {'add_stages.py', 'stage_qc_results.py', 'change_stage_times.py'},
+                 ifrac_version, examples.ordered_script_names)
+
+
+def _low_level_ordered_script_names():
+    script_name_pairs = [
+        ('auto_pick.py', 0),
+        ('auto_pick_and_create_stage_attribute.py', 1),
+        ('auto_pick_iterate_example.py', 2),
+        ('add_stages_low.py', 3),
+        ('monitor_time_series.py', 4),
+        ('multi_picking_events.py', 5),
+    ]
+    ordered_pairs = sorted(script_name_pairs, key=lambda op: op[1])
+    ordered_names = [op[0] for op in ordered_pairs]
+    script_names = toolz.pipe(
+        low_level_scripts_names(),
+        toolz.map(lambda pn: pn.name),
+    )
+    difference = set(script_names).difference(set(ordered_names))
+    assert len(difference) == 0, f'Ordered set, {ordered_names},' \
+                                 f' differs from, set {script_names}' \
+                                 f' by, {difference}.'
+    return ordered_names
 
 
 def low_level_stem_names():
@@ -344,6 +375,21 @@ def low_level_copy_scripts(_context, target_dir='.'):
                        low_level_scripts_names())
     for source_file in source_files:
         shutil.copy2(source_file, target_dir)
+
+
+@task(iterable=['ifrac_version'])
+def low_level_run_scripts(context, ifrac_version):
+    """
+    Run all the low-level example scripts in the current directory.
+
+    Args:
+        context: The task context.
+        ifrac_version: Specify the version of the .ifrac file to use. Specify multiple versions by repeating
+        the flag with different values. Remember that this flag only applies to specific scripts that expect
+        the user to supply the pathname to an `.ifrac` file. (Default: a list containing versions 2 and 11).
+    """
+    _run_scripts(context, lambda sn: sn not in {'monitor_time_series.py'},
+                 ifrac_version, _low_level_ordered_script_names)
 
 
 @task
@@ -569,6 +615,7 @@ examples_ns.add_task(examples_run_scripts, name='run-scripts')
 low_level_ns = Collection('low-level')
 low_level_ns.add_task(low_level_clean_scripts, name='clean')
 low_level_ns.add_task(low_level_copy_scripts, name='copy-scripts')
+low_level_ns.add_task(low_level_run_scripts, name='run-scripts')
 
 pipenv_ns = Collection('pipenv')
 

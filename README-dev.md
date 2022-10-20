@@ -911,11 +911,6 @@ To run all orchid tests
 The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
 scripts require a number of command line arguments to run correctly. 
 
-**!!! WARNING !!!** 
-
-Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
-start by reading a project version **greater than or equal to `v11`**.
-
 For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
 The most typical arguments are described in the following paragraphs.
 
@@ -926,7 +921,7 @@ python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UT
 
 To only read the existing stage QC data, run the command
 ```
-python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
+python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac
 ```
 
 To change the stage start and stop times (the time range), run the command
@@ -936,7 +931,7 @@ python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_
 
 To add stages to a well, run the command
 ```
-python add_stages.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+python add_stages.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
 ```
 
 #### Run example notebooks
@@ -1017,17 +1012,12 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 The scripts, `stage_qc_results.py`, `change_stage_times.py`, and `add_stages.py`, differ from the other scripts. These
 scripts require a number of command line arguments to run correctly.
 
-**!!! WARNING !!!**
-
-Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
-start by reading a project version **greater than or equal to `v11`**.
-
 For example, to see an explanation of these arguments, execute any of this scripts with the `--help` option.
 The most typical arguments are described in the following paragraphs.
 
 To both read and write stage QC results, run the command:
 ```
-python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+python stage_qc_results.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
 ```
 
 To only read the existing stage QC data, run the command
@@ -1037,7 +1027,7 @@ python stage_qc_results.py -v2 --read-only /path/to/orchid-traing-data/frankNste
 
 To change the stage start and stop times (the time range), run the command
 ```
-python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac 
+python change_stage_times.py -v2 /path/to/orchid-traing-data/frankNstein_Bakken_UTM13_FEET.ifrac 
 ```
 
 To add stages to a well, run the command
@@ -1097,11 +1087,6 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
 
 #### Run low-level example scripts
 
-**!!! WARNING !!!**
-
-Because these scripts write data to a project file using the `optimized_but_possibly_unsafe_save()` method, one must
-start by reading a project version **greater than or equal to `v11`**.
-
 - Run the scripts
   - Execute the command 
     ```
@@ -1112,7 +1097,7 @@ start by reading a project version **greater than or equal to `v11`**.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command 
     ```
-    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
+    python auto_pick_and_create_stage_attribute.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
@@ -1129,14 +1114,14 @@ start by reading a project version **greater than or equal to `v11`**.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
+    python add_stages_low.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
   - Execute the command
     ```
-    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.v11.ifrac
+    python multi_picking_events.py --verbosity=2 /path/to/training-data/frankNstein_Bakken_UTM13_FEET.ifrac
     ```
     where `/path/to/training-data` is a symbolic reference to the path to the Orchid training data
   - Review the output and ensure the script finishes without errors.
