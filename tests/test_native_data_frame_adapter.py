@@ -29,7 +29,7 @@ from orchid import (
 from tests import stub_net as tsn
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeKind, DateTimeOffset, DBNull, TimeSpan
+from System import DateTime, DateTimeKind, DateTimeOffset, DBNull, Guid, TimeSpan
 
 
 def date_time_to_integral_milliseconds(value):
@@ -91,6 +91,7 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
              pendulum.duration(hours=11, minutes=52, seconds=16, microseconds=444731)),
             (TimeSpan.MaxValue, pd.NaT),
             (TimeSpan.MinValue, pd.NaT),
+            (Guid('54504a96-81e6-47a0-b9dc-6770898517f8'), uuid.UUID('54504a96-81e6-47a0-b9dc-6770898517f8'))
         ]:
             with self.subTest(f'Convert .NET cell, {net_value}, to {expected}'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
