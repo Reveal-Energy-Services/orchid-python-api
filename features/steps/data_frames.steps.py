@@ -21,6 +21,7 @@ use_step_matcher("parse")
 
 from collections import namedtuple
 import datetime as dt
+import uuid
 
 from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly
 import option
@@ -314,6 +315,7 @@ about_data_frame_columns = [
     AboutDataFrameColumn('shortest_distance', 'Shortest distance', _convert_maybe_value(float)),
     AboutDataFrameColumn('signal_quality', 'SignalQuality', _convert_maybe_value(_convert_signal_quality)),
     AboutDataFrameColumn('slurry_rate', ' slurry rate [bpm]', _convert_maybe_value(float)),
+    AboutDataFrameColumn('stage_guid', 'StageGUID', _convert_maybe_value(uuid.UUID)),
     AboutDataFrameColumn('stage_length', 'StageLength', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_pumped_vol', 'StagePumpedVolume', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_no', 'StageNumber', _convert_maybe_value(float)),
