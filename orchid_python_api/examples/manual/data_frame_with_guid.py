@@ -12,6 +12,10 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+# ** WARNING **
+#
+# This example is only temporary.
+
 import uuid
 
 import orchid
