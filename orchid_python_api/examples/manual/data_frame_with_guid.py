@@ -32,4 +32,8 @@ def open_data_frame():
 
 
 if __name__ == '__main__':
+    print('** WARNING **')
+    print('This example is only temporary.')
+    print()
+
     open_data_frame()
