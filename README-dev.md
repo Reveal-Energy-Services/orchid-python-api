@@ -328,6 +328,7 @@ Finally,
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+- Optionally, [Run Orchid manual examples](#run-installed-orchid-manual-examples)
 
 #### Install and test locally in conda environment
 
@@ -345,6 +346,7 @@ Finally,
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+- Optionally, [Run Orchid manual examples](#run-installed-orchid-manual-examples)
 
 ## Publish a release
 
@@ -1138,6 +1140,52 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     4. Verify that no exceptions occurred
   - Review the output and ensure the script finishes without errors.
   - Optionally test the newly created `.ifrac` file in Orchid
+
+### Run installed Orchid manual examples
+
+If testing against an Orchid release, [Install Orchid release](#install-orchid-release)
+
+- Prepare to run examples
+  - If you have not already done so,
+    [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
+  - You **must**
+    [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
+- If you are testing a `pipenv` virtual environment or a `conda` environment,
+  - Navigate to the directory associated with the virtual environment
+  - If necessary, activate the virtual environment.
+  - Run `copy_orchid_manual_examples`.
+  - If the executable reports that it skipped files, repeat the command with an additional argument:  
+    `copy_orchid_manual_examples --overwrite`
+  - Verify that the current directory has one example notebook:
+    - `data_frame_with_guid.ipynb`
+  - Verify that the current directory has one example script:
+    - `data_frame_with_guid.py`
+- If you are testing a `poetry` virtual environment
+  - If orchid-python-api is installed in the virtual environment,
+    - Run `python ./copy_orchid_manuel_examples.py` to copy the examples to the current directory
+  - If orchid-python-api not (yet) installed,
+    - Copy the example notebooks to the orchid project repository root
+      ```
+      copy ./orchid_python_api/examples/manual/*.ipynb </path/to/orchid_repo>
+      copy ./orchid_python_api/examples/manual/*.py </path/to/orchid_repo>
+      ```
+
+#### Run example scripts
+
+- Run the first script
+  - Execute the command `python data_frame_with_guid.py`
+  - Wait patiently for the script to complete
+  - Ensure that no exception occurred.
+
+#### Run example notebooks
+
+- Open Jupyter by running `jupyter lab` in the shell
+- Within Jupyter,
+  - Successfully run notebook, `data_frame_with_guid.ipynb`
+    1. Open notebook
+    2. Run all cells of notebook
+    3. Wait patiently
+    4. Verify that no exceptions occurred
 
 ### Run development Orchid tutorials
 

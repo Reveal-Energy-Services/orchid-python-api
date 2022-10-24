@@ -13,6 +13,7 @@
 #
 
 import dataclasses
+import uuid
 from typing import Iterable
 
 import functools
@@ -28,7 +29,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import DateTime, DateTimeOffset, DBNull, TimeSpan
+from System import DateTime, DateTimeOffset, DBNull, Guid, TimeSpan
 # noinspection PyUnresolvedReferences
 from System.Data import DataTable
 
@@ -134,6 +135,11 @@ def _(cell_value):
 @net_cell_value_to_pandas_cell_value.register(DBNull)
 def _(_cell_value):
     return None
+
+
+@net_cell_value_to_pandas_cell_value.register(Guid)
+def _(_cell_value):
+    return uuid.UUID(_cell_value.ToString())
 
 
 @net_cell_value_to_pandas_cell_value.register(TimeSpan)

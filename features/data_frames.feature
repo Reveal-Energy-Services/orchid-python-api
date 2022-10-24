@@ -329,3 +329,34 @@ Feature: Adapted IDataFrame DOM API
       | 2      | None               | Lodgepole          | Top           | #1   | 3250.0 | 3239.071727 |
       | 3      | None               | Lodgepole          | Top           | #4   | 3270.0 | 3253.421091 |
       | 4      | None               | Three Forks        | Top           | #4   | 3360.0 | 3323.416432 |
+
+
+# TODO: Uncomment when bug is repaired
+# [bug 13691](https://reveal-energy.visualstudio.com/ImageFrac/_backlogs/backlog/ImageFrac%20Team/Stories/?workitem=13691)
+#  Scenario: Sampled Stage GUID of 05 Permian Data Frame have the correct cells
+#    Given I have loaded the project for the field, '05Permian'
+#    When I query the loaded project for the data frame named 'Completion Data Frame '
+#    Then I see the sampled cells
+#      | sample | stage_guid                           |
+#      | 0      | 1439206a-e389-4ff3-95a8-1abd5ba2468c |
+#      | 11     | be97eeb0-3a1f-46b6-bcec-fa762b729fa5 |
+#      | 26     | 2871d984-7564-494c-a53f-afcd0e482f9e |
+#      | 31     | 5894211d-1026-4274-90f3-ee44cdb3da8b |
+#      | 43     | 345701cf-dbd2-4a51-a0ce-a99e8a64ea9c |
+#      | 48     | 492f35a7-a408-4106-bbdb-2709ffdcb39b |
+#      | 65     | 458d8a8f-832f-48f8-bb8a-59843dc5d004 |
+#      | 78     | 8989a75f-01c0-4195-adf5-e25026068e61 |
+#      | 85     | 468dc4ed-dd1b-46a6-ab7c-15de60aa6eb9 |
+#      | 91     | None                                 |
+
+  Scenario: Sampled Stage GUID of 05 Permian Fiber Observation Data Frame have the correct cells
+    Given I have loaded the project for the field, '05Permian'
+    When I query the loaded project for the data frame named 'Fiber Observation Set Data Frame '
+    Then I see the sampled cells
+      | sample | stage_guid                           |
+      | 0      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
+      | 1      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
+      | 2      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
+      | 3      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
+      | 4      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
+      | 5      | e12e8f43-1ed2-4216-af4e-2a925da7982b |

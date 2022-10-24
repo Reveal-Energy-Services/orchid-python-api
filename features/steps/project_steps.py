@@ -39,6 +39,7 @@ FIELD_NAME_PATHNAME_MAP = {
     'permian-n': str(orchid.training_data_path().joinpath(
         'ProjectPermian_LocalTime.ifrac')),
     'gng': str(orchid.training_data_path().joinpath('GnG_DemoProject_wDataFrames.ifrac')),
+    '05permian': str(orchid.training_data_path().joinpath('05PermianProjectQ3_2022_DataFrames.ifrac')),
 }
 
 
