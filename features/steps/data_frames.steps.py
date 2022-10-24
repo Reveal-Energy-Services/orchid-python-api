@@ -21,9 +21,10 @@ use_step_matcher("parse")
 
 from collections import namedtuple
 import datetime as dt
+import re
 import uuid
 
-from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly
+from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly, is_, instance_of
 import option
 import parsy
 import pendulum
@@ -163,7 +164,7 @@ def step_impl(context):
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context): Test test context
+        context (behave.runner.Context): The test context.
     """
     assert_that(context.data_frame_of_interest.pandas_data_frame().values.size, equal_to(0))
 
@@ -172,9 +173,29 @@ def step_impl(context):
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context):
+        context (behave.runner.Context): The test context.
     """
     assert_that(context.data_frame_of_interest.pandas_data_frame().empty)
+
+
+@then("I see a Python warning")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    # TODO: I know this test will fail. I need to create some structure to determine the appropriate error.
+    assert_that(context.data_frame_find_by_id_warning, is_(instance_of(IndentationError)))
+
+
+@step("I see a warning like")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    # TODO: I know this test will fail. I need to create some structure to determine the appropriate error.
+    assert_that(re.search(context.text, context.data_from_find_by_id_warning.message), is_(not_none()))
 
 
 def _as_data_frame(table):
