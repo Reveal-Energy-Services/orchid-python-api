@@ -31,13 +31,6 @@ class TestSearchableDataFrames(unittest.TestCase):
     def test_canary(self):
         assert_that(2 + 2, equal_to(4))
 
-    def test_find_by_object_id_raises_warning_if_guid_column(self):
-        table_data_dto = tsn.TableDataDto([uuid.UUID],
-                                          [{'pertinacis': 'af777540-05b2-49aa-9965-5ce20cb93ccd'}],
-                                          toolz.identity)
-        project = tsn.create_stub_net_project(data_frame_dtos=[{'table_data_dto': table_data_dto}])
-        assert_that(calling(project.data_frames), raises(sdf.SearchableDataFramesSystemGuidWarning))
-
 
 if __name__ == '__main__':
     unittest.main()

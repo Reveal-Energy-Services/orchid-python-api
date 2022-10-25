@@ -12,16 +12,33 @@
 # and may not be used in any way not expressly authorized by the Company.
 #
 
+import warnings
+from typing import Callable, Iterator
 
-class SearchableDataFramesWarning(Warning):
-    """
-    Raised when an error occurs searching for a `dpo.DomProjectObject`.
-    """
-    pass
+import toolz.curried as toolz
+
+from orchid import searchable_project_objects as spo
+
+# noinspection PyUnresolvedReferences
+from Orchid.FractureDiagnostics import IProjectObject
 
 
-class SearchableDataFramesSystemGuidWarning(SearchableDataFramesWarning):
-    """
-    Raised when multiple matches occur when searching for a `dpo.DomProjectObject`.
-    """
-    pass
+class SearchableDataFrames(spo.SearchableProjectObjects):
+    def __init__(self, make_adapter: Callable, net_project_objects: Iterator[IProjectObject]):
+        super(SearchableDataFrames, self).__init__(make_adapter, net_project_objects)
+
+        def has_duplicate_object_ids(pos):
+            return not toolz.pipe(
+                pos,
+                toolz.map(lambda npo: npo.ObjectId.ToString()),
+                toolz.isdistinct,
+            )
+
+        if has_duplicate_object_ids(net_project_objects):
+            warnings.warn("""
+            KNOWN ISSUE: Multiple data frames with duplicate object IDs detected.
+            
+            Workarounds:
+            - **DO NOT** use `find_by_object_id`; use `find_by_name` or `find_by_display_name` to search.
+            - Delete and recreate all data frames in a release of Orchid > 2022.3.
+            """)
