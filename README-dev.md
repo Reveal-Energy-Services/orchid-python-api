@@ -353,6 +353,7 @@ Finally,
 Publishing a release has a number of general steps. These steps are optional except for
 [the last step](#publish-to-pypi). Here are the steps:
 
+- Update the release notes
 - [Update poetry](#update-poetry)
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
