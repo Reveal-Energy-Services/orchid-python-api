@@ -23,6 +23,7 @@ from collections import namedtuple
 import datetime as dt
 import re
 import uuid
+import warnings
 
 from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly, is_, instance_of
 import option
@@ -178,14 +179,34 @@ def step_impl(context):
     assert_that(context.data_frame_of_interest.pandas_data_frame().empty)
 
 
-@then("I see a Python warning")
+@when("I query the project data frames")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    with warnings.catch_warnings(record=True) as actual_warnings:
+        # Cause all warnings to be triggered
+        warnings.simplefilter("always")
+        # Execute the function that I expect to raise a warning
+        context.project.data_frames()
+
+        # Remember the warnings raised
+        assert_that(len(actual_warnings), equal_to(1))
+        assert_that(len(actual_warnings[0].message.args), equal_to(1))
+        context.data_frame_warning_text = actual_warnings[0].message.args[0]
+
+
+@then("I see a Python warning with a description like")
 def step_impl(context):
     """
     Args:
         context (behave.runner.Context): The test context.
     """
-    # TODO: I know this test will fail. I need to create some structure to determine the appropriate error.
-    assert_that(context.data_frame_find_by_id_warning, is_(instance_of(IndentationError)))
+    actual_description = context.data_frame_warning_text.split('\n')[1].strip()
+
+    # Triple quoted string in step has a trailing '\r\n' in Windows and must be stripped.
+    assert_that(actual_description, equal_to(context.text.strip()))
 
 
 @step("I see a warning like")
@@ -194,8 +215,8 @@ def step_impl(context):
     Args:
         context (behave.runner.Context): The test context.
     """
-    # TODO: I know this test will fail. I need to create some structure to determine the appropriate error.
-    assert_that(re.search(context.text, context.data_from_find_by_id_warning.message), is_(not_none()))
+    # Triple quoted string in step has a trailing '\r\n' in Windows and must be stripped.
+    assert_that(context.text.strip() in context.data_frame_warning_text)
 
 
 def _as_data_frame(table):

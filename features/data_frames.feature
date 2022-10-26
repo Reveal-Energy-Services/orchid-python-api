@@ -363,14 +363,16 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Stage GUID of 05 Permian Data Frame have the correct cells
     Given I have loaded the project for the field, '05Permian'
-    When I query the project data frames identified by 'cd97a60c-6e74-404d-90f0-d04b54968267'
-    Then I see a Python warning
+    When I query the project data frames
+    Then I see a Python warning with a description like
+      """
+      KNOWN ISSUE: Multiple data frames with duplicate object IDs detected.
+      """
     And I see a warning like
       """
-      Search by name or by display name
+      **DO NOT** use `find_by_object_id`; use `find_by_name` or `find_by_display_name` to search.
       """
     And I see a warning like
       """
-      After release 2022.3.273, open project in Orchid, save the project, and then search again. Note that this
-      resolution may involve searching for a **different** object ID.
+      Delete and recreate all data frames in a release of Orchid > 2022.3.
       """
