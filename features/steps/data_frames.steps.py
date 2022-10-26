@@ -76,7 +76,11 @@ def step_impl(context, data_frame_name):
         context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
-    candidates = list(context.project.data_frames().find_by_name(data_frame_name))
+    with warnings.catch_warnings(record=False):
+        if context.project.name == 'PermianProjectQ3_2022':
+            warnings.simplefilter("ignore")
+        candidates = list(context.project.data_frames().find_by_name(data_frame_name))
+
     assert_that(len(candidates), equal_to(1))
 
     context.data_frame_of_interest = candidates[0]
@@ -206,7 +210,7 @@ def step_impl(context):
     actual_description = context.data_frame_warning_text.split('\n')[1].strip()
 
     # Triple quoted string in step has a trailing '\r\n' in Windows and must be stripped.
-    assert_that(actual_description, equal_to(context.text.strip()))
+    assert_that(actual_description, equal_to(_get_single_line_step_text(context)))
 
 
 @step("I see a warning like")
@@ -216,7 +220,7 @@ def step_impl(context):
         context (behave.runner.Context): The test context.
     """
     # Triple quoted string in step has a trailing '\r\n' in Windows and must be stripped.
-    assert_that(context.text.strip() in context.data_frame_warning_text)
+    assert_that(_get_single_line_step_text(context) in context.data_frame_warning_text)
 
 
 def _as_data_frame(table):
@@ -405,3 +409,22 @@ def _find_data_frame_by_id(object_id, data_frames):
     assert_that(candidates, has_length(1))
 
     return toolz.first(candidates)
+
+
+def _get_single_line_step_text(context):
+    """
+    Gets a single line of text attached to a step.
+
+    "Attaching" text to a step must have an indented, triple-quoted string. If that string is a single line of text,
+    it unexpectedly contains a trailing linefeed (`\r`) character. (Speculation, this may only occur on Windows.) This
+    unexpected linefeed character often causes issues with expectations.
+
+    This utility function strips that unexpected linefeed allowing callers to more easily use the attached step text.
+
+    Args:
+        context: The test context.
+
+    Returns:
+        The attached step text with trailing linefeed (`\r') character(s) removed.
+    """
+    return context.text.rstrip('\r')
