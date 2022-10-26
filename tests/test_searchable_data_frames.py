@@ -14,6 +14,7 @@
 
 import re
 import unittest
+import unittest.mock
 import warnings
 
 from hamcrest import assert_that, equal_to, is_, not_none
@@ -24,7 +25,7 @@ from orchid import (
 )
 from tests import stub_net as tsn
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import Guid
 
 
@@ -85,7 +86,7 @@ class TestSearchableDataFrames(unittest.TestCase):
 
             # Assert information about the warning(s)
             actual_warning_text = actual_warnings[-1].message.args[0]
-            assert_that(re.search('duplicate object IDs', actual_warning_text, re.MULTILINE))
+            assert_that(re.search('duplicate object IDs', actual_warning_text, re.MULTILINE), is_(not_none()))
 
     def test_searchable_data_frames_with_duplicate_object_ids_warning_contains_find_by_alternative(self):
         data_frame_dtos = [
@@ -105,7 +106,7 @@ class TestSearchableDataFrames(unittest.TestCase):
             # Assert information about the warning(s)
             actual_warning_text = actual_warnings[-1].message.args[0]
             assert_that(re.search('find_by_name', actual_warning_text, re.MULTILINE) and
-                        re.search('find_by_display_name', actual_warning_text, re.MULTILINE))
+                        re.search('find_by_display_name', actual_warning_text, re.MULTILINE), is_(not_none()))
 
     def test_searchable_data_frames_with_duplicate_object_ids_warning_has_recreate_alternative(self):
         data_frame_dtos = [
@@ -124,7 +125,7 @@ class TestSearchableDataFrames(unittest.TestCase):
 
             # Assert information about the warning(s)
             actual_warning_text = actual_warnings[-1].message.args[0]
-            assert_that(re.search('recreate all data frames', actual_warning_text, re.MULTILINE))
+            assert_that(re.search('recreate all data frames', actual_warning_text, re.MULTILINE), is_(not_none()))
 
 
 def create_sut(stub_net_project):
