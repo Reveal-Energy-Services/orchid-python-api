@@ -1170,22 +1170,66 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       copy ./orchid_python_api/examples/manual/*.py </path/to/orchid_repo>
       ```
 
-#### Run example scripts
+#### Run manual example scripts
 
 - Run the first script
   - Execute the command `python data_frame_with_guid.py`
   - Wait patiently for the script to complete
-  - Ensure that no exception occurred.
+  - Verify that the script prints a warning like the following:
+    ```
+    KNOWN ISSUE: Multiple data frames with duplicate object IDs detected.
 
-#### Run example notebooks
+    Workarounds:
+    - **DO NOT** use `find_by_object_id`; use `find_by_name` or `find_by_display_name` to search.
+    - Delete and recreate all data frames in a release of Orchid > 2022.3.
+    ``` 
+  - Verify that the script prints the data frame similar to:
+    ```
+                  ProjectName WellName WellDisplayName  ...  StageLengthTopTop ClusterNumber  FormationConnectionType
+    0   PermianProjectQ3_2022       C1              C1  ...              200.0           1.0              PlugAndPerf
+    1   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+    2   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+    3   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+    4   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+    ..                    ...      ...             ...  ...                ...           ...                      ...
+    81  PermianProjectQ3_2022       C3              C3  ...              151.0           1.0              PlugAndPerf
+    82  PermianProjectQ3_2022       C3              C3  ...              153.0           1.0              PlugAndPerf
+    83  PermianProjectQ3_2022       C3              C3  ...              143.0           1.0              PlugAndPerf
+    84  PermianProjectQ3_2022       C3              C3  ...              153.0           1.0              PlugAndPerf
+    85  PermianProjectQ3_2022       P1              P1  ...                NaN           NaN                     None 
+    ```
+
+#### Run example manual notebooks
 
 - Open Jupyter by running `jupyter lab` in the shell
 - Within Jupyter,
   - Successfully run notebook, `data_frame_with_guid.ipynb`
-    1. Open notebook
-    2. Run all cells of notebook
-    3. Wait patiently
-    4. Verify that no exceptions occurred
+    - Open notebook
+    - Run all cells of notebook
+    - Wait patiently
+    - Verify that the script prints a warning like the following:
+      ```
+      KNOWN ISSUE: Multiple data frames with duplicate object IDs detected.
+
+      Workarounds:
+      - **DO NOT** use `find_by_object_id`; use `find_by_name` or `find_by_display_name` to search.
+      - Delete and recreate all data frames in a release of Orchid > 2022.3.
+      ``` 
+    - Verify that the script prints the data frame similar to:
+      ```
+                    ProjectName WellName WellDisplayName  ...  StageLengthTopTop ClusterNumber  FormationConnectionType
+      0   PermianProjectQ3_2022       C1              C1  ...              200.0           1.0              PlugAndPerf
+      1   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+      2   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+      3   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+      4   PermianProjectQ3_2022       C1              C1  ...              220.0           1.0              PlugAndPerf
+      ..                    ...      ...             ...  ...                ...           ...                      ...
+      81  PermianProjectQ3_2022       C3              C3  ...              151.0           1.0              PlugAndPerf
+      82  PermianProjectQ3_2022       C3              C3  ...              153.0           1.0              PlugAndPerf
+      83  PermianProjectQ3_2022       C3              C3  ...              143.0           1.0              PlugAndPerf
+      84  PermianProjectQ3_2022       C3              C3  ...              153.0           1.0              PlugAndPerf
+      85  PermianProjectQ3_2022       P1              P1  ...                NaN           NaN                     None 
+      ```
 
 ### Run development Orchid tutorials
 

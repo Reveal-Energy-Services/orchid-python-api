@@ -13,6 +13,8 @@
 #
 
 
+import uuid
+
 import option
 import pendulum
 import toolz.curried as toolz
@@ -172,7 +174,8 @@ def add_data_table_columns(data_table_dto, data_table):
 def make_data_column_type(python_type):
     mapper = {int: 'System.Int32',
               float: 'System.Double',
-              str: 'System.String'}
+              str: 'System.String',
+              uuid.UUID: 'System.Guid'}
     try:
         return Type.GetType(mapper[python_type])
     except KeyError:

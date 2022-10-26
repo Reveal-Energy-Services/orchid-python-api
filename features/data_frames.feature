@@ -360,3 +360,19 @@ Feature: Adapted IDataFrame DOM API
       | 3      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
       | 4      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
       | 5      | e12e8f43-1ed2-4216-af4e-2a925da7982b |
+
+  Scenario: Sampled Stage GUID of 05 Permian Data Frame have the correct cells
+    Given I have loaded the project for the field, '05Permian'
+    When I query the project data frames
+    Then I see a Python warning with a description like
+      """
+      KNOWN ISSUE: Multiple data frames with duplicate object IDs detected.
+      """
+    And I see a warning like
+      """
+      **DO NOT** use `find_by_object_id`; use `find_by_name` or `find_by_display_name` to search.
+      """
+    And I see a warning like
+      """
+      Delete and recreate all data frames in a release of Orchid > 2022.3.
+      """

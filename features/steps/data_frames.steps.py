@@ -21,9 +21,11 @@ use_step_matcher("parse")
 
 from collections import namedtuple
 import datetime as dt
+import re
 import uuid
+import warnings
 
-from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly
+from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly, is_, instance_of
 import option
 import parsy
 import pendulum
@@ -74,7 +76,18 @@ def step_impl(context, data_frame_name):
         context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
-    candidates = list(context.project.data_frames().find_by_name(data_frame_name))
+    # TODO: Remove catching warnings if we change the integration test data file,
+    #  "c:\src\Orchid.IntegrationTestData\05PermianProjectQ3_2022_DataFrames.ifrac"
+    #
+    # I currently ignore these warnings only for this single project because it is the only project in the
+    # integration test data that has duplicate object IDs in data frames. I ignore it because I do not want printing
+    # the warning to act as a "false positive" for a developer investigating another issue, seeing this expected
+    # warning and wondering (or investigating) the issue.
+    with warnings.catch_warnings(record=False):
+        if context.project.name == 'PermianProjectQ3_2022':
+            warnings.simplefilter("ignore")
+        candidates = list(context.project.data_frames().find_by_name(data_frame_name))
+
     assert_that(len(candidates), equal_to(1))
 
     context.data_frame_of_interest = candidates[0]
@@ -163,7 +176,7 @@ def step_impl(context):
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context): Test test context
+        context (behave.runner.Context): The test context.
     """
     assert_that(context.data_frame_of_interest.pandas_data_frame().values.size, equal_to(0))
 
@@ -172,9 +185,49 @@ def step_impl(context):
 def step_impl(context):
     """
     Args:
-        context (behave.runner.Context):
+        context (behave.runner.Context): The test context.
     """
     assert_that(context.data_frame_of_interest.pandas_data_frame().empty)
+
+
+@when("I query the project data frames")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context):
+    """
+    with warnings.catch_warnings(record=True) as actual_warnings:
+        # Cause all warnings to be triggered
+        warnings.simplefilter("always")
+        # Execute the function that I expect to raise a warning
+        context.project.data_frames()
+
+        # Remember the warnings raised
+        assert_that(len(actual_warnings), equal_to(1))
+        assert_that(len(actual_warnings[0].message.args), equal_to(1))
+        context.data_frame_warning_text = actual_warnings[0].message.args[0]
+
+
+@then("I see a Python warning with a description like")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    actual_description = context.data_frame_warning_text.split('\n')[1].strip()
+
+    # Triple quoted string in step has a trailing '\r\n' in Windows and must be stripped.
+    assert_that(actual_description, equal_to(_get_single_line_step_text(context)))
+
+
+@step("I see a warning like")
+def step_impl(context):
+    """
+    Args:
+        context (behave.runner.Context): The test context.
+    """
+    # Triple quoted string in step has a trailing '\r\n' in Windows and must be stripped.
+    assert_that(_get_single_line_step_text(context) in context.data_frame_warning_text)
 
 
 def _as_data_frame(table):
@@ -363,3 +416,22 @@ def _find_data_frame_by_id(object_id, data_frames):
     assert_that(candidates, has_length(1))
 
     return toolz.first(candidates)
+
+
+def _get_single_line_step_text(context):
+    """
+    Gets a single line of text attached to a step.
+
+    "Attaching" text to a step must have an indented, triple-quoted string. If that string is a single line of text,
+    it unexpectedly contains a trailing linefeed (`\r`) character. (Speculation, this may only occur on Windows.) This
+    unexpected linefeed character often causes issues with expectations.
+
+    This utility function strips that unexpected linefeed allowing callers to more easily use the attached step text.
+
+    Args:
+        context: The test context.
+
+    Returns:
+        The attached step text with trailing linefeed (`\r') character(s) removed.
+    """
+    return context.text.rstrip('\r')

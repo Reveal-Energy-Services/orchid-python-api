@@ -24,13 +24,14 @@ import toolz.curried as toolz
 
 from orchid import (
     dot_net_dom_access as dna,
-    searchable_project_objects as spo,
     native_data_frame_adapter as dfa,
     native_monitor_adapter as nma,
     native_time_series_adapter as tsa,
     native_project_user_data_adapter as uda,
     native_well_adapter as nwa,
     net_quantity as onq,
+    searchable_data_frames as sdf,
+    searchable_project_objects as spo,
     unit_system as units,
 )
 from orchid.project_store import ProjectStore
@@ -57,9 +58,9 @@ class Project(dna.IdentifiedDotNetAdapter):
     @deal.pre(lambda self, project_loader: project_loader is not None)
     def __init__(self, project_loader: ProjectStore):
         """
-        Construct an instance adapting he project available from net_project.
+        Construct an instance adapting the .NET IProject.
 
-        :param project_loader: Loads an IProject to be adapted.
+        project_loader: Loads an IProject to be adapted.
         """
         super().__init__(project_loader.native_project())
         self._project_loader = project_loader
@@ -85,7 +86,7 @@ class Project(dna.IdentifiedDotNetAdapter):
         Returns:
             An `spo.SearchableProjectObjects` for all the data frames of this project.
         """
-        return spo.SearchableProjectObjects(dfa.NativeDataFrameAdapterIdentified, self.dom_object.DataFrames.Items)
+        return sdf.SearchableDataFrames(dfa.NativeDataFrameAdapterIdentified, self.dom_object.DataFrames.Items)
 
     def default_well_colors(self) -> List[Tuple[float, float, float]]:
         """
@@ -162,10 +163,10 @@ class Project(dna.IdentifiedDotNetAdapter):
         """
         return spo.SearchableProjectObjects(nwa.NativeWellAdapter, self.dom_object.Wells.Items)
 
-    def wells_by_name(self, name) -> Iterable[IWell]:
+    def wells_by_name(self, name: str) -> Iterable[IWell]:
         """
         Return all the wells in this project with the specified name.
-        :param name: The name of the well(s) of interest.
-        :return: A list of all the wells in this project.
+
+        name: The name of the well(s) of interest.
         """
         return toolz.filter(lambda w: name == w.name, self.wells)
