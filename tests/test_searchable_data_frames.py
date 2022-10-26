@@ -18,6 +18,7 @@ import unittest.mock
 import warnings
 
 from hamcrest import assert_that, equal_to, is_, not_none
+import toolz.curried as toolz
 
 from orchid import (
     project as onp,
@@ -34,98 +35,51 @@ class TestSearchableDataFrames(unittest.TestCase):
         assert_that(2 + 2, equal_to(4))
 
     def test_searchable_data_frames_with_duplicate_object_ids_raises_one_warning(self):
-        data_frame_dtos = [
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'querela'},
-            {'object_id': tsn.DONT_CARE_ID_A, 'name': 'cado'},
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'loco'},
-        ]
-        stub_net_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
+        stub_net_project = create_net_project_with_data_frames_with_duplicate_ids()
         sut = create_sut(stub_net_project)
 
-        with warnings.catch_warnings(record=True) as actual_warnings:
-            # Cause all warnings to be triggered
-            warnings.simplefilter("always")
-            # Execute the function that I expect to raise a warning
-            sut.data_frames()
+        def assert_single_warning(the_warnings):
+            assert_that(len(the_warnings), equal_to(1))
 
-            # Assert information about the warning(s)
-            assert_that(len(actual_warnings), equal_to(1))
+        assert_warning_func(sut, assert_single_warning)
 
     def test_searchable_data_frames_with_duplicate_object_ids_raises_user_warning(self):
-        data_frame_dtos = [
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'querela'},
-            {'object_id': tsn.DONT_CARE_ID_A, 'name': 'cado'},
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'loco'},
-        ]
-        stub_net_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
+        stub_net_project = create_net_project_with_data_frames_with_duplicate_ids()
         sut = create_sut(stub_net_project)
 
-        with warnings.catch_warnings(record=True) as actual_warnings:
-            # Cause all warnings to be triggered
-            warnings.simplefilter("always")
-            # Execute the function that I expect to raise a warning
-            sut.data_frames()
+        def assert_is_user_warning(the_warnings):
+            assert_that(the_warnings[-1].category, equal_to(UserWarning))
 
-            # Assert information about the warning(s)
-            assert_that(actual_warnings[-1].category, equal_to(UserWarning))
+        assert_warning_func(sut, assert_is_user_warning)
 
     def test_searchable_data_frames_with_duplicate_object_ids_warning_has_message(self):
-        data_frame_dtos = [
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'querela'},
-            {'object_id': tsn.DONT_CARE_ID_A, 'name': 'cado'},
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'loco'},
-        ]
-        stub_net_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
+        stub_net_project = create_net_project_with_data_frames_with_duplicate_ids()
         sut = create_sut(stub_net_project)
 
-        with warnings.catch_warnings(record=True) as actual_warnings:
-            # Cause all warnings to be triggered
-            warnings.simplefilter("always")
-            # Execute the function that I expect to raise a warning
-            sut.data_frames()
-
-            # Assert information about the warning(s)
-            actual_warning_text = actual_warnings[-1].message.args[0]
-            assert_that(re.search('duplicate object IDs', actual_warning_text, re.MULTILINE), is_(not_none()))
+        assert_warning_func(sut, assert_message_contains_patterns_warning(['duplicate object IDs']))
 
     def test_searchable_data_frames_with_duplicate_object_ids_warning_contains_find_by_alternative(self):
-        data_frame_dtos = [
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'querela'},
-            {'object_id': tsn.DONT_CARE_ID_A, 'name': 'cado'},
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'loco'},
-        ]
-        stub_net_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
+        stub_net_project = create_net_project_with_data_frames_with_duplicate_ids()
         sut = create_sut(stub_net_project)
 
-        with warnings.catch_warnings(record=True) as actual_warnings:
-            # Cause all warnings to be triggered
-            warnings.simplefilter("always")
-            # Execute the function that I expect to raise a warning
-            sut.data_frames()
-
-            # Assert information about the warning(s)
-            actual_warning_text = actual_warnings[-1].message.args[0]
-            assert_that(re.search('find_by_name', actual_warning_text, re.MULTILINE) and
-                        re.search('find_by_display_name', actual_warning_text, re.MULTILINE), is_(not_none()))
+        assert_warning_func(sut, assert_message_contains_patterns_warning(['find_by_name',
+                                                                           'find_by_display_name']))
 
     def test_searchable_data_frames_with_duplicate_object_ids_warning_has_recreate_alternative(self):
-        data_frame_dtos = [
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'querela'},
-            {'object_id': tsn.DONT_CARE_ID_A, 'name': 'cado'},
-            {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'loco'},
-        ]
-        stub_net_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
+        stub_net_project = create_net_project_with_data_frames_with_duplicate_ids()
         sut = create_sut(stub_net_project)
 
-        with warnings.catch_warnings(record=True) as actual_warnings:
-            # Cause all warnings to be triggered
-            warnings.simplefilter("always")
-            # Execute the function that I expect to raise a warning
-            sut.data_frames()
+        assert_warning_func(sut, assert_message_contains_patterns_warning(['recreate all data frames']))
 
-            # Assert information about the warning(s)
-            actual_warning_text = actual_warnings[-1].message.args[0]
-            assert_that(re.search('recreate all data frames', actual_warning_text, re.MULTILINE), is_(not_none()))
+
+def create_net_project_with_data_frames_with_duplicate_ids():
+    data_frame_dtos = [
+        {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'querela'},
+        {'object_id': tsn.DONT_CARE_ID_A, 'name': 'cado'},
+        {'object_id': 'b4a04767-8202-4fd5-a995-bc3531db3f84', 'name': 'loco'},
+    ]
+    stub_net_project = tsn.create_stub_net_project(data_frame_dtos=data_frame_dtos)
+    return stub_net_project
 
 
 def create_sut(stub_net_project):
@@ -134,6 +88,23 @@ def create_sut(stub_net_project):
 
     sut = onp.Project(patched_loader)
     return sut
+
+
+def assert_warning_func(sut, assert_single_warning):
+    with warnings.catch_warnings(record=True) as actual_warnings:
+        # Cause all warnings to be triggered
+        warnings.simplefilter("always")
+        # Execute the function that I expect to raise a warning
+        sut.data_frames()
+
+        assert_single_warning(actual_warnings)
+
+
+@toolz.curry
+def assert_message_contains_patterns_warning(patterns, the_warnings):
+    actual_warning_text = the_warnings[-1].message.args[0]
+    for pattern in patterns:
+        assert_that(re.search(pattern, actual_warning_text, re.MULTILINE), is_(not_none()))
 
 
 if __name__ == '__main__':
