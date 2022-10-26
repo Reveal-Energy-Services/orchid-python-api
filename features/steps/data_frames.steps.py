@@ -76,6 +76,13 @@ def step_impl(context, data_frame_name):
         context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
+    # TODO: Remove catching warnings if we change the integration test data file,
+    #  "c:\src\Orchid.IntegrationTestData\05PermianProjectQ3_2022_DataFrames.ifrac"
+    #
+    # I currently ignore these warnings only for this single project because it is the only project in the
+    # integration test data that has duplicate object IDs in data frames. I ignore it because I do not want printing
+    # the warning to act as a "false positive" for a developer investigating another issue, seeing this expected
+    # warning and wondering (or investigating) the issue.
     with warnings.catch_warnings(record=False):
         if context.project.name == 'PermianProjectQ3_2022':
             warnings.simplefilter("ignore")
