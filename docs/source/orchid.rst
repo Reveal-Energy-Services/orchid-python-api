@@ -228,6 +228,14 @@ orchid.script\_adapter\_context module
    :undoc-members:
    :show-inheritance:
 
+orchid.searchable\_data\_frames module
+--------------------------------------
+
+.. automodule:: orchid.searchable_data_frames
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 orchid.searchable\_project\_objects module
 ------------------------------------------
 
