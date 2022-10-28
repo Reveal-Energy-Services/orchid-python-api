@@ -353,6 +353,7 @@ Finally,
 Publishing a release has a number of general steps. These steps are optional except for
 [the last step](#publish-to-pypi). Here are the steps:
 
+- Update the release notes
 - [Update poetry](#update-poetry)
 - [Update dependencies](#update-dependencies)
 - [Update API version](#update-api-version)
@@ -535,6 +536,7 @@ Once installed,
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+- Optionally, [Run Orchid manual examples](#run-installed-orchid-manual-examples)
 
 Optionally, test the published distribution in a conda environment by:
 
@@ -555,6 +557,7 @@ Once installed,
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+- Optionally, [Run Orchid manual examples](#run-installed-orchid-manual-examples)
 
 ### Publish to PyPI
 
@@ -596,6 +599,7 @@ Once published, test the published distribution by:
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+- Optionally, [Run Orchid manual examples](#run-installed-orchid-manual-examples)
 
 Optionally, test the published distribution in a conda environment by:
 
@@ -607,6 +611,7 @@ Optionally, test the published distribution in a conda environment by:
 - [Run Orchid examples](#run-installed-orchid-high-level-examples)
 - [Run Orchid tutorials](#run-installed-orchid-tutorials)
 - Optionally, [Run Orchid low-level examples](#run-installed-orchid-low-level-examples)
+- Optionally, [Run Orchid manual examples](#run-installed-orchid-manual-examples)
 
 ## Common tasks
 

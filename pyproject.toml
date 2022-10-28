@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "2022.2.338"
+version = "2022.3.273"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of Reveal Energy Services, Inc.)"
 authors = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
 maintainers = [ "Reveal Energy Services, Inc. <support@reveal-energy.com>",]
@@ -76,7 +76,16 @@ seaborn = "^0.11.2"
 toolz = "^0.11.2"
 typing-extensions = "^4.1.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.scripts]
+copy_orchid_examples = "copy_orchid_examples:main"
+copy_orchid_tutorials = "copy_orchid_tutorials:main"
+copy_orchid_low_level_examples = "copy_orchid_low_level_examples:main"
+copy_orchid_manual_examples = "copy_orchid_manual_examples:main"
+
+[tool.poetry.urls]
+Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
+
+[tool.poetry.group.dev.dependencies]
 pyhamcrest = "^2.0.2"
 behave = "^1.2.6"
 invoke = "^1.4.1"
@@ -89,17 +98,8 @@ codetiming = "^1.3.0"
 Sphinx = "^4.4.0"
 scipy = "^1.8.0"
 jupyterlab-vim = "^0.14.5"
-pytest = "^7.1.2"
-pytest-benchmark = "^3.4.1"
-
-[tool.poetry.scripts]
-copy_orchid_examples = "copy_orchid_examples:main"
-copy_orchid_tutorials = "copy_orchid_tutorials:main"
-copy_orchid_low_level_examples = "copy_orchid_low_level_examples:main"
-copy_orchid_manual_examples = "copy_orchid_manual_examples:main"
-
-[tool.poetry.urls]
-Issues = "https://github.com/Reveal-Energy-Services/orchid-python-api/issues"
+pytest = "^7.2.0"
+pytest-benchmark = "^4.0.0"
 
 [tool.pytest.ini_options]
 addopts = [
