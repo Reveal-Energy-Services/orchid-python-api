@@ -163,6 +163,23 @@ class TestSearchableProjectObjects(unittest.TestCase):
                     lambda df: df.display_name, sut.find_by_display_name(display_name_to_match)))
                 assert_that(matching_data_frame_display_names, equal_to([display_name_to_match] * match_count))
 
+    def test_find_by_display_name_correctly_ignores_surrounding_whitespace(self):
+        expected_display_name = 'immutabilis'
+        for leading, trailing in [
+            (' ', ' '),
+            ('', ' '),
+            (' ', ''),
+            ('', ''),
+        ]:
+            display_name_to_find = f'{leading}{expected_display_name}{trailing}'
+            with self.subTest(f'Find by display name("{display_name_to_find}")'):
+                net_project_object_dto = {'object_id': tsn.DONT_CARE_ID_A, 'display_name': expected_display_name}
+                sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in [net_project_object_dto]])
+
+                matching_data_frame_display_names = list(toolz.map(
+                    lambda df: df.display_name, sut.find_by_display_name(display_name_to_find)))
+                assert_that(matching_data_frame_display_names, equal_to([expected_display_name]))
+
     def test_find_by_name_returns_matching_project_objects_with_sought_name(self):
         for net_project_object_dtos, name_to_match, match_count in (
                 (({'object_id': tsn.DONT_CARE_ID_A, 'name': 'vicis'},),
@@ -182,6 +199,23 @@ class TestSearchableProjectObjects(unittest.TestCase):
                 matching_data_frame_names = list(toolz.map(
                     lambda df: df.name, sut.find_by_name(name_to_match)))
                 assert_that(matching_data_frame_names, equal_to([name_to_match] * match_count))
+
+    def test_find_by_name_correctly_ignores_surrounding_whitespace(self):
+        expected_name = 'deglutio'
+        for leading, trailing in [
+            (' ', ' '),
+            ('', ' '),
+            (' ', ''),
+            ('', ''),
+        ]:
+            name_to_find = f'{leading}{expected_name}{trailing}'
+            with self.subTest(f'Find by name("{name_to_find}")'):
+                net_project_object_dto = {'object_id': tsn.DONT_CARE_ID_C, 'name': expected_name}
+                sut = create_sut([tsn.create_stub_net_project_object(**dto) for dto in [net_project_object_dto]])
+
+                matching_data_frame_names = list(toolz.map(
+                    lambda df: df.name, sut.find_by_name(name_to_find)))
+                assert_that(matching_data_frame_names, equal_to([expected_name]))
 
     def test_find_by_object_id_with_match_returns_project_object_with_object_id(self):
         net_project_object_dtos = ({'object_id': '78999fda-2998-42cb-98df-13a064b3c16f'},

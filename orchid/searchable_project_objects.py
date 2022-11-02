@@ -163,7 +163,7 @@ class SearchableProjectObjects:
         Returns:
             An iterator over all project objects with the specified `display_name` property.
         """
-        return self.find(lambda po: po.display_name == display_name_to_find)
+        return self.find(lambda po: po.display_name == display_name_to_find.strip())
 
     def find_by_name(self, name_to_find: str) -> Iterator[dpo.DomProjectObject]:
         """
@@ -175,7 +175,7 @@ class SearchableProjectObjects:
         Returns:
             An iterator over all project objects with the specified `name` property.
         """
-        return self.find(lambda po: po.name == name_to_find)
+        return self.find(lambda po: po.name == name_to_find.strip())
 
     def find_by_object_id(self, object_id_to_find: uuid.UUID) -> Optional[dpo.DomProjectObject]:
         """
