@@ -21,7 +21,6 @@ use_step_matcher("parse")
 
 from collections import namedtuple
 import datetime as dt
-import re
 import uuid
 import warnings
 
