@@ -23,10 +23,11 @@ Feature: Search for domain objects within a project
     When I query the loaded project for the data frame named '<name>' with <surrounding> whitespace
     Then I see a single data frame named '<name>' with no surrounding whitespace
 
+    # TODO: Uncomment the commented out example when Geraldine deletes and recreates the project and its data frames.
     Examples:
       | name                                                     | surrounding          |
       | Microseismic Stage Specific Data Frame (Well: C3)        | trailing             |
-      | Well Log Set Stage Data Frame                            | no                   |
+#      | Well Log Set Stage Data Frame                            | no                   |
       | FR_allwells_LeakOffAnalysis - QCed(LeakOff Observations) | leading and trailing |
       | Fiber Observation Set Data Frame                         | leading              |
 
@@ -35,11 +36,12 @@ Feature: Search for domain objects within a project
     When I query the loaded project for the data frame with display name '<display_name>' and <surrounding> whitespace
     Then I see a single data frame with display name '<display_name>' and no surrounding whitespace
 
+    # TODO: Uncomment the commented out example when Geraldine deletes and recreates the project and its data frames.
     Examples:
       | display_name                                      | surrounding          |
       | Stage Data Frame                                  | no                   |
       | Microseismic Stage Specific Data Frame (Well: C3) | leading              |
-      | FusedDataFrame_FR-FDI_diff_dP_dT                  | trailing             |
+#      | FusedDataFrame_FR-FDI_diff_dP_dT                  | trailing             |
       | Well Log Set Data Frame                           | leading and trailing |
 
   # TODO: Add tests to search for other domain objects using different criteria
