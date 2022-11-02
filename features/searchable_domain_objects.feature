@@ -32,11 +32,11 @@ Feature: Search for domain objects within a project
 
   Scenario Outline: Search for data frame by display name
     Given I have loaded the project for the field, '05Permian'
-    When I query the loaded project for the data frame with display name '<name>' and <surrounding> whitespace
-    Then I see a single data frame with display name '<name>' and no surrounding whitespace
+    When I query the loaded project for the data frame with display name '<display_name>' and <surrounding> whitespace
+    Then I see a single data frame with display name '<display_name>' and no surrounding whitespace
 
     Examples:
-      | name                                              | surrounding          |
+      | display_name                                      | surrounding          |
       | Stage Data Frame                                  | no                   |
       | Microseismic Stage Specific Data Frame (Well: C3) | leading              |
       | FusedDataFrame_FR-FDI_diff_dP_dT                  | trailing             |
