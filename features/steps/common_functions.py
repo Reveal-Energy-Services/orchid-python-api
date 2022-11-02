@@ -13,6 +13,7 @@
 #
 
 import decimal
+import warnings
 
 from hamcrest import assert_that, equal_to
 
@@ -178,3 +179,17 @@ def find_stage_no_in_well_of_project(context, stage_no, well):
 
     result = well_for_interest.stages().find_by_display_stage_number(stage_no)
     return result
+
+
+def find_data_frames_by_ignore_warnings(context, find_by_func, find_by_value):
+    # TODO: Remove catching warnings if we change the integration test data file,
+    #  "c:\src\Orchid.IntegrationTestData\05PermianProjectQ3_2022_DataFrames.ifrac"
+    #
+    # I currently ignore these warnings only for this single project because it is the only project in the
+    # integration test data that has duplicate object IDs in data frames. I ignore it because I do not want printing
+    # the warning to act as a "false positive" for a developer investigating another issue, seeing this expected
+    # warning and wondering (or investigating) the issue.
+    with warnings.catch_warnings(record=False):
+        if context.project.name == 'PermianProjectQ3_2022':
+            warnings.simplefilter("ignore")
+        return find_by_func(context.project.data_frames(), find_by_value)

@@ -14,11 +14,12 @@
 
 
 import random
-import warnings
 
 # noinspection PyPackageRequirements
 from behave import *
 from hamcrest import assert_that, equal_to
+
+import common_functions as cf
 
 use_step_matcher("parse")
 
@@ -47,17 +48,7 @@ def _query_project_objects_by_find_func(context, name, surrounding, find_by_func
     else:
         raise ValueError(f'Unexpected surrounding text: "{surrounding}"')
 
-    # TODO: Remove catching warnings if we change the integration test data file,
-    #  "c:\src\Orchid.IntegrationTestData\05PermianProjectQ3_2022_DataFrames.ifrac"
-    #
-    # I currently ignore these warnings only for this single project because it is the only project in the
-    # integration test data that has duplicate object IDs in data frames. I ignore it because I do not want printing
-    # the warning to act as a "false positive" for a developer investigating another issue, seeing this expected
-    # warning and wondering (or investigating) the issue.
-    with warnings.catch_warnings(record=False):
-        if context.project.name == 'PermianProjectQ3_2022':
-            warnings.simplefilter("ignore")
-        return find_by_func(context.project.data_frames(), query_name)
+    return cf.find_data_frames_by_ignore_warnings(context, find_by_func, query_name)
 
 
 @then("I see a single data frame named '{name}' with no surrounding whitespace")
