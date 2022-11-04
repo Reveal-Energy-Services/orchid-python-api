@@ -15,16 +15,14 @@
 # This file is part of Orchid and related technologies.
 #
 
-# noinspection PyPackageRequirements
-from behave import *
-use_step_matcher("parse")
 
 from collections import namedtuple
 import datetime as dt
-import re
 import uuid
 import warnings
 
+# noinspection PyPackageRequirements
+from behave import *
 from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly, is_, instance_of
 import option
 import parsy
@@ -38,6 +36,10 @@ from orchid import (
     dot_net_dom_access as dna,
 )
 
+import common_functions as cf
+
+
+use_step_matcher("parse")
 
 AboutDataFrameColumn = namedtuple('AboutDataFrameColumn', ['short_name', 'full_name', 'convert_func'])
 
@@ -76,20 +78,10 @@ def step_impl(context, data_frame_name):
         context (behave.runner.Context): The test context.
         data_frame_name (str): The name of the data frame of interest.
     """
-    # TODO: Remove catching warnings if we change the integration test data file,
-    #  "c:\src\Orchid.IntegrationTestData\05PermianProjectQ3_2022_DataFrames.ifrac"
-    #
-    # I currently ignore these warnings only for this single project because it is the only project in the
-    # integration test data that has duplicate object IDs in data frames. I ignore it because I do not want printing
-    # the warning to act as a "false positive" for a developer investigating another issue, seeing this expected
-    # warning and wondering (or investigating) the issue.
-    with warnings.catch_warnings(record=False):
-        if context.project.name == 'PermianProjectQ3_2022':
-            warnings.simplefilter("ignore")
-        candidates = list(context.project.data_frames().find_by_name(data_frame_name))
-
+    candidates = cf.find_data_frames_by_ignore_warnings(context,
+                                                        lambda src, qn: list(src.find_by_name(qn)),
+                                                        data_frame_name)
     assert_that(len(candidates), equal_to(1))
-
     context.data_frame_of_interest = candidates[0]
 
 
