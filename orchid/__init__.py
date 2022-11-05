@@ -15,6 +15,11 @@
 # This file is part of Orchid and related technologies.
 #
 
+
+# Load the appropriate runtime **before** executing `import clr`
+import pythonnet
+pythonnet.load('netfx')
+
 from .dot_net import prepare_imports
 prepare_imports()
 
