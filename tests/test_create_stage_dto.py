@@ -80,9 +80,7 @@ def make_created_net_stage():
 
 
 def make_net_date_time(year, month, day, hour, minute, second):
-    result = DateTime.Overloads[Int32, Int32, Int32, Int32, Int32, Int32, DateTimeKind](year, month, day,
-                                                                                        hour, minute, second,
-                                                                                        DateTimeKind.Utc)
+    result = DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc)
     return result
 
 
