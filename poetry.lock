@@ -212,6 +212,17 @@ python-versions = ">=3.7"
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "clr-loader"
+version = "0.2.4"
+description = "Generic pure Python loader for .NET runtimes"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+cffi = ">=1.13"
+
+[[package]]
 name = "codetiming"
 version = "1.3.2"
 description = "A flexible, customizable timer for your Python code."
@@ -1427,14 +1438,14 @@ six = ">=1.5"
 
 [[package]]
 name = "pythonnet"
-version = "2.5.2"
-description = ".Net and Mono integration for Python"
+version = "3.0.0.post1"
+description = ".NET and Mono integration for Python"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = "<3.11,>=3.7"
 
 [package.dependencies]
-pycparser = "*"
+clr-loader = ">=0.2.2,<0.3.0"
 
 [[package]]
 name = "pytz"
@@ -1938,7 +1949,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.3,<3.11"
-content-hash = "c2dc2c4b03129c22b9bb45fc779eeeae7a2b3cb380346d31b6347354b1d902e0"
+content-hash = "7933c8f6014c1fb9582314d4588264ff25c3e5d378561434e9d4cfe3bb2b8c33"
 
 [metadata.files]
 alabaster = [
@@ -2089,6 +2100,10 @@ charset-normalizer = [
 click = [
     {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
     {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
+]
+clr-loader = [
+    {file = "clr_loader-0.2.4-py3-none-any.whl", hash = "sha256:73f94044950ae90169d3a321c807fce0986bd39d57c82468b11700f9e4ece3f3"},
+    {file = "clr_loader-0.2.4.tar.gz", hash = "sha256:7b4516e363b3054b46e93a3d39cb1968e58d6eeccea0e8c0bc86f1100a2f4cc5"},
 ]
 codetiming = [
     {file = "codetiming-1.3.2-py3-none-any.whl", hash = "sha256:2666dc510ef4e9e641ec361c6f28fd1734773ca6e023abb6f8ad932ee5fe2b3d"},
@@ -2943,17 +2958,8 @@ python-dateutil = [
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 pythonnet = [
-    {file = "pythonnet-2.5.2-cp27-cp27m-win32.whl", hash = "sha256:d519bbc7b1cd3999651efc594d91cb67c46d1d8466dad3d83b578102e58d05bd"},
-    {file = "pythonnet-2.5.2-cp27-cp27m-win_amd64.whl", hash = "sha256:c02f53d0e61b202cddf3198fac9553d5b4ee0ea0cc4fe658c2ed69ab24def276"},
-    {file = "pythonnet-2.5.2-cp35-cp35m-win32.whl", hash = "sha256:840bdef89b378663d73f74f18895b6d8630d1f5671457a1db5ffb68179d85582"},
-    {file = "pythonnet-2.5.2-cp35-cp35m-win_amd64.whl", hash = "sha256:d8e5b27de1e2cfb69b88782ac5cdf605b1a73598a85d86570e46961126628dbb"},
-    {file = "pythonnet-2.5.2-cp36-cp36m-win32.whl", hash = "sha256:62645c29840c4a877d66e047f3e065b2e5a1a66431a99bce8d42a5af3a093ee1"},
-    {file = "pythonnet-2.5.2-cp36-cp36m-win_amd64.whl", hash = "sha256:058e536062d1585d07ec5f2cf16aefcfc8eb8179faa90e5db0063d358469d025"},
-    {file = "pythonnet-2.5.2-cp37-cp37m-win32.whl", hash = "sha256:cc77fc63e2afb0a80199ab44ced4fdfb78c19d8030063c345c80740d15380dd9"},
-    {file = "pythonnet-2.5.2-cp37-cp37m-win_amd64.whl", hash = "sha256:80c8f5c9bd10440a73eb6aedbbacb2f3dd7701b474816f5ef7636f529d838d38"},
-    {file = "pythonnet-2.5.2-cp38-cp38-win32.whl", hash = "sha256:41a607b7304e9efc6d4d8db438d6018a17c6637e8b8998848ff5c2a7a1b4687c"},
-    {file = "pythonnet-2.5.2-cp38-cp38-win_amd64.whl", hash = "sha256:00a4fed9fc05b4efbe8947c79dc0799cffbca4c89e3e068e70b6618f20c906f2"},
-    {file = "pythonnet-2.5.2.tar.gz", hash = "sha256:b7287480a1f6ae4b6fc80d775446d8af00e051ca1646b6cc3d32c5d3a461ede3"},
+    {file = "pythonnet-3.0.0.post1-py3-none-any.whl", hash = "sha256:65e8304d804166dbe61cd629faeb76be46113cee87e70e56263f27586750029a"},
+    {file = "pythonnet-3.0.0.post1.tar.gz", hash = "sha256:a828b2f02d1ea82f8b1e456e73e7c729a2666d0cb30a722d4f0b5a2b0837645c"},
 ]
 pytz = [
     {file = "pytz-2022.5-py2.py3-none-any.whl", hash = "sha256:335ab46900b1465e714b4fda4963d87363264eb662aab5e65da039c25f1f5b22"},
