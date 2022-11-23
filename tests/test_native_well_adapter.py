@@ -27,6 +27,7 @@ from hamcrest import (
     empty,
     contains_exactly,
 )
+import toolz.curried as toolz
 import pendulum as pdt
 
 from orchid import (
@@ -202,7 +203,7 @@ class TestNativeWellAdapter(unittest.TestCase):
 
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
     def test_many_locations_for_md_kb_values_if_many_md_kb_values(self, mock_as_unit_system):
-        for orchid_actual, expected, md_kb_values, project_units, frame, datum, tolerance in [
+        for orchid_actual, expected, md_kb_value_dtos, project_units, frame, datum, tolerance in [
             ((tsn.StubSubsurfaceLocation(tsn.MeasurementDto(374.3e3, units.UsOilfield.LENGTH),
                                          tsn.MeasurementDto(1.365e6, units.UsOilfield.LENGTH),
                                          tsn.MeasurementDto(8288, units.UsOilfield.LENGTH)),
@@ -249,13 +250,14 @@ class TestNativeWellAdapter(unittest.TestCase):
                                          decimal.Decimal('0.4')))),
         ]:
             with self.subTest(f'Test many locations, {expected[0]}..., in project_units {project_units}'
-                              f' at values, {md_kb_values[0]}...'):
+                              f' at values, {md_kb_value_dtos[0]}...'):
                 mock_as_unit_system.return_value = project_units
                 stub_native_well = tsn.WellDto(
-                    locations_for_md_kb_values={(md_kb_values, frame, datum): orchid_actual}).create_net_stub()
+                    locations_for_md_kb_values={(md_kb_value_dtos, frame, datum): orchid_actual}).create_net_stub()
                 sut = nwa.NativeWellAdapter(stub_native_well)
 
                 # noinspection PyTypeChecker
+                md_kb_values = toolz.map(tsn.make_measurement, md_kb_value_dtos)
                 actual = list(sut.locations_for_md_kb_values(md_kb_values, frame, datum))
 
                 assert_that(len(actual), equal_to(len(expected)))
