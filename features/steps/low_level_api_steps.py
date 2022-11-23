@@ -99,7 +99,7 @@ def step_impl(context, attribute_name, attribute_type, well):
 
 
 # noinspection PyBDDParameters
-@step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to the {attribute_value}")
+@step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to {attribute_value}")
 def step_impl(context, attribute_name, stage_no, well, attribute_value):
     """
     Args:
