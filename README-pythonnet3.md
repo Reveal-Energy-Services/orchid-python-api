@@ -61,6 +61,15 @@ for the .NET `TimeSpan` class. In `pythonnet-3.0.0.post`, this expression raises
 The fix is to explicitly supply zero (0 - an `int` argument). An alternative is to invoke an explicit method like 
 `TimeSpan.FromTicks`.
 
+### Fewer implicit conversions from `int` to `System.Int32`
+
+When adding attribute values to a stage, `pythonnet-2.5.2` supported an implicit conversion between a Python `int` and  
+a `System.Int32`. The updated package, `pythonnet-3.0.0.post1`, raises a .NET `ArgumentException` indicating that the 
+attribute expected a value of type, `System.Int32`, but it received a value of `PyInt`.
+
+To repair this error, I needed to **explicitly** convert the Python `int` value to `System.Int32` before invoking the 
+`IMutableStage.SetAttribute()` method.
+
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 
