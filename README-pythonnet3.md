@@ -70,6 +70,42 @@ attribute expected a value of type, `System.Int32`, but it received a value of `
 To repair this error, I needed to **explicitly** convert the Python `int` value to `System.Int32` before invoking the 
 `IMutableStage.SetAttribute()` method.
 
+## Changes to low-level examples
+
+Unfortunately, our low-level examples seems to result in more errors when we upgrade `pythonnet` from 2.5.2 to 
+3.0.0.post1. 
+
+### Load a targeted runtime must occur before calling `import clr`
+
+The package `pythonnet-3.0.0.post1` supports targeting 3 different runtimes:
+
+- .NET Framework 4.7.2 and above
+- .NET Core
+- Mono
+
+Targeting these different runtimes is good, but it requires loading the correct runtime **before** executing the 
+statement, `import clr`. Further, once the system has loaded a runtime, attempting to load the runtime again results
+in the `pythonnet` package raising an exception:
+
+"""
+Failed to initialize pythonnet: System.InvalidOperationException: This property must be set before runtime is initialized
+   at Python.Runtime.Runtime.set_PythonDLL(String value)
+   at Python.Runtime.Loader.Initialize(IntPtr data, Int32 size)
+   at Python.Runtime.Runtime.set_PythonDLL(String value)
+   at Python.Runtime.Loader.Initialize(IntPtr data, Int32 size)Traceback (most recent call last):
+  File "auto_pick.py", line 21, in <module>
+    import orchid
+  File "C:\src\orchid-python-api\orchid\__init__.py", line 21, in <module>
+    pythonnet.load('netfx')
+  File "C:\Users\larry.jones\AppData\Local\pypoetry\Cache\virtualenvs\orchid-python-api-WYNzmHwi-py3.8\lib\site-packages\pythonnet\__init__.py", line 144, in load
+    raise RuntimeError("Failed to initialize Python.Runtime.dll")
+RuntimeError: Failed to initialize Python.Runtime.dll
+"""
+
+We have written the `orchid` module in execute the statement `pythonnet.load('netfx')` to load the runtime expected
+by the Orchid Python API; consequently, the simplest solution to this issue is to arrange your imports to execute
+`import orchid`, even if not otherwise needed, **before** executing `import clr`
+
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 

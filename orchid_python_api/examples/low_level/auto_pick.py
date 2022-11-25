@@ -17,13 +17,13 @@ import functools
 import logging
 import pathlib
 
-import clr
 import orchid
 from orchid import (
     dot_net_disposable as dnd,
     net_fracture_diagnostics_factory as net_factory,
 )
 
+import clr
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
