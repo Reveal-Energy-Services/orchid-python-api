@@ -90,7 +90,7 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
         magnitudes[i] = tick.Value
     time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
                                                                                         magnitudes)
-    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, 0)
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, False)  # or `bool(0)`
     control_point_times = List[Leakoff.ControlPoint]()
     control_point_times.Add(Leakoff.ControlPoint(
         DateTime=interpolation_point_1,

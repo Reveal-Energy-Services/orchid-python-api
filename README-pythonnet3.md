@@ -106,6 +106,49 @@ We have written the `orchid` module in execute the statement `pythonnet.load('ne
 by the Orchid Python API; consequently, the simplest solution to this issue is to arrange your imports to execute
 `import orchid`, even if not otherwise needed, **before** executing `import clr`
 
+### Again, fewer implicit conversions of Python types to .NET `Types`
+
+Python (and `pythonnet-2.5.2`) allow a developer to pass an `int` to a function that expects a `System.Boolean`. 
+
+`pythonnet-3.0.0.post1` does not perform the typical conversion expected by a Python developer; specifically, the value 
+zero (0) is converted to `False` and any other `int` value is converted to `True`.
+
+Because of this issue the `auto_pick.py` low-level example (and its related `auto_pick...py` scripts) fail with the 
+following stack trace:
+
+"""
+Python.Runtime.PythonException: 'int' value cannot be converted to System.Boolean
+
+The above exception was the direct cause of the following exception:
+
+System.ArgumentException: 'int' value cannot be converted to System.Boolean in method Double[] Interpolate(Double[], Boolean) ---> Python.Runtime.PythonException: 'int' value cannot be converted to System.Boolean
+
+System.AggregateException: One or more errors occurred. ---> System.ArgumentException: 'int' value cannot be converted to System.Boolean in method Double[] Interpolate(Double[], Boolean) ---> Python.Runtime.PythonException: 'int' value cannot be converted to System.Boolean
+   --- End of inner exception stack trace ---
+   --- End of inner exception stack trace ---
+---> (Inner Exception #0) System.ArgumentException: 'int' value cannot be converted to System.Boolean in method Double[] Interpolate(Double[], Boolean) ---> Python.Runtime.PythonException: 'int' value cannot be converted to System.Boolean
+   --- End of inner exception stack trace ---<---
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "auto_pick.py", line 354, in <module>
+    main(args)
+  File "auto_pick.py", line 294, in main
+    auto_pick_observations(native_project, native_monitor)
+  File "auto_pick.py", line 259, in auto_pick_observations
+    picked_observation = auto_pick_observation_details(unpicked_observation, native_monitor, part)
+  File "auto_pick.py", line 217, in auto_pick_observation_details
+    control_point_times = calculate_leak_off_control_point_times(leak_off_curve_times['L1'],
+  File "auto_pick.py", line 93, in calculate_leak_off_control_point_times
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, 0)
+TypeError: No method matches given arguments for IInterpolant1D.Interpolate: (<class 'System.Double[]'>, <class 'int'>)
+"""
+
+To address this issue, a Python developer using `pythonnet-3.0.0.post1` should either supply a literal `False` or 
+perform the explicit conversion, `bool(int)`.
+
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 
