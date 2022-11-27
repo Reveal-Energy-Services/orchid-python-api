@@ -233,7 +233,7 @@ class TestCreateStageDto(unittest.TestCase):
 
         # transformed connection_type
         actual_transformed_connection_type = stub_create_net_stage.call_args.args[2]
-        assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.SINGLE_POINT_ENTRY))
+        assert_that(actual_transformed_connection_type, equal_to(nsa.ConnectionType.SINGLE_POINT_ENTRY.value))
 
     # noinspection PyUnresolvedReferences
     @unittest.mock.patch('orchid.unit_system.as_unit_system')
