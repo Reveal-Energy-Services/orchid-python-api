@@ -474,8 +474,8 @@ class TestNativeStageAdapter(unittest.TestCase):
                                                                           origin_references, tolerances):
             with self.subTest(f'Test subsurface point ({net_point[0]} {net_point[-1].value.unit:~P},...)'
                               f' in length unit {expected_point[-1].value.unit:~P}.'):
-                subsurface_point_mock_func = mock_subsurface_point_func(net_point, origin_reference.xy,
-                                                                        origin_reference.depth)
+                subsurface_point_mock_func = mock_subsurface_point_func(net_point, origin_reference.xy.value,
+                                                                        origin_reference.depth.value)
                 actual = nsa.subsurface_point_in_length_unit(origin_reference.depth, origin_reference.xy,
                                                              expected_point[-1], subsurface_point_mock_func)
 
