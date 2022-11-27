@@ -149,6 +149,24 @@ TypeError: No method matches given arguments for IInterpolant1D.Interpolate: (<c
 To address this issue, a Python developer using `pythonnet-3.0.0.post1` should either supply a literal `False` or 
 perform the explicit conversion, `bool(int)`.
 
+### .NET Enum members no longer converted to Python `int`
+
+Version 2.5.2 of `pythonnet` return values of `int` type when exposing .NET `Enum` members to Python. For example, in 
+2.5.2, `System.DateTimeKind.Utc` was zero (0). Similarly, `Orchid.FractureDiagnostics.FormationConnectionType.OpenHole`
+was 3. 
+
+However, version 3.0.0.post1 of `pythonnet` returns the .NET Enum member itself. So, both `System.DateTimeKind.Utc` and
+`Orchid.FractureDiagnostics.FormationConnectionType` return themselves. 
+
+In most situations, this change does not cause any behavior change in the Orchid Python API implementation. However,
+the **Python** enumeration, `native_stage_adapter.ConnectionType` defined its members as the **integral** value 
+returned by `pythonnet-2.5.2` In addition, other parts of the Orchid Python API implementation tested for equality of 
+the converted `int` value of the .NET Enum to the Python enumeration members whose value was also of type `int`. In
+`pythonnet-3.0.0.post1`, this comparison returned `False`. The correction was obscure without detailed understanding 
+of the Python `enum.Enum` type. We changed the base class of `native_stage_adapter.ConnectionType` from `enum.IntEnum`
+to simply, `enum.Enum`. (This was further complicated by an error in original implementation: a trailing ',' for the 
+member value definitions resulting in the member value being a Python `tuple`.)
+
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 
