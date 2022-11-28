@@ -121,9 +121,9 @@ In addition, if you are unfamiliar with the Python `enum` module (the author was
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 
-`orchid_python_api\examples\pythonnet_3`. These files contain experiments run to understand the changes between 
-`pythonnet-2.5.2` and `pythonnet-3.0.0.post1`:
+`orchid_python_api\examples\pythonnet3`. These files contain experiments run to understand the changes between 
+`pythonnet-2.5.2` and `pythonnet-3.0.0.post1` related to our low-level examples:
 
-- pn3_experiments.py
-- pn3_experiments.ipynb
+- low_level.py
+- low_level.ipynb
   
