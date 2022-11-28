@@ -124,6 +124,6 @@ In addition to the previous descriptions, this release includes two additional f
 `orchid_python_api\examples\pythonnet3`. These files contain experiments run to understand the changes between 
 `pythonnet-2.5.2` and `pythonnet-3.0.0.post1` related to our low-level examples:
 
-- low_level.py
-- low_level.ipynb
+- low_pn3.py
+- low_pn3.ipynb
   
