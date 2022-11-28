@@ -20,12 +20,14 @@ from Orchid.FractureDiagnostics import WellReferenceFrameXy as NetWellReferenceF
 from Orchid.FractureDiagnostics import DepthDatum as NetDepthDatum
 
 
+# TODO: Consider adding base with methods like `toNetEnum` and `fromNetEnum`
 class WellReferenceFrameXy(enum.Enum):
     ABSOLUTE_STATE_PLANE = NetWellReferenceFrameXy.AbsoluteStatePlane
     PROJECT = NetWellReferenceFrameXy.Project
     WELL_HEAD = NetWellReferenceFrameXy.WellHead
 
 
+# TODO: Consider adding base with methods like `toNetEnum` and `fromNetEnum`
 class DepthDatum(enum.Enum):
     GROUND_LEVEL = NetDepthDatum.GroundLevel
     KELLY_BUSHING = NetDepthDatum.KellyBushing

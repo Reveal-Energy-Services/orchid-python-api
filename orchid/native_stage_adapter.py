@@ -64,6 +64,7 @@ VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit sys
 _object_factory = fdf.create()
 
 
+# TODO: Consider adding base with methods like `toNetEnum` and `fromNetEnum`
 class ConnectionType(enum.Enum):
     PLUG_AND_PERF = FormationConnectionType.PlugAndPerf
     SLIDING_SLEEVE = FormationConnectionType.SlidingSleeve

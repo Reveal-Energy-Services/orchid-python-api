@@ -159,13 +159,22 @@ However, version 3.0.0.post1 of `pythonnet` returns the .NET Enum member itself.
 `Orchid.FractureDiagnostics.FormationConnectionType` return themselves. 
 
 In most situations, this change does not cause any behavior change in the Orchid Python API implementation. However,
-the **Python** enumeration, `native_stage_adapter.ConnectionType` defined its members as the **integral** value 
-returned by `pythonnet-2.5.2` In addition, other parts of the Orchid Python API implementation tested for equality of 
-the converted `int` value of the .NET Enum to the Python enumeration members whose value was also of type `int`. In
-`pythonnet-3.0.0.post1`, this comparison returned `False`. The correction was obscure without detailed understanding 
-of the Python `enum.Enum` type. We changed the base class of `native_stage_adapter.ConnectionType` from `enum.IntEnum`
-to simply, `enum.Enum`. (This was further complicated by an error in original implementation: a trailing ',' for the 
-member value definitions resulting in the member value being a Python `tuple`.)
+the **Python** enumeration, three Python enumerations defined its members as the **integral** value of the 
+corresponding .NET Enum type.
+
+- `native_stage_adapter.ConnectionType`
+- `reference_origins.WellReferenceFrameXy`
+- `reference_origins.DepthDatum`
+
+In addition, other parts of the Orchid Python API implementation tested for equality of the converted `int` value of
+the .NET Enum to the Python enumeration members whose value was also of type `int`. In `pythonnet-3.0.0.post1`, this
+comparison returned `False`. 
+
+To correct these issue, we changed the base class of the three Python enumerations from `enum.IntEnum` to `enum.Enum`. 
+In addition, we needed to change any comparisons involving the types to use the Python enumeration member `value`.
+
+In addition, if you are unfamiliar with the Python `enum` module (the author was), read about it in 
+[the standard library](https://docs.python.org/3.8/library/enum.html).
 
 ## Examples
 
