@@ -91,14 +91,15 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
     time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
                                                                                         magnitudes)
     pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, False)  # or `bool(0)`
-    control_point_times = List[Leakoff.ControlPoint]()
-    control_point_times.Add(Leakoff.ControlPoint(
-        DateTime=interpolation_point_1,
-        Pressure=UnitsNet.Pressure(pressure_values[0], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-    control_point_times.Add(Leakoff.ControlPoint(
-        DateTime=interpolation_point_2,
-        Pressure=UnitsNet.Pressure(pressure_values[1], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-    return control_point_times
+
+    control_points = List[Leakoff.ControlPoint]()
+    for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
+        control_point_to_add = Leakoff.ControlPoint()
+        control_point_to_add.DateTime = time
+        control_point_to_add.Pressure = UnitsNet.Pressure(pressure_magnitude,
+                                                          UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+        control_points.Add(control_point_to_add)
+    return control_points
 
 
 def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):

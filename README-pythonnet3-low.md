@@ -118,6 +118,60 @@ In addition, we needed to change any comparisons involving the types to use the 
 In addition, if you are unfamiliar with the Python `enum` module (the author was), read about it in 
 [the standard library](https://docs.python.org/3.8/library/enum.html).
 
+### Implicit conversions for `ValueType`
+
+Version 2.5.2 of `pythonnet` supported low-level code like the following:
+
+```
+control_point_times = List[Leakoff.ControlPoint]()
+control_point_times.Add(Leakoff.ControlPoint(
+    DateTime=interpolation_point_1,
+    Pressure=UnitsNet.Pressure(pressure_values[0], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
+```
+
+This code creates a new `List<Leakoff.ControlPoint>` instance and then adds a newly constructed `Leakoff.ControlPoint`.
+
+In version 3.0.0.post1, this same code results in an error:
+
+```
+Traceback (most recent call last):
+  File "auto_pick.py", line 354, in <module>
+    main(args)
+  File "auto_pick.py", line 294, in main
+    auto_pick_observations(native_project, native_monitor)
+  File "auto_pick.py", line 259, in auto_pick_observations
+    picked_observation = auto_pick_observation_details(unpicked_observation, native_monitor, part)
+  File "auto_pick.py", line 217, in auto_pick_observation_details
+    control_point_times = calculate_leak_off_control_point_times(leak_off_curve_times['L1'],
+  File "auto_pick.py", line 95, in calculate_leak_off_control_point_times
+    control_point_times.Add(Leakoff.ControlPoint(
+TypeError: No method matches given arguments for ValueType..ctor: ()
+```
+
+It turns out that the .NET class, `Leakoff.ControlPoint` **does not** have a default constructor. Our hypothesis is 
+that `pythonnet-2.5.2` translates the code to something similar to the following C# code:
+
+```
+var netControlPoints = List<Leakoff.ControlPoint>()
+netControlPoint = new Leakoff.ControlPoint()
+netControlPoint.DateTime = DateTime.UtcNow
+netControlPoint.Pressure = Pressure.FromPsi(92.64)
+netControlPoints.Add(net_control_point)
+```
+
+To address this issue, one must change the low-level Python code to code similar to the following to call the default
+constructor explicitly and then explicitly initialize the two public members of `Leakoff.ControlPoint`:
+
+```
+control_points = List[Leakoff.ControlPoint]()
+for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
+    control_point_to_add = Leakoff.ControlPoint()
+    control_point_to_add.DateTime = time
+    control_point_to_add.Pressure = UnitsNet.Pressure(pressure_magnitude,
+                                                      UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+    control_points.Add(control_point_to_add)
+```
+
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 
