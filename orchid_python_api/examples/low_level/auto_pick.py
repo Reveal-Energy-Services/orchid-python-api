@@ -20,6 +20,7 @@ import pathlib
 import orchid
 from orchid import (
     dot_net_disposable as dnd,
+    net_enumerable as dne,
     net_fracture_diagnostics_factory as net_factory,
 )
 
@@ -297,10 +298,11 @@ def main(cli_args):
     # Log changed project data if requested
     if cli_args.verbosity >= 2:
         logging.info(f'{native_project.Name=}')
-        logging.info(f'{len(native_project.ObservationSets.Items)=}')
-        for observation_set in native_project.ObservationSets.Items:
+        observation_sets_items = dne.as_list(native_project.ObservationSets.Items)
+        logging.info(f'{len(observation_sets_items)=}')
+        for observation_set in observation_sets_items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(observation_set.GetLeakOffObservations())=}')
+            logging.info(f'{len(dne.as_list(observation_set.GetLeakOffObservations()))=}')
 
     # Save project changes to specified .ifrac file
     orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)

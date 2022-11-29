@@ -167,10 +167,36 @@ control_points = List[Leakoff.ControlPoint]()
 for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
     control_point_to_add = Leakoff.ControlPoint()
     control_point_to_add.DateTime = time
-    control_point_to_add.Pressure = UnitsNet.Pressure(pressure_magnitude,
+    control_point_to_add.Pressure = UnitsNet.Pressure(pressuremagnitude,
                                                       UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
     control_points.Add(control_point_to_add)
 ```
+
+### Using Python `len` on .NET DynamicData
+
+The `auto_pick.py` script calculates the number of `IObservationSet` items by executing the expression, 
+`len(native_project.ObservationSets.Items)`. This expression returns the number of items when executed using 
+`pythonnet-2.5.2`; however, when using `pythonnet-3.0.0.post1`, the code encounters an unusual exception:
+
+```
+Traceback (most recent call last):
+  File "auto_pick.py", line 363, in <module>
+    main(args)
+  File "auto_pick.py", line 308, in main
+    logging.info(f'{len(native_project.ObservationSets.Items)=}')
+SystemError: error return without exception set
+```
+
+To repair this issue, we created a new module, `net_enumerable.py`, that defines the function `as_list` to convert 
+instances of the following .NET types to instances of a Python `list`:
+
+- `System.Collections.IEnumerable`
+- `DynamicData.IObservableCache`
+- `DynamicData.IObservableList`
+
+One must then replace calls like `len(native_project.ObservationSets.Items)` with 
+`len(dne.as_list(native_project.ObservationSets))`. Similarly, one must replace calls like 
+`len(observation_set.GetLeakOffObservations())` with `len(dne.as_list(observation_set.GetLeakOffObservations())`.
 
 ## Examples
 
