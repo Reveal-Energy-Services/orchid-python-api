@@ -38,8 +38,8 @@ def create() -> IFractureDiagnosticsFactory:
     >>> net_stop = ndt.as_net_date_time(stop)
     >>> factory = create()
     >>> date_time_offset_range = factory.CreateDateTimeOffsetRange(net_start, net_stop)
-    >>> (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
-    ('2022-02-23T15:53:23.0000000+00:00', '2022-02-24T05:54:11.0000000+00:00')
+    >>> (date_time_offset_range.Start.ToString(), date_time_offset_range.Stop.ToString())
+    ('2/23/2022 3:53:23 PM +00:00', '2/24/2022 5:54:11 AM +00:00')
 
     Returns:
         An instance of the fracture diagnostics factory.

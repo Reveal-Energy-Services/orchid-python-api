@@ -97,6 +97,47 @@ In addition, we needed to change any comparisons involving the types to use the 
 In addition, if you are unfamiliar with the Python `enum` module (the author was), read about it in 
 [the standard library](https://docs.python.org/3.8/library/enum.html).
 
+### `DateTimeOffset` returned by `IDateTimeOffsetRange.Start` does not support `ToString(string)`
+
+The following doctest in `net_fracture_diagnostics_factory` passes in `pythonnet-2.5.2`:
+
+```
+    >>> start = pendulum.parse('2022-02-23T15:53:23Z')
+    >>> stop = pendulum.parse('2022-02-24T05:54:11Z')
+    >>> net_start = ndt.as_net_date_time(start)
+    >>> net_stop = ndt.as_net_date_time(stop)
+    >>> factory = create()
+    >>> date_time_offset_range = factory.CreateDateTimeOffsetRange(net_start, net_stop)
+    >>> (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
+    ('2022-02-23T15:53:23.0000000+00:00', '2022-02-24T05:54:11.0000000+00:00')
+```
+
+However, when run using `pythonnet-3.0.0.post1`, this same doctest fails with the exception
+
+```
+Error
+**********************************************************************
+File "C:\src\orchid-python-api\orchid\net_fracture_diagnostics_factory.py", line ?, in net_fracture_diagnostics_factory.create
+Failed example:
+    (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
+Exception raised:
+    Traceback (most recent call last):
+      File "C:/Users/larry.jones/AppData/Local/JetBrains/Toolbox/apps/PyCharm-P/ch-0/222.4459.20/plugins/python/helpers/pycharm/docrunner.py", line 138, in __run
+        exec(compile(example.source, filename, "single",
+      File "<doctest net_fracture_diagnostics_factory.create[6]>", line 1, in <module>
+        (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
+    TypeError: No method matches given arguments for Object.ToString: (<class 'str'>)
+```
+
+Investigating this issue, I discovered that `IFractureDiagnosticsFactory.CreateDateTimeOffsetRange()` returns an
+instance of `IDateTimeOffsetRange`; however, both `IDateTimeOffsetRange.Start` and `IDateTimeOffsetRange.Stop` return
+values of instance `IComparable`. (Because, I think, of the base interface, `IRange`. Even though the derived generic
+interface, `IRange<T>`, is instantiated concretely as `IRange<DateTimeOffset>`, because `IRange<T>.Start` is a property
+that returns an argument of type, `T`, it only appears as a single property at runtime.)
+
+I have created [bug #2034](https://github.com/pythonnet/pythonnet/issues/2034) against `pythonnet`, but I believe that
+the behavior I see is as designed and the suggested solutions would be particularly heavyweight.
+
 ## Examples
 
 In addition to the previous descriptions, this release includes two additional files in the directory, 
