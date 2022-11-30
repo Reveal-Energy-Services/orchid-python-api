@@ -24,7 +24,7 @@ from orchid import (
     net_fracture_diagnostics_factory as net_factory,
 )
 
-import clr
+import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
