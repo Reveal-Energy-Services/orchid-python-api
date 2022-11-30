@@ -69,9 +69,10 @@ get_leak_off_observations = (parsy.string(f"INFO:root:len(observation_set.{LEAK_
                              parsy.regex(r'\d+').map(int))
 get_multi_pick_observations = (parsy.string(f"INFO:root:len(observation_set.{MULTI_PICK_COUNT}.Items)=") >>
                                parsy.regex(r'\d+').map(int))
-get_observations = parsy.string("INFO:root:len(observation_set.GetLeakOffObservations())=") >> parsy.regex(r'\d+').map(int)
+get_observations = (parsy.string("INFO:root:len(dne.as_list(observation_set.GetLeakOffObservations()))=") >>
+                    parsy.regex(r'\d+').map(int))
 multi_picked_observation_set = parsy.string(f"INFO:root:observation_set.Name='{MULTI_PICKING}'")
-observation_set_items = parsy.string("INFO:root:len(native_project.ObservationSets.Items)=2")
+observation_set_items = parsy.string("INFO:root:len(observation_sets_items)=2")
 oid_parser = parsy.string('UUID') >> left_paren >> single_quoted_text.map(uuid.UUID) << right_paren
 parent_well_observations = parsy.string(f"INFO:root:observation_set.Name='{PARENT_WELLS}'")
 project_name = parsy.string("INFO:root:native_project.Name='frankNstein_Bakken_UTM13_FEET'")
