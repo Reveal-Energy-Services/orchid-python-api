@@ -17,13 +17,14 @@ import functools
 import logging
 import pathlib
 
-import clr
 import orchid
 from orchid import (
     dot_net_disposable as dnd,
+    net_enumerable as dne,
     net_fracture_diagnostics_factory as net_factory,
 )
 
+import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
@@ -90,15 +91,16 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
         magnitudes[i] = tick.Value
     time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
                                                                                         magnitudes)
-    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, 0)
-    control_point_times = List[Leakoff.ControlPoint]()
-    control_point_times.Add(Leakoff.ControlPoint(
-        DateTime=interpolation_point_1,
-        Pressure=UnitsNet.Pressure(pressure_values[0], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-    control_point_times.Add(Leakoff.ControlPoint(
-        DateTime=interpolation_point_2,
-        Pressure=UnitsNet.Pressure(pressure_values[1], UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)))
-    return control_point_times
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, False)  # or `bool(0)`
+
+    control_points = List[Leakoff.ControlPoint]()
+    for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
+        control_point_to_add = Leakoff.ControlPoint()
+        control_point_to_add.DateTime = time
+        control_point_to_add.Pressure = UnitsNet.Pressure(pressure_magnitude,
+                                                          UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+        control_points.Add(control_point_to_add)
+    return control_points
 
 
 def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
@@ -225,7 +227,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
     leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
-    with dnd.disposable(picked_observation.ToMutable()) as mutable_observation :
+    with dnd.disposable(picked_observation.ToMutable()) as mutable_observation:
         mutable_observation.LeakoffCurveType = Leakoff.LeakoffCurveType.Linear
         mutable_observation.ControlPointTimes = create_leak_off_curve_control_points(leak_off_curve_times)
         (mutable_observation.VisibleRangeXminTime,
@@ -318,10 +320,11 @@ def main(cli_args):
     # Log changed project data if requested
     if cli_args.verbosity >= 2:
         logging.info(f'{native_project.Name=}')
-        logging.info(f'{len(native_project.ObservationSets.Items)=}')
-        for observation_set in native_project.ObservationSets.Items:
+        observation_sets_items = dne.as_list(native_project.ObservationSets.Items)
+        logging.info(f'{len(observation_sets_items)=}')
+        for observation_set in observation_sets_items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(observation_set.GetLeakOffObservations())=}')
+            logging.info(f'{len(dne.as_list(observation_set.GetLeakOffObservations()))=}')
 
     # Save project changes to specified .ifrac file
     orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
