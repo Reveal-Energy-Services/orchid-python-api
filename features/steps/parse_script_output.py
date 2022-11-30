@@ -65,9 +65,9 @@ single_quoted_text = (single_quote >> parsy.regex(r"[^']+") << single_quote)
 double_quoted_text = (double_quote >> parsy.regex(r"[^']+") << double_quote)
 
 auto_picked_observation_set = parsy.string("INFO:root:observation_set.Name='Auto-picked Observation Set3'")
-get_leak_off_observations = (parsy.string(f"INFO:root:len(observation_set.{LEAK_OFF_COUNT}.Items)=") >>
+get_leak_off_observations = (parsy.string(f"INFO:root:len(dne.as_list(observation_set.{LEAK_OFF_COUNT}.Items))=") >>
                              parsy.regex(r'\d+').map(int))
-get_multi_pick_observations = (parsy.string(f"INFO:root:len(observation_set.{MULTI_PICK_COUNT}.Items)=") >>
+get_multi_pick_observations = (parsy.string(f"INFO:root:len(dne.as_list(observation_set.{MULTI_PICK_COUNT}.Items))=") >>
                                parsy.regex(r'\d+').map(int))
 get_observations = (parsy.string("INFO:root:len(dne.as_list(observation_set.GetLeakOffObservations()))=") >>
                     parsy.regex(r'\d+').map(int))
