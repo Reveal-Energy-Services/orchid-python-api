@@ -135,8 +135,10 @@ values of instance `IComparable`. (Because, I think, of the base interface, `IRa
 interface, `IRange<T>`, is instantiated concretely as `IRange<DateTimeOffset>`, because `IRange<T>.Start` is a property
 that returns an argument of type, `T`, it only appears as a single property at runtime.)
 
-I have created [bug #2034](https://github.com/pythonnet/pythonnet/issues/2034) against `pythonnet`, but I believe that
-the behavior I see is as designed and the suggested solutions would be particularly heavyweight.
+I have created [bug #2034](https://github.com/pythonnet/pythonnet/issues/2034). 
+[This response](https://github.com/pythonnet/pythonnet/issues/2034#issuecomment-1332728831) indicates that the behavior
+is as designed. The document `CHANGELOG.md`, searching for "BREAKING" changes, confirms that using either 
+`__implementation__` or `__raw_implementation__` is the solution.
 
 ## Examples
 
