@@ -17,9 +17,9 @@ Script demonstrating the changes needed after upgrading Python.NET 3.
 """
 
 
-# 1 Repairs of Python.NET 3 breaking changes to internal tests
+# 0 Repairs of Python.NET 3 breaking changes to internal tests
 
-# 1.1 Load a runtime before calling `import clr`
+# 0.1 Load a runtime before calling `import clr`
 
 # In order to access .NET assemblies (`.dll` files), one must load an available runtime before executing the
 # `import clr` statement. (If one calls `import clr` before specifying a runtime, Python.NET will load a default
@@ -34,6 +34,12 @@ import orchid
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr
 
+import pprint  # Used to "pretty-print" complex data, for example, lists
+import textwrap  # Help to format pretty printed text
+
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import (
     ArgumentException,
@@ -45,10 +51,6 @@ from System import (
     InvalidCastException,
     TimeSpan,
 )
-
-
-import pprint  # Used to "pretty-print" complex data, for example, lists
-import textwrap  # Help to format pretty printed text
 
 
 DEFAULT_TEXTWRAP_WIDTH = 70
@@ -95,11 +97,21 @@ def banner(banner_text):
     print()
 
 
-def pretty_print_with_header(items, header):
-    header_text = f'{header} returns:'
+def pretty_print_with_header(item, header):
+    header_text = f'`{header}` returns:'
     pretty_printed_text = (textwrap
                            .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ')
-                           .fill(f'{pprint.pformat(items)}'))
+                           .fill(f'{pprint.pformat(item)}'))
+    text_to_print = f'{header_text}\n{pretty_printed_text}'
+    print(text_to_print)
+    print()
+
+
+def pretty_print_net_item_with_header(net_item, header):
+    header_text = f'`{header}.ToString()` returns:'
+    pretty_printed_text = (textwrap
+                           .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ')
+                           .fill(f'{pprint.pformat(net_item.ToString())}'))
     text_to_print = f'{header_text}\n{pretty_printed_text}'
     print(text_to_print)
     print()
@@ -123,16 +135,15 @@ def wait_for_input():
     print()
 
 
-title('Repairs needed to pass internal tests')
+title('Repairs of Python.NET 3 breaking changes to internal tests')
 
-section('Reduce the implicit conversions between Python types and .NET Types')
+section('1 Reduce the implicit conversions between Python types and .NET Types')
 
-sub_section("Equality between Python `int` values and `DateTimeOffset.MaxValue` no longer supported")
+sub_section("1.1 Equality between Python `int` values and `DateTimeOffset.MaxValue` no longer supported")
 
 paragraph("""Python.NET 2.5.2 allowed a developer to test for equality between Python `int` values and values of type
 `DateTimeOffset` by performing an implicit conversion of the `DateTimeOffset` type. This test raises an exception 
-in Python.NET 3.
-""")
+in Python.NET 3.""")
 
 pretty_print_with_error(lambda: 108 == DateTimeOffset.MaxValue, TypeError, '`108 == DateTimeOffset.MaxValue`')
 pretty_print_with_error(lambda: 108 == TimeSpan.MaxValue, TypeError, '`108 == TimeSpan.MaxValue`')
@@ -147,71 +158,66 @@ able to compare things to a .NET object that are directly convertible to it. If 
 [Codec](https://pythonnet.github.io/pythonnet/codecs.html). Otherwise, I'd suggest you just generate the respective
  comparison values using `.FromTicks`.""")
 
+paragraph("Python.NET 3 requires a developer to explicitly use the `DateTimeOffset.Ticks` for in the equality test.")
+
 pretty_print_with_header(108 == DateTimeOffset.MaxValue.Ticks, '108 == DateTimeOffset.MaxValue.Ticks')
-pretty_print_with_header(108 == TimeSpan.MaxValue.Ticks, '108 == `TimeSpan.MaxValue.Ticks`')
-# #%%
-# 108 == TimeSpan.MinValue.Ticks
+pretty_print_with_header(108 == TimeSpan.MaxValue.Ticks, '108 == TimeSpan.MaxValue.Ticks')
+pretty_print_with_header(108 == TimeSpan.MinValue.Ticks, '108 == TimeSpan.MinValue.Ticks')
 wait_for_input()
 
-# #%% md
-# ### Fewer implicit conversions between Python values and .NET values
-# #%% md
-# Python.NET 2.5.2 allowed expressions like `TimeSpan()`. (Note that the .NET `TimeSpan` class **does not** have a
-# default constructor.) This expression is no longer supported. Instead, one must supply an argument
-# (typically zero (0)) to the constructor or to methods like `TimeSpan.FromTicks()`.
-# #%%
-# TimeSpan(8801)
-# #%%
-# try:
-#     print('Trying expression, `TimeSpan()`')
-#     TimeSpan()
-# except TypeError as nie:
-#     print(f'TypeError: {nie}')
-# #%%
-# TimeSpan(0)
-# #%%
-# TimeSpan.FromTicks(0)
-# #%% md
-# ## Adding attributes with integer values requires an explicit conversion
-# #%% md
-# (This issue occured in **both** internal testing and low-level script testing and so is duplicated.)
-# #%% md
-# During integration testing, we discovered an issue setting an attribute with type, `Int32`, using a Python `int`
-# value of 7. The run-time reported that the types, `Int32` and `PyInt` were incompatible.
-# #%% md
-# This scenario requires significant set up.
-# #%%
-# # Find the well named 'Demo_1H'
-# bakken = orchid.load_project('c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac')
-# candidate_wells = list(bakken.wells().find_by_name('Demo_1H'))
-# assert len(candidate_wells) == 1
-# demo_1h = candidate_wells[0]
-# #%%
-# # Create an attribute with name, 'My New Attribute', and type, `System.Int32`
-# # noinspection PyUnresolvedReferences,PyPackageRequirements
-# from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
-#
-# attribute_to_add_type = Int32
-# attribute_to_add = Attribute[attribute_to_add_type].Create('My New Attribute')
-# #%%
-# # Add newly created attribute to well, 'Demo_1H'
-# with orchid.dot_net_disposable.disposable(demo_1h.dom_object.ToMutable()) as mutable_well:
-#     mutable_well.AddStageAttribute(attribute_to_add)
-# #%%
-# # Find stage number 7 in well, 'Demo_1H'
-# maybe_stage = demo_1h.stages().find_by_display_stage_number(7)
-# assert maybe_stage is not None
-# stage_7 = maybe_stage
-# #%%
-# # Add attribute with value, 17, to stage 7, with Python `int` type.
-# with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as mutable_stage:
-#     # This action will fail because the attribute type is `System.Int32`
-#     # and `pythonnet-3.0.0.post1` **does not** implicitly equate these two types.
-#     try:
-#         mutable_stage.SetAttribute(attribute_to_add, int)
-#     except ArgumentException as ae:
-#         print(f'ArgumentException: {ae}')
-#
+sub_section('1.2 Less effort to make Python constructors "just work"')
+
+paragraph("""Python.NET 2.5.2 allowed expressions like `TimeSpan()`. (Note that the .NET `TimeSpan` class **does not**
+have a default constructor.) This expression is no longer supported. Instead, one must supply an argument (typically
+ zero (0)) to the constructor or to methods like `TimeSpan.FromTicks()`.""")
+
+pretty_print_with_error(lambda: TimeSpan(), TypeError, '`TimeSpan()`')
+
+pretty_print_net_item_with_header(TimeSpan(8801), 'TimeSpan(8801)')
+pretty_print_net_item_with_header(TimeSpan(0), 'TimeSpan(0)')
+pretty_print_net_item_with_header(TimeSpan.FromTicks(0), 'TimeSpan.FromTicks(0)')
+
+wait_for_input()
+
+section('2 Adding attributes with integer values requires an explicit conversion')
+
+paragraph('(This issue occurred in **both** internal testing and low-level script testing and so is duplicated.)')
+
+paragraph("""During integration testing, we discovered an issue setting an attribute with type, `Int32`, using a Python
+`int` value of 7. The run-time reported that the types, `Int32` and `PyInt` were incompatible.""")
+
+paragraph("""This scenario requires significant set up.""")
+
+wait_for_input()
+
+# Find the well named 'Demo_1H'
+bakken = orchid.load_project('c:/src/Orchid.IntegrationTestData/frankNstein_Bakken_UTM13_FEET.ifrac')
+candidate_wells = list(bakken.wells().find_by_name('Demo_1H'))
+assert len(candidate_wells) == 1
+demo_1h = candidate_wells[0]
+
+# Create an attribute with name, 'My New Attribute', and type, `System.Int32`
+attribute_to_add_type = Int32
+attribute_to_add = Attribute[attribute_to_add_type].Create('My New Attribute')
+
+# Add newly created attribute to well, 'Demo_1H'
+with orchid.dot_net_disposable.disposable(demo_1h.dom_object.ToMutable()) as mutable_well:
+    mutable_well.AddStageAttribute(attribute_to_add)
+
+# Find stage number 7 in well, 'Demo_1H'
+maybe_stage = demo_1h.stages().find_by_display_stage_number(7)
+assert maybe_stage is not None
+stage_7 = maybe_stage
+
+# Add attribute with value, 17, to stage 7, with Python `int` type.
+with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as mutable_stage:
+    # This action will fail because the attribute type is `System.Int32`
+    # and `pythonnet-3.0.0.post1` **does not** implicitly equate these two types.
+    pretty_print_with_error(lambda: mutable_stage.SetAttribute(attribute_to_add, int), ArgumentException,
+                            'mutable_stage.SetAttribute(attribute_to_add, int)')
+
+wait_for_input()
+
 # #%%
 # # Add attribute to stage 7 with a value of 17 **explicitly** converted to an `Int32`
 # with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as mutable_stage:
