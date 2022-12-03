@@ -179,7 +179,7 @@ pretty_print_net_item_with_header(TimeSpan.FromTicks(0), 'TimeSpan.FromTicks(0)'
 
 wait_for_input()
 
-section('2 Adding attributes with integer values requires an explicit conversion')
+section('2 Adding attributes with integer values requires conversion')
 
 paragraph('(This issue occurred in **both** internal testing and low-level script testing and so is duplicated.)')
 
@@ -218,18 +218,25 @@ with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as m
 
 wait_for_input()
 
-# #%%
-# # Add attribute to stage 7 with a value of 17 **explicitly** converted to an `Int32`
-# with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as mutable_stage:
-#     mutable_stage.SetAttribute(attribute_to_add, attribute_to_add_type(7))
-# #%%
-# # Verify added attribute value
-# ignored_object = object()
-# is_attribute_present, actual_attribute_value = stage_7.dom_object.TryGetAttributeValue(attribute_to_add,
-#                                                                                        ignored_object)
-# assert is_attribute_present
-# assert type(actual_attribute_value) == int
-# assert actual_attribute_value == 7
+paragraph("""Using Python.NET 3, one must **explicitly** convert the supplied `int` to `Int32`.""")
+
+# Add attribute to stage 7 with a value of 17 **explicitly** converted to an `Int32`
+with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as mutable_stage:
+    pretty_print_with_header(mutable_stage.SetAttribute(attribute_to_add, attribute_to_add_type(7)),
+                             'mutable_stage.SetAttribute(attribute_to_add, attribute_to_add_type(7)')
+
+paragraph("""Verify the added attribute value.""")
+
+# Verify added attribute value
+ignored_object = object()
+is_attribute_present, actual_attribute_value = stage_7.dom_object.TryGetAttributeValue(attribute_to_add,
+                                                                                       ignored_object)
+pretty_print_with_header(is_attribute_present, 'is_attribute_present')
+pretty_print_with_header(type(actual_attribute_value) == int, 'type(actual_attribute_value) == int')
+pretty_print_with_header(actual_attribute_value == 7, 'actual_attribute_value == 7')
+
+wait_for_input()
+
 # #%% md
 # ## Disabled implicit conversion from C# Enums to Python `int` and back
 # #%% md
