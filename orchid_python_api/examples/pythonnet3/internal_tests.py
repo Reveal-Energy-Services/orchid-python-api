@@ -17,9 +17,9 @@ Script demonstrating the changes needed after upgrading Python.NET 3.
 """
 
 
-# 0 Repairs of Python.NET 3 breaking changes to internal tests
+# Repairs of Python.NET 3 breaking changes to internal tests
 
-# 0.1 Load a runtime before calling `import clr`
+# 0 Load a runtime before calling `import clr`
 
 # In order to access .NET assemblies (`.dll` files), one must load an available runtime before executing the
 # `import clr` statement. (If one calls `import clr` before specifying a runtime, Python.NET will load a default
@@ -97,33 +97,34 @@ def banner(banner_text):
     print()
 
 
-def pretty_print_with_header(item, header):
+def pretty_print_with_header(item, header, max_lines=None):
     header_text = f'`{header}` returns:'
     pretty_printed_text = (textwrap
-                           .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ')
+                           .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ', max_lines=max_lines)
                            .fill(f'{pprint.pformat(item)}'))
     text_to_print = f'{header_text}\n{pretty_printed_text}'
     print(text_to_print)
     print()
 
 
-def pretty_print_net_item_with_header(net_item, header):
+def pretty_print_net_item_with_header(net_item, header, max_lines=None):
     header_text = f'`{header}.ToString()` returns:'
     pretty_printed_text = (textwrap
-                           .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ')
+                           .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ', max_lines=max_lines)
                            .fill(f'{pprint.pformat(net_item.ToString())}'))
     text_to_print = f'{header_text}\n{pretty_printed_text}'
     print(text_to_print)
     print()
 
 
-def pretty_print_with_error(error_callable, error_type, header):
+def pretty_print_with_error(error_callable, error_type, header, max_lines=None):
     header_text = f'Trying {header} raises:'
     try:
         error_callable()
     except error_type as et:
         pretty_printed_text = (textwrap
-                               .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ')
+                               .TextWrapper(initial_indent=2 * ' ', subsequent_indent=(2 + 1) * ' ',
+                                            max_lines=max_lines)
                                .fill(f'{pprint.pformat(et)}'))
         text_to_print = f'{header_text}\n{pretty_printed_text}'
         print(text_to_print)
@@ -237,42 +238,63 @@ pretty_print_with_header(actual_attribute_value == 7, 'actual_attribute_value ==
 
 wait_for_input()
 
-# #%% md
-# ## Disabled implicit conversion from C# Enums to Python `int` and back
-# #%% md
-# ### Reduced need for use of `Overloads` (`__overloads__` in Python.NET 3)
-# #%% md
-# The .NET `DateTime` class has many overloaded constructors. Because version Python.NET 2.5.2 converted members
-# of .NET Enum types into Python `int` values, the method resolution process could not distinguish between the
-# `DateTime` constructor taking 7 `System.Int32` arguments (the last specifying milliseconds) and the constructor
-# accepting 6 `System.Int32` values and a `DateTimeKind` member. Consequently, a developer of the Orchid Python API
-# had to specify an overload in order to invoke the appropriate constructor.
-# #%%
-# DateTime
-# #%%
-# # Querying the `__overloads__` (preferred but `Overloads` is also available) produces a very unexpected result.
-# #
-# # Our working hypothesis is that the Python.NET method resolution algorithm could find any overloads for the
-# # constructor resulting in
-# DateTime.Overloads, DateTime.__overloads__
-# #%%
-# type(DateTime.__overloads__)
-# #%%
-# dir(DateTime)
-# #%%
-# type(DateTimeKind.Utc)
-# #%%
-# dir(DateTimeKind.Utc)
-# #%%
-# DateTimeKind.Utc.GetType()
-# #%%
-# dir(DateTimeKind.Utc.GetType())
-# #%%
-# DateTimeKind.Utc.GetType().BaseType
-# #%%
-# DateTimeKind.Utc.GetType().BaseType.FullName
-# #%%
-# DateTime(2021, 12, 1, 12, 15, 37, DateTimeKind.Utc).ToString('o')
+section('3 Disabled implicit conversion from C# Enums to Python `int` and back')
+
+sub_section('3.1 Reduced need for and changed behavior of `Overloads` (`__overloads__` in Python.NET 3)')
+
+paragraph("""The .NET `DateTime` class has many overloaded constructors. Because version Python.NET 2.5.2 converted 
+members of .NET Enum types into Python `int` values, the method resolution process could not distinguish between the 
+`DateTime` constructor taking 7 `System.Int32` arguments (the last specifying milliseconds) and the constructor 
+accepting 6 `System.Int32` values and a `DateTimeKind` member. Consequently, a developer of the Orchid Python API had 
+to specify an overload in order to invoke the appropriate constructor.""")
+
+wait_for_input()
+
+paragraph("""Under Python 2.5.2, one used the `Overloads` attribute to select a specific overload. Additionally, the
+`Overloads` attribute could be queried to return a `list` of available overloads.
+
+Under Python 3, querying the `__overloads__` (preferred but `Overloads` is also available) produces an unexpected 
+result.""")
+
+pretty_print_with_header((DateTime.__overloads__, DateTime.Overloads), '`DateTime.__overloads__, DateTime.Overloads`')
+
+paragraph("""Our working hypothesis is that the Python.NET method resolution algorithm could find any overloads for the 
+constructor and, therefore, produces this behavior. 
+
+Additionally, we did create a issue with the Python.NET team. In the response to our issue, the Python.NET team 
+indicated that `__overloads__` was not an attribute but a [property](https://realpython.com/python-property/).""")
+
+pretty_print_with_header(DateTime.__overloads__, 'DateTime.__overloads__')
+
+wait_for_input()
+
+sub_section('3.2 .NET Enum members are no longer converted to Python `int` values')
+
+paragraph("""Python.NET 2.5.2 implicitly converted .NET `Enum` members to Python `int` values. Python.NET 3 exposes 
+the (derived) .NET `Enum` type to Python.""")
+
+pretty_print_with_header(type(DateTimeKind.Utc), 'type(DateTimeKind.Utc)')
+
+pretty_print_with_header(dir(DateTimeKind.Utc), 'dir(DateTimeKind.Utc)')
+
+pretty_print_with_header(DateTimeKind.Utc.GetType(), 'DateTimeKind.Utc.GetType()')
+
+wait_for_input()
+
+pretty_print_with_header(dir(DateTimeKind.Utc.GetType()), 'dir(DateTimeKind.Utc.GetType())', max_lines=10)
+
+pretty_print_with_header(DateTimeKind.Utc.GetType().BaseType, 'DateTimeKind.Utc.GetType().BaseType')
+
+pretty_print_with_header(DateTimeKind.Utc.GetType().BaseType.FullName, 'DateTimeKind.Utc.GetType().BaseType.FullName')
+
+paragraph("""Because Python.NET 3 retains the .NET `Enum` member, Python.NET can then resolve the `DateTime` 
+7-argument constructor with the `DateTimeKind` last argument without "help".""")
+
+pretty_print_with_header(DateTime(2021, 12, 1, 12, 15, 37, DateTimeKind.Utc).ToString('o'),
+                         'DateTime(2021, 12, 1, 12, 15, 37, DateTimeKind.Utc).ToString("o")')
+
+wait_for_input()
+
 # #%% md
 # ### Eliminated need to inherit from Python `enum.IntEnum` for compatibility with .NET Enum types
 # #%% md
