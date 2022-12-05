@@ -37,6 +37,8 @@ import clr
 import pprint  # Used to "pretty-print" complex data, for example, lists
 import textwrap  # Help to format pretty printed text
 
+import pendulum
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
 
@@ -330,63 +332,69 @@ pretty_print_net_item_with_header(orchid.native_stage_adapter.ConnectionType.PLU
 
 wait_for_input()
 
+section('4 Return values from .NET methods that return an interface are now automatically wrapped in that interface')
 
-# #%% md
-# ## Return values from .NET methods that return an interface are now automatically wrapped in that interface
-# #%% md
-# Under `pythonnet-2.5.2`, running the following `doctest` passes:
-#
-# ```
-# >>> start = pendulum.parse('2022-02-23T15:53:23Z')
-# >>> stop = pendulum.parse('2022-02-24T05:54:11Z')
-# >>> net_start = ndt.as_net_date_time(start)
-# >>> net_stop = ndt.as_net_date_time(stop)
-# >>> factory = create()
-# >>> date_time_offset_range = factory.CreateDateTimeOffsetRange(net_start, net_stop)
-# >>> (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
-# ('2022-02-23T15:53:23.0000000+00:00', '2022-02-24T05:54:11.0000000+00:00')
-# ```
-# #%% md
-# When running the same `doctest` using `pythonnet-3.0.0.post1`, this code
-# encounters an unhandled exception:
-#
-# ```
-# Error
-# **********************************************************************
-# File "C:\src\orchid-python-api\orchid\net_fracture_diagnostics_factory.py", line ?, in net_fracture_diagnostics_factory.create
-# Failed example:
-# (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
-# Exception raised:
-# Traceback (most recent call last):
-# File "C:/Users/larry.jones/AppData/Local/JetBrains/Toolbox/apps/PyCharm-P/ch-0/222.4459.20/plugins/python/helpers/pycharm/docrunner.py", line 138, in __run
-# exec(compile(example.source, filename, "single",
-#              File "<doctest net_fracture_diagnostics_factory.create[6]>", line 1, in <module>
-#                                                                                       (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
-# TypeError: No method matches given arguments for Object.ToString: (<class 'str'>)
-# ```
-# #%%
-# import pendulum
-# #%%
-# start = pendulum.parse('2022-02-23T15:53:23Z')
-# stop = pendulum.parse('2022-02-24T05:54:11Z')
-# net_start = orchid.net_date_time.as_net_date_time(start)
-# net_stop = orchid.net_date_time.as_net_date_time(stop)
-# factory = orchid.net_fracture_diagnostics_factory.create()
-# #%%
-# type(start), type(stop), type(net_start), type(net_stop), type(factory)
-# #%%
-# date_time_offset_range = factory.CreateDateTimeOffsetRange(net_start, net_stop)
-# type(date_time_offset_range)
-# #%%
-# dir(date_time_offset_range)
-# #%%
-# str(date_time_offset_range)
-# #%%
-# date_time_offset_range.Start.GetType().FullName
-# #%%
-# net_range_start = date_time_offset_range.Start
-# type(net_range_start)
-# #%%
+print("""Under `pythonnet-2.5.2`, running the following `doctest` passes:
+
+```
+>>> start = pendulum.parse('2022-02-23T15:53:23Z')
+>>> stop = pendulum.parse('2022-02-24T05:54:11Z')
+>>> net_start = ndt.as_net_date_time(start)
+>>> net_stop = ndt.as_net_date_time(stop)
+>>> factory = create()
+>>> date_time_offset_range = factory.CreateDateTimeOffsetRange(net_start, net_stop)
+>>> (date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
+('2022-02-23T15:53:23.0000000+00:00', '2022-02-24T05:54:11.0000000+00:00')
+```
+""")
+
+wait_for_input()
+
+print("""When running the same `doctest` using `pythonnet-3.0.0.post1`, this code
+encounters an unhandled exception:
+
+```
+Error
+**********************************************************************
+File "C:\src\orchid-python-api\orchid\net_fracture_diagnostics_factory.py", line ?, in net_fracture_diagnostics_factory.create
+Failed example:
+(date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
+Exception raised:
+Traceback (most recent call last):
+File "C:/Users/larry.jones/AppData/Local/JetBrains/Toolbox/apps/PyCharm-P/ch-0/222.4459.20/plugins/python/helpers/pycharm/docrunner.py", line 138, in __run
+exec(compile(example.source, filename, "single",
+File "<doctest net_fracture_diagnostics_factory.create[6]>", line 1, in <module>
+(date_time_offset_range.Start.ToString('o'), date_time_offset_range.Stop.ToString('o'))
+TypeError: No method matches given arguments for Object.ToString: (<class 'str'>)
+```
+""")
+
+wait_for_input()
+
+start = pendulum.parse('2022-02-23T15:53:23Z')
+stop = pendulum.parse('2022-02-24T05:54:11Z')
+net_start = orchid.net_date_time.as_net_date_time(start)
+net_stop = orchid.net_date_time.as_net_date_time(stop)
+factory = orchid.net_fracture_diagnostics_factory.create()
+
+paragraph("""Under Python.NET 2.5.2, the type returned by 
+`IFractureDiagnosticsFactory.CreateDateTimeOffsetRange(net_start, net_stop)` is the type of the Orchid object, 
+`DateTimeOffsetRange`.""")
+
+paragraph("""Under Python.NET 3, the returned type is an **interface**.""")
+
+date_time_offset_range = factory.CreateDateTimeOffsetRange(net_start, net_stop)
+pretty_print_with_header(type(date_time_offset_range), 'type(date_time_offset_range)')
+
+paragraph("""The interface does not explicitly `IDateTimeOffsetRange.Start` (and `Stop`) to return a 
+`DateTimeOffset`; instead, these methods return interfaces.""")
+
+pretty_print_with_header(date_time_offset_range.Start.GetType().FullName,
+                         'date_time_offset_range.Start.GetType().FullName')
+
+pretty_print_with_header(type(date_time_offset_range.Start), 'type(date_time_offset_range.Start)')
+
+net_range_start = date_time_offset_range.Start
 # try:
 #     net_range_start.ToString('o')
 # except TypeError as te:
@@ -487,3 +495,5 @@ wait_for_input()
 #     #%%
 # [o.__implementation__.ToString('o') for o in (date_time_offset_range.Start, date_time_offset_range.Stop)]
 # #%%
+
+wait_for_input()
