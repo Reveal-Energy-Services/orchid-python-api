@@ -295,40 +295,42 @@ pretty_print_with_header(DateTime(2021, 12, 1, 12, 15, 37, DateTimeKind.Utc).ToS
 
 wait_for_input()
 
-# #%% md
-# ### Eliminated need to inherit from Python `enum.IntEnum` for compatibility with .NET Enum types
-# #%% md
-# Version 2.5.2 of `pythonnet` converted values of type .NET Enum to Python `int` values. Consequently, to support
-# easy comparisons between the .NET type, `Orchid.FractureDiagnostics.FormationConnectionType` and the Python
-# enumeration, `native_stage_adapter.ConnectionType`, we defined `native_stage_adapter.ConnectionType` to inherit
-# from `enum.IntEnum`.  This base class is not needed in `pythonnet-3.0.0.post1` because the enumeration member
-# `native_stage_adatper.ConnectionType.PLUG_AND_PERF`, defined to have a value of
-# `Orchid.FractureDiagnostics.FormationConnectionType` is no longer of type `int` but is actually of type,
-# `Orchid.FractureDiagnostics.FormationConnectionType`.
-# #%%
-# # Returned `True` in `pythonnet-2.5.2`
-# orchid.net_date_time.TimePointTimeZoneKind.UTC == 0
-# #%%
-# orchid.net_date_time.DateTimeKind
-# #%%
-# orchid.net_date_time.TimePointTimeZoneKind
-# #%%
-# orchid.net_date_time.TimePointTimeZoneKind.UTC
-# #%%
-# orchid.net_date_time.TimePointTimeZoneKind.UTC.value
-# #%%
-# # Similarly, this expression returned `True` in `pythonnet-2.5.2`
-# orchid.native_stage_adapter.ConnectionType == 0
-# #%%
-# orchid.native_stage_adapter.FormationConnectionType
-# #%%
-# orchid.native_stage_adapter.ConnectionType
-# #%%
-# orchid.native_stage_adapter.ConnectionType.PLUG_AND_PERF
-# #%%
-# orchid.native_stage_adapter.ConnectionType.OPEN_HOLE
-# #%%
-# orchid.native_stage_adapter.ConnectionType.PLUG_AND_PERF.value
+sub_section('3.3 Eliminated need to inherit from Python `enum.IntEnum` for compatibility with .NET Enum types')
+
+paragraph("""Version 2.5.2 of `pythonnet` converted values of type .NET Enum to Python `int` values. Consequently, 
+to support easy comparisons between the .NET type, `Orchid.FractureDiagnostics.FormationConnectionType` and the Python
+enumeration, `native_stage_adapter.ConnectionType`, we defined `native_stage_adapter.ConnectionType` to inherit from 
+`enum.IntEnum`.  This base class is not needed in `pythonnet-3.0.0.post1` because the enumeration member 
+`native_stage_adapter.ConnectionType.PLUG_AND_PERF`, defined to have a value of 
+`Orchid.FractureDiagnostics.FormationConnectionType` is no longer of type `int` but is actually of type, 
+`Orchid.FractureDiagnostics.FormationConnectionType`.""")
+
+pretty_print_with_header(orchid.net_date_time.TimePointTimeZoneKind.UTC == 0,
+                         'The expression, `orchid.net_date_time.TimePointTimeZoneKind.UTC == 0`, returned `True` '
+                         'under Python.NET 2.5.2. Under Python.NET 3, this expression returns `False`')
+
+pretty_print_with_header(orchid.native_stage_adapter.ConnectionType == 0,
+                         'Similarly, the expression, `orchid.net_date_time.TimePointTimeZoneKind.UTC == 0`, '
+                         'returned `True` under Python.NET 2.5.2. Under Python.NET 3, this expression returns `False`')
+
+
+pretty_print_with_header(orchid.native_stage_adapter.FormationConnectionType,
+                         'orchid.native_stage_adapter.FormationConnectionType')
+
+pretty_print_with_header(orchid.native_stage_adapter.ConnectionType, 'orchid.native_stage_adapter.ConnectionType')
+
+pretty_print_with_header(orchid.native_stage_adapter.ConnectionType.PLUG_AND_PERF,
+                         'orchid.native_stage_adapter.ConnectionType.PLUG_AND_PERF')
+
+pretty_print_with_header(orchid.native_stage_adapter.ConnectionType.OPEN_HOLE,
+                         'orchid.native_stage_adapter.ConnectionType.OPEN_HOLE')
+
+pretty_print_net_item_with_header(orchid.native_stage_adapter.ConnectionType.PLUG_AND_PERF.value,
+                                  'orchid.native_stage_adapter.ConnectionType.PLUG_AND_PERF.value')
+
+wait_for_input()
+
+
 # #%% md
 # ## Return values from .NET methods that return an interface are now automatically wrapped in that interface
 # #%% md
