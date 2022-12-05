@@ -13,7 +13,7 @@
 #
 
 """
-Script demonstrating the changes needed after upgrading Python.NET 3.
+Script demonstrating the changes to repair the internal tests after upgrading Python.NET 3.
 """
 
 
