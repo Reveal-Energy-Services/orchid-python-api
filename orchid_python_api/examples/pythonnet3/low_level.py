@@ -60,7 +60,7 @@ from System import (
 )
 
 clr.AddReference('System.Collections')
-# noinspection PyUnresolvedReferences,PyPackageRequiremests
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Collections.Generic import List
 
 
