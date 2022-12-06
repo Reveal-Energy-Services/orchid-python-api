@@ -24,27 +24,31 @@ from orchid import (
     net_fracture_diagnostics_factory as net_factory,
 )
 
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,
 )
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import (Array, Double, DateTime, String)
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from System import (Array, Double, DateTime, String)
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
 clr.AddReference('Orchid.Math')
 clr.AddReference('System.Collections')
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.Math import Interpolation
 # noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Collections.Generic import List
 
 
@@ -64,7 +68,8 @@ def calculate_delta_pressure(leak_off_pressure, maximum_pressure_sample):
 
     """
     return UnitsNet.Pressure.op_Subtraction(
-        UnitsNet.Pressure(maximum_pressure_sample.Value, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
+        UnitsNet.Pressure(maximum_pressure_sample.Value,
+                          UnitsNet.Units.PressureUnit.PoundForcePerSquareInch),
         leak_off_pressure)
 
 
@@ -91,7 +96,8 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
         magnitudes[i] = tick.Value
     time_series_interpolant = Interpolation.Interpolant1DFactory.CreatePchipInterpolant(time_stamp_ticks,
                                                                                         magnitudes)
-    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points, False)  # or `bool(0)`
+    pressure_values = time_series_interpolant.Interpolate(time_series_interpolation_points,
+                                                          False)  # or `bool(0)`
 
     control_points = List[Leakoff.ControlPoint]()
     for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
@@ -132,7 +138,8 @@ def calculate_maximum_pressure_sample(stage_part, ticks):
         The sample (time stamp and magnitude) at which the maximum pressure occurs.
     """
     def maximum_pressure_reducer(so_far, candidate):
-        if stage_part.StartTime <= candidate.Timestamp <= stage_part.StopTime and candidate.Value > so_far.Value:
+        if (stage_part.StartTime <= candidate.Timestamp <= stage_part.StopTime and
+                candidate.Value > so_far.Value):
             return candidate
         else:
             return so_far
@@ -250,7 +257,8 @@ def auto_pick_observations(native_project, native_monitor):
     Returns:
 
     """
-    stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor, native_project.Wells.Items)
+    stage_parts = MonitorExtensions.FindPossiblyVisibleStageParts(native_monitor,
+                                                                  native_project.Wells.Items)
 
     observation_set = object_factory.CreateObservationSet(native_project, 'Auto-picked Observation Set3')
     for part in stage_parts:
@@ -271,6 +279,33 @@ def auto_pick_observations(native_project, native_monitor):
         mutable_project.AddObservationSet(observation_set)
 
     return project_with_observation_set
+
+
+def make_project_path_name(project_dir_name, project_file_name):
+    """
+    Make a path name to a project.
+
+    Args:
+        project_dir_name: The directory name of the project.
+        project_file_name: The file name of the project.
+
+    Returns:
+        The path name to the .ifrac file for this project.
+    """
+    return str(project_dir_name.joinpath(project_file_name))
+
+
+def make_target_file_name_from_source(source_file_name):
+    """
+    Make a file name for the changed project file name from the original project file name.
+
+    Args:
+        source_file_name: The file name of the project originally read.
+
+    Returns:
+        The project file name with a `.999` suffix inserted before the `.ifrac` suffix.
+    """
+    return ''.join([source_file_name.stem, '.999', source_file_name.suffix])
 
 
 def main(cli_args):
@@ -308,33 +343,6 @@ def main(cli_args):
     orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
     if cli_args.verbosity >= 1:
         logging.info(f'Wrote changes to "{cli_args.output_project}"')
-
-
-def make_project_path_name(project_dir_name, project_file_name):
-    """
-    Make a path name to a project.
-
-    Args:
-        project_dir_name: The directory name of the project.
-        project_file_name: The file name of the project.
-
-    Returns:
-        The path name to the .ifrac file for this project.
-    """
-    return str(project_dir_name.joinpath(project_file_name))
-
-
-def make_target_file_name_from_source(source_file_name):
-    """
-    Make a file name for the changed project file name from the original project file name.
-
-    Args:
-        source_file_name: The file name of the project originally read.
-
-    Returns:
-        The project file name with a `.999` suffix inserted before the `.ifrac` suffix.
-    """
-    return ''.join([source_file_name.stem, '.999', source_file_name.suffix])
 
 
 if __name__ == '__main__':
