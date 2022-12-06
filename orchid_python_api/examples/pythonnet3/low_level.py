@@ -34,6 +34,7 @@ import orchid
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr
 
+import collections.abc
 import pprint  # Used to "pretty-print" complex data, for example, lists
 import textwrap  # Help to format pretty printed text
 
@@ -278,5 +279,80 @@ paragraph('Similarly, creating an empty .NET `List` of .NET `Leakoff.ControlPoin
 working_control_points = List[Leakoff.ControlPoint]()
 working_control_points.Add(python_control_points[0])
 working_control_points.Add(python_control_points[1])
+
+wait_for_input()
+
+section('2 .NET Collections and arrays implement `collections.abc` "interfaces"')
+
+sub_section('2.1 .NET Collections and arrays no longer automatically converted to Python `list` instances')
+
+paragraph('Python.NET 2.5.2 implicitly converted all .NET Collections and arrays into Python `list` instances. These'
+          ' implicit conversions occurred both for types like `List[Int32]` and for other third-party types like '
+          '`DynamicData.Items`.')
+
+paragraph('Python.NET 3 seems to convert .NET Collection types, like, `List`, to `collections.abc.Container` so that '
+          '`len` acts as expected.')
+
+paragraph('For example, a .NET value of type `List[Int32]` supports `len`.')
+
+a_net_list = List[Int32]()
+a_net_list.Add(1)
+a_net_list.Add(2)
+a_net_list.Add(3)
+pretty_print_with_header(len(a_net_list) == 3, 'len(a_net_list) == 3')
+
+wait_for_input()
+
+paragraph('A .NET value of type `List[Int32]` is converted to a `collections.abc.Collection` which is `Sized`.')
+pretty_print_with_header(type(a_net_list), 'type(a_net_list)')
+pretty_print_with_header(isinstance(a_net_list, collections.abc.Collection),
+                         'isinstance(a_net_list, collections.abc.Collection)')
+
+paragraph('The following comment,')
+print('  https://github.com/pythonnet/pythonnet/issues/1153#issuecomment-926143701')
+empty_line()
+paragraph('indicates that the `pythonnet-2.5.2` implicit conversions from .NET `List` to a Python `list` is not '
+          'supported in Python.NET 3.')
+pretty_print_with_header(isinstance(a_net_list, list), 'isinstance(a_net_list, list)')
+
+wait_for_input()
+
+sub_section('2.2 Error raised when calling `len` with instance of .NET DynamicData')
+
+paragraph('The type of `ObservationSets.Items` is the **.NET type**')
+
+net_observation_sets_items = bakken.dom_object.ObservationSets.Items
+pretty_print_with_header(net_observation_sets_items, 'net_observation_sets_items')
+pretty_print_with_header(type(net_observation_sets_items), 'type(net_observation_sets_items)')
+
+wait_for_input()
+
+paragraph('However, the .NET `IProject` property, `ObservationSets.Items`, only implements the '
+          '`collection.abc.Iterator` "interface."')
+
+pretty_print_with_header(isinstance(net_observation_sets_items, collections.abc.Collection),
+                         'isinstance(net_observation_sets_items, collections.abc.Collection)')
+pretty_print_with_header(isinstance(net_observation_sets_items, collections.abc.Container),
+                         'isinstance(net_observation_sets_items, collections.abc.Container)')
+pretty_print_with_header(isinstance(net_observation_sets_items, collections.abc.Iterator),
+                         'isinstance(net_observation_sets_items, collections.abc.Iterator)')
+pretty_print_with_header(isinstance(net_observation_sets_items, collections.abc.Sequence),
+                         'isinstance(net_observation_sets_items, collections.abc.Sequence)')
+pretty_print_with_header(isinstance(net_observation_sets_items, collections.abc.Iterable),
+                         'isinstance(net_observation_sets_items, collections.abc.Iterable)')
+
+wait_for_input()
+
+paragraph('One either uses the result of `ObservationSets.Items` in a `for` loop')
+observation_sets = []
+for observation_set_item in bakken.dom_object.ObservationSets.Items:
+    observation_sets.append(observation_set_item)
+observation_sets
+pretty_print_with_header(len(observation_sets), 'len(observation_sets)')
+
+paragraph('Or one uses the result if `ObservationSets.Items` in a list comprehension.')
+alt_observation_sets = [i for i in bakken.dom_object.ObservationSets.Items]
+alt_observation_sets
+pretty_print_with_header(len(alt_observation_sets), 'len(alt_observation_sets)')
 
 wait_for_input()
