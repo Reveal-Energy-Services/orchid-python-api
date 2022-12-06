@@ -41,6 +41,10 @@ import pendulum
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics import Leakoff
+# noinspection PyUnresolvedReferences
+import UnitsNet
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import (
@@ -53,6 +57,10 @@ from System import (
     InvalidCastException,
     TimeSpan,
 )
+
+clr.AddReference('System.Collections')
+# noinspection PyUnresolvedReferences,PyPackageRequiremests
+from System.Collections.Generic import List
 
 
 DEFAULT_TEXTWRAP_WIDTH = 70
@@ -147,8 +155,8 @@ sub_section('1.1 Adding attributes with integer values requires conversion')
 
 # (This issue occurred in **both** internal testing and low-level script testing and so is duplicated.)
 
-paragraph("""Under Python.NET 2.5.2, one could supply a Python `int` value to the `SetAttribute` call for an 
-`IAttribute` with a `System.Int32` value.""")
+paragraph('Under Python.NET 2.5.2, one could supply a Python `int` value to the `SetAttribute` call for an `IAttribute`'
+          ' with a `System.Int32` value.')
 
 paragraph('(This scenario requires significant set up. Please wait patiently...)')
 
@@ -171,7 +179,7 @@ maybe_stage = demo_1h.stages().find_by_display_stage_number(7)
 assert maybe_stage is not None
 stage_7 = maybe_stage
 
-paragraph("""Executing this same code, under Python.NET 3, raises an `ArgumentException`.""")
+paragraph('Executing this same code, under Python.NET 3, raises an `ArgumentException`.')
 
 # Add attribute with value, 17, to stage 7, with Python `int` type.
 with (orchid.dot_net_disposable.disposable(stage_7.dom_object.ToMutable())) as mutable_stage:
@@ -199,20 +207,76 @@ assert actual_attribute_value == 7
 
 wait_for_input()
 
-sub_section('1.2 `Leakoff.ControlPoints` and no ValueType() ctor error')
+sub_section('1.2 `Leakoff.ControlPoints` constructor and no `ValueType()` ctor error')
 
-paragraph("""This issue seems similar to the internal test issue in which the .NET `TimeSpan` class did not have a 
-default constructor, but Python.NET 2.5.2 accepted the expression, `TimeSpan()`, and appeared to 'do the right 
-thing.'""")
+paragraph('This issue seems similar to the internal test issue in which the .NET `TimeSpan` class did not have a'
+          ' default constructor, but Python.NET 2.5.2 accepted the expression, `TimeSpan()`, and appeared to'
+          ' "do the right thing."')
 
-paragraph("""In this situation, our low-level example code contained the expression:""")
+paragraph('In this situation, our low-level example code contained the expression:')
 
-paragraph("""
-```Leakoff.ControlPoint(DateTime=some_time, Pressure=some_pressure)```
+paragraph('  `Leakoff.ControlPoint(DateTime=some_time, Pressure=some_pressure)`')
+
+# Initialize the start and end control points details
+end_time = DateTime.UtcNow
+end_pressure = UnitsNet.Pressure(104.8, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+
+start_time = end_time.Subtract(TimeSpan.FromMinutes(10))
+start_pressure = UnitsNet.Pressure(95.64, UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
+
+# Initialize a .NET `List` of `Leakoff.ControlPoints` to add points to
+error_control_points = List[Leakoff.ControlPoint]()
+
+paragraph('Although Python.NET 2.5.2 "just worked" with this expression, executing this expression'
+          ' using Python.NET 3 raises an exception with an obscure error message.')
+
+try:
+    error_control_points.Add(
+        Leakoff.ControlPoint(Date=start_time, Pressure=start_pressure),
+        Leakoff.ControlPoint(Date=end_time, Pressure=end_pressure)
+    )
+except TypeError as te:
+    print(f'TypeError: {te}')
+empty_line()
+
+wait_for_input()
+
+paragraph('The Orchid team ran some experiments in C#. We observed:')
+
+print("""- Code that created a `List<Leakoff.ControlPoint>()` and then called
+  `List.Add()` ran without any errors.
+- Code that tried to invoke the "constructor",
+  `Leakoff.ControlPoint(DateTime, Pressure)` failed to compile.
 """)
 
-paragraph("""Although Python.NET 2.5.2 seemed to "do the right thing" with this expression, executing this expression 
-using Python.NET 3 raises an exception with a somewhat obscure (in retrospect) error message.
+paragraph('These observations led us to the hypothesis that `pythonnet-2.5.2` performed additional, behind the scenes '
+          'work to convert the Python expression:')
+
+print('  `Leakoff.ControlPoint(DateTime.UtcNow, Pressure.FromPoundsForcePerSquareInt(100))`')
+empty_line()
+
+paragraph('into the equivalent C# code:')
+
+print("""```
+var controlPoint = new Leakoff.ControlPoint();
+controlPoint.Date = DateTime.UtcNow;
+controlPoint.Pressure = Pressure.FromPoundsForcePerSquareInch(100);
+```
 """)
+
+paragraph('Creating a Python `list` of .NET `Leakoff.ControlPoint` instances and setting the `DateTIme` and'
+          ' `Pressure` properties succeeds')
+python_control_points = [Leakoff.ControlPoint(), Leakoff.ControlPoint()]
+python_control_points[0].DateTime = start_time
+python_control_points[0].Pressure = start_pressure
+python_control_points[1].DateTime = end_time
+python_control_points[1].Pressure = end_pressure
+
+paragraph('Similarly, creating an empty .NET `List` of .NET `Leakoff.ControlPoint` instances and adding '
+          '`Leakoff.ControlPoint` instances succeeds.')
+
+working_control_points = List[Leakoff.ControlPoint]()
+working_control_points.Add(python_control_points[0])
+working_control_points.Add(python_control_points[1])
 
 wait_for_input()
