@@ -974,8 +974,8 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
     - Navigate to the directory associated with the virtual environment
-    - If necessary, activate the virtual environment.
-    - Run `copy_orchid_examples`.
+    - If necessary, activate the virtual environment
+    - Run `copy_orchid_examples`
     - If the executable reports that it skipped files, repeat the command with an additional argument:  
       `copy_orchid_examples --overwrite`
     - Verify that the current directory has six example notebooks:
@@ -1075,8 +1075,8 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
   - Navigate to the directory associated with the virtual environment
-  - If necessary, activate the virtual environment.
-  - Run `copy_orchid_low_level_examples`.
+  - If necessary, activate the virtual environment
+  - Run `copy_orchid_low_level_examples`
   - If the executable reports that it skipped files, repeat the command with an additional argument:  
     `copy_orchid_low_level_examples --overwrite`
   - Verify that the current directory has one example notebooks:
@@ -1163,8 +1163,8 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
     [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
 - If you are testing a `pipenv` virtual environment or a `conda` environment,
   - Navigate to the directory associated with the virtual environment
-  - If necessary, activate the virtual environment.
-  - Run `copy_orchid_manual_examples`.
+  - If necessary, activate the virtual environment
+  - Run `copy_orchid_manual_examples`
   - If the executable reports that it skipped files, repeat the command with an additional argument:  
     `copy_orchid_manual_examples --overwrite`
   - Verify that the current directory has one example notebook:
@@ -1249,10 +1249,20 @@ If testing against an Orchid release, [Install Orchid release](#install-orchid-r
       [configure the Orchid Python API to find the Orchid installation](#configure-the-orchid-python-api)
     - You **must**
       [configure the Orchid Python API to find the Orchid training data](#configure-the-orchid-training-data)
-    - Navigate to `/path/to/repo`
-    - If orchid-python-api is installed in the virtual environment,
-        - Run `python ./copy_orchid_tutorials.py` to copy the tutorials to the current directory
-    - If orchid-python-api not (yet) installed,
+    - If you are testing a `pipenv` virtual environment or a `conda` environment,
+      - Navigate to the directory associated with the virtual environment
+      - If necessary, activate the virtual environment
+      - Run `copy_orchid_tutorials`
+      - If the executable reports that it skipped files, repeat the command with an additional argument:  
+        `copy_orchid_tutorials --overwrite`
+      - Verify that the current directory has one example notebook:
+        - `dom_navigation_tutorial.ipynb`
+      - Verify that the current directory has one example script:
+        - `dom_navigation_tutorial.py`
+    - If you are testing a `poetry` virtual environment
+      - If orchid-python-api is installed in the virtual environment,
+        - Run `python ./copy_orchid_tutorial.py` to copy the tutorials to the current directory
+      - If orchid-python-api not (yet) installed,
         - Copy the tutorial notebooks to the orchid project repository root
           ```
           copy ./orchid_python_api/tutorials/*.ipynb </path/to/orchid_repo>
