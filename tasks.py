@@ -106,7 +106,7 @@ def remove_files_matching_pattern(glob_pattern):
     Remove all files matching (using glob) `glob_pattern`.
 
     If this function cannot remove a file because of on instance of `OSError`, it prints a message instead of
-    failing. Additionally, if a file initially found by our search is subsequently not fund, print no message
+    failing. Additionally, if a file initially found by our search is subsequently not found, print no message
     and continue processing.
 
     Args:
@@ -418,13 +418,13 @@ def pipfile_to_poetry(_context):
 
 
 @task
-def pipenv_create_venv(context, dirname='.', python_ver='3.8.10'):
+def pipenv_create_venv(context, dirname='.', python_ver='3.10.9'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
         context: The task context.
         dirname (str): The pathname of the directory whose virtual environment is to be created. (Default '.')
-        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.10).
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.10.9).
     """
     with context.cd(dirname):
         context.run(f'pipenv install --python={python_ver}')
@@ -501,19 +501,19 @@ def poetry_configure_test_pypi(context):
 
 
 @task
-def poetry_create_venv(context, dirname='.', python_ver='3.8.10'):
+def poetry_create_venv(context, dirname='.', python_ver='3.10.9'):
     """
     Create the virtual environment associated with `dirname` (Python interpreter only).
     Args:
         context: The task context.
         dirname (str): The pathname of the directory whose virtual environment is to be created. (Default '.')
-        python_ver (str): The version of Python to install in the virtual environment (Default: 3.8.10).
+        python_ver (str): The version of Python to install in the virtual environment (Default: 3.10.9).
     """
     python_minor_versions = ['37', '38']
     python_exe_relative_paths = [pathlib.Path('Programs').joinpath('Python', f'Python{v}', 'python.exe') for
                                  v in python_minor_versions]
     python_paths = [pathlib.Path(os.environ['LOCALAPPDATA']).joinpath(rp) for rp in python_exe_relative_paths]
-    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.10'), python_paths)}
+    python_option_map = {version: path for version, path in zip(('3.7.7', '3.8.10', '3.10.9'), python_paths)}
     python_option = python_option_map.get(python_ver, '')
     with context.cd(dirname):
         context.run(f'poetry env use {python_option}')

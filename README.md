@@ -162,7 +162,7 @@ Then, change into that project directory.
 
 ### Step-by-step pipenv install
 
-- Install python 3.8 by following [these installation instructions](https://docs.python.org/3/using/windows.html). To 
+- Install python 3.10 by following [these installation instructions](https://docs.python.org/3/using/windows.html). To 
   ensure access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
   [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 - Open a console using either `powershell` or the Windows console.
@@ -195,7 +195,7 @@ ecosystem and, within that virtual environment, use `pip` to install `orchid-pyt
 - Optionally create a directory for your work.
     - We symbolically call it `/path/to/orchid-virtualenv`.
     - Change to the current working directory by executing `chdir /path/to/orchid-virtualenv`.
-- Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.8`.
+- Create an empty virtual environment by running `conda create --name <your-virtualenv-name> python=3.10`.
 - Activate the virtual environment by running `conda activate <your-virtualenv_name>`
 - Install Orchid by running `pip install orchid-python-api`.
 
