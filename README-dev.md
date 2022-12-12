@@ -188,7 +188,7 @@ uses `poetry` because of its support for developer tasks such as packaging and p
 
 #### Install Python
 
-Install python 3.8 by following [these instructions](https://docs.python.org/3/using/windows.html). To ensure
+Install python 3.10 by following [these instructions](https://docs.python.org/3/using/windows.html). To ensure
 access from the command line, be sure to select the "Add Python 3.x to PATH" option on the
 [installer start page](https://docs.python.org/3/_images/win_installer.png). 
 
@@ -285,7 +285,7 @@ the workstation.
 
 To avoid these conflicting changes to `PythonApi.iml` and `.idea/misc.xml`, we use a technique recommended by
 JetBrains in [this YouTrack issue](https://youtrack.jetbrains.com/issue/PY-20228). We have agreed to name our
-`PyCharm` interpreter configuration using the "well known" name, "orchid-python-api-dev-py3.8". This choice
+`PyCharm` interpreter configuration using the "well known" name, "orchid-python-api-dev-py3.10". This choice
 replaces the suffix specific to the user or machine with `dev`. It does encode the Python interpreter
 version, but `poetry`, we believe, uses this encoding to support use of different interpreters.
 
@@ -710,7 +710,7 @@ If using the command line,
 
 - Create a new, clean virtual environment by:
   - Execute the command `poetry env use <python-path>` where `<python-path>` is the pathname of the
-    Python interpreter to use for  the environment (currently Python 3.8.10 for the Orchid Python API).
+    Python interpreter to use for  the environment (currently Python 3.10.9 for the Orchid Python API).
 
 If using `python invoke`,
 
@@ -769,7 +769,7 @@ If using the command line,
 
 - Create a new, clean virtual environment by:
   - Execute the command `pipenv install --python=<python_ver>` where `python_ver` is the version of Python
-    used by the Orchid Python API (currently 3.8.10).
+    used by the Orchid Python API (currently 3.10.9).
 
 If using `python invoke`,
 
@@ -847,7 +847,7 @@ tested these instructions in that environment.
     ```
     conda create --name orchid python=<python-version>
     ```
-    where `python_ver` is the version of Python used by the Orchid Python API (currently 3.8.10).
+    where `python_ver` is the version of Python used by the Orchid Python API (currently 3.10.9).
   - If you see errors or warnings, attempt to [resolve conda create issues](#resolve-conda-create-issues)
     and then execute the previous command.
 
