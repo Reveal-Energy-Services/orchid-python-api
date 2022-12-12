@@ -15,11 +15,6 @@
 # This file is part of Orchid and related technologies.
 #
 
-# noinspection PyPackageRequirements
-from behave import *
-
-use_step_matcher("parse")
-
 import pathlib
 import shutil
 import subprocess
@@ -33,6 +28,10 @@ import toolz.curried as toolz
 import orchid
 
 import parse_script_output as pso
+
+# noinspection PyPackageRequirements
+from behave import *
+use_step_matcher("parse")
 
 
 class ExtendedParseError(Exception):

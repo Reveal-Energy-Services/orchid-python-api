@@ -163,7 +163,7 @@ class TestNetDateTime(unittest.TestCase):
     def test_as_duration(self):
         for net_time_span, expected in [
             (TimeSpan(0, 0, 36, 36, 989), pendulum.duration(hours=0, minutes=36, seconds=36, microseconds=989000)),
-            (TimeSpan(), pendulum.duration()),
+            (TimeSpan(0), pendulum.duration()),
             # The printed representation of the following time span is "-1 day, 8:44:17.856000"
             (TimeSpan(0, -15, -15, -42, -144), pendulum.duration(hours=-15, minutes=-15,
                                                                  seconds=-42, microseconds=-144000)),

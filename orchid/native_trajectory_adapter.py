@@ -92,7 +92,7 @@ class NativeTrajectoryAdapterIdentified(dna.IdentifiedDotNetAdapter):
         Returns:
             The array of eastings of this trajectory.
         """
-        return self._trajectory_length_array(self.dom_object.GetEastingArray(reference_frame))
+        return self._trajectory_length_array(self.dom_object.GetEastingArray(reference_frame.value))
 
     # TODO: Consider alternative interface, get_northings()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
@@ -122,7 +122,7 @@ class NativeTrajectoryAdapterIdentified(dna.IdentifiedDotNetAdapter):
             The array of northings of this trajectory.
 
         """
-        return self._trajectory_length_array(self.dom_object.GetNorthingArray(reference_frame))
+        return self._trajectory_length_array(self.dom_object.GetNorthingArray(reference_frame.value))
 
     # TODO: Consider alternative interface, get_tvd_sss()
     # See [pint Numpy support](https://pint.readthedocs.io/en/stable/numpy.html) or the
@@ -231,7 +231,7 @@ class NativeTrajectoryAdapterIdentified(dna.IdentifiedDotNetAdapter):
         Returns:
             The array of total vertical depths of this trajectory.
         """
-        return self._trajectory_length_array(self.dom_object.GetTvdArray(depth_datum))
+        return self._trajectory_length_array(self.dom_object.GetTvdArray(depth_datum.value))
 
     @staticmethod
     def _trajectory_angle_array(raw_array):

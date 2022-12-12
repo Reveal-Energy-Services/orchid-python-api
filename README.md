@@ -15,6 +15,12 @@ This document is one of several documents you may want to read:
 - [README-dev.md](./README-dev.md) - A similar file targeting for package developers.
 - [ReleaseNotes.md](./ReleaseNotes.md) - The release notes for this project.
 
+Additionally, as part of the 2022.4 release, we upgraded `pythonnet`, the package we use to expose .NET to the Python
+runtime, from version 2.5.2 to version 3.0.0.post1. This upgrade is a breaking upgrade. The document, 
+[README-pythonnet3.md](./README-pythonnet3.md), describes the changes that we needed to make to the Orchid Python API to
+repair failing internal tests. The document, [README-pythonnet3-low.md](./README-pythonnet3-low.md), describes the 
+changes that we needed to make to the Orchid Python API to repair failing low-level examples.
+
 Although one can read this document in any text editor since it is simply a text file, consider installing
 the [Python grip utility](https://pypi.org/project/grip/). This application allows one to "render local readme
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 

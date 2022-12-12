@@ -13,6 +13,32 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 2022.4.999
+
+This release is the production release of the Orchid Python API corresponding to Orchid 2022.4.999. The main
+feature in this release is.... 
+
+#### Possible breaking .NET API changes
+
+- Orchid now requires specifying a time zone when reading a project from disk. A typical default value for this argument
+  is `System.TimeZoneInfo.Utc` but this value should indicate the time zone of the project.
+
+#### Resolved Issues
+
+- [GitHub issue 38](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/38)
+
+#### Features
+
+- Data frames
+  - Implements support for reading data frames with columns of the .NET type, `System.Guid`
+  - Provides a warning if the Orchid Python API detects data frames with **duplicated** object IDs. This issue
+    is a known issue with Orchid releases at or below 2022.3. In addition to calling attention to the issue, the
+    Python warning documents workarounds for this issue.
+
+#### Known Issues
+
+- None
+
 ### Release notes for 2022.3.273
 
 This release is the production release of the Orchid Python API corresponding to Orchid 2022.3.273. The main 
@@ -40,7 +66,6 @@ its documentation consistent with Orchid.
 #### Known Issues
 
 - None
-
 
 ### Release notes for 2022.2.338
 

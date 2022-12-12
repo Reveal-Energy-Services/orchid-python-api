@@ -31,7 +31,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from System import InvalidOperationException
+from System import InvalidOperationException, TimeZoneInfo
 # noinspection PyUnresolvedReferences
 from System.IO import (FileStream, FileMode, FileAccess, FileShare)
 # noinspection PyUnresolvedReferences
@@ -129,7 +129,7 @@ class ProjectStore:
         """
         with sac.ScriptAdapterContext():
             reader = ScriptAdapter.CreateProjectFileReader(dot_net.app_settings_path())
-            self._native_project = reader.Read(pathname_to_str(self._project_pathname))
+            self._native_project = reader.Read(pathname_to_str(self._project_pathname), TimeZoneInfo.Utc)
 
     def save_project(self, project):
         """

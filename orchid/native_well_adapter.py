@@ -105,7 +105,7 @@ class NativeWellAdapter(dpo.DomProjectObject):
         sample_at = Array[UnitsNet.Length](toolz.map(onq.as_net_quantity(self.expect_project_units.LENGTH),
                                                      md_kb_values))
         result = toolz.pipe(
-            self.dom_object.GetLocationsForMdKbValues(sample_at, well_reference_frame_xy, depth_origin),
+            self.dom_object.GetLocationsForMdKbValues(sample_at, well_reference_frame_xy.value, depth_origin.value),
             toolz.map(nsp.make_subsurface_point(self.expect_project_units.LENGTH)),
             list,
         )

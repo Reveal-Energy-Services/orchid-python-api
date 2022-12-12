@@ -416,10 +416,10 @@ class WellDto:
 
             def is_matching_args(to_test):
                 to_test_samples, to_test_frame, to_test_datum = to_test
-                if to_test_frame != frame:
+                if to_test_frame.value != frame:
                     return False
 
-                if to_test_datum != datum:
+                if to_test_datum.value != datum:
                     return False
 
                 each_equals = toolz.map(onq.equal_net_quantities, to_test_samples, md_kb_values)

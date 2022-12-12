@@ -17,7 +17,7 @@
 
 
 import dataclasses as dc
-from enum import IntEnum
+import enum
 import math
 from typing import Optional, Tuple, Union
 
@@ -64,10 +64,11 @@ VALID_LENGTH_UNIT_MESSAGE = 'The parameter, `in_length_unit`, must be a unit sys
 _object_factory = fdf.create()
 
 
-class ConnectionType(IntEnum):
-    PLUG_AND_PERF = FormationConnectionType.PlugAndPerf,
-    SLIDING_SLEEVE = FormationConnectionType.SlidingSleeve,
-    SINGLE_POINT_ENTRY = FormationConnectionType.SinglePointEntry,
+# TODO: Consider adding base with methods like `toNetEnum` and `fromNetEnum`
+class ConnectionType(enum.Enum):
+    PLUG_AND_PERF = FormationConnectionType.PlugAndPerf
+    SLIDING_SLEEVE = FormationConnectionType.SlidingSleeve
+    SINGLE_POINT_ENTRY = FormationConnectionType.SinglePointEntry
     OPEN_HOLE = FormationConnectionType.OpenHole
 
 

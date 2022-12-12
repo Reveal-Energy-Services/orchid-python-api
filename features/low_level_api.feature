@@ -23,7 +23,7 @@ Feature: Low-level DOM API
   Scenario Outline: Create stage attribute using the .NET API
     Given I have loaded the project for the field, '<field>'
     When I add the attribute named '<attribute_name>' of type `<attribute_type>' to well, `<well>', of the project
-    And I set the attribute value of '<attribute_name>' of stage, <stage_no>, of '<well>' to the <attribute_value>
+    And I set the attribute value of '<attribute_name>' of stage, <stage_no>, of '<well>' to <attribute_value>
     Then I see the attribute value of '<attribute_name>' of stage, <stage_no>, of '<well>' equals <attribute_value>
 
     Examples: Bakken stage length

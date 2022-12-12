@@ -99,7 +99,7 @@ def step_impl(context, attribute_name, attribute_type, well):
 
 
 # noinspection PyBDDParameters
-@step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to the {attribute_value}")
+@step("I set the attribute value of '{attribute_name}' of stage, {stage_no:d}, of '{well}' to {attribute_value}")
 def step_impl(context, attribute_name, stage_no, well, attribute_value):
     """
     Args:
@@ -114,9 +114,35 @@ def step_impl(context, attribute_name, stage_no, well, attribute_value):
     assert len(candidate_attributes) == 1, (f'Expected single attribute of well {well},'
                                             f' but found {len(candidate_attributes)}')
     to_set_attribute = candidate_attributes[0]
+
+    # This expression seems superfluous. I'm a little unclear myself.
+    # Here's my working hypothesis. The function, `_set_stage_attribute`,
+    # is passed an actual second argument named,
+    # `make_attribute_value_func`, that is of type, `Callable`.
+    # `_set_stage_attribute` calls `make_attribute_value_func` with the
+    # argument `actual_attribute`. The actual value of this argument is
+    # supplied by a `behave` example and is of type `str`. If
+    # `make_attribute_value_func == int`, the `str` value is converted,
+    # but to a **Python** `int`. The attribute; however, expects a value of
+    # type, `System.Int32`, so it throws an exception.
+    #
+    # My first change was to supply the value, `Int32.Parse`, as the actual
+    # value of the `make_attribute_value_func` argument. This function will
+    # convert a `str` value to a value of type, `System.Int32`. My hypothesis
+    # is that the call to the method, `SetAttribute`, because it is made
+    # through Python.NET, results in converting the `Int32` value to a
+    # Python `int` again raising the exception.
+    #
+    # Consequently, the implementation of `str_to_net_int32` has this
+    # unusual implementation of converting a `str` to a Python `int` (by
+    # calling `int`) and then invoking `Int32` to convert the Python `int`
+    # to a .NET `System.Int32`. I'm unclear why this result appears to be
+    # passed **unchanged** to the method `SetAttribute`.
+    str_to_net_int32 = toolz.compose(Int32, int)
+
     attribute_name_to_set_func = {
         'My Stage Length': _set_stage_attribute(to_set_attribute, _to_length_measurement),
-        'My Global Stage Sequence Number': _set_stage_attribute(to_set_attribute, int),
+        'My Global Stage Sequence Number': _set_stage_attribute(to_set_attribute, str_to_net_int32),
     }
 
     stage = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)

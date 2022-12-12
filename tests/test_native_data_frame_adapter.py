@@ -82,25 +82,37 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             (49.4775, 49.4775),
             ('succurro', 'succurro'),
             (DBNull.Value, None),
-            (DateTimeOffset.MaxValue, pd.NaT),
             (DateTimeOffset(DateTime(2021, 1, 31, 20, 52, 52, 766, DateTimeKind.Utc).Add(TimeSpan(5108))),
              # TODO: converted value is incorrect. See GitHub bug #21.
              # Should be pendulum.datetime(2021, 1, 31, 20, 52, 52, 766511),
              pendulum.datetime(2021, 1, 31, 20, 52, 52, 766000)),
             (TimeSpan(0, 11, 52, 16, 444).Add(TimeSpan(7307)),
              pendulum.duration(hours=11, minutes=52, seconds=16, microseconds=444731)),
-            (TimeSpan.MaxValue, pd.NaT),
-            (TimeSpan.MinValue, pd.NaT),
             (Guid('54504a96-81e6-47a0-b9dc-6770898517f8'), uuid.UUID('54504a96-81e6-47a0-b9dc-6770898517f8'))
         ]:
             with self.subTest(f'Convert .NET cell, {net_value}, to {expected}'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
 
-                if (net_value == DateTimeOffset.MaxValue or net_value == TimeSpan.MaxValue or
-                        net_value == TimeSpan.MinValue):
-                    assert_that(pd.isna(actual), equal_to(True))
-                else:
-                    assert_that(actual, equal_to(expected))
+                assert_that(actual, equal_to(expected))
+
+    def test_net_cell_to_pandas_cell_date_time_offset_max_value(self):
+        for net_value, expected in [
+            (DateTimeOffset.MaxValue, pd.NaT),
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_value}, to {expected}'):
+                actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
+
+                assert_that(pd.isna(actual), equal_to(True))
+
+    def test_net_cell_to_pandas_cell_time_span_max_and_min_values(self):
+        for net_value, expected in [
+            (TimeSpan.MaxValue, pd.NaT),
+            (TimeSpan.MinValue, pd.NaT),
+        ]:
+            with self.subTest(f'Convert .NET cell, {net_value}, to {expected}'):
+                actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
+
+                assert_that(pd.isna(actual), equal_to(True))
 
     def test_net_cell_to_pandas_cell_3Mdays_work_around(self):
         for net_value, expected in [
@@ -113,13 +125,14 @@ class TestNativeDataFrameAdapter(unittest.TestCase):
             #
             # This test considers the situation in which the "Pick Time" is undefined.
             (DateTimeOffset.MaxValue.Subtract(
-                DateTimeOffset(DateTime(2022, 8, 17, 10, 39, 4, 470).Add(TimeSpan(6671)), TimeSpan())), pd.NaT),
+                DateTimeOffset(DateTime(2022, 8, 17, 10, 39, 4, 470).Add(TimeSpan(6671)),
+                               TimeSpan.FromTicks(0))), pd.NaT),
             # This test considers the situation in which the "Stage Part Start Time" is undefined.
-            (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)), TimeSpan()).Subtract(
-                DateTimeOffset.MinValue), pd.NaT),
+            (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)),
+                            TimeSpan.FromTicks(0)).Subtract(DateTimeOffset.MinValue), pd.NaT),
             # This test considers the situation in which the "Stage Part Start Time" is undefined.
-            (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)), TimeSpan()).Subtract(
-                DateTimeOffset.MinValue), pd.NaT),
+            (DateTimeOffset(DateTime(2024, 9, 26, 17, 10, 29, 645).Add(TimeSpan(8001)),
+                            TimeSpan.FromTicks(0)).Subtract(DateTimeOffset.MinValue), pd.NaT),
         ]:
             with self.subTest(f'Convert .NET cell, {net_value.ToString()}, to {expected} for too large time span'):
                 actual = dfa.net_cell_value_to_pandas_cell_value(net_value)
