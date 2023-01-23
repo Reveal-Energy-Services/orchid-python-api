@@ -13,31 +13,38 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
-### Release notes for 2022.4.999
+### Release notes for 2022.4.252
 
-This release is the production release of the Orchid Python API corresponding to Orchid 2022.4.999. The main
-feature in this release is.... 
+This release is the production release of the Orchid Python API corresponding to Orchid 2022.4.252. The main
+features in this release are the upgrade of the internal package, `pythonnet`, to version `3.x`, and the change 
+requiring Python 3.10 for the runtime environment.
 
 #### Possible breaking .NET API changes
 
+- The Orchid Python API no longer uses `pythonnet-2.x`; instead, it requires at least `pythonnet-3.0.0.post1`.
+- The Orchid Python API no longer supports Python 3.8; instead it requires at least Python 3.10.
 - Orchid now requires specifying a time zone when reading a project from disk. A typical default value for this argument
-  is `System.TimeZoneInfo.Utc` but this value should indicate the time zone of the project.
+  is `System.TimeZoneInfo.Utc` but this value should specify the time actual zone of the project itself.
 
 #### Resolved Issues
 
-- [GitHub issue 38](https://github.com/Reveal-Energy-Services/orchid-python-api/issues/38)
+- None
 
 #### Features
 
-- Data frames
-  - Implements support for reading data frames with columns of the .NET type, `System.Guid`
-  - Provides a warning if the Orchid Python API detects data frames with **duplicated** object IDs. This issue
-    is a known issue with Orchid releases at or below 2022.3. In addition to calling attention to the issue, the
-    Python warning documents workarounds for this issue.
+- Upgrade dependencies of the Orchid Python API to `pythonnet-3.x`. This upgrade causes some examples to break. See the
+  two files below for examples of breakages discovered by the development team.
+  - [Breakages because of Python.NET 3](./README-pythonnet3.md)
+  - [Breakages in low-level code because of Python.NET 3](./README-pythonnet3-low.md)
+- Upgrade the minimum Python version from 3.8 to 3.10. This upgrade is needed to support the upgrade to `pythonnet-3.x`.
 
 #### Known Issues
 
-- None
+- The upgrade to `pythonnet-3.x` causes some code and examples to break. See the two files below for examples of 
+  breakages discovered by the development team.
+  - [Breakages because of Python.NET 3](./README-pythonnet3.md)
+  - [Breakages in low-level code because of Python.NET 3](./README-pythonnet3-low.md)
+- One must change the minimum Python version from 3.8 to 3.10 (required by `pythonnet-3.x`).
 
 ### Release notes for 2022.3.273
 
