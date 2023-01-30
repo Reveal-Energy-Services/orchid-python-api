@@ -24,7 +24,7 @@ requiring Python 3.10 for the runtime environment.
 - The Orchid Python API no longer uses `pythonnet-2.x`; instead, it requires at least `pythonnet-3.0.0.post1`.
 - The Orchid Python API no longer supports Python 3.8; instead it requires at least Python 3.10.
 - Orchid now requires specifying a time zone when reading a project from disk. A typical default value for this argument
-  is `System.TimeZoneInfo.Utc` but this value should specify the time actual zone of the project itself.
+  is `System.TimeZoneInfo.Utc` but this value should specify the time actual time zone of the project itself.
 
 #### Resolved Issues
 
