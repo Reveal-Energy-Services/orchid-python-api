@@ -23,7 +23,7 @@ import warnings
 
 # noinspection PyPackageRequirements
 from behave import *
-from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly, is_, instance_of
+from hamcrest import assert_that, not_none, equal_to, has_length, contains_exactly
 import option
 import parsy
 import pendulum
@@ -290,13 +290,21 @@ def _convert_signal_quality(signal_quality_text):
     return signal_quality_text
 
 
-def _parsed_date_with_correct_utc(text_time_point):
+def _parsed_date_with_correct_utc_and_americas_chicago(text_time_point):
     raw_parsed_time_point = pendulum.parse(text_time_point)
     parsed_time_point = raw_parsed_time_point.set(microsecond=round(raw_parsed_time_point.microsecond, -3))
-    if parsed_time_point.timezone_name != '+00:00':
+    # HACK
+    # We encountered a problem equating timestamps during release 2023.3 which **had not** occurred previously.
+    # The following code is more robust, but I really do not know what changed between 2022.4 and 2023.3.
+    # From this issue, https://github.com/pandas-dev/pandas/issues/15986, I suspect something with `pandas` (since
+    # Pendulum has not released changes since 2020).
+    if parsed_time_point.timezone_name == '+00:00':
+        return parsed_time_point.set(tz=pendulum.UTC)
+    # Currently only support offset of -6 hours (America/Chicago without DST change)
+    elif parsed_time_point.timezone_name == '-06:00':
+        return parsed_time_point.set(tz=dt.timezone(offset=-dt.timedelta(hours=6)))
+    else:
         return parsed_time_point
-
-    return parsed_time_point.set(tz=pendulum.UTC)
 
 
 about_data_frame_columns = [
@@ -337,9 +345,9 @@ about_data_frame_columns = [
     AboutDataFrameColumn('northing', 'Northing', _convert_maybe_value(float)),
     AboutDataFrameColumn('obs_set_name', 'ObservationSetName', _convert_maybe_value(str)),
     AboutDataFrameColumn('p_amplitude', 'P Amplitude', _convert_maybe_value(float)),
-    AboutDataFrameColumn('part_end_time', 'PartEndTime', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('part_end_time', 'PartEndTime', _convert_maybe_value(_parsed_date_with_correct_utc_and_americas_chicago)),
     AboutDataFrameColumn('part_num', 'PartNumber', _convert_maybe_value(float)),
-    AboutDataFrameColumn('part_end_time', 'PartEndTime', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('part_end_time', 'PartEndTime', _convert_maybe_value(_parsed_date_with_correct_utc_and_americas_chicago)),
     AboutDataFrameColumn('part_pump_time', 'PartPumpTime', _convert_maybe_value(float)),
     AboutDataFrameColumn('part_pumped_vol', 'StagePartPumpedVolume', _convert_maybe_value(float)),
     AboutDataFrameColumn('pefz_mean', 'PEFZMean', _convert_maybe_value(float)),
@@ -365,9 +373,9 @@ about_data_frame_columns = [
     AboutDataFrameColumn('stage_pumped_vol', 'StagePumpedVolume', _convert_maybe_value(float)),
     AboutDataFrameColumn('stage_no', 'StageNumber', _convert_maybe_value(float)),
     AboutDataFrameColumn('tend_max', 'TENDMax', _convert_maybe_value(float)),
-    AboutDataFrameColumn('timestamp', 'Timestamp', _convert_maybe_value(_parsed_date_with_correct_utc)),
+    AboutDataFrameColumn('timestamp', 'Timestamp', _convert_maybe_value(_parsed_date_with_correct_utc_and_americas_chicago)),
     AboutDataFrameColumn('timestamp_local', 'Timestamp((UTC-06:00) Central Time (US & Canada))',
-                         _convert_maybe_value(_parsed_date_with_correct_utc)),
+                         _convert_maybe_value(_parsed_date_with_correct_utc_and_americas_chicago)),
     AboutDataFrameColumn('tnph_ls', 'TNPH_LS', _convert_maybe_value(float)),
     AboutDataFrameColumn('tr_pressure', ' treatment pressure [psi]', _convert_maybe_value(float)),
     AboutDataFrameColumn('tr_stg_part_no', 'TreatmentStagePartNumber', _convert_maybe_value(str)),
