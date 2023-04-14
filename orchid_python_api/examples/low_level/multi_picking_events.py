@@ -32,7 +32,7 @@ import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load(
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves, MultiPickingObservation
+from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,
@@ -103,11 +103,8 @@ def multi_pick_observations(native_project, native_monitor):
                 # However, if one attempts to load such a project into Orchid, Orchid will report a "corrupted
                 # project" because at "object name is empty".
                 with dnd.disposable(picked_observation.ToMutable()) as mutable_observation:
-                    # The function `MultiPickingObservation` generates a name using the second argument as a "template".
-                    # The returned name is guaranteed to be unique within the specified observation set. One can
-                    # actually use any name that is unique within the observation set and is meaningful to engineers.
-                    unique_observation_name = MultiPickingObservation.GetUniqueName(observation_set,
-                                                                                    native_monitor.Name)
+                    # One can use any name that is unique within the observation set and is meaningful to engineers.
+                    unique_observation_name = native_monitor.Name + '-' + part.DisplayNameWithWell
                     mutable_observation.Name = unique_observation_name
 
                 # Add picked observation to observation set

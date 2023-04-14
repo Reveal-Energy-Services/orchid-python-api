@@ -32,7 +32,7 @@ import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load(
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations import (Attribute, LeakoffCurves)
+from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,
@@ -263,12 +263,12 @@ def auto_pick_observations(native_project, native_monitor):
     wells = native_project.Wells.Items
 
     # Create a new "Stage Attribute"
-    pick_attribute_1 = Attribute[Double].Create("My Attribute 1", 0.0)
+    pick_attribute_1 = object_factory.CreateAttribute[Double]("My Attribute 1", 0.0)
     # TODO: Work around for only supporting double-valued stage attributes
     # Previous releases of Orchid supported integer-valued stage attributes. However, recent releases do not support
     # integer-valued stage attributes. We recognize our need to restore this feature; however, the recommended
     # work-around is to create a double-valued attribute and transform each attribute value to a Python `float`.
-    pick_attribute_2 = Attribute[Double].Create("My Attribute 2")  # Default value is 0.0 (default for `Double` values)
+    pick_attribute_2 = object_factory.CreateAttribute[Double]("My Attribute 2")  # Default value is 0.0 (default for `Double` values)
 
     def make_well_stage_key(well_name, stage_name):
         return f'{well.Name}: {stage.Name}'

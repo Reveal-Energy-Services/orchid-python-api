@@ -30,6 +30,9 @@ Script demonstrating the changes to repair low-level examples after upgrading Py
 
 # noinspection PyUnresolvedReferences
 import orchid
+from orchid import (
+    net_fracture_diagnostics_factory as net_factory,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr
@@ -40,8 +43,6 @@ import textwrap  # Help to format pretty printed text
 
 import pendulum
 
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import Leakoff
 # noinspection PyUnresolvedReferences
@@ -63,7 +64,7 @@ clr.AddReference('System.Collections')
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System.Collections.Generic import List
 
-
+object_factory = net_factory.create()
 DEFAULT_TEXTWRAP_WIDTH = 70
 
 
@@ -169,7 +170,7 @@ demo_1h = candidate_wells[0]
 
 # Create an attribute with name, 'My New Attribute', and type, `System.Int32`
 attribute_to_add_type = Int32
-attribute_to_add = Attribute[attribute_to_add_type].Create('My New Attribute')
+attribute_to_add = object_factory.CreateAttribute[attribute_to_add_type]('My New Attribute')
 
 # Add newly created attribute to well, 'Demo_1H'
 with orchid.dot_net_disposable.disposable(demo_1h.dom_object.ToMutable()) as mutable_well:
