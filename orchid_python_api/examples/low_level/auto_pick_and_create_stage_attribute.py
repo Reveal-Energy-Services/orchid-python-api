@@ -32,7 +32,8 @@ import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load(
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations import (Attribute, LeakoffCurves)
+from Orchid.FractureDiagnostics.Factories.Implementations import LeakoffCurves
+from Orchid.FractureDiagnostics.Factories.Implementations.Attributes import Attribute
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics.SDKFacade import (
     ScriptAdapter,

@@ -36,7 +36,7 @@ from orchid import (
 import common_functions as cf
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
+from Orchid.FractureDiagnostics.Factories.Implementations.Attributes import Attribute
 # noinspection PyUnresolvedReferences
 from System import Double, Int32, String
 # noinspection PyUnresolvedReferences

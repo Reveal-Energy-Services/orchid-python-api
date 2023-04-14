@@ -40,7 +40,7 @@ import textwrap  # Help to format pretty printed text
 import pendulum
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Factories.Implementations import Attribute
+from Orchid.FractureDiagnostics.Factories.Implementations.Attributes import Attribute
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import (
