@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2022 Reveal Energy Services, Inc 
+#  Copyright (c) 2017-2023 Reveal Energy Services, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -35,11 +35,11 @@ sys.path.insert(0, os.path.abspath('../'))  # repository root
 # -- Project information -----------------------------------------------------
 
 project = 'Orchid Python Api'
-copyright = '2019-2022, Reveal Energy Services'
+copyright = '2019-2023, Reveal Energy Services'
 author = 'Reveal Energy Services'
 
 # The full version, including alpha/beta/rc tags
-release = ' 2022.4.252'
+release = '2023.1.220'
 
 
 # -- General configuration ---------------------------------------------------
