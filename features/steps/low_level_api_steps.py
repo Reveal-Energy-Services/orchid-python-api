@@ -31,17 +31,17 @@ from orchid import (
     net_quantity as onq,
     physical_quantity as opq,
     unit_system as units,
+    net_fracture_diagnostics_factory as net_factory
 )
 
 import common_functions as cf
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics.Factories.Implementations.Attributes import Attribute
-# noinspection PyUnresolvedReferences
 from System import Double, Int32, String
 # noinspection PyUnresolvedReferences
 import UnitsNet
 
+object_factory = net_factory.create()
 
 def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type):
     type_name_to_net_type = {
@@ -50,7 +50,7 @@ def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type
         'length': UnitsNet.Length,
         'string': String,
     }
-    attribute = Attribute[type_name_to_net_type[attribute_type]].Create(attribute_name)
+    attribute = object_factory.CreateAttribute[type_name_to_net_type[attribute_type]].Create(attribute_name)
     assert_that(attribute, is_(not_none()))
 
     with dnd.disposable(well.dom_object.ToMutable()) as mutable_well:

@@ -30,6 +30,9 @@ Script demonstrating the changes to repair the internal tests after upgrading Py
 
 # noinspection PyUnresolvedReferences
 import orchid
+from orchid import (
+    net_fracture_diagnostics_factory as net_factory,
+)
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr
@@ -38,9 +41,6 @@ import pprint  # Used to "pretty-print" complex data, for example, lists
 import textwrap  # Help to format pretty printed text
 
 import pendulum
-
-# noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.FractureDiagnostics.Factories.Implementations.Attributes import Attribute
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from System import (
@@ -54,6 +54,7 @@ from System import (
     TimeSpan,
 )
 
+object_factory = net_factory.create()
 
 DEFAULT_TEXTWRAP_WIDTH = 70
 
@@ -216,7 +217,7 @@ demo_1h = candidate_wells[0]
 
 # Create an attribute with name, 'My New Attribute', and type, `System.Int32`
 attribute_to_add_type = Int32
-attribute_to_add = Attribute[attribute_to_add_type].Create('My New Attribute')
+attribute_to_add = object_factory.CreateAttribute[attribute_to_add_type].Create('My New Attribute')
 
 # Add newly created attribute to well, 'Demo_1H'
 with orchid.dot_net_disposable.disposable(demo_1h.dom_object.ToMutable()) as mutable_well:
