@@ -101,26 +101,28 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
     for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
         control_point_to_add = Leakoff.ControlPoint()
         control_point_to_add.DateTime = time
-        control_point_to_add.Pressure = UnitsNet.Pressure(pressure_magnitude,
+        control_point_to_add.Value = UnitsNet.Pressure(pressure_magnitude,
                                                           UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
         control_points.Add(control_point_to_add)
     return control_points
 
 
-def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
+def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample, unit):
     """
     Calculate the leak off pressure at the time of maximum pressure.
 
     Args:
         leak_off_curve: The leak off curve to query.
         maximum_pressure_sample: The sample (magnitude and time) of maximum pressure.
+        unit: The unit for the sample.
 
     Returns:
 
     """
     query_times = List[DateTime]()
     query_times.Add(maximum_pressure_sample.Timestamp)
-    leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
+    leak_off_pressure_value = leak_off_curve.GetValues(query_times, unit)[0]
+    leak_off_pressure = UnitsNet.Pressure(leak_off_pressure_value, unit)
     return leak_off_pressure
 
 
@@ -228,7 +230,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
                                                        control_point_times)
 
     maximum_pressure_sample = calculate_maximum_pressure_sample(stage_part, stage_part_pressure_samples)
-    leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
+    leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample, native_monitor.Project.ProjectUnits.PressureUnit)
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
     with dnd.disposable(picked_observation.ToMutable()) as mutable_observation:

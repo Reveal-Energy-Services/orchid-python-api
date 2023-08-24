@@ -167,7 +167,7 @@ control_points = List[Leakoff.ControlPoint]()
 for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
     control_point_to_add = Leakoff.ControlPoint()
     control_point_to_add.DateTime = time
-    control_point_to_add.Pressure = UnitsNet.Pressure(pressuremagnitude,
+    control_point_to_add.Value = UnitsNet.Pressure(pressuremagnitude,
                                                       UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
     control_points.Add(control_point_to_add)
 ```
