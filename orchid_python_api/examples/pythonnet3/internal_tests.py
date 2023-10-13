@@ -217,7 +217,7 @@ demo_1h = candidate_wells[0]
 
 # Create an attribute with name, 'My New Attribute', and type, `System.Int32`
 attribute_to_add_type = Int32
-attribute_to_add = object_factory.CreateAttribute[attribute_to_add_type]('My New Attribute')
+attribute_to_add = object_factory.CreateAttribute[attribute_to_add_type]('My New Attribute', -1)
 
 # Add newly created attribute to well, 'Demo_1H'
 with orchid.dot_net_disposable.disposable(demo_1h.dom_object.ToMutable()) as mutable_well:
