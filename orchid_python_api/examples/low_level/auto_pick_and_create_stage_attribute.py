@@ -270,7 +270,7 @@ def auto_pick_observations(native_project, native_monitor):
     # Previous releases of Orchid supported integer-valued stage attributes. However, recent releases do not support
     # integer-valued stage attributes. We recognize our need to restore this feature; however, the recommended
     # work-around is to create a double-valued attribute and transform each attribute value to a Python `float`.
-    pick_attribute_2 = object_factory.CreateAttribute[Double]("My Attribute 2")  # Default value is 0.0 (default for `Double` values)
+    pick_attribute_2 = object_factory.CreateAttribute[Double]("My Attribute 2", 0.0)  # Default value is 0.0 (default for `Double` values)
 
     def make_well_stage_key(well_name, stage_name):
         return f'{well.Name}: {stage.Name}'

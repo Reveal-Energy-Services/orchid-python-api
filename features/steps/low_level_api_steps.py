@@ -50,7 +50,17 @@ def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type
         'length': UnitsNet.Length,
         'string': String,
     }
-    attribute = object_factory.CreateAttribute[type_name_to_net_type[attribute_type]](attribute_name)
+
+    if attribute_type == 'double':
+        default = 0.0
+    elif attribute_type == 'integer':
+        default = -1
+    elif attribute_type == 'length':
+        default = UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(0.0))
+    else:
+        default = ''
+
+    attribute = object_factory.CreateAttribute[type_name_to_net_type[attribute_type]](attribute_name, default)
     assert_that(attribute, is_(not_none()))
 
     with dnd.disposable(well.dom_object.ToMutable()) as mutable_well:
