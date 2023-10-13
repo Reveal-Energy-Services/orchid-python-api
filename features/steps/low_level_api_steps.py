@@ -56,7 +56,7 @@ def _add_attribute_of_name_and_type_to_well(well, attribute_name, attribute_type
     elif attribute_type == 'integer':
         default = -1
     elif attribute_type == 'length':
-        default = UnitsNet.Length.FromFeet(0)
+        default = UnitsNet.Length.FromFeet(UnitsNet.QuantityValue.op_Implicit(0.0))
     else:
         default = ''
 
