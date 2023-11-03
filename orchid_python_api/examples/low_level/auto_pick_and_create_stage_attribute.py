@@ -28,6 +28,10 @@ from orchid import (
 from random import seed
 from random import random
 
+from pythonnet import load
+
+load("coreclr")
+
 import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`
 # noinspection PyUnresolvedReferences
 from Orchid.FractureDiagnostics import (MonitorExtensions, Leakoff, Observation)

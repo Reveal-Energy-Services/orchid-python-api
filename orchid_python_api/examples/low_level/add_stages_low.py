@@ -39,6 +39,10 @@ from orchid import (
     unit_system as units,
 )
 
+from pythonnet import load
+
+load("coreclr")
+
 import clr
 clr.AddReference('System.Collections')
 

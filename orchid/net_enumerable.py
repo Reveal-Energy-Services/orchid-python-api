@@ -20,6 +20,10 @@ from typing import List
 # noinspection PyUnresolvedReferences
 import orchid  # Only to call `pythonnet.load('netfx')`
 
+from pythonnet import load
+
+load("coreclr")
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr
 # noinspection PyUnresolvedReferences

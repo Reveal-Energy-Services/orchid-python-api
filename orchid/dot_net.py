@@ -24,6 +24,10 @@ import orchid.script_adapter_context as sac
 
 import toolz.curried as toolz
 
+from pythonnet import load
+
+load("coreclr")
+
 # noinspection PyPackageRequirements
 import clr
 
