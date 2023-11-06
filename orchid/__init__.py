@@ -18,7 +18,7 @@
 
 # Load the appropriate runtime **before** executing `import clr`
 import pythonnet
-pythonnet.load('netfx')
+pythonnet.load('coreclr')
 
 from .dot_net import prepare_imports
 prepare_imports()
