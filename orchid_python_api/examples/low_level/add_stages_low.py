@@ -39,6 +39,13 @@ from orchid import (
     unit_system as units,
 )
 
+try:
+    is_loaded = False
+except Exception:
+    from pythonnet import load
+    load('coreclr')
+    is_loaded = True
+
 import clr
 clr.AddReference('System.Collections')
 

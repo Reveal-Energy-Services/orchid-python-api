@@ -19,6 +19,13 @@ import orchid.configuration
 
 import toolz.curried as toolz
 
+try:
+    is_loaded = False
+except Exception:
+    from pythonnet import load
+    load('coreclr')
+    is_loaded = True
+
 # noinspection PyPackageRequirements
 import clr
 # noinspection PyUnresolvedReferences

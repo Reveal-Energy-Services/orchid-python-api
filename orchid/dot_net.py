@@ -24,6 +24,14 @@ import orchid.script_adapter_context as sac
 
 import toolz.curried as toolz
 
+# this temporary workaround is from https://github.com/pythonnet/pythonnet/issues/2130
+try:
+    is_loaded = False
+except Exception:
+    from pythonnet import load
+    load('coreclr')
+    is_loaded = True
+
 # noinspection PyPackageRequirements
 import clr
 
