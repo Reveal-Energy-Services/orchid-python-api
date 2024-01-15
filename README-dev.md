@@ -7,7 +7,7 @@ This project defines the implementation of the Python API for Orchid*.
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
 
-(*Orchid is a mark of Reveal Energy Services, Inc.)
+(*Orchid is a mark of KAPPA)
 
 ## Caution Multiple Repositories
 
@@ -373,6 +373,7 @@ Publishing a release has a number of general steps. These steps are optional exc
 - Merge `master` into `master-reveal` (that is, `reveal-energy/master`)
 - Push `master-reveal` to Azure DevOps
 - Send email announcing release
+- If dependencies were updated, update the nightly/release pipelines with the new python/poetry versions as needed
 
 Throughout these tasks, you will repeatedly [Run common tasks](#common-tasks)
 

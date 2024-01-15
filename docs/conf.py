@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2023 Reveal Energy Services, Inc
+#  Copyright (c) 2017-2024 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -17,7 +17,7 @@
 
 # Configuration file for the Sphinx documentation builder.
 #
-# This file only contains a selection of the most common options. For a full
+# This file only contains a selection of the most common options. For a fulls
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
@@ -35,11 +35,11 @@ sys.path.insert(0, os.path.abspath('../'))  # repository root
 # -- Project information -----------------------------------------------------
 
 project = 'Orchid Python Api'
-copyright = '2019-2023, Reveal Energy Services'
-author = 'Reveal Energy Services'
+copyright = '2019-2024, KAPPA'
+author = 'KAPPA'
 
 # The full version, including alpha/beta/rc tags
-release = '5.22.299'
+release = '5.24.0'
 
 
 # -- General configuration ---------------------------------------------------

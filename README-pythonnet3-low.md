@@ -7,7 +7,7 @@ This project defines the implementation of the Python API for Orchid*.
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the
 Python REPL.
 
-(* Orchid is a mark of Reveal Energy Services, Inc.)
+(* Orchid is a mark of KAPPA)
 
 This document focuses on a single aspect of that project. Changing from `pythonnet-2.5.2`  to
 `pythonnet-3.0.0.post1` caused a number of previously passing tests to fail. This document 
@@ -167,7 +167,7 @@ control_points = List[Leakoff.ControlPoint]()
 for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
     control_point_to_add = Leakoff.ControlPoint()
     control_point_to_add.DateTime = time
-    control_point_to_add.Pressure = UnitsNet.Pressure(pressuremagnitude,
+    control_point_to_add.Value = UnitsNet.Pressure(pressuremagnitude,
                                                       UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
     control_points.Add(control_point_to_add)
 ```

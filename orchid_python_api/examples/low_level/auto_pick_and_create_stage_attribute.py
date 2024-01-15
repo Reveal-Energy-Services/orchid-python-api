@@ -1,11 +1,11 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2023 Reveal Energy Services.  All Rights Reserved.
+# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
-# owned by Reveal Energy Services. Access to and use of this information is 
+# owned by KAPPA. Access to and use of this information is
 # strictly limited and controlled by the Company. This file may not be copied,
 # distributed, or otherwise disclosed outside of the Company's facilities 
 # except under appropriate precautions to maintain the confidentiality hereof, 
@@ -27,6 +27,9 @@ from orchid import (
 # seed the pseudorandom number generator
 from random import seed
 from random import random
+
+from pythonnet import load
+load('coreclr')
 
 import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`
 # noinspection PyUnresolvedReferences
@@ -101,26 +104,28 @@ def calculate_leak_off_control_point_times(interpolation_point_1, interpolation_
     for time, pressure_magnitude in zip([interpolation_point_1, interpolation_point_2], pressure_values):
         control_point_to_add = Leakoff.ControlPoint()
         control_point_to_add.DateTime = time
-        control_point_to_add.Pressure = UnitsNet.Pressure(pressure_magnitude,
+        control_point_to_add.Value = UnitsNet.Pressure(pressure_magnitude,
                                                           UnitsNet.Units.PressureUnit.PoundForcePerSquareInch)
         control_points.Add(control_point_to_add)
     return control_points
 
 
-def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample):
+def calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample, unit):
     """
     Calculate the leak off pressure at the time of maximum pressure.
 
     Args:
         leak_off_curve: The leak off curve to query.
         maximum_pressure_sample: The sample (magnitude and time) of maximum pressure.
+        unit: The unit for the sample.
 
     Returns:
 
     """
     query_times = List[DateTime]()
     query_times.Add(maximum_pressure_sample.Timestamp)
-    leak_off_pressure = leak_off_curve.GetPressureValues(query_times)[0]
+    leak_off_pressure_value = leak_off_curve.GetValues(query_times, unit)[0]
+    leak_off_pressure = UnitsNet.Pressure(leak_off_pressure_value, unit)
     return leak_off_pressure
 
 
@@ -228,7 +233,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
                                                        control_point_times)
 
     maximum_pressure_sample = calculate_maximum_pressure_sample(stage_part, stage_part_pressure_samples)
-    leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample)
+    leak_off_pressure = calculate_leak_off_pressure(leak_off_curve, maximum_pressure_sample, native_monitor.Project.ProjectUnits.PressureUnit)
 
     picked_observation = unpicked_observation  # An alias to better communicate intent
     with dnd.disposable(picked_observation.ToMutable()) as mutable_observation:
@@ -268,7 +273,7 @@ def auto_pick_observations(native_project, native_monitor):
     # Previous releases of Orchid supported integer-valued stage attributes. However, recent releases do not support
     # integer-valued stage attributes. We recognize our need to restore this feature; however, the recommended
     # work-around is to create a double-valued attribute and transform each attribute value to a Python `float`.
-    pick_attribute_2 = object_factory.CreateAttribute[Double]("My Attribute 2")  # Default value is 0.0 (default for `Double` values)
+    pick_attribute_2 = object_factory.CreateAttribute[Double]("My Attribute 2", 0.0)  # Default value is 0.0 (default for `Double` values)
 
     def make_well_stage_key(well_name, stage_name):
         return f'{well.Name}: {stage.Name}'

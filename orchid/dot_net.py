@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2023 Reveal Energy Services, Inc
+#  Copyright (c) 2017-2024 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -23,6 +23,9 @@ import orchid.configuration
 import orchid.script_adapter_context as sac
 
 import toolz.curried as toolz
+
+from pythonnet import load
+load('coreclr')
 
 # noinspection PyPackageRequirements
 import clr
