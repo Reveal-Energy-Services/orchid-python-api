@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2023 Reveal Energy Services, Inc
+#  Copyright (c) 2017-2024 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -24,13 +24,8 @@ import orchid.script_adapter_context as sac
 
 import toolz.curried as toolz
 
-# this temporary workaround is from https://github.com/pythonnet/pythonnet/issues/2130
-try:
-    is_loaded = False
-except Exception:
-    from pythonnet import load
-    load('coreclr')
-    is_loaded = True
+from pythonnet import load
+load('coreclr')
 
 # noinspection PyPackageRequirements
 import clr

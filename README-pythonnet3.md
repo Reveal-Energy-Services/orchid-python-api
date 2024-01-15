@@ -7,7 +7,7 @@ This project defines the implementation of the Python API for Orchid*.
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the
 Python REPL.
 
-(* Orchid is a mark of Reveal Energy Services, Inc.)
+(* Orchid is a mark of KAPPA)
 
 This document focuses on a single aspect of that project. Changing from `pythonnet-2.5.2`  to
 `pythonnet-3.0.0.post1` caused a number of previously passing tests to fail. This document 

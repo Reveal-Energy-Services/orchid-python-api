@@ -7,7 +7,7 @@ This project defines the implementation of the Python API for Orchid*.
 
 Specifically, the `orchid` package makes Orchid features available to Python applications and to the Python REPL.
 
-(*Orchid is a mark of Reveal Energy Services, Inc.)
+(*Orchid is a mark of KAPPA)
 
 ## Caution Multiple Repositories
 

@@ -1,11 +1,11 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2023 Reveal Energy Services.  All Rights Reserved.
+# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
-# owned by Reveal Energy Services. Access to and use of this information is 
+# owned by KAPPA. Access to and use of this information is
 # strictly limited and controlled by the Company. This file may not be copied,
 # distributed, or otherwise disclosed outside of the Company's facilities 
 # except under appropriate precautions to maintain the confidentiality hereof, 
@@ -28,12 +28,8 @@ from orchid import (
     net_fracture_diagnostics_factory as net_factory,
 )
 
-try:
-    is_loaded = False
-except Exception:
-    from pythonnet import load
-    load('coreclr')
-    is_loaded = True
+from pythonnet import load
+load('coreclr')
 
 import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`
 # noinspection PyUnresolvedReferences
