@@ -24,12 +24,8 @@ from orchid import (
     net_fracture_diagnostics_factory as net_factory,
 )
 
-try:
-    is_loaded = False
-except Exception:
-    from pythonnet import load
-    load('coreclr')
-    is_loaded = True
+from pythonnet import load
+load('coreclr')
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import clr  # importing `clr` must occur after `orchid` to call `pythonnet.load()`

@@ -19,12 +19,8 @@ import orchid.configuration
 
 import toolz.curried as toolz
 
-try:
-    is_loaded = False
-except Exception:
-    from pythonnet import load
-    load('coreclr')
-    is_loaded = True
+from pythonnet import load
+load('coreclr')
 
 # noinspection PyPackageRequirements
 import clr
