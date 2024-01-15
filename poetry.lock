@@ -2607,17 +2607,17 @@ files = [
 
 [[package]]
 name = "pythonnet"
-version = "3.0.0.post1"
+version = "3.0.3"
 description = ".NET and Mono integration for Python"
 optional = false
-python-versions = "<3.11,>=3.7"
+python-versions = "<3.13,>=3.7"
 files = [
-    {file = "pythonnet-3.0.0.post1-py3-none-any.whl", hash = "sha256:65e8304d804166dbe61cd629faeb76be46113cee87e70e56263f27586750029a"},
-    {file = "pythonnet-3.0.0.post1.tar.gz", hash = "sha256:a828b2f02d1ea82f8b1e456e73e7c729a2666d0cb30a722d4f0b5a2b0837645c"},
+    {file = "pythonnet-3.0.3-py3-none-any.whl", hash = "sha256:62486f860c7955b7dcf470e085e4d2b599512224ca24193f716e857b496c530f"},
+    {file = "pythonnet-3.0.3.tar.gz", hash = "sha256:8d4b2e97158a023875f8647458a58f38817f4fe39af60abdd6b0d8adf1d77e75"},
 ]
 
 [package.dependencies]
-clr-loader = ">=0.2.2,<0.3.0"
+clr-loader = ">=0.2.6,<0.3.0"
 
 [[package]]
 name = "pytz"
@@ -3651,4 +3651,4 @@ test = ["mypy", "pre-commit", "pytest", "pytest-asyncio", "websockets (>=10.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "79149259a2aab703f159548c9e66f1f4a8ee44758efa9e955dd74ddb3e9f2e76"
+content-hash = "b6550c1a193daf23223bf2e00db17406a94f6d968dfc360990e25b9378b2b57a"
