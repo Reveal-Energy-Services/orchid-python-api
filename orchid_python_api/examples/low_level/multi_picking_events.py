@@ -69,7 +69,7 @@ def multi_pick_observations(native_project, native_monitor):
         Multi-pick observations for each treatment stage of `native_project` observed by `native_monitor`.
     Args:
         native_project: The `IProject` whose observations are sought.
-        native_monitor: The `IMonitor` whose observations we automatically pick.
+        native_monitor: The `ITimeSeriesMonitor` whose observations we automatically pick.
 
     Returns:
 
@@ -132,7 +132,7 @@ def is_stage_visible_to_monitor(native_monitor, stage):
     Determine if the stage treatment is visible to the specified monitor.
 
     Args:
-        native_monitor: The .NET `IMonitor` that may "see" the stage treatment.
+        native_monitor: The .NET `ITimeSeriesMonitor` that may "see" the stage treatment.
         stage: The stage of interest.
 
     Returns:

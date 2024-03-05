@@ -23,14 +23,14 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IMonitor
+from Orchid.FractureDiagnostics.Monitors import ITimeSeriesMonitor
 
 
 class NativeMonitorAdapter(dpo.DomProjectObject):
-    """Adapts a native IMonitor to python."""
-    def __init__(self, net_monitor: IMonitor):
+    """Adapts a native ITimeSeriesMonitor to python."""
+    def __init__(self, net_monitor: ITimeSeriesMonitor):
         """
-        Constructs an instance adapting a .NET IMonitor.
+        Constructs an instance adapting a .NET ITimeSeriesMonitor.
 
         Args:
             net_monitor: The .NET monitor to be adapted.
