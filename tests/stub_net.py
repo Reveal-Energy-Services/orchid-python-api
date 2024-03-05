@@ -49,7 +49,7 @@ from tests import (
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (
-    IMonitor,
+    ITimeSeriesMonitor,
     IProject, IProjectObject, IPlottingSettings,
     IStage, IStagePart, IMutableStagePart,
     ISubsurfacePoint,
@@ -673,7 +673,7 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
                             well_time_series_dto=None):
     stub_name = (f'stub_net_monitor_{display_name}' if display_name is not None else 'stub_net_monitor')
     try:
-        result = unittest.mock.MagicMock(name=stub_name, spec=IMonitor)
+        result = unittest.mock.MagicMock(name=stub_name, spec=ITimeSeriesMonitor)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=stub_name)
 
