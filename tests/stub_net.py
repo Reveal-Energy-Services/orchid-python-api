@@ -49,13 +49,16 @@ from tests import (
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (
-    ITimeSeriesMonitor,
     IProject, IProjectObject, IPlottingSettings,
     IStage, IStagePart, IMutableStagePart,
     ISubsurfacePoint,
     IWell, IWellTrajectory,
     UnitSystem,
 )
+
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Monitors import ITimeSeriesMonitor
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences,PyPackageRequirements

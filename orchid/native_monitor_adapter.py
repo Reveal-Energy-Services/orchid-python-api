@@ -23,7 +23,7 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import ITimeSeriesMonitor
+from Orchid.FractureDiagnostics.Monitors import ITimeSeriesMonitor
 
 
 class NativeMonitorAdapter(dpo.DomProjectObject):
