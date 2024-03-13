@@ -47,10 +47,10 @@ Feature: Low-level example scripts
     Given I have copied the low-level script, '<script_file_name>', to the repository root
     When I execute the script using project version <ifrac_version>
     And I see the following added stages
-      | stage_name | shmin        | clusters | global_seq_no | stage_time_range                                |
-      | Stage-36   | 8144.498 psi | 0        | 0             | 2018-06-06T05:34:03.684/2018-06-06T07:19:35.560 |
-      | Stage-37   | 2.322 psi    | 0        | 0             | 2018-06-15T14:11:40.450/2018-06-15T15:10:11.200 |
-      | Stage-38   | 8041.893 psi | 7        | 0             | 2018-06-28T23:35:54.379/2018-06-29T01:18:05.840 |
+      | stage_name | clusters | global_seq_no | stage_time_range                                |
+      | Stage-36   | 0        | 0             | 2018-06-06T05:34:03.684/2018-06-06T07:19:35.560 |
+      | Stage-37   | 0        | 0             | 2018-06-15T14:11:40.450/2018-06-15T15:10:11.200 |
+      | Stage-38   | 7        | 0             | 2018-06-28T23:35:54.379/2018-06-29T01:18:05.840 |
 
     Examples: add_stages
       | script_file_name  | ifrac_version |
