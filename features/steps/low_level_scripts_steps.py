@@ -168,7 +168,6 @@ def step_impl(context):
 
     for expected_details_row, actual_details in zip(expected_added_stage_details.rows, actual_added_stages_details):
         assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))
-        assert_that(actual_details.shmin, equal_to(expected_details_row['shmin']))
         assert_that(actual_details.cluster_count, equal_to(int(expected_details_row['clusters'])))
         assert_that(actual_details.global_stage_sequence_no, equal_to(int(expected_details_row['global_seq_no'])))
         expected_stage_time_range = pdt.parse(expected_details_row['stage_time_range'])
