@@ -46,7 +46,7 @@ In addition, we have updated the project to be netcore (semantically, in practic
 the same way as before, as pythonnet fully supports netcore (albeit with a few workarounds which have been implemented in this release),
 but you may need to install .NET if it's not done already. As a user of Orchid, you should have these libraries pre-installed, but,
 if not, you can find .NET 8 here (https://dotnet.microsoft.com/en-us/download). The latest version of .NET 6 (6.0.26) should be
-fine, but we recommend moving to .NET 8 is possible.
+fine, but we recommend moving to .NET 8 if possible.
 
 #### Possible breaking .NET API changes
 
