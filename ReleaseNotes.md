@@ -13,16 +13,40 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 5.24.1
+
+This release is the production release of the Orchid Python API corresponding to Orchid 5.24.1. We have made the necessary
+updates to the Python API to remain compatible with the .NET API.
+
+On the .NET side, we renamed IMonitor to ITimeSeriesMonitor. The necessary updates have been made on the Python API side.
+Additionally, the Shmin property was moved from IWell to IStage. As such, some tests have been updated to accommodate that change.
+
+#### Possible breaking .NET API changes
+
+- None
+
+#### Resolved Issues
+
+- None
+
+#### Features
+
+- None
+
+#### Known Issues
+
+- None
+
 ### Release notes for 5.24.0
 
-This release is the production release of the Orchid Python API corresponding to Orchid 5.24.320. We have made the necessary
+This release is the production release of the Orchid Python API corresponding to Orchid 5.24.0. We have made the necessary
 updates to the Python API to remain compatible with the .NET API.
 
 In addition, we have updated the project to be netcore (semantically, in practice it is just called .NET) compatible. .NET Core is Microsoft's cross platform library.  Everything should behave
 the same way as before, as pythonnet fully supports netcore (albeit with a few workarounds which have been implemented in this release),
 but you may need to install .NET if it's not done already. As a user of Orchid, you should have these libraries pre-installed, but,
 if not, you can find .NET 8 here (https://dotnet.microsoft.com/en-us/download). The latest version of .NET 6 (6.0.26) should be
-fine, but we recommend moving to .NET 8 is possible.
+fine, but we recommend moving to .NET 8 if possible.
 
 #### Possible breaking .NET API changes
 
