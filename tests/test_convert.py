@@ -37,8 +37,6 @@ DONT_CARE_MAGNITUDE = 3.14159265
 # - source and target not same physical quantity
 class TestConvert(unittest.TestCase):
     """Implements the unit tests for the orchid.convert module."""
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_to_unit_correctly_performs_no_op_conversion(self):
         for source_unit in toolz.concatv(units.UsOilfield, units.Metric):

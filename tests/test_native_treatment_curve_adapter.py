@@ -52,8 +52,6 @@ class TestTreatmentCurveAdapter(unittest.TestCase):
     # Because of time pressure, because the unit (and acceptance / integration) tests all work, and because
     # of this dissimilar set up, I have chosen for now to leave these unit tests as is.
 
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_display_name_from_treatment_curve(self):
         sut = create_sut(display_name='boni')

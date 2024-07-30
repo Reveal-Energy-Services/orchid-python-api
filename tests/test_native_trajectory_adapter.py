@@ -41,8 +41,6 @@ import UnitsNet
 
 # Test ideas
 class TestNativeTrajectoryAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_get_easting_array(self):
         for expected, project_units, reference_frame in [

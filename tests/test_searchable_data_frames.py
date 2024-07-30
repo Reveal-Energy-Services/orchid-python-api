@@ -31,8 +31,6 @@ from System import Guid
 
 
 class TestSearchableDataFrames(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_searchable_data_frames_with_duplicate_object_ids_raises_one_warning(self):
         stub_net_project = create_net_project_with_data_frames_with_duplicate_ids()

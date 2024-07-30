@@ -80,8 +80,6 @@ def is_power_unit(unit):
 # - test_as_net_quantity_in_same_unit
 # - test_as_net_quantity_in_different_unit
 class TestNetQuantity(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     # noinspection PyUnresolvedReferences
     def test_as_measurement_in_common_unit(self):

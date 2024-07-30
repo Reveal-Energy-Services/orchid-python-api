@@ -26,8 +26,6 @@ from tests import stub_net as tsn
 
 
 class TestNativeMonitorAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_time_range(self):
         def microseconds_to_milliseconds(tp):

@@ -85,8 +85,6 @@ def create_expected(expected_location):
 
 # Test ideas
 class TestNativeStageAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_bottom_location_invokes_get_stage_location_bottom_correctly(self):
         bottom_mock_func = mock_subsurface_point_func(DONT_CARE_METRIC_LOCATION,
@@ -583,8 +581,6 @@ class TestNativeStageAdapter(unittest.TestCase):
 # - Change stop time
 #   - Error when many stage parts and stop before last stage start
 class TestNativeStageAdapterSetter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_set_start_time_if_single_part(self):
         ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)

@@ -46,8 +46,6 @@ from tests import (
 
 
 class TestNativeWellAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_display_name(self):
         expected_well_display_name = 'agiles'
@@ -328,8 +326,6 @@ class TestNativeWellAdapter(unittest.TestCase):
 # - Call add_stages with many stage DTOs calls `CreateStage` many times
 # - Call add_stages with one stage DTO calls `CreateStage` with correct arguments
 class TestNativeWellAdapterAddStages(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     @unittest.mock.patch('orchid.native_stage_adapter.CreateStageDto.create_stage')
     def test_add_stages_with_no_items_calls_neither_create_stage_nor_well_add_stages(self, stub_create_stage):

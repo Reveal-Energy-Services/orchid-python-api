@@ -26,8 +26,6 @@ from hamcrest import assert_that, equal_to
 
 
 class TestUnitSystem(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_abbreviation(self):
         for expected, unit in [
