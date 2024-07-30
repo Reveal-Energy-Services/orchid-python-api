@@ -54,8 +54,7 @@ def app_settings_path() -> str:
 
     :return: The required pathname.
     """
-    result = os.fspath(pathlib.Path(toolz.get_in(['orchid', 'root'],
-                                                 orchid.configuration.python_api())).joinpath('appSettings.json'))
+    result = os.fspath(pathlib.Path(toolz.get_in(['orchid', 'root'], orchid.configuration.get_configuration())).joinpath('appSettings.json'))
     return result
 
 
