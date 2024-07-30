@@ -16,29 +16,27 @@
 #
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from orchid.version import get_orchid_sdk_version
+import pathlib
 
 
 class TestVersion(unittest.TestCase):
-    @patch('builtins.open')
-    def test_api_version(self, mock_open: MagicMock) -> None:
-        for text_version, expected_version in [('2018.3.3497', '2018.3.3497'), ('4.93.26.b2', '4.93.26')]:
+    def test_api_version(self):
+        for text_version in ['2018.3.3497', '4.93.26.2823']:
             with self.subTest(f'Testing version {text_version}'):
-                mock_open.return_value.__enter__.return_value.read.return_value = text_version
-                self.assertEqual(get_orchid_sdk_version(), expected_version)
+                with unittest.mock.patch.multiple(pathlib.Path, spec=pathlib.Path, open=unittest.mock.mock_open(read_data=text_version)):
+                    self.assertEqual(get_orchid_sdk_version(), text_version)
 
-    @patch('builtins.open')
-    def test_api_version_file_not_found(self, mock_open: MagicMock) -> None:
-        mock_open.side_effect = FileNotFoundError()
-        with self.assertRaises(FileNotFoundError):
-            get_orchid_sdk_version()
+    def test_api_version_file_not_found(self) -> None:
+        with patch.object(pathlib.Path, 'open', side_effect=FileNotFoundError):
+            with self.assertRaises(FileNotFoundError):
+                get_orchid_sdk_version()
 
-    @patch('builtins.open')
-    def test_api_version_invalid_format(self, mock_open) -> None:
-        mock_open.return_value.__enter__.return_value.read.return_value = 'invalid_version'
-        with self.assertRaises(ValueError):
-            get_orchid_sdk_version()
+    def test_api_version_invalid_format(self) -> None:
+        with patch.object(pathlib.Path, 'open', unittest.mock.mock_open(read_data="invalid version")):
+            with self.assertRaises(ValueError):
+                get_orchid_sdk_version()
 
 
 if __name__ == '__main__':

@@ -15,6 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 import re
+import pathlib
 
 
 def get_orchid_sdk_version():
@@ -25,9 +26,9 @@ def get_orchid_sdk_version():
         The Python API version read from the `VERSION` file.
     """
     try:
-        with open('VERSION', 'r') as version_file:
+        with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
             text_version = version_file.read()
-            version_match = re.search(r'\d+\.\d+\.\d+', text_version)
+            version_match = re.search(r'\d+\.\d+\.\d+(?:\.\d+)?', text_version)
             if version_match:
                 return version_match.group()
             else:
