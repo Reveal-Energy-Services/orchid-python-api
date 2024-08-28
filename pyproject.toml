@@ -13,8 +13,7 @@ readme = "README.md"
 homepage="https://github.com/Reveal-Energy-Services/orchid-python-api"
 repository="https://github.com/Reveal-Energy-Services/orchid-python-api"
 documentation="https://github.com/Reveal-Energy-Services/orchid-python-api/wiki"
-keywords=["Orchid Integration",
-          "Fracture Diagnostics"]
+keywords=["Orchid Integration", "Fracture Diagnostics"]
 classifiers=[
     # Trove classifiers
     # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -55,20 +54,18 @@ include=[
 exclude=["orchid/.ipynb_checkpoints/", "**/*py~"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.10,<3.13"
 pythonnet = "3.0.3"
 numpy = "^1.23.5"
 # Allow consumers to create `datetime` instances using `dateutil`, for example, by calling `dateutil.parse()`, and
 # accept those instances when supplying a time point as a function/method argument.
 python-dateutil = "^2.8.2"
-jupyter = "^1.0.0"
 matplotlib = "^3.6.2"
-pandas = "^1.5.2"
-pendulum = "^2.1.2"
+pandas = ">=1.5.2, <=2.2.2"
+pendulum = ">=2.1.2, <=3.0.0"
 option = "^2.1.0"
 deal = "^4.23.4"
 ipython = "^8.7.0"
-jupyterlab = "^3.5.1"
 packaging = "^22.0"
 pint = "^0.20.1"
 pyyaml = "^6.0"
