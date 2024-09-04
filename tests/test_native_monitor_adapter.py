@@ -40,7 +40,7 @@ class TestNativeMonitorAdapter(unittest.TestCase):
         actual_time_range = sut.time_range
 
         assert_that(actual_time_range,
-                    equal_to(pendulum.period(microseconds_to_milliseconds(expected_start),
+                    equal_to(pendulum.Interval(microseconds_to_milliseconds(expected_start),
                                              microseconds_to_milliseconds(expected_stop))))
 
     def test_well_time_series(self):
