@@ -161,7 +161,7 @@ def step_impl(context):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_added_stages_details = pso.get_added_stages.parse(script_output)
+        actual_added_stages_details = pso.get_added_stages.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_added_stage_details = context.table
@@ -324,7 +324,7 @@ def step_impl(context, set_name):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_results = pso.get_observations_counts.parse(script_output)
+        actual_results = pso.get_observations_counts.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_observation_counts = context.table
