@@ -18,7 +18,6 @@ import datetime as dt  # only for UTC time zone
 from numbers import Real
 
 import pendulum as pdt
-import pendulum.tz as ptz
 import toolz.curried as toolz
 
 from orchid import (
@@ -156,12 +155,12 @@ def utc_time_zone() -> dt.tzinfo:
     Returns:
         The single instance of the UTC time zone.
     """
-    return ptz.UTC
+    return pdt.UTC
 
 
 _KIND_TO_TZINFO = {
-    net_dt.TimePointTimeZoneKind.UTC: ptz.UTC,
-    net_dt.TimePointTimeZoneKind.LOCAL: ptz.local_timezone(),
+    net_dt.TimePointTimeZoneKind.UTC: pdt.UTC,
+    net_dt.TimePointTimeZoneKind.LOCAL: pdt.local_timezone(),
     net_dt.TimePointTimeZoneKind.UNSPECIFIED: '',
 }
 
