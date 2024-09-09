@@ -28,8 +28,6 @@ from tests import stub_net as tsn
 
 # Test ideas
 class TestSearchableProjectObjects(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_length_of_constructed_collection_is_correct(self):
         for net_project_object_dtos in (

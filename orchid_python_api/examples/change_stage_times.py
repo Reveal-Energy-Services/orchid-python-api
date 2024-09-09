@@ -41,11 +41,11 @@ def change_stage_time_range(project):
     # Start time before change
     ante_start_time = stage.start_time
     ante_stop_time = stage.stop_time
-    logging.info(f'Stage time_range before {pendulum.Period(ante_start_time, ante_stop_time)}')
+    logging.info(f'Stage time_range before {pendulum.Interval(ante_start_time, ante_stop_time)}')
 
     post_start_time = ante_start_time.subtract(minutes=10)
     post_stop_time = ante_stop_time.add(minutes=10)
-    stage.time_range = pendulum.Period(post_start_time, post_stop_time)
+    stage.time_range = pendulum.Interval(post_start_time, post_stop_time)
     logging.info(f'Stage time_range after {stage.time_range}')
 
 

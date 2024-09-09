@@ -70,7 +70,7 @@ def step_impl(context, name, start_time, stop_time):
     monitor_time_range = context.monitor.time_range
     expected_start = pendulum.parse(start_time)
     expected_stop = pendulum.parse(stop_time)
-    expected_time_range = pendulum.Period(expected_start, expected_stop)
+    expected_time_range = pendulum.Interval(expected_start, expected_stop)
     assert_that(monitor_time_range, tcm.equal_to_time_range(expected_time_range))
 
 
@@ -86,7 +86,7 @@ def step_impl(context, object_id, start_time, stop_time):
     actual = context.monitor
 
     assert_that(actual.object_id, equal_to(uuid.UUID(object_id)))
-    assert_that(actual.time_range, tcm.equal_to_time_range(pendulum.Period(pendulum.parse(start_time),
+    assert_that(actual.time_range, tcm.equal_to_time_range(pendulum.Interval(pendulum.parse(start_time),
                                                                            pendulum.parse(stop_time))))
 
 

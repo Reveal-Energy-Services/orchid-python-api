@@ -141,10 +141,10 @@ class NativeStageAdapter(dpo.DomProjectObject):
     stop_time = dna.transformed_dom_property('stop_time', 'The stop time of the stage treatment',
                                              ndt.as_date_time)
 
-    def _get_time_range(self) -> pdt.Period:
-        return pdt.period(self.start_time, self.stop_time)
+    def _get_time_range(self) -> pdt.Interval:
+        return pdt.Interval(self.start_time, self.stop_time)
 
-    def _set_time_range(self, to_time_range: pdt.Period):
+    def _set_time_range(self, to_time_range: pdt.Interval):
         to_start_net_time = ndt.as_net_date_time(to_time_range.start)
         to_stop_net_time = ndt.as_net_date_time(to_time_range.end)
         if len(self.stage_parts()) == 1:
@@ -486,7 +486,7 @@ class CreateStageDto:
     # issue with Orchid.
     #
     # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
-    maybe_time_range: Optional[pdt.Period] = None
+    maybe_time_range: Optional[pdt.Interval] = None
     # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
     # the project saved with the added stages.
     maybe_isip: Optional[om.Quantity] = None  # If not `None`, must be a pressure

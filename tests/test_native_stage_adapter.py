@@ -85,8 +85,6 @@ def create_expected(expected_location):
 
 # Test ideas
 class TestNativeStageAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_bottom_location_invokes_get_stage_location_bottom_correctly(self):
         bottom_mock_func = mock_subsurface_point_func(DONT_CARE_METRIC_LOCATION,
@@ -491,7 +489,7 @@ class TestNativeStageAdapter(unittest.TestCase):
                                       stop_time=stop_time_dto.to_datetime()).create_net_stub()
         sut = nsa.NativeStageAdapter(stub_net_stage)
 
-        assert_that(sut.time_range, equal_to(pdt.period(start_time_dto.to_datetime(),
+        assert_that(sut.time_range, equal_to(pdt.interval(start_time_dto.to_datetime(),
                                                         stop_time_dto.to_datetime())))
 
     def test_top_location_invokes_get_stage_location_top_correctly(self):
@@ -583,8 +581,6 @@ class TestNativeStageAdapter(unittest.TestCase):
 # - Change stop time
 #   - Error when many stage parts and stop before last stage start
 class TestNativeStageAdapterSetter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_set_start_time_if_single_part(self):
         ante_start_time_dto = tdt.TimePointDto(2025, 8, 27, 12, 4, 12, 677 * om.registry.milliseconds)
@@ -593,7 +589,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         sut = builder.build()
 
         post_start_time_dto = tdt.TimePointDto(2025, 8, 27, 7, 5, 54, 66 * om.registry.milliseconds)
-        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), stop_time_dto.to_datetime())
+        sut.time_range = pdt.interval(post_start_time_dto.to_datetime(), stop_time_dto.to_datetime())
 
         assert_correct_net_calls_when_setting_time_range(builder.stub_net_stage_part,
                                                          builder.stub_net_mutable_stage_part,
@@ -607,7 +603,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
         sut = builder.build()
 
         post_stop_time_dto = tdt.TimePointDto(2022, 11, 25, 5, 32, 42, 406 * om.registry.milliseconds)
-        sut.time_range = pdt.period(start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+        sut.time_range = pdt.interval(start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
 
         assert_correct_net_calls_when_setting_time_range(builder.stub_net_stage_part,
                                                          builder.stub_net_mutable_stage_part,
@@ -629,7 +625,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
 
         post_start_time_dto = tdt.TimePointDto(2020, 5, 10, 22, 36, 8, 58 * om.registry.milliseconds)
         post_stop_time_dto = tdt.TimePointDto(2020, 5, 11, 0, 55, 11, 61 * om.registry.milliseconds)
-        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+        sut.time_range = pdt.interval(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
 
         # Expect one call to create a stage part with the post start and stop times
         stub_fd_factory.CreateStagePart.assert_called_once()
@@ -681,7 +677,7 @@ class TestNativeStageAdapterSetter(unittest.TestCase):
 
         post_start_time_dto = tdt.TimePointDto(2022, 2, 14, 22, 12, 12, 650 * om.registry.milliseconds)
         post_stop_time_dto = tdt.TimePointDto(2022, 2, 15, 9, 2, 12, 912 * om.registry.milliseconds)
-        sut.time_range = pdt.period(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
+        sut.time_range = pdt.interval(post_start_time_dto.to_datetime(), post_stop_time_dto.to_datetime())
 
         # Expect one call to first mutable stage part
         stub_net_stage_parts[0].ToMutable.assert_called_once_with()

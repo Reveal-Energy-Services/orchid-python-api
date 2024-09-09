@@ -60,8 +60,6 @@ NetCalculationResult = namedtuple('NetCalculationResult', ['Result', 'Warnings']
 #   - Pumped fluid volume
 #   - Total proppant mass
 class TestNativeTreatmentCalculationsAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_median_treating_pressure_returns_get_median_treating_pressure_result(self):
         for expected_measurement_dto, start, stop in [

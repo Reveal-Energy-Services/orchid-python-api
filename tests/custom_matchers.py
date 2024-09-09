@@ -327,7 +327,7 @@ def equal_to_version(expected):
 
 
 class IsEqualTimeRange(BaseMatcher):
-    def __init__(self, expected: pendulum.Period):
+    def __init__(self, expected: pendulum.Interval):
         """
         Construct an instance for matching `expected`.
 
@@ -369,12 +369,12 @@ class IsEqualTimeRange(BaseMatcher):
                 within_1_second(self._expected.end, item.end))
 
 
-def equal_to_time_range(expected: pendulum.Period):
+def equal_to_time_range(expected: pendulum.Interval):
     """
-    Create a matcher to determine if another object equals an `expected` `pendulum.Period`.
+    Create a matcher to determine if another object equals an `expected` `pendulum.Interval`.
 
     Args:
-        expected: The expected `pendulum.Period` instance.
+        expected: The expected `pendulum.Interval` instance.
 
     Returns:
         A matcher against `expected`.

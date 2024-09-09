@@ -49,8 +49,6 @@ def microseconds_to_integral_milliseconds(microseconds):
 # - Report potentially corrupt if data frame name has tag
 # - Report not potentially corrupt if data frame name no tag
 class TestNativeDataFrameAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_display_name_if_set(self):
         expected = 'lucrum'

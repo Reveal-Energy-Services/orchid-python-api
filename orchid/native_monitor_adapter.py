@@ -61,7 +61,7 @@ class NativeMonitorAdapter(dpo.DomProjectObject):
 
         Returns:
             The time range during which this monitor is active. The type of the returned value is
-            `pendulum.Period`. See the [documentation](https://pendulum.eustace.io/docs/) to understand the
-            methods available from a `pendulum.Period` instance.
+            `pendulum.Interval`. See the [documentation](https://pendulum.eustace.io/docs/) to understand the
+            methods available from a `pendulum.Interval` instance.
         """
-        return pendulum.Period(self.start_time, self.stop_time)
+        return pendulum.Interval(self.start_time, self.stop_time)

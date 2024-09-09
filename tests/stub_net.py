@@ -503,7 +503,7 @@ def create_regularly_sampled_time_points(interval: pdt.Duration, start_time_poin
     # The `pdt` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
     end_time_point = start_time_point + interval * (count - 1)
-    result = pdt.period(start_time_point, end_time_point).range('seconds', interval.total_seconds())
+    result = pdt.interval(start_time_point, end_time_point).range('seconds', int(interval.total_seconds()))
     return result
 
 
