@@ -71,19 +71,21 @@ def get_fallback_configuration() -> Dict[str, Dict[str, str]]:
     # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`. The following code
     # calculates an actual location by substituting the current version number for the symbol,
     # `<version-specific-directory>`.
-    orchid_version = get_orchid_sdk_version() + '.*'
-    python_api_lib_pattern_path = os.path.join(os.environ['ProgramFiles'], 'Reveal Energy Services', 'Orchid', orchid_version, 'Orchid-'+orchid_version, 'PythonApiLibs')
-    matching_paths = glob.glob(python_api_lib_pattern_path)
+    program_files_path = os.environ.get("ProgramFiles")
     fallback = {}
-    if len(matching_paths) == 1:
-        python_api_lib_path = matching_paths[0]
-        _logger.info(f"PythonApiLibs path found : {python_api_lib_path}")
-        fallback = {'orchid': {'root': str(matching_paths[0])}}
-    elif len(matching_paths) == 0:
-        _logger.info(f"PythonApiLibs path not found for {str(python_api_lib_pattern_path)}")
-    else:
-        warnings.warn(f'Fallback configuration found multiple matches for {str(python_api_lib_pattern_path)}')
-    _logger.debug(f'fallback configuration={fallback}')
+    if program_files_path is not None:
+        orchid_version = get_orchid_sdk_version() + '.*'
+        python_api_lib_pattern_path = os.path.join(program_files_path, 'Reveal Energy Services', 'Orchid', orchid_version, 'Orchid-'+orchid_version, 'PythonApiLibs')
+        matching_paths = glob.glob(python_api_lib_pattern_path)
+        if len(matching_paths) == 1:
+            python_api_lib_path = matching_paths[0]
+            _logger.info(f"PythonApiLibs path found : {python_api_lib_path}")
+            fallback = {'orchid': {'root': str(matching_paths[0])}}
+        elif len(matching_paths) == 0:
+            _logger.info(f"PythonApiLibs path not found for {str(python_api_lib_pattern_path)}")
+        else:
+            warnings.warn(f'Fallback configuration found multiple matches for {str(python_api_lib_pattern_path)}')
+        _logger.debug(f'fallback configuration={fallback}')
     return fallback
 
 
