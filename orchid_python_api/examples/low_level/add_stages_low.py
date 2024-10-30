@@ -74,7 +74,7 @@ class CreateStageDto:
     # issue with Orchid.
     #
     # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
-    maybe_time_range: Optional[pendulum.Period] = None
+    maybe_time_range: Optional[pendulum.Interval] = None
 
     # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
     # the project saved with the added stages.

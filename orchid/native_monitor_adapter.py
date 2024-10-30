@@ -23,14 +23,14 @@ from orchid import (
 )
 
 # noinspection PyUnresolvedReferences
-from Orchid.FractureDiagnostics import IMonitor
+from Orchid.FractureDiagnostics.Monitors import ITimeSeriesMonitor
 
 
 class NativeMonitorAdapter(dpo.DomProjectObject):
-    """Adapts a native IMonitor to python."""
-    def __init__(self, net_monitor: IMonitor):
+    """Adapts a native ITimeSeriesMonitor to python."""
+    def __init__(self, net_monitor: ITimeSeriesMonitor):
         """
-        Constructs an instance adapting a .NET IMonitor.
+        Constructs an instance adapting a .NET ITimeSeriesMonitor.
 
         Args:
             net_monitor: The .NET monitor to be adapted.
@@ -61,7 +61,7 @@ class NativeMonitorAdapter(dpo.DomProjectObject):
 
         Returns:
             The time range during which this monitor is active. The type of the returned value is
-            `pendulum.Period`. See the [documentation](https://pendulum.eustace.io/docs/) to understand the
-            methods available from a `pendulum.Period` instance.
+            `pendulum.Interval`. See the [documentation](https://pendulum.eustace.io/docs/) to understand the
+            methods available from a `pendulum.Interval` instance.
         """
-        return pendulum.Period(self.start_time, self.stop_time)
+        return pendulum.Interval(self.start_time, self.stop_time)

@@ -156,7 +156,7 @@ def calculate_stage_part_pressure_samples(native_monitor, stage_part):
     Calculate the pressure samples from the monitor for the `stage_part`.
 
     Args:
-        native_monitor: The .NET `IMonitor` object recording pressures.
+        native_monitor: The .NET `ITimeSeriesMonitor` object recording pressures.
         stage_part: The .NET `IStagePart` limiting the monitor times to the stage treatment times.
 
     Returns:
@@ -203,7 +203,7 @@ def auto_pick_observation_details(unpicked_observation, native_monitor, stage_pa
 
     Args:
         unpicked_observation: The unpicked observation.
-        native_monitor: The .NET `IMonitor` for this observation.
+        native_monitor: The .NET `ITimeSeriesMonitor` for this observation.
         stage_part: The .NET `IStagePart` observed by `native_monitor`.
 
     Returns:
@@ -258,7 +258,7 @@ def auto_pick_observations(native_project, native_monitor):
         Automatically pick observations for each treatment stage of `native_project` observed by `native_monitor`.
     Args:
         native_project: The `IProject` whose observations are sought.
-        native_monitor: The `IMonitor` whose observations we automatically pick.
+        native_monitor: The `ITimeSeriesMonitor` whose observations we automatically pick.
 
     Returns:
 
@@ -330,7 +330,7 @@ def is_stage_visible_to_monitor(native_monitor, stage):
     Determine if the stage treatment is visible to the specified monitor.
 
     Args:
-        native_monitor: The .NET `IMonitor` that may "see" the stage treatment.
+        native_monitor: The .NET `ITimeSeriesMonitor` that may "see" the stage treatment.
         stage: The stage of interest.
 
     Returns:

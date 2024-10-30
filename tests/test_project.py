@@ -39,8 +39,6 @@ from tests import (
 # - User data has one item if .NET user data has one item
 # - User data has many items if .NET user data has many items
 class TestProject(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_ctor_no_loader_raises_exception(self):
         assert_that(calling(onp.Project).with_args(None), raises(deal.PreContractError))

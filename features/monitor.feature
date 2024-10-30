@@ -15,7 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
-Feature: Adapted IMonitor DOM API
+Feature: Adapted ITimeSeriesMonitor DOM API
   As a data engineer,
   I want to access Orchid monitors conveniently using Python
   In order to leverage my existing knowledge, code and data

@@ -29,8 +29,6 @@ from tests import stub_net as tsn
 
 # Test ideas
 class TestSearchableStages(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_find_by_display_stage_number_finds_match_one_if_one_matching_stage(self):
         stage_dtos = toolz.pipe(

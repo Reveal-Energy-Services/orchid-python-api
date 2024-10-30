@@ -14,20 +14,24 @@
 #
 # This file is part of Orchid and related technologies.
 #
-
+import re
 import pathlib
 
-import packaging.version as pv
 
-
-def api_version():
+def get_orchid_sdk_version():
     """
     Calculate the Python API version.
 
     Returns:
         The Python API version read from the `VERSION` file.
     """
-    with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
-        text_version = version_file.read()
-        result = pv.parse(text_version)
-        return result
+    try:
+        with pathlib.Path(__file__).parent.joinpath('VERSION').open() as version_file:
+            text_version = version_file.read()
+            version_match = re.search(r'\d+\.\d+\.\d+(?:\.\d+)?', text_version)
+            if version_match:
+                return version_match.group()
+            else:
+                raise ValueError("Cannot find a correct version number in VERSION file.")
+    except FileNotFoundError:
+        raise FileNotFoundError("Missing VERSION file")

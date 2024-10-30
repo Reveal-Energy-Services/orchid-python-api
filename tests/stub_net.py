@@ -49,13 +49,16 @@ from tests import (
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics import (
-    IMonitor,
     IProject, IProjectObject, IPlottingSettings,
     IStage, IStagePart, IMutableStagePart,
     ISubsurfacePoint,
     IWell, IWellTrajectory,
     UnitSystem,
 )
+
+# noinspection PyUnresolvedReferences,PyPackageRequirements
+from Orchid.FractureDiagnostics.Monitors import ITimeSeriesMonitor
+
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from Orchid.FractureDiagnostics.Calculations import ITreatmentCalculations, IFractureDiagnosticsCalculationsFactory
 # noinspection PyUnresolvedReferences,PyPackageRequirements
@@ -500,7 +503,7 @@ def create_regularly_sampled_time_points(interval: pdt.Duration, start_time_poin
     # The `pdt` package, by default, **includes** the endpoint of the specified range. I want to exclude it when
     # I create these series so my end point must be `count - 1`.
     end_time_point = start_time_point + interval * (count - 1)
-    result = pdt.period(start_time_point, end_time_point).range('seconds', interval.total_seconds())
+    result = pdt.interval(start_time_point, end_time_point).range('seconds', int(interval.total_seconds()))
     return result
 
 
@@ -673,7 +676,7 @@ def create_stub_net_monitor(object_id=None, display_name=None, name=None, start=
                             well_time_series_dto=None):
     stub_name = (f'stub_net_monitor_{display_name}' if display_name is not None else 'stub_net_monitor')
     try:
-        result = unittest.mock.MagicMock(name=stub_name, spec=IMonitor)
+        result = unittest.mock.MagicMock(name=stub_name, spec=ITimeSeriesMonitor)
     except TypeError:  # Raised in Python 3.8.6 and Pythonnet 2.5.1
         result = unittest.mock.MagicMock(name=stub_name)
 
