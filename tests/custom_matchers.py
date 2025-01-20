@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # This file is part of Orchid and related technologies.
 #
