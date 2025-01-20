@@ -31,7 +31,7 @@ import parsy
 
 WROTE_CHANGES_TO = 'Wrote changes to'
 
-LEAK_OFF_COUNT = 'LeakOffObservations'
+LEAK_OFF_COUNT = 'SignalObservations'
 MULTI_PICKING = 'Multi-pick Observation Set'
 MULTI_PICK_COUNT = 'MultiPickingObservations'
 PARENT_WELLS = 'ParentWellObservations'

@@ -171,7 +171,7 @@ def main(cli_args):
         logging.info(f'{len(observation_sets_items)=}')
         for observation_set in observation_sets_items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(dne.as_list(observation_set.LeakOffObservations.Items))=}')
+            logging.info(f'{len(dne.as_list(observation_set.SignalObservations.Items))=}')
             logging.info(f'{len(dne.as_list(observation_set.MultiPickingObservations.Items))=}')
 
     # Save project changes to specified .ifrac file
