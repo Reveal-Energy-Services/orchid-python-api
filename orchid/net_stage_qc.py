@@ -28,7 +28,7 @@ import uuid
 import toolz.curried as toolz
 
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from Orchid.Common import CorrectionStatus as NetCorrectionStatus
+from Orchid.FractureDiagnostics import CorrectionStatus as NetCorrectionStatus
 
 
 class CorrectionStatus(enum.Enum):
