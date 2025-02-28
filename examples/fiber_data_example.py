@@ -1,7 +1,8 @@
 import orchid
 from orchid.project_store import as_python_time_series_arrays
 
-project = orchid.load_project("/example/HFTS2_10132022_NAD27TexasCentral_UTC_CWCinterp_wMSgrouped.ifrac")
+# note that you'll need to map the fiber db based on your local paths for this project
+project = orchid.load_project(str(orchid_training_data_path.joinpath("HFTS2_10132022_NAD27TexasCentral_UTC_CWCinterp_wMSgrouped.ifrac")))
 all_well_names = list(project.wells().all_names())
 
 fiber_data = project.fiber_data()[3]
