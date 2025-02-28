@@ -25,6 +25,7 @@ import toolz.curried as toolz
 from orchid import (
     dot_net_dom_access as dna,
     native_data_frame_adapter as dfa,
+    native_fiber_data as nfd,
     native_monitor_adapter as nma,
     native_time_series_adapter as tsa,
     native_project_user_data_adapter as uda,
@@ -104,6 +105,15 @@ class Project(dna.IdentifiedDotNetAdapter):
             An `spo.SearchableProjectObjects` for all the monitors of this project.
         """
         return spo.SearchableProjectObjects(nma.NativeMonitorAdapter, self.dom_object.Monitors.Items)
+
+    def fiber_data(self) -> List[nfd.NativeFiberData]:
+        """
+        Return a `spo.SearchableProjectObjects` instance of all the fiber data for this project.
+
+        Returns:
+            An `spo.SearchableProjectObjects` for all the monitors of this project.
+        """
+        return list(spo.SearchableProjectObjects(nfd.NativeFiberData, self.dom_object.FiberDataSets.Items))
 
     def project_bounds(self) -> ProjectBounds:
         result = toolz.pipe(self.dom_object.GetProjectBounds(),
