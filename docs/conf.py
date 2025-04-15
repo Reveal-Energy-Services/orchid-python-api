@@ -35,11 +35,11 @@ sys.path.insert(0, os.path.abspath('../'))  # repository root
 # -- Project information -----------------------------------------------------
 
 project = 'Orchid Python Api'
-copyright = '2019-2024, KAPPA'
+copyright = '2019-2025, KAPPA'
 author = 'KAPPA'
 
 # The full version, including alpha/beta/rc tags
-release = '5.24.4'
+release = '5.25.1'
 
 
 # -- General configuration ---------------------------------------------------
