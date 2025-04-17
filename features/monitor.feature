@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 # This file is part of Orchid and related technologies.
 #
 
-Feature: Adapted IMonitor DOM API
+Feature: Adapted ITimeSeriesMonitor DOM API
   As a data engineer,
   I want to access Orchid monitors conveniently using Python
   In order to leverage my existing knowledge, code and data

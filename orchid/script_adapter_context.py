@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -32,7 +32,7 @@ def append_orchid_assemblies_directory_path() -> None:
     """
     Append the directory containing the required Orchid assemblies to `sys.path`.
     """
-    orchid_bin_dir = toolz.get_in(['orchid', 'root'], orchid.configuration.python_api())
+    orchid_bin_dir = toolz.get_in(['orchid', 'root'], orchid.configuration.get_configuration())
     if orchid_bin_dir not in sys.path:
         sys.path.append(orchid_bin_dir)
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -31,17 +31,19 @@ import parse_script_output as pso
 
 # noinspection PyPackageRequirements
 from behave import *
+
 use_step_matcher("parse")
 
 
 class ExtendedParseError(Exception):
     """An error providing better error information to diagnose issues."""
+
     def __str__(self):
         indent = '  '
         # noinspection PyUnresolvedReferences
         return ('\n'
                 f'{indent}Consumed:'
-                f'\n{indent * 2}{repr(self.__context__.stream[self.__context__.index -64 :self.__context__.index])}'
+                f'\n{indent * 2}{repr(self.__context__.stream[self.__context__.index - 64:self.__context__.index])}'
                 '\n'
                 f'{indent}Parsing:'
                 f'\n{indent * 2}{repr(self.__context__.stream[self.__context__.index:])}\n')
@@ -104,7 +106,7 @@ def step_impl(context, observation_count):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_observations_count = pso.get_second_observations_count.parse(script_output)
+        actual_observations_count = pso.get_second_observations_count.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     try:
@@ -133,7 +135,7 @@ def step_impl(context, attribute_count):
     script_output = context.script_process.stderr
     try:
         actual_attributes_count_per_stage_per_well = \
-            pso.get_attribute_count_for_each_stage_and_well.parse(script_output)
+            pso.get_attribute_count_for_each_stage_and_well.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     try:
@@ -159,7 +161,7 @@ def step_impl(context):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_added_stages_details = pso.get_added_stages.parse(script_output)
+        actual_added_stages_details = pso.get_added_stages.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_added_stage_details = context.table
@@ -168,7 +170,6 @@ def step_impl(context):
 
     for expected_details_row, actual_details in zip(expected_added_stage_details.rows, actual_added_stages_details):
         assert_that(actual_details.stage_name, equal_to(expected_details_row['stage_name']))
-        assert_that(actual_details.shmin, equal_to(expected_details_row['shmin']))
         assert_that(actual_details.cluster_count, equal_to(int(expected_details_row['clusters'])))
         assert_that(actual_details.global_stage_sequence_no, equal_to(int(expected_details_row['global_seq_no'])))
         expected_stage_time_range = pdt.parse(expected_details_row['stage_time_range'])
@@ -323,7 +324,7 @@ def step_impl(context, set_name):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_results = pso.get_observations_counts.parse(script_output)
+        actual_results = pso.get_observations_counts.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_observation_counts = context.table

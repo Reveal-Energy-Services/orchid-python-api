@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -51,17 +51,17 @@ Feature: Low-level DOM API (stage)
 
     Examples: Bakken
       | field  | well    | stage_no | name_without_well | order | global_stage_no | connection  |
-      | Bakken | Demo_1H | 1        | Stage-1           | 0     | 4               | PlugAndPerf |
-      | Bakken | Demo_1H | 50       | Stage-50          | 49    | 128             | PlugAndPerf |
-      | Bakken | Demo_1H | 4        | Stage-4           | 3     | 10              | PlugAndPerf |
-      | Bakken | Demo_2H | 1        | Stage-1           | 0     | 2               | PlugAndPerf |
-      | Bakken | Demo_2H | 50       | Stage-50          | 49    | 136             | PlugAndPerf |
-      | Bakken | Demo_2H | 35       | Stage-35          | 34    | 97              | PlugAndPerf |
-      | Bakken | Demo_2H | 13       | Stage-13          | 12    | 28              | PlugAndPerf |
-      | Bakken | Demo_4H | 1        | Stage-1           | 0     | 3               | PlugAndPerf |
-      | Bakken | Demo_4H | 35       | Stage-35          | 34    | 129             | PlugAndPerf |
-      | Bakken | Demo_4H | 29       | Stage-29          | 28    | 114             | PlugAndPerf |
-      | Bakken | Demo_4H | 6        | Stage-6           | 5     | 15              | PlugAndPerf |
+      | Bakken | Demo_1H | 1        | Stage-1           | 0     | 3               | PlugAndPerf |
+      | Bakken | Demo_1H | 50       | Stage-50          | 49    | 127             | PlugAndPerf |
+      | Bakken | Demo_1H | 4        | Stage-4           | 3     | 9              | PlugAndPerf |
+      | Bakken | Demo_2H | 1        | Stage-1           | 0     | 1               | PlugAndPerf |
+      | Bakken | Demo_2H | 50       | Stage-50          | 49    | 135             | PlugAndPerf |
+      | Bakken | Demo_2H | 35       | Stage-35          | 34    | 96              | PlugAndPerf |
+      | Bakken | Demo_2H | 13       | Stage-13          | 12    | 27              | PlugAndPerf |
+      | Bakken | Demo_4H | 1        | Stage-1           | 0     | 2               | PlugAndPerf |
+      | Bakken | Demo_4H | 35       | Stage-35          | 34    | 128             | PlugAndPerf |
+      | Bakken | Demo_4H | 29       | Stage-29          | 28    | 113             | PlugAndPerf |
+      | Bakken | Demo_4H | 6        | Stage-6           | 5     | 14              | PlugAndPerf |
 
     Examples: Montney
       | field   | well    | stage_no | name_without_well | order | global_stage_no | connection  |

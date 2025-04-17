@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -54,8 +54,7 @@ def app_settings_path() -> str:
 
     :return: The required pathname.
     """
-    result = os.fspath(pathlib.Path(toolz.get_in(['orchid', 'root'],
-                                                 orchid.configuration.python_api())).joinpath('appSettings.json'))
+    result = os.fspath(pathlib.Path(toolz.get_in(['orchid', 'root'], orchid.configuration.get_configuration())).joinpath('appSettings.json'))
     return result
 
 

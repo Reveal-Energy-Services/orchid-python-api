@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -344,7 +344,7 @@ def step_impl(context, stage_no, well, to_start, to_stop):
         to_stop (str): The new stop time of the stage.
     """
     stage_of_interest = cf.find_stage_by_stage_no_in_well_of_project(context, stage_no, well)
-    stage_of_interest.time_range = (pdt.period(pdt.parse(to_start), pdt.parse(to_stop)))
+    stage_of_interest.time_range = (pdt.interval(pdt.parse(to_start), pdt.parse(to_stop)))
 
 
 # noinspection PyBDDParameters
@@ -411,7 +411,7 @@ def step_impl(context):
                                               md_top=calculate_md_top(row),
                                               md_bottom=calculate_md_bottom(row),
                                               cluster_count=calculate_cluster_count(row),
-                                              maybe_time_range=pdt.Period(calculate_start_time(row),
+                                              maybe_time_range=pdt.Interval(calculate_start_time(row),
                                                                           calculate_stop_time(row)),
                                               maybe_isip=calculate_isip(row),
                                               maybe_shmin=calculate_shmin(row))

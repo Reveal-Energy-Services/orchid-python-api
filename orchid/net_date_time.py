@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -24,7 +24,6 @@ from typing import Tuple, Union
 
 import dateutil.tz as duz
 import pendulum as pdt
-import pendulum.tz as ptz
 
 from orchid import base
 
@@ -170,7 +169,7 @@ def _(net_time_point: DateTime) -> pdt.DateTime:
         return NAT
 
     if net_time_point.Kind == DateTimeKind.Utc:
-        return _net_time_point_to_datetime(base.constantly(ptz.UTC), net_time_point)
+        return _net_time_point_to_datetime(base.constantly(pdt.UTC), net_time_point)
 
     if net_time_point.Kind == DateTimeKind.Unspecified:
         raise NetDateTimeUnspecifiedDateTimeKindError(net_time_point)
@@ -201,9 +200,9 @@ def _(net_time_point: DateTimeOffset) -> pdt.DateTime:
     def net_date_time_offset_to_timezone(ntp):
         integral_offset = int(ntp.Offset.TotalSeconds)
         if integral_offset == 0:
-            return ptz.UTC
+            return pdt.UTC
 
-        return ptz.timezone(integral_offset)
+        return pdt.timezone(integral_offset)
 
     return _net_time_point_to_datetime(net_date_time_offset_to_timezone, net_time_point)
 
@@ -227,7 +226,7 @@ def as_net_date_time(time_point: pdt.DateTime) -> DateTime:
     if time_point == NAT:
         return DateTime.MinValue
 
-    if not time_point.tzinfo == ptz.UTC:
+    if not time_point.tzinfo == pdt.UTC:
         raise NetDateTimeNoTzInfoError(time_point)
 
     carry_seconds, milliseconds = microseconds_to_milliseconds_with_carry(time_point.microsecond)

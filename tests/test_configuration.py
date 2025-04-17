@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -75,7 +75,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_fallback_configuration.return_value = expected_configuration
         stub_get_file_configuration.return_value = {}
         stub_get_environment_configuration.return_value = {}
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         assert_that(actual, equal_to(expected_configuration))
 
@@ -91,7 +91,7 @@ class ConfigurationTest(unittest.TestCase):
         expected_configuration = {'coniunx': {'barbarus': 'colubrae'}}
         stub_get_file_configuration.return_value = expected_configuration
         stub_get_environment_configuration.return_value = {}
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         assert_that(actual, equal_to(expected_configuration))
 
@@ -106,7 +106,7 @@ class ConfigurationTest(unittest.TestCase):
         file_configuration = {'coniunx': {'magnitudo': 'colubrae'}}
         stub_get_file_configuration.return_value = file_configuration
         stub_get_environment_configuration.return_value = {}
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         expected_configuration = {'coniunx': {'barbarus': 'ponet',
                                               'magnitudo': 'colubrae'}}
@@ -123,7 +123,7 @@ class ConfigurationTest(unittest.TestCase):
         file_configuration = {'coniugis': {'barbarus': 'colubrae'}}
         stub_get_file_configuration.return_value = file_configuration
         stub_get_environment_configuration.return_value = {}
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         expected_configuration = {'coniunx': {'barbarus': 'ponet'},
                                   'coniugis': {'barbarus': 'colubrae'}}
@@ -140,7 +140,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_file_configuration.return_value = {}
         expected_configuration = {'coniunx': {'barbarus': 'grandisit'}}
         stub_get_environment_configuration.return_value = expected_configuration
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         assert_that(actual, equal_to(expected_configuration))
 
@@ -155,7 +155,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_file_configuration.return_value = {}
         environment_configuration_configuration = {'coniunx': {'Gnaeus': 'grandisit'}}
         stub_get_environment_configuration.return_value = environment_configuration_configuration
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         expected_configuration = {'coniunx': {'barbarus': 'ponet',
                                               'Gnaeus': 'grandisit'}}
@@ -172,7 +172,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_file_configuration.return_value = {}
         environment_configuration = {'coniugis': {'barbarus': 'grandisit'}}
         stub_get_environment_configuration.return_value = environment_configuration
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         expected_configuration = {'coniunx': {'barbarus': 'ponet'},
                                   'coniugis': {'barbarus': 'grandisit'}}
@@ -190,7 +190,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_file_configuration.return_value = file_configuration
         environment_configuration = {'coniunx': {'deliciam': 'lapidarium'}}
         stub_get_environment_configuration.return_value = environment_configuration
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         assert_that(actual, equal_to({'coniunx': {'barbarus': 'ponet',
                                                   'deliciam': 'lapidarium'}}))
@@ -207,7 +207,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_file_configuration.return_value = file_configuration
         environment_configuration = {'coniunx': {'patruelis': 'lapidarium'}}
         stub_get_environment_configuration.return_value = environment_configuration
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         assert_that(actual, equal_to({'coniunx': {'barbarus': 'ponet',
                                                   'deliciam': 'providit',
@@ -225,7 +225,7 @@ class ConfigurationTest(unittest.TestCase):
         stub_get_file_configuration.return_value = file_configuration
         environment_configuration = {'coniugis': {'deliciam': 'lapidarium'}}
         stub_get_environment_configuration.return_value = environment_configuration
-        actual = orchid.configuration.python_api()
+        actual = orchid.configuration.get_configuration()
 
         assert_that(actual, equal_to({'coniunx': {'barbarus': 'ponet',
                                                   'deliciam': 'providit'},
