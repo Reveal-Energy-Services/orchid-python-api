@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -171,7 +171,7 @@ def main(cli_args):
         logging.info(f'{len(observation_sets_items)=}')
         for observation_set in observation_sets_items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(dne.as_list(observation_set.LeakOffObservations.Items))=}')
+            logging.info(f'{len(dne.as_list(observation_set.SignalObservations.Items))=}')
             logging.info(f'{len(dne.as_list(observation_set.MultiPickingObservations.Items))=}')
 
     # Save project changes to specified .ifrac file

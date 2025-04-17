@@ -1,4 +1,4 @@
-#  Copyright 2017-2024 KAPPA
+#  Copyright 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -31,7 +31,7 @@ import parsy
 
 WROTE_CHANGES_TO = 'Wrote changes to'
 
-LEAK_OFF_COUNT = 'LeakOffObservations'
+LEAK_OFF_COUNT = 'SignalObservations'
 MULTI_PICKING = 'Multi-pick Observation Set'
 MULTI_PICK_COUNT = 'MultiPickingObservations'
 PARENT_WELLS = 'ParentWellObservations'

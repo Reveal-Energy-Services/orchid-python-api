@@ -13,6 +13,31 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 5.25.1
+
+This release is the production release of the Orchid Python API corresponding to Orchid 5.25.1. We have made the necessary
+updates to the Python API to remain compatible with the .NET API.
+
+Additionally, we have added a simple high level API to access fiber data. See `fiber_data_example.py` in the `examples\` folder.
+Note that even with a small fiber data set, converting the fiber data into a `pandas` data frame takes quite
+a while. Getting the data in .NET objects is fairly quick, so there may be room for other ideas there.
+
+#### Possible breaking .NET API changes
+
+- None
+
+#### Resolved Issues
+
+- None
+
+#### Features
+
+- None
+
+#### Known Issues
+
+- None
+
 ### Release notes for 5.24.4
 
 This release is the production release of the Orchid Python API corresponding to Orchid 5.24.3. We have made the necessary
