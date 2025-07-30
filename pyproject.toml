@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "5.25.1"
+version = "5.25.2"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of KAPPA.)"
 authors = [ "KAPPA. <support@kappaeng.com>",]
 maintainers = [ "KAPPA. <support@kappaeng.com>",]
