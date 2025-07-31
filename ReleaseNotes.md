@@ -18,7 +18,8 @@ to render the file, you can much more easily navigate the document links.
 This release is the production release of the Orchid Python API corresponding to Orchid 5.25.2. We have made the necessary
 updates to the Python API to remain compatible with the .NET API.
 
-A minor change has been made where we've split the dependencies between the example files and the sdk dependencies for a smaller footprint when installing the API.
+A minor change has been made where we've split the dependencies between the example files and the sdk dependencies for a smaller footprint when installing the API. There are probably
+many ways to do this, but when installing the new package, if you want to install the example dependencies you can run `pip install .[examples]` or if using poetry `poetry install -E examples`
 
 #### Possible breaking .NET API changes
 
