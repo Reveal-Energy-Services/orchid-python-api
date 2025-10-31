@@ -57,7 +57,7 @@ Feature: Adapted IDataFrame DOM API
       | field     | name                                                  | display_name                                          |
       | Permian-u | Project Data Frame 01                                 | Project Data Frame 01                                 |
       | Permian-u | FDI Observations                                      | FDI Observations                                      |
-      | Permian-u | Microseismic Data Frame 01 (Potentially Corrupted)    | Microseismic Data Frame 01 (Potentially Corrupted)    |
+      | Permian-u | Microseismic Data Frame 01                            | Microseismic Data Frame 01                            |
       | Permian-u | Stage Data Frame 01                                   | Stage Data Frame 01                                   |
       | Permian-u | Well Log Set Data Frame 01                            | Well Log Set Data Frame 01                            |
       | Permian-u | C2-stg12_Xft_Permian_Edited_19-Nov-2018               | C2-stg12_Xft_Permian_Edited_19-Nov-2018               |
@@ -66,9 +66,9 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Permian 04-12
       | field     | name                                                  | display_name                                          |
-      | Permian-c | Project Data Frame 01 (Potentially Corrupted)         | Project Data Frame 01 (Potentially Corrupted)         |
-      | Permian-c | FDI Observations (Potentially Corrupted)              | FDI Observations (Potentially Corrupted)              |
-      | Permian-c | C3-Microseismic Data Frame 01 (Potentially Corrupted) | C3-Microseismic Data Frame 01 (Potentially Corrupted) |
+      | Permian-c | Project Data Frame 01                                 | Project Data Frame 01                                 |
+      | Permian-c | FDI Observations                                      | FDI Observations                                      |
+      | Permian-c | C3-Microseismic Data Frame 01                         | C3-Microseismic Data Frame 01                         |
 
     Examples: GnG
       | field     | name                                                  | display_name                                          |
@@ -88,7 +88,7 @@ Feature: Adapted IDataFrame DOM API
       | field     | object_id                            | is_potentially_corrupt |
       | Permian-u | c08e6988-d8f5-4d7b-bccd-de968a5b398b | False                  |
       | Permian-u | 08bea47e-5160-4f32-b8c4-3b3efa3d512b | False                  |
-      | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 | True                   |
+      | Permian-u | bbcdf86e-7cfe-437e-bc38-18d3389ada74 | False                  |
       | Permian-u | ce279d16-355c-4868-bbe7-21a8cb69cbc0 | False                  |
       | Permian-u | f1d406e6-c264-4d10-9fd5-b47a7be04aa9 | False                  |
       | Permian-u | 5304d2ac-dbf8-44db-8dd8-c2203714c456 | False                  |
@@ -97,9 +97,9 @@ Feature: Adapted IDataFrame DOM API
 
     Examples: Permian 04-12
       | field     | object_id                            | is_potentially_corrupt |
-      | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f | True                   |
-      | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 | True                   |
-      | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | True                   |
+      | Permian-c | 0d2ec4b2-5766-461a-b57d-cc711576f46f | False                  |
+      | Permian-c | 0339e49a-a534-4d6f-b218-9862eeb73019 | False                  |
+      | Permian-c | a48e71d9-50ce-49c4-bde2-c1915cb87bd4 | False                  |
 
     Examples: GnG
       | field     | object_id                            | is_potentially_corrupt |
@@ -139,7 +139,7 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Permian 06-16 microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-u'
-    When I query the loaded project for the data frame named 'Microseismic Data Frame 01 (Potentially Corrupted)'
+    When I query the loaded project for the data frame named 'Microseismic Data Frame 01'
     Then I see the sampled cells
       | sample | northing    | p_amplitude | dist_3d    | hor_dist   | dist_azm   | dist_90    |
       | 0      | 11663896.37 | 0.003326    | 499.111743 | 498.619689 | NaN        | NaN        |
@@ -208,7 +208,7 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Permian 04-12 project data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
-    When I query the loaded project for the data frame named 'Project Data Frame 01 (Potentially Corrupted)'
+    When I query the loaded project for the data frame named 'Project Data Frame 01'
     Then I see the sampled cells
       | sample | bh_easting   | md_bottom | part_end_time                 | part_pumped_vol | p_net       | pump_time |
       | 0      | 2.141259e+06 | 16773.0   | 2018-11-13T22:37:40.000+00:00 | 8423.638083     | 7522.805942 | 135       |
@@ -222,7 +222,7 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Permian 04-12 FDI data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
-    When I query the loaded project for the data frame named 'FDI Observations (Potentially Corrupted)'
+    When I query the loaded project for the data frame named 'FDI Observations'
     Then I see the sampled cells
       | sample | obs_set_name     | tr_stg_part_no | timestamp                     | delta_t          | delta_p    | vol_to_pick  |
       | 0      | FDI Observations | Stage-01       | 2018-11-13T21:45:11.987+00:00 | 01:22:18.9873152 | 0.362115   | 4299.649417  |
@@ -237,7 +237,7 @@ Feature: Adapted IDataFrame DOM API
 
   Scenario: Sampled Permian 04-12 microseismic data frame have the correct cells
     Given I have loaded the project for the field, 'Permian-c'
-    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01 (Potentially Corrupted)'
+    When I query the loaded project for the data frame named 'C3-Microseismic Data Frame 01'
     Then I see the sampled cells
       | sample | timestamp                     | northing    | depth_tvd_ss | dist_3d    | planar_dist_azm | vert_dist  |
       | 0      | 2018-11-12T14:14:30.000+00:00 | 11663896.37 | 11468.62     | 499.111743 | NaN             | NaN        |

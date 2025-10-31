@@ -81,7 +81,7 @@ def search_data_frames():
     # 4.0 Search for a data frame by its display name
 
     microseismic_data_frames = list(project.data_frames().find_by_display_name(
-        'Microseismic Data Frame 01 (Potentially Corrupted)'))
+        'Microseismic Data Frame 01'))
     assert(len(microseismic_data_frames) == 1)
     microseismic_data_frame = microseismic_data_frames[0]
     print_elided_data_frame(microseismic_data_frame.pandas_data_frame(), 'Microseismic Data Frame')
