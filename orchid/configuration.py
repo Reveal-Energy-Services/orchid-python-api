@@ -75,7 +75,7 @@ def get_fallback_configuration() -> Dict[str, Dict[str, str]]:
     fallback = {}
     if program_files_path is not None:
         orchid_version = get_orchid_sdk_version() + '.*'
-        python_api_lib_pattern_path = os.path.join(program_files_path, 'Reveal Energy Services', 'Orchid', orchid_version, 'Orchid-'+orchid_version, 'PythonApiLibs')
+        python_api_lib_pattern_path = os.path.join(program_files_path, 'KAPPA', 'Orchid', orchid_version, 'PythonApiLibs')
         matching_paths = glob.glob(python_api_lib_pattern_path)
         if len(matching_paths) == 1:
             python_api_lib_path = matching_paths[0]
