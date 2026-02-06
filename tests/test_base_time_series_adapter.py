@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -44,8 +44,6 @@ class StubBaseTimeSeriesAdapter(bca.BaseTimeSeriesAdapter):
 
 # Test ideas:
 class TestBaseCurveAdapter(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_no_data_points_time_series(self):
         stub_net_time_series = tsn.create_stub_net_time_series(tsn.DONT_CARE_ID_A, data_points=())

@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -135,9 +135,9 @@ def calculate_volume_2_first_response():
             derive_1_time = first_derivative_threshold(p_stg, 0.2)
             derive_2_time = second_derivative_peak(p_stg)
             if derive_1_time is not None:
-                derive_1_time = dt.datetime.utcfromtimestamp(derive_1_time.tolist() * 1e-9).replace(tzinfo=orchid.UTC)
+                derive_1_time = derive_1_time.astype(dt.datetime).replace(tzinfo=dt.timezone.utc)
             if derive_2_time is not None:
-                derive_2_time = dt.datetime.utcfromtimestamp(derive_2_time.tolist() * 1e-9).replace(tzinfo=orchid.UTC)
+                derive_2_time = derive_2_time.astype(dt.datetime).replace(tzinfo=dt.timezone.utc)
             vfr_d1, _, _ = (compute_stage_treatment_aggregates(stage, derive_1_time) if derive_1_time is not None
                             else (None, None, None))
             vfr_d2, _, _ = (compute_stage_treatment_aggregates(stage, derive_2_time) if derive_2_time is not None

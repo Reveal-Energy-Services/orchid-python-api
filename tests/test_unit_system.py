@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -26,8 +26,6 @@ from hamcrest import assert_that, equal_to
 
 
 class TestUnitSystem(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_abbreviation(self):
         for expected, unit in [

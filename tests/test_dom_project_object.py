@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -23,8 +23,6 @@ from tests import stub_net as tsn
 
 
 class TestProjectObject(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_constructed_instance_has_display_name_supplied_to_constructor(self):
         display_name = 'pellueram'

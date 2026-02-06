@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -80,8 +80,6 @@ def is_power_unit(unit):
 # - test_as_net_quantity_in_same_unit
 # - test_as_net_quantity_in_different_unit
 class TestNetQuantity(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     # noinspection PyUnresolvedReferences
     def test_as_measurement_in_common_unit(self):

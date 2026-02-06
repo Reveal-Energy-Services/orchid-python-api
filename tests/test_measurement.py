@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -27,8 +27,6 @@ from orchid import (
 # - Availability of Quantity and Unit
 # - Unit registry is application registry (supports pickle / unpickle)
 class TestMeasurement(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     # Although this test (and the tests for quantity and unit) are a bit weak (easy errors in spelling), they
     # mitigate our risks by ensuring that expected attributes are available (although they **may not** have

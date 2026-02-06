@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2024 KAPPA
+#  Copyright (c) 2017-2025 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -19,13 +19,12 @@ import glob
 import logging
 import os
 import pathlib
-from typing import Dict
+from typing import Dict, Any
 import warnings
-
 import toolz.curried as toolz
 import yaml
 
-import orchid.version
+from orchid.version import get_orchid_sdk_version
 
 
 _logger = logging.getLogger(__name__)
@@ -40,28 +39,20 @@ ORCHID_ROOT_ENV_VAR = 'ORCHID_ROOT'
 ORCHID_TRAINING_DATA_ENV_VAR = 'ORCHID_TRAINING_DATA'
 
 
-def get_environment_configuration() -> Dict:
+def get_environment_configuration() -> Dict[str, Dict[str, str]]:
     """
     Gets the API configuration from the system environment.
 
     Returns:
         The configuration, if any, calculated from the system environment.
     """
-    environment_configuration = {}
-    if ORCHID_ROOT_ENV_VAR in os.environ and ORCHID_TRAINING_DATA_ENV_VAR in os.environ:
-        environment_configuration = {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR],
-                                                'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
-    elif ORCHID_ROOT_ENV_VAR in os.environ:
-        environment_configuration = {'orchid': {'root': os.environ[ORCHID_ROOT_ENV_VAR]}}
-    elif ORCHID_TRAINING_DATA_ENV_VAR in os.environ:
-        environment_configuration = {'orchid': {'training_data': os.environ[ORCHID_TRAINING_DATA_ENV_VAR]}}
-
+    environment_configuration = {'orchid': {key: os.environ[env_var] for key, env_var in
+                                            [('root', ORCHID_ROOT_ENV_VAR), ('training_data', ORCHID_TRAINING_DATA_ENV_VAR)] if env_var in os.environ}}
     _logger.debug(f'environment configuration = {environment_configuration}')
-
     return environment_configuration
 
 
-def get_fallback_configuration() -> Dict:
+def get_fallback_configuration() -> Dict[str, Dict[str, str]]:
     """
     Returns final fallback API configuration.
 
@@ -80,24 +71,25 @@ def get_fallback_configuration() -> Dict:
     # `$ProgramFiles/Reveal Energy Services, Inc/Orchid/<version-specific-directory>`. The following code
     # calculates an actual location by substituting the current version number for the symbol,
     # `<version-specific-directory>`.
-    standard_orchid_dir = pathlib.Path(os.environ['ProgramFiles']).joinpath('Reveal Energy Services',
-                                                                            'Orchid')
-    version_id = orchid.version.api_version()
-    version_dirname = f'Orchid-{version_id.major}.{version_id.minor}.{version_id.micro}'
-    glob_path = standard_orchid_dir.joinpath(f'{version_dirname}*', 'PythonApiLibs')
-    candidate_directories = glob.glob(str(glob_path))
-    if len(candidate_directories) == 1:
-        fallback = {'orchid': {'root': str(candidate_directories[0])}}
-    elif len(candidate_directories) == 0:
-        fallback = {}
-    else:
-        fallback = {}
-        warnings.warn(f'Fallback configuration found multiple matches for {str(glob_path)}')
-    _logger.debug(f'fallback configuration={fallback}')
+    program_files_path = os.environ.get("ProgramFiles")
+    fallback = {}
+    if program_files_path is not None:
+        orchid_version = get_orchid_sdk_version() + '.*'
+        python_api_lib_pattern_path = os.path.join(program_files_path, 'KAPPA', 'Orchid', orchid_version, 'PythonApiLibs')
+        matching_paths = glob.glob(python_api_lib_pattern_path)
+        if len(matching_paths) == 1:
+            python_api_lib_path = matching_paths[0]
+            _logger.info(f"PythonApiLibs path found : {python_api_lib_path}")
+            fallback = {'orchid': {'root': str(matching_paths[0])}}
+        elif len(matching_paths) == 0:
+            _logger.info(f"PythonApiLibs path not found for {str(python_api_lib_pattern_path)}")
+        else:
+            warnings.warn(f'Fallback configuration found multiple matches for {str(python_api_lib_pattern_path)}')
+        _logger.debug(f'fallback configuration={fallback}')
     return fallback
 
 
-def get_file_configuration() -> Dict:
+def get_file_configuration() -> Dict[str, Any]:
     """
     Returns the API configuration read from the file system.
 
@@ -117,7 +109,7 @@ def get_file_configuration() -> Dict:
     return file
 
 
-def python_api() -> Dict[str, str]:
+def get_configuration() -> Dict[str, Dict[str, Any]]:
     """
     Calculate the configuration for the Python API.
 
@@ -128,12 +120,15 @@ def python_api() -> Dict[str, str]:
     file_configuration = get_file_configuration()
     env_configuration = get_environment_configuration()
 
-    result = merge_configurations(fallback_configuration, file_configuration, env_configuration)
-    _logger.debug(f'result configuration={result}')
-    return result
+    configuration_dict = merge_configurations(fallback_configuration, file_configuration, env_configuration)
+    if not configuration_dict.get('orchid') or (configuration_dict.get('orchid') and not configuration_dict['orchid'].get('root')):
+        raise ConfigurationError("You must create an environment variable ORCHID_ROOT or a config file to set up the path to the PythonApiLibs folder since it's not in the default location")
+
+    _logger.debug(f'result configuration={configuration_dict}')
+    return configuration_dict
 
 
-def merge_configurations(fallback_configuration, file_configuration, env_configuration):
+def merge_configurations(fallback_configuration: Dict[str, Dict[str, str]], file_configuration: Dict[str, Dict[str, Any]], env_configuration: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, Any]]:
     # The rules for merging these configurations is not the same as a simple dictionary. The rules are:
     # - If two different configurations share a top-level key, merge the second level dictionaries.
     # - Then merge the distinct top-level keys.
@@ -163,5 +158,5 @@ def training_data_path() -> pathlib.Path:
         This function raises KeyError if the training directory path is not available from the package
         configuration.
     """
-    result = pathlib.Path(toolz.get_in(['orchid', 'training_data'], python_api()))
+    result = pathlib.Path(toolz.get_in(['orchid', 'training_data'], get_configuration()))
     return result

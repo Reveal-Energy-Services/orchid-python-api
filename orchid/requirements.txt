@@ -1,0 +1,14 @@
+clr==1.0.3
+deal==4.24.4
+numpy==2.0.1
+option==2.1.0
+packaging==24.1
+pandas==2.2.2
+pendulum==3.0.0
+pint==0.24.3
+python_dateutil==2.9.0.post0
+pythonnet==3.0.3
+PyYAML==6.0.1
+toolz==0.12.1
+pint==0.20.1
+numpy==1.26.4

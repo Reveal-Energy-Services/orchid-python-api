@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -69,7 +69,7 @@ def multi_pick_observations(native_project, native_monitor):
         Multi-pick observations for each treatment stage of `native_project` observed by `native_monitor`.
     Args:
         native_project: The `IProject` whose observations are sought.
-        native_monitor: The `IMonitor` whose observations we automatically pick.
+        native_monitor: The `ITimeSeriesMonitor` whose observations we automatically pick.
 
     Returns:
 
@@ -132,7 +132,7 @@ def is_stage_visible_to_monitor(native_monitor, stage):
     Determine if the stage treatment is visible to the specified monitor.
 
     Args:
-        native_monitor: The .NET `IMonitor` that may "see" the stage treatment.
+        native_monitor: The .NET `ITimeSeriesMonitor` that may "see" the stage treatment.
         stage: The stage of interest.
 
     Returns:
@@ -171,7 +171,7 @@ def main(cli_args):
         logging.info(f'{len(observation_sets_items)=}')
         for observation_set in observation_sets_items:
             logging.info(f'{observation_set.Name=}')
-            logging.info(f'{len(dne.as_list(observation_set.LeakOffObservations.Items))=}')
+            logging.info(f'{len(dne.as_list(observation_set.SignalObservations.Items))=}')
             logging.info(f'{len(dne.as_list(observation_set.MultiPickingObservations.Items))=}')
 
     # Save project changes to specified .ifrac file

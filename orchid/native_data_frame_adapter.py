@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -13,6 +13,7 @@
 #
 
 import dataclasses
+import traceback
 import uuid
 from typing import Iterable
 
@@ -227,9 +228,13 @@ def _table_row_to_dict(reader):
         except ValueError as ve:
             if 'DateTimeOffset.MinValue' in str(ve):
                 raise DataFrameAdapterDateTimeOffsetMinValueError(column_no, column_name)
+            else:
+                raise Exception(f"Cannot read value from dot net data table column {column_no} named {column_name}, value {value}, {traceback.format_exc()}")
         except TypeError as te:
             if 'System.DateTime' in str(te):
                 raise DataFrameAdapterDateTimeError(value.GetType())
+            else:
+                raise Exception(f"Cannot read value from dot net data table column {column_no} named {column_name}, value {value}, {traceback.format_exc()}")
 
     result = toolz.pipe(
         reader.FieldCount,

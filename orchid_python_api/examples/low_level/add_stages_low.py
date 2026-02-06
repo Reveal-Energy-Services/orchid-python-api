@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -74,7 +74,7 @@ class CreateStageDto:
     # issue with Orchid.
     #
     # Note supplying no value (an implicit `None`) results in the largest possible .NET time range.
-    maybe_time_range: Optional[pendulum.Period] = None
+    maybe_time_range: Optional[pendulum.Interval] = None
 
     # WARNING: one must currently supply an ISIP for each stage; otherwise, Orchid fails to correctly load
     # the project saved with the added stages.

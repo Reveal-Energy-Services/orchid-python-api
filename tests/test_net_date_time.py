@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2024 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -37,8 +37,6 @@ from System import DateTime, DateTimeKind, DateTimeOffset, TimeSpan
 # - is_min_value() for values below, at and above boundary
 # - as_date_time returns correct value if .NET DateTimeOffset has non-zero offset
 class TestNetDateTime(unittest.TestCase):
-    def test_canary(self):
-        assert_that(2 + 2, equal_to(4))
 
     def test_as_date_time_net_time_point_kind_utc(self):
         time_point_dto = stub_dt.TimePointDto(2020, 8, 5, 6, 59, 41, stub_dt.make_milliseconds(726),
