@@ -64,7 +64,7 @@ def main(cli_args):
     change_stage_time_range(project)
 
     # Save project changes to specified .ifrac file
-    orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
+    orchid.save_project(project, cli_args.output_project)
     if cli_args.verbosity >= 1:
         logging.info(f'Wrote changes to "{cli_args.output_project}"')
 

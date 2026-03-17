@@ -24,7 +24,7 @@ from .dot_net import prepare_imports
 prepare_imports()
 
 # High-level API
-from .core import load_project, save_project, optimized_but_possibly_unsafe_save
+from .core import load_project, save_project
 
 # Helpful constants
 from .native_treatment_curve_adapter import TreatmentCurveTypes
