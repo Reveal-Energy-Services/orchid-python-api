@@ -17,7 +17,6 @@
 
 import os
 import pathlib
-import sys
 
 import pytest
 
@@ -74,8 +73,12 @@ def test_configure_skips_proj_lib_when_libshared_missing(tmp_path, monkeypatch):
 
 def test_bootstrap_is_idempotent(monkeypatch):
     import orchid._native as nat
+    monkeypatch.delenv("PROJ_LIB", raising=False)
+    monkeypatch.delenv("GDAL_DATA", raising=False)
     monkeypatch.setattr(nat, "_initialized", False)
     nat.bootstrap()
+    assert nat._initialized is True
     first_proj = os.environ.get("PROJ_LIB")
     nat.bootstrap()
+    assert nat._initialized is True
     assert os.environ.get("PROJ_LIB") == first_proj
