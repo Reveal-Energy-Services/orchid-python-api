@@ -51,6 +51,15 @@ def add_orchid_assemblies() -> None:
     return None
 
 
+def initialize_reactive_ui() -> None:
+    """Call ScriptAdapter.InitializeReactiveUiForScripting() to satisfy ReactiveUI's init requirement."""
+    try:
+        sac.ScriptAdapter.InitializeReactiveUiForScripting()
+        _logger.debug('ReactiveUI initialized via ScriptAdapter')
+    except Exception as exc:  # broad catch intentional — ReactiveUI init is optional
+        _logger.warning('ReactiveUI init skipped: %s: %s', type(exc).__name__, exc)
+
+
 def configure_gdal() -> None:
     """Call GdalBase.ConfigureAll() from MaxRev.Gdal.Core if the assembly is available."""
     try:
@@ -81,5 +90,6 @@ def prepare_imports() -> None:
     # - The call to `append_orchid_assemblies_directory_path`
     with sac.ScriptAdapterContext():
         orchid.dot_net.add_orchid_assemblies()
-    # GDAL init does not require ScriptAdapter; runs after assemblies directory is on sys.path
+    # GDAL and ReactiveUI init do not require ScriptAdapter
     configure_gdal()
+    initialize_reactive_ui()
