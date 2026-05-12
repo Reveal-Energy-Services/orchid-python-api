@@ -59,8 +59,8 @@ def configure_gdal() -> None:
         from MaxRev.Gdal.Core import GdalBase
         GdalBase.ConfigureAll()
         _logger.debug('GdalBase.ConfigureAll() completed')
-    except Exception as exc:
-        _logger.warning(f'GdalBase.ConfigureAll() skipped: {exc}')
+    except Exception as exc:  # broad catch intentional — GDAL init is optional
+        _logger.warning('GdalBase.ConfigureAll() skipped: %s: %s', type(exc).__name__, exc)
 
 
 def app_settings_path() -> str:
@@ -81,4 +81,5 @@ def prepare_imports() -> None:
     # - The call to `append_orchid_assemblies_directory_path`
     with sac.ScriptAdapterContext():
         orchid.dot_net.add_orchid_assemblies()
+    # GDAL init does not require ScriptAdapter; runs after assemblies directory is on sys.path
     configure_gdal()
