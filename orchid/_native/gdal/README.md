@@ -11,6 +11,8 @@ with .NET assemblies that depend on GDAL 3.3.3.
 
        D:\source\Orchid\Orchid\Orchid.Application\bin\x64\Debug\runtimes\win-x64\native\
 
+   (Substitute `Release` for `Debug` if you built in Release configuration.)
+
 2. Copy the entire contents of that `native\` folder into **this** directory:
 
    - All `*.dll` files (gdal303.dll, osr_wrap.dll, gdal_wrap.dll, etc.)
@@ -33,15 +35,23 @@ with .NET assemblies that depend on GDAL 3.3.3.
        proj.db
    ```
 
-3. If the NuGet package also contains a `gdal-data\` folder, copy that here
-   too. The bootstrapper will set `GDAL_DATA` automatically if it finds
-   `orchid/_native/gdal/gdal-data/` at runtime.
+   The folder contains approximately 50 DLLs in total; simply copy all
+   `*.dll` files from `native\` — no need to cherry-pick.
+
+3. **Note on `gdal-data/`:** The MaxRev.Gdal.Core 3.3.3.120 native folder
+   does **not** include a `gdal-data/` directory — it contains only DLLs,
+   `gdalplugins/`, and `maxrev.gdal.core.libshared/`. For GDAL 3.3.3, the
+   required data files are typically embedded in the DLL, so most users will
+   not need `GDAL_DATA` at all. If you do need it (e.g., for custom
+   projections), manually create a `gdal-data/` subdirectory here and
+   populate it; the bootstrapper will then set `GDAL_DATA` automatically if
+   it finds `orchid/_native/gdal/gdal-data/` at runtime.
 
 ## Environment variables set by the bootstrapper
 
 | Variable   | Value                                                  |
 |------------|--------------------------------------------------------|
-| GDAL_DATA  | `<this dir>/gdal-data` (only if that subdir exists)   |
+| GDAL_DATA  | `<this dir>/gdal-data` (only if you manually add that subdir; not present in the MaxRev.Gdal.Core 3.3.3.120 build output) |
 | PROJ_LIB   | `<this dir>/maxrev.gdal.core.libshared`               |
 
 ## Why these DLLs are not committed
