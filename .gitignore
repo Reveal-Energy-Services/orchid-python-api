@@ -182,3 +182,11 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+# Vendored GDAL native DLLs (populate manually from MaxRev.Gdal.Core NuGet package)
+# Keep directory structure (.gitkeep files) but exclude the actual binaries
+orchid/_native/gdal/*.dll
+orchid/_native/gdal/**/*.dll
+orchid/_native/gdal/maxrev.gdal.core.libshared/proj.db
+
+.claude/

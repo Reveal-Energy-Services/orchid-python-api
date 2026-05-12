@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "orchid-python-api"
-version = "5.26.1"
+version = "5.26.2"
 description = "Defines and implements the Python API for Orchid*. (*Orchid is a mark of KAPPA.)"
 authors = [ "KAPPA. <support@kappaeng.com>",]
 maintainers = [ "KAPPA. <support@kappaeng.com>",]
@@ -40,6 +40,8 @@ include=[
     "ReleaseNotes.md",
     "orchid/*.py",
     "orchid/VERSION",
+    "orchid/_native/*.py",
+    "orchid/_native/gdal/**/*",
     "orchid_python_api/examples/*.ipynb",
     "orchid_python_api/examples/*.py",
     "orchid_python_api/examples/low_level/*.ipynb",
