@@ -40,6 +40,8 @@ include=[
     "ReleaseNotes.md",
     "orchid/*.py",
     "orchid/VERSION",
+    "orchid/_native/*.py",
+    "orchid/_native/gdal/**/*",
     "orchid_python_api/examples/*.ipynb",
     "orchid_python_api/examples/*.py",
     "orchid_python_api/examples/low_level/*.ipynb",

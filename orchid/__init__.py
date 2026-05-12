@@ -16,6 +16,9 @@
 #
 
 
+# Must run before pythonnet loads to register GDAL native DLL directory
+from . import _native
+
 # Load the appropriate runtime **before** executing `import clr`
 import pythonnet
 pythonnet.load('coreclr')
