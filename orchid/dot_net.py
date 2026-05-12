@@ -16,6 +16,7 @@
 #
 
 
+import logging
 import os
 import pathlib
 
@@ -29,6 +30,8 @@ load('coreclr')
 
 # noinspection PyPackageRequirements
 import clr
+
+_logger = logging.getLogger(__name__)
 
 
 def add_orchid_assemblies() -> None:
@@ -46,6 +49,18 @@ def add_orchid_assemblies() -> None:
     clr.AddReference('UnitsNet')
     clr.AddReference('System.Collections')
     return None
+
+
+def configure_gdal() -> None:
+    """Call GdalBase.ConfigureAll() from MaxRev.Gdal.Core if the assembly is available."""
+    try:
+        clr.AddReference('MaxRev.Gdal.Core')
+        # noinspection PyUnresolvedReferences
+        from MaxRev.Gdal.Core import GdalBase
+        GdalBase.ConfigureAll()
+        _logger.debug('GdalBase.ConfigureAll() completed')
+    except Exception as exc:
+        _logger.warning(f'GdalBase.ConfigureAll() skipped: {exc}')
 
 
 def app_settings_path() -> str:
@@ -66,3 +81,4 @@ def prepare_imports() -> None:
     # - The call to `append_orchid_assemblies_directory_path`
     with sac.ScriptAdapterContext():
         orchid.dot_net.add_orchid_assemblies()
+    configure_gdal()
