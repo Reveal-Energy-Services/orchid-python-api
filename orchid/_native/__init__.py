@@ -29,16 +29,25 @@ _dll_dir_cookies: list = []
 def _configure(gdal_dir: pathlib.Path) -> None:
     """Register gdal_dir on the Windows DLL search path and set GDAL env vars."""
     gdal_dir_exists = gdal_dir.is_dir()
-    if sys.platform == "win32" and sys.version_info >= (3, 8):
+    if sys.platform == "win32":
         if gdal_dir_exists:
-            cookie = os.add_dll_directory(str(gdal_dir))
-            _dll_dir_cookies.append(cookie)
-            _logger.debug(f"Added DLL directory: {gdal_dir}")
+            gdal_dir_str = str(gdal_dir)
+            # Add to PATH so .NET Core P/Invoke (LoadLibraryExW) can find the DLLs.
+            # os.add_dll_directory() alone is insufficient — it only affects
+            # LoadLibraryEx with LOAD_LIBRARY_SEARCH_USER_DIRS, which the CLR does not use.
+            path_dirs = os.environ.get("PATH", "").split(os.pathsep)
+            if gdal_dir_str not in path_dirs:
+                os.environ["PATH"] = gdal_dir_str + os.pathsep + os.environ.get("PATH", "")
+            # Also call add_dll_directory for Python extension modules (Python 3.8+)
+            if sys.version_info >= (3, 8):
+                cookie = os.add_dll_directory(gdal_dir_str)
+                _dll_dir_cookies.append(cookie)
+            _logger.debug(f"Registered GDAL DLL directory: {gdal_dir}")
         else:
             _logger.warning(f"gdal dir not found at {gdal_dir} — "
                             f"DLLs not registered; copy native files per _native/gdal/README.md")
     else:
-        _logger.debug(f"Skipped add_dll_directory (platform={sys.platform})")
+        _logger.debug(f"Skipped DLL registration (platform={sys.platform})")
 
     proj_dir = gdal_dir / "maxrev.gdal.core.libshared"
     if proj_dir.is_dir():

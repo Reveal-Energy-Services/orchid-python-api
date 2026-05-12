@@ -39,7 +39,7 @@ copyright = '2019-2026, KAPPA'
 author = 'KAPPA'
 
 # The full version, including alpha/beta/rc tags
-release = '5.26.1'
+release = '5.26.2'
 
 
 # -- General configuration ---------------------------------------------------

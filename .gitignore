@@ -188,3 +188,5 @@ fabric.properties
 orchid/_native/gdal/*.dll
 orchid/_native/gdal/**/*.dll
 orchid/_native/gdal/maxrev.gdal.core.libshared/proj.db
+
+.claude/
