@@ -60,7 +60,7 @@ python = ">=3.10,<3.13"
 # Essential dependencies
 clr = "1.0.3"
 deal = "^4.24.4"
-numpy = "^1.26.4"
+numpy = ">=1.26.4,<3"
 option = "^2.1.0"
 packaging = "^24.1"
 pandas = "^2.2.2"
