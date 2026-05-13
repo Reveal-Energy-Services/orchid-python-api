@@ -270,7 +270,7 @@ def hms(t):
 
 _EMPTY_CONVERTER = {
     'None': None,
-    'NaN': np.NaN,
+    'NaN': np.nan,
     'NaT': pd.NaT,
 }
 
