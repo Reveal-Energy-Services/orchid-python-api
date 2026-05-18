@@ -185,6 +185,7 @@ fabric.properties
 
 # Vendored GDAL native DLLs (populate manually from MaxRev.Gdal.Core NuGet package)
 # Keep directory structure (.gitkeep files) but exclude the actual binaries
+orchid/_native/gdal/.gdal_fetched
 orchid/_native/gdal/*.dll
 orchid/_native/gdal/**/*.dll
 orchid/_native/gdal/maxrev.gdal.core.libshared/proj.db
