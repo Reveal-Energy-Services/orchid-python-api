@@ -73,6 +73,11 @@ def _fetch_gdal(gdal_dir: pathlib.Path) -> None:
         _logger.info('GDAL native DLLs downloaded successfully.')
     except Exception as exc:
         _logger.warning('Failed to download GDAL native DLLs: %s: %s', type(exc).__name__, exc)
+        if not (gdal_dir / 'osr_wrap.dll').exists():
+            raise RuntimeError(
+                f"GDAL native DLLs are missing from {gdal_dir} and could not be downloaded automatically. "
+                "Run `invoke gdal.fetch` manually to populate them, or install via the PyPI wheel."
+            ) from exc
 
 
 def _configure(gdal_dir: pathlib.Path) -> None:
