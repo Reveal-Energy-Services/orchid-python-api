@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2025 KAPPA
+#  Copyright (c) 2017-2026 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -16,6 +16,9 @@
 #
 
 
+# Must run before pythonnet loads to register GDAL native DLL directory
+from . import _native
+
 # Load the appropriate runtime **before** executing `import clr`
 import pythonnet
 pythonnet.load('coreclr')
@@ -24,7 +27,7 @@ from .dot_net import prepare_imports
 prepare_imports()
 
 # High-level API
-from .core import load_project, save_project, optimized_but_possibly_unsafe_save
+from .core import load_project, save_project
 
 # Helpful constants
 from .native_treatment_curve_adapter import TreatmentCurveTypes

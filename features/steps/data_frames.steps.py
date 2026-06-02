@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2025 KAPPA
+#  Copyright (c) 2017-2026 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -270,7 +270,7 @@ def hms(t):
 
 _EMPTY_CONVERTER = {
     'None': None,
-    'NaN': np.NaN,
+    'NaN': np.nan,
     'NaT': pd.NaT,
 }
 

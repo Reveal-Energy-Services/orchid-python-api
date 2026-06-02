@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2025 KAPPA
+#  Copyright (c) 2017-2026 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -35,11 +35,11 @@ sys.path.insert(0, os.path.abspath('../'))  # repository root
 # -- Project information -----------------------------------------------------
 
 project = 'Orchid Python Api'
-copyright = '2019-2025, KAPPA'
+copyright = '2019-2026, KAPPA'
 author = 'KAPPA'
 
 # The full version, including alpha/beta/rc tags
-release = '5.25.4'
+release = '5.26.2'
 
 
 # -- General configuration ---------------------------------------------------

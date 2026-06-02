@@ -1,4 +1,4 @@
-#  Copyright 2017-2025 KAPPA
+#  Copyright 2017-2026 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -108,7 +108,7 @@ def main(cli_args):
     add_stages(project, cli_args.verbosity)
 
     # Save project changes to specified .ifrac file
-    orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
+    orchid.save_project(project, cli_args.output_project)
     if cli_args.verbosity >= 1:
         logging.info(f'Wrote changes to "{cli_args.output_project}"')
 

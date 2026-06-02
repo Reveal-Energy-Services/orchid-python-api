@@ -1,7 +1,7 @@
 #
 # This file is part of Orchid and related technologies.
 #
-# Copyright (c) 2017-2025 KAPPA.  All Rights Reserved.
+# Copyright (c) 2017-2026 KAPPA.  All Rights Reserved.
 #
 # LEGAL NOTICE:
 # Orchid contains trade secrets and otherwise confidential information
@@ -332,7 +332,7 @@ def main(cli_args):
             logging.info(f'{len(dne.as_list(observation_set.GetLeakOffObservations()))=}')
 
     # Save project changes to specified .ifrac file
-    orchid.optimized_but_possibly_unsafe_save(project, cli_args.input_project, cli_args.output_project)
+    orchid.save_project(project, cli_args.output_project)
     if cli_args.verbosity >= 1:
         logging.info(f'Wrote changes to "{cli_args.output_project}"')
 

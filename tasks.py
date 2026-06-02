@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2017-2025 KAPPA
+#  Copyright (c) 2017-2026 KAPPA
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); 
 #  you may not use this file except in compliance with the License. 
@@ -21,12 +21,28 @@ import logging
 import os
 import pathlib
 import shutil
+import tempfile
+import urllib.request
+import zipfile
 
 # noinspection PyPackageRequirements
 from invoke import task, Collection
 # noinspection PyPackageRequirements
 import toml
 import toolz.curried as toolz
+
+_GDAL_NUGET_URL = (
+    'https://api.nuget.org/v3-flatcontainer/maxrev.gdal.windowsruntime.minimal/3.3.3.110'
+    '/maxrev.gdal.windowsruntime.minimal.3.3.3.110.nupkg'
+)
+_GDAL_NATIVE_DIR = pathlib.Path('orchid/_native/gdal')
+_GDAL_FETCH_MARKER = _GDAL_NATIVE_DIR / '.gdal_fetched'
+
+# DLLs from other NuGet packages that land in the same native output folder
+_NON_GDAL_DLLS = {
+    'ParquetSharpNative.dll', 'SDL2.dll', 'WebView2Loader.dll',
+    'duckdb.dll', 'e_sqlite3.dll', 'libSkiaSharp.dll', 'libveldrid-spirv.dll',
+}
 
 
 # Commented out for ease of introducing DEBUG logging.
@@ -444,6 +460,69 @@ def pipenv_remove_venv(context, dirname='.'):
 
 
 @task
+def fetch_gdal_native(_context, force=False):
+    """
+    Download and extract GDAL 3.3.3 native DLLs from the MaxRev.Gdal.Core NuGet package.
+
+    Args:
+        _context: The task context (unused).
+        force (bool): Re-download even if DLLs are already present. (Default: False)
+    """
+    if _GDAL_FETCH_MARKER.exists() and not force:
+        print('GDAL native DLLs already present. Use --force to re-download.')
+        return
+
+    _GDAL_NATIVE_DIR.mkdir(parents=True, exist_ok=True)
+
+    print('Downloading MaxRev.Gdal.WindowsRuntime.Minimal 3.3.3.110 from NuGet...')
+    with tempfile.NamedTemporaryFile(suffix='.nupkg', delete=False) as tmp:
+        urllib.request.urlretrieve(_GDAL_NUGET_URL, tmp.name)
+        tmp_path = pathlib.Path(tmp.name)
+
+    print('Extracting GDAL native DLLs...')
+    native_prefix = 'runtimes/win-x64/native/'
+    extracted = 0
+    with zipfile.ZipFile(tmp_path) as zf:
+        for member in zf.namelist():
+            if not member.startswith(native_prefix):
+                continue
+            rel = member[len(native_prefix):]
+            if not rel or rel.endswith('/'):
+                continue
+            if pathlib.Path(rel).name in _NON_GDAL_DLLS:
+                continue
+            target = _GDAL_NATIVE_DIR / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with zf.open(member) as src, open(target, 'wb') as dst:
+                dst.write(src.read())
+            extracted += 1
+
+    tmp_path.unlink()
+    _GDAL_FETCH_MARKER.touch()
+    print(f'Done — {extracted} files extracted to {_GDAL_NATIVE_DIR}')
+
+
+@task
+def clean_gdal_native(_context):
+    """
+    Remove the vendored GDAL native DLLs and fetch marker so fetch_gdal_native will re-download.
+
+    Args:
+        _context: The task context (unused).
+    """
+    _GDAL_FETCH_MARKER.unlink(missing_ok=True)
+    keep = {'.gitkeep', 'README.md'}
+    for path in _GDAL_NATIVE_DIR.iterdir():
+        if path.name in keep:
+            continue
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+    print(f'Cleaned GDAL native DLLs from {_GDAL_NATIVE_DIR}')
+
+
+@task(pre=[fetch_gdal_native])
 def poetry_build(context, skip_source=False, skip_binary=False):
     """
     Package this project for distribution. By default, create *both* a source and binary distribution.
@@ -639,6 +718,10 @@ poetry_ns = Collection('poetry')
 #
 # At some time, we need to file a bug and perhaps submit a patch.
 poetry_ns.add_task(poetry_build, name='package', aliases=('build',))
+
+gdal_ns = Collection('gdal')
+gdal_ns.add_task(fetch_gdal_native, name='fetch')
+gdal_ns.add_task(clean_gdal_native, name='clean')
 poetry_ns.add_task(poetry_publish, name='publish')
 poetry_ns.add_task(poetry_update_version, name='update-ver')
 
@@ -662,6 +745,7 @@ poetry_venv_ns.add_task(poetry_remove_venv, name='remove')
 poetry_ns.add_collection(poetry_venv_ns)
 
 ns.add_collection(dev_ns)
+ns.add_collection(gdal_ns)
 ns.add_collection(examples_ns)
 ns.add_collection(low_level_ns)
 ns.add_collection(pipenv_ns)
