@@ -35,13 +35,13 @@ classifiers=[
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
+packages=[
+    {include = "orchid"},
+    {include = "orchid_python_api"},
+]
 include=[
     "LICENSE",
     "ReleaseNotes.md",
-    "orchid/*.py",
-    "orchid/VERSION",
-    "orchid/_native/*.py",
-    "orchid/_native/gdal/**/*",
     "orchid_python_api/examples/*.ipynb",
     "orchid_python_api/examples/*.py",
     "orchid_python_api/examples/low_level/*.ipynb",
