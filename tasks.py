@@ -32,8 +32,8 @@ import toml
 import toolz.curried as toolz
 
 _GDAL_NUGET_URL = (
-    'https://api.nuget.org/v3-flatcontainer/maxrev.gdal.windowsruntime.minimal/3.3.3.110'
-    '/maxrev.gdal.windowsruntime.minimal.3.3.3.110.nupkg'
+    'https://api.nuget.org/v3-flatcontainer/maxrev.gdal.windowsruntime.minimal/3.13.1.534'
+    '/maxrev.gdal.windowsruntime.minimal.3.13.1.534.nupkg'
 )
 _GDAL_NATIVE_DIR = pathlib.Path('orchid/_native/gdal')
 _GDAL_FETCH_MARKER = _GDAL_NATIVE_DIR / '.gdal_fetched'
@@ -462,7 +462,7 @@ def pipenv_remove_venv(context, dirname='.'):
 @task
 def fetch_gdal_native(_context, force=False):
     """
-    Download and extract GDAL 3.3.3 native DLLs from the MaxRev.Gdal.Core NuGet package.
+    Download and extract GDAL 3.13.1 native DLLs from the MaxRev.Gdal.Core NuGet package.
 
     Args:
         _context: The task context (unused).
@@ -474,7 +474,7 @@ def fetch_gdal_native(_context, force=False):
 
     _GDAL_NATIVE_DIR.mkdir(parents=True, exist_ok=True)
 
-    print('Downloading MaxRev.Gdal.WindowsRuntime.Minimal 3.3.3.110 from NuGet...')
+    print('Downloading MaxRev.Gdal.WindowsRuntime.Minimal 3.13.1.534 from NuGet...')
     with tempfile.NamedTemporaryFile(suffix='.nupkg', delete=False) as tmp:
         urllib.request.urlretrieve(_GDAL_NUGET_URL, tmp.name)
         tmp_path = pathlib.Path(tmp.name)
