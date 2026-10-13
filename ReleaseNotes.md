@@ -42,6 +42,8 @@ supports `pythonnet` 3.1.
   `copy_orchid_tutorials` commands, which were missing from the 5.26.1 wheel
 - Fix the `completion_analysis` example for projects with more than three wells and the `search_data_frames` example
   for observations without a timestamp
+- Fix the `search_data_frames`, `volume_2_first_response` and low-level `auto_pick` notebooks, which failed to run
+  to completion
 
 #### Features
 
