@@ -233,7 +233,7 @@ def analyze_completions():
 
     groups = bakken_summaries.groupby(bakken_columns['well'])
 
-    fig, ax = plt.subplots(3, sharex='all', sharey='all', dpi=150)
+    fig, ax = plt.subplots(len(groups), sharex='all', sharey='all', dpi=150)
     fig.suptitle(f'{bakken_columns["median_treating"]} by Stage')
     i = 0
     colors = ['tab:blue', 'tab:orange', 'tab:green',

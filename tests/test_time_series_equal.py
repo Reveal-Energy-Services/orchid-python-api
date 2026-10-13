@@ -54,7 +54,7 @@ def assert_time_series_equal(expected_name, start_time_point, values, create_sut
             lambda st: tsn.create_30_second_time_points(st, len(values)),
             toolz.map(lambda dt: int(dt.timestamp())),
             toolz.map(lambda uts: np.datetime64(uts, 's')),
-            lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
+            lambda tss: pd.DatetimeIndex(np.array(list(tss), dtype='datetime64[s]'), tz='UTC'),
         )
         expected = pd.Series(data=values, index=expected_time_points, name=expected_name, dtype='float64')
         pdt.assert_series_equal(sut.data_points(), expected)

@@ -38,6 +38,10 @@ classifiers=[
 packages=[
     {include = "orchid"},
     {include = "orchid_python_api"},
+    {include = "copy_orchid_examples.py"},
+    {include = "copy_orchid_low_level_examples.py"},
+    {include = "copy_orchid_manual_examples.py"},
+    {include = "copy_orchid_tutorials.py"},
 ]
 include=[
     "LICENSE",

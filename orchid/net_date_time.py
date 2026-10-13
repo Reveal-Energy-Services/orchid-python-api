@@ -19,6 +19,7 @@ Functions to convert between .NET `DateTime` and similar instances and Python `p
 
 import datetime as dt
 import enum
+import fractions
 import functools
 from typing import Tuple, Union
 
@@ -284,7 +285,9 @@ def as_duration(to_convert: TimeSpan) -> pdt.Duration:
         The `pdt.Duration` equivalent to `to_convert`.
 
     """
-    return pdt.duration(seconds=to_convert.TotalSeconds)
+    # Convert from the exact integer `Ticks` (100 ns) and not the lossy `double` `TotalSeconds`. Python `round()`
+    # of a `Fraction` rounds half to even.
+    return pdt.duration(microseconds=round(fractions.Fraction(to_convert.Ticks, 10)))
 
 
 def as_time_delta(net_time_span: TimeSpan):

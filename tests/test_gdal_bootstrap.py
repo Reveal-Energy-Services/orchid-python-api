@@ -25,6 +25,7 @@ def test_configure_sets_proj_lib_when_libshared_exists(tmp_path, monkeypatch):
     fake_gdal = tmp_path / "gdal"
     fake_gdal.mkdir()
     (fake_gdal / "maxrev.gdal.core.libshared").mkdir()
+    (fake_gdal / "maxrev.gdal.core.libshared" / "proj.db").touch()
 
     monkeypatch.delenv("PROJ_LIB", raising=False)
 
