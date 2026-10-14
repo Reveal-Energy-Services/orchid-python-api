@@ -252,6 +252,9 @@ def _as_measurement_in_unit(target_unit: Union[units.Metric, units.UsOilfield],
         The equivalent `Quantity` instance in the specified unit.
     """
     target_magnitude = net_quantity.As(_UNIT_NET_UNITS[target_unit])
+    # UnitsNet returns some quantities, for example, power, as .NET `Decimal` values
+    if isinstance(target_magnitude, System.Decimal):
+        target_magnitude = net_decimal_to_float(target_magnitude)
     result = om.Quantity(target_magnitude, target_unit.value.unit)
     return result
 

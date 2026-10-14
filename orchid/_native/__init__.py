@@ -26,8 +26,8 @@ _initialized = False
 _dll_dir_cookies: list = []
 
 _GDAL_NUGET_URL = (
-    'https://api.nuget.org/v3-flatcontainer/maxrev.gdal.windowsruntime.minimal/3.3.3.110'
-    '/maxrev.gdal.windowsruntime.minimal.3.3.3.110.nupkg'
+    'https://api.nuget.org/v3-flatcontainer/maxrev.gdal.windowsruntime.minimal/3.13.1.534'
+    '/maxrev.gdal.windowsruntime.minimal.3.13.1.534.nupkg'
 )
 _NON_GDAL_DLLS = frozenset({
     'ParquetSharpNative.dll', 'SDL2.dll', 'WebView2Loader.dll',
