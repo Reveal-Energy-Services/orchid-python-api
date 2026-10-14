@@ -123,8 +123,9 @@ def search_data_frames():
     raw_completion_column_names = ['Timestamp', 'DeltaT', 'DeltaP', 'VolumeToPick', 'ProppantMass', 'Energy']
 
     # Extract completion columns into new data frame and change index to time
+    # Some observations, for example, those with no pressure interaction, have no timestamp
     raw_completion_details = fdi_data_frame.pandas_data_frame()[
-        raw_completion_column_names].set_index('Timestamp')
+        raw_completion_column_names].dropna(subset=['Timestamp']).set_index('Timestamp')
 
     raw_completion_details.describe()
 

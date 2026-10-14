@@ -50,13 +50,16 @@ def disposable(obj_or_class, *args, **kwargs):
         obj = obj_or_class
 
     if hasattr(obj, '__enter__') and hasattr(obj, '__exit__'):
-        # Already a contextmanager, skip
-        return obj
+        # Already a contextmanager (Python.NET 3.1+ adds one to IDisposable), so delegate to it
+        with obj:
+            yield obj
+        return
 
     if not hasattr(obj, 'Dispose') or not callable(obj.Dispose):
         # Likely not IDisposable, currently isinstance doesn't work for
         # interfaces, so we have to check that in this explicit way
-        return obj
+        yield obj
+        return
 
     try:
         yield obj

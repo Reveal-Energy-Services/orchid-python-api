@@ -13,6 +13,42 @@ the [Python grip utility](https://pypi.org/project/grip/). This application allo
 files before sending off to GitHub". Although you need not send any of these file to `GitHub`, by using `grip` 
 to render the file, you can much more easily navigate the document links.
 
+### Release notes for 5.26.2
+
+This release is the production release of the Orchid Python API corresponding to Orchid 5.26.2. We have made the necessary
+updates to the Python API to remain compatible with the .NET API.
+
+Orchid now depends on the GDAL native runtime. On first import, the `orchid` package downloads the GDAL native
+libraries (MaxRev.Gdal.WindowsRuntime.Minimal 3.13.1.534) from NuGet into the installed package directory and
+registers them before loading the .NET assemblies. The first `import orchid` therefore requires internet access and
+write access to the package installation directory.
+
+We also updated the package dependencies. Notably, the API now allows `numpy` 2.x, requires `pint` 0.24 or later, and
+supports `pythonnet` 3.1.
+
+#### Possible breaking .NET API changes
+
+- None
+
+#### Resolved Issues
+
+- Initialize ReactiveUI for scripting so that loading projects works with the updated ReactiveUI in Orchid
+- Fix reading data frames (and other .NET disposable objects) with `pythonnet` 3.1 or later. Fresh installations of
+  5.26.1 resolve to `pythonnet` 3.1+ and fail with "generator didn't yield".
+- Measurements of power (for example, in watts or horsepower) now have Python `float` magnitudes instead of .NET
+  `Decimal` magnitudes
+- Converting a .NET `TimeSpan` to a `pendulum.Duration` now rounds sub-microsecond values exactly (half to even)
+- Restore the `copy_orchid_examples`, `copy_orchid_low_level_examples`, `copy_orchid_manual_examples` and
+  `copy_orchid_tutorials` commands, which were missing from the 5.26.1 wheel
+- Fix the `completion_analysis` example for projects with more than three wells and the `search_data_frames` example
+  for observations without a timestamp
+- Fix the `search_data_frames`, `volume_2_first_response` and low-level `auto_pick` notebooks, which failed to run
+  to completion
+
+#### Features
+
+- None
+
 ### Release notes for 5.26.1.post1
 
 This is a packaging-only fix. The `orchid` package was missing from the published wheel in 5.26.1,

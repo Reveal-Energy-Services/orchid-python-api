@@ -143,7 +143,7 @@ def assert_equal_data_points(name, object_id, sample_values, start_time):
             lambda st: tsn.create_1_second_time_points(st, len(sample_values)),
             toolz.map(lambda dt: int(dt.timestamp())),
             toolz.map(lambda uts: np.datetime64(uts, 's')),
-            lambda tss: pd.DatetimeIndex(tss, tz='UTC'),
+            lambda tss: pd.DatetimeIndex(np.array(list(tss), dtype='datetime64[s]'), tz='UTC'),
         )
         expected_data_points = pd.Series(index=expected_sample_times, data=sample_values, name=name)
         pdt.assert_series_equal(actual_data_points, expected_data_points)

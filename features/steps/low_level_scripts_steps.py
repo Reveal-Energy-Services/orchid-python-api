@@ -16,6 +16,7 @@
 #
 
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -47,6 +48,16 @@ class ExtendedParseError(Exception):
                 '\n'
                 f'{indent}Parsing:'
                 f'\n{indent * 2}{repr(self.__context__.stream[self.__context__.index:])}\n')
+
+
+def script_log_output(script_output):
+    """
+    Return only the log lines written by the script itself (the root logger).
+
+    The Orchid Python API may also log or warn, for example, about its configuration. The number of these lines
+    depends on the workstation, so removing a fixed number of leading lines is not reliable.
+    """
+    return ''.join(line for line in script_output.splitlines(keepends=True) if re.match(r'[A-Z]+:root:', line))
 
 
 # noinspection PyBDDParameters
@@ -106,7 +117,7 @@ def step_impl(context, observation_count):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_observations_count = pso.get_second_observations_count.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
+        actual_observations_count = pso.get_second_observations_count.parse(script_log_output(script_output))
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     try:
@@ -135,7 +146,7 @@ def step_impl(context, attribute_count):
     script_output = context.script_process.stderr
     try:
         actual_attributes_count_per_stage_per_well = \
-            pso.get_attribute_count_for_each_stage_and_well.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
+            pso.get_attribute_count_for_each_stage_and_well.parse(script_log_output(script_output))
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     try:
@@ -161,7 +172,7 @@ def step_impl(context):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_added_stages_details = pso.get_added_stages.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
+        actual_added_stages_details = pso.get_added_stages.parse(script_log_output(script_output))
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_added_stage_details = context.table
@@ -324,7 +335,7 @@ def step_impl(context, set_name):
     # script_output = context.script_process.stdout
     script_output = context.script_process.stderr
     try:
-        actual_results = pso.get_observations_counts.parse('\n'.join(script_output.split('\n')[1:]))  # Remove first log which only shows orchid path
+        actual_results = pso.get_observations_counts.parse(script_log_output(script_output))
     except parsy.ParseError as pe:
         raise ExtendedParseError from pe
     expected_observation_counts = context.table
